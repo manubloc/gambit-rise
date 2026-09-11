@@ -73,6 +73,13 @@ export function stadium(sperre) {
   if (!sperre || sperre.hp <= 0) return "truemmer";
   const voll = SPERR_ARTEN[sperre.art]?.hp || 1;
   if (sperre.hp >= voll) return "heil";
+  /* v1.0.89: DAS BOLLWERK ZEIGT JEDEN SCHLAG. Der Besitzer hat vier Gemaelde
+     geliefert - heil, angeschlagen, schwer beschaedigt, Truemmer. Bei drei
+     Trefferpunkten gab es bisher nur EIN Schadensbild fuer hp 2 UND hp 1;
+     wer zweimal zuschlug, sah keinen Unterschied. Jetzt traegt hp 1 bei
+     dreipunktigen Sperren sein eigenes Bild. Zaun (1) und Mauer (2) bleiben
+     unberuehrt: dort gibt es dieses Stadium gar nicht. */
+  if (voll >= 3 && sperre.hp === 1) return "schwer";
   return "angeschlagen";
 }
 

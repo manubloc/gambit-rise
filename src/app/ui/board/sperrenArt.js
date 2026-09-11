@@ -1,3 +1,4 @@
+import { SPERR_ARTEN } from "../../../core/index.js";
 // ── DIE SPERREN, IN BILDERN ─────────────────────────────────────────────────
 // Die Mechanik gibt es seit v0.90 (core/rules/sperren.js), gezeichnet wurde
 // sie nie: sperren.js hing allein an transitions.js, in der Oberflaeche kam
@@ -22,20 +23,39 @@ import mauerSchutt from "../assets/sperren/mauer-schutt.webp";
 import mauerHeilG from "../assets/sperren/mauer-heil@gross.webp";
 import mauerRissG from "../assets/sperren/mauer-riss@gross.webp";
 import mauerSchuttG from "../assets/sperren/mauer-schutt@gross.webp";
+/* v1.0.89: ZAUN UND BOLLWERK HABEN IHRE GEMAELDE (Besitzer, 11.9.2026 -
+   geschnitzt, freigestellt, im Hausstil). Der Zaun braucht nur zwei
+   Zustaende, weil er einen Schlag haelt: heil und Truemmer. Das Bollwerk
+   traegt VIER - der Besitzer hat eine Stufe mehr geliefert, als das Spiel
+   kannte; stadium() nutzt sie jetzt bei hp 1. */
+import zaunHeil from "../assets/sperren/zaun-heil.webp";
+import zaunSchutt from "../assets/sperren/zaun-schutt.webp";
+import zaunHeilG from "../assets/sperren/zaun-heil@gross.webp";
+import zaunSchuttG from "../assets/sperren/zaun-schutt@gross.webp";
+import bergHeil from "../assets/sperren/bergfried-heil.webp";
+import bergRiss from "../assets/sperren/bergfried-riss.webp";
+import bergRiss2 from "../assets/sperren/bergfried-riss2.webp";
+import bergSchutt from "../assets/sperren/bergfried-schutt.webp";
+import bergHeilG from "../assets/sperren/bergfried-heil@gross.webp";
+import bergRissG from "../assets/sperren/bergfried-riss@gross.webp";
+import bergRiss2G from "../assets/sperren/bergfried-riss2@gross.webp";
+import bergSchuttG from "../assets/sperren/bergfried-schutt@gross.webp";
 
 /* Je Art die drei Zustaende. Fehlt eine Art noch (Zaun, Bollwerk), steht sie
    hier ausdruecklich als null - dann weiss der Aufrufer, dass das Bild fehlt,
    statt still nichts zu zeichnen. */
 export const SPERR_BILDER = {
   mauer:     { heil: mauerHeil, angeschlagen: mauerRiss, truemmer: mauerSchutt },
-  zaun:      null,        // Bilder stehen noch aus
-  bergfried: null,        // Bilder stehen noch aus
+  /* der Zaun haelt EINEN Schlag - "angeschlagen" kommt bei ihm nie vor,
+     deshalb traegt er es nicht (und fehlt damit auch nicht). */
+  zaun:      { heil: zaunHeil, truemmer: zaunSchutt },
+  bergfried: { heil: bergHeil, angeschlagen: bergRiss, schwer: bergRiss2, truemmer: bergSchutt },
 };
 
 export const SPERR_BILDER_GROSS = {
   mauer:     { heil: mauerHeilG, angeschlagen: mauerRissG, truemmer: mauerSchuttG },
-  zaun:      null,
-  bergfried: null,
+  zaun:      { heil: zaunHeilG, truemmer: zaunSchuttG },
+  bergfried: { heil: bergHeilG, angeschlagen: bergRissG, schwer: bergRiss2G, truemmer: bergSchuttG },
 };
 
 /** Das Bild fuer eine Sperre in ihrem Zustand - oder null, wenn die Art noch
@@ -46,7 +66,18 @@ export function sperrBild(art, zustand, gross = false) {
 }
 
 /* Die drei Zustaende, in der Reihenfolge, in der eine Sperre sie durchlaeuft. */
-export const SPERR_ZUSTAENDE = ["heil", "angeschlagen", "truemmer"];
+/* v1.0.89: JE ART IHRE EIGENEN ZUSTAENDE - aus den Trefferpunkten abgeleitet,
+   nicht abgeschrieben. Ein Zaun (1 Schlag) hat kein Schadensbild, ein
+   Bollwerk (3) hat zwei. Eine feste Dreierliste meldete den fertigen Zaun
+   sonst als unvollstaendig - genau die Art Fehler, die die Kammer schon
+   einmal in die Irre fuehrte. */
+export const SPERR_ZUSTAENDE = ["heil", "angeschlagen", "schwer", "truemmer"];
+export function zustaendeVon(art) {
+  const hp = SPERR_ARTEN[art]?.hp || 1;
+  if (hp <= 1) return ["heil", "truemmer"];
+  if (hp === 2) return ["heil", "angeschlagen", "truemmer"];
+  return ["heil", "angeschlagen", "schwer", "truemmer"];
+}
 
 /** WAS NOCH FEHLT, RECHNET SICH SELBST AUS.
  *
@@ -63,10 +94,11 @@ export const SPERR_ZUSTAENDE = ["heil", "angeschlagen", "truemmer"];
 export function fehlendeSperrBilder() {
   const fehlt = [];
   for (const art of Object.keys(SPERR_BILDER))
-    for (const zustand of SPERR_ZUSTAENDE)
-      if (!sperrBild(art, zustand)) fehlt.push({ art, zustand });
+    for (const zustand of zustaendeVon(art))
+      if (!SPERR_BILDER[art] || !SPERR_BILDER[art][zustand]) fehlt.push({ art, zustand });
   return fehlt;
 }
+
 
 /* WIE HOCH SITZT WAS. Die aufrechten Zustaende fuellen das Feld fast ganz und
    stehen auf der Grundkante; die Truemmer liegen flach und breit im unteren

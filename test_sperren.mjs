@@ -207,5 +207,30 @@ function feld() {
   ok("was nicht gesetzt wurde, bleibt liegen", nachher.items.potion === 1);
 }
 
+console.log("\n== Die vier Stufen des Bollwerks (v1.0.89) ==");
+{
+  const { stadium } = await import("./src/core/index.js");
+  const B = (art, hp) => stadium({ art, hp });
+  ok("Bollwerk hp3 = heil", B("bergfried", 3) === "heil");
+  ok("Bollwerk hp2 = angeschlagen", B("bergfried", 2) === "angeschlagen");
+  ok("Bollwerk hp1 = schwer (eigenes Bild, v1.0.89)", B("bergfried", 1) === "schwer");
+  ok("Bollwerk hp0 = Truemmer", B("bergfried", 0) === "truemmer");
+  ok("Mauer hp2 = heil", B("mauer", 2) === "heil");
+  ok("Mauer hp1 = angeschlagen (KEIN schwer bei zwei Punkten)", B("mauer", 1) === "angeschlagen");
+  ok("Zaun hp1 = heil", B("zaun", 1) === "heil");
+  ok("Zaun hp0 = Truemmer", B("zaun", 0) === "truemmer");
+  const { existsSync } = await import("node:fs");
+  const dateien = ["zaun-heil","zaun-schutt","mauer-heil","mauer-riss","mauer-schutt",
+    "bergfried-heil","bergfried-riss","bergfried-riss2","bergfried-schutt"];
+  ok("alle neun Sperrbilder liegen als Spielfassung vor",
+    dateien.every((d) => existsSync(`src/app/ui/assets/sperren/${d}.webp`)));
+  ok("und alle als @gross-Fassung",
+    dateien.every((d) => existsSync(`src/app/ui/assets/sperren/${d}@gross.webp`)));
+  const { readFileSync } = await import("node:fs");
+  const sa = readFileSync("src/app/ui/board/sperrenArt.js", "utf8");
+  ok("keine Art steht mehr auf null", !/zaun:\s*null|bergfried:\s*null/.test(sa));
+  ok("die Luecken-Liste leitet die Zustaende je Art ab", sa.includes("export function zustaendeVon"));
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

@@ -3,6 +3,15 @@
 // livery; anything a livery lacks falls back to the drawn vector icon (in
 // classic that is still the star compass, which was never painted).
 import { livery } from "../../livery.js";
+/* v1.0.89: DIE SPERREN IM LADEN TRAGEN IHR EIGENES GEMAELDE. Zaun, Mauer und
+   Bollwerk zeigten bis jetzt ein Emoji zwischen gemalten Nachbarn - der
+   Besitzer hat die Bilder geliefert, das Ladensymbol ist aus dem heilen
+   Zustand gerechnet (sein Vorschlag: "fuer die Icons skalierst du einfach
+   die ganzen"). Beide Livreen tragen dasselbe Bild: geschnitzt ist es
+   ohnehin. */
+import sZaun from "./item-zaun.webp";
+import sMauer from "./item-mauer.webp";
+import sBergfried from "./item-bergfried.webp";
 import cAnker from "./item-anker.webp";
 import cBergschluessel from "./item-bergschluessel.webp";
 import cBoat from "./item-boat.webp";
@@ -38,6 +47,6 @@ import kTorch from "./item-torch.carved.webp";
    stach zwischen Axt, Fackel und Trank heraus wie aus einem anderen Spiel.
    Ausserdem hatte CLASSIC gar keinen sternenkompass - wer nicht auf
    "carved" stand, sah fuer diesen Gegenstand NICHTS. Beide Luecken zu. */
-const CLASSIC = { anker: cAnker, bergschluessel: cBergschluessel, boat: cBoat, brieftaube: cBrieftaube, donnerpulver: cDonnerpulver, grapnel: cGrapnel, hourglass: cHourglass, kamel: cKamel, kriegsaxt: cKriegsaxt, machete: cMachete, potion: cPotion, sternenkompass: kSternenkompass, sternensplitter: kSternensplitter, torch: cTorch };
-const CARVED = { anker: kAnker, bergschluessel: kBergschluessel, boat: kBoat, brieftaube: kBrieftaube, donnerpulver: kDonnerpulver, grapnel: kGrapnel, hourglass: kHourglass, kamel: kKamel, kriegsaxt: kKriegsaxt, machete: kMachete, potion: kPotion, sternenkompass: kSternenkompass, sternensplitter: kSternensplitter, torch: kTorch };
+const CLASSIC = { anker: cAnker, bergschluessel: cBergschluessel, boat: cBoat, brieftaube: cBrieftaube, donnerpulver: cDonnerpulver, grapnel: cGrapnel, hourglass: cHourglass, kamel: cKamel, kriegsaxt: cKriegsaxt, machete: cMachete, potion: cPotion, sternenkompass: kSternenkompass, sternensplitter: kSternensplitter, torch: cTorch , zaun: sZaun, mauer: sMauer, bergfried: sBergfried };
+const CARVED = { anker: kAnker, bergschluessel: kBergschluessel, boat: kBoat, brieftaube: kBrieftaube, donnerpulver: kDonnerpulver, grapnel: kGrapnel, hourglass: kHourglass, kamel: kKamel, kriegsaxt: kKriegsaxt, machete: kMachete, potion: kPotion, sternenkompass: kSternenkompass, sternensplitter: kSternensplitter, torch: kTorch , zaun: sZaun, mauer: sMauer, bergfried: sBergfried };
 export const itemArt = (id) => (livery() === "carved" ? CARVED : CLASSIC)[id] || null;

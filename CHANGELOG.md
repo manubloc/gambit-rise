@@ -1,5 +1,26 @@
 # Changelog - Grand Gambit
 
+## 1.0.89
+- ZAUN UND BOLLWERK HABEN IHRE GEMAELDE (Besitzer, 11.9.2026): neun Bilder,
+  geschnitzt im Hausstil und bereits freigestellt geliefert - Zaun (heil,
+  Truemmer), Mauer (heil, angeschlagen, Truemmer, neu gezeichnet) und
+  Bollwerk (heil, angeschlagen, schwer, Truemmer). Damit steht auf dem Brett
+  keine Ersatzzeichnung mehr; SPERR_BILDER kennt kein null.
+- DAS BOLLWERK ZEIGT JEDEN SCHLAG. Der Besitzer lieferte VIER Stufen, das
+  Spiel kannte nur drei: bei drei Trefferpunkten sah hp 2 und hp 1 gleich
+  aus. stadium() gibt jetzt bei dreipunktigen Sperren fuer hp 1 ein eigenes
+  Stadium ("schwer") - Zaun und Mauer bleiben unberuehrt, dort gibt es das
+  Stadium gar nicht.
+- DIE LUECKENLISTE LEITET IHRE ZUSTAENDE AB (zustaendeVon): ein Zaun haelt
+  einen Schlag und hat deshalb KEIN Schadensbild - eine feste Dreierliste
+  haette den fertigen Zaun als unvollstaendig gemeldet.
+- DIE SPERREN IM LADEN tragen ihr Gemaelde statt eines Emojis; das
+  Ladensymbol ist aus dem heilen Zustand gerechnet (Besitzervorschlag).
+- Zwei Auslieferungsstufen je Bild (210 px und @gross 420 px), Originale in
+  archiv/bilder/sperren.
+- Proben: test_sperren +12 (vier Stufen des Bollwerks, Mauer OHNE viertes
+  Stadium, alle 18 Dateien vorhanden, kein null mehr).
+
 ## 1.0.88
 - DAS APP-ICON IST JETZT DAS WAPPEN AUS DER KOPFLEISTE (Besitzerwunsch): die
   Kapuzengestalt vor dem violett gluehenden Riss, im goldenen Doppelring -

@@ -168,10 +168,18 @@ const piece = (x = {}) => ({ id: 1, kind: "Q", color: "w", level: 1, abilities: 
      Falsche: Zaun und Bollwerk haben noch keine Gemaelde und muessen bis
      dahin als Zeichnung dastehen. Die Probe kehrt sich also um. */
   const zaun = zeig("zaun", 1), bollwerk = zeig("bergfried", 3);
-  ok("der Zaun steht auch ohne Gemaelde da", zaun.includes("<svg"));
-  ok("das Bollwerk ebenso", bollwerk.includes("<svg"));
+  /* v1.0.89: die Zeichnung ist jetzt nur noch der RUECKFALL - alle drei Arten
+     haben Gemaelde. Sie muss aber weiter funktionieren: eine kuenftige vierte
+     Sperre traegt anfangs wieder keins. */
+  /* v1.0.89: alle drei Arten haben Gemaelde - sie zeichnen jetzt <img>, nicht
+     mehr die Ersatz-SVG. Dass die Zeichnung noch funktioniert, prueft die
+     erfundene Art zwei Zeilen weiter unten: sie ist der echte Rueckfall. */
+  ok("der Zaun traegt jetzt sein Gemaelde", zaun.includes("<img"));
+  ok("das Bollwerk ebenso", bollwerk.includes("<img"));
   ok("und beide sehen verschieden aus", zaun !== bollwerk);
   ok("eine erfundene Art zeichnet weiterhin gar nichts", zeig("burgtor", 1) === "");
+  ok("und das Bollwerk zeigt bei hp1 ein ANDERES Bild als bei hp2 (v1.0.89)",
+    zeig("bergfried", 1) !== zeig("bergfried", 2));
   ok("die Zeichnung kennt auch ihre Truemmer", zeig("zaun", 0) !== zaun);
   // SPARSAM: ein Schatten, nicht neun - dieselbe Lehre wie v1.0.41.
   ok("die Sperre traegt hoechstens einen Unschaerfe-Durchgang",
@@ -1143,8 +1151,10 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
     await import("./src/app/ui/board/sperrenArt.js");
   const { hatVektor } = await import("./src/app/ui/board/sperrenVektor.jsx");
   const fehlt = fehlendeSperrBilder();
-  ok("die Fehlliste nennt Zaun und Bollwerk in allen drei Zustaenden", fehlt.length === 6);
-  ok("drei Zustaende, nicht mehr", SPERR_ZUSTAENDE.length === 3);
+  /* v1.0.89: alle Gemaelde sind da - die Liste MUSS leer sein. Und sie zaehlt
+     je Art nur die Zustaende, die diese Art ueberhaupt hat. */
+  ok("die Fehlliste ist leer - alle Sperren sind gemalt", fehlt.length === 0);
+  ok("vier Zustaende moeglich (heil, angeschlagen, schwer, Truemmer)", SPERR_ZUSTAENDE.length === 4);
   ok("die Mauer steht NICHT darin - sie ist gemalt",
     !fehlt.some((f) => f.art === "mauer"));
   ok("kein Eintrag hat in Wahrheit doch ein Bild",
