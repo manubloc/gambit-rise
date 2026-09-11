@@ -1,5 +1,24 @@
 # Changelog - Grand Gambit
 
+## 1.0.88
+- DAS APP-ICON IST JETZT DAS WAPPEN AUS DER KOPFLEISTE (Besitzerwunsch): die
+  Kapuzengestalt vor dem violett gluehenden Riss, im goldenen Doppelring -
+  dasselbe Zeichen, das im Spiel oben links steht. Es ist staerker als der
+  bisherige Entwurf und braucht keinen Nachbau: das Original
+  (emblem-riss.webp) liegt seit je im Haus.
+- DER GOLDRING SITZT PERFEKT, WEIL ER RUND IST. Android und Play zeigen
+  Symbole rund; das Wappen ist rund gezeichnet - Rand und Maske fallen damit
+  zusammen. Die Ecken ausserhalb des Kreises tragen tiefes Schwarz (#08060f),
+  damit Launcher ohne runde Maske keinen leeren Rand zeigen.
+- ZWEI FASSUNGEN, wie gewuenscht: MIT Goldrand (App-Icons, Store-Symbol,
+  Favicon, apple-touch) und OHNE Rand, weich ins Schwarze auslaufend (der
+  Ring ist weggeschnitten, Motiv auf 78 % gezoomt) - fuer Stellen, an denen
+  kein Rand gefordert ist. Beide liegen in 1024 px im Archiv.
+- maskable-512 traegt das Wappen auf 82 % in der Sicherheitszone: Android
+  beschneidet maskable je Launcher unterschiedlich, so ueberlebt der Ring.
+- favicon.svg erneuert (Chrome bevorzugt SVG - ohne das waere im Tab das
+  alte Zeichen geblieben), dazu favicon-16/32 und favicon.ico.
+
 ## 1.0.87
 Sechs Besitzerbefunde (Screenshots 11.9.2026), alle gemessen oder mit Probe:
 - HOFSTAAT-KACHELN NACH RECHTS VERSCHOBEN beim Wechsel Karte -> Figuren: das
