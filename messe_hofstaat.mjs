@@ -306,6 +306,26 @@ await page.evaluate(() => {
 });
 await page.waitForTimeout(1600);
 
+console.log("\n── 2f. AUFSTELLUNG: sitzt jedes Bild mittig in seiner Zelle - waagerecht UND senkrecht? (v1.0.87) ──");
+{
+  const mess = await page.evaluate(() => {
+    const zellen = [...document.querySelectorAll("button")].filter((b) =>
+      /5\s*\/\s*6/.test(b.getAttribute("style") || "") && b.querySelector("img"));
+    return zellen.map((b) => {
+      const z = b.getBoundingClientRect(), r = b.querySelector("img").getBoundingClientRect();
+      return { dx: +(((r.left + r.right) / 2) - ((z.left + z.right) / 2)).toFixed(1),
+               dy: +(((r.top + r.bottom) / 2) - ((z.top + z.bottom) / 2)).toFixed(1),
+               h: +r.height.toFixed(1), ueber: +Math.max(r.bottom - z.bottom, z.top - r.top, r.right - z.right, z.left - r.left).toFixed(1) };
+    });
+  });
+  const bauern = mess.slice(0, 8), hinten = mess.slice(8, 16);
+  const mx = (a, k) => Math.max(...a.map((m) => Math.abs(m[k])));
+  console.log(`  ${mess.length} Zellen · Bauern: dx max ${mx(bauern,"dx")} px, dy max ${mx(bauern,"dy")} px, Hoehe ${bauern[0]?.h} px`);
+  console.log(`  hintere Reihe: dx max ${mx(hinten,"dx")} px, dy max ${mx(hinten,"dy")} px, Hoehe ${hinten[0]?.h} px, Ueberlauf max ${Math.max(0,...hinten.map(m=>m.ueber))} px`);
+  const gut = mess.length === 16 && mx(hinten,"dx") <= 1 && mx(hinten,"dy") <= 1 && Math.abs((bauern[0]?.h||0) - (hinten[0]?.h||0)) <= 1;
+  console.log("  Ergebnis:", gut ? "OK - sechzehn Figuren mittig und gleich hoch" : "NICHT mittig oder ungleich");
+}
+
 // ── 3./4. DIE BEIDEN BLATTFORMEN ───────────────────────────────────────────
 const blatt = async () => page.evaluate(() => {
   /* Die Karte haengt am Schliessknopf - das ist das einzige eindeutige

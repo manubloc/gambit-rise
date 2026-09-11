@@ -1167,8 +1167,11 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
         Versatz von 7,78 %, den der Besitzer viermal gemeldet hat. */
   const ueberbreit = /width:\s*"1[1-9]\d?%"[^}]*margin:\s*"0 auto/.test(q);
   ok("kein ueberbreites Kachelbild mehr mit auto-Raendern", !ueberbreit);
-  ok("die Kachel zentriert ueber halben Rand und Rueckversatz",
-    /margin:\s*"0 0 -7px 50%"/.test(q) && /translateX\(-50%\)/.test(q));
+  /* v1.0.87: die Zentrierung ueber Transform ist ABGESCHAFFT - sie griff nach
+     dem Tabwechsel spaeter als der Rand (Besitzer-Screenshot: Bilder um die
+     halbe Breite rechts). Jetzt zentriert der Rand allein. */
+  ok("die Kachel zentriert ueber den Rand allein, ohne Transform",
+    /margin:\s*"0 0 -7px -9%"/.test(q) && !/margin:\s*"0 0 -7px 50%"/.test(q));
 
   /* 2. Bauer und Grand Gambit tragen in der Aufstellung EIN Mass. */
   ok("kein getrenntes Mass mehr fuer Held und Bauer",

@@ -86,7 +86,41 @@ export function FieldLabel({ children, style }) {
 
 /** The one map chip: a rectangular card with the board swatch — same shape,
  *  same gold, in quick play and in the court's formation editor. */
-export function MapChip({ on, locked, theme, label, onClick, title }) {
+/* ── DIE KARTENMINIATUR (v1.0.87, Besitzer: "pro Karte eine kleine
+   Visualisierung") ─────────────────────────────────────────────────────────
+   Zeichnet das ECHTE Brett: w x h Felder in den Farben der Karte, Loecher
+   ausgespart. Ein 6x6 sieht anders aus als ein 10x10, ein Hof mit vier
+   Loechern in der Mitte anders als ein Spiessrutenlauf. */
+export function MapMini({ w = 8, h = 8, holes = [], theme, on = false, size = 44 }) {
+  const loch = new Set((holes || []).map(([f, r]) => r * w + f));
+  const cell = Math.max(2, Math.floor(size / Math.max(w, h)));
+  return <span aria-hidden style={{ display: "inline-grid", gridTemplateColumns: `repeat(${w}, ${cell}px)`,
+    gridAutoRows: `${cell}px`, borderRadius: 4, overflow: "hidden", flex: "0 0 auto",
+    border: `1px solid ${on ? T.selLine + "aa" : T.line}`, boxShadow: on ? `0 0 8px ${T.selGlow}` : "none" }}>
+    {Array.from({ length: w * h }).map((_, k) => {
+      const f = k % w, r = Math.floor(k / w);
+      const hole = loch.has(k);
+      return <span key={k} style={{ width: cell, height: cell,
+        background: hole ? "transparent" : ((f + r) % 2 === 0 ? theme.sqLight : theme.sqDark),
+        outline: hole ? `1px dashed ${T.line}` : "none", outlineOffset: -1 }} />;
+    })}
+  </span>;
+}
+
+export function MapChip({ on, locked, theme, label, onClick, title, mini = null, stapel = false }) {
+  /* v1.0.87: mit `mini` (ein MapMini) und `stapel` steht die Miniatur ueber
+     dem Namen - fuer das Raster ohne Scrollbalken in der Aufstellung. */
+  if (stapel) return <button onClick={onClick} title={title}
+    style={{ cursor: "pointer", fontFamily: "inherit", fontWeight: 700, fontSize: 11, borderRadius: 10,
+      padding: "8px 4px 6px", minWidth: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
+      border: on ? `1px solid ${T.selLine}` : `1px solid ${T.line}`,
+      background: on ? `linear-gradient(165deg, ${T.sel}, #1a1030)` : T.panel2,
+      boxShadow: on ? `0 0 10px ${T.selGlow}` : "none",
+      transition: `background ${T.mo.norm} ${T.mo.ease}`,
+      color: on ? T.selInk : locked ? T.faint : T.text, opacity: locked ? T.disOpacity + 0.1 : 1 }}>
+    {mini}
+    <span style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1, lineHeight: 1.15, textAlign: "center" }}>{label}</span>
+  </button>;
   return <button onClick={onClick} title={title}
     style={{ cursor: "pointer", fontFamily: "inherit", fontWeight: 700, fontSize: 12.5, borderRadius: 10,
       padding: "8px 11px", whiteSpace: "nowrap", flex: "0 0 auto", display: "inline-flex", alignItems: "center", gap: 8,

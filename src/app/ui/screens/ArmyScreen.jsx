@@ -17,7 +17,7 @@ import { CAMPAIGN } from "../../../content/index.js";
 import { klang } from "../klang.js";   /* v0.77: Stufe, Freischalten, Gold bekommen ihren Klang */
 import { T } from "../theme.js";
 import { animAn } from "../anim.js";
-import { Panel, Bar, Chip, Shields, Button, Segmented, PanelTitle, FieldLabel, MapChip } from "../primitives.jsx";
+import { Panel, Bar, Chip, Shields, Button, Segmented, PanelTitle, FieldLabel, MapChip, MapMini } from "../primitives.jsx";
 import { SkillStar, GoldCoin, LockIc, BladesIc, SealIc, HeartIc } from "../icons.jsx";
 import { PieceGlyph } from "../board/PieceGlyph.jsx";
 import { PieceArt } from "../board/PieceArt.jsx";
@@ -1080,7 +1080,17 @@ function FormationEditor({ profile, dispatch, t, en }) {
                 : <img src={paintedById("boss-" + bossEntryId(id)) || undefined} alt="" draggable={false}
                     style={{ height: "clamp(28px, 11vw, 90px)", maxWidth: "100%", maxHeight: "100%",
                       objectFit: "contain", objectPosition: "center", pointerEvents: "none" }} />)
-              : <SlotGlyph kind={CHARACTERS[id].kind} size={"clamp(32px, 13.5vw, 108px)"} art={"painted"} />}
+              /* v1.0.87 (Besitzer: "die Figuren der unteren Reihe alle mittig"),
+                 GEMESSEN: die hintere Reihe stand 1,8 px aus der Mitte und lief
+                 2,6 px ueber - das SlotGlyph-Bild mass sich an seinem span,
+                 nicht an der Zelle. Die Bauern (0 px) haben maxWidth 100 % direkt
+                 am Bild. Jetzt bekommt die hintere Reihe EXAKT die Bildzeile der
+                 Bauern - gleiche Hoehe, gleiche Grenzen, gleiche Mitte. */
+              : schlicht
+                ? <SlotGlyph kind={CHARACTERS[id].kind} size={"clamp(26px, 10.5vw, 86px)"} art={"painted"} />
+                : <img src={bildnisVon(id, characterLevel(profile, id) || 1) || undefined} alt="" draggable={false}
+                    style={{ height: "clamp(26px, 10.5vw, 86px)", maxWidth: "100%", maxHeight: "100%",
+                      objectFit: "contain", objectPosition: "center", pointerEvents: "none" }} />}
           </button>;
         })}
       </div>
@@ -1201,13 +1211,17 @@ function FormationEditor({ profile, dispatch, t, en }) {
   {/* map choice — its own strip below the box: ONE row, scroll if it must */}
   <div style={{ minWidth: 0, maxWidth: "100%" }}>
     <FieldLabel>{t("army.mapPick")}</FieldLabel>
-    <div style={{ display: "flex", flexWrap: "nowrap", gap: 6, overflowX: "auto", WebkitOverflowScrolling: "touch", paddingBottom: 10, scrollbarWidth: "thin", minWidth: 0, maxWidth: "100%" }}>
+    {/* v1.0.87 (Besitzer: "pro Karte eine kleine Visualisierung, ohne
+        Scrollbalken, es ist ja noch Platz"): RASTER statt Streifen. Jede
+        Karte zeigt ihr echtes Brett - Groesse, Farben, Loecher. */}
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(62px, 1fr))", gap: 6, minWidth: 0 }}>
       {FORMATION_MAPS.map((m) => {
         const on = m.id === mapId;
         const open = mapUnlocked(profile, m.id);
-        return <MapChip key={m.id} on={on} locked={!open} theme={m.theme}
+        return <MapChip key={m.id} on={on} locked={!open} theme={m.theme} stapel
+          mini={<MapMini w={m.w} h={m.h} holes={m.holes} theme={m.theme} on={on} size={44} />}
           onClick={() => open && setMapId(m.id)}
-          label={<>{open ? null : <LockIc size={11} />}{(en ? m.nameEn : m.nameDe)} · {m.w}×{m.h}</>} />;
+          label={<><span>{open ? null : <LockIc size={11} />}{en ? m.nameEn : m.nameDe}</span><span style={{ opacity: .7, fontWeight: 600 }}>{m.w}×{m.h}</span></>} />;
       })}
     </div>
   </div>
@@ -1313,10 +1327,18 @@ export function GearPanel({ profile, dispatch, t, en, initialGearInfo = null }) 
               <div style={{ fontSize: 11.5, color: T.dim }}>{en ? it.textEn : it.textDe}</div>
             </div>
             <button onClick={(e) => { e.stopPropagation(); klang("gold"); dispatch({ type: "BUY_ITEM", id: it.id }); }} disabled={!can}
+              /* v1.0.87 (Besitzer: "die gelbe Kachel und die Goldmuenze stechen
+                 sich, man erkennt die Muenze kaum"): der Knopf war eine volle
+                 Goldflaeche - die Muenze verschwand darin. Jetzt: dunkler Grund
+                 wie das ganze Menue, GOLDENE KONTUR mit Glanz, Schrift in
+                 Gold. Die Muenze steht wieder frei. */
               style={{ fontFamily: "inherit", fontWeight: 900, fontSize: 12.5, borderRadius: 999, padding: "8px 13px",
-                border: `1.5px solid ${can ? T.gold : T.line}`, background: can ? T.gold : T.panel,
-                color: can ? "#17110a" : T.faint, cursor: can ? "pointer" : "default", whiteSpace: "nowrap" }}>
-              {full ? (it.kind === "key" ? "✓" : t("army.full")) : <><GoldCoin size={13} /> {itemPrice(profile, it)}</>}
+                border: `1.5px solid ${can ? "rgba(233,207,138,.9)" : T.line}`,
+                background: can ? "linear-gradient(180deg, rgba(58,44,20,.55), rgba(24,18,10,.85))" : T.panel,
+                boxShadow: can ? "0 0 10px rgba(233,207,138,.28)" : "none",
+                color: can ? T.goldBright : T.faint, cursor: can ? "pointer" : "default", whiteSpace: "nowrap",
+                display: "inline-flex", alignItems: "center", gap: 5 }}>
+              {full ? (it.kind === "key" ? "✓" : t("army.full")) : <><GoldCoin size={14} /> {itemPrice(profile, it)}</>}
             </button>
           </div>;
         })}
@@ -1586,8 +1608,17 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
            der Versatz aus dem Rand kam.
            linker Rand 50 % der Kachel, dann das Bild um seine halbe eigene
            Breite zurueck - das trifft die Mitte bei jeder Ueberbreite. */
+        /* v1.0.87 (Besitzer-Screenshot 11.9.2026, "beim Wechsel von der Karte
+           in den Figuren-Reiter"): DIE BILDER SASSEN UM IHRE HALBE BREITE
+           RECHTS - das ist exakt margin-left 50 % OHNE translateX(-50 %).
+           Ein Transform kann beim Neuaufbau nach einem Tabwechsel spaeter
+           greifen als der Rand (Uebergang, Compositing) - fuer einen Rahmen
+           steht das Bild dann falsch, und wer in dem Moment hinsieht, sieht
+           die "verschobenen Kacheln". Jetzt zentriert der Rand ALLEIN:
+           118 % Breite, -9 % links - kein Transform, nichts, was spaeter
+           greifen koennte. Gleiches Ergebnis, eine Fehlerklasse weniger. */
         style={{ width: "118%", aspectRatio: "1 / 1", objectFit: "contain", display: "block",
-        margin: "0 0 -7px 50%", transform: "translateX(-50%)",
+        margin: "0 0 -7px -9%",
         /* v1.0.59: HIER LAG DER ABSTURZ ("ch is not defined", Besitzer-Foto).
            Diese Kachel ist die generische Tile-Komponente - sie kennt die
            champTile-Variablen NICHT, sie bekommt kind und hero als PROPS.

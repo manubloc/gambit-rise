@@ -145,6 +145,18 @@ console.log("\n== test_anim: die Aufstiegsfeier (v1.0.75) ==");
   ok("Kachel: bekommt tier durchgereicht", as.includes("tier={hero ? gambitTier(level) : 0}"));
   const cs = readFileSync("src/app/ui/screens/CampaignScreen.jsx", "utf8");
   ok("Weltkarte: rechnet den Rang selbst", cs.includes('gambitTier(characterLevel(profile, "gambit")'));
+  /* v1.0.87: sechs Besitzerbefunde vom 11.9. */
+  ok("Stationsfenster: der Startknopf klebt am Rand (sticky)", cs.includes('position: "sticky", bottom: -1'));
+  ok("Stationsfenster: das Bossbild wird nicht mehr beschnitten", !cs.includes('transform: "scale(1.42)"') && cs.includes('overflow: "visible"'));
+  ok("Stationsfenster: der Erklaertext steht hinter einem Info-Knopf", cs.includes("setInfoAuf((v) => !v)"));
+  ok("Gefolge-Band ist ein Erfolg mit animiertem Stern", cs.includes("ggErfolgStern"));
+  ok("Zugehoerigkeit ohne fuehrenden Trennpunkt", !cs.includes('<span style={{ opacity: .55 }}>·</span> {f === "crown"'));
+  const am = readFileSync("src/app/ui/screens/ArmyScreen.jsx", "utf8");
+  ok("Hofstaat-Kachel zentriert OHNE Transform", am.includes('margin: "0 0 -7px -9%"') && !am.includes('margin: "0 0 -7px 50%"'));
+  ok("Kartenwahl als Raster mit Miniaturen", am.includes("<MapMini w={m.w}") && am.includes('gridTemplateColumns: "repeat(auto-fit, minmax(62px, 1fr))"'));
+  ok("Preisknopf: goldene Kontur statt Goldflaeche", am.includes('border: `1.5px solid ${can ? "rgba(233,207,138,.9)"'));
+  const pr = readFileSync("src/app/ui/primitives.jsx", "utf8");
+  ok("MapMini zeichnet Loecher aus", pr.includes("const loch = new Set((holes || []).map(([f, r]) => r * w + f))"));
   /* v1.0.86: rechnen reichte nicht - die Karte muss den Rang auch ZEIGEN. */
   ok("Weltkarte: waehlt das Kartenbild nach dem Rang", cs.includes("KARTE_GAMBIT[Math.max(0, Math.min(5, gt - 1))]"));
   const { existsSync: _ex } = await import("node:fs");

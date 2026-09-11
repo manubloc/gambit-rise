@@ -495,6 +495,10 @@ export const GLOBAL_CSS = `
   @keyframes ggFeierBild { 0% { opacity: 0; transform: scale(.62) rotate(-6deg); }
     55% { opacity: 1; transform: scale(1.0) rotate(2deg); }
     100% { opacity: 1; transform: scale(.98) rotate(0deg); } }
+  /* v1.0.87: der Erfolgsstern im Stationsfenster - glaenzt und atmet.
+     Nur transform und opacity. */
+  @keyframes ggErfolgStern { 0%, 100% { transform: scale(1) rotate(0deg); opacity: .92; }
+    50% { transform: scale(1.22) rotate(12deg); opacity: 1; } }
   @keyframes ggZielAtem { 0%, 100% { opacity: .82; } 50% { opacity: 1; } }
   @keyframes ggSprossePuls { 0%, 100% { transform: scale(1); opacity: 1; }
     25% { transform: scale(1.025); opacity: .82; }

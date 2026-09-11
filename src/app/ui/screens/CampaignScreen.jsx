@@ -30,6 +30,7 @@ import { mitHeld } from "../namen.js";   /* v1.0.13: {held} in Erzaehltexten */
 import { nodeStatus, nodeInLeague, currentNodeId, nodeBossSpec, leagueRewardMult, advanceLeague, seaAccessible, gateOf, tollCost, effectiveMap, winsNeeded, bossWinsFor, characterLevel, gambitTier } from "../../../meta/index.js";
 import { ITEMS, hasItem } from "../../../content/index.js";
 import bootUrl from "../assets/wanderer-boot.webp";
+import { animAn } from "../anim.js";
 import { T } from "../theme.js";
 import { Button, Chip } from "../primitives.jsx";
 import { GoldShineButton } from "../Gilded.jsx";
@@ -164,6 +165,7 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
   const [sel, setSel] = useState(() => platzIm(league));
   const [token, setToken] = useState(() => ({ at: platzIm(league), moving: false }));
   const [panelOpen, setPanelOpen] = useState(true);
+  const [infoAuf, setInfoAuf] = useState(false);   // v1.0.87: Erklaertext hinter dem (i)
   // free panning: a finger (or mouse) drags the window across the world; the
   // camera resumes following the wanderer on his next step
   const [panOff, setPanOff] = useState({ x: 0, y: 0 });
@@ -1110,7 +1112,7 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
           </div>
           {boss && (status === "cleared" || facedSet.has(sel)) && (() => {
             // room for the name and the two value orbs (60px) stays reserved
-            const bossArtS = Math.round(Math.max(104, Math.min(132, (panelW - 50) * 0.40))); // v0.71.14: schmal - der Text braucht Platz
+            const bossArtS = Math.round(Math.max(120, Math.min(160, (panelW - 50) * 0.46))); // v1.0.87: groesser, weil das Bild nicht mehr gezoomt wird
             return (
             /* v1.0.16 (Besitzer): "warum ist ueber dem Hetzer so viel Platz und
                warum geht die Figur nicht bis nach oben?" - weil Bild und Text
@@ -1132,7 +1134,10 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
               alignItems: "center", justifyContent: "flex-end", gap: 4 }}>
               {/* v1.0.16: die Bildbox nimmt die RESTHOEHE der Karte (mindestens
                   ihr altes Quadrat), die Figur steht darin auf dem Sockel. */}
-              <div style={{ width: bossArtS, minHeight: bossArtS, flex: "1 1 auto", overflow: "hidden" }}>
+              {/* v1.0.87 (Besitzer: "niemals ein Bild abschneiden"): die Box
+                  nahm die Resthoehe (v1.0.16) und SCHNITT AB (overflow hidden).
+                  Jetzt ein festes Quadrat, sichtbar bis zum letzten Pixel. */}
+              <div style={{ width: bossArtS, height: bossArtS, flex: "0 0 auto", overflow: "visible" }}>
                 {(() => {
                   // v0.71.12 (Besitzer): der gewaehlte BRETTSTIL gilt GLOBAL -
                   // steht das Profil auf Leuchtend, traegt auch das Popup-
@@ -1145,8 +1150,10 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
                         // beschneiden: die Malerei traegt viel Luft, also 1,42-fach
                         // hineinzoomen und ueberstehendes kappen. Figur gross,
                         // Textspalte bleibt breit.
-                        objectFit: "contain", objectPosition: "bottom", transform: "scale(1.42)",
-                        transformOrigin: "50% 100%",
+                        /* v1.0.87 (Besitzer: "niemals ein Bild abschneiden"): der 1,42-
+                           Zoom aus v0.71.14 kappte Kopf und Sockel. Jetzt 1:1 in
+                           einer groesseren Box - die Figur ist ganz zu sehen. */
+                        objectFit: "contain", objectPosition: "bottom",
                         filter: golden ? "drop-shadow(0 2px 2px rgba(40,32,16,.35))" : `${ENEMY_FILTER} drop-shadow(0 2px 2px rgba(40,32,16,.35))`,
                         userSelect: "none", pointerEvents: "none" }} />
                     : <PieceArt kind={boss.kind} art={boss.art} fill={golden ? "#c9a45c" : "#242d44"} rim={golden ? "#f0dfae" : "#93a0bb"}
@@ -1162,10 +1169,13 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
             </div>
               <div style={{ minWidth: 0, flex: "1 1 auto", paddingBottom: 3 }}>
                 <div className="gg-serif" style={{ fontSize: 17, letterSpacing: ".03em", color: PP.ink }}>{boss.name[en ? "en" : "de"]}</div>
-                <div className="gg-serif" style={{ fontSize: 12.5, color: "#8a6f4d", marginTop: 5, display: "flex", alignItems: "center", gap: 5, flexWrap: "wrap" }}>
-                  
+                {/* v1.0.87 (Besitzer: "Magier und Kronenfigur fluchten nicht sauber"):
+                    vor der Zugehoerigkeit stand ein LEERES Element und dann ein
+                    Trennpunkt - der Punkt sass allein vorn und rueckte das Wort
+                    ein. Jetzt buendig unter dem Namen, in Kapitaelchen. */}
+                <div className="gg-serif" style={{ fontSize: 11.5, color: "#8a6f4d", marginTop: 3, letterSpacing: .6, textTransform: "uppercase" }}>
                   {(() => { const f = familyOf(boss.kind);
-                    return f ? <><span style={{ opacity: .55 }}>·</span> {f === "crown" ? (en ? "Crown" : "Kronenfiguren") : (en ? "Shadows" : "Schattenwesen")}</> : null; })()}
+                    return f ? (f === "crown" ? (en ? "Crown" : "Kronenfiguren") : (en ? "Shadows" : "Schattenwesen")) : null; })()}
                 </div>
                 {unlockCh && known && status !== "cleared" && facedSet.has(sel) && <div className="gg-serif" style={{ fontSize: 11.5, color: "#8e2f39", fontStyle: "italic", marginTop: 4, lineHeight: 1.4 }}>
                   {t("camp.turncoat", { name: unlockCh[en ? "nameEn" : "nameDe"] })}</div>}
@@ -1188,10 +1198,24 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
                auch noch mit Abgeschlossen - einmal reicht." Der HAKEN traegt
                den Zustand, gross und deutlich; der Knopf darunter sagt, was
                man TUN kann ("Nochmal spielen"). */
-            return <div style={{ display: "flex", alignItems: "flex-start", gap: 7, marginTop: 10 }}>
-              <span aria-hidden style={{ fontSize: 19, lineHeight: 1.1, color: golden ? PP.green : "#7d8a5a" }}>{golden ? "✦" : "✓"}</span>
-              <span className="gg-serif" style={{ fontSize: 13.5, fontStyle: "italic", lineHeight: 1.4,
-                color: golden ? PP.green : PP.dim }}>{txt}</span>
+            /* v1.0.87 (Besitzer: "die gruene Schrift geht gar nicht - imposanter,
+               wie ein Erfolg, mit glaenzendem Stern, gern animiert, aber nicht
+               mehr Platz"): das Gefolge-Band ist jetzt ein ERFOLG - goldenes
+               Pergamentband mit Rand, ein Stern, der glaenzt und atmet
+               (ggErfolgStern, nur transform/opacity), Schrift in dunklem
+               Gold statt Gruen. Zwei Zeilen wie vorher: gleicher Platz. */
+            const erfolg = golden;
+            return <div style={{ display: "flex", alignItems: "center", gap: 9, marginTop: 10,
+              ...(erfolg ? { padding: "7px 10px", borderRadius: 10,
+                background: "linear-gradient(135deg, rgba(233,207,138,.28), rgba(201,164,92,.14))",
+                border: "1px solid rgba(201,164,92,.55)", boxShadow: "inset 0 1px 0 rgba(255,244,214,.6)" } : null) }}>
+              <span aria-hidden style={{ fontSize: erfolg ? 22 : 19, lineHeight: 1, flex: "0 0 auto",
+                color: erfolg ? "#c9a45c" : "#7d8a5a",
+                textShadow: erfolg ? "0 0 8px rgba(233,207,138,.9), 0 0 2px #fff6d8" : "none",
+                ...(erfolg && animAn() ? { animation: "ggErfolgStern 2.4s ease-in-out infinite", display: "inline-block" } : null) }}>
+                {erfolg ? "✦" : "✓"}</span>
+              <span className="gg-serif" style={{ fontSize: 13, fontStyle: "italic", lineHeight: 1.35,
+                color: erfolg ? "#5a4210" : PP.dim, fontWeight: erfolg ? 600 : 400 }}>{txt}</span>
             </div>;
           })()}
           {status === "gated" ? (() => {
@@ -1242,7 +1266,13 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
                Hinweistext teilten sich die Breite, der Knopf wurde zu schmal
                und schnitt seine Schrift ab ("Abgeschlosse"). Jetzt stehen sie
                UNTEREINANDER: der Knopf bekommt die volle Breite. */
-            <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 10 }}>
+            /* v1.0.87 (Besitzer-Screenshot): DER KNOPF WAR WEG. Das Fenster ist
+               scrollbar, aber das sieht niemand - die Bosskarte fuellte den
+               Sichtbereich, der Startknopf lag darunter. Jetzt KLEBT er am
+               unteren Rand (sticky im Scrollcontainer, auf eigenem Pergament). */
+            <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 10,
+              position: "sticky", bottom: -1, zIndex: 3, paddingTop: 8, marginLeft: -2, marginRight: -2, paddingLeft: 2, paddingRight: 2,
+              background: "linear-gradient(180deg, rgba(240,233,216,0) 0%, rgba(240,233,216,.94) 30%, rgba(240,233,216,.97) 100%)" }}>
               <Button variant={status === "available" || friendly ? "primary" : "subtle"} disabled={status === "locked" || closed}
                 onClick={() => onStart(sel)} style={{ flex: 1, position: "relative", overflow: "hidden",
                   // Steht an der Station ein Wesen des Risses, traegt der Knopf
@@ -1263,8 +1293,20 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
               {/* KLARHEIT AUF DER KARTE (Besitzer, v0.45): geraeumte Stationen
                   sagen, was eine Wiederholung wert ist - Freundschaftskampf
                   zahlt minimal, alles andere nichts. */}
+              {/* v1.0.87 (Besitzer: "Infotexte nur ueber einen kleinen Info-Knopf
+                  - dann schliesst das Fenster sauber mit dem Knopf ab"): der
+                  Erklaertext liegt hinter einem (i); erst antippen zeigt ihn. */}
               {status === "cleared" && (
-                <div style={{ fontSize: 10.5, lineHeight: 1.45, marginTop: 6, color: friendly ? "#4a5a2e" : "#6b6353" }}>
+                <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 2 }}>
+                  <button onClick={() => setInfoAuf((v) => !v)} aria-label="Info"
+                    style={{ width: 22, height: 22, borderRadius: "50%", border: "1px solid rgba(90,75,40,.45)",
+                      background: infoAuf ? "rgba(201,164,92,.35)" : "rgba(255,250,235,.55)", color: "#5a4a2a",
+                      fontFamily: "Georgia, serif", fontStyle: "italic", fontWeight: 700, fontSize: 13, lineHeight: 1,
+                      cursor: "pointer", padding: 0 }}>i</button>
+                </div>
+              )}
+              {status === "cleared" && infoAuf && (
+                <div style={{ fontSize: 10.5, lineHeight: 1.45, marginTop: 4, color: friendly ? "#4a5a2e" : "#6b6353" }}>
                   {friendly ? t("camp.replayHint") : t("camp.replayNone")}
                 </div>
               )}

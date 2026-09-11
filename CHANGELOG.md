@@ -1,5 +1,31 @@
 # Changelog - Grand Gambit
 
+## 1.0.87
+Sechs Besitzerbefunde (Screenshots 11.9.2026), alle gemessen oder mit Probe:
+- HOFSTAAT-KACHELN NACH RECHTS VERSCHOBEN beim Wechsel Karte -> Figuren: das
+  Muster war exakt margin-left 50 % OHNE translateX(-50 %) - ein Transform
+  griff nach dem Neuaufbau spaeter als der Rand. Jetzt zentriert der Rand
+  allein (118 % Breite, -9 % links), kein Transform mehr: die Fehlerklasse
+  existiert nicht mehr.
+- STATIONSFENSTER: der Startknopf klebt am unteren Rand (sticky); das
+  Bossbild wird NIE mehr beschnitten (1,42-Zoom aus v0.71.14 entfernt, Box
+  groesser, overflow visible); der Erklaertext liegt hinter einem (i)-Knopf,
+  damit das Fenster sauber mit dem Knopf abschliesst; "Magier / Kronenfiguren"
+  fluchten (ein leeres Element vor dem Trennpunkt rueckte die Zeile ein).
+- GEFOLGE-HINWEIS ALS ERFOLG: statt gruener Schrift ein goldenes Band mit
+  glaenzendem, atmendem Stern (ggErfolgStern, transform/opacity) - gleicher
+  Platz wie vorher.
+- AUFSTELLUNG, HINTERE REIHE: gemessen 1,8 px aus der Mitte, 2,6 px
+  Ueberlauf (das SlotGlyph-Bild mass sich am span statt an der Zelle). Jetzt
+  exakt die Bildzeile der Bauern: 16 Figuren, 0 px Versatz, 0 px Ueberlauf,
+  gleiche Hoehe 40,9 px.
+- KARTENWAHL: Raster statt Scrollstreifen, jede Karte mit echter Miniatur
+  (Groesse, Farben, Loecher ausgespart).
+- PREISKNOEPFE IM LAGER: dunkler Grund wie das Menue, goldene Kontur mit
+  Glanz, Schrift in Gold - die Muenze steht wieder frei.
+- messe_hofstaat 2f misst die Aufstellung waagerecht und senkrecht;
+  test_anim +9 Strukturproben.
+
 ## 1.0.86
 - DIE WELTKARTE ZEIGT DEN RANG DES GAMBIT. Sie kannte ihn laengst (gambitTier
   wurde ausgerechnet), nahm dann aber stur karteGambit - die Sonderfassung
