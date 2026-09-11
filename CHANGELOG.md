@@ -1,5 +1,31 @@
 # Changelog - Grand Gambit
 
+## 1.0.90
+- DER STICKY-VERLAUF IM STATIONSFENSTER IST FORT (Besitzer: "der Button ist
+  total daneben, die cremefarbene Flaeche geht gar nicht - lieber hart an das
+  Design von davor halten"). Er legte sich ueber "Abgeschlossen" und brachte
+  eine zweite Flaeche ins Fenster. Der Knopf steht wieder schlicht im Fluss.
+- DER INFO-KNOPF STEHT OBEN, neben dem Schliesskreuz. Eingeklappt bleibt das
+  Fenster kurz; angetippt waechst es um den Erklaertext - genau wie
+  gewuenscht ("wenn man ihn klickt, schiebt man alles nach unten und das
+  Popup wird groesser").
+- SPERR-LIMITS 3 / 2 / 1 (Besitzerentscheid): drei Zaeune, zwei Mauern, EIN
+  Bollwerk. Vorher 3/3/2 - die Mauer hatte so viele wie der Zaun. Jetzt ist
+  das Bollwerk eine Entscheidung, keine Frage des Goldvorrats. KEIN
+  Rueckschaden (ausdruecklich verworfen).
+- DAS TALENTBAND ERKLAERT SICH, WENN ES LEER IST. Es gab es seit v1.0.85,
+  aber der Besitzer sah es nie: er spielt Klassik, und dort ist jede Figur
+  Stufe 1 und hat NULL Talente (gemessen: Stufe 1 = 0, Stufe 20 = 4). Das
+  Band blieb zu Recht leer, nur wusste das niemand. Jetzt steht bei einer
+  eigenen Figur ohne Talente eine Zeile, warum nichts da ist.
+- ALLE 26 TALENTE EINZELN GEPRUEFT (Besitzerauftrag "jede der 26 Faehigkeiten
+  einmal spielen lassen"): jedes hat Name, Zeichen und Wirkung in beiden
+  Sprachen; jedes sagt, ob es ein Zauber ist; Kern und Chronik sind sich
+  ueber alle 12 dauerhaften einig (in BEIDE Richtungen); und die 16 Talente,
+  die der Kern ueber hasAbility abfragt, werden alle 16 tatsaechlich
+  GESPIELT - Figur aufs Brett, Zuege abfragen, Verbrauch pruefen. Kein Code
+  lesen, sondern ausfuehren. test_zauber jetzt 34 Zusicherungen.
+
 ## 1.0.89
 - ZAUN UND BOLLWERK HABEN IHRE GEMAELDE (Besitzer, 11.9.2026): neun Bilder,
   geschnitzt im Hausstil und bereits freigestellt geliefert - Zaun (heil,

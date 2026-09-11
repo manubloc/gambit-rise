@@ -130,7 +130,7 @@ export const ITEMS = {
     loreEn: "Before the first move you set it on a free square of your third or fourth rank. Sliding pieces stop in front of it; striking it costs a whole turn — the piece itself stays unharmed. Knights leap over. A fence takes a single blow and crumbles by itself after six moves anyway. At most two barriers stand on your side at once.",
   },
   mauer: {
-    id: "mauer", emoji: "🧱", kind: "consumable", gold: SPERR_ARTEN.mauer.gold, max: 3, minCleared: 6,
+    id: "mauer", emoji: "🧱", kind: "consumable", gold: SPERR_ARTEN.mauer.gold, max: 2, minCleared: 6,
     sperre: "mauer",
     nameDe: "Mauer", nameEn: "Wall",
     textDe: "Sperre für ein Feld deiner dritten oder vierten Reihe — hält zwei Schläge.",
@@ -139,7 +139,7 @@ export const ITEMS = {
     loreEn: "The backbone of barriers: two blows before it falls — two moves the enemy loses. It is set before the first move on a free square of your third or fourth rank. It crumbles on its own: cracks after six moves, rubble after twelve. At most two barriers stand on your side at once.",
   },
   bergfried: {
-    id: "bergfried", emoji: "🏰", kind: "consumable", gold: SPERR_ARTEN.bergfried.gold, max: 2, minCleared: 9,
+    id: "bergfried", emoji: "🏰", kind: "consumable", gold: SPERR_ARTEN.bergfried.gold, max: 1, minCleared: 9,
     sperre: "bergfried",
     nameDe: "Bollwerk", nameEn: "Bulwark",
     textDe: "Sperre für ein Feld deiner dritten oder vierten Reihe — hält drei Schläge.",

@@ -1092,6 +1092,18 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
           })()}
           <div style={{ display: "flex", alignItems: "flex-start", gap: 7 }}>
             <div className="gg-quill" style={{ fontSize: 20, color: PP.ink, flex: 1, minWidth: 0, lineHeight: 1.0, marginTop: -1 }}>{node ? placeFor(node, league, en) : ""}</div>
+            {/* v1.0.90 (Besitzer: "der Info-Knopf darf gerne oben sein, und wenn
+                man ihn klickt, schiebt man alles nach unten und das Popup wird
+                groesser"): er steht neben dem Kreuz. Eingeklappt bleibt das
+                Fenster kurz; angetippt waechst es um den Erklaertext. */}
+            {status === "cleared" && (
+              <button onClick={() => setInfoAuf((v) => !v)} aria-label="Info" title={t("camp.replayNone")}
+                style={{ width: 21, height: 21, borderRadius: "50%", flex: "0 0 auto", marginLeft: 4,
+                  border: `1px solid ${infoAuf ? "rgba(90,75,40,.75)" : "rgba(90,75,40,.35)"}`,
+                  background: infoAuf ? "rgba(201,164,92,.3)" : "none", color: PP.dim,
+                  fontFamily: "Georgia, serif", fontStyle: "italic", fontWeight: 700, fontSize: 12.5,
+                  lineHeight: 1, cursor: "pointer", padding: 0 }}>i</button>
+            )}
             <button onClick={() => setPanelOpen(false)} aria-label="Close" style={{ background: "none", border: "none",
               color: PP.dim, fontSize: 15, cursor: "pointer", padding: "0 0 0 6px", fontFamily: "inherit", lineHeight: 1, flex: "0 0 auto" }}>✕</button>
           </div>
@@ -1266,13 +1278,15 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
                Hinweistext teilten sich die Breite, der Knopf wurde zu schmal
                und schnitt seine Schrift ab ("Abgeschlosse"). Jetzt stehen sie
                UNTEREINANDER: der Knopf bekommt die volle Breite. */
-            /* v1.0.87 (Besitzer-Screenshot): DER KNOPF WAR WEG. Das Fenster ist
-               scrollbar, aber das sieht niemand - die Bosskarte fuellte den
-               Sichtbereich, der Startknopf lag darunter. Jetzt KLEBT er am
-               unteren Rand (sticky im Scrollcontainer, auf eigenem Pergament). */
-            <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 10,
-              position: "sticky", bottom: -1, zIndex: 3, paddingTop: 8, marginLeft: -2, marginRight: -2, paddingLeft: 2, paddingRight: 2,
-              background: "linear-gradient(180deg, rgba(240,233,216,0) 0%, rgba(240,233,216,.94) 30%, rgba(240,233,216,.97) 100%)" }}>
+            /* v1.0.90 (Besitzer: "der Button ist total daneben, die cremefarbene
+               Flaeche geht gar nicht - lieber hart an das Design von davor
+               halten"): DER STICKY-VERLAUF IST FORT. Er legte sich ueber
+               "Abgeschlossen" und brachte eine zweite Flaeche ins Fenster, die
+               dort nichts zu suchen hatte. Der Knopf steht wieder schlicht im
+               Fluss, wie vor v1.0.87 - dass er sichtbar bleibt, loest jetzt der
+               Info-Knopf OBEN: der Erklaertext ist eingeklappt, das Fenster
+               bleibt kurz. */
+            <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 10 }}>
               <Button variant={status === "available" || friendly ? "primary" : "subtle"} disabled={status === "locked" || closed}
                 onClick={() => onStart(sel)} style={{ flex: 1, position: "relative", overflow: "hidden",
                   // Steht an der Station ein Wesen des Risses, traegt der Knopf
@@ -1293,20 +1307,11 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
               {/* KLARHEIT AUF DER KARTE (Besitzer, v0.45): geraeumte Stationen
                   sagen, was eine Wiederholung wert ist - Freundschaftskampf
                   zahlt minimal, alles andere nichts. */}
-              {/* v1.0.87 (Besitzer: "Infotexte nur ueber einen kleinen Info-Knopf
-                  - dann schliesst das Fenster sauber mit dem Knopf ab"): der
-                  Erklaertext liegt hinter einem (i); erst antippen zeigt ihn. */}
-              {status === "cleared" && (
-                <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 2 }}>
-                  <button onClick={() => setInfoAuf((v) => !v)} aria-label="Info"
-                    style={{ width: 22, height: 22, borderRadius: "50%", border: "1px solid rgba(90,75,40,.45)",
-                      background: infoAuf ? "rgba(201,164,92,.35)" : "rgba(255,250,235,.55)", color: "#5a4a2a",
-                      fontFamily: "Georgia, serif", fontStyle: "italic", fontWeight: 700, fontSize: 13, lineHeight: 1,
-                      cursor: "pointer", padding: 0 }}>i</button>
-                </div>
-              )}
+              {/* v1.0.90: der Erklaertext steht jetzt UNTER dem Knopf, aber nur
+                  wenn der Besitzer das (i) oben angetippt hat - ohne eigene
+                  Flaeche, in derselben Schrift wie zuvor. */}
               {status === "cleared" && infoAuf && (
-                <div style={{ fontSize: 10.5, lineHeight: 1.45, marginTop: 4, color: friendly ? "#4a5a2e" : "#6b6353" }}>
+                <div style={{ fontSize: 10.5, lineHeight: 1.45, marginTop: 2, color: friendly ? "#4a5a2e" : "#6b6353" }}>
                   {friendly ? t("camp.replayHint") : t("camp.replayNone")}
                 </div>
               )}

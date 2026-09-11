@@ -146,7 +146,13 @@ console.log("\n== test_anim: die Aufstiegsfeier (v1.0.75) ==");
   const cs = readFileSync("src/app/ui/screens/CampaignScreen.jsx", "utf8");
   ok("Weltkarte: rechnet den Rang selbst", cs.includes('gambitTier(characterLevel(profile, "gambit")'));
   /* v1.0.87: sechs Besitzerbefunde vom 11.9. */
-  ok("Stationsfenster: der Startknopf klebt am Rand (sticky)", cs.includes('position: "sticky", bottom: -1'));
+  /* v1.0.90: der Sticky-Verlauf ist WIEDER FORT - er legte sich ueber
+     "Abgeschlossen" und brachte eine zweite Flaeche ins Fenster (Besitzer:
+     "geht gar nicht"). Dass der Knopf sichtbar bleibt, loest jetzt der
+     eingeklappte Erklaertext hinter dem (i) oben. */
+  ok("Stationsfenster: kein Sticky-Verlauf mehr", !cs.includes('position: "sticky", bottom: -1'));
+  ok("Stationsfenster: der Info-Knopf steht OBEN neben dem Kreuz",
+    cs.indexOf("setInfoAuf") < cs.indexOf('aria-label="Close"'));
   ok("Stationsfenster: das Bossbild wird nicht mehr beschnitten", !cs.includes('transform: "scale(1.42)"') && cs.includes('overflow: "visible"'));
   ok("Stationsfenster: der Erklaertext steht hinter einem Info-Knopf", cs.includes("setInfoAuf((v) => !v)"));
   ok("Gefolge-Band ist ein Erfolg mit animiertem Stern", cs.includes("ggErfolgStern"));

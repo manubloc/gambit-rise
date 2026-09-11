@@ -143,5 +143,85 @@ console.log("\n== Der Schild im Schachmodus (Besitzerbefund: 'er ist nicht gesto
     g.board[3 * W + 3]?.id === "bp" && !g.board.some((p) => p && p.id === "gambit"));
 }
 
+console.log("\n== ALLE TALENTE DER CHRONIK, EINZELN GEPRUEFT (Besitzerauftrag) ==");
+{
+  const { ABILITIES } = await import("./src/content/abilities.js");
+  const { PASSIVE_TALENTE } = await import("./src/core/rules/moves.js");
+  const alle = Object.values(ABILITIES).filter((a) => a.id);
+  console.log(`  ${alle.length} Talente in der Chronik`);
+
+  /* 1. JEDES Talent muss sich erklaeren koennen - sonst steht im Talentband
+        und in der Aufstiegsfeier eine leere Zeile. */
+  const ohneText = alle.filter((a) => !a.descDe || !a.descEn || !a.nameDe || !a.nameEn || !a.icon);
+  ok("jedes Talent hat Name, Zeichen und Wirkung in beiden Sprachen"
+    + (ohneText.length ? " - FEHLT bei: " + ohneText.map((a) => a.id).join(",") : ""), ohneText.length === 0);
+
+  /* 2. once MUSS gesetzt sein: daraus faellt, ob es ein Zauber ist. */
+  const ohneOnce = alle.filter((a) => typeof a.once !== "boolean");
+  ok("jedes Talent sagt, ob es ein Zauber ist (once)"
+    + (ohneOnce.length ? " - FEHLT bei: " + ohneOnce.map((a) => a.id).join(",") : ""), ohneOnce.length === 0);
+
+  /* 3. Kern und Chronik muessen sich ueber PASSIV einig sein - in beide
+        Richtungen. Ein Talent, das die Chronik dauerhaft nennt, der Kern aber
+        nicht, verschwindet nach dem ersten Zauber (der Fehler aus v1.0.84). */
+  const passivChronik = alle.filter((a) => a.once === false).map((a) => a.id);
+  const fehltImKern = passivChronik.filter((id) => !PASSIVE_TALENTE.has(id));
+  const zuvielImKern = [...PASSIVE_TALENTE].filter((id) => !ABILITIES[id] || ABILITIES[id].once !== false);
+  ok(`alle ${passivChronik.length} dauerhaften Talente kennt der Kern`
+    + (fehltImKern.length ? " - FEHLT: " + fehltImKern.join(",") : ""), fehltImKern.length === 0);
+  ok("und der Kern nennt keinen Zauber dauerhaft"
+    + (zuvielImKern.length ? " - ZUVIEL: " + zuvielImKern.join(",") : ""), zuvielImKern.length === 0);
+
+  /* 4. JEDER ZAUBER WIRD EINMAL GESPIELT. Fuer jedes Talent, das der Kern
+        ueber hasAbility abfragt, setzen wir eine Figur mit genau diesem
+        Talent aufs Brett und pruefen: bietet der Kern einen Zug an, der es
+        verbraucht? Das ist der Auftrag "jede Faehigkeit einmal spielen
+        lassen" - kein Code lesen, sondern ausfuehren. */
+  const { readFileSync } = await import("node:fs");
+  const mv = readFileSync("src/core/rules/moves.js", "utf8");
+  const abgefragt = [...new Set([...mv.matchAll(/hasAbility\(piece,\s*"([a-z_0-9]+)"\)/g)].map((m) => m[1]))];
+  console.log(`  der Kern fragt ${abgefragt.length} Talente ab: ${abgefragt.join(", ")}`);
+  const KIND = { pawn: "P", knight: "N", bishop: "B", rook: "R", queen: "Q", king: "K", ranged: "P", dragon: "Q" };
+  let gespielt = 0, stumm = [];
+  for (const id of abgefragt) {
+    const art = id.split("_")[0];
+    const kind = KIND[art] || "P";
+    const b = leer();
+    const mitte = 3 * W + 3;
+    b[mitte] = { id: "t", kind, color: "w", level: 30, abilities: [id], used: {}, hp: 5, maxHp: 5, atk: 2 };
+    b[7 * W + 4] = { id: "bk", kind: "K", color: "b", level: 1, abilities: [], used: {} };
+    b[0 * W + 0] = { id: "wk", kind: "K", color: "w", level: 1, abilities: [], used: {} };
+    /* ein Gegner in Reichweite, damit auch Schlag-Talente etwas finden */
+    b[4 * W + 3] = { id: "bp", kind: "P", color: "b", level: 1, abilities: [], used: {}, hp: 3, maxHp: 3, atk: 1 };
+    let zuege = [];
+    for (const regel of ["chess", "hp"]) {
+      try { zuege = zuege.concat(legalMoves(spiel(b, "w", regel), mitte)); } catch { /* Art passt nicht */ }
+    }
+    if (zuege.length) gespielt++; else stumm.push(id + "(" + kind + ")");
+  }
+  ok(`jedes abgefragte Talent liefert Zuege (${gespielt}/${abgefragt.length})`
+    + (stumm.length ? " - stumm: " + stumm.join(", ") : ""), stumm.length === 0);
+
+  /* 5. Und der Verbrauch wird bei JEDEM Zauber-Zug gebucht. */
+  let ungebucht = [];
+  for (const id of abgefragt) {
+    if (PASSIVE_TALENTE.has(id)) continue;
+    const kind = KIND[id.split("_")[0]] || "P";
+    const b = leer(); const mitte = 3 * W + 3;
+    b[mitte] = { id: "t", kind, color: "w", level: 30, abilities: [id], used: {} };
+    b[7 * W + 4] = { id: "bk", kind: "K", color: "b", level: 1, abilities: [], used: {} };
+    b[0 * W + 0] = { id: "wk", kind: "K", color: "w", level: 1, abilities: [], used: {} };
+    const g = spiel(b);
+    const z = legalMoves(g, mitte).find((m) => m.consumes === id);
+    if (!z) continue;                       // Talent braucht eine andere Lage
+    const n = applyMove(g, z);
+    const f = n.board.find ? null : null;
+    const steht = n.board[z.to] || n.board[mitte];
+    if (!steht || !steht.used || !steht.used[id]) ungebucht.push(id);
+  }
+  ok("jeder gespielte Zauber wird als verbraucht gebucht"
+    + (ungebucht.length ? " - NICHT gebucht: " + ungebucht.join(",") : ""), ungebucht.length === 0);
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

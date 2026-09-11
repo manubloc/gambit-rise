@@ -789,7 +789,17 @@ export function BoardView({ state, onMove, interactive, lastMove, mattSeite = nu
      Brett das gleiche Zeichen (✦). */
   const selPiece = sel != null ? state.board[sel] : null;
   const talentBand = (() => {
-    if (!selPiece || !selPiece.abilities || !selPiece.abilities.length || state.rules === "chess" && !selPiece.abilities.length) return null;
+    /* v1.0.90 (Besitzer: "Faehigkeiten als Button unter dem Schachbrett, und
+       erst wenn man die Figur anklickt"): DAS BAND GAB ES SEIT v1.0.85, aber
+       der Besitzer hat es nie gesehen - er spielt Klassik, und dort ist jede
+       Figur Stufe 1 und hat NULL Faehigkeiten (gemessen: Stufe 1 = 0, Stufe
+       20 = 4). Das Band blieb also zu Recht leer, nur wusste das niemand.
+       Jetzt sagt es das: bei einer eigenen Figur ohne Talente steht eine
+       Zeile, warum nichts da ist - statt stumm zu verschwinden. */
+    if (!selPiece) return null;
+    const eigene = selPiece.color === state.turn;
+    const ohneTalent = !selPiece.abilities || !selPiece.abilities.length;
+    if (ohneTalent && (!eigene || !interactive)) return null;
     const zu = Object.keys(selPiece.used || {}).length > 0;
     const en = false;
     const schild = selPiece.shield || 0;
@@ -799,7 +809,19 @@ export function BoardView({ state, onMove, interactive, lastMove, mattSeite = nu
       const verbraucht = !!(selPiece.used || {})[id];
       return { id, name: en ? ab.nameEn : ab.nameDe, icon: ab.icon, passiv, verbraucht };
     }).filter(Boolean);
-    if (!eintraege.length && !schild) return null;
+    if (!eintraege.length && !schild) {
+      /* keine Talente, kein Schild: eine erklaerende Zeile statt Nichts. */
+      return (
+        <div className="gg-talentband" style={{ padding: "7px 10px", marginTop: 6, borderRadius: 10,
+          fontSize: 11, lineHeight: 1.35, textAlign: "center", color: "#a89ac9",
+          background: "linear-gradient(180deg, rgba(26,20,44,.8), rgba(14,12,24,.85))",
+          border: "1px solid rgba(167,139,250,.22)" }}>
+          {state.rules === "chess" && (selPiece.level || 1) <= 1
+            ? "Klassisch — hier zählt nur Schach. Talente lernen die Figuren im Gambit-Modus."
+            : "Diese Figur hat noch keine Talente — im Hofstaat lernt sie welche."}
+        </div>
+      );
+    }
     return (
       <div className="gg-talentband" style={{ display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center",
         justifyContent: "center", padding: "7px 8px 6px", fontSize: 11.5, lineHeight: 1.3,
