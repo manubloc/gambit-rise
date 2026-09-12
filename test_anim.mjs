@@ -49,7 +49,14 @@ const KINDS = ["P", "N", "B", "R", "A", "C", "Q", "K", "D", "X", "G", "H"];
 ok("jede Figurenart hat eine Schlagart", KINDS.every((k) => SCHLAG_ARTEN.includes(schlagArt(k))));
 ok("der Schildtraeger STOESST (Besitzerbild)", schlagArt("P") === "stoss" && schlagArt("G") === "stoss");
 ok("der Drache traegt das Feuer", schlagArt("D") === "feuer");
-ok("die Dame richtet (bann), sie prueglt nicht", schlagArt("Q") === "bann");
+/* v1.1.1 (Besitzerentscheid): DIE UNTERSCHEIDUNG IST ABGESCHAFFT. "Wenn man
+   eine Figur schlaegt, wuerde ich immer den Ton nehmen, den man auch beim
+   Bauern hat, und da keine Unterscheidung machen." Wo hier vorher stand, dass
+   die Dame bannt und der Turm wuchtet, steht jetzt das Gegenteil: alle
+   gleich, nur der Drache atmet Feuer. */
+ok("die Dame schlaegt wie jeder andere (stoss)", schlagArt("Q") === "stoss");
+ok("auch Turm und Springer - EIN Schlagton fuer alle",
+  ["R", "N", "B", "K", "C", "H", "A", "G", "X"].every((k) => schlagArt(k) === "stoss"));
 ok("Unbekanntes faellt sicher auf stoss", schlagArt("?") === "stoss");
 
 console.log("\n== test_anim: Kammer und Spiel decken das Register ==");

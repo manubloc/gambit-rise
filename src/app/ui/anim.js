@@ -86,11 +86,18 @@ export const animById = (id) => ANIMATIONEN.find((a) => a.id === id) || null;
  *   bann    ein aufrechter Lichtstoss (Dame, Koenig, Erzbischof, Magier -
  *           die Wuerde schlaegt nicht, sie richtet)
  * Der Drache traegt zusaetzlich das Feuer (eigener Registereintrag). */
-const SCHLAG = {
-  P: "stoss", G: "stoss", C: "wucht", R: "wucht",
-  N: "klinge", B: "klinge", H: "klinge",
-  Q: "bann", K: "bann", A: "bann",
-  D: "feuer", X: "wucht",
-};
+/* ── EIN SCHLAG KLINGT WIE EIN SCHLAG (v1.1.1, Besitzerentscheid) ──────────
+   "Wenn man eine Figur schlaegt, wuerde ich immer den Ton nehmen, den man
+   auch hat, wenn man mit einem Bauern eine Figur schlaegt, und da keine
+   Unterscheidung machen. Natuerlich darf das bei einem Fernangriff etwas
+   anderes sein, oder wenn man eine Mauer zerstoert."
+
+   Vorher trug jede Figurenart ihren eigenen Schlag - fuenf verschiedene
+   Toene, und weil in einer Partie ununterbrochen geschlagen wird, klang das
+   Brett unruhig. Jetzt gilt EIN Ton fuer jeden Nahkampf: "stoss", derselbe
+   wie beim Bauern. Der Drache behaelt sein Feuer, weil das kein Schlag ist,
+   sondern ein Atem - und Fernkampf und Sperren werden ohnehin an anderer
+   Stelle geklungen (siehe klang("fern") und die Sperrklaenge unten). */
+const SCHLAG = { D: "feuer" };
 export function schlagArt(kind) { return SCHLAG[kind] || "stoss"; }
 export const SCHLAG_ARTEN = ["stoss", "klinge", "wucht", "bann", "feuer"];

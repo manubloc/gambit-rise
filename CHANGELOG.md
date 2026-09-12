@@ -1,5 +1,28 @@
 # Changelog - Grand Gambit
 
+## 1.1.1
+- DAS KRATZEN IM LAUTSPRECHER, GEMESSEN STATT GERATEN. Alle 46 Klaenge
+  durchgemessen (ffmpeg, Spitze und letzte 5 ms): KEINER endet hart - das
+  Knacken kam also nicht vom Sample-Ende. Aber FUENF waren voll ausgesteuert
+  (Spitze 1.000: muenzregen, sperrsetzen, stoss, wucht, zerfall). Zwei davon
+  gleichzeitig, oder einer plus Musik, und die Summe laeuft ueber 1,0.
+  ZWEI EINGRIFFE: die fuenf Dateien tragen jetzt -3 dB Kopfraum (Originale in
+  archiv/klang-original), und der Kompressor am Ausgang wird zum BEGRENZER -
+  der alte griff mit 2 ms Attack zu spaet fuer einen Klick-Transienten, der in
+  unter 1 ms auf Vollpegel steht. Jetzt 0,3 ms Attack, Schwelle -3 dB, 20:1,
+  harte Kante, dazu ein Sicherheitsgurt von 0,9 am Ausgang.
+- EIN SCHLAG KLINGT WIE EIN SCHLAG (Besitzerentscheid): jeder Nahkampf nimmt
+  "stoss" - denselben Ton wie beim Bauern. Vorher trug jede Figurenart ihren
+  eigenen (fuenf Toene), und weil ununterbrochen geschlagen wird, klang das
+  Brett unruhig. Nur der Drache behaelt sein Feuer: das ist kein Schlag,
+  sondern ein Atem.
+- STEIN KLINGT ANDERS ALS HOLZ (Besitzerwunsch): zwei neue Klaenge mit
+  ElevenLabs erzeugt - holzbruch (splitterndes Holz) fuer den Zaun,
+  steinbruch (Quader und Schutt) fuer Mauer und Bollwerk. Welche Art gelitten
+  hat, faellt aus dem Sperr-Vergleich heraus (der Eintrag traegt die Art
+  mit) - kein zweiter Zustand, der veralten kann. Beide auf Hauspegel
+  (0,77 / 0,72) mit Ausblendung.
+
 ## 1.1.0
 - EINE LIVREE: GESCHNITZT HELL (Besitzerentscheid: "Ich moechte eigentlich nur
   das geschnitzt-helle Design. Das andere kannst du alles loeschen - ich

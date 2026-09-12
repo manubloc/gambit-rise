@@ -58,6 +58,12 @@ import drachenfeuerKlang from "./assets/klang/drachenfeuer.webm";
 import koenigsfallKlang from "./assets/klang/koenigsfall.webm";
 import faehigkeitKlang from "./assets/klang/faehigkeit.webm";
 import zerfallKlang from "./assets/klang/zerfall.webm";
+/* v1.1.1 (Besitzer: "ein Stein, den man zerstoert, darf anders klingen wie
+   ein Holz, das man zerstoert"): zwei eigene Klaenge fuer die Sperren. Mit
+   ElevenLabs erzeugt, auf Hauspegel gebracht (Spitze 0,77 / 0,72) und mit
+   Ausblendung versehen; Originale in archiv/klang-original. */
+import holzbruchKlang from "./assets/klang/holzbruch.webm";
+import steinbruchKlang from "./assets/klang/steinbruch.webm";
 import sperrsetzenKlang from "./assets/klang/sperrsetzen.webm";
 import glanzKlang from "./assets/klang/glanz.webm";
 import bestieKlang from "./assets/klang/bestie.webm";
@@ -149,7 +155,9 @@ const QUELLEN = {
   drachenfeuer: [drachenfeuerKlang], // Fernstoss des Drachen
   koenigsfall: [koenigsfallKlang],   // Matt: der Koenig kippt
   faehigkeit: [faehigkeitKlang],     // eine Sprosse erwacht
-  zerfall: [zerfallKlang],           // eine Sperre broeckelt
+  zerfall: [zerfallKlang],           // eine Sperre broeckelt (Rueckfall)
+  holzbruch: [holzbruchKlang],       // der Zaun zerspringt - splitterndes Holz
+  steinbruch: [steinbruchKlang],     // Mauer und Bollwerk fallen - Quader und Schutt
   sperrsetzen: [sperrsetzenKlang],   // Sperre wird gesetzt
   glanz: [glanzKlang],               // Verbessern-Glanz
 };
@@ -173,7 +181,7 @@ const PEGEL = { wahl: 0.5, zug: 0.7, treffer: 0.85, fall: 0.85, nein: 0.45,
   /* v1.0.73: Schlagklaenge liegen bei den Zug-Klaengen (oft gehoert, also
      leise), Feierklaenge etwas darueber. */
   muenzregen: 0.55, stoss: 0.42, klinge: 0.40, wucht: 0.48, bann: 0.42,
-  drachenfeuer: 0.6, koenigsfall: 0.7, faehigkeit: 0.55, zerfall: 0.5,
+  drachenfeuer: 0.6, koenigsfall: 0.7, faehigkeit: 0.55, zerfall: 0.5, holzbruch: 0.5, steinbruch: 0.55,
   sperrsetzen: 0.45, glanz: 0.4 };
 
 let ctx = null;
@@ -196,10 +204,29 @@ function wecke() {
        faengt Summen-Spitzen ab, wenn mehrere Klaenge zusammenfallen - hartes
        Clipping am Ziel ist die wahrscheinlichste Quelle des Knackens. */
     try {
+      /* v1.1.1 (Besitzer: "manchmal kratzt mein Lautsprecher, wenn ich einen
+         Menuepunkt klicke - so etwas darf auf keinen Fall passieren"),
+         GEMESSEN: fuenf Klaenge waren voll ausgesteuert (Spitze 1.000:
+         muenzregen, sperrsetzen, stoss, wucht, zerfall). Zwei davon
+         gleichzeitig - oder einer plus Musik - und die Summe laeuft ueber 1,0.
+         Kein Klang endet hart (gemessen: letzte 5 ms alle unter 0,02), das
+         Knacken kam also nicht vom Sample-Ende, sondern von der Summe.
+
+         ZWEI EINGRIFFE. An der Quelle: die fuenf Dateien tragen jetzt -3 dB
+         Kopfraum (Originale in archiv/klang-original). Hier am Ausgang: der
+         Kompressor wird zum BEGRENZER. Der alte griff mit 2 ms Attack zu
+         spaet fuer einen Klick-Transienten, der in unter 1 ms auf Vollpegel
+         steht - die erste Millisekunde ging ungebremst durch und genau die
+         kratzt. Jetzt 0,3 ms Attack, Schwelle -3 dB, Verhaeltnis 20:1 und
+         eine harte Kante (knee 0): was darueber will, kommt nicht durch. */
       const presse = ctx.createDynamicsCompressor();
-      presse.threshold.value = -12; presse.knee.value = 24; presse.ratio.value = 6;
-      presse.attack.value = 0.002; presse.release.value = 0.12;
-      meister.connect(presse); presse.connect(ctx.destination);
+      presse.threshold.value = -3; presse.knee.value = 0; presse.ratio.value = 20;
+      presse.attack.value = 0.0003; presse.release.value = 0.09;
+      /* und ein letzter Sicherheitsgurt: 0,9 statt 1,0 am Ausgang, damit auch
+         der Begrenzer selbst Luft hat. */
+      const gurt = ctx.createGain();
+      gurt.gain.value = 0.9;
+      meister.connect(presse); presse.connect(gurt); gurt.connect(ctx.destination);
     } catch { meister.connect(ctx.destination); }
   } catch { ctx = null; }
   return ctx;

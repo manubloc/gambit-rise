@@ -232,5 +232,27 @@ console.log("\n== Die vier Stufen des Bollwerks (v1.0.89) ==");
   ok("die Luecken-Liste leitet die Zustaende je Art ab", sa.includes("export function zustaendeVon"));
 }
 
+console.log("\n== KLANG: ein Schlag, aber Stein anders als Holz (v1.1.1) ==");
+{
+  const { readFileSync, existsSync } = await import("node:fs");
+  const an = readFileSync("src/app/ui/anim.js", "utf8");
+  const { schlagArt } = await import("./src/app/ui/anim.js");
+  /* Besitzer: "Wenn man eine Figur schlaegt, immer den Ton, den man auch beim
+     Bauern hat - keine Unterscheidung." Nur der Drache behaelt sein Feuer. */
+  const arten = ["P","N","B","R","Q","K","C","H","A","G","X"].map((k) => schlagArt(k));
+  ok("jeder Nahkampf klingt gleich (stoss)" + (new Set(arten).size > 1 ? " - noch verschieden: " + [...new Set(arten)].join(",") : ""),
+    new Set(arten).size === 1 && arten[0] === "stoss");
+  ok("der Drache behaelt sein Feuer", schlagArt("D") === "feuer");
+  ok("beide Bruch-Klaenge liegen vor",
+    existsSync("src/app/ui/assets/klang/holzbruch.webm") && existsSync("src/app/ui/assets/klang/steinbruch.webm"));
+  const kl = readFileSync("src/app/ui/klang.js", "utf8");
+  ok("sie sind registriert", kl.includes("holzbruch: [holzbruchKlang]") && kl.includes("steinbruch: [steinbruchKlang]"));
+  const gs = readFileSync("src/app/ui/screens/GameScreen.jsx", "utf8");
+  ok("der Zaun klingt nach Holz, Mauer und Bollwerk nach Stein",
+    gs.includes('"holzbruch"') && gs.includes('"steinbruch"') && gs.includes('getroffen.includes("zaun")'));
+  ok("der Begrenzer am Ausgang faengt Klick-Spitzen (Attack 0,3 ms, 20:1)",
+    kl.includes("presse.attack.value = 0.0003") && kl.includes("presse.ratio.value = 20"));
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

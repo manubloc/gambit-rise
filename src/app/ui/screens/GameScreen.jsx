@@ -275,8 +275,19 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
     sperrStandRef.current = stand;
     if (!vorher || vorher === stand || !animAn() || setzen) return;
     /* nur wenn WENIGER Leben oder eine Sperre fort ist - Setzen klingt schon */
-    if (stand.length < vorher.length || vorher.split("|").some((e) => e && !stand.includes(e)))
-      { try { klang("zerfall"); } catch {} }
+    if (stand.length < vorher.length || vorher.split("|").some((e) => e && !stand.includes(e))) {
+      /* v1.1.1 (Besitzer: "ein Stein, den man zerstoert, darf anders klingen
+         wie ein Holz"): welche Art hat gelitten? Der alte Eintrag traegt sie
+         mit (index:art:hp), also faellt sie aus dem Vergleich heraus - kein
+         zweiter Zustand, der veralten kann. Zaun = Holz, Mauer und Bollwerk =
+         Stein; ohne erkennbare Art bleibt der alte Zerfall. */
+      const getroffen = vorher.split("|").filter((e) => e && !stand.includes(e))
+        .map((e) => e.split(":")[1]);
+      const art = getroffen.includes("zaun") ? "holzbruch"
+        : getroffen.some((a) => a === "mauer" || a === "bergfried") ? "steinbruch"
+        : "zerfall";
+      try { klang(art); } catch {}
+    }
   }, [state.sperren]);   // eslint-disable-line
 
   function setzeOderNimm(i) {
