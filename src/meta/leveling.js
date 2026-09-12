@@ -366,6 +366,33 @@ export function formationLegalOn(formation, unlockedIds, map, ownedBosses = []) 
     if (!ch || ch.kind === KIND.PAWN || !unlocked.has(id)) return false;
     if (required[id] === undefined) { if (!FORMATION_FLEX.has(id)) return false; flexN++; }
   }
+  /* ── EINE JE FIGUR, ZWEI NUR FUER DIE DREI (v1.1.6, Besitzerentscheid) ────
+     "Ich glaube, du hast mich da immer falsch verstanden. Man darf das Pferd,
+     den Turm und auch den Laeufer immer frei besetzen. Allerdings darf man
+     jede Figur, die man neu dazubekommt, nur EINMAL einsetzen. Die einzigen
+     Figuren, die man zweimal einsetzen darf, sind Laeufer, Turm und Pferd."
+
+     Bisher gab es dafuer gar keine Regel: die vier freien Plaetze zaehlten
+     nur ihre ANZAHL, nicht wer dort steht. Man konnte also vier Amazonen
+     aufstellen. Jetzt gilt: die drei alten Offiziere - Laeufer, Turm,
+     Springer - duerfen zweimal auf dem Feld stehen, jede rekrutierte Figur
+     genau einmal. Der Laeufer bringt seine zwei ohnehin als Pflicht mit;
+     Turm und Springer haben sie hier. */
+  /* GEMESSEN BEIM EINBAUEN: ein festes Limit von zwei waere falsch gewesen.
+     Die Standardaufstellung der 10x10-Arena traegt VIER Springer und zwei
+     Tuerme - mit einem Zweier-Deckel haette das Haus seine eigene
+     Grundstellung verboten. Die drei alten Offiziere bleiben deshalb frei
+     besetzbar ("man darf das Pferd, den Turm und auch den Laeufer immer frei
+     besetzen"), und nur die REKRUTIERTEN sind auf eins begrenzt - das ist
+     der Teil, der bisher ganz fehlte: man konnte vier Amazonen aufstellen. */
+  const FREI_BESETZBAR = new Set(["bishop", "rook", "knight"]);
+  const jeFigur = new Map();
+  for (const id of formation) {
+    if (id == null || isBossEntry(id) || id === "king" || id === "queen") continue;
+    if (FREI_BESETZBAR.has(id)) continue;
+    jeFigur.set(id, (jeFigur.get(id) || 0) + 1);
+  }
+  for (const [, n] of jeFigur) if (n > 1) return false;
   if (bossN > 1) return false;                      // one boss at most on the field
   // THE CROWN KEEPS ITS SQUARES: not merely adjacent — fixed. The king may sit
   // nowhere else, and the queen's square holds either the queen or the one

@@ -377,5 +377,22 @@ console.log("\n== DER KAMPF TRAEGT SEIN KAPITEL (Besitzerbefund v1.1.5) ==");
     (gs.match(/profile\?\.campaign\?\.league/g) || []).length === 1);
 }
 
+console.log("\n== EINE JE REKRUTIERTE FIGUR, die drei Offiziere frei (v1.1.6) ==");
+{
+  const L = await import("./src/meta/leveling.js");
+  const { MAPS, CHARACTER_LIST } = await import("./src/content/index.js");
+  const alle = CHARACTER_LIST.map((c) => c.id);
+  const arena = MAPS.find((m) => m.id === "arena");
+  const basis = ["rook","knight","knight","bishop","queen","king","bishop","knight","knight","rook"];
+  ok("die Grundstellung der Arena bleibt erlaubt (vier Springer!)",
+    L.formationLegalOn(basis, alle, arena, []));
+  const einHabicht = [...basis]; einHabicht[1] = "hawk";
+  ok("EINE rekrutierte Figur ist erlaubt", L.formationLegalOn(einHabicht, alle, arena, []));
+  const zweiHabichte = [...basis]; zweiHabichte[1] = "hawk"; zweiHabichte[8] = "hawk";
+  ok("ZWEI derselben rekrutierten Figur sind verboten", !L.formationLegalOn(zweiHabichte, alle, arena, []));
+  const zweiVerschieden = [...basis]; zweiVerschieden[1] = "hawk"; zweiVerschieden[8] = "amazon";
+  ok("zwei VERSCHIEDENE rekrutierte sind erlaubt", L.formationLegalOn(zweiVerschieden, alle, arena, []));
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

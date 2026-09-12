@@ -342,7 +342,12 @@ ok("fork maps open with the fork, arena stays shut", mapUnlocked(prof, "skirmish
   const mt = buildStageMatch(hawkT.id, prof); // die Falkenstation stellt den eigenen Falken
   ok("rematch vs owned challenger is flagged turncoat", mt.turncoat === true && mt.excludeId === "hawk");
   const arena = mapById("arena");
-  const saved = ["rook","hawk","knight","bishop","queen","king","bishop","knight","hawk","rook"];
+  /* v1.1.6: EINE rekrutierte Figur je Aufstellung. Diese Probe stellte zwei
+     Habichte auf - das war vor der Besitzerregel erlaubt und ist es nicht
+     mehr ("jede Figur, die man neu dazubekommt, nur einmal"). Sie prueft
+     ohnehin das Verraeter-Duell, nicht die Anzahl; ein Habicht genuegt dafuer,
+     der zweite Platz nimmt einen Springer. */
+  const saved = ["rook","hawk","knight","bishop","queen","king","bishop","knight","knight","rook"];
   const p2 = { ...prof, loadout: { formations: { arena: saved } } };
   const kinds = (a) => a.back.map((x) => x.kind).join("");
   ok("player army fields the hawk normally", kinds(buildArmy(p2, arena)).includes("H"));

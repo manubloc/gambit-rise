@@ -1,5 +1,24 @@
 # Changelog - Grand Gambit
 
+## 1.1.6
+- EINE JE REKRUTIERTE FIGUR (Besitzerentscheid): "Du hast mich immer falsch
+  verstanden. Man darf das Pferd, den Turm und auch den Laeufer immer frei
+  besetzen. Allerdings darf man jede Figur, die man neu dazubekommt, nur
+  EINMAL einsetzen." Bisher gab es dafuer GAR KEINE Regel - die freien Plaetze
+  zaehlten nur ihre Anzahl, nicht wer dort steht; man konnte vier Amazonen
+  aufstellen. Jetzt bleiben Laeufer, Turm und Springer frei besetzbar, jede
+  rekrutierte Figur genau einmal.
+- GEMESSEN BEIM EINBAUEN: ein festes Limit von zwei waere falsch gewesen. Die
+  Grundstellung der 10x10-Arena traegt VIER Springer - mit einem Zweier-Deckel
+  haette das Haus seine eigene Grundstellung verboten. Eine Probe haelt die
+  Arena-Grundstellung jetzt ausdruecklich fest.
+- EIN EIGENES SUCH-ICON (Besitzer: "dieses Icon, was bei Google hinterlegt
+  ist, sieht fuerchterlich aus"). Das feine Wappen taugt bei 32 px nicht: der
+  Goldring ist dort zwei Pixel breit und die Kapuzengestalt verschwindet. Neue
+  Fassung, absichtlich vergroebert - kraeftiger Ring, Motiv formatfuellend -
+  in 48/96/144/192 px, weil Google mindestens 48 verlangt und Vielfache von 48
+  bevorzugt.
+
 ## 1.1.5
 - DER WERKBANK-FEHLER IST GEFUNDEN, und er lag in der OPTIK, nicht in den
   Regeln. Der Besitzer: "Ich wechsle es ueber die Weltkarte, bin auf der Map,
