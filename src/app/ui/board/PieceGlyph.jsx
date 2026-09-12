@@ -532,7 +532,14 @@ export function PieceGlyph({ piece, showLevel = true, pov = "w", artStyle = "pai
           A big piece (the 2x2 dragon) fills its whole block, centred. The scale
           levels each figure's base to one width, anchored at the foot so the
           base stays planted on the square. */}
-      <div style={{ position: "relative", zIndex: 1, width: big ? "1.48em" : pieceSize, height: big ? "1.48em" : "calc(" + pieceSize + " * 1.16)", filter: glow, flex: "0 0 auto",
+      /* v1.1.9 (Besitzer: "du musst unten den Sockel noch sauber weiss faerben,
+         und er muss auch ein bisschen weiter nach oben bewegt werden, weil er
+         ist ein bisschen zu weit unten - du darfst ihn noch etwas kleiner
+         machen, minimal"): der Sockel ist im Bild gefaerbt (Steingrau, gemessen
+         139/139/138 statt 157/119/47 - die Standardmaske deckte nur 12 %, der
+         Sockel reicht aber 22,4 % hoch). Hier stehen die beiden anderen
+         Punkte: 1,48 -> 1,42 em (minimal kleiner) und ein Stueck nach oben. */
+      <div style={{ position: "relative", zIndex: 1, width: big ? "1.42em" : pieceSize, height: big ? "1.42em" : "calc(" + pieceSize + " * 1.16)", filter: glow, flex: "0 0 auto",
         /* v1.0.76: HIER atmet die Figur - eine Ebene unter Landung und Pop,
            damit sich zwei transform-Animationen nie mehr ueberschreiben.
            Waehrend des Fluges und im Zug danach ruht es zusaetzlich
@@ -540,7 +547,7 @@ export function PieceGlyph({ piece, showLevel = true, pov = "w", artStyle = "pai
         ...(animAn() && !big && !fliegt && !zuletzt && artStyle !== "classic"
           ? { animation: `ggAtmen 4.6s ease-in-out ${-(((piece.kind.charCodeAt(0) * 7 + lvl * 3) % 9) * 0.53).toFixed(2)}s infinite` }
           : null),
-        marginTop: big ? 0 : "-0.16em",
+        marginTop: big ? "-0.09em" : "-0.16em",   // v1.1.9: der Drache sass zu tief
         /* v1.0.57 (Besitzerbefund am BRETT: "Koenig zu weit links, Bishop zu
            weit rechts"): Der waagerechte Ausgleich stand hier zwar seit jeher
            im Kommentar - aber PAINTED_FIT.x ist bei JEDER Figur 0. Es wurde

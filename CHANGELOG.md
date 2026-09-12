@@ -1,5 +1,24 @@
 # Changelog - Grand Gambit
 
+## 1.1.9
+- DIE STATIONSWESEN AUF DEN KARTEN SIND FAST SO GROSS WIE DER GAMBIT
+  (Besitzer: "die sind zu klein, die sollten schon auch die Groesse haben wie
+  der Grand Gambit, und im besten Falle das Element, auf dem sie stehen,
+  ueberdecken"). GEMESSEN war es die halbe Groesse: der Wanderer misst 96 px
+  (mal Kartentiefe), die Wesen standen auf 46 - ein Meister sah aus wie eine
+  Spielfigur am Wegrand. Jetzt 84, das Finale 104, und sie haengen am SELBEN
+  Tiefenfaktor wie der Wanderer, damit vorn und hinten stimmig bleibt.
+- UND SIE STEHEN AUF IHRER MARKE, nicht dahinter: zIndex 0 -> 4 (unter dem
+  Wanderer mit 5), bottom 12 -> 2. Vorher lagen sie HINTER dem Medaillon.
+- DER DRACHENSOCKEL IST STEINGRAU statt goldbraun (gemessen 139/139/138 statt
+  157/119/47). Die Sockelfaerbung im Code deckt nur 12 % der Bildhoehe, der
+  Sockel des sitzenden Drachen reicht aber 22,4 % hoch - deshalb blieb Gold
+  stehen. Jetzt im Bild entsaettigt, mit gemessener Kante und weichem
+  Uebergang; Original in archiv/bilder/painted. Die klein-Fassung ist
+  nachgezogen.
+- Dazu die zwei anderen Punkte des Besitzers: der grosse Drache ist minimal
+  kleiner (1,48 -> 1,42 em) und sitzt hoeher (marginTop -0,09 em statt 0).
+
 ## 1.1.8
 - DIE GEGNER FEHLTEN IM RUECKBLICKFENSTER - und zwar von Anfang an, nicht
   durch meine Umbauten. Besitzerbefund: "Hast du jetzt alle Popups bei den

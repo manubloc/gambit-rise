@@ -318,5 +318,22 @@ console.log("\n== DER DRACHE ZIEHT WIE EIN KOENIG (Besitzerbefund v1.1.3) ==");
     as.includes("const RICHTUNGEN = [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [1, -1], [-1, 1], [-1, -1]]"));
 }
 
+console.log("\n== KARTENFIGUREN UND DRACHE (Besitzerbefunde v1.1.9) ==");
+{
+  const { readFileSync } = await import("node:fs");
+  const cs = readFileSync("src/app/ui/screens/CampaignScreen.jsx", "utf8");
+  ok("die Stationswesen haengen am Tiefenfaktor des Wanderers und sind gross",
+    cs.includes("const size = Math.round((finale ? 104 : 84) * tief)"));
+  ok("und sie liegen UEBER der Marke, nicht dahinter", cs.includes("zIndex: flee ? 6 : 4"));
+  const pg = readFileSync("src/app/ui/board/PieceGlyph.jsx", "utf8");
+  ok("der grosse Drache ist minimal kleiner und sitzt hoeher",
+    pg.includes('big ? "1.42em"') && pg.includes('marginTop: big ? "-0.09em"'));
+  /* der Sockel ist im BILD gefaerbt - das prueft eine Messung, nicht der Text */
+  const { execSync } = await import("node:child_process");
+  const farbe = execSync("python3 -c \"from PIL import Image; im=Image.open('src/app/ui/assets/painted/painted-dragon.webp').convert('RGBA'); px=im.load(); w,h=im.size; s=[px[x,y][:3] for y in range(int(h*0.93),h) for x in range(int(w*0.4),int(w*0.6),4) if px[x,y][3]>200]; print(int(sum(c[0] for c in s)/len(s)), int(sum(c[2] for c in s)/len(s)))\"").toString().trim().split(" ").map(Number);
+  ok(`der Drachensockel ist entsaettigt (R ${farbe[0]} ~ B ${farbe[1]}, vorher 157 gegen 47)`,
+    Math.abs(farbe[0] - farbe[1]) < 25);
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

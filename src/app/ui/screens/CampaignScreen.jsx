@@ -622,7 +622,20 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
                   const faced = viewing || facedNode(n);
                   if (!faced) return null;           // not yet fought: the post stands empty
                   const finale = n.id === "n22";
-                  const size = finale ? 68 : 46;
+                  /* v1.1.9 (Besitzer: "die Figuren, die man auf den Maps sieht, da
+                     wuerde ich dich bitten, die noch ein bisschen groesser zu machen -
+                     die sind zu klein, die sollten schon auch die Groesse haben wie der
+                     Grand Gambit, und im besten Falle das Element, auf dem sie stehen,
+                     ueberdecken"): GEMESSEN WAR ES DIE HALBE GROESSE. Der Wanderer
+                     misst 96 px (mal Kartentiefe), die Stationswesen standen auf 46 -
+                     ein Meister sah aus wie eine Spielfigur am Wegrand. Jetzt 84 bzw.
+                     104 fuer das Finale, also nah am Gambit, und sie haengen am
+                     SELBEN Tiefenfaktor wie er, damit vorn und hinten stimmig bleibt.
+                     Dazu ruecken sie tiefer (bottom 12 -> 2) und liegen UEBER der
+                     Marke statt dahinter (zIndex 0 -> 4, aber unter dem Wanderer mit
+                     5): sie stehen jetzt auf ihrem Medaillon, nicht daneben. */
+                  const tief = tiefeWanderer(ny(n), HM);
+                  const size = Math.round((finale ? 104 : 84) * tief);
                   const beaten = st === "cleared";
                   const flee = !viewing && fleeing === n.id;
                   // beaten figures leave the map — UNLESS the champion joined
@@ -631,8 +644,8 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
                   const joinedHere = n.id === "n22" || (!!n.boss.piece && unlockedSet.has(n.boss.piece));
                   if (beaten && !flee && !joinedHere) return null;
                   const painting = paintedForPiece({ kind: spec.kind, art: spec.art, bossId: spec.bossId });
-                  return <div aria-hidden style={{ position: "absolute", left: "50%", bottom: 12,
-                    transform: "translateX(-50%)", width: size, height: size, zIndex: flee ? 6 : 0, pointerEvents: "none",
+                  return <div aria-hidden style={{ position: "absolute", left: "50%", bottom: 2,
+                    transform: "translateX(-50%)", width: size, height: size, zIndex: flee ? 6 : 4, pointerEvents: "none",
                     animation: flee ? "bossFlee 1.5s ease-in forwards" : "none",
                     opacity: st === "locked" ? 0.55 : 1, filter: st === "locked"
                       ? "grayscale(.65) drop-shadow(0 2px 3px rgba(40,32,16,.3))"
