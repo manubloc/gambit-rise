@@ -74,29 +74,25 @@ export function AchievementsScreen({ profile, dispatch, t, initialOpenId = null 
           animation: `ggShine ${T.mo.sheen} linear 1.1s infinite` }} />
         {cornerDiamond({ top: 7, left: 7 })}{cornerDiamond({ top: 7, right: 7 })}
         {cornerDiamond({ bottom: 7, left: 7 })}{cornerDiamond({ bottom: 7, right: 7 })}
-        {/* v1.0.91 (Besitzerwunsch): DIE SCHATZKAMMER HAT EIN GESICHT - dieselbe
-            geschnitzte Szene auf rundem Steinsockel wie Corvo am Stand, damit
-            die beiden Raeume des Lagers als Paar lesbar sind. */}
-        {!schlichtAn() && paintedById("schatzkammer") && (
-          <img src={paintedById("schatzkammer")} alt="" draggable={false}
-            style={{ display: "block", margin: "0 auto 4px", width: "min(52%, 168px)", height: "auto",
-              filter: "drop-shadow(0 3px 8px rgba(0,0,0,.55)) drop-shadow(0 0 14px rgba(233,207,138,.22))",
-              pointerEvents: "none", userSelect: "none" }} />
-        )}
+        {/* v1.0.92 (Besitzer: "oben das Bild nehmen und darunter deine
+            Schatzkammer beschreiben - da muss schon ein Abstand zum Bild sein,
+            sie klebt ja direkt drauf"): BILD ZUERST, dann der Titel mit Luft.
+            Vorher stand der Titel darueber und das Bild schob sich von unten
+            an ihn heran. */}
+        {/* v1.0.91 (Besitzerwunsch): DIE KAMMER HAT EIN GESICHT - wie Corvo
+            beim Kraemer. Gewoelbe aus Quadern, offene Truhe, zwei Kerzen, auf
+            demselben runden Steinsockel wie der Kraemerstand. */}
+        <div style={{ display: "grid", placeItems: "center", marginTop: 2, marginBottom: 14 }}>
+          <img src={kammerBild} alt="" draggable={false} decoding="async"
+            style={{ width: "min(58%, 208px)", height: "auto", display: "block",
+              filter: "drop-shadow(0 3px 8px rgba(0,0,0,.55)) drop-shadow(0 0 16px rgba(233,207,138,.16))" }} />
+        </div>
         <div className="gg-serif" style={{ fontSize: 13, textTransform: "uppercase", letterSpacing: ".3em",
           ...goldText, filter: "drop-shadow(0 1px 1px rgba(0,0,0,.5))" }}>{t("ach.wallet")}</div>
         <div style={{ display: "flex", alignItems: "center", gap: 8, margin: "7px 12%" }}>
           <span style={{ flex: 1, height: 1, background: "linear-gradient(90deg, transparent, #8a6d35)" }} />
           <span style={{ width: 5, height: 5, background: "#d9b565", transform: "rotate(45deg)" }} />
           <span style={{ flex: 1, height: 1, background: "linear-gradient(90deg, #8a6d35, transparent)" }} />
-        </div>
-        {/* v1.0.91 (Besitzerwunsch): DIE KAMMER HAT EIN GESICHT - wie Corvo
-            beim Kraemer. Gewoelbe aus Quadern, offene Truhe, zwei Kerzen, auf
-            demselben runden Steinsockel wie der Kraemerstand. */}
-        <div style={{ display: "grid", placeItems: "center", marginTop: 2 }}>
-          <img src={kammerBild} alt="" draggable={false} decoding="async"
-            style={{ width: "min(58%, 208px)", height: "auto", display: "block",
-              filter: "drop-shadow(0 3px 8px rgba(0,0,0,.55)) drop-shadow(0 0 16px rgba(233,207,138,.16))" }} />
         </div>
         <div style={{ display: "flex", justifyContent: "center", gap: 26, alignItems: "center", margin: "2px 0 8px" }}>
           <span style={{ display: "inline-flex", alignItems: "center", gap: 9 }}>

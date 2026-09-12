@@ -679,7 +679,19 @@ export default function App() {
       {leaveTo && <LeaveMatchAsk t={t} resumable={!!match && !pvp}
         onStay={() => setLeaveTo(null)}
         onLeave={() => { setPvp(null); setMatch(null); setQuick(null); setDailyGame(null); setTab(leaveTo); setView("hub"); setLeaveTo(null); }} />}
-      {(
+      {(<>
+        {/* v1.0.92 (Besitzer: "wenn man hinter der Menueleiste durchscrollt,
+            ist rechts und links oben im Eck einfach so eine Kante - nicht dass
+            es aussieht, als waere da nur der Hintergrund schwarz"): DER SAUM.
+            Die Leiste ist rund und durchscheinend; an ihren Ecken lief der
+            Inhalt hart hinter sie. Jetzt blendet ein Verlauf darunter vom
+            Seitenhintergrund nach transparent aus - was durchscrollt,
+            verschwindet weich. Volle Breite, damit auch die Ecken gedeckt
+            sind; zIndex 6 gegen die Leiste (7). */}
+        <div aria-hidden style={{ position: "sticky", top: 0, zIndex: 6, width: "100vw",
+          marginLeft: "calc(50% - 50vw)", marginRight: "calc(50% - 50vw)", marginBottom: -74,
+          height: 74, pointerEvents: "none",
+          background: `linear-gradient(180deg, ${T.bg} 0%, ${T.bg} 34%, ${T.bg}d8 62%, ${T.bg}00 100%)` }} />
         <aside data-gg-leiste="oben" style={{ width: "100%", maxWidth: 1020, position: "sticky", top: 12, zIndex: 7,
           background: "linear-gradient(180deg, rgba(60,38,110,.62) 0%, rgba(30,18,58,.66) 100%)",
           backdropFilter: `blur(${T.glassBlur})`, WebkitBackdropFilter: `blur(${T.glassBlur})`,
@@ -692,7 +704,7 @@ export default function App() {
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 4, flex: "1 1 auto", minWidth: 0 }}>{railItems}</div>
           {currencyRow}
         </aside>
-      )}
+      </>)}
       <main style={{ width: "100%", minWidth: 0, flex: "1 1 auto", minHeight: 0,
         overflowY: immersive ? "hidden" : "auto", overscrollBehavior: "none",
         // AUSBLENDUNG AN DER MENUELEISTE (Besitzer, v0.62): was hinter das

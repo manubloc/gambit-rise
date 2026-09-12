@@ -1,5 +1,21 @@
 # Changelog - Grand Gambit
 
+## 1.0.93
+- DIE SCHATZKAMMER ZEIGTE IHR BILD ZWEIMAL. Mein Fehler aus v1.0.91: es gab
+  schon einen Einbau (import kammerBild), ich habe einen zweiten ueber
+  paintedById daruebergesetzt. Der Doppelgaenger ist fort.
+- BILD OBEN, TITEL DARUNTER - mit Abstand (Besitzer: "da muss schon ein
+  Abstand zum Bild sein, sie klebt ja direkt drauf"). Vorher stand der Titel
+  DARUEBER und das Bild schob sich von unten an ihn heran; jetzt kommt erst
+  das Gemaelde, dann 14 px Luft, dann "Deine Schatzkammer".
+- DER SAUM UNTER DER KOPFLEISTE (Besitzer: "wenn man hinter der Menueleiste
+  durchscrollt, ist rechts und links oben im Eck einfach so eine Kante").
+  Die Leiste ist rund und durchscheinend; an ihren Ecken lief der Inhalt
+  hart hinter sie. Jetzt blendet ein Verlauf darunter vom Seitenhintergrund
+  nach transparent aus - ueber die VOLLE Breite, damit auch die Ecken
+  gedeckt sind, und unter der Leiste (zIndex 6 gegen 7). Was durchscrollt,
+  verschwindet weich statt an einer Kante zu enden.
+
 ## 1.0.92
 - DAS TALENTBAND VERSCHWAND HINTER DEM BRETT. URSACHE: es lag mit dem Brett
   in EINEM Raster mit alignItems/justifyItems center - das Raster legte beide
