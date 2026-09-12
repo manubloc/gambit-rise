@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { CAMPAIGN12 } from "../../../content/campaign12.gen.js";
 import { hashPin } from "../../../platform/index.js";
 import { SPAR_POSTEN, sparsam } from "../sparmodus.js";
 import { animAn, setAnimAn } from "../anim.js";
@@ -14,6 +15,12 @@ import { setHouseDesign } from "../livery.js";
 export function ProfileScreen({ profile, dispatch, t, account, onSwitchSave, onLogout }) {
   const en = profile.lang === "en";
   const [devPct, setDevPct] = useState(0); // workbench: journey progress slider
+  /* v1.0.97: die Kapitelliste der Werkbank faellt aus der Kampagne heraus. */
+  const LIGEN_DER_KAMPAGNE = useMemo(() => {
+    const s = new Set();
+    for (const n of CAMPAIGN12) { const l = n.league ?? n.liga; if (l) s.add(l); }
+    return [...s].sort((a, b) => a - b);
+  }, []);
   const [devLg, setDevLg] = useState(profile.campaign?.league || 1); // workbench: league pick — applied together with the dial via SETZEN
   const [pin, setPin] = useState("");
   /* v1.0.17: steht beim Admin noch das mitgelieferte Standardwort? Die Antwort
@@ -248,7 +255,14 @@ export function ProfileScreen({ profile, dispatch, t, account, onSwitchSave, onL
           Profil unterm Admin breiter war als alle anderen Reiter. */}
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, flexWrap: "wrap" }}>
         <span className="gg-serif" style={{ fontSize: 12.5, color: T.dim }}>{t("profile.devLeague")}</span>
-        {[1,2,3,4,5,6,7,8,9,10].map((lg) => (
+        {/* v1.0.97 (Besitzer: "da fehlen die Stufen elf und zwoelf"): DIE
+            WERKBANK KANNTE NUR ZEHN KAPITEL. Die Kampagne hat aber ZWOELF -
+            gemessen an campaign12.gen.js: 529 Stationen, Ligen 1 bis 12. Wer
+            die letzten beiden Kapitel testen wollte, kam gar nicht hin. Die
+            Liste wird jetzt aus der Kampagne selbst abgeleitet, nicht
+            abgeschrieben: eine feste Zahl hier ist am Tag des dreizehnten
+            Kapitels wieder falsch, und niemand merkt es. */}
+        {LIGEN_DER_KAMPAGNE.map((lg) => (
           <button key={lg} onClick={() => setDevLg(lg)}
             title={t("profile.devApplyHint")}
             style={{ minWidth: 26, padding: "5px 4px", borderRadius: 7, cursor: "pointer", fontFamily: "inherit",

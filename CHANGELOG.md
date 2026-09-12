@@ -1,5 +1,17 @@
 # Changelog - Grand Gambit
 
+## 1.0.97
+- DIE WERKBANK KANNTE NUR ZEHN KAPITEL (Besitzer: "da fehlen die Stufen elf
+  und zwoelf"). Die Kampagne hat aber ZWOELF - gemessen an campaign12.gen.js:
+  529 Stationen, Ligen 1 bis 12. Wer die letzten beiden Kapitel testen
+  wollte, kam gar nicht hin. Die Liste wird jetzt aus der Kampagne selbst
+  abgeleitet statt abgeschrieben: eine feste Zahl waere am Tag des
+  dreizehnten Kapitels wieder falsch, ohne dass es auffaellt.
+- Der Werkbank-Hinweis nennt jetzt Kapitel 12 als Vollausbau, in beiden
+  Sprachen (vorher stand dort 10 - passend zur alten Liste, aber falsch).
+- Geprueft: withProgressPct rechnet das Kapitel modulo 12 und kann die neuen
+  Stufen setzen; es musste nichts nachgezogen werden.
+
 ## 1.0.96
 - DER SPRUNG BEIM SETZEN STAND IM ERSTEN KEYFRAME DER LANDUNG. ggLandung
   begann bei translateY(-7%): der Gleiter legt die Figur auf dem Zielfeld ab,

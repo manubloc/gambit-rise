@@ -1183,6 +1183,17 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
   ok("die Kachel zentriert ueber den Rand allein, ohne Transform",
     /margin:\s*"0 0 -7px -9%"/.test(q) && !/margin:\s*"0 0 -7px 50%"/.test(q));
 
+  /* v1.0.97: die Werkbank muss ALLE Kapitel der Kampagne anbieten - eine
+     feste Liste war bei 10 stehengeblieben, waehrend die Kampagne 12 hat. */
+  {
+    const ps = readFileSync("src/app/ui/screens/ProfileScreen.jsx", "utf8");
+    ok("die Werkbank leitet ihre Kapitel aus der Kampagne ab",
+      ps.includes("LIGEN_DER_KAMPAGNE") && !ps.includes("{[1,2,3,4,5,6,7,8,9,10].map"));
+    const st = readFileSync("src/app/i18n/strings.js", "utf8");
+    ok("der Werkbank-Hinweis nennt Kapitel 12 als Vollausbau, in beiden Sprachen",
+      st.includes("Kapitel 12 ist der Vollausbau") && st.includes("chapter 12 is the full build"));
+  }
+
   /* 2. Bauer und Grand Gambit tragen in der Aufstellung EIN Mass. */
   ok("kein getrenntes Mass mehr fuer Held und Bauer",
     !/isHero \? "clamp\(26px, 10\.5vw, 86px\)" : "clamp\(24px, 9\.4vw, 76px\)"/.test(q));
