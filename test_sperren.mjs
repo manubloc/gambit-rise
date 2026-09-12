@@ -254,5 +254,27 @@ console.log("\n== KLANG: ein Schlag, aber Stein anders als Holz (v1.1.1) ==");
     kl.includes("presse.attack.value = 0.0003") && kl.includes("presse.ratio.value = 20"));
 }
 
+console.log("\n== DAS KAPITEL GEHOERT DER STATION, nicht dem Profil (v1.1.2) ==");
+{
+  /* Besitzerbefund: "Ich teste ueber die Werkbank Kapitel zwoelf, gehe zurueck
+     in ein anderes Kapitel, starte dort ein Level - und er startet immer das
+     Level vom Werkbank-Kapitel." Diese Probe stellt genau das: dieselbe
+     Station, zwei verschiedene Profilkapitel. Die Werte MUESSEN gleich sein. */
+  const { buildStageMatch } = await import("./src/meta/campaign.js");
+  const bau = (liga, id) => buildStageMatch(id, { campaign: { league: liga, cleared: [] }, campDifficulty: "normal" });
+  const kern = (m) => JSON.stringify({ map: m.map, rules: m.rules, gold: m.gold,
+    stufen: Object.values(m.aiArmy || {}).filter((p) => p && p.level).map((p) => p.level).sort(),
+    boss: m.boss?.id || null });
+  for (const id of ["L03s00", "L12s00", "L07s00"]) {
+    const a = kern(bau(3, id)), b = kern(bau(12, id)), c = kern(bau(1, id));
+    ok(`${id} baut sich gleich, egal welches Kapitel im Profil steht`, a === b && b === c);
+  }
+  /* und der Rueckblick (leagueOverride) darf weiter umskalieren - das ist
+     gewollt: eine gemeisterte Liga spielt man, wie sie WAR. */
+  const rueck3 = kern(buildStageMatch("L03s00", { campaign: { league: 12, cleared: [] } }, 1));
+  const normal = kern(bau(12, "L03s00"));
+  ok("der Rueckblick skaliert weiterhin auf die uebergebene Liga", rueck3 !== normal);
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

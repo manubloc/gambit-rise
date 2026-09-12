@@ -507,6 +507,16 @@ export const GLOBAL_CSS = `
     100% { opacity: 1; transform: scale(.98) rotate(0deg); } }
   /* v1.0.87: der Erfolgsstern im Stationsfenster - glaenzt und atmet.
      Nur transform und opacity. */
+  /* v1.1.2 (Besitzeridee): DIE PERLE LOEST SICH AUF. In dem Moment, wo der
+     Zauber wirkt, strahlt die Kugel kurz auf und ist dann fort - erst danach
+     zieht die Figur. Nur transform und opacity, wie es die Hausregel fuer
+     Keyframes verlangt. */
+  @keyframes ggPerleLoest {
+    0%   { transform: scale(1);    opacity: 1; }
+    32%  { transform: scale(1.85); opacity: 1; }
+    58%  { transform: scale(2.3);  opacity: .55; }
+    100% { transform: scale(2.9);  opacity: 0; }
+  }
   @keyframes ggErfolgStern { 0%, 100% { transform: scale(1) rotate(0deg); opacity: .92; }
     50% { transform: scale(1.22) rotate(12deg); opacity: 1; } }
   @keyframes ggZielAtem { 0%, 100% { opacity: .82; } 50% { opacity: 1; } }

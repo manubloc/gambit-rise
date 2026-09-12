@@ -432,6 +432,12 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
       const ch = CHARACTERS_BY_ID[KIND_TO_CHAR[kind]];
       return ch ? (en ? ch.nameEn : ch.nameDe) : (en ? "Piece" : "Figur");
     };
+    /* v1.1.2 (Besitzeridee): "Man koennte dieses Aufloesen der Perle immer mit
+       einem kleinen Ton versehen." Der Zug traegt, welches Talent er
+       verbraucht hat (consumes) - genau daran haengt der Klang. Er laeuft
+       SOFORT, waehrend die Perle aufstrahlt, und nicht erst mit der Meldung:
+       der Ton gehoert zum Verglimmen, nicht zum Text danach. */
+    if (lm.consumes) { try { klang("faehigkeit"); } catch {} }
     let text = null;
     /* 4.9.2026 (Besitzerbefund "jemand wollte ihn umwerfen, aber er ist
        nicht gestorben"): DER SCHILD MELDET SICH. Im Schachmodus faengt ein

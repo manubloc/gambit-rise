@@ -109,6 +109,17 @@ function StatDuo({ piece, focus, shrink = 1 }) {
      der Spieler weiss nicht, ob sie je eine hatte. */
   const kannWirken = (piece.abilities || []).some((id) => ABILITIES[id]?.live);
   const verbraucht = Object.keys(piece.used || {}).length > 0;
+  /* v1.1.2 (Besitzeridee): "In dem Moment, wo man eine Faehigkeit einsetzt,
+     waere es cool, wenn sich die Zauberkugel komplett in Luft aufloest - kurz
+     leuchtet, ausstrahlt, und dann ist sie weg. Und erst danach macht die
+     Figur den besonderen Zug."
+
+     Der Augenblick ist erkennbar: `zuletzt` heisst, diese Figur hat gerade
+     gezogen. Traegt sie dabei einen frischen Verbrauch, dann war es ein
+     Zauber - und die Perle loest sich auf, statt still zu "verbraucht"
+     umzuspringen. Das Aufloesen laeuft einmal (both), danach steht die matte
+     Perle. Der Klang dazu liegt im Spielbildschirm, wo der Zug bekannt ist. */
+  const loestSich = verbraucht && !!piece.justMoved && animAn();
   // EINE KUGEL FUER ALLE (v0.38.6): dieselbe gegossene Siegelkugel wie im
   // Hofstaat - Goldrand, Glanzlicht, Zahl geometrisch mittig. Vorher trug das
   // Brett noch die alte Bildkugel mit optischer Versatz-Korrektur, weshalb die
@@ -128,8 +139,9 @@ function StatDuo({ piece, focus, shrink = 1 }) {
     {orb("power", piece.atk)}
     {kannWirken && <span style={{ width: d * 0.66 + "em", height: d * 0.66 + "em",
       display: "grid", placeItems: "center", marginLeft: -(gap * 0.42) + "em", marginRight: -(gap * 0.42) + "em",
-      marginBottom: d * 0.16 + "em", zIndex: 1 }}>
-      <StatOrbBadge kind={verbraucht ? "spent" : "spell"} v="" size={`${d * 0.66}em`} num={0.58} />
+      marginBottom: d * 0.16 + "em", zIndex: 1,
+      ...(loestSich ? { animation: "ggPerleLoest .52s cubic-bezier(.3,.02,.5,1) both" } : null) }}>
+      <StatOrbBadge kind={verbraucht && !loestSich ? "spent" : "spell"} v="" size={`${d * 0.66}em`} num={0.58} />
     </span>}
     {orb("life", piece.hp)}
   </span>;

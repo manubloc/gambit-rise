@@ -179,7 +179,32 @@ export function buildStageMatch(id, profile = null, leagueOverride = null) {
   // foes and bosses scale to that old league, and every station is a friendly:
   // no first-clear, no progression, just the road walked once more.
   const looking = leagueOverride != null;
-  const lgMap = looking ? leagueOverride : (profile?.campaign?.league || 1);
+  /* ── DAS KAPITEL GEHOERT DER STATION (v1.1.2, Besitzerbefund) ─────────────
+     "Ich teste ueber die Werkbank Kapitel zwoelf. Jetzt moechte ich zurueck
+     in ein anderes Kapitel und dort ein Level starten - und dann startet er
+     mir immer das Level von dem, was ich ueber die Werkbank ausgewaehlt
+     habe. Liegt es an der Werkbank oder an einem Bug?"
+
+     ES IST EIN BUG, und zwar hier: das Kapitel kam aus dem PROFIL. Solange
+     man vorwaerts spielt, stimmen Profilkapitel und Stationskapitel ueberein
+     und nichts faellt auf. Weichen sie ab - ueber die Werkbank, oder wenn man
+     auf der Karte in ein frueheres Kapitel zurueckblaettert -, dann wurde die
+     Station mit den Werten des PROFILKAPITELS gebaut: falsche Karte, falsch
+     skalierte Gegner, falscher Meister. Jede Station traegt ihr Kapitel aber
+     selbst (node.league, geprueft an CAMPAIGN12: L03s00 -> 3, L12s00 -> 12).
+     Sie ist die richtige Quelle; das Profil ist nur noch der Rueckfall, wenn
+     eine Station ihr Kapitel nicht kennt. */
+  const lgStation = node.league ?? node.liga ?? profile?.campaign?.league ?? 1;
+  /* WELTRUNDEN BLEIBEN ERHALTEN. Die Bestien rotieren mit jeder Runde um die
+     Welt (Liga 13 ist Kapitel 1 der zweiten Runde), und das haengt zu Recht
+     am Spielerstand, nicht an der Station. Die Runde faellt aus der
+     Profilliga heraus und wird auf das STATIONSKAPITEL aufgeschlagen: eine
+     Station aus Kapitel 3 in der zweiten Runde ist Liga 15 - Kapitel-3-Karte
+     und -Skalierung, aber das Monster der zweiten Runde. So bleibt beides
+     richtig, was vorher in einer Zahl steckte und sich widersprach. */
+  const runde = Math.floor(((profile?.campaign?.league ?? 1) - 1) / 12);
+  const lgMap = looking ? leagueOverride : lgStation;
+  const lgBestie = looking ? leagueOverride : lgStation + runde * 12;
   const mapId = effectiveMap(node, lgMap);
   const map = mapById(mapId);
   // CLASSIC boards mean classic chess: NO level bumps for the AI either —
@@ -192,7 +217,7 @@ export function buildStageMatch(id, profile = null, leagueOverride = null) {
   const formation = node.formation || map.defaultFormation;
   const aiArmy = buildArmyFromFormation((cid) => chess ? 1 : base(cid) + (node.bump || 0) + leagueBump(lgMap), formation);
   const lg = lgMap;
-  const boss0 = nodeBossSpec(node, lg);
+  const boss0 = nodeBossSpec(node, lgBestie);   // v1.1.2: Bestien nach Weltrunde, Karte nach Station
   const boss = boss0 && lg > 1 ? { ...boss0, hp: boss0.hp + 2 * (lg - 1), atk: boss0.atk + (lg - 1) } : boss0;
   let bossInfo = null;
   if (boss) {

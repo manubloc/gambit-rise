@@ -1,5 +1,34 @@
 # Changelog - Grand Gambit
 
+## 1.1.2
+- DAS KAPITEL GEHOERT DER STATION, NICHT DEM PROFIL - ein echter Fehler, den
+  der Besitzer beim Testen fand: "Ich teste ueber die Werkbank Kapitel zwoelf,
+  gehe zurueck in ein anderes Kapitel, starte dort ein Level - und er startet
+  immer das Level vom Werkbank-Kapitel." Ursache: buildStageMatch nahm
+  profile.campaign.league. Solange man vorwaerts spielt, stimmen Profil- und
+  Stationskapitel ueberein und nichts faellt auf; weichen sie ab (Werkbank,
+  oder Zurueckblaettern auf der Karte), wurde die Station mit den Werten des
+  PROFILKAPITELS gebaut - falsche Karte, falsch skalierte Gegner, falscher
+  Meister. Jede Station traegt ihr Kapitel selbst (node.league); sie ist
+  jetzt die Quelle, das Profil nur noch Rueckfall. Der Rueckblick
+  (leagueOverride) skaliert weiter wie gewollt. Probe: dieselbe Station baut
+  sich identisch, egal welches Kapitel im Profil steht.
+- DABEI GETRENNT, was vorher in einer Zahl steckte und sich widersprach: die
+  KARTE und die SKALIERUNG folgen der Station, die BESTIEN folgen der
+  Weltrunde. Die Monster rotieren mit jeder Runde um die Welt (Liga 13 ist
+  Kapitel 1 der zweiten Runde) - das haengt zu Recht am Spielerstand. Die
+  Runde faellt jetzt aus der Profilliga heraus und wird auf das
+  Stationskapitel aufgeschlagen: eine Station aus Kapitel 3 in der zweiten
+  Runde ist Liga 15 - Kapitel-3-Karte, aber das Monster der zweiten Runde.
+  Zwei Proben musste ich umdrehen (Uhr, Monsterrotation); sie hielten das
+  alte, falsche Verhalten fest.
+- DIE ZAUBERPERLE LOEST SICH AUF (Besitzeridee): im Augenblick des Zaubers
+  strahlt die Kugel auf, waechst und verglimmt - erst danach steht die matte
+  Perle. Neuer Keyframe ggPerleLoest (nur transform und opacity). Dazu ein
+  Ton, der SOFORT mit dem Aufstrahlen laeuft, nicht erst mit der Meldung: er
+  gehoert zum Verglimmen. Ausgeloest wird er ueber lm.consumes - der Zug sagt
+  selbst, ob er ein Talent verbraucht hat.
+
 ## 1.1.1
 - DAS KRATZEN IM LAUTSPRECHER, GEMESSEN STATT GERATEN. Alle 46 Klaenge
   durchgemessen (ffmpeg, Spitze und letzte 5 ms): KEINER endet hart - das

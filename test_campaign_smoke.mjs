@@ -67,8 +67,15 @@ ok("every dragon node unfolds its 2x2 block with valid wing refs", dragonNodes >
      der Schachschule durchgehend rules:"chess" - dort steht jede Figur auf
      Stufe 1, egal aus welcher Liga man zurueckblickt, und ein Vergleich
      "frueher schwaecher als heute" kann gar nichts zeigen. */
-  const RUECK = CAMPAIGN.find((n) => n.rules === "hp" && !n.boss && n.league <= 3).id;
-  const look = buildStageMatch(RUECK, p5, 2);
+  /* v1.1.2: die Station skaliert jetzt nach IHREM Kapitel, nicht nach dem
+     Spielerstand. "Heute" ist damit fuer eine alte Station schon die alte
+     Skalierung - der Vergleich braucht also einen Rueckblick auf eine noch
+     FRUEHERE Liga als die der Station selbst. Vorher verglich die Probe
+     Stationsliga gegen Profilliga; das war genau das Verhalten, das der
+     Besitzer als Fehler gemeldet hat. */
+  const rueckNode = CAMPAIGN.find((n) => n.rules === "hp" && !n.boss && n.league === 3);
+  const RUECK = rueckNode.id;
+  const look = buildStageMatch(RUECK, p5, 1);
   ok("look-back match is a friendly with no first-clear and no timer",
     look.friendly === true && look.firstClear === false && look.timer == null);
   const now = buildStageMatch(RUECK, p5);

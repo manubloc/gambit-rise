@@ -272,5 +272,22 @@ console.log("\n== ZEIGT DER KERN NUR ERLAUBTE FELDER? (Besitzerbefund 12.9.) =="
     + (daneben.length ? " - DANEBEN: " + daneben.slice(0, 6).join(" ") : ""), daneben.length === 0);
 }
 
+console.log("\n== DIE PERLE LOEST SICH AUF (Besitzeridee v1.1.2) ==");
+{
+  const { readFileSync } = await import("node:fs");
+  const th = readFileSync("src/app/ui/theme.js", "utf8");
+  ok("es gibt einen Keyframe fuers Verglimmen", th.includes("@keyframes ggPerleLoest"));
+  ok("er nutzt nur transform und opacity (Hausregel)",
+    /@keyframes ggPerleLoest \{[^}]*\}[^@]*/.test(th) &&
+    !/@keyframes ggPerleLoest[\s\S]{0,220}(filter|box-shadow|left:|top:)/.test(th));
+  const pg = readFileSync("src/app/ui/board/PieceGlyph.jsx", "utf8");
+  ok("die Perle strahlt auf, wenn die Figur gerade gezaubert hat",
+    pg.includes("const loestSich = verbraucht && !!piece.justMoved") && pg.includes("ggPerleLoest"));
+  ok("und sie bleibt beim Aufloesen noch die HELLE Perle, nicht die matte",
+    pg.includes('verbraucht && !loestSich ? "spent" : "spell"'));
+  const gs = readFileSync("src/app/ui/screens/GameScreen.jsx", "utf8");
+  ok("ein Ton begleitet das Verglimmen", gs.includes('if (lm.consumes) { try { klang("faehigkeit"); } catch {} }'));
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

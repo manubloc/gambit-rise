@@ -142,10 +142,21 @@ ok("league 5 monster boss: 6-minute total budget", tMon?.type === "total" && tMo
 const tEli = stageTimer(nb2("L03s23"), 5);
 ok("league 5 elite piece boss: 20s per move", tEli?.type === "move" && tEli.seconds === 20);
 ok("clocks tighten but stay bounded", stageTimer(nb2("L01s44"), 30).seconds === 180 && stageTimer(nb2("L03s23"), 30).seconds === 12);
-ok("buildStageMatch carries the clock", (() => {
-  const p = { ...dp2(), campaign: { league: 5, cleared: [], unlocked: [] } };
-  const m = bsm2(ERWACHEN, p);
-  return m.timer?.type === "total" && m.timer.seconds === 360 && bsm2(ERWACHEN, dp2()).timer === null;
+/* v1.1.2: DIE UHR HAENGT AN DER STATION, nicht am Spielerstand. Vorher stand
+   hier: Profil auf Liga 5 -> auch eine Station aus Kapitel 1 (ERWACHEN)
+   bekommt die Uhr. Das war das alte Verhalten und der gemeldete Fehler: wer
+   in Kapitel 5 steht und eine alte Station nachspielt, bekam plötzlich
+   Zeitdruck, den diese Station nie hatte. Jetzt umgedreht - die Boss-Station
+   L05s16 traegt ihre 360 Sekunden IMMER, und ERWACHEN traegt NIE eine Uhr,
+   ganz gleich, wie weit der Spieler ist. */
+ok("die Uhr haengt an der Station, nicht am Spielerstand", (() => {
+  const tief = { ...dp2(), campaign: { league: 1, cleared: [], unlocked: [] } };
+  const weit = { ...dp2(), campaign: { league: 12, cleared: [], unlocked: [] } };
+  const a = bsm2("L05s16", tief), b = bsm2("L05s16", weit);
+  const fruehA = bsm2(ERWACHEN, tief), fruehB = bsm2(ERWACHEN, weit);
+  return a.timer?.type === "total" && a.timer.seconds === 360
+    && b.timer?.seconds === 360                 // gleich, egal wie weit der Spieler ist
+    && fruehA.timer === null && fruehB.timer === null;  // Kapitel 1 bleibt ohne Uhr
 })());
 
 // ── the purse (v0.5): visible gold per win, tolls, richer claims ─────────────
