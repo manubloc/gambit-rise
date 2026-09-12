@@ -1167,7 +1167,19 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
             <Chip className="gg-serif" color={"#3c4a22"} bg={"#d3deb2"}>+{Math.round((node.reward?.xp || 0) * mult * (friendly ? 0.25 : 1))} XP</Chip>
             <Chip className="gg-serif" color={"#17110a"} bg={"#e8c96a"}><GoldCoin size={12} /> +{Math.round((5 + 2 * node.row + (node.boss ? 6 : 0)) * mult / (friendly ? 2 : 1))}</Chip>
           </div>
-          {boss && (status === "cleared" || facedSet.has(sel)) && (() => {
+          {/* v1.1.8 (Besitzerentscheid): DIE FIGUR IST IMMER ZU SEHEN. "Hast du
+              jetzt alle Popups bei den Maps ueberarbeitet, dass ich die Gegner,
+              wenn neue Figuren, gar nicht mehr in dem Popup sehe? Das ist nicht
+              gewollt - ich moechte die auf jeden Fall sehen."
+
+              Die Karte hing bisher an einer Geheimhaltungsregel: sie erschien
+              nur bei einer geraeumten oder schon betretenen Station
+              (status cleared oder faced). Wer zum ersten Mal vor einem Meister
+              stand, sah nichts - genau der Moment, in dem man wissen will,
+              was dort wartet. Die Regel bleibt fuer die GESCHICHTE (tell, eine
+              Zeile darueber): der Text erzaehlt sich erst, wenn man dem Wesen
+              begegnet ist. Das BILD und die Werte stehen jetzt immer da. */}
+          {boss && (() => {
             // room for the name and the two value orbs (60px) stays reserved
             const bossArtS = Math.round(Math.max(120, Math.min(160, (panelW - 50) * 0.46))); // v1.0.87: groesser, weil das Bild nicht mehr gezoomt wird
             return (

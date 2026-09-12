@@ -1,5 +1,17 @@
 # Changelog - Grand Gambit
 
+## 1.1.8
+- DIE FIGUR IM STATIONSFENSTER IST IMMER ZU SEHEN (Besitzerentscheid: "Ich
+  moechte die auf jeden Fall sehen"). Die Karte hing an einer
+  Geheimhaltungsregel: sie erschien nur bei einer geraeumten oder schon
+  betretenen Station (cleared oder faced). Wer zum ersten Mal vor einem
+  Meister stand, sah nichts - genau der Moment, in dem man wissen will, was
+  dort wartet. Kein Fehler von mir, sondern eine alte Absicht; sie ist jetzt
+  aufgehoben.
+- WAS BLEIBT: die GESCHICHTE erzaehlt sich weiter erst nach der Begegnung
+  (dieselbe Regel, eine Zeile darueber), und der Hinweis, dass sich diese
+  Figur anwerben laesst, auch. Das Bild und die Werte stehen immer da.
+
 ## 1.1.7
 - DAS SUCH-ICON IST WIEDER DAS ORIGINALWAPPEN (Besitzer: "Gold im Original ist
   aber viel besser"). Mein Anlauf in v1.1.6 hat den Goldring NACHGEZEICHNET,
