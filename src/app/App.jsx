@@ -31,6 +31,7 @@ import { GameScreen, QuickSetup } from "./ui/screens/GameScreen.jsx";
 import { ArmyScreen } from "./ui/screens/ArmyScreen.jsx";
 import { CampaignScreen } from "./ui/screens/CampaignScreen.jsx";
 import { MysticBackground } from "./ui/MysticBackground.jsx";
+import { animAn } from "./ui/anim.js";   // v1.1.4: der Muenzregen fragt, ob Bewegung erlaubt ist
 import { RissBoden } from "./ui/RissBoden.jsx";
 import { BrettHintergrund } from "./ui/BrettHintergrund.jsx";
 import { setSparmodus } from "./ui/sparmodus.js";
@@ -581,10 +582,28 @@ export default function App() {
         <span className="gg-serif" style={{ fontSize: wide ? 13 : 10, fontWeight: 800, marginTop: wide ? 0 : 3,
           letterSpacing: ".09em", textTransform: "uppercase",
           textShadow: on ? "0 0 8px rgba(196,181,253,.6), 0 1px 2px rgba(0,0,0,.6)" : "0 1px 2px rgba(0,0,0,.55)" }}>{t(tb.key)}</span>
-        {badge && <span style={{ position: "absolute", top: wide ? 7 : 4, right: wide ? 8 : "calc(50% - 17px)",
+        {/* v1.1.4 (Besitzeridee): DER MUENZREGEN. Der Zaehler gab es schon, aber
+            still - man musste hinsehen. Jetzt poppt er auf, sobald eine
+            Belohnung faellig wird, und drei Muenzen rasseln ueber die Leiste
+            herunter. Der Regen laeuft EINMAL je neuer Belohnung (Schluessel am
+            Zaehler), nicht endlos: ein Dauerregen waere nach einer Minute
+            nur noch Unruhe. */}
+        {badge && <span key={"bdg" + claimable} style={{ position: "absolute", top: wide ? 7 : 4, right: wide ? 8 : "calc(50% - 17px)",
           minWidth: 15, height: 15, padding: "0 3px", borderRadius: 9, background: T.gold, color: "#241a08",
           fontSize: 9.5, fontWeight: 900, display: "grid", placeItems: "center",
-          boxShadow: "0 0 8px rgba(240,200,110,.7)" }}>{claimable}</span>}
+          boxShadow: "0 0 8px rgba(240,200,110,.7)",
+          ...(animAn() ? { animation: "ggBeutelPop .42s cubic-bezier(.24,1.3,.4,1) both" } : null) }}>{claimable}</span>}
+        {badge && animAn() && <span key={"rgn" + claimable} aria-hidden style={{ position: "absolute", inset: 0,
+          pointerEvents: "none", overflow: "hidden" }}>
+          {[0, 1, 2].map((k) => (
+            <span key={k} style={{ position: "absolute", top: wide ? 6 : 3,
+              right: `calc(${wide ? 8 : "50% - 17px"} + ${(k - 1) * 9}px)`,
+              width: 7, height: 7, borderRadius: "50%",
+              background: "radial-gradient(circle at 34% 30%, #fff3c4, #e9cf8a 55%, #b8944e)",
+              boxShadow: "0 0 5px rgba(240,200,110,.8)",
+              animation: `ggMuenzeFaellt .72s ease-in ${k * 0.13 + 0.18}s both` }} />
+          ))}
+        </span>}
       </button>
     );
   });

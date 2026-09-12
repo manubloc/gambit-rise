@@ -1,5 +1,21 @@
 # Changelog - Grand Gambit
 
+## 1.1.4
+- DIE NAECHSTE BELOHNUNG STEHT IN DER KACHELECKE (Besitzer: "man muss auf
+  jeden Fall sehen, pro Kachel, was man jetzt gewinnen kann - rechts oben,
+  untereinander, Gold zuerst, dann Skillpunkte"). Vorher war sie nur in der
+  GEOEFFNETEN Kachel zu sehen; geschlossen wusste man nicht, wofuer man
+  sammelt. Gold golden, Skillpunkt lila wie in der Kopfleiste; bei fertiger
+  Tat steht dort nichts mehr.
+- UNTER DEM ZAEHLER STEHT, WAS NOCH FEHLT ("noch 2 bis zur naechsten Stufe")
+  - die Auskunft, die man beim Sammeln braucht. Vorher stand dort nur 3 / 5.
+- DER MUENZREGEN AN DER LEISTE (Besitzeridee): der Zaehler fuer faellige
+  Belohnungen gab es schon, aber still. Jetzt poppt er auf, und drei Muenzen
+  rasseln ueber die Leiste herunter. Der Regen laeuft EINMAL je neuer
+  Belohnung (Schluessel am Zaehler), nicht endlos - Dauerregen waere nach
+  einer Minute nur noch Unruhe. Neue Keyframes ggMuenzeFaellt und ggBeutelPop,
+  beide nur transform und opacity; sie fragen animAn, ob Bewegung erlaubt ist.
+
 ## 1.1.3
 - DER DRACHE ZIEHT WIE EIN KOENIG (Besitzerbefund): "Er darf immer in die
   Einfeldrichtung links, hoch ... also so wie der Koenig ziehen, bloss dass er

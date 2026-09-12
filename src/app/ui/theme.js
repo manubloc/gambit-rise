@@ -511,6 +511,23 @@ export const GLOBAL_CSS = `
      Zauber wirkt, strahlt die Kugel kurz auf und ist dann fort - erst danach
      zieht die Figur. Nur transform und opacity, wie es die Hausregel fuer
      Keyframes verlangt. */
+  /* v1.1.4 (Besitzeridee): DER MUENZREGEN AN DER LEISTE. "Wichtig ist auch,
+     dass wir bei der Schatzkammer unten in der Menueleiste anzeigen, falls man
+     eine Belohnung bekommen hat - und das darf gerne auch in so einer
+     Animation aufpoppen, in Form von kleinen Goldmuenzen, die da runterrasseln."
+     Drei Muenzen fallen versetzt, der Zaehler poppt einmal auf. Nur transform
+     und opacity. */
+  @keyframes ggMuenzeFaellt {
+    0%   { transform: translateY(-11px) scale(.6) rotate(-18deg); opacity: 0; }
+    22%  { transform: translateY(-4px)  scale(1)  rotate(-6deg);  opacity: 1; }
+    66%  { transform: translateY(4px)   scale(1)  rotate(8deg);   opacity: 1; }
+    100% { transform: translateY(13px)  scale(.72) rotate(16deg); opacity: 0; }
+  }
+  @keyframes ggBeutelPop {
+    0%   { transform: scale(.4); opacity: 0; }
+    48%  { transform: scale(1.28); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+  }
   @keyframes ggPerleLoest {
     0%   { transform: scale(1);    opacity: 1; }
     32%  { transform: scale(1.85); opacity: 1; }

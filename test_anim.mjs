@@ -191,5 +191,23 @@ console.log("\n== test_anim: die Aufstiegsfeier (v1.0.75) ==");
     ok(`Text ${k} steht in beiden Sprachen`, (st.match(new RegExp(`"${k}"`, "g")) || []).length === 2);
 }
 
+console.log("\n== SCHATZKAMMER: Belohnung sichtbar, Muenzregen an der Leiste (v1.1.4) ==");
+{
+  const ac = readFileSync("src/app/ui/screens/AchievementsScreen.jsx", "utf8");
+  ok("die naechste Belohnung steht in der Kachelecke (Gold oben, Skillpunkt darunter)",
+    ac.includes("claimReward(it, claimedTiers(profile, it.id))") && ac.includes('top: 9, right: 10'));
+  ok("die Kachel ist der Bezug dafuer", /padding: ready \? 17 : 13,[\s\S]{0,200}position: "relative"/.test(ac));
+  ok("unter dem Zaehler steht, was noch fehlt", ac.includes("bis zur nächsten Stufe"));
+  const th = readFileSync("src/app/ui/theme.js", "utf8");
+  ok("es gibt Keyframes fuer Muenzregen und Aufpoppen",
+    th.includes("@keyframes ggMuenzeFaellt") && th.includes("@keyframes ggBeutelPop"));
+  ok("sie nutzen nur transform und opacity",
+    !/@keyframes ggMuenzeFaellt[\s\S]{0,260}(filter|box-shadow|background)/.test(th));
+  const ap = readFileSync("src/app/App.jsx", "utf8");
+  ok("die Leiste laesst den Regen EINMAL je Belohnung laufen (Schluessel am Zaehler)",
+    ap.includes('key={"rgn" + claimable}') && ap.includes("ggMuenzeFaellt"));
+  ok("und sie fragt vorher, ob Bewegung erlaubt ist", ap.includes('import { animAn } from "./ui/anim.js"'));
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

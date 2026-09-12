@@ -158,6 +158,8 @@ export function AchievementsScreen({ profile, dispatch, t, initialOpenId = null 
           // Geschlossene Platten: ruhige Kante, normaler Schatten, weniger
           // Polster (Kartenhoehe 90 -> 84 px, mehr Ruhmestaten im Blick).
           padding: ready ? 17 : 13,
+          /* v1.1.4: die Kachel ist der Bezug fuer die Belohnung in ihrer Ecke. */
+          position: "relative",
           background: "linear-gradient(160deg, rgba(96,74,34,.62), rgba(28,21,11,.95) 62%)",
           border: `1.5px solid ${ready ? "rgba(240,214,138,.8)" : "rgba(214,176,96,.34)"}`,
           boxShadow: ready
@@ -269,6 +271,25 @@ export function AchievementsScreen({ profile, dispatch, t, initialOpenId = null 
                 })}
               </div>
             </div>}
+            {/* v1.1.4 (Besitzer: "man muss auf jeden Fall sehen, pro Kachel, was
+                man jetzt gewinnen kann - das kannst du rechts oben auf die
+                Kachel packen, untereinander: Gold zuerst, dann Skillpunkte"):
+                DIE NAECHSTE BELOHNUNG STEHT IN DER ECKE. Sie war nur in der
+                geoeffneten Kachel zu sehen; geschlossen wusste man nicht,
+                wofuer man sammelt. Gold oben, Skillpunkt darunter, beide klein
+                und in ihrer eigenen Farbe (Gold golden, Skillpunkt lila wie in
+                der Kopfleiste). Bei fertiger Tat steht dort nichts mehr. */}
+            {!done && (() => {
+              const r = claimReward(it, claimedTiers(profile, it.id));
+              if (!r || (!r.gold && !r.sp)) return null;
+              return <div style={{ position: "absolute", top: 9, right: 10, display: "flex", flexDirection: "column",
+                alignItems: "flex-end", gap: 3, pointerEvents: "none" }}>
+                {!!r.gold && <span style={{ display: "inline-flex", alignItems: "center", gap: 3,
+                  fontSize: 11, fontWeight: 800, color: "#f0d68a" }}><GoldCoin size={11} />{r.gold}</span>}
+                {!!r.sp && <span style={{ display: "inline-flex", alignItems: "center", gap: 3,
+                  fontSize: 11, fontWeight: 800, color: "#c4b5fd" }}><SkillStar size={11} />{r.sp}</span>}
+              </div>;
+            })()}
             <div style={{ margin: "6px 0 4px", height: 7, borderRadius: 999, position: "relative",
               background: "rgba(12,9,5,.85)", boxShadow: "inset 0 1px 2px rgba(0,0,0,.7), inset 0 -1px 0 rgba(255,240,190,.06)" }}>
               <div style={{ position: "absolute", inset: 0, width: `${pct * 100}%`, borderRadius: 999,
@@ -283,7 +304,18 @@ export function AchievementsScreen({ profile, dispatch, t, initialOpenId = null 
             <div style={{ fontSize: 11.5, color: VELLUM, display: "flex", gap: 8,
               flexDirection: ready ? "column" : "row", alignItems: ready ? "stretch" : "center",
               justifyContent: ready ? "flex-start" : "space-between" }}>
-              <span style={{ color: "#f4e3ab", fontWeight: 800 }}>{done ? <span style={{ color: "#f6e4a2", textShadow: "0 0 6px rgba(240,214,138,.5)" }}>✓ {t("ach.done")}</span> : `${it.val} / ${it.nextN}`}</span>
+              {/* v1.1.4 (Besitzer: "unten entsprechend ein Fortschrittsbalken,
+                  wo auch in klein dransteht, was halt fehlt fuer den naechsten
+                  Schritt"): DIE RESTANGABE. Vorher stand dort nur der Zaehler
+                  (3 / 5); jetzt sagt eine kleine Zeile, was noch fehlt - das
+                  ist die Auskunft, die man beim Sammeln braucht. */}
+              <span style={{ display: "inline-flex", flexDirection: "column", gap: 1 }}>
+                <span style={{ color: "#f4e3ab", fontWeight: 800 }}>{done ? <span style={{ color: "#f6e4a2", textShadow: "0 0 6px rgba(240,214,138,.5)" }}>✓ {t("ach.done")}</span> : `${it.val} / ${it.nextN}`}</span>
+                {!done && it.nextN > it.val && (
+                  <span style={{ fontSize: 9.5, color: "#a99a72", fontStyle: "italic" }}>
+                    {en ? `${it.nextN - it.val} more to go` : `noch ${it.nextN - it.val} bis zur nächsten Stufe`}</span>
+                )}
+              </span>
               {(() => {
                 const cl = claimedTiers(profile, it.id);
                 if (cl >= it.done) return null;
