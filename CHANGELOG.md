@@ -1,5 +1,23 @@
 # Changelog - Grand Gambit
 
+## 1.1.7
+- DAS SUCH-ICON IST WIEDER DAS ORIGINALWAPPEN (Besitzer: "Gold im Original ist
+  aber viel besser"). Mein Anlauf in v1.1.6 hat den Goldring NACHGEZEICHNET,
+  weil er bei 32 px nur zwei Pixel breit ist - der Besitzer hat den flachen
+  Ersatz sofort erkannt. Nachgesehen bei 48/96/144 px: ab 96 traegt das
+  Original vollstaendig, mit Tiefe, zwei Lichtkanten und Glanzpunkten, die
+  sich nicht malen lassen. Das eigentliche Problem war also nicht die
+  Feinheit, sondern die GROESSE - Google nahm das 32-px-Favicon. Jetzt liegen
+  48/96/144/192 aus dem Original bereit, und auch favicon-16/32 kommen daraus.
+
+## 1.1.7
+- DAS SUCH-ICON IST WIEDER DAS ORIGINAL (Besitzer: "Gold im Original ist aber
+  viel besser"). Mein Anlauf in v1.1.6 hatte den Goldring NACHGEBAUT, um ihn
+  bei 48 px tragfaehig zu machen - kraeftiger schon, aber nicht mehr das Gold
+  des Hauses. Jetzt wird das Originalwappen quadratisch gefasst und mit
+  Lanczos herunterberechnet, bei 48 und 96 px eine Spur nachgeschaerft, damit
+  die Ringkante hart bleibt. Nachgesehen: der Ring traegt auch bei 48 px.
+
 ## 1.1.6
 - EINE JE REKRUTIERTE FIGUR (Besitzerentscheid): "Du hast mich immer falsch
   verstanden. Man darf das Pferd, den Turm und auch den Laeufer immer frei
