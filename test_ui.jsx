@@ -1194,6 +1194,21 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
       st.includes("Kapitel 12 ist der Vollausbau") && st.includes("chapter 12 is the full build"));
   }
 
+  /* v1.1.0: EINE LIVREE. Die Wahl ist fort, DESIGN ist eine Konstante, und
+     kein Geraetespeicher und keine Halle darf sie mehr umstellen - genau
+     daran hing der falsche Hintergrund. */
+  {
+    const lv = readFileSync("src/app/ui/livery.js", "utf8");
+    ok("die Livree ist eine Konstante", /const DESIGN = "carved"/.test(lv));
+    ok("kein Geraetewert kann sie mehr umstellen",
+      !/let DESIGN/.test(lv) && lv.includes("localStorage.removeItem(CACHE_KEY)"));
+    ok("die Halle liefert nur noch die eine Livree", /fetchHouseDesign\(\)[\s\S]{0,320}return DESIGN;/.test(lv));
+    const ps = readFileSync("src/app/ui/screens/ProfileScreen.jsx", "utf8");
+    ok("die Design-Wahl steht nicht mehr im Profil",
+      !ps.includes("profile.designClassic") && !ps.includes('value: "classic", label'));
+    ok("und der Knopf 'fuer alle Spieler' ist fort", !ps.includes("setHouseDesign"));
+  }
+
   /* 2. Bauer und Grand Gambit tragen in der Aufstellung EIN Mass. */
   ok("kein getrenntes Mass mehr fuer Held und Bauer",
     !/isHero \? "clamp\(26px, 10\.5vw, 86px\)" : "clamp\(24px, 9\.4vw, 76px\)"/.test(q));

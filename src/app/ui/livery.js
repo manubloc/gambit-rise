@@ -50,16 +50,30 @@ import g08C from "./assets/ground-08.webp"; import g08K from "./assets/ground-08
 import g09C from "./assets/ground-09.webp"; import g09K from "./assets/ground-09.carved.webp";
 import g10C from "./assets/ground-10.webp"; import g10K from "./assets/ground-10.carved.webp";
 
-// The house answer is cached, so even the LOGIN screen (rendered before any
-// profile exists) already wears the right livery on the second visit.
-const CACHE_KEY = "gg-house-design";
-const cached = (() => { try { return localStorage.getItem(CACHE_KEY); } catch { return null; } })();
-let DESIGN = cached === "carved" || cached === "classic" ? cached : APP_DESIGN;
+/* ── EINE LIVREE (v1.1.0, Besitzerentscheid) ────────────────────────────────
+   "Ich moechte eigentlich nur das geschnitzt-helle Design bei dem App-Design.
+   Das andere kannst du alles loeschen. Ich moechte die App jetzt mal
+   glattziehen, ich will sie demnaechst live bringen."
 
-/** The one entry point: dress the app. Called from App.jsx (and the login
- *  screens' module scope) with the effective design. */
-export function setLivery(design) {
-  DESIGN = design === "carved" ? "carved" : "classic";
+   DAS HAUS TRAEGT GESCHNITZT HELL, PUNKT. Vorher war die Livree veraenderlich:
+   APP_DESIGN gab den Grundton, ein Wert im Geraetespeicher (gg-house-design)
+   durfte ihn ueberschreiben, und die Halle konnte ihn per Abfrage umstellen.
+   Genau daran hing der falsche Hintergrund, den der Besitzer zweimal gemeldet
+   hat: stand im Speicher noch "classic", lieferte bgHall() die dunkle
+   Fassung - auf einem Geraet, das nie wieder umgestellt wurde, fuer immer.
+   Jetzt ist DESIGN eine Konstante. Der alte Speicherwert wird beim Start
+   GELOESCHT, damit kein Geraet an ihm haengen bleibt.
+
+   Die klassischen Bilddateien bleiben vorerst im Baum - sie kosten nichts,
+   weil sie niemand mehr importiert, und ein zweiter Durchgang kann sie in
+   Ruhe raeumen. Was WEG ist, ist die Wahl. */
+const CACHE_KEY = "gg-house-design";
+try { localStorage.removeItem(CACHE_KEY); } catch {}
+const DESIGN = "carved";
+
+/** Bleibt als Eingang erhalten, damit die Aufrufer unveraendert bleiben -
+ *  aber die Livree steht fest und laesst sich nicht mehr umstellen. */
+export function setLivery() {
   setThemeDesign(DESIGN);
   applyInsigniaDesign(DESIGN);
   setPieceStyle(DESIGN);
@@ -69,16 +83,12 @@ export const livery = () => DESIGN;
 /** Ask the Hall which livery the house wears; falls back silently offline.
  *  Returns the design so App.jsx can re-render when the answer differs. */
 export async function fetchHouseDesign() {
-  try {
-    const r = await fetch(HALL_HTTP + "/design");
-    const d = (await r.json()).design;
-    if (d === "carved" || d === "classic") {
-      try { localStorage.setItem(CACHE_KEY, d); } catch {}
-      return d;
-    }
-  } catch {}
-  return null;
+  /* v1.1.0: die Halle entscheidet die Livree nicht mehr. Die Funktion bleibt,
+     damit App.jsx unveraendert bleibt, und antwortet immer mit der einen
+     Livree - so kann kein Server ein Geraet umfaerben. */
+  return DESIGN;
 }
+
 
 /** The admin's hand on the house switch: persists in the Hall for everyone. */
 export async function setHouseDesign(design, token) {

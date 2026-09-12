@@ -1,5 +1,28 @@
 # Changelog - Grand Gambit
 
+## 1.1.0
+- EINE LIVREE: GESCHNITZT HELL (Besitzerentscheid: "Ich moechte eigentlich nur
+  das geschnitzt-helle Design. Das andere kannst du alles loeschen - ich
+  moechte die App jetzt glattziehen, ich will sie demnaechst live bringen.").
+  DESIGN ist jetzt eine Konstante in livery.js.
+- UND DAS WAR AUCH DER FALSCHE HINTERGRUND. Vorher war die Livree an drei
+  Stellen veraenderlich: APP_DESIGN gab den Grundton, ein Wert im
+  Geraetespeicher (gg-house-design) durfte ihn ueberschreiben, und die Halle
+  konnte ihn per Abfrage umstellen. Stand im Speicher noch "classic", lieferte
+  bgHall() die dunkle Fassung - auf einem Geraet, das nie wieder umgestellt
+  wurde, fuer immer. Genau das hat der Besitzer zweimal gemeldet. Der alte
+  Speicherwert wird beim Start geloescht, fetchHouseDesign antwortet nur noch
+  mit der einen Livree, und setLivery nimmt kein Argument mehr an.
+  NACHGEMESSEN am fertigen Bau: die ausgelieferte Halle ist die geschnitzte
+  Fassung (identische Pruefsumme mit bg-hall.carved.webp), es liegt nur EINE
+  im Buendel.
+- DIE DESIGN-WAHL IST AUS DEM PROFIL FORT, samt Knopf "Fuer alle Spieler
+  uebernehmen" und Erklaertext. Was die Spieler weiter waehlen, ist
+  Detailreich oder Simpel - das betrifft die Brettfiguren, nicht die Livree.
+- Die klassischen Bilddateien bleiben vorerst im Baum: niemand importiert sie
+  mehr, sie kosten im Buendel nichts, und ein eigener Durchgang kann sie in
+  Ruhe raeumen. Was WEG ist, ist die Wahl.
+
 ## 1.0.99
 - DAS BOOT HING AN EINER FESTEN BREITE (Besitzer: "an der falschen Stelle, und
   es duerfte groesser sein"). Der Wanderer-Container schrumpft mit der
