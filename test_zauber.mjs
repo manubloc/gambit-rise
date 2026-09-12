@@ -289,5 +289,34 @@ console.log("\n== DIE PERLE LOEST SICH AUF (Besitzeridee v1.1.2) ==");
   ok("ein Ton begleitet das Verglimmen", gs.includes('if (lm.consumes) { try { klang("faehigkeit"); } catch {} }'));
 }
 
+console.log("\n== DER DRACHE ZIEHT WIE EIN KOENIG (Besitzerbefund v1.1.3) ==");
+{
+  /* "Er darf immer in die Einfeldrichtung links, hoch ... also so wie der
+     Koenig ziehen, bloss dass er halt immer zwei Felder belegt. Es sollte
+     sich SYMMETRISCH verhalten." Vorher gingen nur vier Richtungen. */
+  const { createGame: cg } = await import("./src/core/index.js");
+  const ref = cg(armee(), armee(), { rules: "hp" });
+  const BW = ref.w, BH = ref.h;
+  const b = Array(BW * BH).fill(null);
+  const anker = 4 * BW + 4;
+  b[anker] = { id: "d", kind: "D", color: "w", big: true, level: 1, abilities: [], used: {}, hp: 6, maxHp: 6, atk: 4 };
+  for (const off of [1, BW, BW + 1]) b[anker + off] = { kind: "D+", color: "w", ref: anker };
+  b[0] = { id: "wk", kind: "K", color: "w", level: 1, abilities: [], used: {}, hp: 9, maxHp: 9, atk: 1 };
+  b[BW * BH - 1] = { id: "bk", kind: "K", color: "b", level: 1, abilities: [], used: {}, hp: 9, maxHp: 9, atk: 1 };
+  const z = legalMoves({ ...ref, board: b, turn: "w" }, anker);
+  const richtungen = new Set(z.map((m) => `${(m.to % BW) - 4},${((m.to / BW) | 0) - 4}`));
+  const soll = ["-1,-1","-1,0","-1,1","0,-1","0,1","1,-1","1,0","1,1"];
+  ok(`der Drache hat alle ACHT Nachbarfelder (${richtungen.size})`,
+    soll.every((r) => richtungen.has(r)) && richtungen.size === 8);
+  ok("und seine Zuege sind symmetrisch (jeder Schritt hat sein Gegenstueck)",
+    [...richtungen].every((r) => { const [f, d] = r.split(",").map(Number); return richtungen.has(`${-f},${-d}`); }));
+  /* das Diagramm in der Chronik muss denselben Ring zeigen, nicht vier
+     Richtungen aus jedem Blockfeld einzeln (das gab das krumme Bild). */
+  const { readFileSync } = await import("node:fs");
+  const as = readFileSync("src/app/ui/screens/ArmyScreen.jsx", "utf8");
+  ok("das Zugdiagramm kennt alle acht Richtungen",
+    as.includes("const RICHTUNGEN = [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [1, -1], [-1, 1], [-1, -1]]"));
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

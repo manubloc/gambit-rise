@@ -392,8 +392,24 @@ function bigDragonMoves(moves, from, piece, board, D) {
   const { w, h, holes, rules } = D;
   // ON FOOT: one square in the four orthogonal directions. He may crush a foe
   // caught under his leading edge (but never smother the king in classic play).
-  for (const d of [-1, 1, -w, w]) {
+  /* v1.1.3 (Besitzerbefund, sehr deutlich): "Er darf immer in die
+     Einfeldrichtung links, hoch, ... also so wie der Koenig ziehen, bloss dass
+     er halt immer zwei Felder belegt. Es sollte sich SYMMETRISCH verhalten."
+
+     Vorher gingen nur VIER Richtungen: links, rechts, oben, unten. Die
+     Diagonalen fehlten - deshalb sah die Anzeige in der Akademie krumm aus
+     und nicht symmetrisch. Jetzt alle ACHT, wie beim Koenig; der Unterschied
+     zum Koenig ist allein, dass der Drache mit seinem 2x2-Block zieht und
+     darum auch zwei Felder bedroht. */
+  const RICHTUNGEN = [-1, 1, -w, w, -w - 1, -w + 1, w - 1, w + 1];
+  const f0r = from % w;
+  for (const d of RICHTUNGEN) {
     const a2 = from + d;
+    /* am Rand nicht ueber die Kante rutschen: der Anker darf hoechstens bis
+       Spalte w-2 laufen, weil der Block zwei Felder breit ist. */
+    const f2 = a2 % w;
+    if (Math.abs(f2 - f0r) > 1) continue;
+    if (f2 > w - 2) continue;
     if (dragonBlockFree(board, holes, w, h, a2, piece, piece.color, true, rules !== "hp"))
       moves.push({ from, to: a2, special: "dragonStep" });
   }

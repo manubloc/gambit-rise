@@ -1,5 +1,20 @@
 # Changelog - Grand Gambit
 
+## 1.1.3
+- DER DRACHE ZIEHT WIE EIN KOENIG (Besitzerbefund): "Er darf immer in die
+  Einfeldrichtung links, hoch ... also so wie der Koenig ziehen, bloss dass er
+  halt immer zwei Felder belegt. Es sollte sich SYMMETRISCH verhalten."
+  Vorher gingen nur VIER Richtungen (links, rechts, oben, unten) - die
+  Diagonalen fehlten im Kern. Jetzt alle acht; der Unterschied zum Koenig ist
+  allein, dass sein 2x2-Block mitwandert und darum zwei Felder bedroht.
+  Gemessen: 8 Zuege, jeder mit seinem Gegenstueck.
+- DAS ZUGDIAGRAMM IN DER CHRONIK WAR DOPPELT FALSCH. Es kannte dieselben vier
+  Richtungen - und es malte sie fuer JEDES der vier Blockfelder einzeln.
+  Daraus entstand das krumme Muster mit einzelnen Feldern an der Seite, das
+  der Besitzer zu Recht nicht verstanden hat ("Ich weiss nicht, was du dir da
+  gedacht hast"). Jetzt zeigt es, wo der BLOCK nach dem Schritt LIEGT: ein
+  geschlossener Ring von zwoelf Feldern um den eigenen Block, symmetrisch.
+
 ## 1.1.2
 - DAS KAPITEL GEHOERT DER STATION, NICHT DEM PROFIL - ein echter Fehler, den
   der Besitzer beim Testen fand: "Ich teste ueber die Werkbank Kapitel zwoelf,

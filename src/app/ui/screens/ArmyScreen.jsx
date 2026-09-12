@@ -300,7 +300,20 @@ export function MoveDiagram({ kind, moveSpec, extra = null }) {
   // Der Block sitzt auf (0,0) und (1,0) sowie (0,1) und (1,1).
   const blockFelder = grossDrache ? [[0, 0], [1, 0], [0, 1], [1, 1]] : [[0, 0]];
   if (grossDrache) {
-    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]])
+    /* v1.1.3 (Besitzerbefund: "Es sollte sich symmetrisch verhalten, und er
+       belegt vier Felder - nicht links unten eins. In Bild 2 sieht man, dass
+       du nicht verstanden hast, wie er ziehen soll."): ER HAT RECHT, und zwar
+       zweifach. Erstens kannte das Diagramm nur vier Richtungen - die
+       Diagonalen fehlten, wie im Kern. Zweitens malte es sie fuer JEDES der
+       vier Blockfelder einzeln: daraus entstand ein krummes Muster mit
+       einzelnen Feldern an der Seite, das nichts mit dem Zug zu tun hatte.
+
+       Richtig ist: der Drache zieht wie ein KOENIG, einen Schritt in alle
+       acht Richtungen - nur wandert sein ganzer 2x2-Block mit. Gezeichnet
+       wird deshalb, wo der BLOCK nach dem Schritt LIEGT: acht verschobene
+       Bloecke, symmetrisch um den eigenen. Der eigene Block bleibt frei. */
+    const RICHTUNGEN = [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [1, -1], [-1, 1], [-1, -1]];
+    for (const [dx, dy] of RICHTUNGEN)
       for (const [bx, by] of blockFelder) {
         const f = bx + dx, r = by + dy;
         if (blockFelder.some(([qx, qy]) => qx === f && qy === r)) continue;   // eigener Block
