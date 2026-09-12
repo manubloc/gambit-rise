@@ -151,8 +151,12 @@ console.log("\n== test_anim: die Aufstiegsfeier (v1.0.75) ==");
      "geht gar nicht"). Dass der Knopf sichtbar bleibt, loest jetzt der
      eingeklappte Erklaertext hinter dem (i) oben. */
   ok("Stationsfenster: kein Sticky-Verlauf mehr", !cs.includes('position: "sticky", bottom: -1'));
-  ok("Stationsfenster: der Info-Knopf steht OBEN neben dem Kreuz",
-    cs.indexOf("setInfoAuf") < cs.indexOf('aria-label="Close"'));
+  /* v1.0.98: der Knopf steht jetzt IN der Titelzeile, hinter dem Ortsnamen -
+     nicht mehr neben dem Kreuz (dort war er bei flex-start nie mittig). */
+  ok("Stationsfenster: der Info-Knopf steht hinter dem Titel",
+    cs.includes("placeFor(node, league, en) : \"\"}</span>") && cs.indexOf("setInfoAuf") < cs.indexOf('aria-label="Close"'));
+  ok("Stationsfenster: dritte Lage MITTE bei zu wenig Platz",
+    cs.includes("const mittig = platz < MINDEST") && cs.includes('transform: "translateY(-50%)"'));
   ok("Stationsfenster: das Bossbild wird nicht mehr beschnitten", !cs.includes('transform: "scale(1.42)"') && cs.includes('overflow: "visible"'));
   ok("Stationsfenster: der Erklaertext steht hinter einem Info-Knopf", cs.includes("setInfoAuf((v) => !v)"));
   ok("Gefolge-Band ist ein Erfolg mit animiertem Stern", cs.includes("ggErfolgStern"));

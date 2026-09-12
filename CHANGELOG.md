@@ -1,5 +1,26 @@
 # Changelog - Grand Gambit
 
+## 1.0.98
+- DER INFO-KNOPF STEHT HINTER DEM TITEL (Besitzer: "er ist nicht sauber mittig
+  ausgerichtet - ich finde es besser, wenn du ihn hinter den Titel machst").
+  Neben dem Kreuz konnte er nie mittig sitzen: die Kopfzeile richtet an
+  flex-start aus, damit ein langer Ortsname oben buendig bleibt. Jetzt steht
+  er in der Titelzeile, unmittelbar hinter dem Ortsnamen, und laeuft mit ihm
+  um - die Info gehoert zur Station, also gehoert der Knopf zu ihrem Namen.
+- DAS STATIONSFENSTER HAT EINE DRITTE LAGE: MITTE. Oben und unten bleiben,
+  solange der Platz neben dem Wanderer wirklich reicht; sonst steht das
+  Fenster zentriert und nimmt bis zu 86 % der Hoehe. Ein Bossfenster mit
+  Gemaelde und Geschichte passte in die alten Lagen nie - es blieb ein
+  Stummel mit Bildlauf, und man musste am Bild vorbeiscrollen (Besitzer:
+  "ich moechte immer, dass das Popup komplett dargestellt wird"). Die
+  Schwelle ist gerechnet: unter 300 px Platz kann keine Bosskarte (Bild 160 +
+  Text + Knopf) stehen.
+- GEMESSEN, ERSTMALS IM LAUFENDEN GEFECHT: das Talentband liegt 5,9 px UNTER
+  dem Brett, keine Ueberlappung, 233 px Luft darunter. Der Befund des
+  Besitzers ("verschwindet unter dem Brett") stammte vom Stand vor v1.0.92;
+  die Korrektur greift. Die Messung steht jetzt in messe_animation.mjs - und
+  sie konnte es erst pruefen, seit dieses Werkzeug wirklich ans Brett kommt.
+
 ## 1.0.97
 - DIE WERKBANK KANNTE NUR ZEHN KAPITEL (Besitzer: "da fehlen die Stufen elf
   und zwoelf"). Die Kampagne hat aber ZWOELF - gemessen an campaign12.gen.js:

@@ -115,6 +115,43 @@ const mass = await page.evaluate(async () => {
   return { imFlug, gelandet: daten(gel), flugEltern, gelEltern };
 });
 
+/* ── LIEGT DAS TALENTBAND UNTER DEM BRETT? (Besitzer, mehrfach) ───────────
+   Bisher war diese Messung blind: drive3 kam nie ins Spiel. Hier steht sie
+   im laufenden Gefecht. */
+const band = await page.evaluate(async () => {
+  /* eine eigene Figur waehlen - ohne Auswahl gibt es kein Band */
+  const felderAlle = () => {
+    const alle = [...document.querySelectorAll("div")].filter((d) => {
+      const q = d.getBoundingClientRect();
+      return q.width > 28 && q.width < 90 && Math.abs(q.width - q.height) < 4;
+    });
+    const k = Math.min(...alle.map((d) => d.getBoundingClientRect().width));
+    return alle.filter((d) => Math.abs(d.getBoundingClientRect().width - k) < 2);
+  };
+  const eigene = felderAlle().filter((d) => d.querySelector("img,svg") && d.getBoundingClientRect().top > innerHeight * 0.42);
+  if (eigene.length) { eigene[Math.floor(eigene.length / 2)].click(); await new Promise((r) => setTimeout(r, 450)); }
+  const b = document.querySelector(".gg-talentband");
+  if (!b) return { da: false, text: document.body.innerText.slice(0, 90).replace(/\n/g, " | ") };
+  const r = b.getBoundingClientRect();
+  const felder = [...document.querySelectorAll("div")].filter((d) => {
+    const q = d.getBoundingClientRect();
+    return q.width > 28 && q.width < 90 && Math.abs(q.width - q.height) < 4;
+  });
+  if (!felder.length) return { da: true, brett: false };
+  const unten = Math.max(...felder.map((d) => d.getBoundingClientRect().bottom));
+  return { da: true, brett: true, bandOben: +r.top.toFixed(1), brettUnten: +unten.toFixed(1),
+    ueberlappung: +(unten - r.top).toFixed(1), bandHoehe: +r.height.toFixed(1),
+    unterKante: +(innerHeight - r.bottom).toFixed(1) };
+});
+console.log("\n── LIEGT DAS TALENTBAND UNTER DEM BRETT? ──");
+if (!band.da) console.log("  kein Band sichtbar |", band.text || "");
+else if (!band.brett) console.log("  Band da, aber kein Brett gefunden");
+else {
+  console.log(`  Brett endet bei ${band.brettUnten} px, Band beginnt bei ${band.bandOben} px`);
+  console.log(`  Ueberlappung: ${band.ueberlappung} px · Bandhoehe ${band.bandHoehe} · Luft nach unten ${band.unterKante}`);
+  console.log("  Ergebnis:", band.ueberlappung <= 1 ? "OK - Band liegt unter dem Brett" : "VERDECKT - das Band liegt hinter dem Brett");
+}
+
 console.log("\n── LANDET DIE FIGUR AM SELBEN ORT? ──");
 if (mass.fehlt) console.log("  Messung nicht moeglich:", mass.fehlt, mass.n ?? "");
 else if (!mass.imFlug || !mass.gelandet) console.log("  unvollstaendig:", JSON.stringify(mass));

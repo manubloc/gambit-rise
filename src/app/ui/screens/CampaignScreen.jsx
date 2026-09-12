@@ -360,9 +360,26 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
       (panelOben ? tokenScreenY < frameH * 0.55 : tokenScreenY > frameH * 0.42);
     panelLeft = deckt ? 14 : frameW - panelW - 14;
   }
-  const panelPos = panelOben
-    ? { top: frameY + LEISTE, maxHeight: Math.max(180, tokenScreenY - 82 - 24 - LEISTE), overflowY: "auto" }
-    : { bottom: dockPad + 14, maxHeight: Math.max(180, frameH - tokenScreenY - 24 - dockPad - 16), overflowY: "auto" };
+  /* v1.0.98 (Besitzer: "ich moechte immer, dass das Popup komplett dargestellt
+     wird - in dem Moment, wo es groesser als ein Drittel der Flaeche ist,
+     richte es mittig aus und stelle es komplett dar, ohne scrollen"): DREI
+     LAGEN STATT ZWEI. Oben und unten bleiben, solange der Platz neben dem
+     Wanderer wirklich reicht; sonst tritt die MITTE ein - dort steht das
+     Fenster zentriert und nimmt bis zu 86 % der Hoehe, also praktisch alles,
+     was es braucht. Ein Bossfenster mit Gemaelde und Geschichte passte in die
+     alten Fenster nie: es blieb ein Stummel mit Bildlauf, und der Besitzer
+     musste am Bild vorbeiscrollen. Die Schwelle ist gemessen, nicht geraten:
+     unter 300 px Platz kann keine Bosskarte (Bild 160 + Text + Knopf) stehen. */
+  const platzOben = tokenScreenY - 82 - 24 - LEISTE;
+  const platzUnten = frameH - tokenScreenY - 24 - dockPad - 16;
+  const platz = panelOben ? platzOben : platzUnten;
+  const MINDEST = 300;
+  const mittig = platz < MINDEST;
+  const panelPos = mittig
+    ? { top: "50%", transform: "translateY(-50%)", maxHeight: Math.round(frameH * 0.86), overflowY: "auto" }
+    : panelOben
+      ? { top: frameY + LEISTE, maxHeight: Math.max(180, platzOben), overflowY: "auto" }
+      : { bottom: dockPad + 14, maxHeight: Math.max(180, platzUnten), overflowY: "auto" };
   const showPanel = panelOpen && !viewing && !!node && !token.moving && !seaLock;
 
   /* Der Einstieg liegt vor dem ganzen Schirm - erst das Land, dann die Karte. */
@@ -1099,19 +1116,26 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
               {BRANCHES[br][en ? "nameEn" : "nameDe"]}</div> : null;
           })()}
           <div style={{ display: "flex", alignItems: "flex-start", gap: 7 }}>
-            <div className="gg-quill" style={{ fontSize: 20, color: PP.ink, flex: 1, minWidth: 0, lineHeight: 1.0, marginTop: -1 }}>{node ? placeFor(node, league, en) : ""}</div>
-            {/* v1.0.90 (Besitzer: "der Info-Knopf darf gerne oben sein, und wenn
-                man ihn klickt, schiebt man alles nach unten und das Popup wird
-                groesser"): er steht neben dem Kreuz. Eingeklappt bleibt das
-                Fenster kurz; angetippt waechst es um den Erklaertext. */}
-            {status === "cleared" && (
-              <button onClick={() => setInfoAuf((v) => !v)} aria-label="Info" title={t("camp.replayNone")}
-                style={{ width: 21, height: 21, borderRadius: "50%", flex: "0 0 auto", marginLeft: 4,
-                  border: `1px solid ${infoAuf ? "rgba(90,75,40,.75)" : "rgba(90,75,40,.35)"}`,
-                  background: infoAuf ? "rgba(201,164,92,.3)" : "none", color: PP.dim,
-                  fontFamily: "Georgia, serif", fontStyle: "italic", fontWeight: 700, fontSize: 12.5,
-                  lineHeight: 1, cursor: "pointer", padding: 0 }}>i</button>
-            )}
+            {/* v1.0.98 (Besitzer: "der Info-Knopf ist nicht sauber mittig
+                ausgerichtet - ich finde es besser, wenn du ihn hinter den
+                Titel machst, linksbuendig nach dem Titel"): er steht jetzt in
+                der Titelzeile, unmittelbar hinter dem Ortsnamen, und laeuft
+                mit ihm um. Vorher klebte er neben dem Kreuz und war bei
+                alignItems flex-start nie mittig zur Schrift. Die Info gehoert
+                zur Station, also gehoert der Knopf zu ihrem Namen. */}
+            <div className="gg-quill" style={{ fontSize: 20, color: PP.ink, flex: 1, minWidth: 0, lineHeight: 1.0, marginTop: -1,
+              display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap" }}>
+              <span style={{ minWidth: 0 }}>{node ? placeFor(node, league, en) : ""}</span>
+              {status === "cleared" && (
+                <button onClick={() => setInfoAuf((v) => !v)} aria-label="Info" title={t("camp.replayNone")}
+                  style={{ width: 20, height: 20, borderRadius: "50%", flex: "0 0 auto",
+                    display: "inline-flex", alignItems: "center", justifyContent: "center",
+                    border: `1px solid ${infoAuf ? "rgba(90,75,40,.75)" : "rgba(90,75,40,.38)"}`,
+                    background: infoAuf ? "rgba(201,164,92,.3)" : "none", color: PP.dim,
+                    fontFamily: "Georgia, serif", fontStyle: "italic", fontWeight: 700, fontSize: 12,
+                    lineHeight: 1, cursor: "pointer", padding: 0 }}>i</button>
+              )}
+            </div>
             <button onClick={() => setPanelOpen(false)} aria-label="Close" style={{ background: "none", border: "none",
               color: PP.dim, fontSize: 15, cursor: "pointer", padding: "0 0 0 6px", fontFamily: "inherit", lineHeight: 1, flex: "0 0 auto" }}>✕</button>
           </div>
