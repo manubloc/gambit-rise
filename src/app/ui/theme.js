@@ -246,10 +246,20 @@ export const GLOBAL_CSS = `
      die Figur staucht beim Aufsetzen kurz in die Breite und federt zurueck -
      dieselbe Bewegung, die eine Holzfigur auf dem Brett macht. Der Fuss
      bleibt stehen (transform-origin unten), nur der Koerper gibt nach. */
+  /* v1.0.96 (Besitzer, mehrfach: "der zieht fluessig, und in dem Moment, wo
+     er die Figur setzt, ist wie ein Sprung - es ist scheinbar nicht das
+     gleiche Objekt"): DER SPRUNG STAND IM ERSTEN KEYFRAME. Die Landung begann
+     bei translateY(-7%): der Gleiter legt die Figur auf dem Zielfeld ab, im
+     naechsten Rahmen erscheint die echte Figur SIEBEN PROZENT HOEHER und
+     faellt herunter. Genau dieser Versatz liest sich als zweites Objekt.
+     Jetzt beginnt die Landung bei translateY(0) - dort, wo der Gleiter sie
+     abgesetzt hat - und federt nur noch in der BREITE aus (Stauchung statt
+     Sprung). Die Figur bleibt an ihrem Platz, das Gewicht bleibt spuerbar. */
   @keyframes ggLandung {
-    0%   { transform: translateY(-7%) scale(1.03, .97); }
-    45%  { transform: translateY(0)   scale(1.07, .93); }
-    100% { transform: translateY(0)   scale(1, 1); }
+    0%   { transform: translateY(0) scale(1.00, 1.00); }
+    38%  { transform: translateY(0) scale(1.06, .945); }
+    72%  { transform: translateY(0) scale(.985, 1.015); }
+    100% { transform: translateY(0) scale(1, 1); }
   }
   /* Der Aufprall des Springers: ein Staubring, der aus dem Feld faehrt. */
   @keyframes ggAufprall {

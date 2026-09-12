@@ -500,7 +500,10 @@ export function PieceGlyph({ piece, showLevel = true, pov = "w", artStyle = "pai
          transform, und die Bewegungen koennen sich nicht mehr ins Gehege
          kommen. */
       animation: fliegt ? "none"
-        : zuletzt ? `${white ? "ggGoldBlitz" : "ggRissBlitz"} 2.6s ease-out both, ggLandung .26s cubic-bezier(.2,1.5,.4,1) both`
+        /* v1.0.96: die Federkurve hatte 1.5 als Ueberschwinger - zusammen mit
+           dem alten -7%-Start ergab das den doppelten Ruck. Die Kurve ist
+           jetzt ruhig (ease-out), das Federn steckt allein in den Keyframes. */
+        : zuletzt ? `${white ? "ggGoldBlitz" : "ggRissBlitz"} 2.6s ease-out both, ggLandung .3s cubic-bezier(.22,.68,.32,1) both`
         : "pop .18s ease",
       boxSizing: "border-box" }}>
 

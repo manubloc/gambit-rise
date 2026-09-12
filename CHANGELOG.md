@@ -1,5 +1,25 @@
 # Changelog - Grand Gambit
 
+## 1.0.96
+- DER SPRUNG BEIM SETZEN STAND IM ERSTEN KEYFRAME DER LANDUNG. ggLandung
+  begann bei translateY(-7%): der Gleiter legt die Figur auf dem Zielfeld ab,
+  im naechsten Rahmen erscheint die echte Figur SIEBEN PROZENT HOEHER und
+  faellt herunter. Genau dieser Versatz liest sich als "nicht das gleiche
+  Objekt" (Besitzer, mehrfach). Jetzt beginnt die Landung bei translateY(0) -
+  dort, wo der Gleiter sie absetzte - und federt nur noch in der Breite aus.
+  Die Federkurve verliert ihren Ueberschwinger (1.5 -> ruhiges ease-out); das
+  Federn steckt allein in den Keyframes.
+- NEUES WERKZEUG messe_animation.mjs: es zieht einen echten Zug und misst die
+  Mitte der Figur im Flug gegen die gelandete. Endstand 0,3 px - kein
+  Versatz. Es hat mich unterwegs zweimal selbst korrigiert: bei 170 und 470 ms
+  stand der Bogen ggLeapArc noch bei scale 1.0625-1.18 und meldete 4-5 px
+  "Sprung", der keiner war. Die Grenze steht im Kopf der Datei.
+- BEFUND AM RANDE, gewichtig: die Fahrprobe drive3 kam NIE ins Spiel. Sie
+  bleibt auf der Anmeldemaske - deshalb meldete meine Talentband-Messung aus
+  v1.0.92 "nicht sichtbar", was ich faelschlich mit Klassik erklaert habe.
+  Wer ans Brett will, muss Konto und Spielstand anlegen und den
+  Willkommensschirm durchklicken (messe_animation zeigt den Weg).
+
 ## 1.0.95
 - DER HINTERGRUND VOR DEM HAUS IST DER RISSBODEN, nicht die Halle. Mein
   Einbau in v1.0.94 nahm bg-hall (RiftFloor) - das falsche Bild, wie der
