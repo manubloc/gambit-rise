@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { CAMPAIGN12 } from "../../../content/campaign12.gen.js";
+import { MAX_KAPITEL } from "../../config.js";
 import { hashPin } from "../../../platform/index.js";
 import { SPAR_POSTEN, sparsam } from "../sparmodus.js";
 import { animAn, setAnimAn } from "../anim.js";
@@ -18,7 +19,10 @@ export function ProfileScreen({ profile, dispatch, t, account, onSwitchSave, onL
   const LIGEN_DER_KAMPAGNE = useMemo(() => {
     const s = new Set();
     for (const n of CAMPAIGN12) { const l = n.league ?? n.liga; if (l) s.add(l); }
-    return [...s].sort((a, b) => a - b);
+    /* v1.1.10: die freie Fassung reicht nur bis MAX_KAPITEL - auch auf der
+       Werkbank, sonst koennte ein Admin in ein Kapitel setzen, das die
+       ausgelieferte Fassung nicht kennt. */
+    return [...s].filter((l) => l <= MAX_KAPITEL).sort((a, b) => a - b);
   }, []);
   const [devLg, setDevLg] = useState(profile.campaign?.league || 1); // workbench: league pick — applied together with the dial via SETZEN
   const [pin, setPin] = useState("");

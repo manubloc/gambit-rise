@@ -394,5 +394,22 @@ console.log("\n== EINE JE REKRUTIERTE FIGUR, die drei Offiziere frei (v1.1.6) ==
   ok("zwei VERSCHIEDENE rekrutierte sind erlaubt", L.formationLegalOn(zweiVerschieden, alle, arena, []));
 }
 
+console.log("\n== FREIE FASSUNG ODER VOLLE: ein Wert, keine Verzweigung (v1.1.10) ==");
+{
+  const cfg = await import("./src/app/config.js");
+  const { readFileSync } = await import("node:fs");
+  ok("es gibt einen Kapiteldeckel", typeof cfg.MAX_KAPITEL === "number" && cfg.MAX_KAPITEL >= 1);
+  ok("die volle Fassung reicht bis zwoelf", cfg.MAX_KAPITEL === 12 && cfg.istFreieFassung() === false);
+  /* Der Deckel muss dort greifen, wo Kapitel aufgezaehlt werden. */
+  const ps = readFileSync("src/app/ui/screens/ProfileScreen.jsx", "utf8");
+  ok("die Werkbank haelt sich an den Deckel", ps.includes("filter((l) => l <= MAX_KAPITEL)"));
+  /* Und er darf keine Verzweigung im Baum sein: eine Suche nach "istFreie"
+     soll nur die Konfiguration selbst finden - sonst zieht sich die Trennung
+     durch den Code, und man pflegt zwei Spiele. */
+  const { execSync } = await import("node:child_process");
+  const treffer = execSync("grep -rl 'istFreieFassung' src/ | wc -l").toString().trim();
+  ok(`istFreieFassung steht nur in der Konfiguration (${treffer} Datei)`, Number(treffer) <= 1);
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

@@ -1,5 +1,24 @@
 # Changelog - Grand Gambit
 
+## 1.1.10
+- DER MUND DES KOLOSSES IST GESCHLOSSEN, und diesmal richtig. Der erste
+  Versuch (v1.0.95) fuellte die Luecke SCHWARZ, weil die Farbmittelung
+  transparente Pixel mitlas; der zweite ergab eine flache Flaeche. Jetzt
+  wandert die NACHBARTEXTUR nach innen (Diffusion in 80 Schritten, nur aus
+  deckenden Pixeln) - der Mund traegt dieselbe Steinstruktur wie das Gesicht.
+  Die Luecken zwischen Armen und Koerper und der Durchblick zwischen den
+  Beinen bleiben offen: das sind echte Zwischenraeume, keine Fehler.
+  Original in archiv/bilder/painted, klein-Fassung nachgezogen.
+- FREIE FASSUNG ODER VOLLE: EIN WERT, KEINE VERZWEIGUNG (Besitzerauftrag,
+  "dass das von der Architektur weiterhin geht"). Neu in config.js:
+  MAX_KAPITEL (12, per VITE_MAX_KAPITEL auf 3 setzbar) und istFreieFassung().
+  Das Haus fragt nirgends "bin ich die freie Fassung?", sondern nur "wie weit
+  reicht die Reise?" - so bleibt die Trennung eine Zahl. Zum Ausliefern der
+  freien Fassung genuegt VITE_MAX_KAPITEL=3: kein zweiter Zweig, kein zweiter
+  Baum. Die Werkbank haelt sich an den Deckel, und eine Probe haelt fest, dass
+  istFreieFassung NUR in der Konfiguration vorkommt - sonst zieht sich die
+  Trennung durch den Code und man pflegt zwei Spiele.
+
 ## 1.1.9
 - DIE STATIONSWESEN AUF DEN KARTEN SIND FAST SO GROSS WIE DER GAMBIT
   (Besitzer: "die sind zu klein, die sollten schon auch die Groesse haben wie

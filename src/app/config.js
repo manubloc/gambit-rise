@@ -19,3 +19,24 @@ export const ADMIN_EMAILS = [];             // e.g. ["you@example.com"]
 // the Hall worker is deployed, the admin can flip it LIVE for all players from
 // the profile workbench (the app asks the Hall on boot and caches the answer).
 export const APP_DESIGN = "carved";
+
+/* ── FREIE FASSUNG ODER VOLLE (v1.1.10, Besitzerauftrag) ───────────────────
+   "Wir haben spaeter eine Free-Version, die geht nur bis Kapitel drei, und
+   die Pro-Version geht bis Kapitel zwoelf. Ich wuerde dich bitten, das auch
+   schon gedanklich im Hintergrund zu behalten - so dass wir auf jeden Fall
+   spaeter zwei Varianten des Spiels ausliefern koennen. Das ist schon auch
+   wichtig, dass das von der Architektur weiterhin geht."
+
+   HIER IST DER SCHALTER, und er ist absichtlich EINE Zahl. Das Haus fragt
+   nirgends "bin ich die freie Fassung?", sondern nur "wie weit reicht die
+   Reise?" - so bleibt die Trennung ein Wert und wird keine Verzweigung, die
+   sich durch den Baum zieht. Die Kampagne liefert zwoelf Kapitel; was
+   darueber hinausgeht, wird von letztesKapitel() gedeckelt.
+
+   Zum Ausliefern der freien Fassung genuegt es, diese Zahl auf 3 zu setzen
+   (oder beim Bauen VITE_MAX_KAPITEL=3 zu uebergeben) - kein zweiter Zweig,
+   kein zweiter Baum, keine Abweichung, die man pflegen muesste. */
+export const MAX_KAPITEL = Number(
+  (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.VITE_MAX_KAPITEL) || 12
+) || 12;
+export const istFreieFassung = () => MAX_KAPITEL < 12;
