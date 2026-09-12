@@ -1,5 +1,25 @@
 # Changelog - Grand Gambit
 
+## 1.0.99
+- DAS BOOT HING AN EINER FESTEN BREITE (Besitzer: "an der falschen Stelle, und
+  es duerfte groesser sein"). Der Wanderer-Container schrumpft mit der
+  Kartentiefe (96 px mal tiefeWanderer), das Boot stand fest auf 128 px - je
+  weiter hinten die Station lag, desto mehr sprengte es den Rahmen und sass
+  neben der Figur statt unter ihr. Jetzt haengt es am SELBEN Tiefenfaktor und
+  misst 1,55 Containerbreiten: es waechst und schrumpft mit dem Gambit.
+- DIE ZAUBERPERLE SITZT ZWISCHEN ANGRIFF UND LEBEN (Besitzer: "mittig zwischen
+  blauer und roter Bubble, in kleiner allerdings") und traegt zwei Drittel der
+  Groesse. Hinten in voller Groesse machte sie das Trio breiter als das Feld.
+- NEUE PROBE fuer den Besitzerbefund "es duerfen nur die Felder angezeigt
+  werden, die die Figur ziehen kann": jede Grundfigur frei auf dem Brett,
+  jeder Zug gegen die Gangart, in beiden Modi. 168 Zuege geprueft, kein
+  einziger abseits. Der Kern ist damit entlastet - der Fehler muss in der
+  Anzeige liegen.
+- MEIN EIGENER MESSFEHLER, hier festgehalten: diese Probe meldete zuerst 15
+  "Springerspruenge" der Dame. Ursache war die Probe selbst - sie rechnete
+  mit acht Feldern Breite, das Brett hat aber ZEHN (createGame liefert 10x10).
+  Die Breite kommt jetzt aus dem Spiel statt aus meiner Annahme.
+
 ## 1.0.98
 - DER INFO-KNOPF STEHT HINTER DEM TITEL (Besitzer: "er ist nicht sauber mittig
   ausgerichtet - ich finde es besser, wenn du ihn hinter den Titel machst").

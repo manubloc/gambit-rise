@@ -230,5 +230,47 @@ console.log("\n== ALLE TALENTE DER CHRONIK, EINZELN GEPRUEFT (Besitzerauftrag) =
     + (ungebucht.length ? " - NICHT gebucht: " + ungebucht.join(",") : ""), ungebucht.length === 0);
 }
 
+console.log("\n== ZEIGT DER KERN NUR ERLAUBTE FELDER? (Besitzerbefund 12.9.) ==");
+{
+  /* "Es duerfen immer nur die Felder angezeigt werden, wie die Figur in
+     diesem Zug auch ziehen kann." Jede Grundfigur steht frei auf dem leeren
+     Brett; jeder angebotene Zug wird gegen ihre Gangart geprueft, in Schach-
+     UND HP-Modus.
+
+     ACHTUNG, hier lag mein eigener Fehler: das Brett dieser Proben ist
+     ZEHN Felder breit, nicht acht (createGame liefert 10x10). Mit W=8
+     gerechnet meldete diese Probe 15 "Springerspruenge" der Dame, die
+     keine waren - eine falsche Anzeige im Messwerkzeug, nicht im Spiel.
+     Die Breite kommt jetzt aus dem Spiel selbst. */
+  const { createGame: cg } = await import("./src/core/index.js");
+  const referenz = cg(armee(), armee(), { rules: "chess" });
+  const BW = referenz.w, BH = referenz.h;
+  const linien = {
+    Q: (df, dr) => df === 0 || dr === 0 || Math.abs(df) === Math.abs(dr),
+    R: (df, dr) => df === 0 || dr === 0,
+    B: (df, dr) => Math.abs(df) === Math.abs(dr),
+    N: (df, dr) => (Math.abs(df) === 1 && Math.abs(dr) === 2) || (Math.abs(df) === 2 && Math.abs(dr) === 1),
+    K: (df, dr) => Math.abs(df) <= 1 && Math.abs(dr) <= 1,
+  };
+  let geprueft = 0; const daneben = [];
+  for (const kind of ["Q", "R", "B", "N", "K"]) {
+    for (const regeln of ["chess", "hp"]) {
+      const b = Array(BW * BH).fill(null);
+      const mf = 4, mr = 4, mitte = mr * BW + mf;
+      b[mitte] = { id: "t", kind, color: "w", level: 1, abilities: [], used: {}, hp: 9, maxHp: 9, atk: 2 };
+      if (kind !== "K") b[0] = { id: "wk", kind: "K", color: "w", level: 1, abilities: [], used: {}, hp: 9, maxHp: 9, atk: 1 };
+      b[BW * BH - 1] = { id: "bk", kind: "K", color: "b", level: 1, abilities: [], used: {}, hp: 9, maxHp: 9, atk: 1 };
+      const g = { ...cg(armee(), armee(), { rules: regeln }), board: b, turn: "w" };
+      for (const m of legalMoves(g, mitte)) {
+        const df = (m.to % BW) - mf, dr = ((m.to / BW) | 0) - mr;
+        geprueft++;
+        if (!linien[kind](df, dr)) daneben.push(`${kind}/${regeln}: ${df},${dr}${m.special ? "(" + m.special + ")" : ""}`);
+      }
+    }
+  }
+  ok(`alle ${geprueft} angebotenen Zuege liegen auf der Gangart der Figur (Brett ${BW}x${BH})`
+    + (daneben.length ? " - DANEBEN: " + daneben.slice(0, 6).join(" ") : ""), daneben.length === 0);
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

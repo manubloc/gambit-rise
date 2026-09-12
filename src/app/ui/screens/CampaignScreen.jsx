@@ -788,10 +788,23 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
                 animation: token.moving
                   ? (th.sea && hasItem(profile, "boat") ? "ggGlide .9s ease-in-out infinite" : "ggHop .38s ease-in-out infinite")
                   : (th.sea && hasItem(profile, "boat") ? "ggBob 2.8s ease-in-out infinite" : "none") }}>
-              {th.sea && hasItem(profile, "boat") && <img src={bootUrl} alt="" draggable={false}
-                style={{ position: "absolute", left: "50%", bottom: -9, transform: "translateX(-50%)",
-                  width: 128, height: "auto", zIndex: 3, pointerEvents: "none", userSelect: "none",
-                  filter: "drop-shadow(0 2px 3px rgba(14,26,38,.45))" }} />}
+              {/* v1.0.99 (Besitzer: "das Boot ist an der falschen Stelle und
+                  duerfte auch noch groesser sein"): DAS BOOT HING AN EINER
+                  FESTEN BREITE. Der Wanderer-Container schrumpft mit der
+                  Kartentiefe (96 px mal tiefeWanderer), das Boot stand fest
+                  auf 128 px - je weiter hinten die Station lag, desto mehr
+                  sprengte es den Rahmen und sass sichtbar neben der Figur
+                  statt unter ihr. Jetzt haengt es am SELBEN Tiefenfaktor und
+                  misst 1,55 Containerbreiten: es waechst und schrumpft mit
+                  dem Gambit und bleibt unter ihm. */}
+              {th.sea && hasItem(profile, "boat") && (() => {
+                const bw = Math.round(96 * tiefeWanderer(ny(tn), HM) * 1.55);
+                return <img src={bootUrl} alt="" draggable={false}
+                  style={{ position: "absolute", left: "50%", bottom: -Math.round(bw * 0.07),
+                    transform: "translateX(-50%)",
+                    width: bw, height: "auto", zIndex: 3, pointerEvents: "none", userSelect: "none",
+                    filter: "drop-shadow(0 2px 3px rgba(14,26,38,.45))" }} />;
+              })()}
               <div style={{ position: "relative", width: "100%", height: "100%",
                 // the risen Gambit glows quietly on the road too (Stufe II/III)
                 filter: (() => { const gt = gambitTier(characterLevel(profile, "gambit") || 1);

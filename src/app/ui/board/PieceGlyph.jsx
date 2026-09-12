@@ -118,11 +118,20 @@ function StatDuo({ piece, focus, shrink = 1 }) {
   </span>;
   return <span style={{ position: "absolute", bottom: "-0.09em", left: "50%", transform: "translateX(-50%)", zIndex: 3,
     display: "inline-flex", gap: gap + "em", pointerEvents: "none" }}>
+    {/* v1.0.99 (Besitzer: "diese lila Bubbles fuer die Faehigkeit bitte mittig
+        zwischen blauer und roter Bubble, in kleiner allerdings"): DIE
+        ZAUBERPERLE SITZT JETZT ZWISCHEN DEN BEIDEN, nicht dahinter, und
+        traegt zwei Drittel ihrer Groesse. Hinten in voller Groesse machte sie
+        das Trio breiter als das Feld und zog das Auge auf sich, obwohl sie die
+        kleinste Auskunft von dreien ist. Sie liegt eine Spur hoeher, damit
+        sie in die Kerbe zwischen den grossen Kugeln faellt. */}
     {orb("power", piece.atk)}
-    {orb("life", piece.hp)}
-    {kannWirken && <span style={{ width: d + "em", height: d + "em", display: "grid", placeItems: "center" }}>
-      <StatOrbBadge kind={verbraucht ? "spent" : "spell"} v="" size={`${d}em`} num={0.58} />
+    {kannWirken && <span style={{ width: d * 0.66 + "em", height: d * 0.66 + "em",
+      display: "grid", placeItems: "center", marginLeft: -(gap * 0.42) + "em", marginRight: -(gap * 0.42) + "em",
+      marginBottom: d * 0.16 + "em", zIndex: 1 }}>
+      <StatOrbBadge kind={verbraucht ? "spent" : "spell"} v="" size={`${d * 0.66}em`} num={0.58} />
     </span>}
+    {orb("life", piece.hp)}
   </span>;
 }
 
