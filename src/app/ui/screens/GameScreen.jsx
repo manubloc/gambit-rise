@@ -44,8 +44,16 @@ const LEAGUE_BOARD = {
   11: { sqLight: "#b8c2ae", sqDark: "#4a6258" },  /* Die Kueste: Klippengruen */
   12: { sqLight: "#98a6a8", sqDark: "#315360" },  /* Endloses Meer: Wellengrau */
 };
-const boardPalette = (profile) => {
-  const lg = profile?.campaign?.league || 1;
+/* v1.1.5: DIE OPTIK FOLGT DEM KAMPF, nicht dem Profilstand. Diese drei
+   Funktionen bekommen `match` uebergeben und fragten trotzdem das Profil -
+   deshalb sah der Besitzer das Meer, sobald die Werkbank sein Profil auf
+   Kapitel 12 gesetzt hatte, egal welche Station er auf der Karte anklickte.
+   Der Kampf traegt sein Kapitel jetzt selbst (match.league, seit v1.1.5);
+   das Profil bleibt Rueckfall fuer Schnellpartien und Duelle, die keine
+   Station haben. */
+const kapitelVon = (match, profile) => match?.league || profile?.campaign?.league || 1;
+const boardPalette = (profile, match = null) => {
+  const lg = kapitelVon(match, profile);
   return LEAGUE_BOARD[((lg - 1) % 12) + 1] || LEAGUE_BOARD[1];
 };
 
@@ -66,13 +74,13 @@ const eloDepth = (elo) => (elo || 1000) < 1000 ? 1 : (elo || 1000) < 1600 ? 2 : 
  // every world carries its own land under the board
 const boardGround = (match, profile) => {
   if (!match) return null; // quick play & duels keep their bare tables
-  const lg = (((profile?.campaign?.league || 1) - 1) % 12) + 1;
+  const lg = ((kapitelVon(match, profile) - 1) % 12) + 1;
   return groundArt(lg);
 };
 const boardTexture = (match, profile) => {
   if (!match) return WEAR_TEX[0];
   if (match.friendly) return WEAR_TEX[0];   // friendlies play on the freshest table in the house
-  const lg = profile?.campaign?.league || 1;
+  const lg = kapitelVon(match, profile);   // v1.1.5: Kapitel des Kampfes
   const pool = lg >= 8 ? [1, 2, 3, 3] : lg >= 5 ? [0, 1, 2, 3] : [0, 0, 1, 2, 3];
   return WEAR_TEX[pool[texHash((match.nodeId || "x") + ":" + lg) % pool.length]];
 };
@@ -947,7 +955,7 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
   const classicWurf = useMemo(() => Math.floor(Math.random() * 3), []);
   const { feld, feldDunkel } = useMemo(() => {
     if (campaign) {
-      const lg = (((profile?.campaign?.league || 1) - 1) % 12) + 1;
+      const lg = ((kapitelVon(match, profile) - 1) % 12) + 1;   // v1.1.5: Kapitel des Kampfes
       const fin = lg >= 11 && !!match?.boss;
       return { feld: FELD_KAPITEL[lg - 1], feldDunkel: fin ? FELD_FINALE : null };
     }
@@ -1135,7 +1143,7 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
           animation: flyGo && !flyDone && !zoomMode ? "ggBoardZoomIn 1.9s cubic-bezier(.2,.85,.25,1) both" : "none", // the STATION rushes up: a clean zoom from map-height to the board, no more flyover
           opacity: flyGo ? 1 : 0.985 }}>
         <BoardView state={state} onMove={play} interactive={myTurn} showCoords={klassikOptik} lastMove={state.lastMove} animateFor={null} hotseat={hotseat} feld={feld} feldDunkel={feldDunkel} ruhig={armResign || !!banner} mattSeite={banner && (banner.reason === "checkmate" || banner.reason === "regicide") ? (banner.result === "win" ? (myColor === "w" ? "b" : "w") : myColor) : null} effekt={brettEffekt}
-          flip={viewColor === BLACK} theme={{ ...(map.theme || {}), ...boardPalette(profile) }} fitBox pick={scout && pvp ? myColor : potionArm ? WHITE : null}
+          flip={viewColor === BLACK} theme={{ ...(map.theme || {}), ...boardPalette(profile, match) }} fitBox pick={scout && pvp ? myColor : potionArm ? WHITE : null}
           onPick={scout && pvp ? scoutTap : usePotion} pov={viewColor}
           setzFelder={setzPhase ? setzbar : null} onSetz={setzPhase ? setzeOderNimm : null}
           knownKinds={knownAtStart} seerVision={seerVision} onEnemyTap={onEnemyTap} introSpot={introSpots} onInspect={setInspect}

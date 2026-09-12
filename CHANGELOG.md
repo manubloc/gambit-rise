@@ -1,5 +1,23 @@
 # Changelog - Grand Gambit
 
+## 1.1.5
+- DER WERKBANK-FEHLER IST GEFUNDEN, und er lag in der OPTIK, nicht in den
+  Regeln. Der Besitzer: "Ich wechsle es ueber die Weltkarte, bin auf der Map,
+  waehle das erste Level aus - und dann erscheint beim Starten des Kampfes das
+  Level aus dem Meer." GEMESSEN: buildStageMatch gab gar kein Feld `league`
+  zurueck. Der Spielbildschirm fragt aber an vier Stellen danach
+  (Feldfarben, Brettgrund, Abnutzung, Kapitelbild) und schreibt jedes Mal
+  `match?.league || profile.campaign.league`. Ohne das Feld griff IMMER das
+  Profil - wer ueber die Werkbank in Kapitel 12 stand, sah das Meer, egal
+  welche Station er anklickte. Regeln und Gegner waren seit v1.1.2 richtig,
+  nur die Optik log; deshalb "ist der Fehler nicht weg".
+- ZWEI EINGRIFFE: der Kampf traegt sein Kapitel jetzt selbst
+  (league: lgMap, also das Kapitel der Station), und die vier Stellen im
+  Spielbildschirm fragen ueber eine gemeinsame Funktion kapitelVon(match,
+  profile) - Kampf zuerst, Profil nur als Rueckfall fuer Schnellpartien und
+  Duelle, die keine Station haben. Nur noch EINE Stelle im ganzen Bildschirm
+  nennt das Profil: die Funktion selbst.
+
 ## 1.1.4
 - DIE NAECHSTE BELOHNUNG STEHT IN DER KACHELECKE (Besitzer: "man muss auf
   jeden Fall sehen, pro Kachel, was man jetzt gewinnen kann - rechts oben,

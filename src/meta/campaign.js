@@ -243,6 +243,20 @@ export function buildStageMatch(id, profile = null, leagueOverride = null) {
   return {
     nodeId: id,
     map: mapId, rules: node.rules,
+    /* v1.1.5 (Besitzerbefund, nach zwei Fehlversuchen endlich am richtigen
+       Ort): DER KAMPF TRAEGT SEIN KAPITEL. "Ich wechsle es ueber die
+       Weltkarte, waehle das erste Level aus - und dann erscheint beim Starten
+       des Kampfes das Level aus dem Meer."
+
+       Gemessen: buildStageMatch gab KEIN Feld league zurueck. Der
+       Spielbildschirm fragt aber an vier Stellen danach - Brettgrund,
+       Feldfarben, Kapitelbild - und schreibt jedes Mal
+       `match?.league || profile.campaign.league`. Ohne das Feld griff also
+       IMMER das Profil: wer ueber die Werkbank in Kapitel 12 stand, sah das
+       Meer, egal welche Station er auf der Karte anklickte. Die Regeln und
+       Gegner waren seit v1.1.2 richtig - nur die Optik log. Jetzt steht das
+       Kapitel im Kampf, und zwar dasselbe, mit dem er gebaut wurde. */
+    league: lgMap,
     node: (node.id === "a4" && lg < 2) ? { ...node, storyDe: A4_L1_STORY.de, storyEn: A4_L1_STORY.en } : node,
     boss: bossInfo,
     turncoat, excludeId: turncoat ? recruitId : null,

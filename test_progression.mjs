@@ -360,5 +360,22 @@ import { mitHeld as _mh, heldName as _hn } from "./src/app/ui/namen.js";
   ok("without a name the old honorific stays", _hn({}) === "Wanderer" && _mh("He, {held}!", null) === "He, Wanderer!");
 }
 
+console.log("\n== DER KAMPF TRAEGT SEIN KAPITEL (Besitzerbefund v1.1.5) ==");
+{
+  /* "Ich wechsle es ueber die Weltkarte, waehle das erste Level aus - und dann
+     erscheint beim Starten des Kampfes das Level aus dem Meer." Ursache:
+     buildStageMatch gab kein Feld league zurueck, also fiel die ganze Optik
+     (Brettgrund, Feldfarben, Kapitelbild) auf das PROFIL zurueck. */
+  const bau = (id, liga) => bsm2(id, { ...dp2(), campaign: { league: liga, cleared: [], unlocked: [] } });
+  ok("der Kampf kennt sein Kapitel", bau("L03s00", 12).league === 3);
+  ok("und zwar unabhaengig vom Profilstand",
+    bau("L03s00", 1).league === 3 && bau("L03s00", 12).league === 3 && bau("L12s00", 1).league === 12);
+  const { readFileSync } = await import("node:fs");
+  const gs = readFileSync("src/app/ui/screens/GameScreen.jsx", "utf8");
+  ok("die Optik fragt den Kampf, nicht das Profil",
+    gs.includes("const kapitelVon = (match, profile) => match?.league") &&
+    (gs.match(/profile\?\.campaign\?\.league/g) || []).length === 1);
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
