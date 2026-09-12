@@ -1,5 +1,54 @@
 # Changelog - Grand Gambit
 
+## 1.0.91
+- DAS KARTENBOOT IST NEU (Besitzerbilder): geschnitzter Rumpf in Blaugruen mit
+  Goldband, von der Seite, geschlossen - GESPIEGELT, damit es nach rechts
+  faehrt. Der Wasserkranz war gemessen 28 Gruen- und 41 Blaustufen heller als
+  das Kartenmeer; jetzt auf (55,73,84) gezogen gegen Kartenmeer (60,74,81) -
+  in Montage gegen drei Abstufungen geprueft.
+- DER GAMBIT STEHT IM BOOT, nicht darauf. Vorher hob ihn translateY(-9%)
+  heraus, sein Sockel schwebte ueber der Bordwand. Jetzt keine Verschiebung:
+  bei den echten Massen (Boot 128x37, Oberkante y=11; Figur 48 hoch, bottom
+  -9) verdeckt der Rumpf von sich aus 35 % - Huefte bei 63 %, Sockel ab 75 %,
+  die Kante liegt genau dazwischen. Meine erste Rechnung (22 %) haette 57 %
+  verdeckt und ihn versinken lassen; die Montage hat es gezeigt.
+- BOOT-LADENSYMBOL und DIE SCHATZKAMMER haben Gemaelde (Besitzerbilder): die
+  Kammer im selben Format wie Corvo - geschnitzte Szene auf rundem
+  Steinsockel -, damit die beiden Raeume des Lagers als Paar lesbar sind.
+  Beide in beiden Livreen und als klein-Fassung.
+- DER VERGESSENSTRANK hat sein Gemaelde: der letzte Gegenstand, der noch ein
+  Emoji zeigte. Damit tragen ALLE Gegenstaende ihr eigenes Bild.
+- DER STAND DER TATEN ist eine Zeile, keine Plakette mehr (Besitzer: "ohne in
+  einem Button zu sein"). Nur das Einloesbare bleibt ein Chip - das ist ein
+  Knopf-Versprechen.
+
+## 1.0.91
+- DAS BOOT FAEHRT NACH RECHTS UND DER GAMBIT STEHT DARIN. Neues Kartenboot
+  (Besitzerbild): geschlossener Rumpf von der Seite, gespiegelt - der hohe
+  Bug zeigte nach links, obwohl die Reise nach rechts geht. Der Wasserkranz
+  war GEMESSEN 28/41 Stufen zu tuerkis; jetzt auf das Kartenmeer gezogen
+  (55,73,84 gegen Ziel 60,74,81). Und die Figur wird nicht mehr um -9 %
+  herausgehoben: bei den echten Massen verdeckt der Rumpf von sich aus 35 %,
+  Huefte bei 63 %, Sockel ab 75 % - die Bordwandkante liegt genau dazwischen.
+  Drei Tiefen montiert und gerechnet; 22 % hatten die Figur versinken lassen.
+- BOOT-LADENSYMBOL und VERGESSENSTRANK eingebaut (Besitzerbilder) - damit
+  zeigt KEIN Gegenstand mehr ein Emoji.
+- DIE SCHATZKAMMER HAT EIN GESICHT: Gewoelbe mit offener Truhe und zwei
+  Kerzen, auf demselben runden Steinsockel wie Corvos Kraemerstand - die
+  beiden lesen sich jetzt als Paar.
+- DIE TATEN STEHEN ZU ZWEIT NEBENEINANDER (Besitzer: "statt alle
+  untereinander, weil das viel zu scrollen ist"): Raster mit zwei Spalten,
+  Medaillon oben, darunter zentriert Name und Stufenrauten. Geoeffnet nimmt
+  eine Kachel beide Spalten, damit die Zahlen Platz haben. Gemessen am
+  lebenden DOM: 14 Kacheln, 181 px breit, 0 px Ueberlauf, gleiche Hoehe.
+- DIE ZAHLEN IN DER STUFENLISTE SIND LESBAR (Besitzer: "kann man fast nicht
+  lesen"): Mini-Zeichen 10 -> 15 px, Betraege fett und eine Stufe groesser,
+  der Einloesen-Knopf 13 -> 16 px.
+- NEUES WERKZEUG messe-kammer.mjs - und dabei zwei alte offene Punkte
+  erledigt: die Chromium-Suche und der TESTZUGANG aus messe_hofstaat sind
+  uebernommen, das Werkzeug legt sich selbst ein Konto an und patcht das
+  Profil.
+
 ## 1.0.90
 - DER STICKY-VERLAUF IM STATIONSFENSTER IST FORT (Besitzer: "der Button ist
   total daneben, die cremefarbene Flaeche geht gar nicht - lieber hart an das

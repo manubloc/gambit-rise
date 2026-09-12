@@ -781,7 +781,15 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
                   return gt >= 3 ? "drop-shadow(0 2px 3px rgba(46,42,32,.35)) drop-shadow(0 0 6px rgba(240,214,138,.55)) drop-shadow(0 0 13px rgba(240,214,138,.3))"
                     : gt === 2 ? "drop-shadow(0 2px 3px rgba(46,42,32,.35)) drop-shadow(0 0 7px rgba(240,214,138,.45))"
                     : "drop-shadow(0 2px 3px rgba(46,42,32,.35))"; })(),
-                transform: ((th.sea && hasItem(profile, "boat") ? "translateY(-9%)" : "")
+                /* v1.0.91 (Besitzer, mit Montage geprueft): DER GAMBIT STEHT IM BOOT, nicht
+                   darauf. Vorher hob ihn translateY(-9%) HERAUS, sein Sockel schwebte
+                   ueber der Bordwand. Jetzt keine Verschiebung: bei den echten
+                   Spielmassen (Boot 128 px breit, 37 hoch, Oberkante bei y=11;
+                   Figur 48 hoch, bottom -9) verdeckt der Rumpf von sich aus 35 %
+                   der Figur - Huefte bei 63 %, Sockel ab 75 %, die Kante liegt also
+                   genau dazwischen. Gerechnet, nicht geschaetzt: 22 % hatten 57 %
+                   verdeckt und liessen ihn versinken. */
+                transform: (""
                   + (token.moving ? ` rotate(${-7 * stride.dir}deg)` : "")) || "none", transition: "transform .3s ease" }}>
                 {(() => {
                   // v1.0.41: Es gibt nur noch EINEN Satz - die Livree-Weiche

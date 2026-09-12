@@ -4,6 +4,10 @@
 // so the set may grow one figure at a time.
 import pPawn from "../assets/painted/painted-pawn.webp";
 import pHaendler from "../assets/painted/painted-haendler.webp";  // der fahrende Haendler am Stand
+/* v1.0.91: DIE SCHATZKAMMER HAT IHR BILD (Besitzerwunsch) - dasselbe Format
+   wie Corvo: eine geschnitzte Szene auf rundem Steinsockel, damit die beiden
+   als Paar lesbar sind. Corvo verkauft, die Kammer bewahrt. */
+import pSchatzkammer from "../assets/painted/painted-schatzkammer.webp";
 /* v0.78 (Besitzer): SEIN Original in voller Groesse - 1024x1024, bereits sauber
    freigestellt geliefert (568102 durchsichtige Pixel). Keine Freistellung, keine
    weiche Kante, keine Skalierung von mir; nur VERLUSTFREI nach WebP umkodiert:
@@ -129,6 +133,7 @@ import kKingD from "../assets/klassik/king-dunkel.webp";
    sie WIRKLICH gross sieht: Hofstaat, Popup, Zoom, Schaukammer. */
 import k_pPawn from "../assets/painted/klein/painted-pawn.webp";
 import k_pHaendler from "../assets/painted/klein/painted-haendler.webp";
+import k_pSchatzkammer from "../assets/painted/klein/painted-schatzkammer.webp";
 import k_pGambit from "../assets/painted/klein/painted-gambit.webp";
 import k_pPawnT2 from "../assets/painted/klein/painted-pawn-t2.webp";
 import k_pPawnT3 from "../assets/painted/klein/painted-pawn-t3.webp";
@@ -201,10 +206,10 @@ const KLASSIK_DUNKEL = { P: kPawnD, N: kKnightD, B: kBishopD, R: kRookD, Q: kQue
 export const klassikFor = (piece) =>
   (piece?.color === "w" ? KLASSIK_HELL : KLASSIK_DUNKEL)[piece?.kind] || null;
 
-export const PAINTED_KLEIN = { "pawn": k_pPawn, "pawn-t2": k_pPawnT2, "pawn-t3": k_pPawnT3, "haendler": k_pHaendler, "gambit": k_pGambit, "gambit-t2": k_pGambitT2, "gambit-t3": k_pGambitT3, "gambit-t4": k_pGambitT4, "gambit-t5": k_pGambitT5, "gambit-t6": k_pGambitT6, "seeress": k_pSeeress, "knight": k_pKnight, "bishop": k_pBishop, "queen": k_pQueen, "archbishop": k_pArchbishop, "hawk": k_pHawk, "amazon": k_pAmazon, "assassin": k_pAssassin, "guardian": k_pGuardian, "captain": k_pCaptain, "sorceress": k_pSorceress, "pathfinder": k_pPathfinder, "rook": k_pRook, "king": k_pKing, "chancellor": k_pChancellor, "dragon": k_pDragon, "mage": k_pMage, "alchemist": k_pAlchemist, "warlock": k_pWarlock, "paladin": k_pPaladin, "inquisitor": k_pInquisitor, "bard": k_pBard, "engineer": k_pEngineer, "standard": k_pStandard, "strategist": k_pStrategist, "boss-golem": k_bGolem, "boss-beast": k_bBeast, "boss-serpent": k_bSerpent, "boss-wraith": k_bWraith, "boss-tyrant": k_bTyrant, "boss-archenemy": k_bArchenemy, "boss-leaguemaster": k_bLeaguemaster, "boss-b01": k_pbb01, "boss-b02": k_pbb02, "boss-b03": k_pbb03, "boss-b04": k_pbb04, "boss-b05": k_pbb05, "boss-b06": k_pbb06, "boss-b07": k_pbb07, "boss-b08": k_pbb08, "boss-b09": k_pbb09, "boss-b10": k_pbb10, "boss-b11": k_pbb11, "boss-b12": k_pbb12, "boss-b13": k_pbb13, "boss-b14": k_pbb14, "boss-b15": k_pbb15, "boss-b16": k_pbb16, "boss-b17": k_pbb17, "boss-b18": k_pbb18, "boss-b19": k_pbb19, "boss-b20": k_pbb20, "boss-b21": k_pbb21, "boss-b22": k_pbb22, "boss-b23": k_pbb23, "boss-b24": k_pbb24, "boss-b25": k_pbb25 };
+export const PAINTED_KLEIN = { "pawn": k_pPawn, "pawn-t2": k_pPawnT2, "pawn-t3": k_pPawnT3, "haendler": k_pHaendler, "schatzkammer": k_pSchatzkammer, "gambit": k_pGambit, "gambit-t2": k_pGambitT2, "gambit-t3": k_pGambitT3, "gambit-t4": k_pGambitT4, "gambit-t5": k_pGambitT5, "gambit-t6": k_pGambitT6, "seeress": k_pSeeress, "knight": k_pKnight, "bishop": k_pBishop, "queen": k_pQueen, "archbishop": k_pArchbishop, "hawk": k_pHawk, "amazon": k_pAmazon, "assassin": k_pAssassin, "guardian": k_pGuardian, "captain": k_pCaptain, "sorceress": k_pSorceress, "pathfinder": k_pPathfinder, "rook": k_pRook, "king": k_pKing, "chancellor": k_pChancellor, "dragon": k_pDragon, "mage": k_pMage, "alchemist": k_pAlchemist, "warlock": k_pWarlock, "paladin": k_pPaladin, "inquisitor": k_pInquisitor, "bard": k_pBard, "engineer": k_pEngineer, "standard": k_pStandard, "strategist": k_pStrategist, "boss-golem": k_bGolem, "boss-beast": k_bBeast, "boss-serpent": k_bSerpent, "boss-wraith": k_bWraith, "boss-tyrant": k_bTyrant, "boss-archenemy": k_bArchenemy, "boss-leaguemaster": k_bLeaguemaster, "boss-b01": k_pbb01, "boss-b02": k_pbb02, "boss-b03": k_pbb03, "boss-b04": k_pbb04, "boss-b05": k_pbb05, "boss-b06": k_pbb06, "boss-b07": k_pbb07, "boss-b08": k_pbb08, "boss-b09": k_pbb09, "boss-b10": k_pbb10, "boss-b11": k_pbb11, "boss-b12": k_pbb12, "boss-b13": k_pbb13, "boss-b14": k_pbb14, "boss-b15": k_pbb15, "boss-b16": k_pbb16, "boss-b17": k_pbb17, "boss-b18": k_pbb18, "boss-b19": k_pbb19, "boss-b20": k_pbb20, "boss-b21": k_pbb21, "boss-b22": k_pbb22, "boss-b23": k_pbb23, "boss-b24": k_pbb24, "boss-b25": k_pbb25 };
 
 export const PAINTED = {
-  haendler: pHaendler, pawn: pPawn, "pawn-t2": pPawnT2, "pawn-t3": pPawnT3, gambit: pGambit, "gambit-t2": pGambitT2, "gambit-t3": pGambitT3, "gambit-t4": pGambitT4, "gambit-t5": pGambitT5, "gambit-t6": pGambitT6, seeress: pSeeress, knight: pKnight, bishop: pBishop, queen: pQueen,
+  haendler: pHaendler, schatzkammer: pSchatzkammer, pawn: pPawn, "pawn-t2": pPawnT2, "pawn-t3": pPawnT3, gambit: pGambit, "gambit-t2": pGambitT2, "gambit-t3": pGambitT3, "gambit-t4": pGambitT4, "gambit-t5": pGambitT5, "gambit-t6": pGambitT6, seeress: pSeeress, knight: pKnight, bishop: pBishop, queen: pQueen,
   archbishop: pArchbishop, hawk: pHawk, amazon: pAmazon, assassin: pAssassin, guardian: pGuardian,
   captain: pCaptain, pathfinder: pPathfinder, sorceress: pSorceress,
   rook: pRook, king: pKing, chancellor: pChancellor, dragon: pDragon, mage: pMage,

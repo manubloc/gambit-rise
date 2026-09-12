@@ -1,6 +1,8 @@
 // Achievements — a lean, modern trophy wall. Every entry gets a monochrome
 // in-house icon in a medallion: earned tiers glow gold, untouched ones sit
 // grayed and quiet. Progress is a single number and a thin bar — no clutter.
+import kammerBild from "../assets/painted/painted-schatzkammer.webp";
+import { paintedById, schlichtAn } from "../board/paintedArt.js";
 import { klang } from "../klang.js";
 import { useState } from "react";
 import { SchatzIc, HaendlerIc } from "../RaumIcons.jsx";
@@ -72,12 +74,29 @@ export function AchievementsScreen({ profile, dispatch, t, initialOpenId = null 
           animation: `ggShine ${T.mo.sheen} linear 1.1s infinite` }} />
         {cornerDiamond({ top: 7, left: 7 })}{cornerDiamond({ top: 7, right: 7 })}
         {cornerDiamond({ bottom: 7, left: 7 })}{cornerDiamond({ bottom: 7, right: 7 })}
+        {/* v1.0.91 (Besitzerwunsch): DIE SCHATZKAMMER HAT EIN GESICHT - dieselbe
+            geschnitzte Szene auf rundem Steinsockel wie Corvo am Stand, damit
+            die beiden Raeume des Lagers als Paar lesbar sind. */}
+        {!schlichtAn() && paintedById("schatzkammer") && (
+          <img src={paintedById("schatzkammer")} alt="" draggable={false}
+            style={{ display: "block", margin: "0 auto 4px", width: "min(52%, 168px)", height: "auto",
+              filter: "drop-shadow(0 3px 8px rgba(0,0,0,.55)) drop-shadow(0 0 14px rgba(233,207,138,.22))",
+              pointerEvents: "none", userSelect: "none" }} />
+        )}
         <div className="gg-serif" style={{ fontSize: 13, textTransform: "uppercase", letterSpacing: ".3em",
           ...goldText, filter: "drop-shadow(0 1px 1px rgba(0,0,0,.5))" }}>{t("ach.wallet")}</div>
         <div style={{ display: "flex", alignItems: "center", gap: 8, margin: "7px 12%" }}>
           <span style={{ flex: 1, height: 1, background: "linear-gradient(90deg, transparent, #8a6d35)" }} />
           <span style={{ width: 5, height: 5, background: "#d9b565", transform: "rotate(45deg)" }} />
           <span style={{ flex: 1, height: 1, background: "linear-gradient(90deg, #8a6d35, transparent)" }} />
+        </div>
+        {/* v1.0.91 (Besitzerwunsch): DIE KAMMER HAT EIN GESICHT - wie Corvo
+            beim Kraemer. Gewoelbe aus Quadern, offene Truhe, zwei Kerzen, auf
+            demselben runden Steinsockel wie der Kraemerstand. */}
+        <div style={{ display: "grid", placeItems: "center", marginTop: 2 }}>
+          <img src={kammerBild} alt="" draggable={false} decoding="async"
+            style={{ width: "min(58%, 208px)", height: "auto", display: "block",
+              filter: "drop-shadow(0 3px 8px rgba(0,0,0,.55)) drop-shadow(0 0 16px rgba(233,207,138,.16))" }} />
         </div>
         <div style={{ display: "flex", justifyContent: "center", gap: 26, alignItems: "center", margin: "2px 0 8px" }}>
           <span style={{ display: "inline-flex", alignItems: "center", gap: 9 }}>
@@ -91,13 +110,24 @@ export function AchievementsScreen({ profile, dispatch, t, initialOpenId = null 
           </span>
         </div>
         <div style={{ display: "flex", justifyContent: "center", gap: 8, flexWrap: "wrap" }}>
-          <Chip color={T.dim} bg={T.panel2}>{tiersDone} / {tiersTotal} {t("ach.tiers")}</Chip>
+          {/* v1.0.91 (Besitzer: "dass das tatsaechlich unten dran einfach dann
+              ist, ohne in einem Button zu sein"): der Stand der Taten steht
+              als Zeile da, nicht als Plakette. Nur das, was man EINLOESEN
+              kann, bleibt ein Chip - das ist ein Knopf-Versprechen. */}
+          <span style={{ fontSize: 12, color: T.dim, letterSpacing: ".02em" }}>
+            {tiersDone} / {tiersTotal} {t("ach.tiers")}</span>
           {claimable > 0 && <Chip color={"#17110a"} bg={T.gold}>{t("ach.claimable", { n: claimable })}</Chip>}
         </div>
         {/* v0.52: Skillpunkt-Erklaerung raus - das lehrt der Herald/die Akademie. */}
       </div>
     </div>
 
+    {/* v1.0.91 (Besitzer: "statt alle untereinander, weil das dann viel zu
+        scrollen ist, doch nebeneinander - zwei pro Reihe, das Medaillon und
+        darunter zentriert kurz, was es ist und was der naechste Schritt
+        bringt"): ZWEI SPALTEN. Eine geoeffnete Kachel nimmt wieder die ganze
+        Breite, damit die Zahlen darin Platz haben. */}
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8, alignItems: "start" }}>
     {items.map((it) => {
       const done = it.nextN === null;
       const pct = done ? 1 : Math.min(1, it.val / it.nextN);
@@ -107,10 +137,16 @@ export function AchievementsScreen({ profile, dispatch, t, initialOpenId = null 
       return (
         <Panel key={it.id} onClick={() => { klang("menue"); /* v1.0.11: Schatzkammer-Kachel klingt - der Klangfaenger hoert keine div-onClicks */ setSheenAt((m) => ({ ...m, [it.id]: (m[it.id] || 0) + 1 })); setOpenId(isOpen ? null : it.id); }}
           style={{ display: "flex", gap: 13, cursor: "pointer", position: "relative",
+          /* v1.0.91: geoeffnet nimmt die Kachel beide Spalten - die Stufenliste
+             mit ihren Zahlen braucht die Breite. */
+          gridColumn: isOpen ? "1 / -1" : "auto", minWidth: 0,
           // OPENED, THE EMBLEM TAKES THE STAGE: the plate turns into a column,
           // the medallion rises to the top at nearly twice its size, its ring
           // of light turns, and sparks leave the brightest point sideways.
-          flexDirection: isOpen ? "column" : "row",
+          /* v1.0.91: auch GESCHLOSSEN eine Saeule - im Zweispalter ist keine
+             Breite fuer Medaillon neben Text. Medaillon oben, darunter
+             zentriert der Name und der naechste Schritt. */
+          flexDirection: "column", alignItems: "center", textAlign: "center", padding: isOpen ? 16 : "13px 9px",
           alignItems: isOpen ? "stretch" : "center",
           // EVERY PLATE IS LIT. Dimming the untouched ones made half the
           // treasury look switched off; the medallion and the bar already say
@@ -188,8 +224,12 @@ export function AchievementsScreen({ profile, dispatch, t, initialOpenId = null 
                 brightness lives in the image filter alone. */}
           </div>
           </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8 }}>
+          <div style={{ flex: 1, minWidth: 0, width: "100%" }}>
+            {/* v1.0.91: geschlossen stehen Name und Stufenrauten UNTEREINANDER
+                und zentriert - nebeneinander bliebe im Zweispalter nichts
+                lesbar. Geoeffnet wie gehabt in einer Zeile. */}
+            <div style={{ display: "flex", flexDirection: isOpen ? "row" : "column", alignItems: "center",
+              justifyContent: isOpen ? "space-between" : "center", gap: isOpen ? 8 : 5 }}>
               <span className="gg-serif" style={{ fontSize: 15.5, letterSpacing: ".03em",
                 color: "#fdf6e2", textShadow: "0 1px 2px rgba(0,0,0,.6)" }}>
                 {en ? it.nameEn : it.nameDe}
@@ -218,8 +258,13 @@ export function AchievementsScreen({ profile, dispatch, t, initialOpenId = null 
                   const r = claimReward(it, i);
                   return <div key={i} style={{ display: "flex", justifyContent: "space-between", gap: 8,
                     color: i < it.done ? "#f6ecd2" : VELLUM }}>
-                    <span>{st} {en ? "Tier" : "Stufe"} {i + 1}: {tr.n} ×</span>
-                    <span style={{ whiteSpace: "nowrap" }}><SkillStar size={10} /> {r.sp} · <GoldCoin size={10} /> {r.gold}</span>
+                    {/* v1.0.91 (Besitzer: "die kleinen Mini-Icons wie auch die
+                        Zahlen koennen ein bisschen groesser werden, das kann man
+                        fast nicht lesen"): 10 -> 15 px Zeichen, die Zahlen fett
+                        und eine Stufe groesser. */}
+                    <span style={{ fontSize: 13 }}>{st} {en ? "Tier" : "Stufe"} {i + 1}: {tr.n} ×</span>
+                    <span style={{ whiteSpace: "nowrap", fontSize: 14, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 4 }}>
+                      <SkillStar size={15} /> {r.sp} <span style={{ opacity: .62 }}>·</span> <GoldCoin size={15} /> {r.gold}</span>
                   </div>;
                 })}
               </div>
@@ -249,7 +294,7 @@ export function AchievementsScreen({ profile, dispatch, t, initialOpenId = null 
                     border: "1px solid rgba(255,240,200,.5)", background: GOLD_CTA, color: "#17110a", cursor: "pointer",
                     boxShadow: `0 0 16px ${T.gold}88`, whiteSpace: "nowrap",
                     display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
-                  {t("ach.claim")} · <SkillStar size={13} />{r.sp} <GoldCoin size={13} />{r.gold}
+                  {t("ach.claim")} · <SkillStar size={16} /> {r.sp} <GoldCoin size={16} /> {r.gold}
                 </button>;
               })()}
             </div>
@@ -257,5 +302,6 @@ export function AchievementsScreen({ profile, dispatch, t, initialOpenId = null 
         </Panel>
       );
     })}
+    </div>
   </div>;
 }
