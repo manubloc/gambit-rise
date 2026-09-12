@@ -1,5 +1,24 @@
 # Changelog - Grand Gambit
 
+## 1.0.94
+- DAS HINTERGRUNDBILD WAR NIE EINGEBAUT, nicht entfernt. Der Besitzer
+  vermisste es im Hauptmenue und beim Anmelden; GEMESSEN am fertigen Bau lag
+  auf dem Anmeldeschirm genau EIN Bild im DOM, bg-hall kam nicht vor. Die
+  Komponente RiftFloor existiert seit je in MysticBackground - ihr eigener
+  Kommentar sagt, sie sei fuer Anmeldung und Spielstaende gedacht -, aber
+  NIEMAND hat sie verwendet (Suche im ganzen Baum: null Treffer). Jetzt liegt
+  sie auf beiden Schirmen; nachgemessen: bg-hall 692 px breit, voll sichtbar.
+- DIE REGLER ZEIGEN EINEN FUELLSTAND (Besitzer: "wenn ich ganz links bin,
+  moechte ich nur eine Kontur sehen"). Die Schiene war immer voll violett,
+  egal wo der Griff stand - bei 0 sah man einen vollen Balken. Jetzt kommt
+  der Anteil aus --gg-fuell: links davon Farbe, rechts nur Kontur.
+- DIE AEUSSERE KONTUR AM GRIFF IST FORT - der Besitzer wollte nur eine, nicht
+  zwei uebereinander.
+- DIE ZAHLEN IN DER SCHATZKAMMER: der Skillpunkt traegt seine Zahl in LILA
+  wie oben in der Kopfleiste, nicht in Gold. Beide Zahlen gleich gross
+  (vorher 34 gegen 29, jetzt 31), und mehr Luft zwischen Zeichen und Zahl
+  (9 -> 13 px).
+
 ## 1.0.93
 - DIE SCHATZKAMMER ZEIGTE IHR BILD ZWEIMAL. Mein Fehler aus v1.0.91: es gab
   schon einen Einbau (import kammerBild), ich habe einen zweiten ueber

@@ -110,7 +110,7 @@ export function ProfileScreen({ profile, dispatch, t, account, onSwitchSave, onL
             value={Math.round(wert * 100)}
             onChange={(e) => { const v = Number(e.target.value) / 100;
               dispatch({ type: "REPLACE", profile: { ...profile, [schl]: v, [schalter]: v > 0 } }); }}
-            className="gg-regler" style={{ width: "100%" }} />
+            className="gg-regler" style={{ width: "100%", "--gg-fuell": Math.round(wert * 100) + "%" }} />
         </div>);
       })}
       <div style={{ fontSize: 12, color: T.faint, margin: "14px 0 6px" }}>{t("profile.pieceStyle")}</div>

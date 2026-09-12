@@ -116,16 +116,28 @@ style.textContent = GLOBAL_CSS + `
      genug, damit das Bild lebt statt zu stehen. */
   /* v1.0.2: die Regler tragen die Hausfarbe - violette Bahn, violette Kugel. */
   .gg-regler { -webkit-appearance: none; appearance: none; height: 26px; background: transparent; }
+  /* v1.0.94 (Besitzer: "wenn ich ganz links bin, moechte ich nur eine Kontur
+     sehen und keinen ausgefuellten Balken - es sollte wie ein Fuellstand
+     sein"): DIE SCHIENE IST JETZT EIN FUELLSTAND. Sie war immer voll violett,
+     egal wo der Griff stand - bei 0 sah man einen vollen Balken und keinen
+     leeren. Der Anteil kommt aus --gg-fuell, das ProfileScreen je Regler
+     setzt; links davon Farbe, rechts nur eine Kontur. */
   .gg-regler::-webkit-slider-runnable-track { height: 6px; border-radius: 99px;
-    background: linear-gradient(90deg, #7c3aed, #a78bfa); }
+    border: 1px solid rgba(167,139,250,.42);
+    background: linear-gradient(90deg, #7c3aed 0%, #a78bfa var(--gg-fuell, 0%), rgba(167,139,250,.10) var(--gg-fuell, 0%), rgba(167,139,250,.10) 100%); }
   .gg-regler::-moz-range-track { height: 6px; border-radius: 99px;
-    background: linear-gradient(90deg, #7c3aed, #a78bfa); }
+    border: 1px solid rgba(167,139,250,.42);
+    background: linear-gradient(90deg, #7c3aed 0%, #a78bfa var(--gg-fuell, 0%), rgba(167,139,250,.10) var(--gg-fuell, 0%), rgba(167,139,250,.10) 100%); }
   .gg-regler::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; margin-top: -7px;
     border-radius: 50%; background: radial-gradient(circle at 35% 30%, #e9defd, #a78bfa 60%, #6d28d9);
-    border: 1.5px solid #c4b5fd; box-shadow: 0 0 8px rgba(139,92,246,.7); cursor: pointer; }
+    /* v1.0.94: die goldene/helle Aussenkontur am Griff ist fort - der
+       Besitzer wollte nur EINE Kontur, nicht zwei uebereinander. */
+    border: none; box-shadow: 0 0 8px rgba(139,92,246,.55); cursor: pointer; }
   .gg-regler::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%;
     background: radial-gradient(circle at 35% 30%, #e9defd, #a78bfa 60%, #6d28d9);
-    border: 1.5px solid #c4b5fd; box-shadow: 0 0 8px rgba(139,92,246,.7); cursor: pointer; }
+    /* v1.0.94: die goldene/helle Aussenkontur am Griff ist fort - der
+       Besitzer wollte nur EINE Kontur, nicht zwei uebereinander. */
+    border: none; box-shadow: 0 0 8px rgba(139,92,246,.55); cursor: pointer; }
   @keyframes ggKenBurns {
     from { transform: scale(1.06) translate3d(-1.2%, 1%, 0); }
     to   { transform: scale(1.16) translate3d(1.2%, -1.4%, 0); }

@@ -3,6 +3,7 @@
 // progress dial: any slot can be set to 0…100% in journey order.
 import { useEffect, useState } from "react";
 import { T } from "../theme.js";
+import { RiftFloor } from "../MysticBackground.jsx";
 import { TrashIc } from "../icons.jsx";
 import { logoArt } from "../livery.js";
 import { LeagueShield } from "../LeagueShield.jsx";
@@ -45,6 +46,9 @@ export function SavesScreen({ account, onOpen, onLogout, initialLang = "de", __t
   const card = { background: T.panel, border: `1px solid ${T.line}`, borderRadius: 16, padding: "13px 14px", boxShadow: T.shadow };
   return (
     <div style={{ height: "calc(100dvh / var(--vhz, 1))", overflowY: "auto", overscrollBehavior: "none", background: T.savesBg, padding: "14px 16px", display: "flex", flexDirection: "column", alignItems: "center" }}>
+      {/* v1.0.94: derselbe Brettgrund wie auf dem Anmeldeschirm - die
+          Spielstaende sind der zweite Raum vor dem Haus. */}
+      <RiftFloor />
       <button onClick={() => setLang(lang === "de" ? "en" : "de")} style={{ position: "absolute", top: "calc(12px + env(safe-area-inset-top))", right: "calc(14px + env(safe-area-inset-right))",
         background: "none", border: `1px solid ${T.line}`, color: T.dim, borderRadius: 999, padding: "5px 12px",
         fontFamily: "inherit", fontSize: 12, cursor: "pointer" }}>{lang === "de" ? "EN" : "DE"}</button>

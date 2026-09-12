@@ -6,6 +6,7 @@ import { useState } from "react";
 import { T } from "../theme.js";
 import { register, login, cloudConfigured, signInWithProvider, signInEmailCloud, signUpEmailCloud } from "../../../meta/index.js";
 import { logoArt } from "../livery.js";
+import { RiftFloor } from "../MysticBackground.jsx";
 
 const STR = {
   de: {
@@ -86,6 +87,14 @@ export function LoginScreen({ onSignedIn, initialLang = "de" }) {
   return (
     <div style={{ height: "calc(100dvh / var(--vhz, 1))", overflowY: "auto", overscrollBehavior: "none", display: "flex", flexDirection: "column", alignItems: "center",
       padding: "16px 18px", background: T.loginBg }}>
+      {/* v1.0.94 (Besitzer: "beim Anmelden hatten wir auch ein Hintergrundbild,
+          das ist ueberall weg"): DER BRETTGRUND FEHLTE, und zwar nie eingebaut -
+          RiftFloor existierte seit je in MysticBackground und war NIRGENDS
+          verwendet (gemessen: auf dem Anmeldeschirm lag genau ein Bild im DOM,
+          bg-hall kam nicht vor). Ihr eigener Kommentar sagte, sie sei fuer
+          Anmeldung und Spielstaende gedacht - nur verdrahtet hatte sie
+          niemand. Jetzt liegt sie hier. */}
+      <RiftFloor />
       {/* Der Sprachknopf lag UNTER dem Titelbild und schluckte jeden Tipp -
           gemessen fing ein IMG die Klicks ab. Er sitzt jetzt fest am Schirm
           und ueber allem, mit lesbarer Schrift auf dunklem Grund. */}

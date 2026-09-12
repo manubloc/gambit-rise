@@ -94,15 +94,19 @@ export function AchievementsScreen({ profile, dispatch, t, initialOpenId = null 
           <span style={{ width: 5, height: 5, background: "#d9b565", transform: "rotate(45deg)" }} />
           <span style={{ flex: 1, height: 1, background: "linear-gradient(90deg, #8a6d35, transparent)" }} />
         </div>
+        {/* v1.0.94 (Besitzer): der Skillpunkt traegt seine Zahl in LILA, wie
+            oben in der Kopfleiste - nicht in Gold. Beide Zahlen GLEICH GROSS
+            (vorher 34 gegen 29), und mehr Luft zwischen Zeichen und Zahl. */}
         <div style={{ display: "flex", justifyContent: "center", gap: 26, alignItems: "center", margin: "2px 0 8px" }}>
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 9 }}>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 13 }}>
             <SkillStar size={30} />
-            <span className="gg-serif" style={{ fontSize: 34, fontWeight: 450, letterSpacing: ".02em", lineHeight: 1, ...goldText }}>{profile.sp || 0}</span>
+            <span className="gg-serif" style={{ fontSize: 31, fontWeight: 450, letterSpacing: ".02em", lineHeight: 1,
+              color: "#c4b5fd", textShadow: "0 0 10px rgba(167,139,250,.45), 0 1px 1px rgba(0,0,0,.6)" }}>{profile.sp || 0}</span>
           </span>
           <span style={{ width: 1, height: 34, background: "#8a6d3566" }} />
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 9 }}>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 13 }}>
             <GoldCoin size={28} />
-            <span className="gg-serif" style={{ fontSize: 29, fontWeight: 450, letterSpacing: ".02em", lineHeight: 1, ...goldText }}>{profile.gold || 0}</span>
+            <span className="gg-serif" style={{ fontSize: 31, fontWeight: 450, letterSpacing: ".02em", lineHeight: 1, ...goldText }}>{profile.gold || 0}</span>
           </span>
         </div>
         <div style={{ display: "flex", justifyContent: "center", gap: 8, flexWrap: "wrap" }}>
