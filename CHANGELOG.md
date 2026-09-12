@@ -1,5 +1,25 @@
 # Changelog - Grand Gambit
 
+## 1.0.92
+- DAS TALENTBAND VERSCHWAND HINTER DEM BRETT. URSACHE: es lag mit dem Brett
+  in EINEM Raster mit alignItems/justifyItems center - das Raster legte beide
+  in die Mitte, also uebereinander. Jetzt stapelt eine Spalte sie sauber:
+  Brett oben, Band darunter. Dazu rueckt das Brett hoeher (Kopfraum 0,95 ->
+  0,45 Zellen, Fussraum 0,3 -> 0,2), damit unten Platz fuer das Band bleibt.
+- DIE TALENT-ARTEN TRAGEN IHRE FARBE (Besitzer: "eine farbliche Kennzeichnung,
+  ob passiv, aktiv, Fernkampf"). Die Chronik fuehrt seit je acht Arten mit
+  eigener Farbe - Bewegung blau, Fernkampf orange, Sprung violett, Zaehigkeit
+  gruen, Flaeche, Kontrolle, Kroenung, List. Das Band nutzt sie jetzt fuer
+  Rand, Grund und Zeichen: man sieht die Art, bevor man den Namen liest.
+- GEGNERZIELE SIND FELDFAERBUNG (Besitzer: "genau diese Faerbung wuensche ich
+  mir auch beim Gegner, anstelle dieser Bubbles"): dieselbe Darstellung wie
+  bei den eigenen Zuegen, nur in Riss-Violett statt Gold - so weiss man auf
+  einen Blick, wessen Reichweite man sieht. Die Perle sass mitten im Feld und
+  verdeckte die Figur darunter; sie ist fort.
+- drive3 misst ab jetzt, ob das Band UNTER dem Brett liegt (Ueberlappung in
+  px). In der Klassik-Fahrprobe erscheint es nicht (Stufe 1 = keine Talente),
+  die Messung bleibt fuer Gambit-Partien scharf.
+
 ## 1.0.91
 - DAS KARTENBOOT IST NEU (Besitzerbilder): geschnitzter Rumpf in Blaugruen mit
   Goldband, von der Seite, geschlossen - GESPIEGELT, damit es nach rechts

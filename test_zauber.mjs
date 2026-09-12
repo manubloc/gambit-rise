@@ -113,6 +113,13 @@ console.log("\n== Die Oberflaeche zeigt die Talente ==");
   ok("ZAUBER RUHEN, bis ihr Chip gewaehlt ist (scharf)", bv.includes("mv.consumes && mv.consumes !== scharf"));
   ok("Auswahlwechsel entschaerft", bv.includes("setScharf(null); }, [sel])"));
   ok("der Schild steht im Band", bv.includes("Schild ×{schild}"));
+  /* v1.0.92: drei Befunde vom 12.9. */
+  ok("das Band wird UNTER das Brett gestapelt, nicht daneben zentriert",
+    bv.includes('flexDirection: "column"') && !bv.includes('alignItems: "center", justifyItems: "center"'));
+  ok("die Talent-Arten tragen ihre Farbe aus der Chronik (TAGS)",
+    bv.includes("TAGS[ab.tag]") && bv.includes("farbe: tg ? tg.color : null"));
+  ok("Gegnerziele sind Feldfaerbung, keine Perle mehr",
+    !bv.includes('background: "radial-gradient(circle at 34% 30%, #ddd2ff') && bv.includes("rgba(167,139,250,.46)"));
   const gs = readFileSync("src/app/ui/screens/GameScreen.jsx", "utf8");
   ok("das Abprallen wird gemeldet (Schild! ... faengt den Schlag ab)", gs.includes("lm.bounced && lm.hitKind"));
 }

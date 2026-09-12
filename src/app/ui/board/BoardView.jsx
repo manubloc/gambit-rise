@@ -8,7 +8,7 @@ import { FILES, RANKS, idx, legalMovesFrom, inCheck, findKing } from "../../../c
 import { gespart } from "../sparmodus.js";
 import { SperrGlyph } from "./SperrGlyph.jsx";
 import { animAn, schlagArt } from "../anim.js";
-import { ABILITIES } from "../../../content/abilities.js";
+import { ABILITIES, TAGS } from "../../../content/abilities.js";
 import { PASSIVE_TALENTE } from "../../../core/rules/moves.js";
 import { stadium } from "../../../core/rules/sperren.js";
 import { PieceGlyph, StatTriad } from "./PieceGlyph.jsx";
@@ -591,9 +591,16 @@ export function BoardView({ state, onMove, interactive, lastMove, mattSeite = nu
           {isSpy && <div style={{ position: "absolute", inset: 0, boxShadow: "inset 0 0 0 3px #a78bfa", background: "rgba(167,139,250,.1)" }} />}
           {introSpot && introSpot.has(i) && piece && <div style={{ position: "absolute", inset: "4%", borderRadius: 8,
             pointerEvents: "none", animation: "ggNewPulse 1.15s ease-in-out infinite" }} />}
-          {spyT && <div style={{ position: "absolute", width: "30%", height: "30%", borderRadius: "50%", left: "35%", top: "35%",
-            background: "radial-gradient(circle at 34% 30%, #ddd2ff, #8f76e8 62%, #5b47a8)", border: "2px solid #17110a",
-            boxShadow: "0 1px 5px rgba(0,0,0,.55), 0 0 7px rgba(167,139,250,.55)", pointerEvents: "none" }} />}
+          {/* v1.0.92 (Besitzer: "genau diese Faerbung wuensche ich mir auch
+              beim Gegner, anstelle dieser Bubbles"): die Gegnerziele tragen
+              jetzt dieselbe Feldfaerbung wie die eigenen - nur in Riss-Violett
+              statt Gold, damit man auf einen Blick weiss, WESSEN Reichweite
+              man sieht. Die Perle ist fort; sie sass mitten im Feld und
+              verdeckte die Figur darunter. */}
+          {spyT && <div aria-hidden style={{ position: "absolute", inset: 0, zIndex: 1, pointerEvents: "none",
+            background: "radial-gradient(ellipse at 50% 50%, rgba(167,139,250,.46) 0%, rgba(167,139,250,.30) 62%, rgba(167,139,250,.14) 100%)",
+            boxShadow: "inset 0 0 0 2.5px rgba(196,181,253,.85), 0 0 10px rgba(167,139,250,.26)",
+            animation: ruhig ? "none" : `ggZielAtem 2.6s ease-in-out ${((i * 37) % 9) * 0.12}s infinite` }} />}
           {checkSq === i && <div style={{ position: "absolute", inset: "8%", borderRadius: 6, animation: "glow 1.1s infinite" }} />}
           {/* v1.0.67: SCHACHPULS (Besitzer: man uebersieht das Schach). Ein
               roter Saum pulst unter dem bedrohten Koenig - transform+opacity,
@@ -807,7 +814,14 @@ export function BoardView({ state, onMove, interactive, lastMove, mattSeite = nu
       const ab = ABILITIES[id]; if (!ab) return null;
       const passiv = PASSIVE_TALENTE.has(id);
       const verbraucht = !!(selPiece.used || {})[id];
-      return { id, name: en ? ab.nameEn : ab.nameDe, icon: ab.icon, passiv, verbraucht };
+      /* v1.0.92 (Besitzer: "eine farbliche Kennzeichnung, ob passiv, aktiv,
+         Fernkampf"): die Chronik fuehrt seit je acht Arten mit eigener Farbe
+         (TAGS: Bewegung blau, Fernkampf orange, Sprung violett, Zaehigkeit
+         gruen, Flaeche, Kontrolle, Kroenung, List). Das Band traegt sie
+         jetzt - so sieht man die Art, bevor man den Namen liest. */
+      const tg = TAGS[ab.tag] || null;
+      return { id, name: en ? ab.nameEn : ab.nameDe, icon: ab.icon, passiv, verbraucht,
+        farbe: tg ? tg.color : null, artName: tg ? (en ? tg.nameEn : tg.nameDe) : null };
     }).filter(Boolean);
     if (!eintraege.length && !schild) {
       /* keine Talente, kein Schild: eine erklaerende Zeile statt Nichts. */
@@ -847,12 +861,15 @@ export function BoardView({ state, onMove, interactive, lastMove, mattSeite = nu
             onClick={waehlbar ? (ev) => { ev.stopPropagation(); setScharf(aktiv ? null : e.id); } : undefined}
             style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "3px 8px",
             borderRadius: 999, whiteSpace: "nowrap", cursor: waehlbar ? "pointer" : "default",
-            background: e.passiv ? "rgba(233,207,138,.14)" : (zu ? "rgba(120,120,140,.14)" : aktiv ? "rgba(167,139,250,.55)" : "rgba(124,58,237,.22)"),
-            border: `1px solid ${e.passiv ? "rgba(233,207,138,.45)" : (zu ? "rgba(140,140,160,.35)" : aktiv ? "#e6ddff" : "rgba(167,139,250,.6)")}`,
+            background: zu && !e.passiv ? "rgba(120,120,140,.14)"
+              : aktiv ? (e.farbe || "#a78bfa") + "88"
+              : e.farbe ? e.farbe + "22" : (e.passiv ? "rgba(233,207,138,.14)" : "rgba(124,58,237,.22)"),
+            border: `1px solid ${zu && !e.passiv ? "rgba(140,140,160,.35)"
+              : aktiv ? "#fff" : (e.farbe ? e.farbe + "aa" : "rgba(167,139,250,.6)")}`,
             boxShadow: aktiv ? "0 0 10px rgba(167,139,250,.6)" : "none",
             color: e.passiv ? "#f1e3b2" : (zu ? "#9a97ad" : "#e6ddff"),
             textDecoration: e.verbraucht ? "line-through" : "none" }}>
-            <span aria-hidden>{e.passiv ? "◆" : "✦"}</span>{e.name}
+            <span aria-hidden style={{ color: e.farbe || undefined }}>{e.passiv ? "◆" : "✦"}</span>{e.name}
             <span style={{ opacity: .7, fontSize: 10 }}>{e.passiv ? "dauerhaft" : (e.verbraucht ? "eingesetzt" : aktiv ? "bereit — Feld wählen" : "antippen")}</span>
           </span>);
         })}
@@ -1250,9 +1267,17 @@ export function BoardView({ state, onMove, interactive, lastMove, mattSeite = nu
   // in portrait — there is slack to spare, so the board simply sits centred and
   // the head room comes free. That is the difference between a board resting
   // mid-screen and one shoved against the bottom rail.
-  if (fitBox) return <div ref={wrapRef} style={{ position: "absolute", inset: 0, display: "grid",
-    alignItems: "center", justifyItems: "center",
-    paddingTop: tight && cell ? Math.round(cell * 0.95) : 0,
-    paddingBottom: tight && cell ? Math.round(cell * 0.3) : 0 }}>{board}{talentBand}</div>;
+  /* v1.0.92 (Besitzer: "das Talentband verschwindet teilweise unter dem
+     Schachbrett, und das Brett koennte insgesamt weiter nach oben"): DAS BAND
+     LAG IM RASTER NEBEN DEM BRETT. Bei alignItems center legte das Raster
+     Brett UND Band beide in die Mitte - also uebereinander, und das Band
+     verschwand hinter dem Brett. Jetsch stapelt eine Spalte sie sauber:
+     Brett oben, Band darunter. Dazu rueckt das Brett hoeher (Kopfraum von
+     0,95 auf 0,45 Zellen), damit unten Platz fuer das Band bleibt - genau
+     das Areal, das der Besitzer sich wuenscht. */
+  if (fitBox) return <div ref={wrapRef} style={{ position: "absolute", inset: 0, display: "flex",
+    flexDirection: "column", alignItems: "center", justifyContent: "flex-start",
+    paddingTop: tight && cell ? Math.round(cell * 0.45) : 0,
+    paddingBottom: tight && cell ? Math.round(cell * 0.2) : 0, gap: 0 }}>{board}{talentBand}</div>;
   return <div ref={wrapRef} style={{ width: "100%" }}>{board}{talentBand}</div>;
 }

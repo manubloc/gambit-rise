@@ -44,6 +44,33 @@ await page.goto(`http://127.0.0.1:${port}/`, { waitUntil: "networkidle" });
 await page.waitForTimeout(2500);
 const hasLogin = await page.locator("input").count() > 0 || (await page.textContent("body"))?.includes("Spielstand");
 if (!hasLogin) errors.push("Login-/Startmaske nicht gefunden");
+{
+  /* v1.0.92: liegt das Talentband UNTER dem Brett oder dahinter? Der
+     Besitzer sah es halb verdeckt - hier wird es gemessen, nicht geglaubt. */
+  /* eine eigene Figur anklicken, damit das Band ueberhaupt erscheint */
+  await page.evaluate(() => {
+    const felder = [...document.querySelectorAll("button")].filter((b) => b.querySelector("img,svg"));
+    const unten = felder.filter((b) => b.getBoundingClientRect().top > innerHeight * 0.5);
+    (unten[Math.floor(unten.length / 2)] || felder[0])?.click();
+  });
+  await page.waitForTimeout(700);
+  const m = await page.evaluate(() => {
+    const band = document.querySelector(".gg-talentband");
+    if (!band) return { band: false };
+    const b = band.getBoundingClientRect();
+    const felder = [...document.querySelectorAll("button,div")]
+      .map((e) => e.getBoundingClientRect())
+      .filter((r) => r.width > 180 && Math.abs(r.width - r.height) < r.width * 0.25);
+    if (!felder.length) return { band: true, brett: false };
+    const brett = felder.sort((x, y) => y.width - x.width)[0];
+    return { band: true, brett: true, ueberlappung: +(brett.bottom - b.top).toFixed(1),
+      bandOben: +b.top.toFixed(1), brettUnten: +brett.bottom.toFixed(1) };
+  });
+  if (m.band && m.brett) {
+    console.log(`   Talentband: Brett endet bei ${m.brettUnten}, Band beginnt bei ${m.bandOben} -> Ueberlappung ${m.ueberlappung} px`);
+    if (m.ueberlappung > 1) console.log("   WARNUNG: das Band liegt noch unter dem Brett");
+  } else console.log("   Talentband: nicht sichtbar (keine Figur mit Talenten gewaehlt)");
+}
 await browser.close(); srv.close();
 
 if (errors.length) { console.log("FEHLER:", errors.join(" | ")); process.exit(1); }
