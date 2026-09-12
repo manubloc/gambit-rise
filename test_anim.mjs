@@ -162,6 +162,13 @@ console.log("\n== test_anim: die Aufstiegsfeier (v1.0.75) ==");
      nicht mehr neben dem Kreuz (dort war er bei flex-start nie mittig). */
   ok("Stationsfenster: der Info-Knopf steht hinter dem Titel",
     cs.includes("placeFor(node, league, en) : \"\"}</span>") && cs.indexOf("setInfoAuf") < cs.indexOf('aria-label="Close"'));
+  /* v1.1.8: das RUECKBLICKFENSTER zeigt die Gegner jetzt auch. Es gibt zwei
+     Stationsfenster; das schlichte fuer den Rueckblick kannte nur Ort, Karte
+     und Startknopf - wer ueber die Weltkarte navigierte, sah nie, was an der
+     Station wartet. */
+  ok("das Rueckblickfenster zeigt Bild, Namen und Werte des Gegners",
+    cs.includes("const bossHier = node?.boss ? nodeBossSpec(node, viewLeague) : null") &&
+    cs.includes('<StatOrbBadge kind="power" v={bossHier.atk}'));
   ok("Stationsfenster: dritte Lage MITTE bei zu wenig Platz",
     cs.includes("const mittig = platz < MINDEST") && cs.includes('transform: "translateY(-50%)"'));
   ok("Stationsfenster: das Bossbild wird nicht mehr beschnitten", !cs.includes('transform: "scale(1.42)"') && cs.includes('overflow: "visible"'));

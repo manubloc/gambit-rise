@@ -1106,6 +1106,37 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
           </div>
           <div className="gg-serif" style={{ marginTop: 6, fontSize: 12, fontStyle: "italic", lineHeight: 1.45, color: PP.dim }}>
             {t("camp.lookbackHint")}</div>
+          {/* v1.1.8 (Besitzerbefund: "Hast du jetzt alle Popups bei den Maps
+              ueberarbeitet, dass ich die Gegner, wenn neue Figuren, gar nicht
+              mehr im Popup sehe? Das ist nicht gewollt."): DIE GEGNER FEHLTEN
+              HIER IMMER. Es gibt ZWEI Stationsfenster - das gewoehnliche mit
+              Bild, Werten und Geschichte, und dieses schlichte fuer den
+              Rueckblick, das erscheint, sobald man ueber die Weltkarte in ein
+              anderes Kapitel blaettert. Das zweite kannte nur Ort, Karte und
+              Startknopf; wer also ueber die Weltkarte navigierte - und genau
+              das tut der Besitzer -, sah nie, was an der Station wartet. Jetzt
+              stehen Bild, Name und die beiden Werte auch hier, im kleineren
+              Mass, weil das Rueckblickfenster schmal bleiben soll. */}
+          {(() => {
+            const bossHier = node?.boss ? nodeBossSpec(node, viewLeague) : null;
+            if (!bossHier) return null;
+            const bild = paintedById("boss-" + bossHier.bossId) || paintedById("boss-" + bossHier.art);
+            const S = 74;
+            return <div style={{ display: "flex", gap: 10, alignItems: "center", marginTop: 9,
+              padding: "8px 10px", borderRadius: 10, background: "rgba(255,250,235,.42)",
+              border: `1px solid ${PP.line}` }}>
+              {bild && <img src={bild} alt="" draggable={false} style={{ width: S, height: S,
+                objectFit: "contain", objectPosition: "bottom", flex: "0 0 auto" }} />}
+              <div style={{ minWidth: 0 }}>
+                <div className="gg-quill" style={{ fontSize: 15, color: PP.ink, lineHeight: 1.1 }}>
+                  {en ? bossHier.nameEn : bossHier.nameDe}</div>
+                <div style={{ display: "flex", gap: 7, marginTop: 5 }}>
+                  <StatOrbBadge kind="power" v={bossHier.atk} size={24} num={0.52} />
+                  <StatOrbBadge kind="life" v={bossHier.hp} size={24} num={0.52} />
+                </div>
+              </div>
+            </div>;
+          })()}
           <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
             <Button variant="primary" onClick={() => onStart(sel, viewLeague)} style={{ flex: 1,
               background: "rgba(201,164,92,.72)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",

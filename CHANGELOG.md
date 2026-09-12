@@ -1,6 +1,19 @@
 # Changelog - Grand Gambit
 
 ## 1.1.8
+- DIE GEGNER FEHLTEN IM RUECKBLICKFENSTER - und zwar von Anfang an, nicht
+  durch meine Umbauten. Besitzerbefund: "Hast du jetzt alle Popups bei den
+  Maps ueberarbeitet, dass ich die Gegner, wenn neue Figuren, gar nicht mehr
+  im Popup sehe? Das ist nicht gewollt." GEFUNDEN: es gibt ZWEI
+  Stationsfenster. Das gewoehnliche zeigt Bild, Werte und Geschichte; das
+  schlichte fuer den RUECKBLICK - es erscheint, sobald man ueber die Weltkarte
+  in ein anderes Kapitel blaettert - kannte nur Ort, Karte und Startknopf.
+  Wer also ueber die Weltkarte navigiert, und genau das tut der Besitzer, sah
+  nie, was an der Station wartet. Jetzt stehen Bild, Name und die beiden Werte
+  auch dort, im kleineren Mass (74 px), weil das Rueckblickfenster schmal
+  bleiben soll.
+
+## 1.1.8
 - DIE FIGUR IM STATIONSFENSTER IST IMMER ZU SEHEN (Besitzerentscheid: "Ich
   moechte die auf jeden Fall sehen"). Die Karte hing an einer
   Geheimhaltungsregel: sie erschien nur bei einer geraeumten oder schon
