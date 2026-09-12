@@ -20,7 +20,7 @@ import { PIECE_ART, BOSS_ART } from "./src/app/ui/art.generated.js";
 import { itemArt } from "./src/app/ui/assets/items/itemArt.js";
 import { ITEMS } from "./src/content/index.js";
 import { ItemIcon } from "./src/app/ui/ItemIcon.jsx";
-import { readFileSync, readdirSync } from "node:fs";
+import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { AchievementsScreen } from "./src/app/ui/screens/AchievementsScreen.jsx";
 import { GameScreen } from "./src/app/ui/screens/GameScreen.jsx";
 import { LeaveMatchAsk, GameIntro } from "./src/app/App.jsx";
@@ -1242,6 +1242,25 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
       && Math.max(...n) > 60 && Math.max(...n) > Math.min(...n) * 1.9).map(([k, n]) => `${k} ${n.join("/")}`);
     ok("beide Sprachen sind aehnlich knapp" + (schief.length ? " - schief: " + schief.slice(0, 4).join(", ") : ""),
       schief.length === 0);
+  }
+
+  /* v1.1.12: KEINE DOPPELTE BILDLAST MEHR. Seit v1.1.0 traegt das Haus eine
+     Livree; die klassischen Fassungen wurden aber weiter importiert - von
+     livery.js ueber pick() und vom Vorlader, der ALLES vorlaedt. Gemessen
+     lagen dadurch 3,9 MB im Buendel, die nie gezeigt werden. Diese Probe
+     haelt fest, dass keine Datei mit geschnitztem Partner mehr klassisch
+     importiert wird. */
+  {
+    const lv = readFileSync("src/app/ui/livery.js", "utf8");
+    ok("livery.js kennt kein pick mehr", !/const pick = /.test(lv) && !/pick\(/.test(lv));
+    ok("und keine klassische Fassung mit geschnitztem Partner",
+      !/from "\.\/assets\/(bg-hall|board-frame|shield-league|crest-\d|logo|logo-menu|emblem|ground-\d\d)\.webp"/.test(lv));
+    const vl = readFileSync("src/app/ui/Vorlader.jsx", "utf8");
+    const doppelt = [...vl.matchAll(/from "(\.\/assets\/[^"]+)\.webp"/g)]
+      .map((m) => m[1]).filter((f) => !f.endsWith(".carved")
+        && existsSync("src/app/ui/" + f + ".carved.webp"));
+    ok("der Vorlader laedt keine ueberholte Fassung mehr"
+      + (doppelt.length ? " - noch: " + doppelt.slice(0, 4).join(", ") : ""), doppelt.length === 0);
   }
 
   /* 2. Bauer und Grand Gambit tragen in der Aufstellung EIN Mass. */

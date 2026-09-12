@@ -1,5 +1,22 @@
 # Changelog - Grand Gambit
 
+## 1.1.12
+- DIE DOPPELTE BILDLAST IST FORT: 37 MB -> 33 MB im Buendel (gemessen).
+  Seit v1.1.0 traegt das Haus eine Livree, aber die klassischen Fassungen
+  wurden weiter IMPORTIERT - und was importiert wird, landet im Buendel, ob es
+  jemand zeigt oder nicht. Zwei Quellen: livery.js hielt jedes Bild doppelt
+  (pick(c, k) mit 21 klassischen Importen, 3,6 MB) und der Vorlader lud 48
+  ueberholte Dateien vor (3,9 MB), weil er ALLES vorlaedt.
+- pick() ist aufgeloest: wo zwei Fassungen standen, steht jetzt die
+  geschnitzte, und die Funktion selbst ist weg. Alle zwoelf klassischen
+  Bodenbilder sind aus dem Buendel verschwunden (nachgezaehlt: 0 klassische,
+  12 geschnitzte).
+- NICHT angetastet: die GEMALTEN Fassungen in paintedArt (154 Bilder, 5,5 MB).
+  Sie heissen ohne .carved, sind aber keine Altlast - Hofstaat und Bosse
+  behalten in der geschnitzten Livree ihre gemalten Bilder. Der Unterschied
+  liegt darin, ob eine geschnitzte Schwesterdatei existiert; genau darauf
+  prueft die neue Probe.
+
 ## 1.1.11
 - DIE ERKLAERTEXTE SIND KUERZER, in beiden Sprachen (Besitzerauftrag: "Ich
   wuerde bei allen Texten und Erklaertexten die Texte noch ein bisschen

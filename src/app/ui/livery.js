@@ -19,36 +19,27 @@ import { applyInsigniaDesign } from "./assets/icons/iconAssets.js";
 import { setPieceStyle } from "./board/paintedArt.js";
 import { APP_DESIGN, HALL_HTTP } from "../config.js";
 
-import hallC from "./assets/bg-hall.webp";
 import hallK from "./assets/bg-hall.carved.webp";
-import frameC from "./assets/board-frame.webp";
 import frameK from "./assets/board-frame.carved.webp";
-import shieldC from "./assets/shield-league.webp";
 import shieldK from "./assets/shield-league.carved.webp";
-import crest1C from "./assets/crest-1.webp";
 import crest1K from "./assets/crest-1.carved.webp";
-import crest2C from "./assets/crest-2.webp";
 import crest2K from "./assets/crest-2.carved.webp";
-import crest3C from "./assets/crest-3.webp";
 import crest3K from "./assets/crest-3.carved.webp";
-import logoC from "./assets/logo.webp";
 import logoK from "./assets/logo.carved.webp";
-import logoMenuC from "./assets/logo-menu.webp";
 import logoMenuK from "./assets/logo-menu.carved.webp";
-import emblemC from "./assets/emblem.webp";
 import emblemK from "./assets/emblem.carved.webp";
 import emblemRiss from "./assets/emblem-riss.webp";
 
-import g01C from "./assets/ground-01.webp"; import g01K from "./assets/ground-01.carved.webp";
-import g02C from "./assets/ground-02.webp"; import g02K from "./assets/ground-02.carved.webp";
-import g03C from "./assets/ground-03.webp"; import g03K from "./assets/ground-03.carved.webp";
-import g04C from "./assets/ground-04.webp"; import g04K from "./assets/ground-04.carved.webp";
-import g05C from "./assets/ground-05.webp"; import g05K from "./assets/ground-05.carved.webp";
-import g06C from "./assets/ground-06.webp"; import g06K from "./assets/ground-06.carved.webp";
-import g07C from "./assets/ground-07.webp"; import g07K from "./assets/ground-07.carved.webp";
-import g08C from "./assets/ground-08.webp"; import g08K from "./assets/ground-08.carved.webp";
-import g09C from "./assets/ground-09.webp"; import g09K from "./assets/ground-09.carved.webp";
-import g10C from "./assets/ground-10.webp"; import g10K from "./assets/ground-10.carved.webp";
+import g01K from "./assets/ground-01.carved.webp";
+import g02K from "./assets/ground-02.carved.webp";
+import g03K from "./assets/ground-03.carved.webp";
+import g04K from "./assets/ground-04.carved.webp";
+import g05K from "./assets/ground-05.carved.webp";
+import g06K from "./assets/ground-06.carved.webp";
+import g07K from "./assets/ground-07.carved.webp";
+import g08K from "./assets/ground-08.carved.webp";
+import g09K from "./assets/ground-09.carved.webp";
+import g10K from "./assets/ground-10.carved.webp";
 
 /* ── EINE LIVREE (v1.1.0, Besitzerentscheid) ────────────────────────────────
    "Ich moechte eigentlich nur das geschnitzt-helle Design bei dem App-Design.
@@ -99,12 +90,10 @@ export async function setHouseDesign(design, token) {
   try { localStorage.setItem(CACHE_KEY, design); } catch {}
   return design;
 }
-const pick = (c, k) => (DESIGN === "carved" ? k : c);
-
-export const bgHall = () => pick(hallC, hallK);
-export const boardFrame = () => pick(frameC, frameK);
-export const leagueShield = () => pick(shieldC, shieldK);
-export const crestArt = (n) => pick([crest1C, crest2C, crest3C], [crest1K, crest2K, crest3K])[n - 1] || null;
+export const bgHall = () => hallK;
+export const boardFrame = () => frameK;
+export const leagueShield = () => shieldK;
+export const crestArt = (n) => [crest1K, crest2K, crest3K][n - 1] || null;
 
 // Das Wappen ist seit v0.36 der RISS IM GOLDRING - dasselbe Zeichen, das als
 // App-Symbol und Favicon steht. Es gilt in beiden Livreen.
@@ -113,15 +102,12 @@ export const emblemArt = () => emblemRiss;
 // die Wortmarke steht darunter. Es gilt in beiden Livreen.
 import introUrl from "./assets/intro-riss.webp";
 export const logoArt = () => introUrl;
-export const logoMenuArt = () => pick(logoMenuC, logoMenuK);
+export const logoMenuArt = () => logoMenuK;
 
-import g11C from "./assets/ground-11.webp";
 import g11K from "./assets/ground-11.carved.webp";
-import g12C from "./assets/ground-12.webp";
 import g12K from "./assets/ground-12.carved.webp";
 // Die Boeden 7/8/9 drehen mit der Weltdrehung: Sattelweite (VII) spielt auf
 // dem alten Steppenboden, Aschgrund (VIII) auf dem Canyonboden, Die Wunde (IX)
 // auf dem Oedlandboden. 11 und 12 sind beruhigte Ausschnitte der Kapitelkarten.
-const GROUNDS_C = { 1: g01C, 2: g02C, 3: g03C, 4: g04C, 5: g05C, 6: g06C, 7: g08C, 8: g09C, 9: g07C, 10: g10C, 11: g11C, 12: g12C };
 const GROUNDS_K = { 1: g01K, 2: g02K, 3: g03K, 4: g04K, 5: g05K, 6: g06K, 7: g08K, 8: g09K, 9: g07K, 10: g10K, 11: g11K, 12: g12K };
-export const groundArt = (league) => pick(GROUNDS_C, GROUNDS_K)[league] || null;
+export const groundArt = (league) => GROUNDS_K[league] || null;
