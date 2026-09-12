@@ -6,7 +6,7 @@ import { useState } from "react";
 import { T } from "../theme.js";
 import { register, login, cloudConfigured, signInWithProvider, signInEmailCloud, signUpEmailCloud } from "../../../meta/index.js";
 import { logoArt } from "../livery.js";
-import { RiftFloor } from "../MysticBackground.jsx";
+import { RissBoden } from "../RissBoden.jsx";
 
 const STR = {
   de: {
@@ -87,14 +87,15 @@ export function LoginScreen({ onSignedIn, initialLang = "de" }) {
   return (
     <div style={{ height: "calc(100dvh / var(--vhz, 1))", overflowY: "auto", overscrollBehavior: "none", display: "flex", flexDirection: "column", alignItems: "center",
       padding: "16px 18px", background: T.loginBg }}>
-      {/* v1.0.94 (Besitzer: "beim Anmelden hatten wir auch ein Hintergrundbild,
-          das ist ueberall weg"): DER BRETTGRUND FEHLTE, und zwar nie eingebaut -
-          RiftFloor existierte seit je in MysticBackground und war NIRGENDS
-          verwendet (gemessen: auf dem Anmeldeschirm lag genau ein Bild im DOM,
-          bg-hall kam nicht vor). Ihr eigener Kommentar sagte, sie sei fuer
-          Anmeldung und Spielstaende gedacht - nur verdrahtet hatte sie
-          niemand. Jetzt liegt sie hier. */}
-      <RiftFloor />
+      {/* v1.0.95 (Besitzer: "das ist voellig der falsche - wir hatten
+          verschiedene Stufen von Rissen, je weiter man fortschreitet, desto
+          groesser"): ES IST DER RISSBODEN, nicht die Halle. Mein Einbau in
+          v1.0.94 nahm bg-hall (RiftFloor) - das war das falsche Bild. Der
+          Hintergrund des Hauses ist RissBoden: ZEHN Stufen, die mit Hofwert
+          und Kampagne aufreissen (seit v0.46.0). Im Hauptmenue lag er immer
+          schon; hier vor dem Haus fehlte er, und Stufe 1 ist der richtige
+          Anfang - man hat ja noch nichts erreicht. */}
+      <RissBoden profile={null} />
       {/* Der Sprachknopf lag UNTER dem Titelbild und schluckte jeden Tipp -
           gemessen fing ein IMG die Klicks ab. Er sitzt jetzt fest am Schirm
           und ueber allem, mit lesbarer Schrift auf dunklem Grund. */}

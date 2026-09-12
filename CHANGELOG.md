@@ -1,5 +1,20 @@
 # Changelog - Grand Gambit
 
+## 1.0.95
+- DER HINTERGRUND VOR DEM HAUS IST DER RISSBODEN, nicht die Halle. Mein
+  Einbau in v1.0.94 nahm bg-hall (RiftFloor) - das falsche Bild, wie der
+  Besitzer sofort sah. RECHERCHIERT in der Historie: der Rissboden kam in
+  v0.46.0 ("der Rissboden des Besitzers zieht ein, 10 Bilder, unten fixiert,
+  waechst mit Hofwert und Kampagne"), liegt seit je im Hauptmenue und hat
+  ZEHN Stufen - nicht zwoelf, das sind die Kapitel-Toenungen des
+  MysticBackground (LEAGUE_TINTS, I night&gold bis XII deep sea silver).
+  Anmeldung und Spielstaende tragen ihn jetzt in Stufe 1: man hat dort ja
+  noch nichts erreicht.
+- Der Regelbefund des Besitzers ("die Dame zeigt Felder, die sie nicht
+  ziehen kann") ist im KERN nicht reproduzierbar: in Klassik liefert er
+  gemessen NULL Zauber-Zuege, die Dame in der Grundstellung null Zuege, der
+  Bauer genau zwei. Der Fehler liegt also in der Anzeige - offen, siehe unten.
+
 ## 1.0.94
 - DAS HINTERGRUNDBILD WAR NIE EINGEBAUT, nicht entfernt. Der Besitzer
   vermisste es im Hauptmenue und beim Anmelden; GEMESSEN am fertigen Bau lag
