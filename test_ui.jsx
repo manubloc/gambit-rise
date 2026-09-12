@@ -1209,6 +1209,41 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
     ok("und der Knopf 'fuer alle Spieler' ist fort", !ps.includes("setHouseDesign"));
   }
 
+  /* v1.1.11 (Besitzerauftrag: "Ich wuerde bei allen Texten und Erklaertexten
+     die Texte noch ein bisschen reduzieren - dass es nicht ganz so viel
+     blabla ist, und in dem Zuge Englisch und Deutsch sauber glattziehen"):
+     DIE LEHRTEXTE HABEN EINE OBERGRENZE. Sie erscheinen beim ersten Mal
+     mitten im Spiel, und dort liest niemand vier Zeilen. Ausgenommen sind
+     drei Texte mit gutem Grund: die Loeschwarnung (rechtlich), die
+     Installationsanleitung (jeder Schritt zaehlt) und der Werkbank-Hinweis
+     (nur der Admin sieht ihn). */
+  {
+    const st = readFileSync("src/app/i18n/strings.js", "utf8");
+    /* Ausgenommen: Loeschwarnung (rechtlich), Installationsanleitung (jeder
+       Schritt zaehlt), Werkbank (nur Admin), Datenschutz (muss praezise sein)
+       und der Fehlerbericht-Hinweis (Admin). */
+    const AUSNAHMEN = ["profile.delWhat", "profile.installIos", "profile.installHint",
+      "profile.devHint", "privacy.body", "profile.reportsHint", "profile.delHalleRest"];
+    const paare = [...st.matchAll(/"([a-zA-Z0-9._]+)":\s*"((?:[^"\\]|\\.)*)"/g)];
+    const zuLang = paare
+      .filter(([, k, v]) => !AUSNAHMEN.includes(k) && v.length > 175)
+      .map(([, k, v]) => `${k} (${v.length})`);
+    ok("kein Erklaertext ueber 175 Zeichen" + (zuLang.length ? " - zu lang: " + [...new Set(zuLang)].slice(0, 5).join(", ") : ""),
+      zuLang.length === 0);
+    const lehr = paare.filter(([, k]) => k.startsWith("teach.")).map(([, k, v]) => [k, v.length]);
+    const lang = lehr.filter(([, n]) => n > 150);
+    ok("kein Lehrtext ueber 150 Zeichen" + (lang.length ? " - " + lang.map(([k, n]) => k + ":" + n).join(", ") : ""),
+      lang.length === 0);
+    /* beide Sprachen gleich knapp: kein Text darf in einer Sprache doppelt so
+       lang sein wie in der anderen - das war der "glattziehen"-Teil. */
+    const jeSchluessel = new Map();
+    for (const [, k, v] of paare) { const a = jeSchluessel.get(k) || []; a.push(v.length); jeSchluessel.set(k, a); }
+    const schief = [...jeSchluessel].filter(([k, n]) => n.length === 2 && !AUSNAHMEN.includes(k)
+      && Math.max(...n) > 60 && Math.max(...n) > Math.min(...n) * 1.9).map(([k, n]) => `${k} ${n.join("/")}`);
+    ok("beide Sprachen sind aehnlich knapp" + (schief.length ? " - schief: " + schief.slice(0, 4).join(", ") : ""),
+      schief.length === 0);
+  }
+
   /* 2. Bauer und Grand Gambit tragen in der Aufstellung EIN Mass. */
   ok("kein getrenntes Mass mehr fuer Held und Bauer",
     !/isHero \? "clamp\(26px, 10\.5vw, 86px\)" : "clamp\(24px, 9\.4vw, 76px\)"/.test(q));

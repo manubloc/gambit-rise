@@ -1,5 +1,27 @@
 # Changelog - Grand Gambit
 
+## 1.1.11
+- DIE ERKLAERTEXTE SIND KUERZER, in beiden Sprachen (Besitzerauftrag: "Ich
+  wuerde bei allen Texten und Erklaertexten die Texte noch ein bisschen
+  reduzieren - dass es nicht ganz so viel blabla ist, und in dem Zuge
+  Englisch und Deutsch sauber glattziehen"). Dreizehn Texte gekuerzt, die
+  laengsten von 338 auf 101 Zeichen. Betroffen sind die, die man im Spiel
+  liest: Lehrfenster der Erstbegegnungen, Chronik, Stationshinweis,
+  Figurenstil, Aufstellungsplan, HP-Regel.
+- ZWOELF ALTLAST-EINTRAEGE GELOESCHT, und das war der eigentliche Fund: die
+  Probe stiess auf profile.designHint ("Der Knopf schreibt die Wahl in die
+  Halle...") und profile.gegnerHint ("Zwei Fassungen: farbig oder ohne
+  Farbe...") - beide beschreiben Einstellungen, die es seit v1.1.0 bzw.
+  v1.0.83 NICHT MEHR GIBT, und beide wurden von keinem Bildschirm mehr
+  aufgerufen. Text, der nichts mehr beschreibt, ist schlimmer als zu langer
+  Text: er widerspricht dem Spiel.
+- NEUE PROBE mit drei Schranken: kein Erklaertext ueber 175 Zeichen, kein
+  LEHRtext ueber 150, und keine Sprache darf mehr als das 1,9-fache der
+  anderen brauchen (das war der "glattziehen"-Teil - profile.pinHint stand
+  bei 100 gegen 37). Vier Texte sind mit Begruendung ausgenommen:
+  Loeschwarnung (rechtlich), Installationsanleitung (jeder Schritt zaehlt),
+  Datenschutz (muss praezise sein) und zwei Admin-Hinweise.
+
 ## 1.1.10
 - DER MUND DES KOLOSSES IST GESCHLOSSEN, und diesmal richtig. Der erste
   Versuch (v1.0.95) fuellte die Luecke SCHWARZ, weil die Farbmittelung
