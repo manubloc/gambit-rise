@@ -84,6 +84,23 @@ await page.evaluate(() => {
 await page.waitForTimeout(2800);
 
 {
+  /* 0. STEHT QUELLTEXT AUF DEM SCHIRM? (v1.1.16, Besitzerbefund mit
+     Screenshot: das halbe Brett war von meinem eigenen Kommentar ueberdeckt.)
+     URSACHE: ein JSX-Kommentar OHNE geschweifte Klammern. Zwischen
+     JSX-Kindern ist /* ... *\/ kein Kommentar, sondern TEXT - React zeigt ihn
+     brav an. esbuild meldet nichts, die Proben lesen Quelltext, und drive3
+     zaehlte nur Felder. Genau deshalb konnte es durchrutschen, und genau
+     deshalb steht diese Probe jetzt VOR allen anderen: sie liest, was auf dem
+     Schirm STEHT, und schlaegt bei Code-Resten Alarm. */
+  const muell = await page.evaluate(() => {
+    const t = document.body.innerText || "";
+    const spuren = ["/*", "*/", "v1.", "style={{", "=>", "px)", "em)", "Besitzer:"]
+      .filter((m) => t.includes(m));
+    return { spuren, probe: t.slice(0, 120).replace(/\n/g, " | ") };
+  });
+  if (muell.spuren.length) errors.push(`Quelltext auf dem Schirm: ${muell.spuren.join(" ")} | ${muell.probe}`);
+  else console.log("   kein Quelltext auf dem Schirm");
+
   /* 1. STEHT DAS BRETT? Die Felder sind DIVs, nicht Buttons. */
   const brett = await page.evaluate(() => {
     const alle = [...document.querySelectorAll("div")].filter((d) => {

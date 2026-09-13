@@ -1,5 +1,25 @@
 # Changelog - Grand Gambit
 
+## 1.1.16
+- MEIN KOMMENTAR STAND AUF DEM BRETT. Der Besitzer mit Screenshot: das halbe
+  Spielfeld war von Text ueberdeckt - "Punkte", "1,42em (minimal kleiner)",
+  "Stueck nach oben. */". URSACHE: ein JSX-Kommentar OHNE geschweifte
+  Klammern. Zwischen JSX-Kindern ist ein Blockkommentar KEIN Kommentar,
+  sondern TEXT, und React zeigt ihn brav an. Eingeschleppt in v1.1.9, eine
+  Zeile unter einem richtig geklammerten Kommentar.
+- WARUM ES DURCHRUTSCHTE, und das ist die eigentliche Lehre: esbuild meldet
+  nichts (die Syntax ist gueltig), die Proben lesen QUELLTEXT und fanden
+  ihren Suchbegriff, der Bau lief, und die Fahrprobe zaehlte Felder und
+  Zuege - alles gruen, waehrend das Brett unter Text verschwand. Keine Probe
+  hat je gelesen, was auf dem SCHIRM steht.
+- NEUE PROBE, und sie steht VOR allen anderen: drive3 liest jetzt den
+  sichtbaren Text und schlaegt bei Code-Resten Alarm (/*, */, style={{, =>,
+  "v1.", "Besitzer:"). Im Gegentest mit wieder eingebautem Fehler meldet sie
+  ihn samt Fundstelle.
+- Der ganze Baum wurde auf denselben Fehler geprueft: eine weitere Stelle
+  gefunden und als harmlos bestaetigt (sie steht in einem JS-Ausdruck, nicht
+  zwischen JSX-Kindern).
+
 ## 1.1.15
 - DIE FIGURENWAHL IN DER AUFSTELLUNG IST EINE WISCHREIHE (Besitzerwunsch):
   "Wenn man auf eine Figur drueckt, dass man dann unten in gross nach rechts
