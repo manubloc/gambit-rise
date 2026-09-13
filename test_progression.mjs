@@ -133,8 +133,16 @@ const ERWACHEN = CAMPX.find((st) => /erwacht|magic wakes/.test(st.storyDe || "")
 const SCHACHSTATION = CAMPX.find((n) => n.league === 1 && n.haupt && n.rules === "chess" && !n.boss).id;
 ok("chapter I is pure chess from end to end",
   CAMPX.filter((n) => n.league === 1).every((n) => n.rules === "chess"));
-ok("and the rift bites in chapter II, not before",
-  CAMPX.find((n) => n.rules === "hp").league === 2);
+/* v1.2.2 (Besitzerentscheid "Ab 5"): der Riss beisst nicht mehr in Kapitel
+   II, sondern in der Mitte von Kapitel V. Vier volle Kapitel bleiben reines
+   Schach, damit man Figuren und Gangarten lernt, bevor Trefferpunkte
+   dazukommen. */
+ok("and the rift bites in chapter V, not before",
+  CAMPX.find((n) => n.rules === "hp").league === 5);
+/* v1.2.2: ERWACHEN liegt jetzt in Kapitel V und ist selbst eine
+   Boss-Station mit Uhr - die alte Fassung prueft es mit Liga 1, wo es die Uhr
+   zu Recht nicht gibt. Das bleibt richtig; geprueft wird weiter, dass vor
+   Liga 5 keine Uhr laeuft. */
 ok("no clock before league 5", stageTimer(nb2("L01s44"), 4) === null && stageTimer(nb2(ERWACHEN), 1) === null);
 ok("plain stages never get a clock", stageTimer(nb2("L01s00"), 7) === null);
 const tMon = stageTimer(nb2(ERWACHEN), 5);
@@ -153,7 +161,11 @@ ok("die Uhr haengt an der Station, nicht am Spielerstand", (() => {
   const tief = { ...dp2(), campaign: { league: 1, cleared: [], unlocked: [] } };
   const weit = { ...dp2(), campaign: { league: 12, cleared: [], unlocked: [] } };
   const a = bsm2("L05s16", tief), b = bsm2("L05s16", weit);
-  const fruehA = bsm2(ERWACHEN, tief), fruehB = bsm2(ERWACHEN, weit);
+  /* v1.2.2: ERWACHEN liegt seit der Verschiebung in Kapitel V und traegt
+     selbst eine Uhr - als Beispiel fuer "frueh, also ohne Uhr" taugt es nicht
+     mehr. Eine echte Station aus Kapitel I nimmt seinen Platz. */
+  const FRUEH = CAMPX.find((n) => n.league === 1 && !n.boss).id;
+  const fruehA = bsm2(FRUEH, tief), fruehB = bsm2(FRUEH, weit);
   return a.timer?.type === "total" && a.timer.seconds === 360
     && b.timer?.seconds === 360                 // gleich, egal wie weit der Spieler ist
     && fruehA.timer === null && fruehB.timer === null;  // Kapitel 1 bleibt ohne Uhr
@@ -292,8 +304,13 @@ ok("nine leagues of income cover the boat (" + income9 + " vs " + boat3.gold + "
     const ganzKapitelEins = CAMPX.filter((n) => n.league === 1).map((n) => n.id);
     ok("no potion while chapter I is pure chess",
       !itemRevealed({ campaign: { league: 1, cleared: ganzKapitelEins } }, ITEMS.potion));
+    /* v1.2.2: das Erwachen liegt jetzt in Kapitel V, also braucht der Trank
+       auch die Kapitel davor - vorher genuegte Kapitel I plus die eine
+       Station. Der Sinn bleibt: der Heiltrank zeigt sich, wenn die alte Magie
+       erwacht, nicht vorher. */
+    const bisErwachen = CAMPX.filter((n) => n.league <= 5).map((n) => n.id);
     ok("potion revealed once the old magic wakes",
-      itemRevealed({ campaign: { league: 2, cleared: [...ganzKapitelEins, ERWACHEN] } }, ITEMS.potion));
+      itemRevealed({ campaign: { league: 5, cleared: bisErwachen } }, ITEMS.potion));
   }
   ok("machete veiled at the start", !itemRevealed(fresh, ITEMS.machete));
   const mid = { campaign: { league: 1, cleared: ["L01s00","L01s01","L01s03","L01s22","L01s23"] } };
@@ -409,6 +426,31 @@ console.log("\n== FREIE FASSUNG ODER VOLLE: ein Wert, keine Verzweigung (v1.1.10
   const { execSync } = await import("node:child_process");
   const treffer = execSync("grep -rl 'istFreieFassung' src/ | wc -l").toString().trim();
   ok(`istFreieFassung steht nur in der Konfiguration (${treffer} Datei)`, Number(treffer) <= 1);
+}
+
+console.log("\n== VIER KAPITEL REINES SCHACH (Besitzerentscheid v1.2.2) ==");
+{
+  const { CAMPAIGN12 } = await import("./src/content/campaign12.gen.js");
+  const { hpWach } = await import("./src/meta/leveling.js");
+  const { faehigkeitZustand } = await import("./src/content/abilities.js");
+
+  const vor5 = CAMPAIGN12.filter((n) => n.league < 5 && n.rules === "hp");
+  ok(`kein HP-Gefecht vor Kapitel 5 (${vor5.length} gefunden)`, vor5.length === 0);
+  const inKap5 = CAMPAIGN12.filter((n) => n.league === 5 && n.rules === "hp");
+  ok(`Kapitel 5 traegt den ersten Schaden (${inKap5.length} HP-Stationen)`, inKap5.length > 0);
+  const schach = CAMPAIGN12.filter((n) => n.league <= 4).length;
+  ok(`vier volle Kapitel Schach (${schach} Stationen)`, schach > 150);
+
+  /* Die Lebenstalente folgen der Kampagne - sie erwachen mit dem ersten
+     HP-Gefecht. Keine zweite Regel noetig, aber geprueft gehoert es: */
+  const alle = (bis) => CAMPAIGN12.filter((n) => n.league <= bis).map((n) => n.id);
+  const nach = (bis) => ({ campaign: { league: bis, cleared: alle(bis) } });
+  ok("nach Kapitel 4 schlafen die Lebenstalente",
+    !hpWach(nach(4)) && ["lifesteal", "regen", "bulwark"]
+      .every((id) => faehigkeitZustand(id, hpWach(nach(4))) === "verborgen"));
+  ok("nach Kapitel 5 wirken sie",
+    hpWach(nach(5)) && ["lifesteal", "regen", "bulwark"]
+      .every((id) => faehigkeitZustand(id, hpWach(nach(5))) === "wirkt"));
 }
 
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);

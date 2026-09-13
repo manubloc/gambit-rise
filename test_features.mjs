@@ -176,7 +176,9 @@ ok("paid tolls reset with the league — every climate has its own gatekeeper", 
   ok("re-beating recruited piece bosses on the next world lap grants duplication stars", dupeCount(lap, "hawk") === 1);
   // Die Buehnenstaffelung folgt dem REGELWERK: reine Schachpartien bleiben
   // Stufe 1, HP-Schlachten skalieren - unabhaengig vom Brett.
-  const chessN = H1[0], hpN = ha2(2).find((n) => n.rules === "hp");
+  /* v1.2.2 (Besitzerentscheid "Ab 5"): HP-Gefechte beginnen in Kapitel V,
+     nicht mehr in II - vier Kapitel bleiben reines Schach. */
+  const chessN = H1[0], hpN = ha2(5).find((n) => n.rules === "hp");
   ok("pure chess stays vanilla while HP battles scale with the world",
     bsm2(chessN.id, { xp: 0, campaign: { league: 13, cleared: [], unlocked: [] } }).aiArmy.back[0].level === 1
     && bsm2(hpN.id, lg).aiArmy.back[0].level > 1);
@@ -322,10 +324,13 @@ ok("fresh profile: only classic, no HP", mapUnlocked(fresh, "classic") && !mapUn
   /* Der Weg nach Kapitel II fuehrt ueber den Meister; statt ihn hier zu
      schlagen, wird der Stand gesetzt - geprueft wird die HP-Schwelle, nicht
      die Wegfindung. */
-  const k2chess = CAMPAIGN.filter((n) => n.league === 2 && n.haupt && n.rules === "chess").map((n) => n.id);
-  const bisErwachen = { ...nachKapEins, campaign: { ...nachKapEins.campaign, league: 2,
-    cleared: [...(nachKapEins.campaign.cleared || []), ...k2chess],
-    unlocked: [...(nachKapEins.campaign.unlocked || []), ...k2chess] } };
+  /* v1.2.2: das Erwachen liegt in Kapitel V. Der Weg dorthin fuehrt jetzt
+     durch vier Kapitel Schach statt durch eines - geprueft wird weiterhin die
+     HP-Schwelle, nicht die Wegfindung. */
+  const bisFuenf = CAMPAIGN.filter((n) => n.league <= 5 && n.rules === "chess").map((n) => n.id);
+  const bisErwachen = { ...nachKapEins, campaign: { ...nachKapEins.campaign, league: 5,
+    cleared: [...(nachKapEins.campaign.cleared || []), ...bisFuenf],
+    unlocked: [...(nachKapEins.campaign.unlocked || []), ...bisFuenf] } };
   ok("hp opens once the awakening is reachable", hpUnlocked(bisErwachen));
 }
 ok("fork maps open with the fork, arena stays shut", mapUnlocked(prof, "skirmish") && mapUnlocked(prof, "courtyard") && !mapUnlocked(prof, "arena"));

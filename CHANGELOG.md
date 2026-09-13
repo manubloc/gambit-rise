@@ -1,5 +1,25 @@
 # Changelog - Grand Gambit
 
+## 1.2.2
+- VIER KAPITEL REINES SCHACH (Besitzerentscheid "Ab 5"). Der erste Schaden
+  fiel bisher auf halbem Weg durch Kapitel II - gemessen waren damit 100 der
+  ersten 161 Stationen HP-Gefechte, und wer die Grundzuege noch lernte,
+  rechnete schon mit Trefferpunkten. Jetzt beginnt der Schaden in der Mitte
+  von Kapitel V: 173 Stationen reines Schach, in denen Figuren, Gangarten und
+  Talente wachsen.
+- DER SCHALTER IST EINE ZAHL: HP_AB_LIGA in tools/build-campaign12.mjs von 2
+  auf 5, Kampagne neu gebaut (529 Stationen). Kein Eingriff in einzelne
+  Stationen - die Verteilung faellt aus der Regel.
+- DIE LEBENSTALENTE FOLGEN AUTOMATISCH. Lebensraub, Regeneration und Bollwerk
+  tragen seit je die Sperre "verborgen" und erwachen ueber hpWach, das der
+  Kampagne folgt. Mit der Verschiebung erwachen sie jetzt in Kapitel V - ohne
+  eine einzige neue Regel. Gemessen: nach Kapitel 4 alle drei verborgen, nach
+  Kapitel 5 alle drei wirksam.
+- SIEBEN PROBEN MUSSTEN NACHZIEHEN, und jede hielt die alte Schwelle fest
+  ("Schach gibt es nur in den ersten beiden Kapiteln", "ab Kapitel III blutet
+  jede Station", "die Schachhaelfte reicht bis zur Mitte von Kapitel II").
+  Zwei weitere suchten HP-Stationen in Kapitel 2 bzw. 3 und fanden keine mehr.
+
 ## 1.2.1
 - ALLES PASST JETZT AUF DIE KARTE (Besitzer: "mach es so, dass schon alles von
   der Karte drauf passt, und skaliere die Karte einfach entsprechend

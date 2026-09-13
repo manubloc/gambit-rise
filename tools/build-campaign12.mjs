@@ -74,7 +74,22 @@ const MAPS = ["classic", "skirmish", "courtyard", "gauntlet", "arena"];
    zu viel. Kapitel I ist jetzt REINES SCHACH: neue Figuren, neue Gangarten,
    sonst nichts. Der Riss beisst erst auf halbem Weg durch Kapitel II - und
    trifft dann auf jemanden, der das Brett schon liest. */
-const HP_AB_LIGA = 2;          // in diesem Kapitel faellt der erste Schaden
+/* ── DER SCHADEN KOMMT SPAET (v1.2.2, Besitzerentscheid) ───────────────────
+   "Ich moechte moeglichst lange nur klassisches Schach, dass die Figuren
+   keine HP-Werte haben, vielleicht sogar die kompletten ersten drei Kapitel.
+   Man sollte den Spieler ganz langsam an dieses HP heranfuehren - ich wuerde
+   das vielleicht sogar erst im fuenften Kapitel erlauben." Auf Rueckfrage:
+   "Ab 5."
+
+   Vorher fiel der erste Schaden auf halbem Weg durch Kapitel II. Gemessen
+   waren damit 100 der ersten 161 Stationen HP-Gefechte - wer die Grundzuege
+   noch lernte, rechnete schon mit Trefferpunkten. Jetzt beginnt der Schaden
+   in der Mitte von Kapitel V: vier volle Kapitel Schach, in denen Figuren,
+   Gangarten und Talente wachsen, und erst dann die zweite Ebene.
+
+   Die beiden Zahlen sind der ganze Schalter - die Kampagne wird daraus neu
+   gebaut (node tools/build-campaign12.mjs). */
+const HP_AB_LIGA = 5;          // in diesem Kapitel faellt der erste Schaden
 const HP_AB_ANTEIL = 0.5;      // und zwar ab der Haelfte seines Hauptasts
 
 // Liga I hat keinen Block in placeNames - ihre Orte leben in der alten

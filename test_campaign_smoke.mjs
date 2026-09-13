@@ -73,9 +73,12 @@ ok("every dragon node unfolds its 2x2 block with valid wing refs", dragonNodes >
      FRUEHERE Liga als die der Station selbst. Vorher verglich die Probe
      Stationsliga gegen Profilliga; das war genau das Verhalten, das der
      Besitzer als Fehler gemeldet hat. */
-  const rueckNode = CAMPAIGN.find((n) => n.rules === "hp" && !n.boss && n.league === 3);
+  /* v1.2.2: HP-Gefechte beginnen in Kapitel V. Die Probe nimmt eine Station
+     von dort und blickt auf eine FRUEHERE Liga zurueck - der Vergleich
+     braucht beides, sonst skaliert nichts unterschiedlich. */
+  const rueckNode = CAMPAIGN.find((n) => n.rules === "hp" && !n.boss && n.league === 5);
   const RUECK = rueckNode.id;
-  const look = buildStageMatch(RUECK, p5, 1);
+  const look = buildStageMatch(RUECK, p5, 2);
   ok("look-back match is a friendly with no first-clear and no timer",
     look.friendly === true && look.firstClear === false && look.timer == null);
   const now = buildStageMatch(RUECK, p5);
@@ -95,15 +98,25 @@ ok("every dragon node unfolds its 2x2 block with valid wing refs", dragonNodes >
 
   ok("Kapitel I ist von Anfang bis Ende reines Schach", k1.every((n) => n.rules === "chess"));
   ok("Kapitel I traegt mindestens 20 Schachstationen", k1.length >= 20);
-  ok("Schach gibt es nur in den ersten beiden Kapiteln",
-    CAMPAIGN.every((n) => n.rules !== "chess" || n.league <= 2));
-  ok("ab Kapitel III blutet jede Station", CAMPAIGN.filter((n) => n.league >= 3).every((n) => n.rules === "hp"));
+  /* ── VIER KAPITEL SCHACH (v1.2.2, Besitzerentscheid "Ab 5") ──────────────
+     Bis hierher stand: Schach nur in Kapitel I und II, ab III blutet jede
+     Station. Der Besitzer hat das verschoben: "Ich moechte moeglichst lange
+     nur klassisches Schach - ich wuerde das vielleicht sogar erst im fuenften
+     Kapitel erlauben", auf Rueckfrage "Ab 5". Vier volle Kapitel bleiben
+     jetzt Schach; der Riss beisst in der Mitte von Kapitel V. */
+  const k5 = CAMPAIGN.filter((n) => n.league === 5);
+  const haupt5 = k5.filter((n) => n.haupt);
+  ok("Schach gibt es nur bis Kapitel V",
+    CAMPAIGN.every((n) => n.rules !== "chess" || n.league <= 5));
+  ok("die ersten VIER Kapitel sind ganz ohne Schaden",
+    CAMPAIGN.filter((n) => n.league <= 4).every((n) => n.rules === "chess"));
+  ok("ab Kapitel VI blutet jede Station", CAMPAIGN.filter((n) => n.league >= 6).every((n) => n.rules === "hp"));
 
-  const ersteHp = haupt2.findIndex((n) => n.rules === "hp");
-  ok("die Schachhaelfte reicht bis zur Mitte von Kapitel II",
-    ersteHp >= Math.floor(haupt2.length * 0.35) && ersteHp <= Math.ceil(haupt2.length * 0.65));
-  ok("ab dem Erwachen bleibt es bei HP", haupt2.slice(ersteHp).every((n) => n.rules === "hp"));
-  ok("das Erwachen traegt seine Geschichte", /erwacht/.test(haupt2[ersteHp].storyDe || ""));
+  const ersteHp = haupt5.findIndex((n) => n.rules === "hp");
+  ok("die Schachhaelfte reicht bis zur Mitte von Kapitel V",
+    ersteHp >= Math.floor(haupt5.length * 0.35) && ersteHp <= Math.ceil(haupt5.length * 0.65));
+  ok("ab dem Erwachen bleibt es bei HP", haupt5.slice(ersteHp).every((n) => n.rules === "hp"));
+  ok("das Erwachen traegt seine Geschichte", /erwacht/.test((haupt5[ersteHp] || {}).storyDe || ""));
   ok("in der Schachschule wechseln die Karten",
     new Set(k1.filter((n) => n.haupt).map((n) => n.map)).size >= 4);
   /* v1.0.20: Die Schachschule WIRBT SEHR WOHL FIGUREN AN - das ist ihr Zweck.
@@ -120,14 +133,14 @@ ok("every dragon node unfolds its 2x2 block with valid wing refs", dragonNodes >
   const frisch = defaultProfile();
   ok("der Lebenstrank ist am Anfang nicht einmal sichtbar", !itemRevealed(frisch, ITEMS.potion));
   ok("die alte Magie schlaeft am Anfang", !hpWach(frisch));
-  /* v1.0.20: Kapitel I weckt nichts mehr - der Weg fuehrt bis in die Mitte
-     von Kapitel II, dort erst faellt der erste Schaden. */
-  const bis = CAMPAIGN.filter((n) => (n.league === 1 || (n.league === 2 && n.rules === "chess")) && n.haupt).map((n) => n.id);
+  /* v1.2.2: der Weg fuehrt jetzt bis in die Mitte von Kapitel V, dort erst
+     faellt der erste Schaden (vorher Kapitel II). */
+  const bis = CAMPAIGN.filter((n) => (n.league <= 4 || (n.league === 5 && n.rules === "chess")) && n.haupt).map((n) => n.id);
   const nurK1 = CAMPAIGN.filter((n) => n.league === 1).map((n) => n.id);
   ok("ganz Kapitel I weckt die alte Magie NICHT",
     !hpWach({ ...frisch, campaign: { ...frisch.campaign, league: 1, cleared: nurK1 } }));
-  const weit = { ...frisch, campaign: { ...frisch.campaign, league: 2, cleared: bis, unlocked: bis } };
-  ok("nach der Schachhaelfte von Kapitel II erwacht sie", hpWach(weit));
+  const weit = { ...frisch, campaign: { ...frisch.campaign, league: 5, cleared: bis, unlocked: bis } };
+  ok("nach der Schachhaelfte von Kapitel V erwacht sie", hpWach(weit));
   ok("und der Trank steht im Laden", itemRevealed(weit, ITEMS.potion));
 }
 
