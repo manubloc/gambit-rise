@@ -1,5 +1,22 @@
 # Changelog - Grand Gambit
 
+## 1.2.3
+- DIE SPERREN SITZEN VERTIKAL MITTIG (Besitzer: "Mauer und Zaun und Bollwerk
+  bitte vertikal mittig ausrichten, sauber ausrichten"). Sie standen am
+  unteren Feldrand (bottom 2 %), waehrend die Figuren ihre eigene Mitte haben
+  - nebeneinander sah das aus, als wuerden sie rutschen. Der alte Wert dient
+  jetzt nur noch als feine Verschiebung aus der Mitte heraus.
+- DAS TALENTBAND IST PRAESENTER (Besitzer: "die Faehigkeiten unten bitte immer
+  etwas praesenter machen und besser darstellen"): groessere Schrift (11,5 ->
+  12,5 px), groessere Chips (Polster 3x8 -> 5x11 px), sichtbare Kontur und ein
+  Schatten, der es vom Grund hebt. Es ist die Schaltflaeche fuer jeden Zauber,
+  nicht eine Fussnote. Auch die leere Zeile traegt jetzt das volle Band -
+  vorher war sie blasser und duenner, und das Auge las sie als Fehler statt
+  als Auskunft.
+- DIE SUMMEN RUECKEN ANS BRETT (Besitzer: "die Bubbles mit Summen gerne
+  entsprechend die unteren wie auch die oberen ganz nah an Brett"): beide
+  Leisten verlieren ihren Rand zum Bildschirm. Die Zahlen gehoeren zum Brett.
+
 ## 1.2.2
 - VIER KAPITEL REINES SCHACH (Besitzerentscheid "Ab 5"). Der erste Schaden
   fiel bisher auf halbem Weg durch Kapitel II - gemessen waren damit 100 der

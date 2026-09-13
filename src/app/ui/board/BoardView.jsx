@@ -848,28 +848,39 @@ export function BoardView({ state, onMove, interactive, lastMove, mattSeite = nu
     }).filter(Boolean);
     if (!eintraege.length && !schild) {
       /* keine Talente, kein Schild: eine erklaerende Zeile statt Nichts. */
+      /* v1.2.3 (Besitzer: "die Faehigkeiten unten bitte immer etwas praesenter
+         machen und besser darstellen"): auch die leere Zeile traegt jetzt das
+         volle Band - gleiche Hoehe, gleiche Kontur. Vorher war sie blasser und
+         duenner als das gefuellte Band, und das Auge las sie als Fehler statt
+         als Auskunft. */
       return (
-        <div className="gg-talentband" style={{ padding: "7px 10px", marginTop: 6, borderRadius: 10,
-          fontSize: 11, lineHeight: 1.35, textAlign: "center", color: "#a89ac9",
-          background: "linear-gradient(180deg, rgba(26,20,44,.8), rgba(14,12,24,.85))",
-          border: "1px solid rgba(167,139,250,.22)" }}>
+        <div className="gg-talentband" style={{ padding: "10px 12px", marginTop: 8, borderRadius: 12,
+          fontSize: 12, lineHeight: 1.4, textAlign: "center", color: "#c3b6e6",
+          background: "linear-gradient(180deg, rgba(32,25,54,.94), rgba(17,14,30,.96))",
+          border: "1px solid rgba(167,139,250,.38)",
+          boxShadow: "0 2px 10px rgba(0,0,0,.45), inset 0 1px 0 rgba(196,181,253,.10)" }}>
           {state.rules === "chess" && (selPiece.level || 1) <= 1
             ? "Klassisch — hier zählt nur Schach. Talente lernen die Figuren im Gambit-Modus."
             : "Diese Figur hat noch keine Talente — im Hofstaat lernt sie welche."}
         </div>
       );
     }
+    /* v1.2.3: PRAESENTER. Das Band trug 11,5 px Schrift in einem duennen
+       Kasten und verschwand neben dem Brett. Jetzt groessere Chips, mehr Luft,
+       eine sichtbare Kontur und ein Schatten, der es vom Grund hebt - es ist
+       die Schaltflaeche fuer jeden Zauber, nicht eine Fussnote. */
     return (
-      <div className="gg-talentband" style={{ display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center",
-        justifyContent: "center", padding: "7px 8px 6px", fontSize: 11.5, lineHeight: 1.3,
-        color: "#d8ccfb", background: "linear-gradient(180deg, rgba(26,20,44,.92), rgba(14,12,24,.94))",
-        border: "1px solid rgba(167,139,250,.35)", borderRadius: 10, marginTop: 6 }}>
+      <div className="gg-talentband" style={{ display: "flex", flexWrap: "wrap", gap: 7, alignItems: "center",
+        justifyContent: "center", padding: "10px 10px 9px", fontSize: 12.5, lineHeight: 1.35,
+        color: "#e4dcff", background: "linear-gradient(180deg, rgba(34,26,58,.96), rgba(18,15,32,.97))",
+        border: "1px solid rgba(167,139,250,.5)", borderRadius: 12, marginTop: 8,
+        boxShadow: "0 3px 14px rgba(0,0,0,.5), inset 0 1px 0 rgba(196,181,253,.14)" }}>
         {/* DER SCHILD (Besitzerbefund "er ist nicht gestorben"): seit v1.0.77
             sind die blauen Perlen vom Brett - und damit war der Schild
             unsichtbar, obwohl er im Schachmodus jeden Schlag abfaengt. Hier
             steht er wieder, in Worten. */}
         {schild > 0 && (
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "3px 8px",
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "5px 11px",
             borderRadius: 999, whiteSpace: "nowrap", background: "rgba(74,163,232,.16)",
             border: "1px solid rgba(74,163,232,.55)", color: "#bfe0ff" }}>
             <span aria-hidden>⛨</span>Schild ×{schild}
@@ -882,7 +893,7 @@ export function BoardView({ state, onMove, interactive, lastMove, mattSeite = nu
           return (
           <span key={e.id} role={waehlbar ? "button" : undefined}
             onClick={waehlbar ? (ev) => { ev.stopPropagation(); setScharf(aktiv ? null : e.id); } : undefined}
-            style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "3px 8px",
+            style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "5px 11px",
             borderRadius: 999, whiteSpace: "nowrap", cursor: waehlbar ? "pointer" : "default",
             background: zu && !e.passiv ? "rgba(120,120,140,.14)"
               : aktiv ? (e.farbe || "#a78bfa") + "88"

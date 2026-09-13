@@ -47,8 +47,15 @@ export function SperrGlyph({ art, zustand, ruhig = false }) {
 
   return (
     <div style={{
-      position: "absolute", left: "50%", bottom: `${sitz.unten * 100}%`,
-      transform: "translateX(-50%)",
+      /* v1.2.3 (Besitzer: "Mauer und Zaun und Bollwerk bitte vertikal mittig
+         ausrichten, sauber ausrichten"): SIE STANDEN AM UNTEREN RAND. bottom
+         2 % setzte sie auf die Feldkante, waehrend die Figuren ihre eigene
+         Mitte haben - nebeneinander sah das aus, als wuerden die Sperren
+         rutschen. Jetzt sitzen sie mittig im Feld, und der alte Wert dient
+         nur noch als feine Verschiebung daraus (unten 0,02 heisst jetzt:
+         zwei Prozent unter die Mitte, nicht zwei Prozent ueber den Boden). */
+      position: "absolute", left: "50%", top: "50%",
+      transform: `translate(-50%, calc(-50% + ${(sitz.unten * -100).toFixed(1)}%))`,
       width: `${sitz.breite * 100}%`, height: `${sitz.hoehe * 100}%`,
       display: "flex", alignItems: "flex-end", justifyContent: "center",
       /* Die Truemmer liegen UNTER der Figur (zIndex 0 gegen ihre 2), die

@@ -216,5 +216,21 @@ console.log("\n== SCHATZKAMMER: Belohnung sichtbar, Muenzregen an der Leiste (v1
   ok("und sie fragt vorher, ob Bewegung erlaubt ist", ap.includes('import { animAn } from "./ui/anim.js"'));
 }
 
+console.log("\n== BRETTRAND: Sperren mittig, Band praesent, Summen nah (v1.2.3) ==");
+{
+  const sg = readFileSync("src/app/ui/board/SperrGlyph.jsx", "utf8");
+  ok("die Sperren sitzen vertikal mittig im Feld",
+    sg.includes('top: "50%"') && sg.includes("translate(-50%, calc(-50%") && !sg.includes("bottom: `${sitz.unten * 100}%`"));
+  const bv2 = readFileSync("src/app/ui/board/BoardView.jsx", "utf8");
+  ok("das Talentband ist praesenter (groessere Schrift, Kontur, Schatten)",
+    bv2.includes("fontSize: 12.5") && bv2.includes("0 3px 14px rgba(0,0,0,.5)"));
+  ok("auch die leere Zeile traegt das volle Band",
+    bv2.includes("padding: \"10px 12px\", marginTop: 8, borderRadius: 12"));
+  ok("die Chips sind groesser und antippbar", bv2.includes('gap: 5, padding: "5px 11px"'));
+  const gs2 = readFileSync("src/app/ui/screens/GameScreen.jsx", "utf8");
+  ok("die Summenleisten ruecken ans Brett",
+    gs2.includes("minHeight: 26, marginBottom: -6") && gs2.includes("marginTop: -6,"));
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

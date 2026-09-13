@@ -1080,7 +1080,13 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
           to the board; his standing power holds the far RIGHT corner. Same law
           mirrored below for you — so the eye always finds a total in a corner
           and a spoils row by the board. */}
-      <div style={{ display: "flex", alignItems: "center", gap: 8, padding: `0 ${HUD_PAD}px`, minHeight: 30, flex: "0 0 auto" }}>
+      {/* v1.2.3 (Besitzer: "die Bubbles mit Summen gerne entsprechend die
+          unteren wie auch die oberen ganz nah an Brett"): beide Leisten
+          ruecken heran. Oben fiel der Rand weg (minHeight 30 -> 26, dazu ein
+          negativer Unterrand), unten ebenso - die Zahlen gehoeren zum Brett,
+          nicht zum Bildschirmrand. */}
+      <div style={{ display: "flex", alignItems: "center", gap: 8, padding: `0 ${HUD_PAD}px`,
+        minHeight: 26, marginBottom: -6, flex: "0 0 auto" }}>
         <span data-gg-tray="w"><Tray kinds={state.captured.b} color="w" /></span>
         <div style={{ flex: 1 }} />
         {hpMode && <ForceBadge hp={F.b.hp} atk={F.b.atk} neon={T.magenta} t={t} />}
@@ -1270,6 +1276,7 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
   const yourStrip = (<>
       {/* your strip: badges · status · captured · undo */}
       <div style={{ display: "flex", alignItems: "center", gap: 8, flex: "0 0 auto",
+        marginTop: -6,   /* v1.2.3: naeher ans Brett */
         padding: `2px ${HUD_PAD}px calc(10px + env(safe-area-inset-bottom))` }}>
         {hotseat && <Chip color={state.turn === BLACK ? T.magentaInk : T.limeInk} bg={state.turn === BLACK ? T.magenta : T.lime}>{t(state.turn === WHITE ? "hs.white" : "hs.black")}</Chip>}
         {/* v0.79: DIE MELDUNGSPLAKETTE - ein fester, gefasster Ort fuer die
