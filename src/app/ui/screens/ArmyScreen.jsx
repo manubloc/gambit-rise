@@ -937,8 +937,10 @@ function FormationEditor({ profile, dispatch, t, en }) {
     {hpUnlocked(profile) && <>
       <Segmented value={regel} onChange={setRegel}
         options={[{ value: "chess", label: t("army.planChess") }, { value: "hp", label: t("army.planHp") }]} />
-      <div style={{ fontSize: 11.5, color: T.faint, margin: "6px 2px 10px", lineHeight: 1.45 }}>
-        {t("army.planHint")}</div>
+      {/* v1.2.1 (Besitzer: "der Erklaertext ist denke ich nicht noetig"): die
+          beiden Knoepfe heissen Schach und HP-Gefecht - mehr muss man dazu
+          nicht sagen. Der Platz gehoert der Wischreihe darunter. */}
+      <div style={{ height: 8 }} />
     </>}
     {/* v0.52: Aufstellungs-Erklaertext raus - Herald und Akademie tragen das Wissen. */}
     {/* A RESTING FIGHT KEEPS ITS RANKS. Verified: resuming decodes the board
@@ -1178,7 +1180,7 @@ function FormationEditor({ profile, dispatch, t, en }) {
             die Reihe nicht auf null faellt, wenn ein Bild spaeter laedt. */}
         <div style={{ display: "flex", gap: 10, overflowX: "auto", overflowY: "hidden",
           scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch",
-          touchAction: "pan-x", minHeight: 196,
+          touchAction: "pan-x",
           padding: "2px 2px 8px", margin: "0 -2px",
           scrollbarWidth: "none", msOverflowStyle: "none" }}>
           {pieces.filter((c) => (pick === crown.queen
@@ -1197,11 +1199,17 @@ function FormationEditor({ profile, dispatch, t, en }) {
             return <button key={c.id} onClick={() => setSlot(pick, c.id)}
               style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
                 padding: "9px 8px 10px", borderRadius: 13, cursor: "pointer", fontFamily: "inherit",
-                flex: "0 0 auto", width: 132, minWidth: 132, scrollSnapAlign: "center", textAlign: "center",
+                /* v1.2.1 (Besitzer: "mach es so, dass schon alles von der Karte
+                   drauf passt, und skaliere die Karte einfach entsprechend
+                   Bildschirmgroesse"): die Karte waechst mit dem Schirm
+                   (30 % der Breite, zwischen 118 und 150 px) und ist so hoch,
+                   dass Bild, Name, Gangart und Talente ZUSAMMEN hineinpassen -
+                   vorher schnitt die Reihe die Gangart unten ab. */
+                flex: "0 0 auto", width: "clamp(118px, 30vw, 150px)", scrollSnapAlign: "center", textAlign: "center",
                 background: on ? T.lime : T.panel2, color: on ? T.limeInk : T.text,
                 border: `1.5px solid ${on ? T.lime : T.line}`,
                 boxShadow: on ? `0 0 12px ${T.lime}55` : "none" }}>
-              <SlotGlyph kind={c.kind} size={108} art={"painted"} />
+              <SlotGlyph kind={c.kind} size={"clamp(64px, 17vw, 88px)"} art={"painted"} />
               <span style={{ display: "block", fontWeight: 800, fontSize: 13.5, lineHeight: 1.15 }}>{en ? c.nameEn : c.nameDe}</span>
               {/* v1.1.17 (Besitzer: "du musst wie bei der Chronik, wie die Zuege
                   dargestellt werden, das auch noch bei den Figuren reinbringen -
@@ -1210,7 +1218,7 @@ function FormationEditor({ profile, dispatch, t, en }) {
                   ohne ihr Zugbild waehlt man nach Aussehen. Dasselbe Diagramm
                   wie in der Chronik, nur klein (96 px). */}
               <span style={{ display: "block", marginTop: 1, opacity: on ? 1 : 0.92 }}>
-                <MoveDiagram kind={c.kind} moveSpec={c.moveSpec} breite={96} />
+                <MoveDiagram kind={c.kind} moveSpec={c.moveSpec} breite={"clamp(74px, 20vw, 96px)"} />
               </span>
               {talente.length > 0 && (
                 <span style={{ display: "flex", gap: 3, flexWrap: "wrap", justifyContent: "center", marginTop: 1 }}>
@@ -1224,10 +1232,9 @@ function FormationEditor({ profile, dispatch, t, en }) {
                   })}
                 </span>
               )}
-              <span style={{ fontSize: 10.5, lineHeight: 1.35, marginTop: 1,
-                color: on ? T.limeInk : T.dim, fontStyle: "italic",
-                display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
-                {en ? c.flavorEn : c.flavorDe}</span>
+              {/* v1.2.1: der Spruch ist fort - er kostete zwei Zeilen und
+                  verdraengte die Gangart aus der Karte. Er steht vollstaendig
+                  in der Chronik, wo man ihn liest, statt beim Aufstellen. */}
             </button>;
           })}
         </div>

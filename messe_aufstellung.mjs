@@ -76,13 +76,20 @@ const getippt = await page.evaluate(async () => {
 });
 console.log("antippbare Plaetze:", getippt);
 const reihe = await page.evaluate(()=>{
+  /* v1.2.1: passt ALLES auf die Karte? Wir messen, ob der Inhalt die Karte
+     ueberragt - genau das war der Befund ("mach es so, dass schon alles von
+     der Karte drauf passt"). */
   const r = [...document.querySelectorAll("div")].find(d=>{
     const s=getComputedStyle(d);
     return s.overflowX==="auto" && s.display==="flex" && d.children.length>2;
   });
   if (!r) return { da:false };
   const k=[...r.children].map(c=>{const q=c.getBoundingClientRect(); return {w:Math.round(q.width),h:Math.round(q.height)};});
-  return { da:true, karten:k.length, scrollBreite:r.scrollWidth, sichtbar:Math.round(r.getBoundingClientRect().width), erste:k[0] };
+  const erste = r.children[0];
+  const innen = erste ? [...erste.children].reduce((a,c)=>a+c.getBoundingClientRect().height,0) : 0;
+  const aussen = erste ? erste.getBoundingClientRect().height : 0;
+  return { da:true, karten:k.length, scrollBreite:r.scrollWidth, sichtbar:Math.round(r.getBoundingClientRect().width),
+    karte:k[0], inhalt:Math.round(innen), rahmen:Math.round(aussen), passt: innen <= aussen + 2 };
 });
 console.log("Wischreihe:", JSON.stringify(reihe));
 console.log(fehler.length? "SEITENFEHLER: "+fehler.join(" | ") : "keine Seitenfehler");

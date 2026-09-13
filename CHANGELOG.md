@@ -1,5 +1,21 @@
 # Changelog - Grand Gambit
 
+## 1.2.1
+- ALLES PASST JETZT AUF DIE KARTE (Besitzer: "mach es so, dass schon alles von
+  der Karte drauf passt, und skaliere die Karte einfach entsprechend
+  Bildschirmgroesse"). Vorher schnitt die Reihe die Gangart unten ab.
+  Nachgerechnet bei 412 px Schirm: die Karte ist von ~305 auf 223 px
+  geschrumpft - Figur 108 -> 70 px, Diagramm 96 -> 82, und der Spruch ist
+  fort. Breite, Figur und Diagramm wachsen jetzt mit dem Schirm (clamp),
+  statt fest zu stehen.
+- DER SPRUCH IST FORT: er kostete zwei Zeilen und verdraengte genau die
+  Gangart, die der Besitzer sehen wollte. Er steht vollstaendig in der
+  Chronik, wo man ihn liest - beim Aufstellen braucht man Zugbild und
+  Talente.
+- DER ERKLAERTEXT UEBER DEN PLAENEN IST FORT (Besitzer: "der Erklaertext ist
+  denke ich nicht noetig"). Die Knoepfe heissen Schach und HP-Gefecht; mehr
+  muss dazu nicht stehen, und der Platz gehoert der Wischreihe.
+
 ## 1.2.0
 - DER KOENIG IST IMMUN GEGEN FERNKAMPF (Besitzerentscheid): "Es ist
   superwichtig, dass wir grundsaetzlich sagen: der Koenig ist immun gegen

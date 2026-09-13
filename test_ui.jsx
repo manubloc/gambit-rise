@@ -1270,7 +1270,9 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
     const as = readFileSync("src/app/ui/screens/ArmyScreen.jsx", "utf8");
     ok("die Wahl ist eine waagerechte Reihe mit Einrasten",
       as.includes('scrollSnapType: "x mandatory"') && as.includes('scrollSnapAlign: "center"'));
-    ok("die Figuren stehen gross (108 statt 52 px)", as.includes('<SlotGlyph kind={c.kind} size={108}'));
+    ok("die Figuren stehen gross und wachsen mit dem Schirm",
+      as.includes('size={"clamp(64px, 17vw, 88px)"}'));
+
     ok("und sie zeigen ihre Talente aus der Stufenleiter",
       as.includes("(c.ladder || [])") && as.includes("stufe.ability && ABILITIES[stufe.ability]"));
     ok("die Talente tragen ihre Artfarbe", as.includes("const tg = TAGS[ab.tag];") && as.includes("tg ? tg.color + \"2e\""));
@@ -1278,9 +1280,18 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
        gar nicht mehr" und "man weiss ja nicht, wie wo was". */
     ok("die Reihe sagt dem Browser, dass waagerecht gewischt wird",
       as.includes('touchAction: "pan-x"'));
-    ok("die Karten koennen nicht gequetscht werden", as.includes("width: 132, minWidth: 132"));
-    ok("die Gangart steht in der Karte", as.includes("<MoveDiagram kind={c.kind} moveSpec={c.moveSpec} breite={96} />"));
+    /* v1.2.1: aus festen Massen wurden mitwachsende (clamp) - die Proben
+       pruefen jetzt die Sache, nicht die Zahl. */
+    ok("die Karten haben eine feste Mindestbreite und schrumpfen nicht",
+      as.includes('flex: "0 0 auto", width: "clamp(118px, 30vw, 150px)"'));
+    ok("die Gangart steht in der Karte", as.includes("<MoveDiagram kind={c.kind} moveSpec={c.moveSpec} breite="));
     ok("das funktionslose Mehr ist fort", !as.includes('{t("tree.more")}'));
+    /* v1.2.1: die Karte skaliert mit dem Schirm, und ALLES passt darauf. */
+    ok("Kartenbreite waechst mit dem Schirm", as.includes('width: "clamp(118px, 30vw, 150px)"'));
+    ok("Figur und Gangart skalieren mit",
+      as.includes('size={"clamp(64px, 17vw, 88px)"}') && as.includes('breite={"clamp(74px, 20vw, 96px)"}'));
+    ok("der Spruch ist fort - er verdraengte die Gangart", !as.includes("{en ? c.flavorEn : c.flavorDe}</span>"));
+    ok("der Erklaertext ueber den Plaenen ist fort", !as.includes('{t("army.planHint")}'));
     /* und die Quelle muss wirklich etwas liefern - sonst ist die Reihe leer */
     const { CHARACTER_LIST, ABILITIES } = await import("./src/content/index.js");
     const ohne = CHARACTER_LIST.filter((c) => !(c.ladder || []).some((x) => x.ability && ABILITIES[x.ability]));
