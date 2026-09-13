@@ -1,6 +1,6 @@
 import { other, WHITE, BLACK, BASE_HP, BASE_ATK, HP_REMIS_HALBZUEGE } from "../domain/constants.js";
 import { cloneBoard, findKing } from "../domain/board.js";
-import { pseudoMoves, pieceMoves } from "../rules/moves.js";
+import { pseudoMoves, pieceMoves, talentWirkt } from "../rules/moves.js";
 import { inCheck } from "../rules/attacks.js";
 import { schlageSperre, loeseFalleAus, zerfalleSperren } from "../rules/sperren.js";
 import { familyOf, familyCount, crownWallSoak } from "../rules/families.js";
@@ -197,7 +197,9 @@ export function applyMove(state, move, opts) {
       const warded = [tf > 0 ? ti - 1 : -1, tf < W - 1 ? ti + 1 : -1, ti - W, ti + W]
         .some((n) => { const q = n >= 0 && n < W * H2 ? b[n] : null;
           return q && q.color === target.color && q.aura && q.aura.type === "wardAdj"; });
-      const soak = (target.abilities.includes("bulwark") ? 1 : 0) + wall + (warded ? 1 : 0);
+      /* v1.2.0: in Klassik schweigen die Lebenstalente (siehe NUR_MIT_LEBEN
+         in moves.js) - dort gibt es weder Schaden noch Leben. */
+      const soak = (target.abilities.includes("bulwark") && talentWirkt("bulwark", state.rules) ? 1 : 0) + wall + (warded ? 1 : 0);
       // BALANCE: strikes from afar carry less weight — a leap or a ranged
       // shot lands at HALF force (rounded up); melee keeps its full bite.
       const afar = move.special === "leap" || move.special === "shot" || move.noAdvance;
@@ -205,7 +207,7 @@ export function applyMove(state, move, opts) {
       dmg = Math.max(1, force - soak);
       target.hp -= dmg;
       if (move.consumes) piece.used[move.consumes] = true; // one spell per game: the book closes
-      if (has("lifesteal")) piece.hp = Math.min(piece.maxHp, piece.hp + Math.ceil(dmg / 2));
+      if (has("lifesteal") && talentWirkt("lifesteal", state.rules)) piece.hp = Math.min(piece.maxHp, piece.hp + Math.ceil(dmg / 2));
       /* ── SCHOCKWELLE (v0.79, blast): EINMAL pro Partie trifft der erste
          Nahkampfschlag auch alle GEGNER rings um das Ziel - mit HALBEM
          Schaden (Besitzerregel: eine Flaeche schlaegt nie so hart wie die
@@ -256,7 +258,7 @@ export function applyMove(state, move, opts) {
       if (move.consumes) piece.used[move.consumes] = true; // one spell per game: the book closes
       if (move.promotion) repromote(piece, move.promotion);
     }
-    if (has("regen")) piece.hp = Math.min(piece.maxHp, (piece.hp || 0) + 1);
+    if (has("regen") && talentWirkt("regen", state.rules)) piece.hp = Math.min(piece.maxHp, (piece.hp || 0) + 1);
   } else {
     if (target && target.shield > 0) {            // chess: shield absorbs the hit
       target.shield -= 1; bounced = true;

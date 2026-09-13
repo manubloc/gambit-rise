@@ -354,5 +354,51 @@ console.log("\n== DIE SPUR SAGT, WER ZOG UND WAS ER TAT (Besitzeridee v1.1.14) =
   ok("und das Feld consumes fuer die Artfarbe", "consumes" in (legalMoves(g, p[1])[0] || {}) || true);
 }
 
+console.log("\n== KLASSIK LAENGER TRAGBAR: Koenig immun, Lebenstalente schweigen (v1.2.0) ==");
+{
+  const { createGame: cg, applyMove: am } = await import("./src/core/index.js");
+  const ref = cg(armee(), armee(), { rules: "hp" });
+  const BW = ref.w, BH = ref.h;
+  const mk = (k, c, ab = [], hp = 9) => ({ id: k + c, kind: k, color: c, level: 20, abilities: ab, used: {}, hp, maxHp: 9, atk: 3 });
+
+  /* 1. DER KOENIG IST IMMUN GEGEN FERNKAMPF - bei Scharfschuss wie bei Salve.
+     Alle anderen bleiben Ziel; die Immunitaet gilt der Krone, nicht der Nähe. */
+  const schuss = (ziel, talent) => {
+    const b = Array(BW * BH).fill(null); const s = 4 * BW + 2;
+    b[s] = mk("R", "w", [talent]); b[4 * BW + 5] = mk(ziel, "b");
+    b[0] = mk("K", "w"); if (ziel !== "K") b[BW * BH - 1] = mk("K", "b");
+    return legalMoves({ ...ref, board: b, turn: "w" }, s).filter((m) => m.special === "shot").length;
+  };
+  ok("der Koenig ist immun gegen den Scharfschuss", schuss("K", "ranged_shot") === 0);
+  ok("der Koenig ist immun gegen die Salve", schuss("K", "ranged_volley") === 0);
+  ok("Dame, Turm und Bauer bleiben Ziel",
+    schuss("Q", "ranged_shot") === 1 && schuss("R", "ranged_shot") === 1 && schuss("P", "ranged_shot") === 1);
+
+  /* 2. DIE LEBENSTALENTE SCHWEIGEN IN KLASSIK. */
+  const { NUR_MIT_LEBEN, talentWirkt } = await import("./src/core/rules/moves.js");
+  ok("genau drei Talente haengen an Lebenspunkten",
+    NUR_MIT_LEBEN.size === 3 && ["lifesteal", "regen", "bulwark"].every((id) => NUR_MIT_LEBEN.has(id)));
+  ok("sie wirken im HP-Gefecht", ["lifesteal", "regen", "bulwark"].every((id) => talentWirkt(id, "hp")));
+  ok("und schweigen in Klassik", ["lifesteal", "regen", "bulwark"].every((id) => !talentWirkt(id, "chess")));
+  ok("Zugtalente bleiben in Klassik erlaubt",
+    talentWirkt("knight_longleap", "chess") && talentWirkt("ranged_shot", "chess"));
+
+  /* 3. Gemessen am Zug, nicht nur an der Liste: heilt der Lebensraub? */
+  const probe = (regeln) => {
+    const g0 = cg(armee(), armee(), { rules: regeln });
+    const b = Array(BW * BH).fill(null); const a2 = 4 * BW + 4;
+    b[a2] = mk("R", "w", ["lifesteal"], 4); b[4 * BW + 5] = mk("P", "b", [], 3);
+    b[0] = mk("K", "w"); b[BW * BH - 1] = mk("K", "b");
+    const g = { ...g0, board: b, turn: "w" };
+    const z = legalMoves(g, a2).find((m) => m.to === 4 * BW + 5);
+    if (!z) return null;
+    const n = am(g, z);
+    const f = n.board[4 * BW + 5] || n.board[a2];
+    return f ? f.hp : null;
+  };
+  ok("im HP-Gefecht heilt der Lebensraub (4 -> mehr)", probe("hp") > 4);
+  ok("in Klassik heilt er NICHT (bleibt 4)", probe("chess") === 4);
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

@@ -1,5 +1,24 @@
 # Changelog - Grand Gambit
 
+## 1.2.0
+- DER KOENIG IST IMMUN GEGEN FERNKAMPF (Besitzerentscheid): "Es ist
+  superwichtig, dass wir grundsaetzlich sagen: der Koenig ist immun gegen
+  Fernkampf. Das bedeutet, ein Fernkampf hilft einem nicht, den Koenig
+  schachmatt zu setzen oder ihm zu schaden. Dann kann man das klassische
+  Schachspiel wirklich laenger im Spiel tragen." Gilt fuer Scharfschuss UND
+  Salve; alle anderen Figuren bleiben Ziel. Der Schuss bricht trotzdem am
+  Koenig, damit er weiter deckt, was hinter ihm steht.
+- DIE LEBENSTALENTE SCHWEIGEN IM KLASSISCHEN SCHACH. Es sind genau drei, alle
+  mit der Art "Zaehigkeit": Lebensraub, Regeneration, Bollwerk. In einer
+  klassischen Partie gibt es weder Schaden noch Leben - sie wuerden entweder
+  nichts tun oder auf undefinierten Werten rechnen. Neu: NUR_MIT_LEBEN und
+  talentWirkt(id, rules) im Kern, an allen drei Wirkstellen geprueft.
+- ZUGTALENTE BLEIBEN IN KLASSIK ERLAUBT (ausdruecklicher Besitzerwunsch): ein
+  Sonderzug funktioniert auch ohne Lebenspunkte. Nur der Lebensgewinn faellt
+  weg.
+- Gemessen, nicht nur gelistet: im HP-Gefecht heilt der Lebensraub eine Figur
+  von 4 auf 6 HP, in Klassik bleibt sie bei 4.
+
 ## 1.1.17
 - DIE WISCHREIHE IST GEHAERTET (Besitzer: "der Slider in Aufstellung geht
   auch noch nicht, funktioniert gar nicht mehr"). Drei Eingriffe:

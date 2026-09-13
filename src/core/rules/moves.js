@@ -14,6 +14,26 @@ export const PASSIVE_TALENTE = new Set([
   "lifesteal", "regen", "bulwark",
 ]);
 
+/* ── TALENTE, DIE OHNE LEBENSPUNKTE KEINEN SINN ERGEBEN (v1.2.0) ───────────
+   Besitzerentscheid: "Wenn man klassisch Schach spielt und nicht HP-Gefecht,
+   ist es natuerlich wichtig, dass diese Faehigkeiten nicht genutzt werden
+   koennen - dass die dann automatisch gesperrt ist, auch wenn man eine Figur
+   haette, die so eine Eigenschaft hat. Man kann natuerlich nicht in irgend
+   einer Form den Vorteil daraus schlagen, dass sich die eigene Figur mit
+   Leben wieder auffuellt."
+
+   Es sind genau die drei mit der Art "Zaehigkeit": Lebensraub heilt beim
+   Schlagen, Regeneration heilt bei jedem Zug, Bollwerk mindert Schaden. In
+   einer klassischen Partie gibt es weder Schaden noch Leben - sie wuerden
+   entweder nichts tun oder, schlimmer, auf undefinierten Werten rechnen.
+   Zugtalente bleiben ausdruecklich erlaubt: ein Sonderzug funktioniert auch
+   ohne Lebenspunkte, und der Besitzer will ihn behalten. */
+export const NUR_MIT_LEBEN = new Set(["lifesteal", "regen", "bulwark"]);
+
+/** Wirkt dieses Talent unter diesen Regeln? In Klassik schweigen die drei
+ *  Lebenstalente - unabhaengig davon, ob die Figur sie traegt. */
+export const talentWirkt = (id, rules) => !(rules === "chess" && NUR_MIT_LEBEN.has(id));
+
 export function hasAbility(piece, id) {
   // ONE SPELL PER GAME: a piece may KNOW many talents, but may FIRE only one
   // across the whole battle. The first use closes the book — used{} is the
@@ -318,7 +338,24 @@ export function pieceMoves(state, sqIndex) {
       while (dist <= MAXR && onBoard(af, ar, D)) {
         const t = board[ix(af, ar, D)];
         if (t) {
-          if (t.color !== piece.color && dist >= 2)
+          /* ── DER KOENIG IST IMMUN GEGEN FERNKAMPF (v1.2.0, Besitzerentscheid)
+             "Es ist superwichtig, dass wir grundsaetzlich sagen: der Koenig ist
+             immun gegen Fernkampf. Das bedeutet, ein Fernkampf hilft einem
+             nicht, den Koenig schachmatt zu setzen oder ihm zu schaden. Dann
+             ist das ein bisschen entkraeftet, und man kann das klassische
+             Schachspiel wirklich laenger im Spiel tragen."
+
+             Der Gedanke dahinter ist gut: ein Schuss ueber das halbe Brett,
+             der den Koenig bedroht, macht jede Deckung sinnlos - man kann sich
+             gegen ihn nicht stellen, weil er durch keine Linie zu sperren ist
+             (der Schuss haelt am ersten Stueck, aber das Schachgebot entsteht
+             aus der Distanz). Damit waere Schach kein Schach mehr. Die Immunitaet
+             kostet den Fernkampf nichts von seinem Wert gegen alle anderen
+             Figuren, nimmt ihm aber die Macht, die Partie zu entscheiden.
+
+             Der Schuss BRICHT trotzdem am Koenig: er deckt weiter, was hinter
+             ihm steht - sonst waere er ein Loch in der eigenen Linie. */
+          if (t.color !== piece.color && dist >= 2 && t.kind !== KIND.KING)
             push(moves, from, ix(af, ar, D), piece, true, t.kind, { special: "shot", noAdvance: true, ...(consume ? { consumes: consume } : {}) });
           break; // a shot stops at the first piece it meets
         }
