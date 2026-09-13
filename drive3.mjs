@@ -44,33 +44,119 @@ await page.goto(`http://127.0.0.1:${port}/`, { waitUntil: "networkidle" });
 await page.waitForTimeout(2500);
 const hasLogin = await page.locator("input").count() > 0 || (await page.textContent("body"))?.includes("Spielstand");
 if (!hasLogin) errors.push("Login-/Startmaske nicht gefunden");
-{
-  /* v1.0.92: liegt das Talentband UNTER dem Brett oder dahinter? Der
-     Besitzer sah es halb verdeckt - hier wird es gemessen, nicht geglaubt. */
-  /* eine eigene Figur anklicken, damit das Band ueberhaupt erscheint */
-  await page.evaluate(() => {
-    const felder = [...document.querySelectorAll("button")].filter((b) => b.querySelector("img,svg"));
-    const unten = felder.filter((b) => b.getBoundingClientRect().top > innerHeight * 0.5);
-    (unten[Math.floor(unten.length / 2)] || felder[0])?.click();
+/* ── AB HIER WIRD WIRKLICH GESPIELT (v1.1.13) ─────────────────────────────
+   Bis v1.1.12 endete diese Fahrprobe an der Anmeldemaske. Sie meldete
+   trotzdem "KEINE FEHLER", und das war schlimmer als gar keine Probe: dreimal
+   hat sie eine Messung als "nicht sichtbar" gemeldet, weil gar kein Brett da
+   war, und einmal habe ich das faelschlich mit einer Spielregel erklaert
+   (v1.0.92 -> v1.0.96). Eine Probe, die nur den Vorhof sieht, macht blind
+   statt sicher.
+
+   Der Weg ans Brett steht in messe_animation.mjs: Konto anlegen, Spielstand
+   anlegen, den mehrseitigen Willkommensschirm durchklicken, schnelles Spiel
+   starten. Hier derselbe Weg, danach echte Messungen im Gefecht. */
+const klick = async (wort) => page.evaluate((w) => {
+  const b = [...document.querySelectorAll("button")].find((x) => (x.textContent || "").includes(w));
+  if (b) { b.click(); return true; }
+  return false;
+}, wort);
+
+await klick("Erstellen"); await page.waitForTimeout(700);
+try {
+  await page.locator("input[type=email]").fill("fahrprobe@probe.local");
+  await page.locator("input[type=password]").fill("Probe12345!");
+  await klick("Konto erstellen"); await page.waitForTimeout(2600);
+  await klick("Neuer Spielstand"); await page.waitForTimeout(2600);
+} catch { errors.push("Anmeldung nicht moeglich"); }
+for (let i = 0; i < 8; i++) {
+  const w = await page.evaluate(() => {
+    const b = [...document.querySelectorAll("button")].find((x) => /Weiter|Los geht|Überspringen|Skip|Verstanden|Beginnen/i.test(x.textContent || ""));
+    if (!b) return false; b.click(); return true;
   });
-  await page.waitForTimeout(700);
-  const m = await page.evaluate(() => {
-    const band = document.querySelector(".gg-talentband");
-    if (!band) return { band: false };
-    const b = band.getBoundingClientRect();
-    const felder = [...document.querySelectorAll("button,div")]
-      .map((e) => e.getBoundingClientRect())
-      .filter((r) => r.width > 180 && Math.abs(r.width - r.height) < r.width * 0.25);
-    if (!felder.length) return { band: true, brett: false };
-    const brett = felder.sort((x, y) => y.width - x.width)[0];
-    return { band: true, brett: true, ueberlappung: +(brett.bottom - b.top).toFixed(1),
-      bandOben: +b.top.toFixed(1), brettUnten: +brett.bottom.toFixed(1) };
-  });
-  if (m.band && m.brett) {
-    console.log(`   Talentband: Brett endet bei ${m.brettUnten}, Band beginnt bei ${m.bandOben} -> Ueberlappung ${m.ueberlappung} px`);
-    if (m.ueberlappung > 1) console.log("   WARNUNG: das Band liegt noch unter dem Brett");
-  } else console.log("   Talentband: nicht sichtbar (keine Figur mit Talenten gewaehlt)");
+  if (!w) break;
+  await page.waitForTimeout(600);
 }
+await klick("Schnelles Spiel"); await page.waitForTimeout(1900);
+await page.evaluate(() => {
+  const b = [...document.querySelectorAll("button")].find((x) => /Losziehen|Spiel starten|Start/i.test(x.textContent || ""));
+  b && b.click();
+});
+await page.waitForTimeout(2800);
+
+{
+  /* 1. STEHT DAS BRETT? Die Felder sind DIVs, nicht Buttons. */
+  const brett = await page.evaluate(() => {
+    const alle = [...document.querySelectorAll("div")].filter((d) => {
+      const r = d.getBoundingClientRect();
+      return r.width > 28 && r.width < 90 && Math.abs(r.width - r.height) < 4;
+    });
+    if (!alle.length) return { felder: 0 };
+    const k = Math.min(...alle.map((d) => d.getBoundingClientRect().width));
+    const f = alle.filter((d) => Math.abs(d.getBoundingClientRect().width - k) < 2);
+    return { felder: f.length, mitFigur: f.filter((d) => d.querySelector("img,svg")).length };
+  });
+  if (brett.felder < 16) errors.push(`kein Brett im Gefecht (nur ${brett.felder} Felder)`);
+  else console.log(`   Brett: ${brett.felder} Felder, ${brett.mitFigur} mit Figur`);
+
+  /* 2. EIN ECHTER ZUG. Eine eigene Figur waehlen, ein Zielfeld antippen. */
+  const zug = await page.evaluate(async () => {
+    const felder = () => {
+      const alle = [...document.querySelectorAll("div")].filter((d) => {
+        const r = d.getBoundingClientRect();
+        return r.width > 28 && r.width < 90 && Math.abs(r.width - r.height) < 4;
+      });
+      const k = Math.min(...alle.map((d) => d.getBoundingClientRect().width));
+      return alle.filter((d) => Math.abs(d.getBoundingClientRect().width - k) < 2);
+    };
+    const eigene = felder().filter((d) => d.querySelector("img,svg") && d.getBoundingClientRect().top > innerHeight * 0.42);
+    for (const d of eigene) {
+      d.click(); await new Promise((r) => setTimeout(r, 260));
+      const ziel = felder().find((z) => /ggZielAtem/.test(z.getAttribute("style") || "") || z.querySelector('[style*="ggZielAtem"]'));
+      if (ziel) { ziel.click(); await new Promise((r) => setTimeout(r, 1400)); return true; }
+    }
+    return false;
+  });
+  if (!zug) errors.push("kein Zug im Gefecht moeglich (keine Zielfelder gefunden)");
+  else console.log("   ein Zug gespielt, der Gegner hat geantwortet");
+
+  /* 3. DAS TALENTBAND liegt UNTER dem Brett, nicht dahinter (v1.0.92). */
+  /* ZWEIMAL MESSEN, den besseren Wert nehmen. Ein Lauf meldete 220 px, zwei
+     andere 6 px - der Ausreisser fiel mitten in die Antwort des Gegners, wo
+     Brett und Band in Bewegung sind. Eine Probe, die bei jedem dritten Lauf
+     grundlos Alarm schlaegt, wird ignoriert und ist dann wertlos. */
+  const messeBand = async () => page.evaluate(async () => {
+    const felder = () => {
+      const alle = [...document.querySelectorAll("div")].filter((d) => {
+        const r = d.getBoundingClientRect();
+        return r.width > 28 && r.width < 90 && Math.abs(r.width - r.height) < 4;
+      });
+      const k = Math.min(...alle.map((d) => d.getBoundingClientRect().width));
+      return alle.filter((d) => Math.abs(d.getBoundingClientRect().width - k) < 2);
+    };
+    const eigene = felder().filter((d) => d.querySelector("img,svg") && d.getBoundingClientRect().top > innerHeight * 0.42);
+    if (eigene.length) { eigene[Math.floor(eigene.length / 2)].click(); await new Promise((r) => setTimeout(r, 450)); }
+    const b = document.querySelector(".gg-talentband");
+    if (!b) return { da: false };
+    const r = b.getBoundingClientRect();
+    const unten = Math.max(...felder().map((d) => d.getBoundingClientRect().bottom));
+    return { da: true, ueberlappung: +(unten - r.top).toFixed(1) };
+  });
+  let band = await messeBand();
+  if (!band.da || band.ueberlappung > 1 || band.ueberlappung < -60) {
+    await page.waitForTimeout(1200);          // Zuganimation auslaufen lassen
+    const zweit = await messeBand();
+    if (zweit.da && zweit.ueberlappung <= 1 && zweit.ueberlappung >= -60) band = zweit;
+  }
+  /* ZWEI Schranken, nicht eine. Beim Schaerfen dieser Probe habe ich ihr
+     absichtlich einen Fehler untergeschoben (Band 120 px verschoben) - sie
+     meldete brav "263 px unter dem Brett" und liess es durch. Ein Band, das
+     sich irgendwo unten verliert, ist genauso falsch wie eines dahinter. */
+  if (!band.da) errors.push("Talentband erscheint nicht, obwohl eine eigene Figur gewaehlt ist");
+  else if (band.ueberlappung > 1) errors.push(`Talentband liegt ${band.ueberlappung} px hinter dem Brett`);
+  else if (band.ueberlappung < -60) errors.push(`Talentband haengt ${Math.abs(band.ueberlappung)} px unter dem Brett - es soll daran anschliessen`);
+  else console.log(`   Talentband: ${Math.abs(band.ueberlappung)} px unter dem Brett`);
+}
+
 await browser.close(); srv.close();
 
 if (errors.length) { console.log("FEHLER:", errors.join(" | ")); process.exit(1); }

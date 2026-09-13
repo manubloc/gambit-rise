@@ -1,5 +1,26 @@
 # Changelog - Grand Gambit
 
+## 1.1.13
+- DIE FAHRPROBE SPIELT JETZT WIRKLICH. Bis v1.1.12 endete sie an der
+  Anmeldemaske und meldete trotzdem "KEINE FEHLER" - das war schlimmer als
+  keine Probe: dreimal hat sie eine Messung als "nicht sichtbar" gemeldet,
+  weil gar kein Brett da war, und einmal habe ich das faelschlich mit einer
+  Spielregel erklaert (v1.0.92, aufgedeckt in v1.0.96). Eine Probe, die nur
+  den Vorhof sieht, macht blind statt sicher.
+- Sie legt jetzt Konto und Spielstand an, klickt den Willkommensschirm durch,
+  startet ein schnelles Spiel und misst DORT: steht das Brett (160 Felder, 64
+  mit Figur), laesst sich ein Zug spielen und antwortet der Gegner, und liegt
+  das Talentband unter dem Brett (gemessen 6 px).
+- ZWEI SCHRANKEN statt einer beim Talentband. Beim Schaerfen habe ich der
+  Probe absichtlich einen Fehler untergeschoben - sie meldete brav "263 px
+  unter dem Brett" und liess es durch. Ein Band, das sich unten verliert, ist
+  genauso falsch wie eines dahinter; jetzt gilt beides.
+- UND SIE MISST ZWEIMAL. Ein Lauf meldete 220 px, zwei andere 6 - der
+  Ausreisser fiel mitten in die Antwort des Gegners, wo Brett und Band in
+  Bewegung sind. Eine Probe, die bei jedem dritten Lauf grundlos Alarm
+  schlaegt, wird ignoriert und ist dann wertlos. Bei einem schlechten Wert
+  laesst sie die Animation auslaufen und misst noch einmal.
+
 ## 1.1.12
 - DIE DOPPELTE BILDLAST IST FORT: 37 MB -> 33 MB im Buendel (gemessen).
   Seit v1.1.0 traegt das Haus eine Livree, aber die klassischen Fassungen
