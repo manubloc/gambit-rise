@@ -1274,6 +1274,13 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
     ok("und sie zeigen ihre Talente aus der Stufenleiter",
       as.includes("(c.ladder || [])") && as.includes("stufe.ability && ABILITIES[stufe.ability]"));
     ok("die Talente tragen ihre Artfarbe", as.includes("const tg = TAGS[ab.tag];") && as.includes("tg ? tg.color + \"2e\""));
+    /* v1.1.17: drei Nachbesserungen nach dem Besitzerbefund "der Slider geht
+       gar nicht mehr" und "man weiss ja nicht, wie wo was". */
+    ok("die Reihe sagt dem Browser, dass waagerecht gewischt wird",
+      as.includes('touchAction: "pan-x"'));
+    ok("die Karten koennen nicht gequetscht werden", as.includes("width: 132, minWidth: 132"));
+    ok("die Gangart steht in der Karte", as.includes("<MoveDiagram kind={c.kind} moveSpec={c.moveSpec} breite={96} />"));
+    ok("das funktionslose Mehr ist fort", !as.includes('{t("tree.more")}'));
     /* und die Quelle muss wirklich etwas liefern - sonst ist die Reihe leer */
     const { CHARACTER_LIST, ABILITIES } = await import("./src/content/index.js");
     const ohne = CHARACTER_LIST.filter((c) => !(c.ladder || []).some((x) => x.ability && ABILITIES[x.ability]));

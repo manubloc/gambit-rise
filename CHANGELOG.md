@@ -1,5 +1,24 @@
 # Changelog - Grand Gambit
 
+## 1.1.17
+- DIE WISCHREIHE IST GEHAERTET (Besitzer: "der Slider in Aufstellung geht
+  auch noch nicht, funktioniert gar nicht mehr"). Drei Eingriffe:
+  touchAction "pan-x" sagt dem Browser ausdruecklich, dass hier waagerecht
+  gewischt wird - ohne das schluckt die senkrechte Seitenbewegung die Geste
+  und die Reihe fuehlt sich fest an; minWidth haelt die Karten auf Mass
+  (flex-Kinder schrumpfen sonst unter ihre Breite); eine Mindesthoehe
+  verhindert, dass die Reihe auf null faellt, solange Bilder laden.
+- DIE GANGART STEHT JETZT IN DER KARTE (Besitzer: "du musst wie bei der
+  Chronik, wie die Zuege dargestellt werden, das auch bei den Figuren
+  reinbringen - sonst weiss man ja nicht, wie wo was"). Dasselbe Diagramm wie
+  in der Chronik, klein (96 px). MoveDiagram nimmt dafuer eine Breite
+  entgegen; seine feste Breite von min(150px, 52vw) haette die 132-px-Karte
+  gesprengt.
+- DAS FUNKTIONSLOSE "MEHR" IST FORT, und ich habe es selbst verursacht: die
+  Vorrede war auf zwei Zeilen beschnitten, "… Mehr" klappte den Rest auf.
+  Seit der Textkuerzung in v1.1.11 (244 -> 127 Zeichen) passt der Text in die
+  zwei Zeilen - das Antippen tat sichtbar nichts mehr.
+
 ## 1.1.16
 - MEIN KOMMENTAR STAND AUF DEM BRETT. Der Besitzer mit Screenshot: das halbe
   Spielfeld war von Text ueberdeckt - "Punkte", "1,42em (minimal kleiner)",

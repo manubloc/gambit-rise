@@ -275,7 +275,10 @@ const ABILITY_MOVE = {
   dragon_flight2: { leaps: [[-3, -3], [-3, -2], [-3, -1], [-3, 0], [-3, 1], [-3, 2], [-3, 3], [-2, -3], [-2, -2], [-2, -1], [-2, 0], [-2, 1], [-2, 2], [-2, 3], [-1, -3], [-1, -2], [-1, -1], [-1, 0], [-1, 1], [-1, 2], [-1, 3], [0, -3], [0, -2], [0, -1], [0, 1], [0, 2], [0, 3], [1, -3], [1, -2], [1, -1], [1, 0], [1, 1], [1, 2], [1, 3], [2, -3], [2, -2], [2, -1], [2, 0], [2, 1], [2, 2], [2, 3], [3, -3], [3, -2], [3, -1], [3, 0], [3, 1], [3, 2], [3, 3]] },
   dragon_flight3: { leaps: [[-3, -3], [-3, -2], [-3, -1], [-3, 0], [-3, 1], [-3, 2], [-3, 3], [-2, -3], [-2, -2], [-2, -1], [-2, 0], [-2, 1], [-2, 2], [-2, 3], [-1, -3], [-1, -2], [-1, -1], [-1, 0], [-1, 1], [-1, 2], [-1, 3], [0, -3], [0, -2], [0, -1], [0, 1], [0, 2], [0, 3], [1, -3], [1, -2], [1, -1], [1, 0], [1, 1], [1, 2], [1, 3], [2, -3], [2, -2], [2, -1], [2, 0], [2, 1], [2, 2], [2, 3], [3, -3], [3, -2], [3, -1], [3, 0], [3, 1], [3, 2], [3, 3]] },
 };
-export function MoveDiagram({ kind, moveSpec, extra = null }) {
+/* v1.1.17: das Diagramm nimmt jetzt eine Breite entgegen. In der Wischreihe
+   der Aufstellung steht es in einer 132-px-Karte; die feste Breite von
+   min(150px, 52vw) haette sie gesprengt. */
+export function MoveDiagram({ kind, moveSpec, extra = null, breite = null }) {
   const sp = specForKind(kind, moveSpec);
   // DER GROSSE DRACHE (Besitzer, v0.72.3): er ist KEIN einzelnes Feld - er
   // deckt 2x2 und schiebt diesen Block um ein Feld in die vier Richtungen.
@@ -327,7 +330,7 @@ export function MoveDiagram({ kind, moveSpec, extra = null }) {
     const light = (f + r + 100) % 2 === 0;
     cells.push({ f, r, here, mark, light });
   }
-  return <div style={{ display: "grid", gridTemplateColumns: `repeat(${N}, 1fr)`, gap: 1.5, width: "min(150px, 52vw)",
+  return <div style={{ display: "grid", gridTemplateColumns: `repeat(${N}, 1fr)`, gap: 1.5, width: breite || "min(150px, 52vw)",
     padding: 4, borderRadius: 8, background: "rgba(8,12,22,.55)", border: "1px solid #ffffff10" }}>
     {cells.map((c, i) => <div key={i} style={{ aspectRatio: "1", borderRadius: 3, position: "relative",
       background: c.here ? "linear-gradient(160deg,#e7c877,#b1863c)"
@@ -1165,8 +1168,17 @@ function FormationEditor({ profile, dispatch, t, en }) {
             (dieselbe wie im Talentband und in der Zugspur). Die Reihe
             schnappt auf die Karten ein (scroll-snap), damit das Wischen
             aufhoert, wo eine Figur steht. */}
+        {/* v1.1.17 (Besitzer: "der Slider in Aufstellung geht auch noch nicht,
+            funktioniert gar nicht mehr"): DREI HAERTUNGEN. touchAction "pan-x"
+            sagt dem Browser ausdruecklich, dass hier waagerecht gewischt wird -
+            ohne das schluckt die senkrechte Seitenbewegung die Geste, und die
+            Reihe fuehlt sich fest an. minWidth statt width haelt die Karten
+            auf Mass, auch wenn ein Elternteil sie quetschen will (flex-Kinder
+            schrumpfen sonst unter ihre Breite). Und eine Mindesthoehe, damit
+            die Reihe nicht auf null faellt, wenn ein Bild spaeter laedt. */}
         <div style={{ display: "flex", gap: 10, overflowX: "auto", overflowY: "hidden",
           scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch",
+          touchAction: "pan-x", minHeight: 196,
           padding: "2px 2px 8px", margin: "0 -2px",
           scrollbarWidth: "none", msOverflowStyle: "none" }}>
           {pieces.filter((c) => (pick === crown.queen
@@ -1185,12 +1197,21 @@ function FormationEditor({ profile, dispatch, t, en }) {
             return <button key={c.id} onClick={() => setSlot(pick, c.id)}
               style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
                 padding: "9px 8px 10px", borderRadius: 13, cursor: "pointer", fontFamily: "inherit",
-                flex: "0 0 auto", width: 132, scrollSnapAlign: "center", textAlign: "center",
+                flex: "0 0 auto", width: 132, minWidth: 132, scrollSnapAlign: "center", textAlign: "center",
                 background: on ? T.lime : T.panel2, color: on ? T.limeInk : T.text,
                 border: `1.5px solid ${on ? T.lime : T.line}`,
                 boxShadow: on ? `0 0 12px ${T.lime}55` : "none" }}>
               <SlotGlyph kind={c.kind} size={108} art={"painted"} />
               <span style={{ display: "block", fontWeight: 800, fontSize: 13.5, lineHeight: 1.15 }}>{en ? c.nameEn : c.nameDe}</span>
+              {/* v1.1.17 (Besitzer: "du musst wie bei der Chronik, wie die Zuege
+                  dargestellt werden, das auch noch bei den Figuren reinbringen -
+                  sonst weiss man ja nicht, wie wo was"): DIE GANGART STEHT IN
+                  DER KARTE. Man waehlt hier eine Figur fuer seine Hinterreihe;
+                  ohne ihr Zugbild waehlt man nach Aussehen. Dasselbe Diagramm
+                  wie in der Chronik, nur klein (96 px). */}
+              <span style={{ display: "block", marginTop: 1, opacity: on ? 1 : 0.92 }}>
+                <MoveDiagram kind={c.kind} moveSpec={c.moveSpec} breite={96} />
+              </span>
               {talente.length > 0 && (
                 <span style={{ display: "flex", gap: 3, flexWrap: "wrap", justifyContent: "center", marginTop: 1 }}>
                   {talente.map((ab) => {
@@ -1203,7 +1224,7 @@ function FormationEditor({ profile, dispatch, t, en }) {
                   })}
                 </span>
               )}
-              <span style={{ display: "block", fontSize: 10.5, lineHeight: 1.35, marginTop: 1,
+              <span style={{ fontSize: 10.5, lineHeight: 1.35, marginTop: 1,
                 color: on ? T.limeInk : T.dim, fontStyle: "italic",
                 display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
                 {en ? c.flavorEn : c.flavorDe}</span>
@@ -1791,10 +1812,14 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
   // Verzeichnis. Jetzt zwei Zeilen (-webkit-line-clamp), ein Tipp klappt den
   // Rest auf - die Chronikstimme bleibt, die Figuren ruecken nach oben.
   const [introOffen, setIntroOffen] = useState(false);
-  const Vorrede = () => <div onClick={() => setIntroOffen((v) => !v)} role="button" tabIndex={0}
-    style={{ fontSize: 12.5, color: T.dim, lineHeight: 1.55, marginBottom: 4, cursor: "pointer",
-      display: "-webkit-box", WebkitBoxOrient: "vertical", WebkitLineClamp: introOffen ? "unset" : 2, overflow: "hidden" }}>
-    {t("tree.intro")}{!introOffen && <span style={{ color: T.gold }}> … {t("tree.more")}</span>}
+  /* v1.1.17 (Besitzer: "dieses Mehr hat keine Funktion, lass das weg"): ER
+     HAT RECHT, UND ICH HABE ES SELBST VERURSACHT. Die Vorrede war auf zwei
+     Zeilen beschnitten, "… Mehr" klappte den Rest auf. Seit ich den Text in
+     v1.1.11 von 244 auf 127 Zeichen gekuerzt habe, passt er in die zwei
+     Zeilen - das Antippen tat sichtbar nichts mehr. Jetzt steht der Text
+     ganz da, ohne Beschnitt und ohne Knopf. */
+  const Vorrede = () => <div style={{ fontSize: 12.5, color: T.dim, lineHeight: 1.55, marginBottom: 4 }}>
+    {t("tree.intro")}
   </div>;
   if (!artReady) return <div style={{ }}>
     <Vorrede />
