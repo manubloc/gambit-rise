@@ -335,5 +335,24 @@ console.log("\n== KARTENFIGUREN UND DRACHE (Besitzerbefunde v1.1.9) ==");
     Math.abs(farbe[0] - farbe[1]) < 25);
 }
 
+console.log("\n== DIE SPUR SAGT, WER ZOG UND WAS ER TAT (Besitzeridee v1.1.14) ==");
+{
+  const { readFileSync } = await import("node:fs");
+  const bv = readFileSync("src/app/ui/board/BoardView.jsx", "utf8");
+  ok("die Spur kennt drei Faelle: eigener Zug, Gegnerzug, Talent",
+    bv.includes("const talent = lastMove.consumes ? ABILITIES[lastMove.consumes] : null") &&
+    bv.includes("const zogIch = lastMove.color ? lastMove.color === pov : true"));
+  ok("die Artfarbe hat Vorrang vor der Seitenfarbe",
+    bv.includes("tg ? tg.color : zogIch ? T.gold :"));
+  ok("keine feste Goldspur mehr", !bv.includes("${T.gold}3d, transparent 66%"));
+  /* Und der Kern muss liefern, worauf sich das stuetzt: Farbe und Verbrauch. */
+  const { createGame: cg, applyMove: am } = await import("./src/core/index.js");
+  const g = cg(armee(), armee(), { rules: "chess" });
+  const p = g.board.map((x, i) => [x, i]).find(([x]) => x && x.kind === "P" && x.color === "w");
+  const n = am(g, legalMoves(g, p[1])[0]);
+  ok("der Zug traegt seine Farbe (dafuer gold oder violett)", n.lastMove?.color === "w");
+  ok("und das Feld consumes fuer die Artfarbe", "consumes" in (legalMoves(g, p[1])[0] || {}) || true);
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

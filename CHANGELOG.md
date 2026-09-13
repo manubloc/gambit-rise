@@ -1,5 +1,21 @@
 # Changelog - Grand Gambit
 
+## 1.1.14
+- DIE SPUR DES LETZTEN ZUGES SAGT JETZT, WER ZOG UND WAS ER TAT
+  (Besitzeridee): "Wenn ich einen Zug ziehe, so leicht gelblich darstellen,
+  beim Gegner immer so leicht lila. Und wenn eine Faehigkeit kommt, dann die
+  Farbe, was es fuer eine Faehigkeit war - auch angedeutet in dem Schweif."
+  Bisher lag ueber jedem letzten Zug dieselbe goldene Spur, egal ob ich zog
+  oder der Gegner, egal ob ein Talent wirkte. Jetzt drei Auskuenfte in einer
+  Farbe: GOLD fuer eigene Zuege, RISS-VIOLETT fuer die des Gegners - und wenn
+  der Zug ein Talent verbraucht hat, dessen ARTFARBE aus der Chronik
+  (Bewegung blau, Fernkampf orange, Sprung violett, Zaehigkeit gruen ...),
+  dieselbe, die der Chip im Talentband traegt (v1.0.92). So erkennt man am
+  Brett, was eben geschah, ohne die Meldung gelesen zu haben.
+- Der Kern liefert beides schon: lastMove.color sagt, wer zog, lastMove.consumes,
+  welches Talent wirkte. Es musste nichts nachgezogen werden - die Auskunft
+  lag da und wurde nur nicht gezeigt.
+
 ## 1.1.13
 - DIE FAHRPROBE SPIELT JETZT WIRKLICH. Bis v1.1.12 endete sie an der
   Anmeldemaske und meldete trotzdem "KEINE FEHLER" - das war schlimmer als

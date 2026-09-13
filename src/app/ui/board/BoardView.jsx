@@ -581,11 +581,34 @@ export function BoardView({ state, onMove, interactive, lastMove, mattSeite = nu
           {rankLbl && <span style={{ position: "absolute", left: "5%", top: "4%", fontSize: "0.22em", fontWeight: 800,
             color: "#f0d68a", textShadow: "0 0 4px rgba(240,214,138,.55), 0 1px 1px rgba(0,0,0,.9)",
             opacity: 0.95, lineHeight: 1, pointerEvents: "none", userSelect: "none" }}>{rankLbl}</span>}
-          {isLast && <div style={{ position: "absolute", inset: 0, pointerEvents: "none",
-            background: i === lastMove.to
-              ? `radial-gradient(circle at 50% 52%, ${T.lime}59, ${T.lime}14 68%, transparent 78%)`
-              : `radial-gradient(circle at 50% 52%, ${T.gold}3d, transparent 66%)` }} />}
-          {isLast && i === lastMove.to && <div style={{ position: "absolute", inset: 0, boxShadow: `inset 0 0 0 2px ${T.gold}cc`, pointerEvents: "none" }} />}
+          {/* v1.1.14 (Besitzeridee): DIE SPUR SAGT, WER ZOG UND WAS ER TAT.
+              "Wenn ich einen Zug ziehe, so leicht gelblich darstellen, beim
+              Gegner immer so leicht lila. Und wenn eine Faehigkeit kommt, dann
+              die Farbe, was es fuer eine Faehigkeit war - auch angedeutet in
+              dem Schweif, den man noch sieht."
+
+              Bisher lag ueber jedem letzten Zug dieselbe goldene Spur, egal ob
+              ich zog oder der Gegner, egal ob ein Talent wirkte. Jetzt drei
+              Auskuenfte in einer Farbe: GOLD fuer meine Zuege, RISS-VIOLETT
+              fuer die des Gegners - und wenn der Zug ein Talent verbraucht
+              hat, dessen ARTFARBE aus der Chronik (Bewegung blau, Fernkampf
+              orange, Sprung violett, Zaehigkeit gruen ...), dieselbe, die der
+              Chip im Talentband traegt. So erkennt man am Brett, was eben
+              geschah, ohne die Meldung gelesen zu haben. */}
+          {isLast && (() => {
+            const talent = lastMove.consumes ? ABILITIES[lastMove.consumes] : null;
+            const tg = talent && TAGS[talent.tag];
+            const zogIch = lastMove.color ? lastMove.color === pov : true;
+            const ton = tg ? tg.color : zogIch ? T.gold : "#a78bfa";
+            return <>
+              <div style={{ position: "absolute", inset: 0, pointerEvents: "none",
+                background: i === lastMove.to
+                  ? `radial-gradient(circle at 50% 52%, ${ton}59, ${ton}14 68%, transparent 78%)`
+                  : `radial-gradient(circle at 50% 52%, ${ton}3d, transparent 66%)` }} />
+              {i === lastMove.to && <div style={{ position: "absolute", inset: 0,
+                boxShadow: `inset 0 0 0 2px ${ton}cc`, pointerEvents: "none" }} />}
+            </>;
+          })()}
           {isHit && <div key={`hit${lastMove.from}-${lastMove.to}`} style={{ position: "absolute", inset: 0, background: T.danger, animation: "hit .45s ease-out forwards" }} />}
           {isSel && <div style={{ position: "absolute", inset: 0, boxShadow: `inset 0 0 0 3px ${T.gold}`, background: `${T.gold}14` }} />}
           {isSpy && <div style={{ position: "absolute", inset: 0, boxShadow: "inset 0 0 0 3px #a78bfa", background: "rgba(167,139,250,.1)" }} />}
