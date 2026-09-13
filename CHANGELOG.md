@@ -1,5 +1,20 @@
 # Changelog - Grand Gambit
 
+## 1.1.15
+- DIE FIGURENWAHL IN DER AUFSTELLUNG IST EINE WISCHREIHE (Besitzerwunsch):
+  "Wenn man auf eine Figur drueckt, dass man dann unten in gross nach rechts
+  oder links sliden kann und die Figuren dort zieht, die man hinzufuegen kann.
+  Dann sieht man die Figuren in gross - und was sie potenziell fuer
+  Faehigkeiten haben." Vorher war es eine senkrechte Liste mit 52-px-Bildern:
+  viel Scrollen, kleine Figuren, und die Talente standen gar nicht da.
+- JETZT 108-PX-GEMAELDE in einer waagerechten Reihe, die auf die Karten
+  einrastet (scroll-snap), damit das Wischen aufhoert, wo eine Figur steht.
+- UND DIE TALENTE STEHEN DABEI - die ersten vier, in ihrer Artfarbe
+  (dieselbe wie im Talentband und in der Zugspur). Gefunden habe ich sie
+  nicht an der Figur, sondern in ihrer STUFENLEITER: c.ladder fuehrt, was auf
+  welcher Stufe erlernt wird. Eine Probe haelt fest, dass jede Figur dort
+  Talente hat - sonst waere die Reihe still leer geblieben.
+
 ## 1.1.14
 - DIE SPUR DES LETZTEN ZUGES SAGT JETZT, WER ZOG UND WAS ER TAT
   (Besitzeridee): "Wenn ich einen Zug ziehe, so leicht gelblich darstellen,

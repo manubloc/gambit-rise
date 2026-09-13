@@ -1151,22 +1151,62 @@ function FormationEditor({ profile, dispatch, t, en }) {
     )}
     {pick !== null && (
       <div ref={pickerRef} style={{ background: T.bg2, border: `1px solid ${T.line}`, borderRadius: 10, padding: 8, marginBottom: 10 }}>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 7 }}>
+        {/* v1.1.15 (Besitzerwunsch): DIE FIGURENWAHL IST EINE WISCHREIHE.
+            "Wenn man in der Aufstellung auf eine Figur drueckt, dass dann
+            unten in gross man nach rechts oder nach links sliden kann und die
+            Figuren dort zieht, die man hinzufuegen kann. Das waere von der
+            User Experience schoen, und dann sieht man noch die Figuren in
+            gross - und was sie potenziell fuer Faehigkeiten haben."
+
+            Vorher war es eine senkrechte Liste mit 52-px-Bildern: viel
+            Scrollen, kleine Figuren, und die Talente standen gar nicht da.
+            Jetzt eine waagerechte Reihe mit 108-px-Gemaelden, die man wischt -
+            mit Namen, Spruch UND den Talentzeichen in ihrer Artfarbe
+            (dieselbe wie im Talentband und in der Zugspur). Die Reihe
+            schnappt auf die Karten ein (scroll-snap), damit das Wischen
+            aufhoert, wo eine Figur steht. */}
+        <div style={{ display: "flex", gap: 10, overflowX: "auto", overflowY: "hidden",
+          scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch",
+          padding: "2px 2px 8px", margin: "0 -2px",
+          scrollbarWidth: "none", msOverflowStyle: "none" }}>
           {pieces.filter((c) => (pick === crown.queen
               ? c.id === "queen"          // her square: the queen or a boss (below)
               : c.id !== "queen" && c.id !== "king"))  // the crown never wanders
             .map((c) => {
             const on = draft[pick] === c.id;
+            /* Die Talente stehen nicht an der Figur, sondern in ihrer
+               STUFENLEITER (ladder) - dort, wo sie erlernt werden. Gezeigt
+               werden die ersten vier, in ihrer Artfarbe. Das ist die Auskunft,
+               die der Besitzer beim Waehlen sehen wollte: "was sie potenziell
+               auch fuer Faehigkeiten haben". */
+            const talente = (c.ladder || [])
+              .map((stufe) => stufe.ability && ABILITIES[stufe.ability])
+              .filter(Boolean).slice(0, 4);
             return <button key={c.id} onClick={() => setSlot(pick, c.id)}
-              style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 13px", borderRadius: 11, cursor: "pointer", fontFamily: "inherit",
-                width: "100%", textAlign: "left",
-                background: on ? T.lime : T.panel2, color: on ? T.limeInk : T.text, border: `1px solid ${on ? T.lime : T.line}` }}>
-              <SlotGlyph kind={c.kind} size={52} art={"painted"} />
-              <span style={{ minWidth: 0 }}>
-                <span style={{ display: "block", fontWeight: 800, fontSize: 14.5 }}>{en ? c.nameEn : c.nameDe}</span>
-                <span style={{ display: "block", fontSize: 12, lineHeight: 1.45, marginTop: 2,
-                  color: on ? T.limeInk : T.dim, fontStyle: "italic" }}>{en ? c.flavorEn : c.flavorDe}</span>
-              </span>
+              style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
+                padding: "9px 8px 10px", borderRadius: 13, cursor: "pointer", fontFamily: "inherit",
+                flex: "0 0 auto", width: 132, scrollSnapAlign: "center", textAlign: "center",
+                background: on ? T.lime : T.panel2, color: on ? T.limeInk : T.text,
+                border: `1.5px solid ${on ? T.lime : T.line}`,
+                boxShadow: on ? `0 0 12px ${T.lime}55` : "none" }}>
+              <SlotGlyph kind={c.kind} size={108} art={"painted"} />
+              <span style={{ display: "block", fontWeight: 800, fontSize: 13.5, lineHeight: 1.15 }}>{en ? c.nameEn : c.nameDe}</span>
+              {talente.length > 0 && (
+                <span style={{ display: "flex", gap: 3, flexWrap: "wrap", justifyContent: "center", marginTop: 1 }}>
+                  {talente.map((ab) => {
+                    const tg = TAGS[ab.tag];
+                    return <span key={ab.id} title={en ? ab.nameEn : ab.nameDe}
+                      style={{ fontSize: 10, lineHeight: 1, padding: "3px 5px", borderRadius: 6,
+                        background: tg ? tg.color + "2e" : "rgba(167,139,250,.18)",
+                        border: `1px solid ${tg ? tg.color + "88" : "rgba(167,139,250,.5)"}`,
+                        color: on ? T.limeInk : T.text }}>{ab.icon}</span>;
+                  })}
+                </span>
+              )}
+              <span style={{ display: "block", fontSize: 10.5, lineHeight: 1.35, marginTop: 1,
+                color: on ? T.limeInk : T.dim, fontStyle: "italic",
+                display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                {en ? c.flavorEn : c.flavorDe}</span>
             </button>;
           })}
         </div>

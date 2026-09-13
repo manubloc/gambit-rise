@@ -1263,6 +1263,24 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
       + (doppelt.length ? " - noch: " + doppelt.slice(0, 4).join(", ") : ""), doppelt.length === 0);
   }
 
+  /* v1.1.15: DIE FIGURENWAHL IST EINE WISCHREIHE (Besitzerwunsch): grosse
+     Gemaelde statt 52-px-Bildchen, waagerecht statt scrollende Liste, und mit
+     den Talenten, die die Figur lernen KANN. */
+  {
+    const as = readFileSync("src/app/ui/screens/ArmyScreen.jsx", "utf8");
+    ok("die Wahl ist eine waagerechte Reihe mit Einrasten",
+      as.includes('scrollSnapType: "x mandatory"') && as.includes('scrollSnapAlign: "center"'));
+    ok("die Figuren stehen gross (108 statt 52 px)", as.includes('<SlotGlyph kind={c.kind} size={108}'));
+    ok("und sie zeigen ihre Talente aus der Stufenleiter",
+      as.includes("(c.ladder || [])") && as.includes("stufe.ability && ABILITIES[stufe.ability]"));
+    ok("die Talente tragen ihre Artfarbe", as.includes("const tg = TAGS[ab.tag];") && as.includes("tg ? tg.color + \"2e\""));
+    /* und die Quelle muss wirklich etwas liefern - sonst ist die Reihe leer */
+    const { CHARACTER_LIST, ABILITIES } = await import("./src/content/index.js");
+    const ohne = CHARACTER_LIST.filter((c) => !(c.ladder || []).some((x) => x.ability && ABILITIES[x.ability]));
+    ok(`jede Figur hat Talente in ihrer Leiter (${CHARACTER_LIST.length - ohne.length}/${CHARACTER_LIST.length})`
+      + (ohne.length ? " - ohne: " + ohne.slice(0, 4).map((c) => c.id).join(",") : ""), ohne.length === 0);
+  }
+
   /* 2. Bauer und Grand Gambit tragen in der Aufstellung EIN Mass. */
   ok("kein getrenntes Mass mehr fuer Held und Bauer",
     !/isHero \? "clamp\(26px, 10\.5vw, 86px\)" : "clamp\(24px, 9\.4vw, 76px\)"/.test(q));
