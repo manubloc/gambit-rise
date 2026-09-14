@@ -6,7 +6,7 @@
 // burning after the spell was spent. These are RENDER truths, so they are
 // asserted on the actual server-rendered markup — not on props or intentions.
 import { renderToStaticMarkup as html } from "react-dom/server";
-import { PieceGlyph, StatTriad, StatOrbBadge } from "./src/app/ui/board/PieceGlyph.jsx";
+import { PieceGlyph, StatTriad, StatOrbBadge, ROHR_STATT_PERLEN } from "./src/app/ui/board/PieceGlyph.jsx";
 import { paintedForPiece, paintedFitFor } from "./src/app/ui/board/paintedArt.js";
 import { SperrGlyph } from "./src/app/ui/board/SperrGlyph.jsx";
 import { stadium, setzFelder, setzeSperre } from "./src/core/rules/sperren.js";
@@ -65,6 +65,18 @@ const piece = (x = {}) => ({ id: 1, kind: "Q", color: "w", level: 1, abilities: 
   ok("champion is scaled to queen format (within 6%)", Math.abs(fb.h - fq.h) / fq.h < 0.06);
 }
 
+/* ── DIE PERLENFASSUNG (bis v1.2.x) ───────────────────────────────────────
+   Seit v1.3.0 traegt jede Figur das LEBENSROHR statt zweier Zahlenperlen.
+   Die Perlen bleiben als Rueckfall im Code (ROHR_STATT_PERLEN), und die
+   Proben darauf bleiben ebenfalls - sie haben Echtes gehalten: dass der
+   Gegner seine Kugeln nicht verliert, dass beide dieselbe Schriftgroesse
+   tragen, dass die Zahl bei zweistelligen Werten mitschrumpft.
+
+   Sie laufen deshalb NUR, wenn der Schalter auf den Perlen steht. Einfach
+   loeschen waere falsch: sobald jemand zurueckschaltet, waere die Fassung
+   ungeprueft - und genau diese Luecke hat damals dazu gefuehrt, dass der
+   Gegner nackte Zahlen zeigte, ohne dass es jemandem auffiel. */
+if (!ROHR_STATT_PERLEN) {
 // ── 2. BOTH SIDES WEAR THEIR JEWELS ─────────────────────────────────────────
 // The enemy once showed bare numerals: the orb image failed to reach the page
 // and nobody noticed, because no test ever looked at the enemy's markup.
@@ -230,6 +242,7 @@ const erloschen = (m) => m.includes("#2f2a3d");
   ok("purely passive gifts promise no act",
     !star(html(<StatTriad piece={piece({ abilities: [passive] })} />)));
 }
+}   /* Ende der Perlenfassung */
 
 // ── 5. BADGES CARRY THEIR VALUE, DELTAS INCLUDED ────────────────────────────
 // "+1" is a value like any other — it must land inside the sphere, centred.
@@ -1297,6 +1310,23 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
     const ohne = CHARACTER_LIST.filter((c) => !(c.ladder || []).some((x) => x.ability && ABILITIES[x.ability]));
     ok(`jede Figur hat Talente in ihrer Leiter (${CHARACTER_LIST.length - ohne.length}/${CHARACTER_LIST.length})`
       + (ohne.length ? " - ohne: " + ohne.slice(0, 4).map((c) => c.id).join(",") : ""), ohne.length === 0);
+  }
+
+  /* v1.3.0: DAS LEBENSROHR ersetzt die beiden Zahlenperlen unter jeder
+     Figur. Besitzerbefund mit Screenshot: rund siebzig Perlen auf einem
+     Brett, bevor ueberhaupt etwas passiert ist. */
+  {
+    const pg = readFileSync("src/app/ui/board/PieceGlyph.jsx", "utf8");
+    const lr = readFileSync("src/app/ui/board/LebensRohr.jsx", "utf8");
+    ok("das Rohr steht als eigene Komponente", lr.includes("export default function LebensRohr"));
+    ok("es ist ein SVG mit gekruemmten Pfaden (CSS kann das nicht)",
+      lr.includes("<svg") && lr.includes("const bahn = (px, py, pb, ph)"));
+    ok("der Glanz folgt derselben Kruemmung wie das Rohr", lr.includes("const glanzBahn = "));
+    ok("die Fuellungen werden am Rohr beschnitten, schliessen also gerade ab",
+      lr.includes("clipPath") && lr.includes("<rect x={x0}"));
+    ok("die Figur benutzt es statt der Perlen",
+      pg.includes("if (ROHR_STATT_PERLEN)") && pg.includes("<LebensRohr lebenAnteil="));
+    ok("und es gibt den Schalter zurueck", pg.includes("export const ROHR_STATT_PERLEN"));
   }
 
   /* 2. Bauer und Grand Gambit tragen in der Aufstellung EIN Mass. */

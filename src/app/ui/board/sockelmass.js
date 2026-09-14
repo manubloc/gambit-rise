@@ -48,6 +48,29 @@ export const KANTE_MIN = 0.06, KANTE_MAX = 0.24, KANTE_FALLBACK = 0.12;
  *  eine Zeile Rundungszuschlag, Klemme [6 %, 24 %]. Figuren ohne messbare
  *  Tellerkante binnen der Zone (fliessende Roben) fallen auf konservative
  *  12 % - lieber zu wenig Anstrich als ein gefaerbter Saum. */
+/* ── SOCKELBREITE (v1.3.0, fuer das Lebensroehrchen) ───────────────────────
+   Das Roehrchen unter der Figur soll bei JEDER Figur gleich sitzen. Gemessen
+   an den gemalten Bildern sind die Sockel aber verschieden breit: Dame 93 %
+   der Figurenbreite, Turm 85 %, Springer 83 %, Laeufer 90 %. Ein festes Mass
+   passt deshalb immer nur einer Figur - genau das hat der Besitzer gesehen
+   ("Pferd ist super, alle anderen nicht").
+
+   Diese Funktion liefert die breiteste Stelle im unteren Fuenftel, als
+   Anteil der Bildbreite. Sie laeuft im selben Durchgang wie die
+   Kantenmessung, kostet also nichts extra. */
+export function messeSockelBreite({ width, height, data }) {
+  let best = 0;
+  for (let y = Math.floor(height * 0.78); y < height; y++) {
+    let links = -1, rechts = -1;
+    const zeile = y * width * 4;
+    for (let x = 0; x < width; x++) {
+      if (data[zeile + x * 4 + 3] > 140) { if (links < 0) links = x; rechts = x; }
+    }
+    if (links >= 0 && rechts - links + 1 > best) best = rechts - links + 1;
+  }
+  return best > 0 ? best / width : 0.88;      // Rueckfall: Mittel der Figuren
+}
+
 export function messeSockelKante({ width, height, data }) {
   const breite = new Array(height).fill(0);
   for (let y = 0; y < height; y++) {
@@ -79,6 +102,11 @@ export function messeSockelKante({ width, height, data }) {
 /* Laufzeit: einmal messen je URL, dann aus dem Speicher. sync abfragbar. */
 const KANTEN = new Map();
 export function sockelKanteAusCache(url) { return KANTEN.get(url); }
+
+/* v1.3.0: die gemessene Sockelbreite (Anteil der Bildbreite), sobald das Bild
+   einmal durch holeSockelKante gelaufen ist. Vorher der Mittelwert. */
+const BREITEN = new Map();
+export function sockelBreiteAusCache(url) { return BREITEN.get(url) ?? 0.88; }
 export function holeSockelKante(url) {
   if (KANTEN.has(url)) return Promise.resolve(KANTEN.get(url));
   return new Promise((fertig) => {
@@ -92,7 +120,9 @@ export function holeSockelKante(url) {
           c.width = w; c.height = h;
           const g = c.getContext("2d", { willReadFrequently: true });
           g.drawImage(im, 0, 0, w, h);
-          const kante = messeSockelKante(g.getImageData(0, 0, w, h));
+          const bild = g.getImageData(0, 0, w, h);
+          const kante = messeSockelKante(bild);
+          BREITEN.set(url, messeSockelBreite(bild));   // v1.3.0: im selben Durchgang
           KANTEN.set(url, kante); fertig(kante);
         } catch { KANTEN.set(url, KANTE_FALLBACK); fertig(KANTE_FALLBACK); }
       };

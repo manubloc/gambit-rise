@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from "react";
+import LebensRohr, { ROHR_BREITE_VOM_SOCKEL } from "./LebensRohr.jsx";
 import { ABILITIES, TAGS } from "../../../content/index.js";
 import { T } from "../theme.js";
 import { PieceArt } from "./PieceArt.jsx";
@@ -98,6 +99,52 @@ const NUM_FONT = "'Spectral', Georgia, serif";
 // TWO JEWELS UNDER EVERY FIGHTER: blue attack left, red life right — the same
 // diameter and the same engraved numerals the old strip carried, for both
 // sides alike (the figure itself tells friend from foe).
+/* ══ DAS LEBENSROHR STATT DER ZAHLENPERLEN (v1.3.0) ═══════════════════════
+   Besitzerbefund mit Screenshot: "Ein Screen wie hier ist schon ueberladen."
+   Gezaehlt: rund siebzig Perlen auf einem Brett, bevor ueberhaupt etwas
+   passiert ist - zwei je Figur, und in der Grundstellung sagen sie achtmal
+   dasselbe.
+
+   Das Rohr fasst beide Werte in EIN Bauteil: Rot von links (Leben), Blau von
+   rechts (Staerke), dazwischen dunkles Glas fuer das, was zur vollen
+   Ausbaustufe fehlt. Das Verhaeltnis zeigt das PROFIL der Figur, die
+   Gesamtfuellung ihre STUFE. Aus 70 Anzeigen werden 32, und jede sagt mehr
+   als vorher zwei.
+
+   ROHR_STATT_PERLEN ist der Schalter zurueck: eine Konstante, kein Umbau.
+   Die Perlen bleiben im Code, bis das Rohr sich am Geraet bewaehrt hat. */
+export const ROHR_STATT_PERLEN = true;
+
+/* Das Rohr braucht Pixel, die Figur rechnet in em. Diese Zahl ist die
+   Zellbreite in px - sie kommt aus der Schriftgroesse der Zelle, die das
+   Brett setzt. 40 ist der Rueckfall fuer Faelle ohne Messung. */
+const EM_PX = 40;
+
+/* Die Skalen, an denen die Fuellstaende haengen. Gemessen ueber alle Figuren
+   und Stufen 1 bis 20: Leben 2..48, Angriff 1..13. Der Koenig sprengt die
+   Lebensskala (48 gegen 28 bei allen anderen) - deshalb wird nicht am
+   absoluten Hoechstwert gemessen, sondern am VERHAELTNIS der beiden Werte
+   zueinander. Sonst waere auf Stufe 20 jedes Rohr voll und das Profil
+   unsichtbar (so war mein erster Anlauf, und der Besitzer hat es sofort
+   gesehen: "Du hast das jetzt gerade falsch rum gemacht"). */
+/* GEMESSEN statt geraten: bei 3,2 stand der Koenig auf 52 % Rot gegen 42 %
+   Blau - fast ausgeglichen, obwohl er 48 Leben und nur 12 Angriff hat. Das
+   Gewicht hob den Angriff zu stark an und loeschte damit genau das Profil,
+   das sichtbar werden soll. Bei 1,6 traegt der Koenig 67/27 und der
+   Attentaeter 38/56 - so unterscheiden sich die Figuren wirklich. */
+const KRAFT_GEWICHT = 1.6;
+const VOLL_BEI_STUFE = 20;
+
+export function rohrAnteile(piece) {
+  const hp = Math.max(0, piece.hp || 0);
+  const atk = Math.max(0, piece.atk || 0);
+  const summe = hp + atk * KRAFT_GEWICHT;
+  if (summe <= 0) return { leben: 0, kraft: 0 };
+  const stufe = Math.max(1, Math.min(VOLL_BEI_STUFE, piece.level || 1));
+  const voll = (stufe / VOLL_BEI_STUFE) * 0.94;     // bei Stufe 20 fast ganz
+  return { leben: voll * hp / summe, kraft: voll * atk * KRAFT_GEWICHT / summe };
+}
+
 function StatDuo({ piece, focus, shrink = 1 }) {
   const d = 0.405 * (focus ? 1.4 : 1) * shrink;  // orb diameter in em — a size up, numerals with it
   const gap = d * 0.045;                         // a hair apart — nearly kissing
@@ -127,6 +174,29 @@ function StatDuo({ piece, focus, shrink = 1 }) {
   const orb = (kind, v) => <span style={{ width: d + "em", height: d + "em", display: "grid", placeItems: "center" }}>
     <StatOrbBadge kind={kind} v={v} size={`${d}em`} num={0.58} />
   </span>;
+  /* v1.3.0: das Rohr ersetzt beide Perlen. Es misst sich an der Zellbreite
+     (17 %, gerechnet: bei 38-48 px Zelle sind das 6,5-8,2 px - unter 6 traegt
+     die Glasoptik nicht mehr). Die Breite folgt dem gemessenen Sockel. */
+  if (ROHR_STATT_PERLEN) {
+    const { leben, kraft } = rohrAnteile(piece);
+    /* GEMESSEN AM GERENDERTEN BRETT (Besitzerbefund "viel zu hoch, der Sockel
+       schaut unten raus"): bei bottom -0,02 em sass das Rohr auf der
+       Sockeloberkante und liess den Sockelfuss stehen. Es muss TIEFER - so
+       tief, dass es den Sockel verschluckt, wie in der Bildstrecke. */
+    return <span style={{ position: "absolute", bottom: "-0.085em", left: "50%",
+      transform: "translateX(-50%)", zIndex: 3, pointerEvents: "none", lineHeight: 0 }}>
+      {/* Die Masse rechnen in em, damit sie mit der Zelle wachsen: die Figur
+          ist 1 em breit, der Sockel nimmt davon rund 80 %, das Rohr 112 % des
+          Sockels. Die Hoehe sind 17 % der Zelle (gerechnet: 6,5-8,2 px auf
+          dem Telefon - unter 6 traegt die Glasoptik nicht). */}
+      <LebensRohr lebenAnteil={leben} kraftAnteil={kraft}
+        talentBereit={kannWirken && !verbraucht}
+        /* und SCHMALER: 0,80 em Sockelbreite war zu viel, weil die Figur die
+           Zelle schon fast fuellt - das Rohr ragte ueber den Rand. */
+        breite={ROHR_BREITE_VOM_SOCKEL * 0.52 * EM_PX}
+        hoehe={0.17 * EM_PX} />
+    </span>;
+  }
   return <span style={{ position: "absolute", bottom: "-0.09em", left: "50%", transform: "translateX(-50%)", zIndex: 3,
     display: "inline-flex", gap: gap + "em", pointerEvents: "none" }}>
     {/* v1.0.99 (Besitzer: "diese lila Bubbles fuer die Faehigkeit bitte mittig

@@ -1,5 +1,28 @@
 # Changelog - Grand Gambit
 
+## 1.3.0
+- DAS LEBENSROHR ERSETZT DIE ZAHLENPERLEN. Besitzerbefund mit Screenshot:
+  "Ein Screen wie hier ist schon ueberladen." Gezaehlt: rund siebzig Perlen
+  auf einem Brett, bevor ueberhaupt etwas passiert ist - zwei je Figur, und in
+  der Grundstellung sagen sie achtmal dasselbe.
+- EIN BAUTEIL, ZWEI WERTE, DREI AUSKUENFTE (Besitzeridee): Rot waechst von
+  links (Leben), Blau von rechts (Staerke), dazwischen bleibt dunkles Glas.
+  Das VERHAELTNIS zeigt das Profil der Figur, die GESAMTFUELLUNG ihre Stufe.
+  Ein Koenig traegt 67 % Rot zu 27 % Blau, ein Attentaeter 38 zu 56.
+- GEMESSEN STATT GERATEN, an mehreren Stellen: das Kraftgewicht stand zuerst
+  auf 3,2 und liess den Koenig bei 52/42 fast ausgeglichen aussehen - bei 1,6
+  treten die Profile hervor. Die Rohrhoehe aus der Bildstrecke (9,2 % der
+  Zelle) waere auf dem Telefon nur 3,5-4,4 px gewesen; 17 % ergibt 6,5-8,2 px,
+  darunter traegt die Glasoptik nicht. Der Reif stand auf 11 % wie in den
+  Bildern, wirkte im SVG aber doppelt so dick (dort weichgezeichnet, hier
+  scharf) - 6 % trifft die Wirkung.
+- ALS SVG, weil das Rohr GEKRUEMMT ist: es nimmt die Woelbung des Sockels auf,
+  und ein div mit border-radius kann sich nicht biegen. Glanz und Bodenreflex
+  folgen derselben Kurve - ein gerader Streifen ueber einem gebogenen Rohr sah
+  aus wie aufgeklebt.
+- DIE PERLENFASSUNG BLEIBT als Rueckfall (ROHR_STATT_PERLEN), und ihre zehn
+  Proben bleiben mit ihr - sie laufen, wenn der Schalter umgelegt wird.
+
 ## 1.2.3
 - DIE SPERREN SITZEN VERTIKAL MITTIG (Besitzer: "Mauer und Zaun und Bollwerk
   bitte vertikal mittig ausrichten, sauber ausrichten"). Sie standen am
