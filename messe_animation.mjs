@@ -108,8 +108,16 @@ const mass = await page.evaluate(async () => {
   const flugEltern = flieger ? (() => { let e = flieger, kette = [];
     for (let i = 0; i < 6 && e; i++) {
       const cs = getComputedStyle(e);
+      /* v1.4.8: die dritte Ebene traegt keine Klasse - deshalb blieb sie
+         namenlos. Jetzt kommen Merkmale dazu, die sie IDENTIFIZIERBAR machen:
+         Groesse, Position im Elternteil und die ersten Stilangaben. Damit
+         laesst sie sich im Quelltext wiederfinden. */
       const kl = (typeof e.className === "string" ? e.className : "").trim().split(/\s+/).filter(Boolean).slice(0,2).join(".");
-      const wer = e.tagName.toLowerCase() + (kl ? "." + kl : "");
+      const r = e.getBoundingClientRect();
+      const stil = (e.getAttribute("style") || "").slice(0, 70);
+      const wer = e.tagName.toLowerCase() + (kl ? "." + kl : "")
+        + ` {${Math.round(r.width)}x${Math.round(r.height)}}`
+        + (stil ? ` style="${stil}"` : "");
       /* WELCHE Animation laeuft hier? Das ist die eigentliche Frage - eine
          Matrix sagt nur das Ergebnis, der Name sagt die Ursache. */
       const anim = cs.animationName && cs.animationName !== "none" ? cs.animationName : "";
@@ -191,7 +199,35 @@ else {
    NAECHSTER SCHRITT: die Quelle der 0,787 finden. Sie steht nicht als Zahl im
    Code, wird also gerechnet - vermutlich ein Ausgleich zwischen Zellmass und
    Figurenmass, der nur waehrend des Flugs greift. */
-/* ══ DRITTE MESSUNG (v1.4.7): DIE ANIMATION HEISST "pop" ══════════════════
+/* ══ VIERTE MESSUNG (v1.4.8): ES IST NICHT DER FLIEGER ═══════════════════
+   Die dritte Ebene traegt keine Klasse - deshalb blieb sie namenlos. Mit
+   Groesse und Stilangaben ist sie eindeutig:
+
+     div {34x34} style="position: relative; width: 1em; height: 1em;
+                        display: flex; flex-direc..." [pop]: matrix(0.6, ...)
+
+   Das ist die aeussere Huelle in PieceGlyph (Zeile 567). Und jetzt kommt der
+   Punkt, der alles dreht: DIESE Huelle bekommt in Zeile 597
+   \`animation: fliegt ? "none" : ...\`. Wenn die Messung dort trotzdem pop
+   findet, ist \`fliegt\` bei diesem Element FALSE.
+
+   Das gemessene Element ist also NICHT der fliegende Zwilling. Es ist die
+   Figur in der ZIELZELLE, die waehrend des Flugs erscheint - mit pop, also
+   von 60 % aufwaerts. Wer auf das Zielfeld schaut, sieht eine Figur
+   heranwachsen, waehrend die fliegende darueber ankommt; im Moment des
+   Austauschs springt der Rest.
+
+   DIE LOESUNG IST IM CODE SCHON ANGELEGT (Zeile 601):
+     zuletzt ? "... ggLandung ..." : "pop .18s ease"
+   Eine Figur, die gerade geflogen ist, soll LANDEN statt zu poppen - genau
+   dafuer gibt es \`zuletzt\`. Bei der gemessenen Figur ist das Merkmal
+   offenbar nicht gesetzt, wenn die Zelle neu zeichnet.
+
+   NAECHSTER SCHRITT: pruefen, wann \`zuletzt\` gesetzt wird und warum es beim
+   Ankommen fehlt. Der Fix ist dann klein - aber er gehoert an DIESE Stelle
+   und nicht an die Animation selbst.
+
+   ══ DRITTE MESSUNG (v1.4.7): DIE ANIMATION HEISST "pop" ══════════════════
    Mit Elementnamen UND Animationsnamen in der Kette steht die Quelle fest:
 
      img: -
