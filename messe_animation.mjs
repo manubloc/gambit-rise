@@ -102,6 +102,9 @@ const mass = await page.evaluate(async () => {
       tf: cs.transform.slice(0, 44), anim: cs.animationName };
   };
   const imFlug = daten(flieger);
+  /* v1.4.6: MIT HERKUNFT. Die blosse Transform-Kette sagt, DASS skaliert
+     wird - nicht, von welchem Element. Jetzt steht Tag, Klasse und Kennung
+     dabei, damit die 0,787 einen Namen bekommt. */
   const flugEltern = flieger ? (() => { let e = flieger, kette = [];
     for (let i = 0; i < 5 && e; i++) { const cs = getComputedStyle(e);
       kette.push(cs.transform === "none" ? "-" : cs.transform.slice(0,30)); e = e.parentElement; }
@@ -181,7 +184,23 @@ else {
    NAECHSTER SCHRITT: die Quelle der 0,787 finden. Sie steht nicht als Zahl im
    Code, wird also gerechnet - vermutlich ein Ausgleich zwischen Zellmass und
    Figurenmass, der nur waehrend des Flugs greift. */
-console.log("  Transform-Kette im Flug:  ", JSON.stringify(mass.flugEltern));
+/* ── ZWEITE MESSUNG (v1.4.6): ES IST EINE LAUFENDE ANIMATION ──────────────
+   Der erste Lauf zeigte 0,787 auf der dritten Ebene, der zweite 0,905 - der
+   Wert AENDERT SICH zwischen zwei Messungen an derselben Stelle. Damit ist
+   klar: es ist keine feste Skalierung, sondern eine laufende, und die Figur
+   wird ausgetauscht, BEVOR sie bei 1,0 angekommen ist. Der Sprung ist der
+   Rest, der noch fehlt.
+
+   AUSGESCHLOSSEN: ggLeapArc. Die geht von scale(1) ueber 1,18 zurueck auf
+   scale(1) - sie endet sauber und wird nie kleiner als 1. Die gemessenen
+   0,787 bis 0,905 kommen von woanders.
+
+   NAECHSTER SCHRITT: die dritte Ebene benennen. Die Kette gibt bisher nur
+   Matrizen aus, keine Elemente - dafuer muss der Messcode Tag und Klasse
+   mitschreiben. Erst dann weiss man, WER da skaliert. */
+console.log("  Kette mit Herkunft (Flug):");
+for (const z of (mass.flugEltern||[])) console.log("     ", z);
+console.log("  Kette roh (Flug):  ", JSON.stringify(mass.flugEltern));
 console.log("  Transform-Kette gelandet: ", JSON.stringify(mass.gelEltern));
 console.log(fehler.length ? "  Seitenfehler: " + fehler.join(" | ") : "  keine Seitenfehler");
 await browser.close(); srv.close();
