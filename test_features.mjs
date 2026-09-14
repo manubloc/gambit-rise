@@ -481,5 +481,21 @@ import { readFileSync as _liesD } from "node:fs";
   ok("it says how many were set aside", /beiseitegelegt/.test(kammer));
 }
 
+console.log("\n== DER NAME MUSS EINMALIG SEIN (Besitzerfrage v1.4.3) ==");
+{
+  const { nameVergeben, freierName, normName } = await import("./src/meta/accounts.js");
+  const liste = [{ id: "a", name: "Corvin" }, { id: "b", name: "Vesna" }, { id: "c", name: "Corvin 2" }];
+  ok("ein vergebener Name wird erkannt", nameVergeben(liste, "Corvin"));
+  /* Ohne Normalisierung waere "  corvin " ein neuer Name - und im
+     Hofwert-Vergleich staenden zwei Spieler, die gleich heissen. */
+  ok("auch in anderer Schreibweise und mit Leerraum", nameVergeben(liste, "  CORVIN "));
+  ok("ein freier Name bleibt frei", !nameVergeben(liste, "Kaspar"));
+  ok("der Vorschlag weicht auf die naechste freie Zahl aus",
+    freierName(liste, "Corvin") === "Corvin 3");
+  ok("und laesst einen freien Namen unveraendert", freierName(liste, "Kaspar") === "Kaspar");
+  ok("die eigene Kennung zaehlt nicht als Kollision",
+    !nameVergeben(liste, "Corvin", "a"));
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

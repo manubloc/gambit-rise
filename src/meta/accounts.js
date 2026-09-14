@@ -120,12 +120,43 @@ export async function ensureAccounts() {
   return list;
 }
 
+/* ── DER NAME MUSS EINMALIG SEIN (v1.4.3, Besitzerfrage) ──────────────────
+   "Bei der Namensgebung muss man ja sicherstellen, dass es den Namen nur
+   einmal gibt. Machst du da wirklich einen Datenbankabgleich?"
+
+   Die ehrliche Antwort war NEIN: geprueft wurde nur die E-Mail. Zwei Spieler
+   konnten denselben Namen tragen - im Hofwert-Vergleich und spaeter beim
+   Online-Spiel waere das ein echtes Problem, weil man Gegner am Namen
+   erkennt.
+
+   Verglichen wird ohne Ruecksicht auf Gross-/Kleinschreibung und Leerraum,
+   damit "Corvin" und "corvin " nicht als zwei Namen durchgehen. */
+export const normName = (n) => String(n || "").trim().toLowerCase().replace(/\s+/g, " ");
+
+export function nameVergeben(list, name, ausserId = null) {
+  const n = normName(name);
+  if (!n) return false;
+  return list.some((a) => a && a.id !== ausserId && normName(a.name) === n);
+}
+
+/** Ein freier Name aus einem Vorschlag: haengt bei Bedarf eine Zahl an. */
+export function freierName(list, vorschlag, ausserId = null) {
+  const basis = String(vorschlag || "").trim() || "Spieler";
+  if (!nameVergeben(list, basis, ausserId)) return basis;
+  for (let i = 2; i < 999; i++) {
+    const k = `${basis} ${i}`;
+    if (!nameVergeben(list, k, ausserId)) return k;
+  }
+  return `${basis} ${Date.now() % 10000}`;
+}
+
 export async function register(email, pass, name) {
   const e = normEmail(email);
   if (!validEmail(e)) throw new Error("invalid-email");
   if (!pass || pass.length < 6) throw new Error("weak-pass");
   const list = await ensureAccounts();
   if (findAccount(list, e)) throw new Error("exists");
+  if (name && nameVergeben(list, name)) throw new Error("name-taken");
   const acc = await mkAccount({ email: e, pass, name });
   list.push(acc); await writeList(list);
   await setSession(acc.id);
@@ -181,7 +212,15 @@ export async function loginGuest() {
 export async function upsertCloudAccount({ email, name, provider, isAdmin }) {
   const list = await ensureAccounts();
   let acc = findAccount(list, email);
-  if (!acc) { acc = await mkAccount({ email, pass: null, name, provider }); list.push(acc); }
+  /* v1.4.3: auch ueber Google/Apple darf kein Name doppelt entstehen. Wer
+     ueber einen Anbieter kommt, bringt meist seinen Klarnamen mit - und
+     "Michael Schmidt" gibt es mehr als einmal. Statt die Anmeldung zu
+     verweigern (der Spieler kann nichts dafuer) bekommt er einen freien
+     Namen mit Zahl; aendern kann er ihn im Profil. */
+  if (!acc) {
+    const frei = freierName(list, name || String(email || "").split("@")[0]);
+    acc = await mkAccount({ email, pass: null, name: frei, provider }); list.push(acc);
+  }
   acc.provider = provider; acc.isAdmin = acc.isAdmin || !!isAdmin;
   await writeList(list); await setSession(acc.id);
   return acc;

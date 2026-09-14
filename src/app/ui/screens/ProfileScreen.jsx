@@ -620,8 +620,14 @@ function KontoLoeschen({ t, account, onLogout }) {
     <div style={{ display: "flex", gap: 8 }}>
       <Button kind="ghost" onClick={() => { setOffen(false); setPass(""); setStand(null); }} style={{ flex: 1 }}>{t("profile.delBack")}</Button>
       <button onClick={los} disabled={stand === "laeuft" || (brauchtPass && !pass)}
-        style={{ flex: 1, padding: "10px 12px", borderRadius: 10, border: "1px solid rgba(168,130,255,.5)",
-          background: "linear-gradient(165deg, #3a2a62, #241a3e)", color: "#cbb6ff",
+        /* v1.4.3 (Besitzerbefund: "Warum ist der Knopf 'Konto endgueltig
+           loeschen' so komisch von der Farbgebung?"): ER TRUG VIOLETT - die
+           Farbe der Riss-Magie, die im ganzen Spiel fuer Zauber und
+           Fortschritt steht. Ausgerechnet der Knopf, der alles ungeschehen
+           macht, sah aus wie eine Belohnung. Jetzt gedaempftes Rot: warnend,
+           aber nicht schreiend - er soll erkennbar sein, nicht anziehend. */
+        style={{ flex: 1, padding: "10px 12px", borderRadius: 10, border: "1px solid rgba(214,92,104,.55)",
+          background: "linear-gradient(165deg, #52202a, #34141c)", color: "#f0b8bf",
           fontFamily: "inherit", fontWeight: 800, fontSize: 13, cursor: "pointer",
           opacity: stand === "laeuft" || (brauchtPass && !pass) ? 0.55 : 1 }}>
         {stand === "laeuft" ? t("profile.delLaeuft") : t("profile.delGo")}

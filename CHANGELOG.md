@@ -1,5 +1,21 @@
 # Changelog - Grand Gambit
 
+## 1.4.3
+- DER SPIELERNAME IST JETZT EINMALIG. Besitzerfrage: "Machst du da wirklich
+  einen Datenbankabgleich?" Die ehrliche Antwort war NEIN - geprueft wurde nur
+  die E-Mail, zwei Spieler konnten denselben Namen tragen. Beim Hofwert-
+  Vergleich und spaeter online waere das ein echtes Problem, weil man Gegner am
+  Namen erkennt. Verglichen wird ohne Ruecksicht auf Gross-/Kleinschreibung
+  und Leerraum ("Corvin" und "  corvin " sind derselbe Name).
+- WER UEBER GOOGLE KOMMT, bekommt bei Kollision einen freien Namen mit Zahl
+  statt einer abgelehnten Anmeldung - er bringt seinen Klarnamen mit und kann
+  nichts dafuer, dass es "Michael Schmidt" mehrfach gibt.
+- DER LOESCH-KNOPF WARNT JETZT (Besitzerbefund: "Warum ist der Knopf so
+  komisch von der Farbgebung?"). Er trug VIOLETT - die Farbe der Riss-Magie,
+  die im ganzen Spiel fuer Zauber und Fortschritt steht. Ausgerechnet der
+  Knopf, der alles ungeschehen macht, sah aus wie eine Belohnung. Jetzt
+  gedaempftes Rot: erkennbar, aber nicht anziehend.
+
 ## 1.4.2
 - DIE HOFSTAAT-KACHEL IST FERTIG: Stufenkreis oben rechts (Gold, geprägt, mit
   geometrisch zentrierter Ziffer), Lebensrohr unter der Figur, Name,
