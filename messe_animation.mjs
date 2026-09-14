@@ -163,6 +163,24 @@ else {
   console.log(`  SPRUNG: dx ${dx} px, dy ${dy} px`);
   console.log("  Ergebnis:", Math.abs(dx) <= 2 && Math.abs(dy) <= 2 ? "OK - kein sichtbarer Versatz" : "VERSATZ - die Figur springt beim Setzen");
 }
+/* ── DER GEMESSENE BEFUND (v1.4.5) ────────────────────────────────────────
+   Besitzer: "Insbesondere beim Ziehen von den Figuren ist immer dieser kurze
+   Versatz manchmal vorhanden, das ist total doof."
+
+   GEMESSEN, und der Versatz ist NICHT die Position: dx -0,1 px, dy -0,7 px -
+   das sieht kein Auge. Der Sprung steckt in der GROESSE. Die Transform-Kette
+   zeigt im Flug ein matrix(0.787308, ...) - die fliegende Figur ist auf
+   78,7 % verkleinert -, und gelandet fehlt dieser Faktor. Die Figur waechst
+   also im letzten Moment um ein Viertel.
+
+   Das erklaert auch das "manchmal": es faellt nur auf, wenn man auf die Figur
+   schaut statt aufs Zielfeld, und bei grossen Figuren staerker als bei
+   kleinen. Wer die Position misst, findet nichts - deshalb lag ich mit
+   frueheren Anlaeufen daneben.
+
+   NAECHSTER SCHRITT: die Quelle der 0,787 finden. Sie steht nicht als Zahl im
+   Code, wird also gerechnet - vermutlich ein Ausgleich zwischen Zellmass und
+   Figurenmass, der nur waehrend des Flugs greift. */
 console.log("  Transform-Kette im Flug:  ", JSON.stringify(mass.flugEltern));
 console.log("  Transform-Kette gelandet: ", JSON.stringify(mass.gelEltern));
 console.log(fehler.length ? "  Seitenfehler: " + fehler.join(" | ") : "  keine Seitenfehler");
