@@ -193,8 +193,12 @@ function StatDuo({ piece, focus, shrink = 1 }) {
         talentBereit={kannWirken && !verbraucht}
         /* und SCHMALER: 0,80 em Sockelbreite war zu viel, weil die Figur die
            Zelle schon fast fuellt - das Rohr ragte ueber den Rand. */
-        breite={ROHR_BREITE_VOM_SOCKEL * 0.52 * EM_PX}
-        hoehe={0.17 * EM_PX}
+        /* v1.5.1: in em statt in festen Pixeln - 1 em ist am Brett die
+           Zellbreite, also waechst das Rohr mit jedem Brett mit. Breiter und
+           hoeher als zuvor (Besitzer: "viel zu klein, muss viel hoeher sein,
+           ich will den Sockel nicht mehr sehen"). */
+        breite={`${(ROHR_BREITE_VOM_SOCKEL * 0.68).toFixed(3)}em`}
+        hoehe={`${(0.155).toFixed(3)}em`}
         /* AM BRETT gekruemmt - hier steht die Figur auf ihrem Sockel, und das
            Rohr nimmt dessen Woelbung auf. Ueberall sonst gilt die gerade
            Voreinstellung. */

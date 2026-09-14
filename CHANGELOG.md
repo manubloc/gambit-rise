@@ -1,5 +1,17 @@
 # Changelog - Grand Gambit
 
+## 1.5.1
+- DIE LEBENSROHRE WAREN VIEL ZU KLEIN (Besitzerbefund mit Screenshot). Die
+  Aufrufstelle uebergab FESTE Pixel, gerechnet mit EM_PX = 40 - also 23 px
+  Breite, immer, egal wie gross die Zelle ist. Auf einem Brett mit
+  128-px-Zellen sind das 18 % statt der vereinbarten 58 %; das Rohr haette
+  2,6-mal so breit sein muessen.
+- DER FEHLER WAR DIE EINHEIT. Das SVG rechnet intern weiter in eigenen
+  Koordinaten, aber die Aussengroesse steht jetzt in em - und 1 em ist am
+  Brett genau die Zellbreite. So passt es auf jedem Geraet und in jeder
+  Brettgroesse, ohne dass jemand eine Zahl nachfuehrt. Dazu breiter (68 %
+  statt 52 % des Sockelmasses) und hoeher.
+
 ## 1.5.0
 - JEDES TALENT FAERBT SEINE ZUSATZFELDER IM ZUGDIAGRAMM (Besitzerwunsch, "das
   waere das i-Tuepfelchen"). Vorher trugen ALLE Zusatzfelder dasselbe Gruen -

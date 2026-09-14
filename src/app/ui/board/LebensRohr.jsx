@@ -84,8 +84,23 @@ export default function LebensRohr({
   kruemmung = 0,
 }) {
   const id = React.useMemo(() => "lr" + (++zaehler), []);
-  const B = Math.max(12, Math.round(breite));
-  const H = Math.max(4, Math.round(hoehe));
+  /* ── DAS ROHR WAECHST MIT DER ZELLE (v1.5.1, Besitzerbefund) ─────────────
+     "Die HP-Roehrchen im Spiel sind ja viel zu klein. Die musst du auf die
+     Groesse des Sockels anpassen, ich moechte den Sockel nicht mehr sehen,
+     und die muss viel hoeher sein."
+
+     GEMESSEN UND GERECHNET: die Aufrufstelle uebergab feste Pixel, gerechnet
+     mit EM_PX = 40 - also 23 px Breite, immer, egal wie gross die Zelle ist.
+     Auf einem Brett mit 128-px-Zellen sind das 18 % statt der vereinbarten
+     58 %; das Rohr muesste 2,6-mal so breit sein.
+
+     Der Fehler war die Einheit. Das SVG rechnet intern weiter in seinen
+     eigenen Koordinaten (viewBox), aber die AUSSENGROESSE steht jetzt in em -
+     und 1 em ist am Brett genau die Zellbreite. So passt es auf jedem Geraet
+     und in jeder Brettgroesse, ohne dass jemand eine Zahl nachfuehrt. */
+  const inEm = typeof breite === "string" && breite.endsWith("em");
+  const B = inEm ? 100 : Math.max(12, Math.round(breite));
+  const H = inEm ? Math.round(100 * (parseFloat(hoehe) / parseFloat(breite))) : Math.max(4, Math.round(hoehe));
   const r = H / 2;
   const senk = H * kruemmung;
   /* GELERNT BEIM VERGLEICH MIT DER BILDSTRECKE: dort waren es 11 % der
@@ -146,7 +161,9 @@ export default function LebensRohr({
   const perleY = y0 + H * PERLE_TIEFE + senk * 0.55;
 
   return (
-    <svg className={className} width={VB_W} height={VB_H} viewBox={`0 0 ${VB_W} ${VB_H}`}
+    <svg className={className}
+      width={inEm ? breite : VB_W} height={inEm ? `calc(${breite} * ${VB_H / VB_W})` : VB_H}
+      viewBox={`0 0 ${VB_W} ${VB_H}`}
       style={{ display: "block", pointerEvents: "none", overflow: "visible", ...(style || {}) }}
       aria-hidden focusable="false">
       <defs>
