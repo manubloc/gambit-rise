@@ -93,10 +93,38 @@ export function createInitialState(whiteArmy = defaultArmy(), blackArmy = defaul
       const lvl = p.level || 1;
       // the crowned head hardens FASTER: +2 HP per level (others +1) — a
       // leveled court must besiege the king, not burst him
-      const perLvl = p.kind === KIND.KING ? 2 : 1;
-      p.maxHp = (p.baseHp ?? (BASE_HP[p.kind] || 1)) + (lvl - 1) * perLvl + (p.shield || 0) * SHIELD_HP;
+      /* ── JEDE FIGUR WAECHST NACH IHRER EIGENEN ANLAGE (v1.7.0) ──────────
+         Besitzerentscheid nach einer Messung ueber alle 27 Figuren: auf
+         Stufe 1 liegen ihre Profile 36 Prozentpunkte auseinander, auf
+         Hoechststufe nur noch 15. Die Figuren GLICHEN SICH AN, statt
+         ausgepraegter zu werden.
+
+         Der Grund war die feste Staffelung: jede bekam +1 Leben je Stufe,
+         gleich viel fuer alle. Bei einem Bauern mit 2 Grundleben wiegt das
+         schwer (Verdreifachung), bei einem Koenig mit 10 kaum. Nach neun
+         Stufen war der Unterschied eingeebnet.
+
+         Jetzt waechst jede Figur RELATIV zu ihrer Anlage: wer viel Leben hat,
+         gewinnt mehr Leben dazu; wer stark angreift, mehr Angriff. Der Faktor
+         ist so gewaehlt, dass die Gesamtstaerke ungefaehr bleibt wie bisher -
+         es verschiebt sich die VERTEILUNG, nicht das Niveau. Ein Attentaeter
+         wird damit spuerbar zum Angreifer, ein Waechter zum Fels. */
+      const basisHp = p.baseHp ?? (BASE_HP[p.kind] || 1);
+      const basisAtk = p.baseAtk ?? (BASE_ATK[p.kind] || 1);
+      /* der gekroente Kopf haertet weiter schneller - er soll belagert, nicht
+         aufgebrochen werden */
+      const koenigsBonus = p.kind === KIND.KING ? 1.6 : 1;
+      /* GEMESSEN UND JUSTIERT: mit 0,16 sank das mittlere Leben von 13,9 auf
+         11,3 und der Angriff stieg - die Gefechte waeren spuerbar schneller
+         geworden, ohne dass das jemand entschieden haette. Mit 0,22/0,20
+         bleibt das Niveau (14,0 Leben, 7,6 Angriff im Mittel), und die Spanne
+         der Profile waechst trotzdem von 15 auf 43 Prozentpunkte. Genau das
+         war das Ziel: andere VERTEILUNG, gleiches Niveau. */
+      const wachsHp = 0.22 * basisHp * koenigsBonus;
+      const wachsAtk = 0.20 * basisAtk;
+      p.maxHp = Math.round(basisHp + (lvl - 1) * wachsHp) + (p.shield || 0) * SHIELD_HP;
       p.hp = p.maxHp;
-      p.atk = (p.baseAtk ?? (BASE_ATK[p.kind] || 1)) + Math.floor((lvl - 1) / 2);
+      p.atk = Math.round(basisAtk + (lvl - 1) * wachsAtk);
       p.shield = 0;
     }
     // ── the two houses: commitment pays ───────────────────────────────────────

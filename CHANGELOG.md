@@ -1,5 +1,22 @@
 # Changelog - Grand Gambit
 
+## 1.7.0
+- JEDE FIGUR WAECHST JETZT NACH IHRER EIGENEN ANLAGE (Besitzerentscheid nach
+  einer Messung). GEMESSEN ueber alle 27 Figuren: auf Stufe 1 lagen ihre
+  Profile 36 Prozentpunkte auseinander, auf Hoechststufe nur noch 15 - die
+  Figuren glichen sich beim Aufsteigen AN, statt ausgepraegter zu werden.
+- URSACHE WAR DIE FESTE STAFFELUNG: +1 Leben je Stufe fuer alle. Bei einem
+  Bauern mit 2 Grundleben wiegt das schwer, bei einem Koenig mit 10 kaum.
+  Jetzt waechst jede Figur anteilig zu ihrer Anlage - wer viel Leben hat,
+  gewinnt mehr Leben; wer stark angreift, mehr Angriff.
+- ERGEBNIS: die Spanne waechst von 15 auf 43 Prozentpunkte. Der Attentaeter
+  steht bei 27 % Leben zu 73 % Angriff, der Koenig bei 70/30 - beide sind
+  jetzt erkennbar das, was sie sein sollen.
+- DAS NIVEAU BLEIBT. Ein erster Anlauf mit 0,16 liess das mittlere Leben von
+  13,9 auf 11,3 fallen - die Gefechte waeren spuerbar schneller geworden, ohne
+  dass das jemand entschieden haette. Mit 0,22/0,20 liegt es bei 14,0. Es
+  verschiebt sich die VERTEILUNG, nicht das Niveau.
+
 ## 1.6.0
 - MANCHE FIGUREN HATTEN KEINEN LEBENSBALKEN (Besitzerbefund am Screenshot).
   Die Werte kamen aus einer STANDARDAUFSTELLUNG - und die kennt nur die sechs

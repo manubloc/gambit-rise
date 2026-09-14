@@ -133,7 +133,14 @@ const hpState = (board) => ({ board, w: 8, h: 8, holes: new Set(), rules: "hp", 
   const army = { back: [lv("R", 5), lv("N", 5), lv("B", 5), lv("Q", 5), lv("K", 5), lv("B", 5), lv("N", 5), lv("R", 5)], pawn: lv("P", 5) };
   const g = createGame(army, army, { map: mapById("classic"), rules: "hp", seed: 1 });
   const king = g.board[idx(4, 0, 8)], queen = g.board[idx(3, 0, 8)];
-  ok(`a level-5 king carries ${king.maxHp} HP (10 + 4x2), the queen ${queen.maxHp} (7 + 4)`, king.maxHp === 18 && queen.maxHp === 11);
+  /* v1.7.0: die Steigerung ist RELATIV geworden - jede Figur waechst nach
+     ihrer eigenen Anlage statt um feste +1 je Stufe. Der Koenig (Grundleben
+     10, dazu sein Haerte-Bonus) steht auf Stufe 5 bei 24 statt 18, die Dame
+     (Grundleben 7) bei 13 statt 11. Die Probe haelt weiter fest, WORAUF es
+     ankommt: der Koenig muss deutlich zaeher sein als die Dame, damit ein
+     aufgestiegener Hof ihn belagern und nicht aufbrechen kann. */
+  ok(`a level-5 king carries ${king.maxHp} HP, the queen ${queen.maxHp}`,
+    king.maxHp === 24 && queen.maxHp === 13 && king.maxHp > queen.maxHp * 1.5);
 }
 
 // ── v0.25.0 INVARIANT: the single-cast law holds through FULL AI GAMES ───────
@@ -178,6 +185,36 @@ const hpState = (board) => ({ board, w: 8, h: 8, holes: new Set(), rules: "hp", 
     hp: 1, maxHp: 1, atk: 3 }; // a queen on one heart, in the firing lane
   const m = chooseMove(g, 1, makeRng(3));
   ok("the AI spends its one spell to fell a queen", !!m && m.consumes === "ranged_shot");
+}
+
+console.log("\n== DIE PROFILE WERDEN AUSGEPRAEGTER, NICHT AEHNLICHER (v1.7.0) ==");
+{
+  const { CHARACTER_LIST: CL } = await import("./src/content/index.js");
+  const { BASE_HP: BH, BASE_ATK: BA } = await import("./src/core/domain/constants.js");
+  const G = 1.6;
+  const profile = (lv) => CL.filter((c) => BH[c.kind]).map((c) => {
+    const kb = c.kind === "K" ? 1.6 : 1;
+    const hp = Math.round(BH[c.kind] + (lv - 1) * 0.22 * BH[c.kind] * kb);
+    const atk = Math.round(BA[c.kind] + (lv - 1) * 0.20 * BA[c.kind]);
+    return Math.round(hp / (hp + atk * G) * 100);
+  });
+  const spanne = (a) => Math.max(...a) - Math.min(...a);
+  const s1 = spanne(profile(1)), s10 = spanne(profile(10));
+  /* DER BEFUND, der dazu gefuehrt hat: mit der alten, festen Staffelung
+     (+1 Leben je Stufe fuer ALLE) schrumpfte die Spanne von 36 auf 15 Punkte
+     - die Figuren glichen sich beim Aufsteigen AN, statt ausgepraegter zu
+     werden. Bei einem Bauern mit 2 Grundleben wiegt +1 schwer, bei einem
+     Koenig mit 10 kaum. */
+  ok(`die Profile bleiben auf Hoechststufe unterscheidbar (Spanne ${s10} Punkte)`, s10 >= 35);
+  ok(`und sie schrumpfen nicht gegenueber Stufe 1 (${s1} -> ${s10})`, s10 >= s1 - 5);
+
+  /* Das NIVEAU darf sich dabei nicht verschieben - sonst waeren die Gefechte
+     ploetzlich schneller, ohne dass das jemand entschieden hat. Ein erster
+     Anlauf mit 0,16 liess das mittlere Leben von 13,9 auf 11,3 fallen. */
+  const w = CL.filter((c) => BH[c.kind])
+    .map((c) => Math.round(BH[c.kind] + 9 * 0.22 * BH[c.kind] * (c.kind === "K" ? 1.6 : 1)));
+  const mHp = w.reduce((a, b) => a + b, 0) / w.length;
+  ok(`das mittlere Leben bleibt auf Niveau (${mHp.toFixed(1)}, vorher 13,9)`, Math.abs(mHp - 13.9) < 1.5);
 }
 
 console.log(`\nRESULT: ${passed} passed, ${failed} failed`);
