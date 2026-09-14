@@ -1,5 +1,17 @@
 # Changelog - Grand Gambit
 
+## 1.4.1
+- SECHZEHN HQ-FASSUNGEN EINGEORDNET (vom Besitzer nachgeliefert): die sechs
+  Gambit-Stufen und alle neun Sperren-Zustaende (Zaun, Mauer, Bergfried, je
+  heil bis Schutt). Die Luecke faellt von 17 auf 10.
+- DIE ZUORDNUNG LIEF UEBER BILDVERGLEICH, nicht ueber Vermutung: jedes
+  hochgeladene Bild wurde gegen alle 69 Live-Fassungen gemessen. Fuenfzehn von
+  sechzehn waren eindeutig - der Abstand zum zweitbesten Treffer lag bei
+  mindestens 0,02, meist deutlich darueber (zaun-schutt 0,067 gegen 0,144).
+  Das sechzehnte (eine Gambit-Variante mit orangem Helmband) liegt als
+  gambit-t4-variante bei, weil t4 bereits eindeutig belegt war.
+- Offen bleiben zehn: sieben Boss-Bilder, der Haendler und zwei Bauernstufen.
+
 ## 1.4.0
 - JEDES TALENT HAT EINE EIGENE FARBE (Besitzerwunsch, "das i-Tuepfelchen").
   Die Artfarbe allein reichte nicht: der Springer traegt drei Bewegungstalente,

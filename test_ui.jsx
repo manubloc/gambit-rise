@@ -1362,7 +1362,12 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
     const hq = new Set(readdirSync("archiv/bilder/figuren-hq")
       .filter((f) => f.endsWith(".png")).map((f) => f.slice(0, -4)));
     const ohne = live.filter((n) => !hq.has(n));
-    const BEKANNT = 16;   /* Stand bei Einfuehrung der Probe; Schatzkammer nachgetragen */
+    /* Stand nach dem Nachliefern durch den Besitzer (v1.4.1): von 17 auf 10.
+       Die sechs Gambit-Stufen und alle neun Sperren sind eingeordnet - die
+       Zuordnung lief ueber Bildvergleich gegen die Live-Fassungen, jede
+       einzelne eindeutig (Abstand zum zweitbesten Treffer mindestens 0,02).
+       Offen bleiben sieben Boss-Bilder, der Haendler und zwei Bauernstufen. */
+    const BEKANNT = 10;
     ok(`nicht MEHR Bilder ohne HQ-Fassung als bekannt (${ohne.length} von ${live.length}${
       ohne.length > BEKANNT ? " - NEU OHNE HQ: " + ohne.slice(0, 6).join(", ") : ""})`,
       ohne.length <= BEKANNT);
