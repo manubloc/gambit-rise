@@ -1404,6 +1404,29 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
       t.length > 0 && new Set(farben).size === t.length);
   }
 
+  /* v1.6.0: JEDE Figur bekommt ihre Werte, das Rohr ist auf der Hoechststufe
+     VOLL, und die Kachel traegt Lila statt Gold. */
+  {
+    const as3 = readFileSync("src/app/ui/screens/ArmyScreen.jsx", "utf8");
+    const pg3 = readFileSync("src/app/ui/board/PieceGlyph.jsx", "utf8");
+    /* Der Fehler war: die Werte kamen aus einer Standardaufstellung, und die
+       kennt nur sechs Arten. Magier, Barde, Paladin fielen durch. */
+    ok("die Werte kommen aus den Grundzahlen, nicht aus einer Aufstellung",
+      as3.includes("const hp0 = BASE_HP[ch.kind], atk0 = BASE_ATK[ch.kind]"));
+    ok("das Rohr misst sich an der EIGENEN Hoechststufe der Figur",
+      pg3.includes("const maxLv = Math.max(2, piece.maxLevel || VOLL_BEI_STUFE)")
+      && pg3.includes("const voll = stufe / maxLv;"));
+    ok("der Stufenkreis traegt Lila auf Schwarz", as3.includes('border: "1px solid rgba(167,139,250,.75)"'));
+    ok("der Erfahrungsbalken ist fort", !as3.includes("xpAnteil.hat}/{xpAnteil.kosten}"));
+    /* und gerechnet: auf der Hoechststufe bleibt kein Schwarz */
+    const { rohrAnteile } = await import("./src/app/ui/board/PieceGlyph.jsx");
+    const voll = rohrAnteile({ hp: 24, atk: 9, level: 20, maxLevel: 20 });
+    const summe = voll.leben + voll.kraft;
+    ok(`auf der Hoechststufe ist das Rohr voll (${Math.round(summe * 100)} %)`, summe > 0.995);
+    const halb = rohrAnteile({ hp: 14, atk: 6, level: 10, maxLevel: 20 });
+    ok("auf halber Stufe ist es halb voll", Math.abs((halb.leben + halb.kraft) - 0.5) < 0.02);
+  }
+
   /* 2. Bauer und Grand Gambit tragen in der Aufstellung EIN Mass. */
   ok("kein getrenntes Mass mehr fuer Held und Bauer",
     !/isHero \? "clamp\(26px, 10\.5vw, 86px\)" : "clamp\(24px, 9\.4vw, 76px\)"/.test(q));

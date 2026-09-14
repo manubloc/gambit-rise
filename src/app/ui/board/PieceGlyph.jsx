@@ -140,8 +140,23 @@ export function rohrAnteile(piece) {
   const atk = Math.max(0, piece.atk || 0);
   const summe = hp + atk * KRAFT_GEWICHT;
   if (summe <= 0) return { leben: 0, kraft: 0 };
-  const stufe = Math.max(1, Math.min(VOLL_BEI_STUFE, piece.level || 1));
-  const voll = (stufe / VOLL_BEI_STUFE) * 0.94;     // bei Stufe 20 fast ganz
+  /* ── AUF DER HOECHSTEN STUFE IST DAS ROHR VOLL (v1.6.0, Besitzerentscheid)
+     "In der letzten Stufe sollte jede Figur kein Schwarz mehr haben, sodass
+     man auf der hoechsten Stufe einfach entweder mehr Leben oder mehr Angriff
+     hat. So ist dann auch ein Gleichgewicht im ganzen Spiel gegeben."
+
+     Vorher lief die Fuellung gegen 94 % bei Stufe 20 - ein Rest blieb immer,
+     und bei Figuren mit niedrigerer Hoechststufe noch mehr. Jetzt gilt die
+     EIGENE Hoechststufe der Figur als Massstab: wer ausgereizt ist, ist voll,
+     ob das bei 10 oder bei 20 liegt.
+
+     Das ist auch die schluessigere Aussage. Ein voll ausgebauter Bauer und
+     eine voll ausgebaute Dame sind beide "fertig" - sie unterscheiden sich
+     dann nur noch im VERHAELTNIS von Rot zu Blau, also im Profil. Genau das
+     soll das Rohr zeigen. */
+  const maxLv = Math.max(2, piece.maxLevel || VOLL_BEI_STUFE);
+  const stufe = Math.max(1, Math.min(maxLv, piece.level || 1));
+  const voll = stufe / maxLv;
   return { leben: voll * hp / summe, kraft: voll * atk * KRAFT_GEWICHT / summe };
 }
 

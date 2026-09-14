@@ -1,5 +1,26 @@
 # Changelog - Grand Gambit
 
+## 1.6.0
+- MANCHE FIGUREN HATTEN KEINEN LEBENSBALKEN (Besitzerbefund am Screenshot).
+  Die Werte kamen aus einer STANDARDAUFSTELLUNG - und die kennt nur die sechs
+  Grundarten. Magier, Barde, Paladin, Schildtraeger und Spaeher haben eigene
+  Arten, standen in keiner Aufstellung und fielen durch. Jetzt wird direkt aus
+  BASE_HP/BASE_ATK gerechnet, so wie das Spiel selbst es tut.
+- AUF DER HOECHSTEN STUFE IST DAS ROHR VOLL (Besitzerentscheid): "In der
+  letzten Stufe sollte jede Figur kein Schwarz mehr haben." Vorher lief die
+  Fuellung gegen 94 %, und bei Figuren mit niedrigerer Hoechststufe blieb noch
+  mehr uebrig. Jetzt gilt die EIGENE Hoechststufe als Massstab - wer ausgereizt
+  ist, ist voll, ob das bei 10 oder bei 20 liegt. Gemessen: 100 %.
+- DER STUFENKREIS TRAEGT LILA (Besitzerentscheid: "gehen wir doch auf das lila
+  Design"): dunkler Grund, leuchtende Riss-Kontur, helle Ziffer. Kein Gold
+  mehr.
+- DER ERFAHRUNGSBALKEN IST FORT. Besitzer: "Es macht gar keinen Sinn - die
+  Schritte sind zu klein, ich kann fast schon mit einem Schritt aufleveln." Er
+  hat recht, und es war mein Denkfehler: Stufen kosten Skillpunkte aus einem
+  gemeinsamen Vorrat, da gibt es keinen Fortschritt, nur "reicht" oder "reicht
+  nicht".
+- Das Rohr auf der Kachel ist groesser und rechnet in em, waechst also mit.
+
 ## 1.5.1
 - DIE LEBENSROHRE WAREN VIEL ZU KLEIN (Besitzerbefund mit Screenshot). Die
   Aufrufstelle uebergab FESTE Pixel, gerechnet mit EM_PX = 40 - also 23 px

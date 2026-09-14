@@ -1676,29 +1676,28 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
      boss-ID, dann erst die Art. */
   /* v1.4.0: was die Kachel an Werten zeigt. Die Anteile rechnen wie am Brett
      (rohrAnteile), damit dieselbe Figur ueberall dasselbe Bild ergibt. */
-  /* GEMESSEN: buildArmyFrom liefert Figuren OHNE Lebenswerte - die entstehen
-     erst, wenn eine HP-Partie sie aufstellt. Deshalb wird hier einmal je
-     Stufe eine solche Partie gebaut und ihre Werte gemerkt; das kostet beim
-     ersten Aufruf etwas und danach nichts mehr. */
-  const WERTE_CACHE = useRef(new Map());
-  const werteFuerStufe = (lv) => {
-    const c = WERTE_CACHE.current;
-    if (c.has(lv)) return c.get(lv);
-    let m = {};
-    try {
-      const ar = buildArmyFromFormation(() => lv, defaultFormation(mapById("classic")));
-      const g = createGame(ar, ar, { rules: "hp" });
-      for (const p of g.board) if (p && p.color === "w" && p.maxHp && !m[p.kind]) m[p.kind] = { hp: p.maxHp, atk: p.atk };
-    } catch { m = {}; }
-    c.set(lv, m);
-    return m;
-  };
+  /* ── DIE WERTE DIREKT AUS DEN GRUNDZAHLEN (v1.6.0) ───────────────────────
+     Besitzerbefund am Screenshot: "Warum haben manche Figuren jetzt so einen
+     Lebensbalken und andere nicht?"
+
+     GEFUNDEN: ich habe die Werte aus einer STANDARDAUFSTELLUNG geholt - und
+     die kennt nur die sechs Grundarten (P, N, B, R, Q, K). Magier (E), Barde
+     (J), Paladin (U), Schildtraeger und Spaeher haben eigene Arten, standen
+     in keiner Aufstellung und fielen deshalb durch. Sie bekamen kein Rohr.
+
+     Jetzt wird direkt gerechnet, aus BASE_HP/BASE_ATK und der Stufe - so wie
+     das Spiel selbst es tut (leveling.js: hp = basis + (stufe - 1)). Damit
+     bekommt JEDE Figur ihre Werte, auch eine, die nie in einer Grundstellung
+     steht. */
   const kachelWerte = (cid) => {
     const ch = CHARACTERS[cid]; if (!ch) return null;
     const lv = characterLevel(profile, cid) || 1;
-    const w = werteFuerStufe(lv)[ch.kind];
-    if (!w) return null;
-    return rohrAnteile({ hp: w.hp, atk: w.atk, level: lv });
+    const hp0 = BASE_HP[ch.kind], atk0 = BASE_ATK[ch.kind];
+    if (!hp0 || !atk0) return null;
+    /* dieselbe Staffelung wie im Kern: Leben je Stufe +1, Angriff alle drei */
+    const hp = hp0 + (lv - 1);
+    const atk = atk0 + Math.floor((lv - 1) / 3);
+    return rohrAnteile({ hp, atk, level: lv, maxLevel: maxLevelFor(cid) });
   };
   /* Wie weit bis zur naechsten Stufe? Aus den Skillpunkten, die sie kostet. */
   /* Es gibt keine Erfahrungspunkte JE FIGUR - Stufen kosten Skillpunkte aus
@@ -1790,7 +1789,10 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
           Es erscheint nur, wenn die Figur ueberhaupt Werte hat. */}
       {!dark && werte && <div style={{ lineHeight: 0, display: "flex", justifyContent: "center", marginTop: 2 }}>
         <LebensRohr lebenAnteil={werte.leben} kraftAnteil={werte.kraft}
-          talentBereit={false} breite={78} hoehe={7} />
+          /* v1.6.0: groesser (Besitzer: "der Balken kann auch noch hoeher und
+             groesser sein an der Stelle") - jetzt in em, damit er mit der
+             Kachel waechst statt fest zu stehen. */
+          talentBereit={false} breite="5.2em" hoehe="0.62em" />
       </div>}
       <div className="gg-quill" style={{ fontSize: 12.5, marginTop: 5, color: dark ? T.faint : glow ? T.goldBright : T.text,
         whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{name}</div>
@@ -1802,28 +1804,27 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
           dominant-baseline central - jeder Versuch mit line-height sass
           daneben, weil Georgias Ziffern Unterlaenge haben. */}
       {stufe != null && <div data-stufe={String(stufe)} style={{ position: "absolute", top: 5, right: 5, width: 21, height: 21, zIndex: 4,
-        borderRadius: "50%", background: "linear-gradient(180deg,#f8e4a4,#c9a45c)",
-        border: "0.5px solid rgba(122,94,40,.7)",
-        boxShadow: "0 1px 3px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.45)" }}>
+        /* v1.6.0 (Besitzerentscheid: "gehen wir doch auf das lila Design -
+           die Stufenanzeige in diesem leuchtenden Lila und dann einfach mit
+           schwarzem Hintergrund"): der Kreis ist jetzt dunkel mit leuchtender
+           Lila-Kontur statt Goldpraegung. Nicht animiert, aber mit Schein -
+           dieselbe Riss-Farbe wie ueberall im Haus. */
+        borderRadius: "50%", background: "radial-gradient(circle at 50% 40%, #241a3e, #120c22)",
+        border: "1px solid rgba(167,139,250,.75)",
+        boxShadow: "0 0 8px rgba(124,58,237,.5), inset 0 0 6px rgba(124,58,237,.25)" }}>
         <svg width="21" height="21" viewBox="0 0 21 21" style={{ display: "block" }}>
           <text x="10.5" y="11.1" textAnchor="middle" dominantBaseline="central"
-            style={{ font: "600 10.5px Georgia, serif", fill: "#3a2a08" }}>{stufe}</text>
+            style={{ font: "600 10.5px Georgia, serif", fill: "#d8c4ff" }}>{stufe}</text>
         </svg>
       </div>}
-      {/* Erfahrungsbalken: wie weit bis zur naechsten Stufe */}
-      {xpAnteil != null && <>
-        <div style={{ height: 3, borderRadius: 3, background: "rgba(255,255,255,.09)",
-          margin: "5px 3px 0", overflow: "hidden" }}>
-          <div style={{ height: "100%", width: `${Math.round(xpAnteil.anteil * 100)}%`, borderRadius: 3,
-            background: "linear-gradient(90deg,#c9a45c,#f0d890)" }} /></div>
-        {/* v1.4.0 (Besitzer: "den Erfahrungsbalken unten bitte nicht die Zahl
-            noch so gross hinschreiben, einfach rechts hinten orientiert
-            einfach nur irgendwie 200/1000 XP"): rechtsbuendig, klein, als
-            Bruch statt als Prozentsatz. Ein Bruch sagt beides auf einmal -
-            wie weit man ist UND wie weit es noch ist. */}
-        <div style={{ fontSize: 8, color: T.faint, marginTop: 2, textAlign: "right",
-          paddingRight: 3, letterSpacing: ".01em" }}>{xpAnteil.hat}/{xpAnteil.kosten} SP</div>
-      </>}
+      {/* v1.6.0: DER ERFAHRUNGSBALKEN IST FORT (Besitzerentscheid). Es macht
+          gar keinen Sinn, diesen zu haben - im Endeffekt sind die Schritte zu
+          klein, ich kann ja fast schon mit einem Schritt aufleveln.
+
+          Er hat recht, und das war mein Denkfehler: ich habe ihn als
+          Fortschrittsanzeige gebaut, aber Stufen kosten Skillpunkte aus einem
+          gemeinsamen Vorrat - da gibt es keinen Fortschritt, nur reicht oder
+          reicht nicht. Eine Anzeige, die fast immer voll ist, sagt nichts. */}
       {origin && <div className="gg-serif" style={{ fontSize: 9, letterSpacing: ".1em", marginTop: 1,
         color: T.dim, textTransform: "uppercase", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{origin}</div>}
       {action}
