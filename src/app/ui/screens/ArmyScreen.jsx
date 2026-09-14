@@ -9,6 +9,7 @@ import { SP_SHARD_GOLD, SP_VAULT_MIN_CLEARED, spShardCap, bossLevelOf, bossUpgra
 import { CHARACTER_LIST, CHARACTERS, ABILITIES, TAGS, SPERRGRUND, faehigkeitZustand, MAPS, mapById, ITEM_LIST, bossById, BOSSES, ITEMS, itemPrice } from "../../../content/index.js";
 import LebensRohr from "../board/LebensRohr.jsx";
 import { rohrAnteile } from "../board/PieceGlyph.jsx";
+import { talentFarbe } from "../../../content/abilities.js";
 import { BASE_HP, BASE_ATK, SHIELD_HP, createGame, familyOf, crownHp, crownWallSoak, shadowRifts, shadowAtk } from "../../../core/index.js";
 import {
   characterLevel, resolveCharacter, isUnlocked, upgradeCost, canUpgrade, maxLevelFor, gambitTier, clearedCount,
@@ -280,7 +281,7 @@ const ABILITY_MOVE = {
 /* v1.1.17: das Diagramm nimmt jetzt eine Breite entgegen. In der Wischreihe
    der Aufstellung steht es in einer 132-px-Karte; die feste Breite von
    min(150px, 52vw) haette sie gesprengt. */
-export function MoveDiagram({ kind, moveSpec, extra = null, breite = null }) {
+export function MoveDiagram({ kind, moveSpec, extra = null, breite = null, talente = null }) {
   const sp = specForKind(kind, moveSpec);
   // DER GROSSE DRACHE (Besitzer, v0.72.3): er ist KEIN einzelnes Feld - er
   // deckt 2x2 und schiebt diesen Block um ein Feld in die vier Richtungen.
@@ -302,6 +303,23 @@ export function MoveDiagram({ kind, moveSpec, extra = null, breite = null }) {
   // ability squares glow green, ON TOP of the base pattern
   if (extra) for (const [df, dr] of extra.leaps || [])
     if (Math.abs(df) <= R && Math.abs(dr) <= R) reach.set(`${df},${dr}`, "extra");
+  /* ── JEDES TALENT IN SEINER FARBE (v1.5.0, Besitzerwunsch) ────────────────
+     "Besser waere sogar, wenn jede Faehigkeit eine eigene Farbe bekommt,
+     sodass ich sofort sehe, welche Faehigkeit welche Zuege ermoeglicht."
+
+     Bisher trugen ALLE Zusatzfelder dasselbe Gruen - man sah, DASS ein Talent
+     etwas hinzufuegt, nicht WELCHES. Jetzt bekommt jedes seine Farbe aus
+     talentFarbe() (die Art gibt den Ton, die Stellung unter den Geschwistern
+     die Nuance), und das Feld merkt sich, von wem es stammt.
+
+     Reihenfolge ist Absicht: das ZULETZT eingetragene Talent gewinnt ein
+     Feld, das zwei Talente erreichen. Sonst gaebe es Mischfarben, die zu
+     keinem Zeichen unter der Karte passen. */
+  for (const t of (talente || [])) {
+    const spec = ABILITY_MOVE[t]; if (!spec) continue;
+    for (const [df, dr] of spec.leaps || [])
+      if (Math.abs(df) <= R && Math.abs(dr) <= R) reach.set(`${df},${dr}`, "t:" + t);
+  }
   // Der Block sitzt auf (0,0) und (1,0) sowie (0,1) und (1,1).
   const blockFelder = grossDrache ? [[0, 0], [1, 0], [0, 1], [1, 1]] : [[0, 0]];
   if (grossDrache) {
@@ -338,6 +356,7 @@ export function MoveDiagram({ kind, moveSpec, extra = null, breite = null }) {
       background: c.here ? "linear-gradient(160deg,#e7c877,#b1863c)"
         : c.mark === "slide" ? "rgba(74,163,232,.42)"
         : c.mark === "leap" ? "rgba(233,197,63,.5)"
+        : c.mark && c.mark.startsWith("t:") ? talentFarbe(c.mark.slice(2)) + "d0"
         : c.mark === "extra" ? "rgba(62,224,137,.62)"
         : c.light ? "rgba(255,255,255,.05)" : "rgba(255,255,255,.02)",
       boxShadow: c.here ? "0 0 5px rgba(231,200,119,.7)" : c.mark === "extra" ? "inset 0 0 0 1px rgba(120,255,180,.5)" : c.mark ? "inset 0 0 0 1px rgba(255,255,255,.18)" : "none" }}>
@@ -404,7 +423,11 @@ export function ChroniclePanel({ profile, t, en, account = null }) {
           <div>
             <div className="gg-serif" style={{ fontSize: 10.5, letterSpacing: ".12em", color: "#c9b26a", marginBottom: 3 }}>{t("chron.moves").toUpperCase()}</div>
             <div style={{ fontSize: 12.5, lineHeight: 1.55, color: "#ddd6bd", marginBottom: 7 }}>{describeMoves(ch, en)}</div>
-            <MoveDiagram kind={ch.kind} moveSpec={ch.moveSpec} />
+            {/* v1.5.0: die Talente der Figur faerben ihre Zusatzfelder. So
+                sieht man ohne Antippen, welche Faehigkeit welche Zuege
+                eroeffnet - der Wunsch des Besitzers. */}
+            <MoveDiagram kind={ch.kind} moveSpec={ch.moveSpec}
+              talente={(ch.ladder || []).map((x) => x.ability).filter(Boolean)} />
             <div style={{ fontSize: 10, color: "#8a856f", marginTop: 4, fontStyle: "italic" }}>{en ? MOVE_LEGEND.en : MOVE_LEGEND.de}</div>
           </div>
           {rungs.length > 0 && <div>

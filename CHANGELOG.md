@@ -1,5 +1,15 @@
 # Changelog - Grand Gambit
 
+## 1.5.0
+- JEDES TALENT FAERBT SEINE ZUSATZFELDER IM ZUGDIAGRAMM (Besitzerwunsch, "das
+  waere das i-Tuepfelchen"). Vorher trugen ALLE Zusatzfelder dasselbe Gruen -
+  man sah, DASS ein Talent etwas hinzufuegt, nicht WELCHES. Jetzt bekommt
+  jedes seine Farbe aus talentFarbe(), und das Feld merkt sich, von wem es
+  stammt. Der Springer zeigt damit fuenf Talente in fuenf Farben.
+- Ueberschneiden sich zwei Talente auf einem Feld, gewinnt das zuletzt
+  eingetragene - Mischfarben wuerden zu keinem Zeichen unter der Karte
+  passen.
+
 ## 1.4.9
 - DER VERSATZ BEIM ZIEHEN IST WEG - nach vier Messungen. Der Besitzer sah
   "beim Ziehen einen kurzen Versatz, manchmal". Gemessen war es KEIN Versatz

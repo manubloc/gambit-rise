@@ -1383,6 +1383,27 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
     ok(`beide Kopfleisten haben einen Verlauf (${verlaeufe} gefunden)`, verlaeufe >= 2);
   }
 
+  /* v1.5.0: JEDES TALENT FAERBT SEINE ZUSATZFELDER (Besitzerwunsch, "das
+     i-Tuepfelchen"). Vorher trugen alle dasselbe Gruen - man sah, DASS ein
+     Talent etwas hinzufuegt, nicht WELCHES. */
+  {
+    const as2 = readFileSync("src/app/ui/screens/ArmyScreen.jsx", "utf8");
+    ok("das Diagramm nimmt eine Talentliste entgegen", as2.includes("talente = null }) {"));
+    ok("und merkt sich je Feld, von welchem Talent es stammt",
+      as2.includes('reach.set(`${df},${dr}`, "t:" + t)'));
+    ok("die Faerbung holt die Farbe des Talents",
+      as2.includes('talentFarbe(c.mark.slice(2))'));
+    ok("die Figurenkarte reicht ihre Stufenleiter durch",
+      as2.includes("talente={(ch.ladder || []).map((x) => x.ability).filter(Boolean)}"));
+    /* und die Quelle muss liefern: jedes Talent eine unterscheidbare Farbe */
+    const { CHARACTERS: CH } = await import("./src/content/index.js");
+    const { talentFarbe } = await import("./src/content/abilities.js");
+    const t = (CH.knight.ladder || []).map((x) => x.ability).filter(Boolean);
+    const farben = t.map(talentFarbe);
+    ok(`der Springer hat ${t.length} Talente mit ${new Set(farben).size} Farben`,
+      t.length > 0 && new Set(farben).size === t.length);
+  }
+
   /* 2. Bauer und Grand Gambit tragen in der Aufstellung EIN Mass. */
   ok("kein getrenntes Mass mehr fuer Held und Bauer",
     !/isHero \? "clamp\(26px, 10\.5vw, 86px\)" : "clamp\(24px, 9\.4vw, 76px\)"/.test(q));
