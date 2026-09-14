@@ -3,7 +3,10 @@ import {
   createGame, legalMoves, legalMovesFrom,
   reduce, moveCommand, resignCommand, EVENT,
   encodeState, decodeState, replay,
+  applyMove,
 } from "./src/core/index.js";
+import { buildArmyFromFormation, defaultFormation } from "./src/meta/index.js";
+import { mapById } from "./src/content/index.js";
 
 let pass = 0, fail = 0;
 const ok = (name, cond) => { if (cond) { pass++; console.log("  ok  -", name); } else { fail++; console.log(" FAIL -", name); } };
@@ -80,6 +83,49 @@ ok("replay reproduces move count", rebuilt.moveCount === live.moveCount);
 // the game logic addresses squares by index, so position+kind is what must match.
 const sig = (b) => JSON.stringify(b.map((p) => p && { k: p.kind, c: p.color, l: p.level, s: p.shield, a: p.abilities, u: p.used, m: p.hasMoved }));
 ok("replay reproduces the board exactly", sig(rebuilt.board) === sig(live.board));
+
+console.log("\n== DIE DREI SCHACH-SONDERZUEGE (v1.8.0) ==");
+{
+  const ar2 = () => buildArmyFromFormation(() => 1, defaultFormation(mapById("classic")));
+  const ix2 = (f, r) => r * 8 + f;
+
+  /* ROCHADE. Wichtig beim Pruefen: die Grundreihe dieses Spiels ist NICHT die
+     klassische - sie lautet R N N B Q K B N, der Koenig steht auf Feld 5 und
+     der einzige Turm auf 0. Ein erster Anlauf erwartete auf Feld 7 einen Turm
+     (dort steht ein Springer) und meldete faelschlich "Rochade fehlt". */
+  {
+    const g = createGame(ar2(), ar2(), { rules: "chess", map: mapById("classic") });
+    const kf = g.board.findIndex((p) => p && p.kind === "K" && p.color === "w");
+    const tf = [...Array(8).keys()].filter((f) => g.board[f] && g.board[f].kind === "R");
+    for (const t of tf) { const [a2, b2] = [Math.min(kf, t), Math.max(kf, t)];
+      for (let i = a2 + 1; i < b2; i++) g.board[i] = null; }
+    const roch = legalMovesFrom(g, kf).filter((m2) => m2.special === "castle");
+    ok(`die Rochade ist moeglich, wenn der Weg frei ist (${roch.length} Seite)`, roch.length >= 1);
+  }
+
+  /* EN PASSANT haengt am lastMove: nur direkt nach einem gegnerischen
+     Doppelschritt - deshalb muss die Probe erst einen spielen. */
+  {
+    let g = createGame(ar2(), ar2(), { rules: "chess", map: mapById("classic") });
+    g.board[ix2(4, 4)] = g.board[ix2(4, 1)]; g.board[ix2(4, 1)] = null;
+    g.turn = "b";
+    const dop = legalMovesFrom(g, ix2(3, 6)).find((m2) => m2.to === ix2(3, 4));
+    ok("ein Bauer darf zwei Felder ziehen", !!dop && !!dop.double);
+    if (dop) {
+      g = applyMove(g, dop);
+      const ep = legalMovesFrom(g, ix2(4, 4)).find((m2) => m2.special === "enpassant");
+      ok("und wird danach en passant schlagbar", !!ep);
+    }
+  }
+
+  /* UMWANDLUNG auf der letzten Reihe. */
+  {
+    const g = createGame(ar2(), ar2(), { rules: "chess", map: mapById("classic") });
+    g.board[ix2(0, 6)] = g.board[ix2(0, 1)]; g.board[ix2(0, 1)] = null; g.board[ix2(0, 7)] = null;
+    const um = legalMovesFrom(g, ix2(0, 6)).filter((m2) => m2.promotion);
+    ok(`ein Bauer wandelt sich auf der letzten Reihe (${um.length} Ziele)`, um.length >= 1);
+  }
+}
 
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
