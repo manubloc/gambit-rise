@@ -792,7 +792,20 @@ export default function App() {
       {leaveTo && <LeaveMatchAsk t={t} resumable={!!match && !pvp}
         onStay={() => setLeaveTo(null)}
         onLeave={() => { setPvp(null); setMatch(null); setQuick(null); setDailyGame(null); setTab(leaveTo); setView("hub"); setLeaveTo(null); }} />}
-      {!immersive && (
+      {/* ── DER VERLAUF NACH OBEN (v1.4.4, Besitzerbefund) ────────────────────
+            "Der schwarze Verlauf zur Leiste nach oben fehlt immer noch, da ist
+            immer so eine komische Kante, das sieht super haesslich aus."
+
+            GEFUNDEN: es gibt ZWEI Kopfleisten in der App. Die eine (aside,
+            Hauptmenue) hat ihren Verlauf seit je - die hier nicht. Der Inhalt
+            scrollte also mit harter Kante dahinter durch, waehrend er unten
+            sauber ins Schwarze lief. Derselbe Verlauf wie beim Zwilling,
+            damit beide Leisten gleich aussehen. */}
+      {!immersive && (<>
+        <div aria-hidden style={{ position: "sticky", top: 0, zIndex: 6, width: "100vw",
+          marginLeft: "calc(50% - 50vw)", marginRight: "calc(50% - 50vw)", marginBottom: -74,
+          height: 74, pointerEvents: "none",
+          background: `linear-gradient(180deg, ${T.bg} 0%, ${T.bg} 34%, ${T.bg}d8 62%, ${T.bg}00 100%)` }} />
         <header data-gg-leiste="oben" style={{ position: "sticky", top: 0, zIndex: 7, padding: "10px 10px 0" }}>
           {/* Die Ressourcen-PILLE der Vorlage: voll gerundet, violetter Glas-
               verlauf, duenne violette Kante. Fluchtlinie bleibt bei 10 px. */}
@@ -801,7 +814,7 @@ export default function App() {
             border: "1px solid rgba(176,124,255,.4)", borderRadius: 999, padding: "10px 16px",
             boxShadow: `${T.shadow}, 0 0 16px rgba(122,60,255,.28)` }}>{headerBar}</div>
         </header>
-      )}
+      </>)}
       {/* ONE flush edge: header card, screen panels and dock all sit 10px from
           the viewport — before this, header ran at 10, dock at 12, content at
           14, three different alignments (the profile looked narrower than the

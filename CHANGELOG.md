@@ -1,5 +1,14 @@
 # Changelog - Grand Gambit
 
+## 1.4.4
+- DIE KANTE OBEN IST WEG (Besitzerbefund: "Der schwarze Verlauf zur Leiste
+  nach oben fehlt immer noch, da ist immer so eine komische Kante, das sieht
+  super haesslich aus"). GEFUNDEN: es gibt ZWEI Kopfleisten in der App. Die
+  eine - das Hauptmenue - hatte ihren Verlauf seit je; die andere, unter der
+  jeder Bildschirm haengt, hatte nie einen. Der Inhalt scrollte dort mit
+  harter Kante dahinter durch, waehrend er unten sauber ins Schwarze lief.
+  Jetzt derselbe Verlauf an beiden Stellen, und eine Probe zaehlt sie.
+
 ## 1.4.3
 - DER SPIELERNAME IST JETZT EINMALIG. Besitzerfrage: "Machst du da wirklich
   einen Datenbankabgleich?" Die ehrliche Antwort war NEIN - geprueft wurde nur

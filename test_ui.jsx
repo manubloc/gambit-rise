@@ -1373,6 +1373,16 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
       ohne.length <= BEKANNT);
   }
 
+  /* v1.4.4: BEIDE Kopfleisten tragen ihren Verlauf. Es gibt zwei in der App -
+     die eine hatte ihn seit je, die andere nie, und dort scrollte der Inhalt
+     mit harter Kante dahinter durch (Besitzerbefund: "da ist immer so eine
+     komische Kante, das sieht super haesslich aus"). */
+  {
+    const app = readFileSync("src/app/App.jsx", "utf8");
+    const verlaeufe = (app.match(/linear-gradient\(180deg, \$\{T\.bg\} 0%/g) || []).length;
+    ok(`beide Kopfleisten haben einen Verlauf (${verlaeufe} gefunden)`, verlaeufe >= 2);
+  }
+
   /* 2. Bauer und Grand Gambit tragen in der Aufstellung EIN Mass. */
   ok("kein getrenntes Mass mehr fuer Held und Bauer",
     !/isHero \? "clamp\(26px, 10\.5vw, 86px\)" : "clamp\(24px, 9\.4vw, 76px\)"/.test(q));
