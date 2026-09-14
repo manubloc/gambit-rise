@@ -92,9 +92,21 @@ const lauf = await page.evaluate(async () => {
     const bilder = [...document.querySelectorAll("img")]
       .filter((im) => { const r = im.getBoundingClientRect(); return r.width > 10 && r.top > 100 && r.top < innerHeight - 100; })
       .map((im) => {
+        /* ── GEMESSEN WIRD offsetWidth, NICHT getBoundingClientRect ──────
+           Der erste Anlauf nahm die Bounding-Box - und die ist bei einem
+           GEDREHTEN Element groesser als das Element selbst. Nachgerechnet:
+           eine 58x67-Figur, um 5 Grad gedreht, misst als Box 64x72. Genau
+           solche Werte hatte ich als "Groessenschwankung von 15 %" gedeutet.
+
+           Es war eine DREHUNG, keine Skalierung. offsetWidth/offsetHeight
+           ignorieren jede Transformation und liefern das wahre Mass; die
+           Skalierung steht separat in der Matrix. */
         const r = im.getBoundingClientRect(); const cs = getComputedStyle(im);
         const huelle = im.closest("div"); const hs = huelle ? getComputedStyle(huelle) : null;
-        return { x: Math.round(r.left), y: Math.round(r.top), b: Math.round(r.width), h: Math.round(r.height),
+        const m = cs.transform && cs.transform !== "none" ? cs.transform.match(/matrix\(([-\d.]+)/) : null;
+        return { x: Math.round(r.left), y: Math.round(r.top),
+          b: im.offsetWidth, h: im.offsetHeight,          // wahres Mass, ohne Drehung
+          sk: m ? +(+m[1]).toFixed(3) : 1,                 // Skalierung, falls vorhanden
           op: +(+cs.opacity).toFixed(2),
           anim: (hs && hs.animationName !== "none" ? hs.animationName : "") };
       });
@@ -108,7 +120,32 @@ const lauf = await page.evaluate(async () => {
   return { proben };
 });
 
-/* ── WAS DIE ERSTE FOLGE ZEIGT (v1.5.2) ───────────────────────────────────
+/* ── ZWEI FALLSTRICKE, BEIDE SELBST HINEINGETRETEN (v1.5.3) ───────────────
+
+   ERSTENS: getBoundingClientRect misst bei einem GEDREHTEN Element die
+   umschliessende Box, nicht das Element. Nachgerechnet: eine 58x67-Figur, um
+   5 Grad gedreht, misst als Box 64x72. Genau solche Werte hatte ich als
+   "Groessenschwankung von 15 Prozent" gedeutet - es war eine Drehung.
+   Deshalb misst dieses Werkzeug jetzt offsetWidth/offsetHeight (das wahre
+   Mass, unabhaengig von jeder Transformation) und liest die Skalierung
+   separat aus der Matrix.
+
+   ZWEITENS, und das ist der peinlichere: mit dem wahren Mass stand da
+   "Flieger 57x67, ruhende Figuren 67x78" - 15 Prozent Unterschied, wieder
+   ein scheinbarer Sprung. Aber pieceFont() gibt einem BAUERN 1,17em und
+   jeder anderen Figur 1,37em. Verhaeltnis 0,854; gemessen 0,851. Der Flieger
+   war ein Bauer, die ruhenden waren Tuerme und Laeufer. Ich habe zwei
+   Figurenarten verglichen.
+
+   MERKE FUER DEN NAECHSTEN LAUF: nur DIESELBE Figur ueber die Zeit
+   vergleichen, nie zwei verschiedene. Die Folge muss die ziehende Figur an
+   ihrer Kennung festhalten, nicht an ihrer Lage.
+
+   Bisher gesichert: waehrend des Flugs ist die Groesse KONSTANT (57x67 ueber
+   alle Rahmen) und die Skalierung ist 1. Im Flug selbst passiert also
+   nichts - der Sprung muss im Augenblick des Austauschs liegen.
+
+   ── WAS DIE ERSTE FOLGE ZEIGT (v1.5.2) ───────────────────────────────────
    Die ziehende Figur waehrend ihres Flugs, Rahmen fuer Rahmen:
 
      151 ms  64x67 @ -1,403
@@ -140,7 +177,7 @@ else {
     /* Welche Bilder sind NEU oder haben sich bewegt? Das sind die
        interessanten - alles andere steht ohnehin still. */
     const neu = vorher ? p.alle.filter((x) => !vorher.some((v) => v.x === x.x && v.y === x.y && v.b === x.b)) : [];
-    const teile = neu.slice(0, 3).map((x) => `${x.b}x${x.h}@${x.x},${x.y} op${x.op}${x.anim ? " [" + x.anim + "]" : ""}`);
+    const teile = neu.slice(0, 3).map((x) => `${x.b}x${x.h}@${x.x},${x.y} sk${x.sk} op${x.op}${x.anim ? " [" + x.anim + "]" : ""}`);
     /* Sprung markieren: aendert sich eine Groesse um mehr als 3 px zwischen
        zwei Rahmen, ist das der gesuchte Ruck. */
     let mark = "";
