@@ -106,8 +106,15 @@ const mass = await page.evaluate(async () => {
      wird - nicht, von welchem Element. Jetzt steht Tag, Klasse und Kennung
      dabei, damit die 0,787 einen Namen bekommt. */
   const flugEltern = flieger ? (() => { let e = flieger, kette = [];
-    for (let i = 0; i < 5 && e; i++) { const cs = getComputedStyle(e);
-      kette.push(cs.transform === "none" ? "-" : cs.transform.slice(0,30)); e = e.parentElement; }
+    for (let i = 0; i < 6 && e; i++) {
+      const cs = getComputedStyle(e);
+      const kl = (typeof e.className === "string" ? e.className : "").trim().split(/\s+/).filter(Boolean).slice(0,2).join(".");
+      const wer = e.tagName.toLowerCase() + (kl ? "." + kl : "");
+      /* WELCHE Animation laeuft hier? Das ist die eigentliche Frage - eine
+         Matrix sagt nur das Ergebnis, der Name sagt die Ursache. */
+      const anim = cs.animationName && cs.animationName !== "none" ? cs.animationName : "";
+      kette.push(`${wer}${anim ? " [" + anim + "]" : ""}: ${cs.transform === "none" ? "-" : cs.transform.slice(0,36)}`);
+      e = e.parentElement; }
     return kette; })() : null;
   await new Promise((r) => setTimeout(r, 1500));
   const gel = zielEl.querySelector("img,svg");
@@ -184,7 +191,32 @@ else {
    NAECHSTER SCHRITT: die Quelle der 0,787 finden. Sie steht nicht als Zahl im
    Code, wird also gerechnet - vermutlich ein Ausgleich zwischen Zellmass und
    Figurenmass, der nur waehrend des Flugs greift. */
-/* ── ZWEITE MESSUNG (v1.4.6): ES IST EINE LAUFENDE ANIMATION ──────────────
+/* ══ DRITTE MESSUNG (v1.4.7): DIE ANIMATION HEISST "pop" ══════════════════
+   Mit Elementnamen UND Animationsnamen in der Kette steht die Quelle fest:
+
+     img: -
+     div [ggAtmen]: matrix(0.999992, ...)      <- die Figur atmet, harmlos
+     div [pop]:     matrix(0.787423, ...)      <- HIER
+     div: matrix(1, 0, 0, 1, 0, -8.5)
+
+   @keyframes pop { from { transform: scale(.6); opacity: 0; }
+                    to   { transform: scale(1);  opacity: 1; } }
+
+   pop ist die ERSCHEINUNGS-Animation: eine Figur waechst von 60 % auf volle
+   Groesse, wenn sie neu aufs Brett kommt. Der FLIEGENDE Zwilling bekommt sie
+   ebenfalls - obwohl er nicht erscheint, sondern sich nur bewegt. Waehrend
+   des Flugs steht er also mitten im Wachsen (daher 0,787 beim einen, 0,905
+   beim anderen Messzeitpunkt), und wenn die echte Figur ihn ersetzt, springt
+   der Rest auf einmal zu.
+
+   MERKWUERDIG UND NOCH OFFEN: PieceGlyph unterdrueckt pop ausdruecklich, wenn
+   \`fliegt\` gesetzt ist (Zeile 597: animation: fliegt ? "none" : ...), und
+   BoardView uebergibt \`fliegt\` auch (Zeile 1254). Die Animation sitzt also
+   auf einem ANDEREN div der Kette - eine Ebene, die pop unabhaengig davon
+   bekommt. Genau die ist als naechstes zu finden: nicht das img, nicht die
+   atmende Huelle, sondern die dritte.
+
+   ── ZWEITE MESSUNG (v1.4.6): ES IST EINE LAUFENDE ANIMATION ──────────────
    Der erste Lauf zeigte 0,787 auf der dritten Ebene, der zweite 0,905 - der
    Wert AENDERT SICH zwischen zwei Messungen an derselben Stelle. Damit ist
    klar: es ist keine feste Skalierung, sondern eine laufende, und die Figur
