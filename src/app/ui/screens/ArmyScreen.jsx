@@ -1778,7 +1778,7 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
           Erfahrungsbalken bekommt. Die Ziffer sitzt als SVG-Text mit
           dominant-baseline central - jeder Versuch mit line-height sass
           daneben, weil Georgias Ziffern Unterlaenge haben. */}
-      {stufe != null && <div style={{ position: "absolute", top: 5, right: 5, width: 21, height: 21, zIndex: 4,
+      {stufe != null && <div data-stufe={String(stufe)} style={{ position: "absolute", top: 5, right: 5, width: 21, height: 21, zIndex: 4,
         borderRadius: "50%", background: "linear-gradient(180deg,#f8e4a4,#c9a45c)",
         border: "0.5px solid rgba(122,94,40,.7)",
         boxShadow: "0 1px 3px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.45)" }}>
@@ -1825,7 +1825,12 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
       fill="#c9a45c" rim="#1b1408" rimW={1.6} detail="#7a5c26" accent="#eac96b" />;
     const sigBig = <PieceArt kind={ch.kind} hero={cid === "gambit"} size={58} level={1}
       fill="#c9a45c" rim="#1b1408" rimW={1.6} detail="#7a5c26" accent="#eac96b" />;
-    if (own) return <Tile key={cid} werte={kachelWerte(cid)} xpAnteil={kachelXp(cid)} stufe={characterLevel(profile, cid) || 1} artId={cid} img={img} kind={ch.kind} hero={cid === "gambit"} lvl={characterLevel(profile, cid) || 1} stufe={unlocked.has(cid) ? characterLevel(profile, cid) : null} name={en ? ch.nameEn : ch.nameDe} glow origin={origin} sigil={sig} sigilBig={sigBig} onOpen={() => setDetail(cid)} />;
+    if (own) return <Tile key={cid} werte={kachelWerte(cid)} xpAnteil={kachelXp(cid)} artId={cid} img={img} kind={ch.kind} hero={cid === "gambit"} lvl={characterLevel(profile, cid) || 1} /* v1.4.2: GEFUNDEN, warum der Stufenkreis nie erschien - die Bedingung
+           fragte unlocked.has(cid), aber die Grundfiguren des Hofstaats
+           (Koenig, Dame, Turm ...) sind von Anfang an da und stehen NIE in
+           unlocked. Sie hatten damit immer null. \ deckt beides ab:
+           freigeschaltet ODER von Haus aus dabei. */
+        stufe={own ? (characterLevel(profile, cid) || 1) : null} name={en ? ch.nameEn : ch.nameDe} glow origin={origin} sigil={sig} sigilBig={sigBig} onOpen={() => setDetail(cid)} />;
     if (seen || wins > 0) {
       const price = bribePrice(ch);
       return <Tile key={cid} artId={cid} img={img} kind={ch.kind} hero={cid === "gambit"} lvl={characterLevel(profile, cid) || 1} dim name={en ? ch.nameEn : ch.nameDe} sigil={sig} sigilBig={sigBig} origin={origin} onOpen={() => setDetail(cid)}

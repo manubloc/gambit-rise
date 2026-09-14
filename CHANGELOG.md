@@ -1,5 +1,17 @@
 # Changelog - Grand Gambit
 
+## 1.4.2
+- DIE HOFSTAAT-KACHEL IST FERTIG: Stufenkreis oben rechts (Gold, geprägt, mit
+  geometrisch zentrierter Ziffer), Lebensrohr unter der Figur, Name,
+  Fortschrittsbalken mit den Kosten der naechsten Stufe.
+- DER STUFENKREIS ERSCHIEN NIE, und der Grund lag tiefer als vermutet: die
+  Bedingung fragte unlocked.has(cid) - aber die GRUNDFIGUREN des Hofstaats
+  (Koenig, Dame, Turm, Laeufer, Springer, Bauer, Gambit) sind von Anfang an da
+  und stehen NIE in unlocked. Sie hatten damit immer null. Dass es erst jetzt
+  auffiel, liegt an der Darstellung: als unauffaellige Textzeile unter dem
+  Namen fehlte sie unbemerkt, im goldenen Kreis sofort. Jetzt deckt `own`
+  beides ab: freigeschaltet ODER von Haus aus dabei.
+
 ## 1.4.1
 - SECHZEHN HQ-FASSUNGEN EINGEORDNET (vom Besitzer nachgeliefert): die sechs
   Gambit-Stufen und alle neun Sperren-Zustaende (Zaun, Mauer, Bergfried, je
