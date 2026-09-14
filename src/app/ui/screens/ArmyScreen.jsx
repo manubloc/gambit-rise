@@ -7,10 +7,12 @@ import { GildedFrame, goldText, GoldShineButton } from "../Gilded.jsx";
 import { SP_SHARD_GOLD, SP_VAULT_MIN_CLEARED, spShardCap, bossLevelOf, bossUpgradeCost, bossSpecLeveled, BOSS_MAX_LEVEL, gambitWach,
   darfHeldSetzen, darfReiheStellen, freigegeben } from "../../../meta/index.js";
 import { CHARACTER_LIST, CHARACTERS, ABILITIES, TAGS, SPERRGRUND, faehigkeitZustand, MAPS, mapById, ITEM_LIST, bossById, BOSSES, ITEMS, itemPrice } from "../../../content/index.js";
+import LebensRohr from "../board/LebensRohr.jsx";
+import { rohrAnteile } from "../board/PieceGlyph.jsx";
 import { BASE_HP, BASE_ATK, SHIELD_HP, createGame, familyOf, crownHp, crownWallSoak, shadowRifts, shadowAtk } from "../../../core/index.js";
 import {
   characterLevel, resolveCharacter, isUnlocked, upgradeCost, canUpgrade, maxLevelFor, gambitTier, clearedCount,
-  formationKey, formationLegalOn, formationCounts, buildArmyFromFormation, buildAiArmyForMap, hpUnlocked, ownedLeagueBosses, isBossEntry, bossEntryId, crownSlots,
+  formationKey, formationLegalOn, formationCounts, buildArmyFromFormation, buildArmyFrom, defaultFormation, buildAiArmyForMap, hpUnlocked, ownedLeagueBosses, isBossEntry, bossEntryId, crownSlots,
   chosenAbilities, abilityCost, canUnlockAbility, dupeCount, RESPEC_GOLD, heroColFor, mapUnlocked,
   itemRevealed, bossWinsFor, effectiveNodeBoss, nodeStatus, hpWach } from "../../../meta/index.js";
 import { CAMPAIGN } from "../../../content/index.js";
@@ -1649,7 +1651,47 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
      standen weiter schief, waehrend Laeufer und Dame laengst sassen.
      Jetzt reicht champTile die ID als artId durch; Tile prueft ID, dann
      boss-ID, dann erst die Art. */
-  const Tile = ({ img, name, dim, dark, action, glow, origin, onOpen, sigil = null, sigilBig = null, stufe = null, kind = null, hero = false, lvl = 1, artId = null }) => (
+  /* v1.4.0: was die Kachel an Werten zeigt. Die Anteile rechnen wie am Brett
+     (rohrAnteile), damit dieselbe Figur ueberall dasselbe Bild ergibt. */
+  /* GEMESSEN: buildArmyFrom liefert Figuren OHNE Lebenswerte - die entstehen
+     erst, wenn eine HP-Partie sie aufstellt. Deshalb wird hier einmal je
+     Stufe eine solche Partie gebaut und ihre Werte gemerkt; das kostet beim
+     ersten Aufruf etwas und danach nichts mehr. */
+  const WERTE_CACHE = useRef(new Map());
+  const werteFuerStufe = (lv) => {
+    const c = WERTE_CACHE.current;
+    if (c.has(lv)) return c.get(lv);
+    let m = {};
+    try {
+      const ar = buildArmyFromFormation(() => lv, defaultFormation(mapById("classic")));
+      const g = createGame(ar, ar, { rules: "hp" });
+      for (const p of g.board) if (p && p.color === "w" && p.maxHp && !m[p.kind]) m[p.kind] = { hp: p.maxHp, atk: p.atk };
+    } catch { m = {}; }
+    c.set(lv, m);
+    return m;
+  };
+  const kachelWerte = (cid) => {
+    const ch = CHARACTERS[cid]; if (!ch) return null;
+    const lv = characterLevel(profile, cid) || 1;
+    const w = werteFuerStufe(lv)[ch.kind];
+    if (!w) return null;
+    return rohrAnteile({ hp: w.hp, atk: w.atk, level: lv });
+  };
+  /* Wie weit bis zur naechsten Stufe? Aus den Skillpunkten, die sie kostet. */
+  /* Es gibt keine Erfahrungspunkte JE FIGUR - Stufen kosten Skillpunkte aus
+     einem gemeinsamen Vorrat. Der Balken zeigt deshalb, wie viel von den
+     Kosten der naechsten Stufe schon beisammen ist. Das ist die einzige
+     ehrliche Lesart: "du hast 2 von 3 Punkten, die der Turm braucht". */
+  const kachelXp = (cid) => {
+    const lv = characterLevel(profile, cid) || 1;
+    const kosten = upgradeCost(cid, lv);
+    if (!kosten) return null;
+    const hat = Math.max(0, profile.sp || 0);
+    return { anteil: Math.max(0, Math.min(1, hat / kosten)), hat: Math.min(hat, kosten), kosten };
+  };
+
+  const Tile = ({ img, name, dim, dark, action, glow, origin, onOpen, sigil = null, sigilBig = null, stufe = null, kind = null, hero = false, lvl = 1,
+    werte = null, xpAnteil = null, artId = null }) => (
     /* v1.0.11 (Besitzer): die Kachel KLINGT beim Tippen. Der Klangfaenger
        hoert nur auf button/[role=button] — diese div blieb stumm. */
     <div onClick={onOpen ? () => { klang("menue"); onOpen(); } : undefined} style={{ position: "relative",
@@ -1720,12 +1762,45 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
                   filter: "brightness(0) opacity(.62)" }}>{sigilBig || sigil}</span>
               : <span style={{ fontSize: 26, color: T.faint }}>◆</span>}
           </div>}
+      {/* v1.4.0: DAS ROHR UNTER DER FIGUR. Gerade und duenn - die Kruemmung
+          nimmt am Brett die Sockelwoelbung auf, hier gibt es keinen Sockel.
+          Es erscheint nur, wenn die Figur ueberhaupt Werte hat. */}
+      {!dark && werte && <div style={{ lineHeight: 0, display: "flex", justifyContent: "center", marginTop: 2 }}>
+        <LebensRohr lebenAnteil={werte.leben} kraftAnteil={werte.kraft}
+          talentBereit={false} breite={78} hoehe={7} />
+      </div>}
       <div className="gg-quill" style={{ fontSize: 12.5, marginTop: 5, color: dark ? T.faint : glow ? T.goldBright : T.text,
         whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{name}</div>
       {/* Die Vorlage (ds1-vorlage-screens): jede Kachel traegt ihre Stufe -
           "Koenig Stufe 8" - klein und golden unter dem Namen. */}
-      {stufe != null && <div className="gg-serif" style={{ fontSize: 9.5, letterSpacing: ".1em", marginTop: 1,
-        color: T.gold, whiteSpace: "nowrap" }}>{(en ? "Level " : "Stufe ") + stufe}</div>}
+      {/* v1.4.0: DIE STUFE ALS GOLDKREIS OBEN RECHTS (Besitzerwunsch). Vorher
+          stand sie als Zeile unter dem Namen und kostete Platz, den jetzt der
+          Erfahrungsbalken bekommt. Die Ziffer sitzt als SVG-Text mit
+          dominant-baseline central - jeder Versuch mit line-height sass
+          daneben, weil Georgias Ziffern Unterlaenge haben. */}
+      {stufe != null && <div style={{ position: "absolute", top: 5, right: 5, width: 21, height: 21, zIndex: 4,
+        borderRadius: "50%", background: "linear-gradient(180deg,#f8e4a4,#c9a45c)",
+        border: "0.5px solid rgba(122,94,40,.7)",
+        boxShadow: "0 1px 3px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.45)" }}>
+        <svg width="21" height="21" viewBox="0 0 21 21" style={{ display: "block" }}>
+          <text x="10.5" y="11.1" textAnchor="middle" dominantBaseline="central"
+            style={{ font: "600 10.5px Georgia, serif", fill: "#3a2a08" }}>{stufe}</text>
+        </svg>
+      </div>}
+      {/* Erfahrungsbalken: wie weit bis zur naechsten Stufe */}
+      {xpAnteil != null && <>
+        <div style={{ height: 3, borderRadius: 3, background: "rgba(255,255,255,.09)",
+          margin: "5px 3px 0", overflow: "hidden" }}>
+          <div style={{ height: "100%", width: `${Math.round(xpAnteil.anteil * 100)}%`, borderRadius: 3,
+            background: "linear-gradient(90deg,#c9a45c,#f0d890)" }} /></div>
+        {/* v1.4.0 (Besitzer: "den Erfahrungsbalken unten bitte nicht die Zahl
+            noch so gross hinschreiben, einfach rechts hinten orientiert
+            einfach nur irgendwie 200/1000 XP"): rechtsbuendig, klein, als
+            Bruch statt als Prozentsatz. Ein Bruch sagt beides auf einmal -
+            wie weit man ist UND wie weit es noch ist. */}
+        <div style={{ fontSize: 8, color: T.faint, marginTop: 2, textAlign: "right",
+          paddingRight: 3, letterSpacing: ".01em" }}>{xpAnteil.hat}/{xpAnteil.kosten} SP</div>
+      </>}
       {origin && <div className="gg-serif" style={{ fontSize: 9, letterSpacing: ".1em", marginTop: 1,
         color: T.dim, textTransform: "uppercase", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{origin}</div>}
       {action}
@@ -1750,7 +1825,7 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
       fill="#c9a45c" rim="#1b1408" rimW={1.6} detail="#7a5c26" accent="#eac96b" />;
     const sigBig = <PieceArt kind={ch.kind} hero={cid === "gambit"} size={58} level={1}
       fill="#c9a45c" rim="#1b1408" rimW={1.6} detail="#7a5c26" accent="#eac96b" />;
-    if (own) return <Tile key={cid} artId={cid} img={img} kind={ch.kind} hero={cid === "gambit"} lvl={characterLevel(profile, cid) || 1} stufe={unlocked.has(cid) ? characterLevel(profile, cid) : null} name={en ? ch.nameEn : ch.nameDe} glow origin={origin} sigil={sig} sigilBig={sigBig} onOpen={() => setDetail(cid)} />;
+    if (own) return <Tile key={cid} werte={kachelWerte(cid)} xpAnteil={kachelXp(cid)} stufe={characterLevel(profile, cid) || 1} artId={cid} img={img} kind={ch.kind} hero={cid === "gambit"} lvl={characterLevel(profile, cid) || 1} stufe={unlocked.has(cid) ? characterLevel(profile, cid) : null} name={en ? ch.nameEn : ch.nameDe} glow origin={origin} sigil={sig} sigilBig={sigBig} onOpen={() => setDetail(cid)} />;
     if (seen || wins > 0) {
       const price = bribePrice(ch);
       return <Tile key={cid} artId={cid} img={img} kind={ch.kind} hero={cid === "gambit"} lvl={characterLevel(profile, cid) || 1} dim name={en ? ch.nameEn : ch.nameDe} sigil={sig} sigilBig={sigBig} origin={origin} onOpen={() => setDetail(cid)}

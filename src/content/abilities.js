@@ -92,6 +92,70 @@ export const SPERRGRUND = {
 /** Der Zustand EINER Faehigkeit fuer den aktuellen Spielstand:
  *  "wirkt" | "riegel" | "verborgen".
  *  wach = ist das Erwachen durch? (meta/leveling: hpWach) */
+/* ── EINE EIGENE FARBE JE TALENT (v1.4.0, Besitzerwunsch) ─────────────────
+   "Besser waere sogar, wenn jede Faehigkeit eine eigene Farbe in dieser
+   Darstellung bekommt, sodass ich sofort sehe, welche Faehigkeit welche Zuege
+   ermoeglicht. Das waere das i-Tuepfelchen."
+
+   Die ARTFARBE allein reicht dafuer nicht: eine Figur traegt oft zwei oder
+   drei Talente derselben Art (der Springer hat drei Bewegungstalente), und
+   die haetten dann alle dasselbe Blau. Deshalb bekommt jedes Talent eine
+   eigene Stufe SEINER Artfarbe - sie bleibt erkennbar blau, orange oder
+   gruen, aber die drei Blaus sind unterscheidbar.
+
+   Gerechnet statt gelistet: die Art gibt den Grundton, die Position des
+   Talents innerhalb seiner Art verschiebt Helligkeit und Saettigung. So
+   bekommt auch ein spaeter ergaenztes Talent automatisch seine Farbe. */
+const _FARBEN = new Map();
+function _zuHsl(hex) {
+  const r = parseInt(hex.slice(1, 3), 16) / 255, g = parseInt(hex.slice(3, 5), 16) / 255, b = parseInt(hex.slice(5, 7), 16) / 255;
+  const mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn, l = (mx + mn) / 2;
+  if (!d) return [0, 0, l];
+  const s = l > 0.5 ? d / (2 - mx - mn) : d / (mx + mn);
+  let h = mx === r ? (g - b) / d + (g < b ? 6 : 0) : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+  return [h * 60, s, l];
+}
+function _ausHsl(h, s, l) {
+  const c = (1 - Math.abs(2 * l - 1)) * s, x = c * (1 - Math.abs(((h / 60) % 2) - 1)), m = l - c / 2;
+  const [r, g, b] = h < 60 ? [c, x, 0] : h < 120 ? [x, c, 0] : h < 180 ? [0, c, x]
+    : h < 240 ? [0, x, c] : h < 300 ? [x, 0, c] : [c, 0, x];
+  return "#" + [r, g, b].map((v) => Math.round((v + m) * 255).toString(16).padStart(2, "0")).join("");
+}
+export function talentFarbe(id) {
+  if (_FARBEN.has(id)) return _FARBEN.get(id);
+  const a = ABILITIES[id];
+  if (!a) return "#8a84a8";
+  const grund = (TAGS[a.tag] && TAGS[a.tag].color) || "#8a84a8";
+  /* wie vielte ihrer Art ist sie? */
+  const gleiche = Object.values(ABILITIES).filter((x) => x.id && x.tag === a.tag).map((x) => x.id).sort();
+  const i = Math.max(0, gleiche.indexOf(id));
+  const n = Math.max(1, gleiche.length);
+  /* GEMESSEN: Helligkeit allein reicht nicht. Bei zwoelf Bewegungstalenten
+     lagen die Farben bei #43abff und #41a4ff - zwei Stufen auseinander, mit
+     blossem Auge nicht zu trennen. Deshalb wandert auch der FARBTON: bis zu
+     30 Grad um den Grundton herum, plus Helligkeit. Damit bleibt Blau blau,
+     aber aus einem Blau werden ein Himmelblau, ein Tuerkis und ein Indigo. */
+  const [h0, s0, l0] = _zuHsl(grund);
+  /* ZWEITE MESSUNG: 60 Grad Spreizung waren zu viel. Bei den nur ZWEI
+     Fernkampftalenten wurde aus Orange einmal Rot (#f82719) und einmal Gelb
+     (#f4fb88) - die Art war nicht mehr zu erkennen, und genau das soll die
+     Farbe ja leisten. Die Spreizung haengt jetzt an der ANZAHL: zwei
+     Geschwister ruecken 20 Grad auseinander, zwoelf bis zu 46. Dafuer traegt
+     die Helligkeit mehr, sie veraendert den Farbcharakter nicht. */
+  const spanne = Math.min(46, 10 * n);
+  const mitte = n === 1 ? 0 : (i / (n - 1)) - 0.5;      // -0,5 .. +0,5
+  const h = (h0 + mitte * spanne + 360) % 360;
+  /* DRITTE MESSUNG: auch die Helligkeit muss an der Anzahl haengen. Bei zwei
+     Geschwistern und fester Spanne wurde aus Orange ein Rotbraun und ein
+     blasses Gelb. Jetzt: wenige Geschwister ruecken wenig auseinander. */
+  const hSpanne = Math.min(0.30, 0.09 * n);
+  const l = Math.max(0.34, Math.min(0.74, l0 + mitte * hSpanne));
+  const sa = Math.max(0.5, Math.min(1, s0 - Math.abs(mitte) * 0.08));
+  const farbe = _ausHsl(h, sa, l);
+  _FARBEN.set(id, farbe);
+  return farbe;
+}
+
 export function faehigkeitZustand(id, wach) {
   const a = ABILITIES[id];
   if (!a) return "verborgen";

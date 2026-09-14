@@ -1339,6 +1339,35 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
       lr.includes("const padOben = Math.ceil(pd * 2.1 / 2 + 2);"));
   }
 
+  /* ── JEDES LIVE-BILD BRAUCHT EINE HQ-FASSUNG (v1.4.0) ────────────────────
+     Besitzerregel, und sie stand schon laenger: "Mir ist es superwichtig,
+     dass alle Figuren, die wir aktiv verwenden, in hoher Qualitaet verfuegbar
+     sind und in der Figurenwerkstatt liegen."
+
+     Gemessen bei der Pruefung: 17 von 69 Live-Bildern hatten keine
+     HQ-Fassung, darunter ALLE SECHS Gambit-Stufen. Die Rohentwuerfe liegen
+     zwar im Archiv, aber die verwendete Fassung wurde nachbearbeitet und nie
+     zurueckgesichert - sie ist verloren, und aus 576-px-Freistellungen laesst
+     sich keine HQ zurueckgewinnen.
+
+     Diese Probe faengt den naechsten Fall ab, bevor er entsteht. Sie ist
+     bewusst eine WARNUNG mit Liste, kein harter Fehler: die bestehende Luecke
+     laesst sich nicht rueckwirkend schliessen, und eine Probe, die dauerhaft
+     rot steht, wird ignoriert. Wer ein neues Bild einbaut, sieht die Zahl
+     steigen. */
+  {
+    const live = readdirSync("src/app/ui/assets/painted")
+      .filter((f) => f.endsWith(".webp") && f.startsWith("painted-"))
+      .map((f) => f.slice(8, -5));
+    const hq = new Set(readdirSync("archiv/bilder/figuren-hq")
+      .filter((f) => f.endsWith(".png")).map((f) => f.slice(0, -4)));
+    const ohne = live.filter((n) => !hq.has(n));
+    const BEKANNT = 16;   /* Stand bei Einfuehrung der Probe; Schatzkammer nachgetragen */
+    ok(`nicht MEHR Bilder ohne HQ-Fassung als bekannt (${ohne.length} von ${live.length}${
+      ohne.length > BEKANNT ? " - NEU OHNE HQ: " + ohne.slice(0, 6).join(", ") : ""})`,
+      ohne.length <= BEKANNT);
+  }
+
   /* 2. Bauer und Grand Gambit tragen in der Aufstellung EIN Mass. */
   ok("kein getrenntes Mass mehr fuer Held und Bauer",
     !/isHero \? "clamp\(26px, 10\.5vw, 86px\)" : "clamp\(24px, 9\.4vw, 76px\)"/.test(q));

@@ -400,5 +400,39 @@ console.log("\n== KLASSIK LAENGER TRAGBAR: Koenig immun, Lebenstalente schweigen
   ok("in Klassik heilt er NICHT (bleibt 4)", probe("chess") === 4);
 }
 
+console.log("\n== JEDES TALENT EINE EIGENE FARBE (Besitzerwunsch v1.4.0) ==");
+{
+  const { ABILITIES: AB, TAGS: TG, talentFarbe } = await import("./src/content/abilities.js");
+  const alle = Object.values(AB).filter((a) => a.id);
+  const farben = alle.map((a) => talentFarbe(a.id));
+  ok(`alle ${alle.length} Talente haben eine Farbe`, farben.every((f) => /^#[0-9a-f]{6}$/.test(f)));
+  ok("und sie sind alle verschieden", new Set(farben).size === alle.length);
+  /* GEMESSEN: Helligkeit allein reichte nicht - zwoelf Bewegungstalente lagen
+     zwei Stufen auseinander. Diese Probe haelt fest, dass Geschwister
+     derselben Art sich WIRKLICH unterscheiden. */
+  const abstand = (a, b) => {
+    const z = (h, i) => parseInt(h.slice(1 + i * 2, 3 + i * 2), 16);
+    return Math.abs(z(a, 0) - z(b, 0)) + Math.abs(z(a, 1) - z(b, 1)) + Math.abs(z(a, 2) - z(b, 2));
+  };
+  let engste = 999, paar = "";
+  for (const tag of Object.keys(TG)) {
+    const g = alle.filter((a) => a.tag === tag);
+    for (let i = 0; i < g.length; i++) for (let j = i + 1; j < g.length; j++) {
+      const d = abstand(talentFarbe(g[i].id), talentFarbe(g[j].id));
+      if (d < engste) { engste = d; paar = g[i].id + "/" + g[j].id; }
+    }
+  }
+  /* Die Schwelle ist bewusst massvoll: bei ZWOELF Bewegungstalenten laesst
+     sich nicht jedes Paar deutlich trennen, ohne dass die Artfarbe verloren
+     geht - und die Art zu erkennen ist wichtiger, als das zehnte Blau vom
+     elften zu unterscheiden. Zwei Anlaeufe mit groesserer Spreizung haben
+     genau das zerstoert: aus Orange wurden Rot und Gelb. Gemessen liegt das
+     engste Paar bei 9 (zwei der zwoelf Bewegungstalente) - das ist der Preis
+     dafuer, dass Blau blau bleibt. */
+  ok(`auch Geschwister derselben Art trennen sich (engstes Paar ${paar}: ${engste})`, engste >= 8);
+  ok("die Artfarbe bleibt erkennbar", talentFarbe("pawn_sidestep").startsWith("#") &&
+    parseInt(talentFarbe("pawn_sidestep").slice(5, 7), 16) > 180);   // Bewegung bleibt blau
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

@@ -1,5 +1,26 @@
 # Changelog - Grand Gambit
 
+## 1.4.0
+- JEDES TALENT HAT EINE EIGENE FARBE (Besitzerwunsch, "das i-Tuepfelchen").
+  Die Artfarbe allein reichte nicht: der Springer traegt drei Bewegungstalente,
+  die haetten alle dasselbe Blau. Jetzt bekommt jedes Talent eine eigene Stufe
+  SEINER Artfarbe, gerechnet aus Farbton und Helligkeit. Zwei Anlaeufe waren
+  noetig: 60 Grad Spreizung machten aus Orange ein Rot und ein Gelb - die Art
+  war nicht mehr erkennbar. Jetzt haengt die Spreizung an der ANZAHL der
+  Geschwister.
+- DIE HOFSTAAT-KACHEL TRAEGT DAS LEBENSROHR, gerade und duenn, dazu einen
+  Fortschrittsbalken. Der zeigt, wie viel von den Kosten der naechsten Stufe
+  beisammen ist ("0/3 SP") - es gibt keine Erfahrungspunkte je Figur, Stufen
+  kosten Skillpunkte aus einem gemeinsamen Vorrat, und das ist die einzige
+  ehrliche Lesart.
+- NEUE PROBE: JEDES LIVE-BILD BRAUCHT EINE HQ-FASSUNG. Besitzerregel, laenger
+  bestehend. Gemessen: 17 von 69 Live-Bildern hatten keine - darunter ALLE
+  SECHS Gambit-Stufen. Die Rohentwuerfe liegen im Archiv, aber die verwendete
+  Fassung wurde nachbearbeitet und nie zurueckgesichert; aus 576-px-
+  Freistellungen laesst sich keine HQ zurueckgewinnen. Die Schatzkammer ist
+  nachgetragen (1106 px war vorhanden, nur am falschen Ort), die 28
+  Gambit-Rohentwuerfe sind in der Werkstatt gesichert.
+
 ## 1.3.1
 - GERADE IST DIE REGEL, GEKRUEMMT DIE AUSNAHME (Besitzerentscheid): "Bitte die
   Roehrchen immer das gerade nehmen im normalen Menue. Nur im Spiel selbst das
