@@ -69,12 +69,25 @@ let zaehler = 0;
 export default function LebensRohr({
   lebenAnteil = 1, kraftAnteil = 0, talentBereit = false,
   breite = 44, hoehe = 8, className = "", style = null,
+  /* ── GERADE IST DIE REGEL, GEKRUEMMT DIE AUSNAHME (v1.3.1) ─────────────
+     Besitzerentscheid: "Bitte die Roehrchen immer das gerade nehmen im
+     normalen Menue. Nur im Spiel selbst das gekruemmte."
+
+     Das ist auch technisch die richtige Voreinstellung: die Kruemmung hat
+     genau EINEN Grund - sie nimmt die Woelbung des Figurensockels auf. Den
+     Sockel gibt es nur am Brett. Auf jeder Karte, in jedem Fenster, in jeder
+     Liste waere sie bloss Zierde und macht das Rohr unruhig.
+
+     Wer das gekruemmte Rohr will, sagt es ausdruecklich (kruemmung={ROHR_KRUEMMUNG}).
+     So bekommt jede neue Verwendungsstelle die schlichte Fassung, ohne dass
+     jemand daran denken muss. */
+  kruemmung = 0,
 }) {
   const id = React.useMemo(() => "lr" + (++zaehler), []);
   const B = Math.max(12, Math.round(breite));
   const H = Math.max(4, Math.round(hoehe));
   const r = H / 2;
-  const senk = H * ROHR_KRUEMMUNG;             // wie tief die Mitte haengt
+  const senk = H * kruemmung;
   /* GELERNT BEIM VERGLEICH MIT DER BILDSTRECKE: dort waren es 11 % der
      Hoehe, aber bei achtfacher Ueberabtastung - die Kante verlief weich und
      wirkte halb so dick. Ein sauberer SVG-Pfad hat keine Weichzeichnung, also
@@ -83,8 +96,16 @@ export default function LebensRohr({
   const rand = Math.max(0.5, H * REIF_DICKE);
   const pd = H * PERLE_VON_ROHR;               // Perlendurchmesser
   const schein = pd * 2.1;    // v1.3.0: traegt weiter
-  /* Die Zeichenflaeche muss Perle und Schein mittragen. */
-  const padOben = talentBereit ? Math.ceil(schein / 2 + 2) : 3;
+  /* DIE ZEICHENFLAECHE IST IMMER GLEICH HOCH (Besitzerbefund: "bei Stufe 12
+     hast du das Roehrchen zu hoch, gleicher Abstand bitte wie bei 13").
+
+     Der Fehler war subtil und haette das ganze Brett getroffen: die Perle
+     braucht Platz UEBER dem Rohr, also war das SVG bei einer Figur MIT Talent
+     hoeher als bei einer ohne. Weil beide unten buendig sitzen, rutschte das
+     Rohr ohne Perle nach oben - zwei Figuren nebeneinander trugen ihr Rohr auf
+     verschiedener Hoehe. Jetzt wird der Platz IMMER reserviert, ob die Perle
+     da ist oder nicht. */
+  const padOben = Math.ceil(pd * 2.1 / 2 + 2);
   const VB_W = B + 2 * rand + 8;
   const VB_H = H + 2 * rand + senk + padOben + 6;
   const x0 = rand + 4, y0 = padOben + rand;

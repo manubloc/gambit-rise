@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from "react";
-import LebensRohr, { ROHR_BREITE_VOM_SOCKEL } from "./LebensRohr.jsx";
+import LebensRohr, { ROHR_BREITE_VOM_SOCKEL, ROHR_KRUEMMUNG } from "./LebensRohr.jsx";
 import { ABILITIES, TAGS } from "../../../content/index.js";
 import { T } from "../theme.js";
 import { PieceArt } from "./PieceArt.jsx";
@@ -194,7 +194,11 @@ function StatDuo({ piece, focus, shrink = 1 }) {
         /* und SCHMALER: 0,80 em Sockelbreite war zu viel, weil die Figur die
            Zelle schon fast fuellt - das Rohr ragte ueber den Rand. */
         breite={ROHR_BREITE_VOM_SOCKEL * 0.52 * EM_PX}
-        hoehe={0.17 * EM_PX} />
+        hoehe={0.17 * EM_PX}
+        /* AM BRETT gekruemmt - hier steht die Figur auf ihrem Sockel, und das
+           Rohr nimmt dessen Woelbung auf. Ueberall sonst gilt die gerade
+           Voreinstellung. */
+        kruemmung={ROHR_KRUEMMUNG} />
     </span>;
   }
   return <span style={{ position: "absolute", bottom: "-0.09em", left: "50%", transform: "translateX(-50%)", zIndex: 3,

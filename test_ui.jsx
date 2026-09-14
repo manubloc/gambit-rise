@@ -1327,6 +1327,16 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
     ok("die Figur benutzt es statt der Perlen",
       pg.includes("if (ROHR_STATT_PERLEN)") && pg.includes("<LebensRohr lebenAnteil="));
     ok("und es gibt den Schalter zurueck", pg.includes("export const ROHR_STATT_PERLEN"));
+    /* v1.3.1 (Besitzerentscheid): GERADE ist die Regel, gekruemmt die
+       Ausnahme. Die Kruemmung nimmt die Woelbung des Figurensockels auf - den
+       gibt es nur am Brett. */
+    ok("gerade ist die Voreinstellung", lr.includes("kruemmung = 0,"));
+    ok("nur das Brett bestellt die Kruemmung ausdruecklich",
+      pg.includes("kruemmung={ROHR_KRUEMMUNG}"));
+    /* und die Zeichenflaeche ist IMMER gleich hoch - sonst saesse das Rohr bei
+       einer Figur ohne Talent hoeher als bei einer mit (Besitzerbefund). */
+    ok("die Zeichenflaeche haengt nicht davon ab, ob eine Perle da ist",
+      lr.includes("const padOben = Math.ceil(pd * 2.1 / 2 + 2);"));
   }
 
   /* 2. Bauer und Grand Gambit tragen in der Aufstellung EIN Mass. */

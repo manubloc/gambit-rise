@@ -1,5 +1,20 @@
 # Changelog - Grand Gambit
 
+## 1.3.1
+- GERADE IST DIE REGEL, GEKRUEMMT DIE AUSNAHME (Besitzerentscheid): "Bitte die
+  Roehrchen immer das gerade nehmen im normalen Menue. Nur im Spiel selbst das
+  gekruemmte." Technisch ist das auch die richtige Voreinstellung - die
+  Kruemmung hat genau EINEN Grund: sie nimmt die Woelbung des Figurensockels
+  auf, und den gibt es nur am Brett. Jede neue Verwendungsstelle bekommt jetzt
+  die schlichte Fassung, ohne dass jemand daran denken muss.
+- DIE ZEICHENFLAECHE IST IMMER GLEICH HOCH, und das war ein echter Fehler mit
+  Reichweite: die Perle braucht Platz UEBER dem Rohr, also war das SVG bei
+  einer Figur MIT Talent hoeher als bei einer ohne. Weil beide unten buendig
+  sitzen, rutschte das Rohr ohne Perle nach oben - zwei Figuren nebeneinander
+  haetten ihr Rohr auf verschiedener Hoehe getragen, ein Zittern ueber die
+  ganze Reihe. Der Besitzer hat es im Trainieren-Entwurf gesehen, wo dieselbe
+  Figur zweimal nebeneinander steht.
+
 ## 1.3.0
 - DAS LEBENSROHR ERSETZT DIE ZAHLENPERLEN. Besitzerbefund mit Screenshot:
   "Ein Screen wie hier ist schon ueberladen." Gezaehlt: rund siebzig Perlen
