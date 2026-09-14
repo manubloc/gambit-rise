@@ -241,6 +241,9 @@ export const GLOBAL_CSS = `
     *, *::before, *::after { animation-duration: .01ms !important;
       animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
   }
+  /* v1.4.9: das sanfte Erscheinen auf dem Brett - ohne Groessensprung. Nur
+     Deckkraft und ein Hauch Hoehe, damit nichts "aufploppt". */
+  @keyframes ggSanft { from { opacity: 0; transform: translateY(1.5%); } to { opacity: 1; transform: translateY(0); } }
   @keyframes pop { from { transform: scale(.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
   /* v1.0.14: DAS SETZEN AUFS FELD. Kein Erscheinen, sondern ein Ankommen:
      die Figur staucht beim Aufsetzen kurz in die Breite und federt zurueck -

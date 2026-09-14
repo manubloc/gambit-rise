@@ -1,5 +1,18 @@
 # Changelog - Grand Gambit
 
+## 1.4.9
+- DER VERSATZ BEIM ZIEHEN IST WEG - nach vier Messungen. Der Besitzer sah
+  "beim Ziehen einen kurzen Versatz, manchmal". Gemessen war es KEIN Versatz
+  der Position (0,1 px, unsichtbar), sondern ein Sprung der GROESSE: die
+  ankommende Figur startete bei scale(.6) und wuchs auf 1 - die
+  Erscheinungsanimation "pop", die dort nicht hingehoert.
+- BEWIESEN IN DER TRANSFORM-KETTE: vorher [pop]: matrix(0.787...), jetzt
+  [ggSanft]: matrix(1, 0, 0, 1, 0, 0.47) - kein Skalierungsfaktor mehr, nur
+  ein halber Pixel Hoehenversatz beim Einblenden.
+- AUF DEM BRETT gilt jetzt ggSanft: nur Deckkraft und ein Hauch Hoehe.
+  Ausserhalb (Hofstaat, Aufstellung) bleibt pop - dort erscheinen Figuren
+  wirklich neu, und der Sprung ist gewollt.
+
 ## 1.4.4
 - DIE KANTE OBEN IST WEG (Besitzerbefund: "Der schwarze Verlauf zur Leiste
   nach oben fehlt immer noch, da ist immer so eine komische Kante, das sieht

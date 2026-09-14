@@ -599,6 +599,26 @@ export function PieceGlyph({ piece, showLevel = true, pov = "w", artStyle = "pai
            dem alten -7%-Start ergab das den doppelten Ruck. Die Kurve ist
            jetzt ruhig (ease-out), das Federn steckt allein in den Keyframes. */
         : zuletzt ? `${white ? "ggGoldBlitz" : "ggRissBlitz"} 2.6s ease-out both, ggLandung .3s cubic-bezier(.22,.68,.32,1) both`
+        /* ── KEIN POP AUF DEM BRETT MEHR (v1.4.9) ────────────────────────
+           Vier Messungen haben hierher gefuehrt. Der Besitzer sah "beim
+           Ziehen einen kurzen Versatz, manchmal" - gemessen war es kein
+           Versatz der Position (0,1 px), sondern ein Sprung der GROESSE: die
+           ankommende Figur startete bei scale(.6) und wuchs auf 1.
+
+           Die Unterscheidung dafuer gibt es (zuletzt -> ggLandung statt pop),
+           und die Zelle setzt sie auch richtig. Nur greift sie einen
+           Rendering-Takt zu spaet: die Figur steht schon im Zielfeld, waehrend
+           lastMove sie noch nicht erreicht hat. In diesem einen Takt startet
+           pop - und der Rest springt zu, wenn die Landung uebernimmt.
+
+           Statt an diesem Takt zu drehen, faellt pop AUF DEM BRETT ganz weg.
+           Es war ohnehin die grobste Loesung: ein Sprung von 60 % auf 100 %
+           fuer etwas, das entweder landet (dann gilt ggLandung) oder still
+           erscheint (Aufbau, Verwandlung) - und dort ist ein sanftes
+           Einblenden richtiger als ein Aufploppen. Ausserhalb des Bretts
+           (Hofstaat, Aufstellung) bleibt pop, da erscheinen Figuren wirklich
+           neu. */
+        : aufsBrett ? "ggSanft .22s ease-out both"
         : "pop .18s ease",
       boxSizing: "border-box" }}>
 

@@ -232,5 +232,21 @@ console.log("\n== BRETTRAND: Sperren mittig, Band praesent, Summen nah (v1.2.3) 
     gs2.includes("minHeight: 26, marginBottom: -6") && gs2.includes("marginTop: -6,"));
 }
 
+console.log("\n== KEIN GROESSENSPRUNG BEIM ZIEHEN (v1.4.9) ==");
+{
+  const pg2 = readFileSync("src/app/ui/board/PieceGlyph.jsx", "utf8");
+  const th = readFileSync("src/app/ui/theme.js", "utf8");
+  /* GEMESSEN ueber vier Runden: der "kurze Versatz" des Besitzers war kein
+     Versatz der Position (0,1 px), sondern ein Sprung der GROESSE - die
+     ankommende Figur startete bei scale(.6) und wuchs auf 1. */
+  ok("auf dem Brett erscheint eine Figur ohne Groessensprung",
+    pg2.includes('aufsBrett ? "ggSanft'));
+  ok("ggSanft aendert nur Deckkraft und Hoehe, nie die Groesse",
+    /@keyframes ggSanft \{[^}]*opacity[^}]*translateY[^}]*\}/.test(th)
+    && !/@keyframes ggSanft \{[^}]*scale/.test(th));
+  ok("ausserhalb des Bretts bleibt pop (dort erscheinen Figuren wirklich neu)",
+    pg2.includes('"pop .18s ease"'));
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
