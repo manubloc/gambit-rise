@@ -1498,6 +1498,43 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
        Unterschied */
     const lock = JSON.parse(readFileSync("package-lock.json", "utf8"));
     ok("package-lock traegt dieselbe Version", lock.version === pkg.version);
+
+    /* ── UND DIE EINTRAEGE MUESSEN VORWAERTS LAUFEN (v1.13.2) ──────────────
+       Die Probe oben prueft GLEICHHEIT, nicht FORTSCHRITT - und genau da
+       ist sie durchgerutscht: bei v1.13.2 wurde package.json auf den
+       obersten Eintrag 1.13.1 gezogen, beide stimmten ueberein, die Probe
+       war gruen, und ein zweites Bundle ging unter derselben Nummer live.
+       Eine wiederholte oder ruecklaeufige Nummer im CHANGELOG ist der
+       sichtbare Abdruck dieses Fehlers. */
+    const alle = [...chg.matchAll(/^## (\d+\.\d+\.\d+)/gm)].map((m) => m[1]);
+    const zahl = (v) => v.split(".").map(Number);
+    const groesser = (a, b) => {
+      const [x, y] = [zahl(a), zahl(b)];
+      for (let i = 0; i < 3; i++) if (x[i] !== y[i]) return x[i] > y[i];
+      return false;
+    };
+    ok("das CHANGELOG hat mehr als einen Eintrag", alle.length > 1);
+
+    /* ALTLAST, EINGEFROREN: diese zehn Nummern wurden frueher je zweimal
+       (0.49.0 dreimal) vergeben - der sichtbare Abdruck desselben Fehlers,
+       lange bevor er benannt war. Die Geschichte wird NICHT umgeschrieben:
+       es waren tatsaechlich zwei Pushes unter einer Nummer, und das soll
+       lesbar bleiben. Die Liste ist geschlossen - jede NEUE Doppelnummer
+       faellt durch. (Gleiche Haltung wie bei der HQ-Luecke im Bildarchiv.) */
+    const ALTLAST = new Set(["1.1.8", "1.1.7", "1.0.91", "1.0.38", "1.0.37",
+      "1.0.36", "0.50.0", "0.49.0", "0.22.32", "0.22.13"]);
+    const doppelt = [...new Set(alle.filter((v, i) => alle.indexOf(v) !== i))];
+    const neuDoppelt = doppelt.filter((v) => !ALTLAST.has(v));
+    ok(`keine NEUE Doppelnummer im CHANGELOG${neuDoppelt.length ? ` (neu doppelt: ${neuDoppelt.join(", ")})` : ""}`,
+      neuDoppelt.length === 0);
+    ok(`die Altlast waechst nicht (${doppelt.length} von ${ALTLAST.size})`,
+      doppelt.length <= ALTLAST.size);
+
+    const rueck = alle.slice(1)
+      .filter((v, i) => !groesser(alle[i], v))
+      .filter((v) => !ALTLAST.has(v));
+    ok(`die Eintraege laufen streng absteigend${rueck.length ? ` (Bruch bei: ${rueck.join(", ")})` : ""}`,
+      rueck.length === 0);
   }
 
   /* 2. Bauer und Grand Gambit tragen in der Aufstellung EIN Mass. */

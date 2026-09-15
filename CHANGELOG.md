@@ -1,5 +1,16 @@
 # Changelog - Grand Gambit
 
+## 1.13.2
+- DIE PROBE PRUEFTE GLEICHHEIT, NICHT FORTSCHRITT: der Commit, der das
+  vergessene Hochzaehlen behob, hat selbst nicht hochgezaehlt. Er zog
+  package.json auf den obersten CHANGELOG-Eintrag (1.13.1) - beide gleich,
+  Probe gruen, und trotzdem ging ein zweites Bundle unter derselben Nummer
+  live. Die Anzeige im Profil vergleicht Server- und Geraeteversion; zwei
+  verschiedene Builds mit einer Nummer kann sie nicht unterscheiden.
+  Jetzt: 1.13.2, die Eintraege muessen streng absteigend und doppelfrei
+  sein, und ein Torwaechter (scripts/pruefe-version-fortschritt.mjs) laesst
+  keinen Push zu, dessen Version nicht groesser ist als die auf origin/main.
+
 ## 1.13.1
 - DAS BUNDFENSTER TRAEGT DIE FARBE SEINER FAEHIGKEIT: das Symbol sitzt in der
   Regelbox statt ueber dem Namen, die Box uebernimmt den Grundton des
