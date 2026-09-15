@@ -27,6 +27,28 @@ const FAMILIE = {
 
 // Fähigkeit -> [Familie, Zeichenpfad]. Die Pfade leben in einem 24er-Raster,
 // Mittelpunkt 12/12; stroke-basiert, damit sie in jeder Größe fein bleiben.
+/* ── DIE ZEHN BUENDE (v1.12.1) ────────────────────────────────────────────
+   Besitzerwunsch: "Die Faehigkeiten von jedem Bund brauchen ein Symbol wie
+   auch die anderen Faehigkeitssymbole haben."
+
+   Sie liegen in derselben Tabelle wie die Talente und nutzen dieselben
+   Familienfarben - ein Bundsymbol soll wie ein Talentsymbol aussehen, nur
+   fuer etwas Groesseres stehen. Jedes zeigt das DING, nach dem der Bund
+   heisst, nicht seine Wirkung: eine Krone, ein Rat, eine Spur. Die Wirkung
+   steht daneben in Worten. */
+const BUND_Z = {
+  bund_krone:       ["krone",    <g key="g"><path d="M5 16h14" /><path d="M5 16l1.5-7 3.5 4L12 7l2 6 3.5-4L19 16" /></g>],
+  bund_konzil:      ["krone",    <g key="g"><circle cx="12" cy="12" r="6" /><circle cx="12" cy="7" r="1.5" fill="currentColor" stroke="none" /><circle cx="16.5" cy="14.5" r="1.5" fill="currentColor" stroke="none" /><circle cx="7.5" cy="14.5" r="1.5" fill="currentColor" stroke="none" /></g>],
+  bund_geleit:      ["sprung",   <g key="g"><path d="M7 9h10" /><path d="M14 6l3 3-3 3" /><path d="M17 15H7" /><path d="M10 12l-3 3 3 3" /></g>],
+  bund_faehrte:     ["schritt",  <g key="g"><path d="M8 18c0-2 1-3 1-5" /><path d="M15 16c0-2 1-3 1-5" /><circle cx="8" cy="19" r="1.2" fill="currentColor" stroke="none" /><circle cx="15" cy="17" r="1.2" fill="currentColor" stroke="none" /><path d="M9 7l2 2 2-2" /></g>],
+  bund_schatten:    ["riss",     <g key="g"><path d="M12 5a7 7 0 100 14 7 7 0 010-14z" /><path d="M12 5v14" strokeDasharray="2 2" /></g>],
+  bund_schildwacht: ["geschoss", <g key="g"><path d="M12 5l6 2v6c0 3-2.5 5-6 6-3.5-1-6-3-6-6V7z" /><path d="M9 12l2 2 4-4" /></g>],
+  bund_gezeiten:    ["sprung",   <g key="g"><path d="M4 13c2-2 4-2 6 0s4 2 6 0 4-2 4 0" /><path d="M4 17c2-2 4-2 6 0s4 2 6 0 4-2 4 0" /><path d="M12 5v5" /></g>],
+  bund_bannkreis:   ["riss",     <g key="g"><circle cx="12" cy="12" r="7" strokeDasharray="3 2" /><path d="M9 9l6 6M15 9l-6 6" /></g>],
+  bund_sturm:       ["schlag",   <g key="g"><path d="M13 4l-5 8h4l-2 8 6-9h-4z" /></g>],
+  bund_nachtwache:  ["leben",    <g key="g"><path d="M16 5a6.5 6.5 0 11-7 9.5A6.5 6.5 0 0016 5z" /><circle cx="8" cy="8" r="1" fill="currentColor" stroke="none" /><circle cx="6.5" cy="11.5" r="0.8" fill="currentColor" stroke="none" /></g>],
+};
+
 const Z = {
   // SCHRITT — Pfeile, die Wege zeigen
   pawn_sidestep:       ["schritt", <g key="g"><path d="M12 7v4" /><path d="M6 14h4M18 14h-4" /><path d="M8 12l-2 2 2 2M16 12l2 2-2 2" /></g>],
@@ -65,7 +87,7 @@ const Z = {
 /** Das runde Zeichen einer Fähigkeit. Unbekannte Kennungen tragen das Zeichen
  *  des Risses — besser ein ehrliches Fragezeichen in Violett als ein Loch. */
 export function AbilityIcon({ id, size = 30 }) {
-  const [famName, glyph] = Z[id] || ["riss", <text key="t" x="12" y="16" textAnchor="middle" fontSize="11" fill="currentColor" stroke="none">?</text>];
+  const [famName, glyph] = Z[id] || BUND_Z[id] || ["riss", <text key="t" x="12" y="16" textAnchor="middle" fontSize="11" fill="currentColor" stroke="none">?</text>];
   const f = FAMILIE[famName];
   const rid = "abi-" + id;
   return (

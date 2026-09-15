@@ -58,7 +58,13 @@ ok("every dragon node unfolds its 2x2 block with valid wing refs", dragonNodes >
   for (const n of CAMPAIGN) { const m = effectiveMap(n, 5); eff[m] = (eff[m] || 0) + 1; }
   const x8 = (eff.classic || 0) + (eff.courtyard || 0) + (eff.gauntlet || 0);
   ok("8x8 boards carry a clear majority of stations", x8 / CAMPAIGN.length >= 0.6);
-  ok("classic alone is the single largest board", Object.entries(eff).every(([k, v]) => k === "classic" || v <= eff.classic));
+  /* v1.13.0: die drei 8x8-Karten teilen sich die fruehen Kapitel fast
+     gleichmaessig - welche davon die meisten Stationen hat, ist Zufall der
+     Verteilung und sagt nichts ueber das Spiel. Was zaehlt: KEINE
+     Nicht-8x8-Karte darf so haeufig sein wie eine 8x8. */
+  const grossteAcht = Math.max(eff.classic || 0, eff.courtyard || 0, eff.gauntlet || 0);
+  ok("keine Sonderkarte kommt so oft wie die 8x8-Bretter",
+    (eff.skirmish || 0) < grossteAcht && (eff.arena || 0) < grossteAcht);
 }
 // ── the look back: a mastered league replays as an honest friendly ──
 {
@@ -117,8 +123,13 @@ ok("every dragon node unfolds its 2x2 block with valid wing refs", dragonNodes >
     ersteHp >= Math.floor(haupt5.length * 0.35) && ersteHp <= Math.ceil(haupt5.length * 0.65));
   ok("ab dem Erwachen bleibt es bei HP", haupt5.slice(ersteHp).every((n) => n.rules === "hp"));
   ok("das Erwachen traegt seine Geschichte", /erwacht/.test((haupt5[ersteHp] || {}).storyDe || ""));
-  ok("in der Schachschule wechseln die Karten",
-    new Set(k1.filter((n) => n.haupt).map((n) => n.map)).size >= 4);
+  /* v1.13.0: DREI Karten, nicht mehr vier. Besitzerentscheid: die ersten
+     Kapitel bleiben bei 8x8, damit dieselbe Aufstellung ueberall passt.
+     Klassik, Hof und Schneise sind alle drei 8x8 - sie unterscheiden sich in
+     Loechern und Sperren, nicht im Mass. Die Abwechslung bleibt also, nur
+     ohne dass der Spieler umdenken muss. */
+  ok("in der Schachschule wechseln die Karten - aber alle im selben Mass",
+    new Set(k1.filter((n) => n.haupt).map((n) => n.map)).size >= 3);
   /* v1.0.20: Die Schachschule WIRBT SEHR WOHL FIGUREN AN - das ist ihr Zweck.
      Der Besitzer will, dass Kapitel I neue Figuren und neue Gangarten
      schenkt, waehrend die Lebenspunkte noch schlafen. Frueher stand hier das
@@ -142,6 +153,36 @@ ok("every dragon node unfolds its 2x2 block with valid wing refs", dragonNodes >
   const weit = { ...frisch, campaign: { ...frisch.campaign, league: 5, cleared: bis, unlocked: bis } };
   ok("nach der Schachhaelfte von Kapitel V erwacht sie", hpWach(weit));
   ok("und der Trank steht im Laden", itemRevealed(weit, ITEMS.potion));
+}
+
+console.log("\n== DIE KARTEN KOMMEN NACH UND NACH (v1.13.0) ==");
+{
+  /* CAMPAIGN und mapById sind oben schon importiert - ein zweiter Import
+     mit await haette die Datei still abbrechen lassen. */
+  const st2 = CAMPAIGN;
+  const massVon = (id) => { const m = mapById(id); return m ? `${m.w}x${m.h}` : "?"; };
+
+  /* DIE ERSTEN KAPITEL BLEIBEN BEI 8x8. Besitzerentscheid: "Wir sollten die
+     Karten erst nach und nach sehr spaet freischalten und vorerst nur im 8x8
+     bleiben, damit die Aufstellung und die Decks, die man baut, immer
+     dieselben sind."
+
+     Vorher liefen alle fuenf Karten ab Kapitel 1 reihum - ein Spieler sah in
+     den ersten Stationen fuenf verschiedene Bretter, bevor er eines
+     verstanden hatte. */
+  const frueh = [...new Set(st2.filter((s) => (s.league || 1) <= 4).map((s) => s.map))];
+  const masse = [...new Set(frueh.map(massVon))];
+  ok(`die ersten vier Kapitel spielen nur auf 8x8 (${masse.join(", ")})`,
+    masse.length === 1 && masse[0] === "8x8");
+
+  /* Und die neuen Karten fuehrt der GROSSMEISTER ein - nicht irgendeine
+     Station mittendrin. Eine neue Kartenform zwischen zwei gewoehnlichen
+     Gefechten wirkt wie ein Zufall. */
+  for (const [karte, kapitel] of [["skirmish", 5], ["arena", 7]]) {
+    const erste = st2.find((s) => s.map === karte);
+    ok(`${karte} erscheint zuerst in Kapitel ${kapitel}`, erste && erste.league === kapitel);
+    ok(`und zwar beim Endboss`, erste && !!erste.boss);
+  }
 }
 
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);

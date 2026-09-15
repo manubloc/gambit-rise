@@ -57,7 +57,47 @@ const PHASEN = [
 ];
 const AST_DE = ["Ein Seitenpfad zweigt ab nach", "Abseits des Weges liegt", "Ein stiller Umweg f\u00fchrt zu"];
 const AST_EN = ["A side path branches toward", "Off the road lies", "A quiet detour leads to"];
-const MAPS = ["classic", "skirmish", "courtyard", "gauntlet", "arena"];
+/* ── DIE KARTEN KOMMEN NACH UND NACH (v1.13.0) ───────────────────────────
+   Besitzerentscheid nach einem Blick auf die Kampagne: "Ich glaub, wir
+   sollten die Karten echt erst nach und nach sehr spaet freischalten und
+   vorerst nur im 8x8 bleiben."
+
+   GEMESSEN, was vorher war: alle fuenf Karten liefen ab Kapitel 1 reihum
+   (MAPS[i % 5]). Ein Spieler sah in den ersten Stationen fuenf verschiedene
+   Bretter, bevor er eines verstanden hatte - und die Aufstellung, die er sich
+   zurechtgelegt hatte, passte auf dem naechsten schon nicht mehr.
+
+   JETZT BLEIBT ES LANGE BEI 8x8. Klassik, Hof und Schneise sind alle drei
+   8x8 - sie unterscheiden sich in Loechern und Sperren, nicht im Mass.
+   Dadurch gilt dieselbe Aufstellung ueberall, und das Menue braucht keine
+   Kartenauswahl.
+
+   SCHARMUETZEL (6x6) kommt ab Kapitel 6, ARENA (10x10) ab Kapitel 8 - erst
+   dann aendert sich das Mass, und erst dann muss der Spieler umdenken. */
+const MAPS = ["classic", "courtyard", "gauntlet"];          // alle 8x8
+const MAPS_AB = { skirmish: 6, arena: 8 };                   // Kapitel der Einfuehrung
+
+/** Welche Karten stehen in diesem Kapitel zur Verfuegung? */
+function kartenFuer(kapitel) {
+  const l = [...MAPS];
+  for (const [id, ab] of Object.entries(MAPS_AB)) if (kapitel >= ab) l.push(id);
+  return l;
+}
+
+/* ── DER GROSSMEISTER FUEHRT DIE NEUE KARTE EIN (v1.13.0) ─────────────────
+   Besitzerwunsch: "Ich faende es besonders interessant, wenn insbesondere die
+   Grossmeister die neuen Maps einfuehren. Also nicht, dass es irgendwo in der
+   Karte das erste Mal erscheint."
+
+   Er hat recht, und der Grund ist erzaehlerisch: eine neue Kartenform, die
+   zwischen zwei gewoehnlichen Stationen auftaucht, wirkt wie ein Zufall. Der
+   Grossmeister am ENDE des VORKAPITELS ist der richtige Ort - er zeigt sie
+   einmal, man kaempft darauf um etwas, und ab dem naechsten Kapitel gehoert
+   sie dazu.
+
+   Deshalb bekommt der Boss von Kapitel 5 das Scharmuetzel und der von
+   Kapitel 7 die Arena. */
+const BOSS_ZEIGT = { 5: "skirmish", 7: "arena" };
 
 // KAPITEL I IST DIE SCHULE DES SCHACHS (Besitzerwunsch, v0.77): die erste
 // HAELFTE des Hauptastes wird auf WECHSELNDEN Karten nach reinen Schachregeln
@@ -243,7 +283,12 @@ SLOTS.forEach(([key, name, roman], si) => {
       id, league: liga, place: ort,
       col: Math.round((p.x / v.breite) * 6),
       row: Math.round((1 - p.y / v.hoehe) * 12),
-      map: MAPS[(rang ?? i) % MAPS.length],
+      /* v1.13.0: aus den Karten, die dieses Kapitel schon kennt - ausser der
+         Grossmeister stellt gerade eine neue vor. */
+      map: (() => {
+        if (rang === H - 1 && BOSS_ZEIGT[liga]) return BOSS_ZEIGT[liga];
+        const l = kartenFuer(liga); return l[(rang ?? i) % l.length];
+      })(),
       chapter: phase + 1,
       haupt: imHaupt || undefined,
       /* Schach gilt in allen Kapiteln VOR dem Erwachen, und im Kapitel des

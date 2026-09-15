@@ -333,7 +333,12 @@ ok("fresh profile: only classic, no HP", mapUnlocked(fresh, "classic") && !mapUn
     unlocked: [...(nachKapEins.campaign.unlocked || []), ...bisFuenf] } };
   ok("hp opens once the awakening is reachable", hpUnlocked(bisErwachen));
 }
-ok("fork maps open with the fork, arena stays shut", mapUnlocked(prof, "skirmish") && mapUnlocked(prof, "courtyard") && !mapUnlocked(prof, "arena"));
+/* v1.13.0: DIE KARTEN KOMMEN SPAETER. Das Scharmuetzel war frueher von
+   Anfang an dabei; seit dem Besitzerentscheid fuehrt es der Grossmeister von
+   Kapitel 5 ein, die Arena der von Kapitel 7. Geprueft wird jetzt, was
+   unveraendert gilt: die 8x8-Karten stehen frueh offen, die Arena nicht. */
+ok("die 8x8-Karten stehen frueh offen, die Arena nicht",
+  mapUnlocked(prof, "courtyard") && mapUnlocked(prof, "gauntlet") && !mapUnlocked(prof, "arena"));
 
 
 // ── v0.20: turncoat duels bench your own copy of the challenger ──────────────

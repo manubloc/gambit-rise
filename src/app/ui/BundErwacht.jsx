@@ -19,8 +19,24 @@ import { T } from "./theme.js";
 import { BUENDE } from "../../content/buende.js";
 import { CHARACTERS } from "../../content/index.js";
 import { paintedForPiece } from "./board/paintedArt.js";
+import { AbilityIcon } from "./AbilityIcons.jsx";
 
-/* Die vier Kulissen - jeder Bund traegt eine, wie seine Figuren. */
+/* ── DIE ECHTEN KULISSEN (v1.12.1) ───────────────────────────────────────
+   Besitzerwunsch: "Was ich gut faende, wenn diese Popups evtl auch den
+   Hintergrund haben, die auch die anderen haben."
+
+   Statt eines Farbverlaufs traegt das Fenster jetzt dasselbe Bild wie die
+   Figurenkarten dieses Bundes - Hof, Wildnis, Riss oder Schmiede. Der
+   Verlauf bleibt als Rueckfall darunter, falls ein Bild fehlt.
+
+   Darueber liegt ein dunkler Schleier: der Text muss lesbar bleiben, und ein
+   Hintergrund, der mit der Schrift kaempft, hilft niemandem. */
+import kulisseHof from "./assets/karten/karte-hof.webp";
+import kulisseWildnis from "./assets/karten/karte-wildnis.webp";
+import kulisseRiss from "./assets/karten/karte-riss.webp";
+import kulisseSchmiede from "./assets/karten/karte-schmiede.webp";
+
+const BILD = { hof: kulisseHof, wildnis: kulisseWildnis, riss: kulisseRiss, schmiede: kulisseSchmiede };
 const KULISSE = {
   hof: "radial-gradient(120% 90% at 50% 10%, #3a2d5e 0%, #241a3e 46%, #14102a 100%)",
   wildnis: "radial-gradient(120% 90% at 50% 10%, #24402f 0%, #1a2e26 46%, #101c1a 100%)",
@@ -43,13 +59,25 @@ export function BundErwacht({ bundId, en, onClose }) {
         background: KULISSE[b.stimmung] || KULISSE.hof,
         border: "1px solid rgba(167,139,250,.5)", borderRadius: 18,
         boxShadow: "0 18px 60px rgba(0,0,0,.7), 0 0 40px rgba(124,58,237,.18)",
-        padding: "18px 16px 16px", textAlign: "center" }}>
+        padding: "18px 16px 16px", textAlign: "center",
+        position: "relative", overflow: "hidden" }}>
+
+        {/* die Kulisse des Bundes, gedaempft - der Text hat Vorrang */}
+        {BILD[b.stimmung] && <img src={BILD[b.stimmung]} alt="" aria-hidden draggable={false}
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
+            objectFit: "cover", opacity: 0.42, pointerEvents: "none" }} />}
+        <div aria-hidden style={{ position: "absolute", inset: 0, pointerEvents: "none",
+          background: "linear-gradient(180deg, rgba(10,7,19,.32) 0%, rgba(10,7,19,.62) 58%, rgba(10,7,19,.86) 100%)" }} />
+        <div style={{ position: "relative" }}>
 
         {/* Die Ueberschrift sagt, was geschehen ist - nicht der Bundname
             allein, der stuende ohne Zusammenhang da. */}
         <div className="gg-serif" style={{ fontSize: 10.5, letterSpacing: ".18em",
           color: "rgba(196,181,253,.9)", marginBottom: 4 }}>
           {en ? "A BOND AWAKENS" : "EIN BUND ERWACHT"}
+        </div>
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: 4 }}>
+          <AbilityIcon id={`bund_${b.id}`} size={38} />
         </div>
         <div className="gg-quill" style={{ fontSize: 27, fontWeight: 700, color: "#f2ecdc",
           marginBottom: 12, textShadow: "0 0 18px rgba(167,139,250,.45)" }}>{name}</div>
@@ -90,8 +118,9 @@ export function BundErwacht({ bundId, en, onClose }) {
           background: "linear-gradient(180deg,#5b21b6,#3b1080)", color: "#fff",
           font: "700 14.5px system-ui", letterSpacing: ".02em",
           boxShadow: "0 0 16px rgba(124,58,237,.45)" }}>
-          {en ? "So be it" : "So sei es"}
+          {en ? "Understood" : "Verstanden"}
         </button>
+        </div>
       </div>
     </div>
   );
