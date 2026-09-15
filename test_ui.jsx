@@ -1553,6 +1553,37 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
       mitPython.length === 0 || installiert);
   }
 
+  /* ── JEDER BUND HAT SEINE EIGENE KULISSE (v1.13.4) ──────────────────────
+     Vorher teilten sich zehn Buende vier Stimmungsbilder, drei sahen also
+     gleich aus. Diese Probe haelt fest, dass es bei einem Bild je Bund
+     bleibt - und dass das Fenster nach der Bund-Id greift, nicht nach der
+     Stimmung (sonst faellt es still auf drei Doppelgaenger zurueck). */
+  {
+    const { readdirSync } = await import("node:fs");
+    const { BUENDE } = await import("./src/content/buende.js");
+    const ids = Object.keys(BUENDE);
+    const da = new Set(readdirSync("src/app/ui/assets/kulissen")
+      .filter((f) => f.startsWith("bund-") && f.endsWith(".webp"))
+      .map((f) => f.slice(5, -5)));
+    const fehlen = ids.filter((id) => !da.has(id));
+    ok(`jeder der ${ids.length} Buende hat seine Kulisse${fehlen.length ? ` (fehlen: ${fehlen.join(", ")})` : ""}`,
+      fehlen.length === 0);
+    const be = readFileSync("src/app/ui/BundErwacht.jsx", "utf8");
+    ok("das Bundfenster waehlt nach der Bund-Id, nicht nach der Stimmung",
+      be.includes("BILD[b.id]") && !be.includes("BILD[b.stimmung]"));
+
+    /* Dieselbe Haltung wie bei den Figuren: was live liegt, liegt auch in
+       hoher Qualitaet im Archiv. Anders als dort ist hier KEINE Luecke
+       bekannt - der Satz kam vollstaendig herein, und das soll so bleiben. */
+    const live = readdirSync("src/app/ui/assets/kulissen")
+      .filter((f) => f.endsWith(".webp")).map((f) => f.slice(0, -5));
+    const hq = new Set(readdirSync("archiv/bilder/kulissen-hq")
+      .filter((f) => f.endsWith(".png")).map((f) => f.slice(0, -4)));
+    const ohne = live.filter((n) => !hq.has(n));
+    ok(`jede Kulisse liegt als HQ im Archiv (${live.length} Kulissen${ohne.length ? ", ohne HQ: " + ohne.join(", ") : ""})`,
+      ohne.length === 0);
+  }
+
   /* 2. Bauer und Grand Gambit tragen in der Aufstellung EIN Mass. */
   ok("kein getrenntes Mass mehr fuer Held und Bauer",
     !/isHero \? "clamp\(26px, 10\.5vw, 86px\)" : "clamp\(24px, 9\.4vw, 76px\)"/.test(q));

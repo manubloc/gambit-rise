@@ -1,5 +1,19 @@
 # Changelog - Grand Gambit
 
+## 1.13.4
+- JEDER BUND HAT JETZT SEINE EIGENE KULISSE: bis hierher teilten sich die zehn
+  Buende vier Stimmungsbilder (Hof, Wildnis, Riss, Schmiede) - drei Buende
+  sahen damit aus wie ihre Nachbarn. Der Besitzer hat zehn eigene Hintergruende
+  geliefert; das Bundfenster greift jetzt nach der Bund-Id statt nach der
+  Stimmung. Der Farbverlauf bleibt als Rueckfall darunter.
+- DER GANZE KULISSENSATZ LIEGT EIN: 27 Bilder (10 Buende, 12 Grossmeister,
+  4 Monstergruppen, 1 Drache), aus den 1024x1536-Originalen auf 512x768 WebP
+  q82 gebracht - dasselbe Mass wie die bestehenden Kartenkulissen. Die
+  Originale liegen in hoher Qualitaet unter archiv/bilder/kulissen-hq, und eine
+  Probe haelt fest, dass keine Kulisse ohne HQ-Fassung dazukommt. Verdrahtet
+  sind bisher nur die zehn Bundkulissen; die 17 uebrigen warten darauf, dass
+  entschieden ist, wo sie erscheinen sollen.
+
 ## 1.13.3
 - DIE CI SCHEITERTE SEIT DREI TAGEN, LOKAL WAR ALLES GRUEN: test_zauber misst
   die Sockelfarbe des Drachen mit python3 + Pillow. Auf dieser Maschine liegt

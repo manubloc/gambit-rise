@@ -31,12 +31,29 @@ import { AbilityIcon, FAMILIE, BUND_Z } from "./AbilityIcons.jsx";
 
    Darueber liegt ein dunkler Schleier: der Text muss lesbar bleiben, und ein
    Hintergrund, der mit der Schrift kaempft, hilft niemandem. */
-import kulisseHof from "./assets/karten/karte-hof.webp";
-import kulisseWildnis from "./assets/karten/karte-wildnis.webp";
-import kulisseRiss from "./assets/karten/karte-riss.webp";
-import kulisseSchmiede from "./assets/karten/karte-schmiede.webp";
+/* ── v1.13.4: JEDER BUND HAT JETZT SEINE EIGENE KULISSE ────────────────────
+   Bis hierher teilten sich die zehn Buende vier Stimmungsbilder - Hof,
+   Wildnis, Riss, Schmiede. Drei Buende sahen also gleich aus. Der Besitzer
+   hat zehn eigene Hintergruende geliefert, einen je Bund; sie liegen unter
+   assets/kulissen. Die Stimmung bleibt als Farbverlauf darunter und faengt
+   den Fall ab, dass ein Bild fehlt. */
+import kulisseKrone from "./assets/kulissen/bund-krone.webp";
+import kulisseKonzil from "./assets/kulissen/bund-konzil.webp";
+import kulisseGeleit from "./assets/kulissen/bund-geleit.webp";
+import kulisseFaehrte from "./assets/kulissen/bund-faehrte.webp";
+import kulisseSchatten from "./assets/kulissen/bund-schatten.webp";
+import kulisseSchildwacht from "./assets/kulissen/bund-schildwacht.webp";
+import kulisseGezeiten from "./assets/kulissen/bund-gezeiten.webp";
+import kulisseBannkreis from "./assets/kulissen/bund-bannkreis.webp";
+import kulisseSturm from "./assets/kulissen/bund-sturm.webp";
+import kulisseNachtwache from "./assets/kulissen/bund-nachtwache.webp";
 
-const BILD = { hof: kulisseHof, wildnis: kulisseWildnis, riss: kulisseRiss, schmiede: kulisseSchmiede };
+const BILD = {
+  krone: kulisseKrone, konzil: kulisseKonzil, geleit: kulisseGeleit,
+  faehrte: kulisseFaehrte, schatten: kulisseSchatten, schildwacht: kulisseSchildwacht,
+  gezeiten: kulisseGezeiten, bannkreis: kulisseBannkreis, sturm: kulisseSturm,
+  nachtwache: kulisseNachtwache,
+};
 const KULISSE = {
   hof: "radial-gradient(120% 90% at 50% 10%, #3a2d5e 0%, #241a3e 46%, #14102a 100%)",
   wildnis: "radial-gradient(120% 90% at 50% 10%, #24402f 0%, #1a2e26 46%, #101c1a 100%)",
@@ -67,8 +84,8 @@ export function BundErwacht({ bundId, en, onClose }) {
         padding: "18px 16px 16px", textAlign: "center",
         position: "relative", overflow: "hidden" }}>
 
-        {/* die Kulisse des Bundes, gedaempft - der Text hat Vorrang */}
-        {BILD[b.stimmung] && <img src={BILD[b.stimmung]} alt="" aria-hidden draggable={false}
+        {/* die Kulisse DIESES Bundes, gedaempft - der Text hat Vorrang */}
+        {BILD[b.id] && <img src={BILD[b.id]} alt="" aria-hidden draggable={false}
           style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
             objectFit: "cover", opacity: 0.42, pointerEvents: "none" }} />}
         <div aria-hidden style={{ position: "absolute", inset: 0, pointerEvents: "none",
