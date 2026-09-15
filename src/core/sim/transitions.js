@@ -1,7 +1,7 @@
 import { other, WHITE, BLACK, BASE_HP, BASE_ATK, HP_REMIS_HALBZUEGE } from "../domain/constants.js";
 import { cloneBoard, findKing } from "../domain/board.js";
 import { pseudoMoves, pieceMoves, talentWirkt } from "../rules/moves.js";
-import { kroneFaengtAb, schildwachtDeckt } from "../rules/buende.js";
+import { kroneFaengtAb, schildwachtDeckt, trinkliedHeilt } from "../rules/buende.js";
 import { inCheck } from "../rules/attacks.js";
 import { schlageSperre, loeseFalleAus, zerfalleSperren } from "../rules/sperren.js";
 import { familyOf, familyCount, crownWallSoak } from "../rules/families.js";
@@ -16,6 +16,20 @@ export function cloneState(state) {
        Mauer schon beim ersten Schlag, statt zu broeckeln. */
     ...(state.sperren ? { sperren: state.sperren } : {}),
     ...(state.fallen ? { fallen: state.fallen } : {}),
+    /* ── DIE BUENDE UEBERLEBEN JEDEN ZUG (v1.10.3) ───────────────────────
+       GEFUNDEN beim ersten Trinklied-Versuch: die Heilung griff nie, und der
+       Grund lag nicht bei ihr - cloneState kopierte das Feld `buende` nicht
+       mit. Nach dem ersten Zug war es undefined, und jede Bundregel prallte
+       an einer leeren Liste ab.
+
+       Es wird als REFERENZ weitergereicht, nicht kopiert: die Liste steht
+       beim Aufbau der Partie fest und aendert sich nie. Das Gedaechtnis der
+       Einmal-Buende dagegen MUSS kopiert werden, sonst wuerde ein Zug den
+       Verbrauch eines anderen sehen. */
+    ...(state.buende ? { buende: state.buende } : {}),
+    sturmVerbraucht: { ...(state.sturmVerbraucht || {}) },
+    konzilVerbraucht: { ...(state.konzilVerbraucht || {}) },
+    geleitVerbraucht: { ...(state.geleitVerbraucht || {}) },
     rules: state.rules,
     turn: state.turn,
     captured: { w: [...state.captured.w], b: [...state.captured.b] },
@@ -41,6 +55,23 @@ function altern(ns) {
   if (ns.sperren) {
     const s = zerfalleSperren(ns.sperren, ns.moveCount || 0);
     if (s !== ns.sperren) ns.sperren = s;
+  }
+  /* ── WAS NACH JEDEM ZUG GESCHIEHT (v1.10.3) ──────────────────────────────
+     altern() ist der gemeinsame Ausgang JEDES Zuges - Schlag, Gleiten,
+     Sonderzug, alle laufen hier durch. Deshalb stehen die Buende hier, die
+     nach einem Zug wirken, und nicht an drei verschiedenen Stellen.
+
+     TRINKLIED heilt die Seite, die GERADE GEZOGEN HAT. Nicht die am Zug
+     befindliche: der Alchemist arbeitet, waehrend seine Leute ausruhen, nicht
+     waehrend sie kaempfen. */
+  const heiler = ns.lastMove ? ns.lastMove.color : null;
+  if (heiler) {
+    const zf = trinkliedHeilt(ns, heiler);
+    if (zf != null) {
+      const p = ns.board[zf];
+      p.hp = Math.min(p.maxHp, p.hp + 1);
+      ns.lastMove.bundTrinklied = zf;
+    }
   }
   return ns;
 }

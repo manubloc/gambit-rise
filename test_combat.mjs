@@ -455,5 +455,45 @@ console.log("\n== GEZEITEN: der Kapitaen zieht durch (v1.10.2) ==");
   ok("und erreicht den Gegner dahinter", mit.includes(6));
 }
 
+console.log("\n== DIE BUENDE UEBERLEBEN JEDEN ZUG (v1.10.3) ==");
+{
+  const { createGame: cg4, applyMove: am4 } = await import("./src/core/index.js");
+  const { legalMovesFrom: lm4 } = await import("./src/core/sim/transitions.js");
+  const { buildArmyFromFormation: ba4, defaultFormation: df4 } = await import("./src/meta/index.js");
+  const { mapById: mb4 } = await import("./src/content/index.js");
+  const w4 = 8;
+  const stell = (buende) => {
+    const ar = () => ba4(() => 10, df4(mb4("classic")));
+    const g = cg4(ar(), ar(), { rules: "hp", map: mb4("classic"), buende });
+    for (let i = 0; i < 64; i++) g.board[i] = null;
+    const f = (k, id, c, hp, max) => ({ kind: k, charId: id, color: c, hp, maxHp: max || hp, atk: 6, abilities: [], level: 10, shield: 0 });
+    g.board[3 * w4 + 3] = f("L", "alchemist", "w", 12);
+    g.board[3 * w4 + 4] = f("R", "rook", "w", 5, 12);   // verwundet, daneben
+    g.board[0] = f("N", "knight", "w", 9);
+    g.board[7 * w4 + 7] = f("K", "king", "b", 20);
+    g.board[7 * w4 + 0] = f("K", "king", "w", 20);
+    g.turn = "w";
+    return g;
+  };
+
+  /* DIESE PROBE HAT EINEN FEHLER MIT REICHWEITE GEFUNDEN: cloneState kopierte
+     das Feld `buende` nicht mit. Nach dem ERSTEN Zug war es undefined, und
+     jede Bundregel prallte an einer leeren Liste ab. Die Wirkung war also in
+     Einzeltests da und im Spiel weg - der unangenehmste Fehlertyp. */
+  {
+    const g = stell(["trinklied"]);
+    const n = am4(g, lm4(g, 0)[0]);
+    ok("die Buende stehen auch nach einem Zug noch im Spielstand",
+      Array.isArray(n.buende) && n.buende.includes("trinklied"));
+    ok("der Alchemist heilt den verwundeten Nachbarn", n.board[3 * w4 + 4].hp === 6);
+  }
+  /* Gegenprobe: ohne Bund bleibt der Turm verwundet. */
+  {
+    const g = stell([]);
+    const n = am4(g, lm4(g, 0)[0]);
+    ok("ohne Bund heilt niemand", n.board[3 * w4 + 4].hp === 5);
+  }
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
