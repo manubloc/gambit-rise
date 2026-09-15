@@ -23,6 +23,7 @@
 export const BUENDE = {
   krone: {
     id: "krone",
+    stimmung: "hof",
     nameDe: "Krone", nameEn: "Crown",
     /* Die Dame gehoert dazu - GEFUNDEN beim Abgleich gegen den Bestand: sie
        war als "Traegerin" gedacht wie der Koenig, stand damit aber in keinem
@@ -40,6 +41,7 @@ export const BUENDE = {
   },
   konzil: {
     id: "konzil",
+    stimmung: "hof",
     nameDe: "Konzil", nameEn: "Council",
     figuren: ["archbishop", "chancellor"],
     regelDe: "Der König darf einmal je Partie einen gegnerischen Schlag ablehnen.",
@@ -48,6 +50,7 @@ export const BUENDE = {
   },
   geleit: {
     id: "geleit",
+    stimmung: "hof",
     nameDe: "Geleit", nameEn: "Escort",
     figuren: ["knight", "bishop", "rook"],
     regelDe: "Einmal je Partie tauschen zwei von ihnen die Plätze.",
@@ -56,6 +59,7 @@ export const BUENDE = {
   },
   faehrte: {
     id: "faehrte",
+    stimmung: "wildnis",
     nameDe: "Fährte", nameEn: "Trail",
     figuren: ["hawk", "pathfinder"],
     regelDe: "Zieht einer von beiden, rückt der andere ein Feld nach.",
@@ -64,6 +68,7 @@ export const BUENDE = {
   },
   schatten: {
     id: "schatten",
+    stimmung: "riss",
     nameDe: "Schatten", nameEn: "Shadow",
     figuren: ["assassin", "sorceress", "mage"],
     /* Der Besitzer hat die Regel selbst geschaerft: nicht dauerhaft
@@ -76,6 +81,7 @@ export const BUENDE = {
   },
   schildwacht: {
     id: "schildwacht",
+    stimmung: "schmiede",
     nameDe: "Schildwacht", nameEn: "Shieldwatch",
     figuren: ["engineer", "guardian"],
     /* Auch hier eine Ortsbedingung (Besitzer): "Die muessten in dem Moment
@@ -88,6 +94,7 @@ export const BUENDE = {
   },
   gezeiten: {
     id: "gezeiten",
+    stimmung: "wildnis",
     nameDe: "Gezeiten", nameEn: "Tides",
     figuren: ["captain", "strategist"],
     regelDe: "Der Kapitän zieht durch besetzte Felder hindurch.",
@@ -96,6 +103,7 @@ export const BUENDE = {
   },
   bannkreis: {
     id: "bannkreis",
+    stimmung: "riss",
     nameDe: "Bannkreis", nameEn: "Warding",
     figuren: ["seeress", "inquisitor"],
     regelDe: "Gegnerische Talente im Umkreis von zwei Feldern um die beiden sind gesperrt.",
@@ -104,6 +112,7 @@ export const BUENDE = {
   },
   sturm: {
     id: "sturm",
+    stimmung: "schmiede",
     nameDe: "Sturm", nameEn: "Storm",
     figuren: ["amazon", "warlock"],
     /* GEMESSEN UND GEAENDERT: der erste Entwurf gab der Amazone einen
@@ -117,6 +126,7 @@ export const BUENDE = {
   },
   trinklied: {
     id: "trinklied",
+    stimmung: "schmiede",
     nameDe: "Trinklied", nameEn: "Drinking Song",
     figuren: ["alchemist", "bard", "standard"],
     regelDe: "Der Alchemist heilt zu Beginn deines Zuges eine angrenzende eigene Figur um einen Punkt.",
@@ -124,6 +134,25 @@ export const BUENDE = {
     storyDe: "Drei, die abends zusammensitzen, während der Hof schläft. Am Morgen ist jeder wieder heil.",
   },
 };
+
+/* ── VIER STIMMUNGEN STATT 24 HINTERGRUENDEN (v1.9.1) ─────────────────────
+   Jeder Bund traegt eine von vier Kulissen, und jede Figur erbt sie von
+   ihrem Bund. Der Besitzer wollte es so: "Ich finde es gut, wenn es nicht zu
+   viele Hintergruende sind, aber ein paar unterschiedliche."
+
+   Vier statt 24 hat zwei Vorteile: das Buendel bleibt schlank (156 KB fuer
+   alle vier statt weit ueber einem Megabyte), und die Zugehoerigkeit wird
+   SICHTBAR - wer die Karten nebeneinander sieht, erkennt die Bruder- und
+   Schwesternschaften, ohne ein Zeichen lesen zu muessen. */
+export const STIMMUNGEN = ["hof", "wildnis", "riss", "schmiede"];
+const _ZU_STIMMUNG = new Map();
+for (const b of Object.values(BUENDE)) for (const f of b.figuren) _ZU_STIMMUNG.set(f, b.id);
+
+/** Welche Kulisse traegt diese Figur? Ueber ihren Bund; sonst der Hof. */
+export function stimmungVon(charId) {
+  const b = BUENDE[_ZU_STIMMUNG.get(charId)];
+  return b ? b.stimmung : "hof";
+}
 
 export const BUND_LISTE = Object.values(BUENDE);
 

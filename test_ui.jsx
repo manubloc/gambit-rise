@@ -1427,6 +1427,15 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
     ok("auf halber Stufe ist es halb voll", Math.abs((halb.leben + halb.kraft) - 0.5) < 0.02);
   }
 
+  /* v1.9.1: DER MENUEHINTERGRUND FOLGT DEM KAPITEL. Besitzerbefund,
+     mehrfach vorgetragen: die zwoelf Kapitelbilder gibt es laengst, aber das
+     Menue zeigte immer dieselbe Halle - nur der Farbhauch wechselte. */
+  {
+    const mb = readFileSync("src/app/ui/MysticBackground.jsx", "utf8");
+    ok("das Menue nimmt das Bild des Kapitels", mb.includes("groundArt((("));
+    ok("und faellt auf die Halle zurueck, wenn keines da ist", mb.includes("|| bgHall()"));
+  }
+
   /* 2. Bauer und Grand Gambit tragen in der Aufstellung EIN Mass. */
   ok("kein getrenntes Mass mehr fuer Held und Bauer",
     !/isHero \? "clamp\(26px, 10\.5vw, 86px\)" : "clamp\(24px, 9\.4vw, 76px\)"/.test(q));

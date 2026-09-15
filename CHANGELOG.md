@@ -1,5 +1,17 @@
 # Changelog - Grand Gambit
 
+## 1.9.1
+- DER MENUEHINTERGRUND FOLGT ENDLICH DEM KAPITEL. Besitzerbefund, mehrfach
+  vorgetragen: "Du hast es immer noch nicht geschafft, die Hintergruende in
+  den Menues wiederherzubringen." GEFUNDEN: die zwoelf Kapitelbilder
+  (ground-01 bis ground-12) gibt es laengst und sie werden geladen - aber NUR
+  am Brett. Das Menue zeigte immer dieselbe Halle, nur der Farbhauch wechselte
+  je Liga. Jetzt nimmt es das Bild des Kapitels, in dem man steht.
+- DIE VIER KARTENHINTERGRUENDE sind eingebaut: Hof, Wildnis, Riss, Schmiede.
+  Jeder Bund traegt eine davon, jede Figur erbt sie von ihrem Bund - damit
+  wird die Zugehoerigkeit sichtbar, ohne ein Zeichen lesen zu muessen.
+  156 KB fuer alle vier, Originale im Archiv.
+
 ## 1.9.0
 - DIE ZEHN BUENDE stehen als Datengrundlage: Krone, Konzil, Geleit, Fährte,
   Schatten, Schildwacht, Gezeiten, Bannkreis, Sturm, Trinklied. 24 Figuren,

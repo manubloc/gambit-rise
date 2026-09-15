@@ -1,5 +1,5 @@
 // (hooks no longer needed — the hall stands still)
-import { bgHall } from "./livery.js";
+import { bgHall, groundArt } from "./livery.js";
 
 // ── The hall behind everything ────────────────────────────────────────────────
 // A dark marble board fades out of pure black (the image is embedded, not
@@ -80,7 +80,21 @@ export function MysticBackground({ league = 1 }) {
           the image is wider than the screen, where auto margins would fail). */}
       {(() => {
         const W = mob ? "168%" : "min(112%, 1400px)";
-        return <img src={bgHall()} alt="" draggable={false} style={{ position: "absolute", left: "50%", bottom: mob ? "2vh" : 0,
+        /* ── DER HINTERGRUND FOLGT DEM KAPITEL (v1.9.1) ──────────────────
+           Besitzerbefund, mehrfach: "Du hast es immer noch nicht geschafft,
+           die Hintergruende in den Menues wiederherzubringen. Die waren doch
+           immer basierend darauf, in welchem Kapitel der Riss weitergeht."
+
+           GEFUNDEN: die zwoelf Kapitelbilder (ground-01 bis ground-12) gibt es
+           laengst und sie werden auch geladen - aber NUR am Brett. Das Menue
+           zeigte immer dieselbe Halle (bgHall), unabhaengig davon, wie weit
+           man ist. Der Farbhauch wechselte je Liga, das Bild nie.
+
+           Jetzt nimmt das Menue dasselbe Bild wie das Brett des Kapitels. Wer
+           in Kapitel VII steht, sieht dessen Boden auch im Hofstaat - die
+           Welt reist mit. bgHall bleibt der Rueckfall, falls ein Kapitel kein
+           eigenes Bild hat. */
+        return <img src={groundArt(((Math.max(1, league || 1) - 1) % 12) + 1) || bgHall()} alt="" draggable={false} style={{ position: "absolute", left: "50%", bottom: mob ? "2vh" : 0,
           width: W, marginLeft: `calc(${W} / -2)`, maxWidth: "none", userSelect: "none",
           // Das Brett bringt sein eigenes Violett mit - keine Farbdrehung mehr.
           // Die Maske loest nur noch die Kanten, damit kein Bildrand steht.
