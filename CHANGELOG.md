@@ -1,5 +1,18 @@
 # Changelog - Grand Gambit
 
+## 1.12.0
+- DAS ERWACHEN-FENSTER (Besitzerwunsch): erreicht die letzte Figur eines
+  Bundes die Hoechststufe, geht ein Fenster auf und stellt ihn vor. Es
+  beantwortet drei Fragen - WER hat sich verbunden (die Figuren mit Namen),
+  WAS bewirkt das (die Regel, hervorgehoben), WARUM (die Geschichte, kursiv
+  und stiller).
+- Es traegt die KULISSE seines Bundes, erscheint genau EINMAL je Bund
+  (gemerkt in profile.notices) und geht VOR den Lehrstunden - es ist der
+  seltenere Moment und der, auf den man hingearbeitet hat.
+- Geprueft wird beim Aufbau der Oberflaeche, nicht beim Aufsteigen selbst: so
+  faellt auch der Fall auf, dass jemand mit einem alten Spielstand kommt, bei
+  dem der Bund laengst erwacht waere.
+
 ## 1.11.2
 - DER STURM HAT JETZT EINEN PREIS (Besitzeridee): die Amazone kehrt IMMER
   zurueck, aber der hinterste eigene Bauer faellt dafuer und macht ihr Platz.

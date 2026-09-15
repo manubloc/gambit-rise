@@ -1436,6 +1436,25 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
     ok("und faellt auf die Halle zurueck, wenn keines da ist", mb.includes("|| bgHall()"));
   }
 
+  /* v1.12.0: DAS ERWACHEN-FENSTER. Besitzerwunsch: "Dann kriegt man
+     natuerlich ein Pop-up und der Mechanismus wird erklaert." */
+  {
+    const be = readFileSync("src/app/ui/BundErwacht.jsx", "utf8");
+    const app2 = readFileSync("src/app/App.jsx", "utf8");
+    /* Drei Fragen muss es beantworten: WER hat sich verbunden, WAS bewirkt
+       das, WARUM. Fehlte eines, waere es entweder eine Regelkarte ohne
+       Gesicht oder ein Bild ohne Nutzen. */
+    ok("das Fenster zeigt die Figuren des Bundes", be.includes("b.figuren.map"));
+    ok("es nennt die Regel", be.includes("{regel}"));
+    ok("und erzaehlt die Geschichte", be.includes("{story}"));
+    ok("es traegt die Kulisse seines Bundes", be.includes("KULISSE[b.stimmung]"));
+    /* EINMAL JE BUND - sonst ginge es bei jedem Start wieder auf. */
+    ok("es erscheint nur einmal je Bund", app2.includes("n[`bund_${b.id}`]"));
+    ok("und wird beim Schliessen abgehakt", app2.includes('key: `bund_${bundWach}`'));
+    /* Es geht VOR den Lehrstunden: der seltenere Moment gewinnt. */
+    ok("ein erwachter Bund geht vor den Lehrstunden", app2.includes("&& !teach)\n    ? offenerBund(profile)"));
+  }
+
   /* 2. Bauer und Grand Gambit tragen in der Aufstellung EIN Mass. */
   ok("kein getrenntes Mass mehr fuer Held und Bauer",
     !/isHero \? "clamp\(26px, 10\.5vw, 86px\)" : "clamp\(24px, 9\.4vw, 76px\)"/.test(q));

@@ -2,7 +2,7 @@ import { useEffect, useReducer, useRef, useState } from "react";
 import { klang, klangEinstellen, klangVorwaermen, klangUeberall } from "./ui/klang.js";
 import { musikBereich } from "./ui/musik.js";
 import { setSchlicht } from "./ui/board/paintedArt.js";
-import { formationKey, loadProfile, saveProfile, defaultProfile, buildStageMatch, advanceCampaign, upgradePiece, buySpShard, clearedCount, campaignLength, currentNodeId , unlockAbility, respecPiece, claimAchievement, payToll, takeRestorePoint, serializeSave, isUnlocked } from "../meta/index.js";
+import { characterLevel, maxLevelFor, formationKey, loadProfile, saveProfile, defaultProfile, buildStageMatch, advanceCampaign, upgradePiece, buySpShard, clearedCount, campaignLength, currentNodeId , unlockAbility, respecPiece, claimAchievement, payToll, takeRestorePoint, serializeSave, isUnlocked } from "../meta/index.js";
 import { nodeById, chapterForRow, buyItem, CHARACTER_LIST, clockFor } from "../content/index.js";
 import { verifyPin } from "../platform/index.js";
 import { makeT } from "./i18n/strings.js";
@@ -31,6 +31,8 @@ import { GameScreen, QuickSetup } from "./ui/screens/GameScreen.jsx";
 import { ArmyScreen } from "./ui/screens/ArmyScreen.jsx";
 import { CampaignScreen } from "./ui/screens/CampaignScreen.jsx";
 import { MysticBackground } from "./ui/MysticBackground.jsx";
+import { BundErwacht } from "./ui/BundErwacht.jsx";
+import { BUND_LISTE } from "../content/buende.js";
 import { animAn } from "./ui/anim.js";   // v1.1.4: der Muenzregen fragt, ob Bewegung erlaubt ist
 import { RissBoden } from "./ui/RissBoden.jsx";
 import { BrettHintergrund } from "./ui/BrettHintergrund.jsx";
@@ -503,6 +505,10 @@ export default function App() {
   const showName = !showPrivacy && !showIntro && !(profile.name || "").trim();
   // onboarding lessons appear between battles, never over a running match
   const teach = (!showPrivacy && !showIntro && !showName && !inMatchNow) ? pendingTeach(profile) : null;
+  /* v1.12.0: ein erwachter Bund geht VOR den Lehrstunden - er ist der
+     seltenere Moment und der, auf den man hingearbeitet hat. */
+  const bundWach = (!showPrivacy && !showIntro && !showName && !inMatchNow && !teach)
+    ? offenerBund(profile) : null;
   /* v1.0.44: die naechste Freigabe, die sich noch nicht erklaert hat. Nach
      den Lehrstunden, damit nie zwei Fenster uebereinander stehen - und nie
      mitten in einer Partie. */
@@ -693,6 +699,8 @@ export default function App() {
       {showPrivacy && <PrivacyNotice t={t} dispatch={dispatch} />}
       {showIntro && <GameIntro t={t} en={profile.lang === "en"} dispatch={dispatch} onStart={() => { setTab("play"); setView("hub"); }} />}
       {showName && !inMatch && <NamensRuf t={t} en={profile.lang === "en"} dispatch={dispatch} />}
+      {bundWach && <BundErwacht bundId={bundWach} en={profile.lang === "en"}
+        onClose={() => dispatch({ type: "SET_NOTICE", key: `bund_${bundWach}` })} />}
       {teach && <TeachPopup which={teach} t={t} dispatch={dispatch} />}
       {freigabe && <FreigabeFenster freigabe={freigabe} en={profile.lang === "en"} dispatch={dispatch} />}
       {leaveTo && <LeaveMatchAsk t={t} resumable={!!match && !pvp}
@@ -787,6 +795,8 @@ export default function App() {
       {showPrivacy && <PrivacyNotice t={t} dispatch={dispatch} />}
       {showIntro && <GameIntro t={t} en={profile.lang === "en"} dispatch={dispatch} onStart={() => { setTab("play"); setView("hub"); }} />}
       {showName && !inMatch && <NamensRuf t={t} en={profile.lang === "en"} dispatch={dispatch} />}
+      {bundWach && <BundErwacht bundId={bundWach} en={profile.lang === "en"}
+        onClose={() => dispatch({ type: "SET_NOTICE", key: `bund_${bundWach}` })} />}
       {teach && <TeachPopup which={teach} t={t} dispatch={dispatch} />}
       {freigabe && <FreigabeFenster freigabe={freigabe} en={profile.lang === "en"} dispatch={dispatch} />}
       {leaveTo && <LeaveMatchAsk t={t} resumable={!!match && !pvp}
@@ -1303,6 +1313,25 @@ function PrivacyNotice({ t, dispatch }) {
 }
 
 // ── ONBOARDING: three one-time lessons that ride the natural progression ──
+/* ── WELCHER BUND IST GERADE ERWACHT? (v1.12.0) ──────────────────────────
+   Ein Bund erwacht, wenn ALLE seine Figuren die Hoechststufe erreicht haben.
+   Das Fenster erscheint genau EINMAL je Bund - gemerkt wird das in
+   profile.notices, wie bei den Lehrstunden auch.
+
+   Geprueft wird bei jedem Aufbau der Oberflaeche, nicht beim Aufsteigen
+   selbst: so faellt auch der Fall auf, dass jemand mit einem alten Spielstand
+   kommt, bei dem der Bund laengst erwacht waere. */
+function offenerBund(profile) {
+  if (!profile) return null;
+  const n = profile.notices || {};
+  for (const b of BUND_LISTE) {
+    if (n[`bund_${b.id}`]) continue;
+    const wach = b.figuren.every((id) => (characterLevel(profile, id) || 0) >= (maxLevelFor(id) || 10));
+    if (wach) return b.id;
+  }
+  return null;
+}
+
 function pendingTeach(profile) {
   if (!profile) return null;
   const n = profile.notices || {};
