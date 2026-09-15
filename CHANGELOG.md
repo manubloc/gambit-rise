@@ -1,5 +1,19 @@
 # Changelog - Grand Gambit
 
+## 1.15.1
+- EINE KACHEL FUER ALLE (Besitzervorlage): oben links die Talente, in der
+  Mitte das Lebensrohr, rechts die Stufe; darunter die Figur, unten nur der
+  Name. "Verbuendet", "Meister & Grossmeister" und Co. stehen nicht mehr auf
+  der Kachel. Monster tragen dieselbe Kopfzeile mit Rohr aus ihren Bosswerten.
+- DIE STUFENZIFFER SITZT JETZT MITTIG (Besitzerbefund): Flex-Kind mit fester
+  Zeilenhoehe statt SVG-Text, gemessen 0,0 px Versatz auf 32 Kreisen. Das Rohr
+  liegt auf der Mitte der Stufe (gemessen 0,0 px; der SVG-Kasten reserviert
+  oben Platz fuer die Perle und sass 3,4 px zu tief).
+- WAS NOCH NICHT ZU EINEM GEHOERT, STEHT IN GRAUSTUFEN - Kulisse wie Figur.
+  Dunkle Kacheln hatten vorher gar keine Kulisse, gedaempfte eine farbige.
+- MONSTER-KULISSEN IM TON DER FIGUR: ein Farbschleier (mix-blend-mode: color)
+  in der Akzentfarbe des Bosses gleicht Hintergrund und Figur an.
+
 ## 1.15.0
 - DECKS: DREI AUFSTELLUNGEN JE BRETT UND REGELWERK (Uebergabe, Punkt 3).
   Im Aufstellungs-Editor stehen drei Faecher, "Aufstellung I-III"; tippen

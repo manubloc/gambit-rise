@@ -72,13 +72,21 @@ export const KULISSE_URL = {
    Kachel steht kein Text, nur der Name am Fuss. Also fast volle Deckung, und
    der Verlauf nur noch im unteren Drittel, wo der Name sitzt. Die Landschaft
    im oberen Teil - Himmel, Burg, Laterne - bleibt frei. */
-export function KulisseHinterGrund({ name, radius = 11, deckung = 0.92 }) {
+/* v1.15.1 (Besitzer): grau = Graustufen fuer alles, was noch nicht zu einem
+   gehoert; ton = ein Farbschleier in der Farbe der Figur (Monster: b.accent),
+   damit Kulisse und Figur sich grob angleichen. Der Schleier liegt als
+   mix-blend-mode: color ueber dem Bild - er faerbt, ohne Helligkeit oder
+   Zeichnung zu nehmen. */
+export function KulisseHinterGrund({ name, radius = 11, deckung = 0.92, grau = false, ton = null }) {
   const src = name ? KULISSE_URL[name] : null;
   if (!src) return null;
   return <>
-    <img src={src} alt="" aria-hidden draggable={false} data-kulisse={name} data-gg-still=""
+    <img src={src} alt="" aria-hidden draggable={false} data-kulisse={name} data-gg-still="" data-grau={grau ? "1" : "0"}
       style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover",
-        borderRadius: radius, opacity: deckung, pointerEvents: "none", zIndex: -1 }} />
+        borderRadius: radius, opacity: deckung, pointerEvents: "none", zIndex: -1,
+        filter: grau ? "grayscale(1) brightness(.55)" : "none" }} />
+    {ton && !grau && <div aria-hidden data-kulisse-ton={ton} style={{ position: "absolute", inset: 0, borderRadius: radius, pointerEvents: "none", zIndex: -1,
+      background: ton, mixBlendMode: "color", opacity: 0.45 }} />}
     <div aria-hidden style={{ position: "absolute", inset: 0, borderRadius: radius, pointerEvents: "none", zIndex: -1,
       background: "linear-gradient(180deg, rgba(10,7,19,0) 0%, rgba(10,7,19,0) 58%, rgba(10,7,19,.55) 82%, rgba(10,7,19,.78) 100%)" }} />
   </>;

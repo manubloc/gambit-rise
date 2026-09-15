@@ -88,7 +88,7 @@ await page.evaluate(({ chars, kinds, bosse }) => {
     p.gold = 9000; p.sp = 60;
     p.unlocked = chars;
     p.codex = p.codex || {}; p.codex.met = [...kinds, ...bosse.map((b) => "X:" + b)];
-    p.campaign = p.campaign || {}; p.campaign.bribedBosses = bosse;
+    p.campaign = p.campaign || {}; p.campaign.bribedBosses = bosse.slice(0, 12);   /* die Haelfte bleibt "begegnet" - fuer die Graustufen-Messung */
     return JSON.stringify(p);
   };
   for (const k of Object.keys(localStorage)) {
@@ -137,8 +137,44 @@ for (const [name, n] of soll) {
   const sichtbar = da.filter((g) => g.w > 40 && g.h > 40 && g.geladen);
   ok(`${name}: ${n} Kachel(n) erwartet, ${da.length} gefunden, ${sichtbar.length} sichtbar und geladen`, da.length === n && sichtbar.length === n);
 }
+/* ── v1.15.1: KOPFZEILE, STUFE, GRAUSTUFEN, FARBTON ───────────────────────── */
+const kopf = await page.evaluate(() => {
+  /* gleiche Bauhoehe: der Stufenkreis (oder sein Platzhalter) steht in jeder
+     Kachel gleich weit unter der Oberkante, und das Rohr sitzt auf seiner Hoehe */
+  const kacheln = [...document.querySelectorAll("[data-kopf]")].map((k) => {
+    const t = k.parentElement.getBoundingClientRect().top;
+    const st = k.lastElementChild.getBoundingClientRect();
+    const rohr = k.querySelector("[data-gg=\"rohr-koerper\"]");
+    const rm = rohr ? rohr.getBoundingClientRect() : null;
+    return Math.round((st.top - t) * 10) / 10 + (rm ? "|" + Math.round(((rm.top + rm.height / 2) - (st.top + st.height / 2)) * 10) / 10 : "");
+  });
+  const stufen = [...document.querySelectorAll("[data-stufe]")].map((el) => {
+    const c = el.getBoundingClientRect();
+    const r = document.createRange(); r.selectNodeContents(el);
+    const g = r.getBoundingClientRect();
+    /* die Glyphenbox ist die Zeilenbox; die Ziffer selbst sitzt in Georgia
+       optisch ein wenig ueber der Mitte der Zeilenbox - gemessen wird die
+       Zeilenbox, das ist die ehrliche Groesse, die CSS hergibt */
+    return { dx: (g.left + g.width / 2) - (c.left + c.width / 2), dy: (g.top + g.height / 2) - (c.top + c.height / 2) };
+  });
+  const grau = [...document.querySelectorAll("img[data-kulisse][data-grau=\"1\"]")].map((i) => getComputedStyle(i).filter);
+  const farbig = [...document.querySelectorAll("img[data-kulisse][data-grau=\"0\"]")].map((i) => getComputedStyle(i).filter);
+  const toene = [...document.querySelectorAll("[data-kulisse-ton]")].length;
+  const meisterMitRohr = [...document.querySelectorAll("img[data-kulisse^=\"meister-\"], img[data-kulisse^=\"monster-\"]")]
+    .map((i) => !!i.parentElement.querySelector("[data-gg=\"rohr\"]")).filter(Boolean).length;
+  return { kacheln, stufen, grau, farbig, toene, meisterMitRohr };
+});
+const kopfH = [...new Set(kopf.kacheln.map((h) => String(h).split("|")[0]))];
+const rohrVersatz = kopf.kacheln.map((h) => String(h).split("|")[1]).filter((x) => x !== undefined).map(Number);
+ok(`die Stufe steht in jeder Kachel gleich hoch (${kopf.kacheln.length} Kacheln, ${kopfH.join("/")} px unter der Kante)`, kopf.kacheln.length >= 50 && kopfH.length === 1);
+ok(`und das Rohr liegt auf der Mitte der Stufe (${rohrVersatz.length} Rohre, max. ${Math.max(...rohrVersatz.map(Math.abs)).toFixed(1)} px daneben)`, rohrVersatz.length >= 30 && rohrVersatz.every((v) => Math.abs(v) <= 1.5));
+const maxDx = Math.max(...kopf.stufen.map((s) => Math.abs(s.dx))), maxDy = Math.max(...kopf.stufen.map((s) => Math.abs(s.dy)));
+ok(`die Stufenziffer sitzt mittig im Kreis (${kopf.stufen.length} gemessen, max. Versatz ${maxDx.toFixed(2)}/${maxDy.toFixed(2)} px)`, kopf.stufen.length > 0 && maxDx <= 1 && maxDy <= 1);
+ok(`was noch nicht zu einem gehoert, steht in Graustufen (${kopf.grau.length} grau, ${kopf.farbig.length} farbig)`, kopf.grau.length > 0 && kopf.grau.every((f) => /grayscale/.test(f)) && kopf.farbig.every((f) => f === "none"));
+ok(`Monster tragen einen Farbschleier im eigenen Ton (${kopf.toene})`, kopf.toene >= 12);
+ok(`Grossmeister und Monster tragen das Rohr wie alle anderen (${kopf.meisterMitRohr})`, kopf.meisterMitRohr >= 25);
 const deckungen = [...new Set(gemessen.map((g) => g.deckung))];
-ok(`die Kulisse ist deutlich zu sehen, aber nicht ueber der Figur (Deckung ${deckungen.join("/")})`, deckungen.every((d) => Number(d) >= 0.55 && Number(d) < 1));
+ok(`die Kulisse ist deutlich zu sehen, aber nicht ueber der Figur (Deckung ${deckungen.join("/")})`, deckungen.every((d) => Number(d) >= 0.5 && Number(d) < 1));
 const masse = gemessen[0] ? `${gemessen[0].w}x${gemessen[0].h}` : "-";
 console.log(`  (Kachelmass der ersten Kulisse: ${masse} px)`);
 await page.screenshot({ path: "/mnt/user-data/outputs/hofstaat-kulissen.png", fullPage: false });

@@ -1758,7 +1758,7 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
   };
 
   const Tile = ({ img, name, dim, dark, action, glow, origin, onOpen, sigil = null, sigilBig = null, stufe = null, kind = null, hero = false, lvl = 1,
-    werte = null, xpAnteil = null, artId = null, bossId = null }) => (
+    werte = null, xpAnteil = null, artId = null, bossId = null, talente = [], ton = null }) => (
     /* v1.0.11 (Besitzer): die Kachel KLINGT beim Tippen. Der Klangfaenger
        hoert nur auf button/[role=button] — diese div blieb stumm. */
     /* v1.14.0: DIE KACHEL TRAEGT DIE KULISSE IHRES BUNDES (Besitzerentscheid
@@ -1774,7 +1774,42 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
       border: `1px solid ${glow ? T.gold : "rgba(124,58,237,.38)"}`,
       borderRadius: 11, padding: "10px 7px 9px", textAlign: "center", minWidth: 0, cursor: onOpen ? "pointer" : "default",
       boxShadow: glow ? "0 0 10px rgba(240,206,122,.22)" : "0 0 6px rgba(124,58,237,.12)" }}>
-      <KulisseHinterGrund name={dark ? null : kulisseFuer({ charId: artId, bossId })} deckung={dim ? 0.6 : 0.92} />
+      {/* v1.15.1 (Besitzer): was noch nicht zu einem gehoert, steht in
+          GRAUSTUFEN da - Kulisse wie Figur. Vorher fehlte dunklen Kacheln die
+          Kulisse ganz, gedaempfte trugen sie farbig. Monster bekommen dazu
+          einen Farbschleier im Ton der Figur. */}
+      <KulisseHinterGrund name={kulisseFuer({ charId: artId, bossId })} deckung={dark ? 0.5 : dim ? 0.7 : 0.92}
+        grau={!!(dim || dark)} ton={ton} />
+      {/* v1.15.1: DIE KOPFZEILE - fuer JEDE Kachel gleich (Besitzervorlage):
+          links die Talente, in der Mitte das Lebensrohr, rechts die Stufe.
+          Monster tragen dieselbe Zeile; wo nichts zu zeigen ist, bleibt der
+          Platz leer, das Mass aber steht. */}
+      <div data-kopf="1" style={{ display: "flex", alignItems: "flex-start", gap: 4, marginBottom: 2, minHeight: 21 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 3, width: 21, flex: "0 0 auto" }}>
+          {(talente || []).slice(0, 2).map((id) => <span key={id} data-talent={id} style={{ width: 21, height: 21, display: "grid", placeItems: "center",
+            borderRadius: 6, background: "rgba(12,8,22,.7)", border: "1px solid rgba(233,207,138,.45)",
+            filter: dim || dark ? "grayscale(1)" : "none" }}><AbilityIcon id={id} size={15} /></span>)}
+        </div>
+        <div style={{ flex: "1 1 auto", minWidth: 0, height: 21, display: "flex", justifyContent: "center", alignItems: "center", lineHeight: 0, overflow: "visible",
+          /* der SVG-Kasten des Rohrs reserviert oben Platz fuer die Perle, der
+             Rohrkoerper sitzt darin unten: gemessen 3,4 px unter der Mitte
+             der Stufe. Um genau das hochgerueckt. */
+          transform: "translateY(-3.4px)" }}>
+          {werte && <LebensRohr lebenAnteil={werte.leben} kraftAnteil={werte.kraft} talentBereit={false} breite="4.2em" hoehe="0.72em"
+            style={dim || dark ? { filter: "grayscale(1)", opacity: .6 } : undefined} />}
+        </div>
+        {/* Die Stufe: die Ziffer sitzt als Flex-Kind mit line-height 1 in der
+            Mitte - kein SVG-Text mehr, dessen Grundlinie je Schrift wanderte
+            (Besitzerbefund: "nicht sauber ausgemittelt"). Gemessen in
+            messe_kulissen.mjs. */}
+        {stufe != null
+          ? <div data-stufe={String(stufe)} style={{ width: 21, height: 21, flex: "0 0 auto", borderRadius: "50%",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              background: "radial-gradient(circle at 50% 40%, #241a3e, #120c22)", border: "1px solid rgba(167,139,250,.75)",
+              boxShadow: "0 0 8px rgba(124,58,237,.5), inset 0 0 6px rgba(124,58,237,.25)",
+              font: "600 10.5px Georgia, serif", color: "#d8c4ff", lineHeight: "21px", height: 21 }}>{stufe}</div>
+          : <div style={{ width: 21, height: 21, flex: "0 0 auto" }} />}
+      </div>
       {/* v1.0.11 (Besitzer): das ECK-SIGIL ist fort — die Kachel gehört ganz
           der Figur. Das Vektorzeichen lebt weiter in der Chronik (beide
           Gesichter) und als Sperr-Silhouette unten, wenn kein Gemälde da ist. */}
@@ -1840,13 +1875,7 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
       {/* v1.4.0: DAS ROHR UNTER DER FIGUR. Gerade und duenn - die Kruemmung
           nimmt am Brett die Sockelwoelbung auf, hier gibt es keinen Sockel.
           Es erscheint nur, wenn die Figur ueberhaupt Werte hat. */}
-      {!dark && werte && <div style={{ lineHeight: 0, display: "flex", justifyContent: "center", marginTop: 2 }}>
-        <LebensRohr lebenAnteil={werte.leben} kraftAnteil={werte.kraft}
-          /* v1.6.0: groesser (Besitzer: "der Balken kann auch noch hoeher und
-             groesser sein an der Stelle") - jetzt in em, damit er mit der
-             Kachel waechst statt fest zu stehen. */
-          talentBereit={false} breite="5.2em" hoehe="0.62em" />
-      </div>}
+      {/* v1.15.1: das Rohr sitzt jetzt oben in der Kopfzeile */}
       <div className="gg-quill" style={{ fontSize: 12.5, marginTop: 5, color: dark ? T.faint : glow ? T.goldBright : T.text,
         whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{name}</div>
       {/* Die Vorlage (ds1-vorlage-screens): jede Kachel traegt ihre Stufe -
@@ -1856,20 +1885,7 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
           Erfahrungsbalken bekommt. Die Ziffer sitzt als SVG-Text mit
           dominant-baseline central - jeder Versuch mit line-height sass
           daneben, weil Georgias Ziffern Unterlaenge haben. */}
-      {stufe != null && <div data-stufe={String(stufe)} style={{ position: "absolute", top: 5, right: 5, width: 21, height: 21, zIndex: 4,
-        /* v1.6.0 (Besitzerentscheid: "gehen wir doch auf das lila Design -
-           die Stufenanzeige in diesem leuchtenden Lila und dann einfach mit
-           schwarzem Hintergrund"): der Kreis ist jetzt dunkel mit leuchtender
-           Lila-Kontur statt Goldpraegung. Nicht animiert, aber mit Schein -
-           dieselbe Riss-Farbe wie ueberall im Haus. */
-        borderRadius: "50%", background: "radial-gradient(circle at 50% 40%, #241a3e, #120c22)",
-        border: "1px solid rgba(167,139,250,.75)",
-        boxShadow: "0 0 8px rgba(124,58,237,.5), inset 0 0 6px rgba(124,58,237,.25)" }}>
-        <svg width="21" height="21" viewBox="0 0 21 21" style={{ display: "block" }}>
-          <text x="10.5" y="11.1" textAnchor="middle" dominantBaseline="central"
-            style={{ font: "600 10.5px Georgia, serif", fill: "#d8c4ff" }}>{stufe}</text>
-        </svg>
-      </div>}
+      {/* v1.15.1: die Stufe steht in der Kopfzeile, siehe oben */}
       {/* v1.6.0: DER ERFAHRUNGSBALKEN IST FORT (Besitzerentscheid). Es macht
           gar keinen Sinn, diesen zu haben - im Endeffekt sind die Schritte zu
           klein, ich kann ja fast schon mit einem Schritt aufleveln.
@@ -1878,8 +1894,10 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
           Fortschrittsanzeige gebaut, aber Stufen kosten Skillpunkte aus einem
           gemeinsamen Vorrat - da gibt es keinen Fortschritt, nur reicht oder
           reicht nicht. Eine Anzeige, die fast immer voll ist, sagt nichts. */}
-      {origin && <div className="gg-serif" style={{ fontSize: 9, letterSpacing: ".1em", marginTop: 1,
-        color: T.dim, textTransform: "uppercase", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{origin}</div>}
+      {/* v1.15.1 (Besitzer): "Verbuendet", "Meister & Grossmeister" und Co.
+          stehen nicht mehr auf der Kachel - nur der Name. Wer mehr wissen
+          will, tippt die Karte an. origin bleibt als Prop, wird aber nicht
+          mehr gezeichnet. */}
       {action}
     </div>
   );
@@ -1902,7 +1920,7 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
       fill="#c9a45c" rim="#1b1408" rimW={1.6} detail="#7a5c26" accent="#eac96b" />;
     const sigBig = <PieceArt kind={ch.kind} hero={cid === "gambit"} size={58} level={1}
       fill="#c9a45c" rim="#1b1408" rimW={1.6} detail="#7a5c26" accent="#eac96b" />;
-    if (own) return <Tile key={cid} werte={kachelWerte(cid)} xpAnteil={kachelXp(cid)} artId={cid} img={img} kind={ch.kind} hero={cid === "gambit"} lvl={characterLevel(profile, cid) || 1} /* v1.4.2: GEFUNDEN, warum der Stufenkreis nie erschien - die Bedingung
+    if (own) return <Tile key={cid} werte={kachelWerte(cid)} xpAnteil={kachelXp(cid)} artId={cid} img={img} kind={ch.kind} hero={cid === "gambit"} lvl={characterLevel(profile, cid) || 1} talente={chosenAbilities(profile, cid)} /* v1.4.2: GEFUNDEN, warum der Stufenkreis nie erschien - die Bedingung
            fragte unlocked.has(cid), aber die Grundfiguren des Hofstaats
            (Koenig, Dame, Turm ...) sind von Anfang an da und stehen NIE in
            unlocked. Sie hatten damit immer null. \ deckt beides ab:
@@ -1935,12 +1953,18 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
       fill="#c9a45c" rim="#1b1408" rimW={1.6} detail="#7a5c26" accent="#eac96b" />;
     const sigBig = <PieceArt kind="X" bossId={b.id} art={b.art} size={58} level={1}
       fill="#c9a45c" rim="#1b1408" rimW={1.6} detail="#7a5c26" accent="#eac96b" />;
-    if (bribedSet.has(b.id) || ownedBossSet.has(b.id)) return <Tile key={b.id} img={img} bossId={b.id} glow sigil={sig} sigilBig={sigBig}
-      onOpen={() => setDetail(k)} stufe={characterLevel(profile, k) || 1}
+    /* v1.15.1: Monster tragen dieselbe Kopfzeile wie alle - Rohr aus den
+       Bosswerten der aktuellen Stufe, Stufe rechts, Farbschleier im Ton. */
+    const mLv = characterLevel(profile, k) || 1;
+    const mSpec = bossSpecLeveled(b, mLv);
+    const mWerte = rohrAnteile({ hp: mSpec.hp, atk: mSpec.atk, level: mLv, maxLevel: BOSS_MAX_LEVEL });
+    const ton = b.accent || null;
+    if (bribedSet.has(b.id) || ownedBossSet.has(b.id)) return <Tile key={b.id} img={img} bossId={b.id} glow sigil={sig} sigilBig={sigBig} werte={mWerte} ton={ton}
+      onOpen={() => setDetail(k)} stufe={mLv}
       name={en ? b.nameEn : b.nameDe} origin={bribedSet.has(b.id) ? t("tree.allied") : t("tree.inCourt")} />;
     if (met.has(k)) {
       const can = monsterBribable(b);
-      return <Tile key={b.id} img={img} bossId={b.id} dim sigil={sig} sigilBig={sigBig} name={en ? b.nameEn : b.nameDe} origin={t("tree.masters")}
+      return <Tile key={b.id} img={img} bossId={b.id} dim sigil={sig} sigilBig={sigBig} werte={mWerte} ton={ton} stufe={mLv} name={en ? b.nameEn : b.nameDe} origin={t("tree.masters")}
         onOpen={() => setDetail(k)}
         action={can ? (sacrificeFor === b.id
           ? <div style={{ marginTop: 5 }}>
@@ -1962,7 +1986,7 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
                 background: "linear-gradient(165deg, #b78de0, #7a5ab0)", border: "1px solid rgba(226,205,255,.5)", color: "#17110a" }}>
               {t("tree.bribe", { g: MONSTER_BRIBE_GOLD })}</button>) : null} />;
     }
-    if (sighted.has(b.id)) return <Tile key={b.id} img={img} bossId={b.id} dark sigil={sig} sigilBig={sigBig} name={en ? b.nameEn : b.nameDe} origin={t("tree.sighted")} />;
+    if (sighted.has(b.id)) return <Tile key={b.id} img={img} bossId={b.id} dark sigil={sig} sigilBig={sigBig} werte={mWerte} ton={ton} name={en ? b.nameEn : b.nameDe} origin={t("tree.sighted")} />;
     return <Tile key={b.id} img={img} dark name={"???"} />;
   };
   const grid = { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(96px, 1fr))", gap: 7 };
