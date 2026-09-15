@@ -1,7 +1,7 @@
 import { other, WHITE, BLACK, BASE_HP, BASE_ATK, HP_REMIS_HALBZUEGE } from "../domain/constants.js";
 import { cloneBoard, findKing } from "../domain/board.js";
 import { pseudoMoves, pieceMoves, talentWirkt } from "../rules/moves.js";
-import { kroneFaengtAb, schildwachtDeckt, nachtwacheHeilt, faehrteFolgt, konzilLehntAb, sturmRuftZurueck } from "../rules/buende.js";
+import { kroneFaengtAb, schildwachtDeckt, nachtwacheHeilt, faehrteFolgt, konzilLehntAb, sturmRuftZurueck, hinterstenBauern } from "../rules/buende.js";
 import { inCheck } from "../rules/attacks.js";
 import { schlageSperre, loeseFalleAus, zerfalleSperren } from "../rules/sperren.js";
 import { familyOf, familyCount, crownWallSoak } from "../rules/families.js";
@@ -340,16 +340,23 @@ export function applyMove(state, move, opts) {
            "Sie fiel. Er rief. Sie stand wieder auf, und niemand sprach je
            darueber." Einmal je Partie, und nur solange der Warlock steht.
 
-           SIE KEHRT AUF IHR STARTFELD ZURUECK, nicht auf das Feld, wo sie
-           fiel - sonst waere es blosse Unverwundbarkeit. Der Weg zurueck an
-           die Front kostet Zuege, und das ist der Preis.
+           EIN BAUER MACHT IHR PLATZ (Besitzeridee, v1.11.2). Der erste
+           Entwurf liess sie fallen, wenn ihr Startfeld besetzt war - das
+           hing aber vom Zufall ab: dort steht zu Partiebeginn oft eine eigene
+           Figur. Eine Regel, die man nicht steuern kann, ist keine Regel,
+           sondern Glueck.
 
-           Ist ihr Startfeld besetzt, faellt sie doch: ein Rueckruf ins Nichts
-           waere Willkuer, und der Gegner kann das Feld bewusst blockieren -
-           eine Gegenwehr, die man planen kann. */
-        const heim = target.startFeld != null ? target.startFeld : null;
-        if (heim != null && !b[heim]) {
+           Jetzt hat der Rueckruf einen PREIS, den man kennt und einplanen
+           kann: der hinterste eigene Bauer faellt, und sie nimmt seinen
+           Platz. Ist kein Bauer mehr da, faellt sie - ein klarer,
+           verstehbarer Grund statt einer Zufallsbedingung.
+
+           Der HINTERSTE, weil er am wenigsten Stellung kostet; ein Bauer
+           kurz vor der Wandlung waere ein bitterer Preis. */
+        const heim = hinterstenBauern(state, target.color);
+        if (heim != null) {
           target.hp = Math.max(1, Math.round(target.maxHp / 2));
+          ns.captured[other(target.color)].push(b[heim].kind);   // der Bauer faellt
           b[heim] = target;
           b[ti] = null;
           ns.sturmVerbraucht = { ...(ns.sturmVerbraucht || {}), [target.color]: true };

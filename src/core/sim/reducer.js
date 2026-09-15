@@ -2,6 +2,7 @@ import { other } from "../domain/constants.js";
 import { inCheck } from "../rules/attacks.js";
 import { applyMove, status } from "./transitions.js";
 import { COMMAND } from "./commands.js";
+import { geleitTauschbar } from "../rules/buende.js";
 import { Ev } from "./events.js";
 
 /**
@@ -54,6 +55,40 @@ export function reduce(state, command) {
         lastMove: null,
         log: (state.log || []).concat([command]) };
       return { state: next, events: [Ev.healed(command.color, piece.kind, command.target, healedHp)] };
+    }
+
+    /* ── DER PLATZTAUSCH DES GELEITS (v1.11.2) ───────────────────────────
+       Besitzerentscheid: "Ich faende es richtig, wenn du Geleit mit einem
+       Knopf aktivierbar machst und dann waehle ich eine Figur aus und eine
+       zweite und diese tauschen miteinander."
+
+       Ein eigener Befehl, kein Zug: es bewegt sich keine Figur auf ein
+       Zielfeld, zwei tauschen. Der Tausch verbraucht den Zug der Seite -
+       sonst waere er geschenkt.
+
+       Geprueft wird streng: beide Felder muessen zu den drei Figuren des
+       Bundes gehoeren, beide muessen der ziehenden Seite gehoeren, und sie
+       muessen verschieden sein. Wer den Befehl von aussen schickt, soll damit
+       nichts erzwingen koennen, was die Anzeige nicht anbietet. */
+    case COMMAND.GELEIT: {
+      if (state.over) return { state, events: [] };
+      if (command.color !== state.turn) return { state, events: [] };
+      const erlaubt = geleitTauschbar(state, command.color);
+      if (!erlaubt) return { state, events: [] };
+      const { a, b } = command;
+      if (a == null || b == null || a === b) return { state, events: [] };
+      if (!erlaubt.includes(a) || !erlaubt.includes(b)) return { state, events: [] };
+      const brett = state.board.slice();
+      const eins = brett[a], zwei = brett[b];
+      if (!eins || !zwei) return { state, events: [] };
+      brett[a] = zwei; brett[b] = eins;
+      eins.hasMoved = true; zwei.hasMoved = true;
+      const next = { ...state, board: brett,
+        geleitVerbraucht: { ...(state.geleitVerbraucht || {}), [command.color]: true },
+        turn: command.color === "w" ? "b" : "w",
+        lastMove: { from: a, to: b, color: command.color, geleit: true },
+        log: (state.log || []).concat([command]) };
+      return { state: next, events: [{ type: "geleit", von: a, nach: b }] };
     }
 
     case COMMAND.SHIFT: {

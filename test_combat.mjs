@@ -628,51 +628,77 @@ console.log("\n== BANNKREIS, KONZIL, GELEIT (v1.10.8) ==");
   }
 }
 
-console.log("\n== STURM: DIE AMAZONE KEHRT ZURUECK (v1.11.1) ==");
+console.log("\n== STURM UND GELEIT (v1.11.2) ==");
 {
-  const { createGame: cg7, applyMove: am7 } = await import("./src/core/index.js");
+  const { createGame: cg7, applyMove: am7, reduce: rd7 } = await import("./src/core/index.js");
   const { legalMovesFrom: lm7 } = await import("./src/core/sim/transitions.js");
+  const { geleitCommand: gc7 } = await import("./src/core/sim/commands.js");
   const { buildArmyFromFormation: ba7, defaultFormation: df7 } = await import("./src/meta/index.js");
   const { mapById: mb7 } = await import("./src/content/index.js");
   const w7 = 8;
-  const f7 = (k, id, c, hp, atk, heim) =>
-    ({ kind: k, charId: id, color: c, hp, maxHp: hp, atk, abilities: [], level: 10, shield: 0, startFeld: heim });
-  const bau = (buende, heimBesetzt = false) => {
+  const f7 = (k, id, c, hp, atk) => ({ kind: k, charId: id, color: c, hp, maxHp: hp, atk, abilities: [], level: 10, shield: 0 });
+  const leer7 = (buende) => {
     const ar = () => ba7(() => 10, df7(mb7("classic")));
     const g = cg7(ar(), ar(), { rules: "hp", map: mb7("classic"), buende });
     for (let i = 0; i < 64; i++) g.board[i] = null;
-    g.board[4 * w7 + 4] = f7("M", "amazon", "w", 3, 14, 3);   // fast tot, Startfeld 3
-    g.board[5 * w7 + 5] = f7("V", "warlock", "w", 12, 8, 4);
-    g.board[4 * w7 + 5] = f7("R", "rook", "b", 12, 20, 60);   // schlaegt zu
-    g.board[7 * w7 + 7] = f7("K", "king", "b", 20, 5, 63);
-    g.board[7 * w7 + 0] = f7("K", "king", "w", 20, 5, 56);
-    if (heimBesetzt) g.board[3] = f7("P", "pawn", "w", 8, 3, 3);
-    g.turn = "b";
+    g.board[7 * w7 + 7] = f7("K", "king", "b", 20, 5);
+    g.board[7 * w7 + 0] = f7("K", "king", "w", 20, 5);
     return g;
   };
-  const schlag = (g) => am7(g, lm7(g, 4 * w7 + 5).find((m2) => m2.to === 4 * w7 + 4));
 
+  /* STURM: EIN BAUER MACHT IHR PLATZ (Besitzeridee). Mein erster Entwurf
+     liess sie fallen, wenn ihr Startfeld besetzt war - das hing aber vom
+     Zufall ab: dort steht zu Partiebeginn oft eine eigene Figur. Eine Regel,
+     die man nicht steuern kann, ist keine Regel, sondern Glueck.
+
+     Jetzt hat der Rueckruf einen Preis, den man kennt: der hinterste eigene
+     Bauer faellt, und sie nimmt seinen Platz. */
   {
-    const n = schlag(bau([]));
-    ok("ohne Bund faellt die Amazone", n.board.findIndex((p) => p && p.charId === "amazon") < 0);
+    const bau = (mitBauern) => {
+      const g = leer7(["sturm"]);
+      g.board[4 * w7 + 4] = f7("M", "amazon", "w", 3, 14);
+      g.board[5 * w7 + 5] = f7("V", "warlock", "w", 12, 8);
+      if (mitBauern) { g.board[1 * w7 + 2] = f7("P", "pawn", "w", 8, 3); g.board[5 * w7 + 1] = f7("P", "pawn", "w", 8, 3); }
+      g.board[4 * w7 + 5] = f7("R", "rook", "b", 12, 20);
+      g.turn = "b";
+      return g;
+    };
+    const schlag = (g) => am7(g, lm7(g, 4 * w7 + 5).find((m2) => m2.to === 4 * w7 + 4));
+    const mit = schlag(bau(true));
+    const wo = mit.board.findIndex((p) => p && p.charId === "amazon");
+    ok(`sie kehrt auf das Feld des hintersten Bauern zurueck (${wo})`, wo === 1 * w7 + 2);
+    ok("und dieser Bauer faellt dafuer",
+      mit.board.filter((p) => p && p.kind === "P" && p.color === "w").length === 1);
+    ok("mit halber Kraft, nicht voll geheilt", mit.board[wo].hp < mit.board[wo].maxHp);
+    /* OHNE BAUERN FAELLT SIE - ein klarer, verstehbarer Grund. */
+    const ohne = schlag(bau(false));
+    ok("ohne Bauern faellt sie", ohne.board.findIndex((p) => p && p.charId === "amazon") < 0);
   }
+
+  /* GELEIT: ein eigener BEFEHL, kein Zug - es bewegt sich keine Figur auf ein
+     Zielfeld, zwei tauschen. Der Spieler waehlt beide. */
   {
-    const n = schlag(bau(["sturm"]));
-    const wo = n.board.findIndex((p) => p && p.charId === "amazon");
-    /* SIE KEHRT AUF IHR STARTFELD ZURUECK, nicht auf das Feld wo sie fiel -
-       sonst waere es blosse Unverwundbarkeit. Der Weg zurueck an die Front
-       kostet Zuege, und das ist der Preis. */
-    ok(`mit Sturm kehrt sie auf ihr Startfeld zurueck (Feld ${wo})`, wo === 3);
-    ok("mit halber Kraft, nicht voll geheilt", n.board[3].hp > 0 && n.board[3].hp < n.board[3].maxHp);
-    ok("und der Rueckruf ist verbraucht", n.sturmVerbraucht && n.sturmVerbraucht.w === true);
-  }
-  {
-    /* Ist ihr Startfeld besetzt, faellt sie doch. Ein Rueckruf ins Nichts
-       waere Willkuer - und der Gegner kann das Feld bewusst blockieren, eine
-       Gegenwehr, die man planen kann. */
-    const n = schlag(bau(["sturm"], true));
-    ok("bei besetztem Startfeld faellt sie doch",
-      n.board.findIndex((p) => p && p.charId === "amazon") < 0);
+    const bau = () => {
+      const g = leer7(["geleit"]);
+      g.board[10] = f7("N", "knight", "w", 12, 6);
+      g.board[20] = f7("B", "bishop", "w", 12, 6);
+      g.board[30] = f7("R", "rook", "w", 12, 6);
+      g.turn = "w";
+      return g;
+    };
+    const r = rd7(bau(), gc7("w", 10, 30));
+    ok("zwei der drei tauschen die Plaetze",
+      r.state.board.findIndex((p) => p && p.charId === "knight") === 30
+      && r.state.board.findIndex((p) => p && p.charId === "rook") === 10);
+    ok("der Tausch verbraucht den Zug", r.state.turn === "b");
+    const r2 = rd7(r.state, gc7("w", 10, 20));
+    ok("ein zweiter Tausch wird abgelehnt",
+      r2.state.board.findIndex((p) => p && p.charId === "knight") === 30);
+    /* Wer den Befehl von aussen schickt, soll nichts erzwingen koennen, was
+       die Anzeige nicht anbietet. */
+    const fremd = rd7(bau(), gc7("w", 10, 7 * w7 + 0));
+    ok("eine fremde Figur laesst sich nicht eintauschen",
+      fremd.state.board.findIndex((p) => p && p.charId === "knight") === 10);
   }
 }
 

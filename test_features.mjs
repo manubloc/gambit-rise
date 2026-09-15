@@ -654,9 +654,17 @@ console.log("\n== DIE WIRKUNG DER BUENDE (v1.10.0) ==");
     const b = brett();
     setz(b, 1, 1, fig("M", "amazon", "w", 24));
     setz(b, 6, 6, fig("V", "warlock"));
+    /* v1.11.2: der Rueckruf braucht jetzt einen BAUERN, der ihr Platz macht
+       (Besitzeridee). Ohne ihn faellt sie - ein Preis, den man kennt und
+       einplanen kann, statt der frueheren Zufallsbedingung "Startfeld frei". */
+    setz(b, 2, 1, fig("P", "pawn"));
     const st = { board: b, w, h: 8, buende: ["sturm"], sturmVerbraucht: {} };
-    ok("die Amazone kehrt zurueck, solange der Warlock steht",
+    ok("die Amazone kehrt zurueck, solange Warlock und ein Bauer stehen",
       B.sturmRuftZurueck(st, b[1 * w + 1]));
+    b[1 * w + 2] = null;
+    ok("ohne Bauern kein Rueckruf - einer muss ihr Platz machen",
+      !B.sturmRuftZurueck(st, b[1 * w + 1]));
+    setz(b, 2, 1, fig("P", "pawn"));
     st.sturmVerbraucht = { w: true };
     ok("aber nur einmal je Partie", !B.sturmRuftZurueck(st, b[1 * w + 1]));
   }

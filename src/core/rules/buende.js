@@ -134,7 +134,25 @@ export function sturmRuftZurueck(state, piece) {
   if (!hat(state, "sturm")) return false;
   if (!piece || piece.charId !== "amazon") return false;
   if (state.sturmVerbraucht && state.sturmVerbraucht[piece.color]) return false;
-  return finde(state, piece.color, "warlock") != null;
+  if (finde(state, piece.color, "warlock") == null) return false;
+  /* v1.11.2: ohne Bauern kein Rueckruf - einer muss ihr Platz machen. */
+  return hinterstenBauern(state, piece.color) != null;
+}
+
+/* Das Feld des hintersten eigenen Bauern - oder null, wenn keiner mehr steht.
+   "Hinten" heisst: auf der eigenen Grundreihe zu. Weiss zieht nach oben, also
+   ist der kleinste Index der hinterste; fuer Schwarz umgekehrt. */
+export function hinterstenBauern(state, farbe) {
+  const W = state.w;
+  let bestes = null, besteReihe = null;
+  for (let i = 0; i < state.board.length; i++) {
+    const p = state.board[i];
+    if (!p || p.color !== farbe || p.kind !== KIND.PAWN) continue;
+    const r = Math.floor(i / W);
+    const weite = farbe === WHITE ? r : (state.h - 1 - r);
+    if (besteReihe == null || weite < besteReihe) { besteReihe = weite; bestes = i; }
+  }
+  return bestes;
 }
 
 /* ── BANNKREIS: gegnerische Talente sind gesperrt ─────────────────────────

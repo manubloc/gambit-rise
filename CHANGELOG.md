@@ -1,5 +1,19 @@
 # Changelog - Grand Gambit
 
+## 1.11.2
+- DER STURM HAT JETZT EINEN PREIS (Besitzeridee): die Amazone kehrt IMMER
+  zurueck, aber der hinterste eigene Bauer faellt dafuer und macht ihr Platz.
+  Ist kein Bauer mehr da, faellt sie. Das ersetzt die fruehere Bedingung
+  "Startfeld frei" - die hing vom Zufall ab, weil dort zu Partiebeginn oft
+  eine eigene Figur steht. Eine Regel, die man nicht steuern kann, ist keine
+  Regel, sondern Glueck.
+- DER HINTERSTE Bauer, weil er am wenigsten Stellung kostet; einer kurz vor
+  der Wandlung waere ein bitterer Preis.
+- DAS GELEIT HAT SEINEN KNOPF: ein eigener Befehl, kein Zug. Der Spieler
+  waehlt zwei der drei, sie tauschen, der Zug ist verbraucht. Streng geprueft
+  - wer den Befehl von aussen schickt, kann nichts erzwingen, was die Anzeige
+  nicht anbietet.
+
 ## 1.11.1
 - ALLE ZEHN BUENDE WIRKEN. Der Sturm war der letzte: wird die Amazone
   geschlagen, kehrt sie einmal je Partie auf ihr STARTFELD zurueck, mit
