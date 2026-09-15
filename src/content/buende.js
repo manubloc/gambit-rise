@@ -25,11 +25,7 @@ export const BUENDE = {
     id: "krone",
     stimmung: "hof",
     nameDe: "Krone", nameEn: "Crown",
-    /* Die Dame gehoert dazu - GEFUNDEN beim Abgleich gegen den Bestand: sie
-       war als "Traegerin" gedacht wie der Koenig, stand damit aber in keinem
-       Bund und waere als einzige Figur uebrig geblieben. Der Hof ist zu
-       dritt: der Koenig, die ihn beraet, und der sich vor ihn stellt. */
-    figuren: ["paladin", "king", "queen"],
+    figuren: ["paladin", "king"],
     /* NUR NEBENAN (Besitzer ausdruecklich): "Das gilt nur, wenn er neben dem
        Koenig auch steht. Der darf nicht irgendwo stehen." Ein Leibwaechter,
        der quer ueber dem Brett schuetzt, waere keiner. */
@@ -43,10 +39,15 @@ export const BUENDE = {
     id: "konzil",
     stimmung: "hof",
     nameDe: "Konzil", nameEn: "Council",
-    figuren: ["archbishop", "chancellor"],
+    /* Die Dame gehoert in den RAT, nicht zur Leibwache (Besitzerentscheid).
+       Ein erster Entwurf hatte sie in die Krone gesetzt - aber dort trug sie
+       keine eigene Rolle, sie war nur dabei, damit keine Figur uebrig bleibt.
+       Im Konzil ist sie am Platz: der Rat, der dem Koenig in den Arm faellt,
+       besteht aus Glauben, Kasse und der, die ihn am laengsten kennt. */
+    figuren: ["archbishop", "chancellor", "queen"],
     regelDe: "Der König darf einmal je Partie einen gegnerischen Schlag ablehnen.",
     regelEn: "Once per match the king may refuse an enemy strike.",
-    storyDe: "Der eine hält den Glauben, der andere die Kasse. Sie verachten sich — und regieren gemeinsam, weil keiner ohne den anderen kann.",
+    storyDe: "Der eine hält den Glauben, der andere die Kasse, sie hält beide aus. Kein Schlag trifft den König, den dieser Rat nicht gesehen hat.",
   },
   geleit: {
     id: "geleit",
