@@ -419,5 +419,41 @@ console.log("\n== DIE BUENDE WIRKEN IM GEFECHT (v1.10.1) ==");
   }
 }
 
+console.log("\n== GEZEITEN: der Kapitaen zieht durch (v1.10.2) ==");
+{
+  const { createGame: cg3 } = await import("./src/core/index.js");
+  const { legalMovesFrom: lm3 } = await import("./src/core/sim/transitions.js");
+  const { buildArmyFromFormation: ba3, defaultFormation: df3 } = await import("./src/meta/index.js");
+  const { mapById: mb3 } = await import("./src/content/index.js");
+  const w3 = 8;
+  const stell = (buende) => {
+    const ar = () => ba3(() => 10, df3(mb3("classic")));
+    const g = cg3(ar(), ar(), { rules: "hp", map: mb3("classic"), buende });
+    for (let i = 0; i < 64; i++) g.board[i] = null;
+    const f = (k, id, c, hp) => ({ kind: k, charId: id, color: c, hp, maxHp: hp, atk: 6, abilities: [], level: 10, shield: 0 });
+    g.board[0] = f("R", "captain", "w", 14);      // zieht wie ein Turm
+    g.board[3] = f("P", "pawn", "w", 8);          // EIGENE Figur im Weg
+    g.board[6] = f("N", "knight", "b", 9);        // Gegner dahinter
+    g.board[7 * w3 + 7] = f("K", "king", "b", 20);
+    g.board[7 * w3 + 0] = f("K", "king", "w", 20);
+    g.board[5 * w3 + 5] = f("S", "strategist", "w", 12);
+    g.turn = "w";
+    return g;
+  };
+  const spalten = (g) => lm3(g, 0).filter((m) => Math.floor(m.to / w3) === 0).map((m) => m.to % w3).sort((a, b) => a - b);
+
+  /* Ohne Bund endet der Kapitaen VOR der eigenen Figur - so gleitet jede
+     Figur im Schach. */
+  ok("ohne Bund endet der Kapitaen vor der eigenen Figur",
+    spalten(stell([])).join(",") === "1,2");
+  /* Mit Gezeiten zieht er hindurch und erreicht auch den Gegner dahinter.
+     EIGENE Figuren sind dabei ebenso durchlaessig wie fremde - ein Lotse, der
+     nur um Feinde herumfuehrt, waere seltsam, und in der eigenen Aufstellung
+     steht man sich am haeufigsten selbst im Weg. */
+  const mit = spalten(stell(["gezeiten"]));
+  ok(`mit Gezeiten zieht er hindurch (${mit.join(",")})`, mit.includes(4) && mit.includes(5));
+  ok("und erreicht den Gegner dahinter", mit.includes(6));
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

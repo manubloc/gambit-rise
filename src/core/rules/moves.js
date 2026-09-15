@@ -1,3 +1,4 @@
+import { gezeitenDurchbruch } from "./buende.js";
 import {
   FILES, RANKS, KIND, DIAG, ORTHO, KING_STEPS, KNIGHT_JUMPS, LONG_LEAPS, DIAG_LEAPS,
   fileOf, rankOf, dirOf, startPawnRank, promoRank,
@@ -75,7 +76,11 @@ function step(moves, from, f, r, piece, board, D, extra) {
 }
 
 // Slide along directions until blocked (own piece, capture, edge or hole).
-function slide(moves, from, f0, r0, dirs, piece, board, D) {
+/* v1.10.2: slide bekommt den Spielstand, damit es die Buende fragen kann.
+   Bisher kannte es nur Brett und Masse - das reichte, solange ein Zug nur von
+   Figuren abhing. Die Gezeiten haengen aber daran, ob der Stratege STEHT,
+   und das weiss nur der Spielstand. */
+function slide(moves, from, f0, r0, dirs, piece, board, D, state) {
   for (const [df, dr] of dirs) {
     let f = f0 + df, r = r0 + dr;
     while (onBoard(f, r, D)) {
@@ -88,9 +93,20 @@ function slide(moves, from, f0, r0, dirs, piece, board, D) {
         break;
       }
       const t = board[i];
-      if (t && t.color === piece.color) break;
+      /* ── GEZEITEN: der Kapitaen zieht durch (v1.10.2) ────────────────────
+         "Ein Kapitaen ohne Lotsen laeuft auf Grund. Mit Lotsen kommt er
+         ueberall durch." Steht der Stratege auf dem Brett, endet der Zug des
+         Kapitaens nicht an einer Figur - er umschifft sie.
+
+         EIGENE FIGUREN sind dabei EBENSO durchlaessig wie fremde. Das ist
+         Absicht: ein Lotse, der nur um Feinde herumfuehrt, waere seltsam -
+         und in der eigenen Aufstellung steht man sich am haeufigsten selbst
+         im Weg. Das ZIELFELD muss frei oder feindlich bleiben; hindurch geht
+         es durch alles. */
+      const lotse = gezeitenDurchbruch(state, piece);
+      if (t && t.color === piece.color) { if (!lotse) break; f += df; r += dr; continue; }
       push(moves, from, i, piece, !!t, t ? t.kind : null, {});
-      if (t) break;
+      if (t && !lotse) break;
       f += df; r += dr;
     }
   }
@@ -207,15 +223,15 @@ export function pieceMoves(state, sqIndex) {
       }
       break;
     }
-    case KIND.BISHOP: slide(moves, from, f, r, DIAG, piece, board, D); break;
-    case KIND.ROOK: slide(moves, from, f, r, ORTHO, piece, board, D); break;
-    case KIND.QUEEN: slide(moves, from, f, r, KING_STEPS, piece, board, D); break;
+    case KIND.BISHOP: slide(moves, from, f, r, DIAG, piece, board, D, state); break;
+    case KIND.ROOK: slide(moves, from, f, r, ORTHO, piece, board, D, state); break;
+    case KIND.QUEEN: slide(moves, from, f, r, KING_STEPS, piece, board, D, state); break;
     case KIND.CHANCELLOR:
-      slide(moves, from, f, r, ORTHO, piece, board, D);
+      slide(moves, from, f, r, ORTHO, piece, board, D, state);
       for (const [df, dr] of KNIGHT_JUMPS) step(moves, from, f + df, r + dr, piece, board, D);
       break;
     case KIND.ARCHBISHOP:
-      slide(moves, from, f, r, DIAG, piece, board, D);
+      slide(moves, from, f, r, DIAG, piece, board, D, state);
       for (const [df, dr] of KNIGHT_JUMPS) step(moves, from, f + df, r + dr, piece, board, D);
       break;
     case KIND.HAWK: // knight + one diagonal step (nimble flank skirmisher)
@@ -223,7 +239,7 @@ export function pieceMoves(state, sqIndex) {
       for (const [df, dr] of DIAG) step(moves, from, f + df, r + dr, piece, board, D);
       break;
     case KIND.AMAZON: // queen + knight (the super-piece)
-      slide(moves, from, f, r, KING_STEPS, piece, board, D);
+      slide(moves, from, f, r, KING_STEPS, piece, board, D, state);
       for (const [df, dr] of KNIGHT_JUMPS) step(moves, from, f + df, r + dr, piece, board, D);
       break;
   }
