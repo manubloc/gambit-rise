@@ -601,7 +601,7 @@ const erloschen = (m) => m.includes("#2f2a3d");
     ok("jeder Grossmeister aus LEAGUE_BOSSES hat einen Kulisseneintrag",
       GROSSMEISTER_IDS.every((id) => MEISTER_KULISSE[id]));
     const gruppen = [...new Set(Object.values(MONSTER_GRUPPE))].map((g) => `monster-${g}`);
-    const namen = [...Object.values(MEISTER_KULISSE), ...gruppen, ...Object.keys(BUENDE).map((b) => `bund-${b}`), "drache"];
+    const namen = [...Object.values(MEISTER_KULISSE), ...gruppen, ...Object.keys(BUENDE).map((b) => `bund-${b}`), "drache", "figur-bauer", "figur-gambit"];
     ok(`jeder Kulissenname hat sein Bild (${namen.length})`, namen.every((n) => KULISSE_URL[n]));
     const arm = readFileSync("src/app/ui/screens/ArmyScreen.jsx", "utf8");
     ok("die Kachel greift nach kulisseFuer({ charId, bossId })", arm.includes("kulisseFuer({ charId: artId, bossId })"));

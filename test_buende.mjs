@@ -277,7 +277,8 @@ console.log("\n== OHNE BUND: Bauer, Gambit, Drache ==");
   ok(`genau drei Figuren stehen in keinem Bund (${ohne.join(", ")})`, ohne.join(",") === "dragon,gambit,pawn");
   const k = (cid) => (kulisseFuer ? kulisseFuer({ charId: cid }) : undefined);
   ok("der Drache traegt seine eigene Kulisse", typeof k("dragon") === "string" && k("dragon").includes("drache"));
-  ok("Bauer und Gambit tragen keine - sie haben keinen Bund", k("pawn") === null && k("gambit") === null);
+  ok("der Bauer traegt seine eigene (v1.14.2)", k("pawn") === "figur-bauer");
+  ok("der Gambit traegt seine eigene (v1.14.2)", k("gambit") === "figur-gambit");
 }
 
 console.log(`\nRESULT: ${passed} passed, ${failed} failed`);

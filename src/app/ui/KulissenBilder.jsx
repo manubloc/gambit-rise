@@ -30,6 +30,8 @@ import k_monster_untot from "./assets/kulissen/monster-untot.webp";
 import k_monster_gesindel from "./assets/kulissen/monster-gesindel.webp";
 import k_monster_gemaeuer from "./assets/kulissen/monster-gemaeuer.webp";
 import k_drache from "./assets/kulissen/drache.webp";
+import k_figur_bauer from "./assets/kulissen/figur-bauer.webp";
+import k_figur_gambit from "./assets/kulissen/figur-gambit.webp";
 
 export const KULISSE_URL = {
   "bund-krone": k_bund_krone,
@@ -58,13 +60,19 @@ export const KULISSE_URL = {
   "monster-untot": k_monster_untot,
   "monster-gesindel": k_monster_gesindel,
   "monster-gemaeuer": k_monster_gemaeuer,
-  "drache": k_drache
+  "drache": k_drache,
+  "figur-bauer": k_figur_bauer,
+  "figur-gambit": k_figur_gambit
 };
 
-/* Kulisse als gedaempftes Hintergrundbild fuer eine Kachel - dieselbe
-   Behandlung wie im Bundfenster: 42 % Deckung, dunkler Verlauf darueber,
-   damit Figur und Schrift Vorrang behalten. */
-export function KulisseHinterGrund({ name, radius = 11, deckung = 0.42 }) {
+/* Kulisse als Hintergrundbild fuer eine Kachel.
+   v1.14.2 (Besitzerbefund: "man erkennt sie nicht"): 42 % Deckung plus ein
+   dunkler Verlauf ueber die ganze Hoehe - das waren die Werte des
+   Bundfensters, wo ein langer Text darueber lesbar bleiben muss. Auf der
+   Kachel steht kein Text, nur der Name am Fuss. Also fast volle Deckung, und
+   der Verlauf nur noch im unteren Drittel, wo der Name sitzt. Die Landschaft
+   im oberen Teil - Himmel, Burg, Laterne - bleibt frei. */
+export function KulisseHinterGrund({ name, radius = 11, deckung = 0.92 }) {
   const src = name ? KULISSE_URL[name] : null;
   if (!src) return null;
   return <>
@@ -72,6 +80,6 @@ export function KulisseHinterGrund({ name, radius = 11, deckung = 0.42 }) {
       style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover",
         borderRadius: radius, opacity: deckung, pointerEvents: "none", zIndex: -1 }} />
     <div aria-hidden style={{ position: "absolute", inset: 0, borderRadius: radius, pointerEvents: "none", zIndex: -1,
-      background: "linear-gradient(180deg, rgba(10,7,19,.25) 0%, rgba(10,7,19,.55) 60%, rgba(10,7,19,.82) 100%)" }} />
+      background: "linear-gradient(180deg, rgba(10,7,19,0) 0%, rgba(10,7,19,0) 58%, rgba(10,7,19,.55) 82%, rgba(10,7,19,.78) 100%)" }} />
   </>;
 }

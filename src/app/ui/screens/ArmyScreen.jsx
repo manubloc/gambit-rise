@@ -1731,7 +1731,7 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
       border: `1px solid ${glow ? T.gold : "rgba(124,58,237,.38)"}`,
       borderRadius: 11, padding: "10px 7px 9px", textAlign: "center", minWidth: 0, cursor: onOpen ? "pointer" : "default",
       boxShadow: glow ? "0 0 10px rgba(240,206,122,.22)" : "0 0 6px rgba(124,58,237,.12)" }}>
-      <KulisseHinterGrund name={dark ? null : kulisseFuer({ charId: artId, bossId })} deckung={dim ? 0.3 : 0.42} />
+      <KulisseHinterGrund name={dark ? null : kulisseFuer({ charId: artId, bossId })} deckung={dim ? 0.6 : 0.92} />
       {/* v1.0.11 (Besitzer): das ECK-SIGIL ist fort — die Kachel gehört ganz
           der Figur. Das Vektorzeichen lebt weiter in der Chronik (beide
           Gesichter) und als Sperr-Silhouette unten, wenn kein Gemälde da ist. */}

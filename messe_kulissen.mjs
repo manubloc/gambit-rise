@@ -129,7 +129,7 @@ const soll = [
   ...Object.keys(BUENDE).map((b) => [`bund-${b}`, BUENDE[b].figuren.length]),
   ...Object.values(MEISTER_KULISSE).map((m) => [m, 1]),
   ...[...new Set(Object.values(MONSTER_GRUPPE))].map((g) => [`monster-${g}`, Object.values(MONSTER_GRUPPE).filter((x) => x === g).length]),
-  ["drache", 1],
+  ["drache", 1], ["figur-bauer", 1], ["figur-gambit", 1],
 ];
 console.log(`\n== KULISSEN IM LEBENDEN HOFSTAAT (${gemessen.length} Bilder gefunden) ==`);
 for (const [name, n] of soll) {
@@ -138,7 +138,7 @@ for (const [name, n] of soll) {
   ok(`${name}: ${n} Kachel(n) erwartet, ${da.length} gefunden, ${sichtbar.length} sichtbar und geladen`, da.length === n && sichtbar.length === n);
 }
 const deckungen = [...new Set(gemessen.map((g) => g.deckung))];
-ok(`die Kulisse liegt gedaempft unter der Figur (Deckung ${deckungen.join("/")})`, deckungen.every((d) => Number(d) <= 0.5));
+ok(`die Kulisse ist deutlich zu sehen, aber nicht ueber der Figur (Deckung ${deckungen.join("/")})`, deckungen.every((d) => Number(d) >= 0.55 && Number(d) < 1));
 const masse = gemessen[0] ? `${gemessen[0].w}x${gemessen[0].h}` : "-";
 console.log(`  (Kachelmass der ersten Kulisse: ${masse} px)`);
 await page.screenshot({ path: "/mnt/user-data/outputs/hofstaat-kulissen.png", fullPage: false });

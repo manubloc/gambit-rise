@@ -1,8 +1,8 @@
 /* ── WER TRAEGT WELCHE KULISSE (v1.14.0) ──────────────────────────────────────
    Besitzerentscheid aus der Bundsitzung: jede Figur traegt die Kulisse ihres
    Bundes, jeder Grossmeister seine eigene, die uebrigen Monster in vier
-   Gruppen, der Drache allein. Bauer und Gambit haben keinen Bund und damit
-   keine Kulisse - die Kachel behaelt dort ihren Verlauf.
+   Gruppen, der Drache allein. Bauer und Gambit haben keinen Bund, tragen
+   aber seit v1.14.2 eigene Kulissen.
 
    Diese Datei kennt nur NAMEN, keine Bilder - so laesst sie sich in node
    pruefen (test_buende.mjs). Die Bilder haengen in KulissenBilder.jsx dran. */
@@ -44,6 +44,11 @@ export function kulisseFuer({ charId = null, bossId = null } = {}) {
     return null;
   }
   if (charId === "dragon") return "drache";
+  /* v1.14.2: Bauer und Gambit haben keinen Bund, aber jetzt eigene Kulissen -
+     der Besitzer hat sie nachgeliefert (Acker mit Feldrain, Wegkreuz mit
+     Laterne). Damit traegt jede Figur im Hofstaat ein Bild. */
+  if (charId === "pawn") return "figur-bauer";
+  if (charId === "gambit") return "figur-gambit";
   const bund = charId ? bundVon(charId) : null;
   return bund ? `bund-${bund}` : null;
 }

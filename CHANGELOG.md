@@ -1,5 +1,16 @@
 # Changelog - Grand Gambit
 
+## 1.14.2
+- DIE KULISSEN SIND JETZT ZU SEHEN (Besitzerbefund: "man erkennt sie nicht").
+  Sie lagen mit 42 % Deckung unter einem dunklen Verlauf ueber die ganze
+  Hoehe - die Werte des Bundfensters, wo ein langer Text darueber lesbar sein
+  muss. Auf der Kachel steht kein Text. Jetzt 92 % Deckung, der Verlauf nur
+  noch im unteren Drittel unter dem Namen; Himmel, Burg und Laterne im oberen
+  Teil bleiben frei. Begegnete (noch nicht eigene) Figuren 60 %.
+- BAUER UND GAMBIT TRAGEN EIGENE KULISSEN: der Besitzer hat sie nachgeliefert
+  (Acker mit Feldrain, Wegkreuz mit Laterne). Damit hat jede Figur im
+  Hofstaat ein Bild - 29 Kulissen, alle mit HQ-Original im Archiv.
+
 ## 1.14.1
 - DER SOCKEL IST FORT, DIE FIGUR STEHT IM ROHR (Besitzerwunsch seit v1.5.1:
   "ich will den Sockel nicht mehr sehen"). Gemessen mit messe_rohr.mjs: der
