@@ -558,5 +558,75 @@ console.log("\n== FAEHRTE UND SCHATTEN (v1.10.6) ==");
   }
 }
 
+console.log("\n== BANNKREIS, KONZIL, GELEIT (v1.10.8) ==");
+{
+  const { createGame: cg6, applyMove: am6 } = await import("./src/core/index.js");
+  const { legalMovesFrom: lm6 } = await import("./src/core/sim/transitions.js");
+  const { talentWirkt: tw6 } = await import("./src/core/rules/moves.js");
+  const { geleitTauschbar: gt6 } = await import("./src/core/rules/buende.js");
+  const { buildArmyFromFormation: ba6, defaultFormation: df6 } = await import("./src/meta/index.js");
+  const { mapById: mb6 } = await import("./src/content/index.js");
+  const w6 = 8;
+  const f6 = (k, id, c, hp) => ({ kind: k, charId: id, color: c, hp, maxHp: hp, atk: 7, abilities: [], level: 10, shield: 0 });
+  const leer6 = (buende) => {
+    const ar = () => ba6(() => 10, df6(mb6("classic")));
+    const g = cg6(ar(), ar(), { rules: "hp", map: mb6("classic"), buende });
+    for (let i = 0; i < 64; i++) g.board[i] = null;
+    return g;
+  };
+
+  /* BANNKREIS: der Ort entscheidet. talentWirkt() nimmt dafuer jetzt
+     Spielstand und Feld entgegen - beide freiwillig, damit alle bestehenden
+     Aufrufe gueltig bleiben. */
+  {
+    const b = new Array(64).fill(null);
+    b[4 * w6 + 4] = f6("Y", "seeress", "b", 9);
+    const st = { board: b, w: w6, h: 8, buende: ["bannkreis"] };
+    ok("im Bannkreis schweigt ein Talent", !tw6("bulwark", "hp", st, 6 * w6 + 4, "w"));
+    ok("drei Felder weiter wirkt es", tw6("bulwark", "hp", st, 7 * w6 + 4, "w"));
+    ok("der alte Aufruf ohne Ort bleibt gueltig", tw6("bulwark", "hp"));
+    ok("und Lebenstalente schweigen weiter in Klassik", !tw6("lifesteal", "chess"));
+  }
+
+  /* KONZIL: wirkt AUTOMATISCH beim ersten toedlichen Treffer, nicht auf
+     Knopfdruck. Ein Bund, den man selbst ausloesen muss, braucht eine
+     Bedienung - und wer sie vergisst, verliert. Der Rat faellt dem Koenig in
+     den Arm, wenn es noetig ist. */
+  {
+    const bau = (buende) => {
+      const g = leer6(buende);
+      g.board[3 * w6 + 4] = f6("K", "king", "w", 20);
+      g.board[0] = f6("E", "archbishop", "w", 15);
+      g.board[1] = f6("Z", "chancellor", "w", 15);
+      g.board[2] = f6("Q", "queen", "w", 15);
+      g.board[4 * w6 + 4] = f6("R", "rook", "b", 12);
+      g.board[7 * w6 + 7] = f6("K", "king", "b", 20);
+      g.turn = "b";
+      return g;
+    };
+    const ohne = am6(bau([]), lm6(bau([]), 4 * w6 + 4).find((m2) => m2.to === 3 * w6 + 4));
+    ok("ohne Bund trifft der Schlag den Koenig", ohne.board[3 * w6 + 4].hp < 20);
+    const g = bau(["konzil"]);
+    const mit = am6(g, lm6(g, 4 * w6 + 4).find((m2) => m2.to === 3 * w6 + 4));
+    ok("das Konzil lehnt den Schlag ab", mit.board[3 * w6 + 4].hp === 20);
+    ok("und ist danach verbraucht", mit.konzilVerbraucht && mit.konzilVerbraucht.w === true);
+  }
+
+  /* GELEIT: hier ist ein Knopf richtig - der Tausch ist ein ZUG, kein
+     Ereignis. Der Spieler waehlt, wann und welche zwei. */
+  {
+    const g = leer6(["geleit"]);
+    g.board[10] = f6("N", "knight", "w", 12);
+    g.board[20] = f6("B", "bishop", "w", 12);
+    g.board[30] = f6("R", "rook", "w", 12);
+    ok("mit allen dreien ist der Tausch offen", (gt6(g, "w") || []).length === 3);
+    g.board[30] = null;
+    ok("ohne den Turm nicht mehr", gt6(g, "w") === null);
+    g.board[30] = f6("R", "rook", "w", 12);
+    g.geleitVerbraucht = { w: true };
+    ok("und nach dem Tausch ist Schluss", gt6(g, "w") === null);
+  }
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

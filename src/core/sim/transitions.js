@@ -1,7 +1,7 @@
 import { other, WHITE, BLACK, BASE_HP, BASE_ATK, HP_REMIS_HALBZUEGE } from "../domain/constants.js";
 import { cloneBoard, findKing } from "../domain/board.js";
 import { pseudoMoves, pieceMoves, talentWirkt } from "../rules/moves.js";
-import { kroneFaengtAb, schildwachtDeckt, nachtwacheHeilt, faehrteFolgt } from "../rules/buende.js";
+import { kroneFaengtAb, schildwachtDeckt, nachtwacheHeilt, faehrteFolgt, konzilLehntAb } from "../rules/buende.js";
 import { inCheck } from "../rules/attacks.js";
 import { schlageSperre, loeseFalleAus, zerfalleSperren } from "../rules/sperren.js";
 import { familyOf, familyCount, crownWallSoak } from "../rules/families.js";
@@ -269,7 +269,7 @@ export function applyMove(state, move, opts) {
          gemeinsamen Reihe oder Linie einen Schild - er zaehlt wie ein
          Bollwerk, also einen Punkt weniger Schaden. */
       const wacht = schildwachtDeckt(state, ti) ? 1 : 0;
-      const soak = (target.abilities.includes("bulwark") && talentWirkt("bulwark", state.rules) ? 1 : 0) + wall + (warded ? 1 : 0) + wacht;
+      const soak = (target.abilities.includes("bulwark") && talentWirkt("bulwark", state.rules, state, ti, target.color) ? 1 : 0) + wall + (warded ? 1 : 0) + wacht;
       // BALANCE: strikes from afar carry less weight — a leap or a ranged
       // shot lands at HALF force (rounded up); melee keeps its full bite.
       const afar = move.special === "leap" || move.special === "shot" || move.noAdvance;
@@ -283,8 +283,16 @@ export function applyMove(state, move, opts) {
          Wichtig fuer den Ablauf: der Schaden wandert VOLLSTAENDIG auf den
          Paladin, der Koenig bleibt unberuehrt. Ein halber Uebertrag waere
          schwerer zu erklaeren und im Gefecht nicht ablesbar. */
-      let bundKrone = null;
-      const retter = kroneFaengtAb(state, ti);
+      let bundKrone = null, bundKonzil = false;
+      /* ── DAS KONZIL LEHNT AB (v1.10.8) ──────────────────────────────────
+         Vor dem Paladin, denn der Rat greift frueher: er verhindert den
+         Schlag ueberhaupt, waehrend der Paladin ihn nur umlenkt. */
+      if (konzilLehntAb(state, ti)) {
+        ns.konzilVerbraucht = { ...(ns.konzilVerbraucht || {}), [target.color]: true };
+        bundKonzil = true;
+        dmg = 0;
+      }
+      const retter = dmg > 0 ? kroneFaengtAb(state, ti) : null;
       if (retter != null) {
         const pal = b[retter];
         pal.hp -= dmg;
@@ -295,7 +303,7 @@ export function applyMove(state, move, opts) {
         if (pal.hp <= 0) b[retter] = null;
       } else target.hp -= dmg;
       if (move.consumes) piece.used[move.consumes] = true; // one spell per game: the book closes
-      if (has("lifesteal") && talentWirkt("lifesteal", state.rules)) piece.hp = Math.min(piece.maxHp, piece.hp + Math.ceil(dmg / 2));
+      if (has("lifesteal") && talentWirkt("lifesteal", state.rules, state, move.from, piece.color)) piece.hp = Math.min(piece.maxHp, piece.hp + Math.ceil(dmg / 2));
       /* ── SCHOCKWELLE (v0.79, blast): EINMAL pro Partie trifft der erste
          Nahkampfschlag auch alle GEGNER rings um das Ziel - mit HALBEM
          Schaden (Besitzerregel: eine Flaeche schlaegt nie so hart wie die
@@ -346,7 +354,7 @@ export function applyMove(state, move, opts) {
       if (move.consumes) piece.used[move.consumes] = true; // one spell per game: the book closes
       if (move.promotion) repromote(piece, move.promotion);
     }
-    if (has("regen") && talentWirkt("regen", state.rules)) piece.hp = Math.min(piece.maxHp, (piece.hp || 0) + 1);
+    if (has("regen") && talentWirkt("regen", state.rules, state, move.to, piece.color)) piece.hp = Math.min(piece.maxHp, (piece.hp || 0) + 1);
   } else {
     if (target && target.shield > 0) {            // chess: shield absorbs the hit
       target.shield -= 1; bounced = true;

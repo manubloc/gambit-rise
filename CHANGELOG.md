@@ -1,5 +1,19 @@
 # Changelog - Grand Gambit
 
+## 1.11.0
+- BANNKREIS, KONZIL UND GELEIT wirken - damit stehen neun von zehn Buenden im
+  Gefecht. Es fehlt nur noch der Sturm (Rueckkehr der Amazone).
+- DER BANNKREIS brauchte den ORT: talentWirkt() nimmt jetzt Spielstand und
+  Feld entgegen, beide freiwillig, damit alle bestehenden Aufrufe gueltig
+  bleiben. Stehen Seherin oder Inquisitor des Gegners im Umkreis von zwei
+  Feldern, schweigt das Talent.
+- DAS KONZIL WIRKT AUTOMATISCH beim ersten toedlichen Treffer, nicht auf
+  Knopfdruck - ein Bund, den man selbst ausloesen muss, braucht eine
+  Bedienung, und wer sie vergisst, verliert. Der Rat faellt dem Koenig in den
+  Arm, wenn es noetig ist.
+- BEIM GELEIT ist ein Knopf dagegen richtig: der Tausch ist ein ZUG, kein
+  Ereignis. Der Spieler waehlt, wann und welche zwei.
+
 ## 1.10.6
 - FAEHRTE: zieht Späher oder Kundschafter, rückt der andere ein Feld in
   DIESELBE Richtung nach. Der Nachzug faellt aus, wenn das Feld besetzt ist,

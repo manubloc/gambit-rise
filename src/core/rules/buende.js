@@ -152,6 +152,37 @@ export function bannkreisSperrt(state, feld, farbe) {
   return false;
 }
 
+/* ── KONZIL: der Koenig lehnt einen Schlag ab ─────────────────────────────
+   Einmal je Partie. Wirkt AUTOMATISCH beim ersten toedlichen Treffer gegen
+   den Koenig - nicht auf Knopfdruck.
+
+   Das ist eine Entscheidung gegen die naheliegende Loesung. Ein Bund, den man
+   selbst ausloest, braucht eine Bedienung, einen Knopf, einen Moment des
+   Zoegerns; und wer ihn vergisst, verliert. Der Rat faellt dem Koenig in den
+   Arm, wenn es noetig ist - er fragt nicht erst. */
+export function konzilLehntAb(state, zielFeld) {
+  if (!hat(state, "konzil")) return false;
+  const opfer = state.board[zielFeld];
+  if (!opfer || opfer.kind !== KIND.KING) return false;
+  if (state.konzilVerbraucht && state.konzilVerbraucht[opfer.color]) return false;
+  /* Alle drei muessen stehen - ein Rat aus einem ist keiner. */
+  return ["archbishop", "chancellor", "queen"].every((id) => finde(state, opfer.color, id) != null);
+}
+
+/* ── GELEIT: zwei der drei tauschen die Plaetze ───────────────────────────
+   Einmal je Partie, und hier ist ein Knopf richtig: der Tausch ist ein ZUG,
+   kein Ereignis. Der Spieler waehlt, wann und welche zwei.
+
+   Liefert die Felder der drei, sofern alle stehen und der Tausch noch offen
+   ist - die Anzeige macht daraus die Auswahl. */
+export function geleitTauschbar(state, farbe) {
+  if (!hat(state, "geleit")) return null;
+  if (state.geleitVerbraucht && state.geleitVerbraucht[farbe]) return null;
+  const felder = ["knight", "bishop", "rook"].map((id) => finde(state, farbe, id));
+  if (felder.some((f) => f == null)) return null;
+  return felder;
+}
+
 /* ── FAEHRTE: der andere rueckt nach ──────────────────────────────────────
    Gibt das Feld der Figur zurueck, die nachziehen darf - und das Zielfeld,
    auf das sie einen Schritt tut. Null, wenn nichts moeglich ist. */

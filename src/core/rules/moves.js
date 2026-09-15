@@ -1,4 +1,4 @@
-import { gezeitenDurchbruch } from "./buende.js";
+import { gezeitenDurchbruch, bannkreisSperrt } from "./buende.js";
 import {
   FILES, RANKS, KIND, DIAG, ORTHO, KING_STEPS, KNIGHT_JUMPS, LONG_LEAPS, DIAG_LEAPS,
   fileOf, rankOf, dirOf, startPawnRank, promoRank,
@@ -33,7 +33,24 @@ export const NUR_MIT_LEBEN = new Set(["lifesteal", "regen", "bulwark"]);
 
 /** Wirkt dieses Talent unter diesen Regeln? In Klassik schweigen die drei
  *  Lebenstalente - unabhaengig davon, ob die Figur sie traegt. */
-export const talentWirkt = (id, rules) => !(rules === "chess" && NUR_MIT_LEBEN.has(id));
+/* ── WIRKT DIESES TALENT? (erweitert v1.10.8) ─────────────────────────────
+   Zwei Gruende, warum ein Talent schweigt:
+
+   1. LEBENSTALENTE IN KLASSIK. Lebensraub und Regeneration brauchen
+      Lebenspunkte; ohne sie waeren sie sinnlos (seit v1.2.0).
+
+   2. DER BANNKREIS. Stehen Seherin oder Inquisitor des Gegners im Umkreis
+      von zwei Feldern, sind die Talente dieser Figur gesperrt.
+
+   Der zweite Grund braucht den ORT - deshalb nimmt die Funktion jetzt
+   Spielstand und Feld entgegen. Beide sind freiwillig: wer sie nicht
+   uebergibt, bekommt die alte Antwort, und alle bestehenden Aufrufe bleiben
+   gueltig. */
+export const talentWirkt = (id, rules, state = null, feld = null, farbe = null) => {
+  if (rules === "chess" && NUR_MIT_LEBEN.has(id)) return false;
+  if (state && feld != null && farbe && bannkreisSperrt(state, feld, farbe)) return false;
+  return true;
+};
 
 export function hasAbility(piece, id) {
   // ONE SPELL PER GAME: a piece may KNOW many talents, but may FIRE only one
