@@ -104,12 +104,12 @@ export function schattenVerbirgt(state, piece) {
   return true;
 }
 
-/* ── TRINKLIED: der Alchemist heilt ───────────────────────────────────────
+/* ── NACHTWACHE: der Alchemist heilt ───────────────────────────────────────
    Gibt das Feld zurueck, das geheilt werden soll - oder null. Gewaehlt wird
    die angrenzende eigene Figur mit dem GROESSTEN Fehlbetrag; eine
    vollstaendig heile Figur wird nie gewaehlt. */
-export function trinkliedHeilt(state, farbe) {
-  if (!hat(state, "trinklied")) return null;
+export function nachtwacheHeilt(state, farbe) {
+  if (!hat(state, "nachtwache")) return null;
   const af = finde(state, farbe, "alchemist");
   if (af == null) return null;
   let bestes = null, fehlt = 0;

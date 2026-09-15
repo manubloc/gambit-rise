@@ -129,14 +129,21 @@ export const BUENDE = {
     regelEn: "Struck down, the amazon returns once per match to her starting square.",
     storyDe: "Sie fiel. Er rief. Sie stand wieder auf, und niemand sprach je darüber.",
   },
-  trinklied: {
-    id: "trinklied",
+  nachtwache: {
+    id: "nachtwache",
     stimmung: "schmiede",
-    nameDe: "Trinklied", nameEn: "Drinking Song",
+    /* HIESS "TRINKLIED" (Besitzerbefund: "vom Naming noch nicht perfekt").
+       Er hatte recht - der Name klang nach Kneipe, der Bund aber HEILT.
+       "Nachtwache" traegt dieselbe Geschichte (drei, die aufbleiben, waehrend
+       der Hof schlaeft), erklaert das Heilen ohne es zu benennen, und es
+       passt zu den anderen: Krone, Konzil, Geleit, Faehrte, Schatten,
+       Schildwacht, Gezeiten, Bannkreis, Sturm - alles Dinge, keine
+       Handlungen. */
+    nameDe: "Nachtwache", nameEn: "Night Watch",
     figuren: ["alchemist", "bard", "standard"],
     regelDe: "Der Alchemist heilt zu Beginn deines Zuges eine angrenzende eigene Figur um einen Punkt.",
     regelEn: "At the start of your turn the alchemist heals one adjacent friendly piece by one.",
-    storyDe: "Drei, die abends zusammensitzen, während der Hof schläft. Am Morgen ist jeder wieder heil.",
+    storyDe: "Drei, die aufbleiben, während der Hof schläft. Am Morgen ist jeder wieder heil.",
   },
 };
 

@@ -487,10 +487,10 @@ console.log("\n== DIE BUENDE UEBERLEBEN JEDEN ZUG (v1.10.3) ==");
      jede Bundregel prallte an einer leeren Liste ab. Die Wirkung war also in
      Einzeltests da und im Spiel weg - der unangenehmste Fehlertyp. */
   {
-    const g = stell(["trinklied"]);
+    const g = stell(["nachtwache"]);
     const n = am4(g, lm4(g, 0)[0]);
     ok("die Buende stehen auch nach einem Zug noch im Spielstand",
-      Array.isArray(n.buende) && n.buende.includes("trinklied"));
+      Array.isArray(n.buende) && n.buende.includes("nachtwache"));
     ok("der Alchemist heilt den verwundeten Nachbarn", n.board[3 * w4 + 4].hp === 6);
   }
   /* Gegenprobe: ohne Bund bleibt der Turm verwundet. */

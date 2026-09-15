@@ -1,7 +1,7 @@
 import { other, WHITE, BLACK, BASE_HP, BASE_ATK, HP_REMIS_HALBZUEGE } from "../domain/constants.js";
 import { cloneBoard, findKing } from "../domain/board.js";
 import { pseudoMoves, pieceMoves, talentWirkt } from "../rules/moves.js";
-import { kroneFaengtAb, schildwachtDeckt, trinkliedHeilt, faehrteFolgt } from "../rules/buende.js";
+import { kroneFaengtAb, schildwachtDeckt, nachtwacheHeilt, faehrteFolgt } from "../rules/buende.js";
 import { inCheck } from "../rules/attacks.js";
 import { schlageSperre, loeseFalleAus, zerfalleSperren } from "../rules/sperren.js";
 import { familyOf, familyCount, crownWallSoak } from "../rules/families.js";
@@ -61,7 +61,7 @@ function altern(ns) {
      Sonderzug, alle laufen hier durch. Deshalb stehen die Buende hier, die
      nach einem Zug wirken, und nicht an drei verschiedenen Stellen.
 
-     TRINKLIED heilt die Seite, die GERADE GEZOGEN HAT. Nicht die am Zug
+     NACHTWACHE heilt die Seite, die GERADE GEZOGEN HAT. Nicht die am Zug
      befindliche: der Alchemist arbeitet, waehrend seine Leute ausruhen, nicht
      waehrend sie kaempfen. */
   /* ── FAEHRTE: der Partner rueckt nach (v1.10.6) ──────────────────────────
@@ -93,11 +93,11 @@ function altern(ns) {
 
   const heiler = ns.lastMove ? ns.lastMove.color : null;
   if (heiler) {
-    const zf = trinkliedHeilt(ns, heiler);
+    const zf = nachtwacheHeilt(ns, heiler);
     if (zf != null) {
       const p = ns.board[zf];
       p.hp = Math.min(p.maxHp, p.hp + 1);
-      ns.lastMove.bundTrinklied = zf;
+      ns.lastMove.bundNachtwache = zf;
     }
   }
   return ns;

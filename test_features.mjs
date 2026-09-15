@@ -631,12 +631,12 @@ console.log("\n== DIE WIRKUNG DER BUENDE (v1.10.0) ==");
     setz(b, 3, 4, { ...fig("R", "rook"), hp: 5, maxHp: 12 });
     setz(b, 4, 3, { ...fig("B", "bishop"), hp: 11, maxHp: 12 });
     setz(b, 7, 7, { ...fig("Q", "queen"), hp: 1, maxHp: 20 });
-    const st = { board: b, w, h: 8, buende: ["trinklied"] };
+    const st = { board: b, w, h: 8, buende: ["nachtwache"] };
     ok("der Alchemist heilt den angrenzenden mit dem groessten Fehlbetrag",
-      B.trinkliedHeilt(st, "w") === 4 * w + 3);
+      B.nachtwacheHeilt(st, "w") === 4 * w + 3);
     /* die Dame fehlt mehr, steht aber nicht daneben - Nachbarschaft zaehlt */
     ok("eine ferne Figur wird nicht geheilt, auch wenn ihr mehr fehlt",
-      B.trinkliedHeilt(st, "w") !== 7 * w + 7);
+      B.nachtwacheHeilt(st, "w") !== 7 * w + 7);
   }
 
   /* GEZEITEN und STURM haengen daran, dass der Partner ueberhaupt steht. */
