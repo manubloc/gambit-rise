@@ -497,5 +497,44 @@ console.log("\n== DER NAME MUSS EINMALIG SEIN (Besitzerfrage v1.4.3) ==");
     !nameVergeben(liste, "Corvin", "a"));
 }
 
+console.log("\n== DIE ZEHN BUENDE (v1.9.0) ==");
+{
+  const { BUND_LISTE, BUENDE, bundVon, bundErwacht } = await import("./src/content/buende.js");
+  const { CHARACTER_LIST: CL2 } = await import("./src/content/index.js");
+
+  const alle = [];
+  for (const b of BUND_LISTE) alle.push(...b.figuren);
+  /* JEDE FIGUR GENAU EINMAL - das war die ausdrueckliche Forderung des
+     Besitzers ("bitte verwende keins doppelt"). Beim ersten Entwurf fehlte
+     die Dame: sie war als Traegerin gedacht wie der Koenig und waere als
+     einzige uebrig geblieben. */
+  ok("keine Figur steht in zwei Buenden", alle.filter((x, i) => alle.indexOf(x) !== i).length === 0);
+  /* Und KEINE ERFUNDENE. Beim Entwerfen hatte ich einen "Habicht" genannt,
+     den es nicht gibt - das Bild des Kundschafters traegt einen Vogel, und
+     daraus wurde in meinem Kopf eine Figur. Diese Probe faengt so etwas ab. */
+  ok("alle genannten Figuren gibt es wirklich",
+    alle.every((id) => CL2.some((c) => c.id === id)));
+  const draussen = CL2.filter((c) => !alle.includes(c.id)).map((c) => c.id);
+  ok(`nur Bauer, Gambit und Drache stehen in keinem Bund (${draussen.join(", ")})`,
+    draussen.length === 3 && draussen.includes("dragon") && draussen.includes("pawn"));
+
+  /* ERST AUF HOECHSTSTUFE. Das ist der Kern des Entwurfs: ein Bund ist der
+     Lohn dafuer, seine Figuren ganz ausgebaut zu haben. */
+  ok("ein Bund erwacht erst auf Hoechststufe", bundErwacht("konzil", () => 10, () => 10));
+  ok("und bleibt eine Stufe darunter stumm", !bundErwacht("konzil", () => 9, () => 10));
+  /* auch wenn NUR EINE Figur fehlt - sonst waere der Dreierbund billiger als
+     ein Zweierbund */
+  ok("auch wenn nur eine Figur des Bundes fehlt",
+    !bundErwacht("geleit", (id) => (id === "rook" ? 9 : 10), () => 10));
+
+  /* Jeder Bund traegt eine Regel in EINEM Satz - der Besitzer hat einen
+     ersten Entwurf verworfen, weil er zu verschachtelt war. */
+  ok("jeder Bund hat Name, Regel und Geschichte",
+    BUND_LISTE.every((b) => b.nameDe && b.regelDe && b.storyDe));
+  const lang = BUND_LISTE.filter((b) => b.regelDe.length > 110).map((b) => b.nameDe);
+  ok(`keine Regel ist laenger als ein Satz (${lang.join(", ") || "alle knapp"})`, lang.length === 0);
+  ok("bundVon findet die Zugehoerigkeit", bundVon("paladin") === "krone" && bundVon("pawn") === null);
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

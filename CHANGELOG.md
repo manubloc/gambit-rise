@@ -1,5 +1,20 @@
 # Changelog - Grand Gambit
 
+## 1.9.0
+- DIE ZEHN BUENDE stehen als Datengrundlage: Krone, Konzil, Geleit, Fährte,
+  Schatten, Schildwacht, Gezeiten, Bannkreis, Sturm, Trinklied. 24 Figuren,
+  jede genau einmal; draussen bleiben nur Bauer, Grand Gambit und der Drache.
+- JEDER BUND WIRKT ERST, WENN ALLE SEINE FIGUREN AUF HOECHSTSTUFE STEHEN -
+  ein Bund ist kein Geschenk fuer die Aufstellung, sondern der Lohn dafuer,
+  zwei oder drei Figuren ganz ausgebaut zu haben.
+- JEDE REGEL IST EIN SATZ (Besitzervorgabe: "Es sollen immer einfache Dinge
+  sein"). Eine Probe haelt das fest und schlaegt an, sobald eine Regel laenger
+  wird als 110 Zeichen.
+- Zwei Fehler beim Entwerfen, beide von Proben abgefangen: ein erfundener
+  "Habicht" (das Bild des Kundschafters traegt einen Vogel - daraus wurde in
+  meinem Kopf eine Figur) und die vergessene Dame, die als einzige uebrig
+  geblieben waere.
+
 ## 1.7.0
 - JEDE FIGUR WAECHST JETZT NACH IHRER EIGENEN ANLAGE (Besitzerentscheid nach
   einer Messung). GEMESSEN ueber alle 27 Figuren: auf Stufe 1 lagen ihre
