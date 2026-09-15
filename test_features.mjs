@@ -534,6 +534,35 @@ console.log("\n== DIE ZEHN BUENDE (v1.9.0) ==");
   const lang = BUND_LISTE.filter((b) => b.regelDe.length > 110).map((b) => b.nameDe);
   ok(`keine Regel ist laenger als ein Satz (${lang.join(", ") || "alle knapp"})`, lang.length === 0);
   ok("bundVon findet die Zugehoerigkeit", bundVon("paladin") === "krone" && bundVon("pawn") === null);
+
+  /* ── KEINE ERFUNDENEN NAMEN IN SICHTBAREN TEXTEN ────────────────────────
+     Besitzerbefund, und er hat es zum zweiten Mal bemerkt: erst der
+     "Habicht", dann der "Lotse" - beides Figuren, die ich mir beim Schreiben
+     ausgedacht hatte. Seine Bitte: "Mach die Namen der Figuren auch bei der
+     Erklaerung sauber, nichts dass du irgendwas Neues dazu erfindest."
+
+     Das ist mehr als Kosmetik: wer in einer Regel einen Namen liest, den das
+     Spiel nicht kennt, sucht nach einer Figur, die es nirgends gibt.
+
+     Diese Probe fuehrt eine Liste von Woertern, die wie Figurenbezeichnungen
+     klingen, und schlaegt an, sobald eines in einem sichtbaren Text steht,
+     ohne dass es die Figur gibt. */
+  {
+    const erfunden = ["lotse", "lotsen", "habicht", "falke", "heiler", "schmied",
+      "wache", "seher ", "magierin", "ritterin", "knappe", "soeldner"];
+    const echteNamen = CL2.map((c) => (c.nameDe || "").toLowerCase()).filter(Boolean);
+    const treffer = [];
+    for (const b of BUND_LISTE) {
+      const text = `${b.regelDe} ${b.storyDe}`.toLowerCase();
+      for (const w of erfunden) {
+        if (text.includes(w) && !echteNamen.some((n) => n.includes(w.trim()))) {
+          treffer.push(`${b.nameDe}: "${w.trim()}"`);
+        }
+      }
+    }
+    ok(`kein sichtbarer Text nennt eine Figur, die es nicht gibt${treffer.length ? " — " + treffer.join(", ") : ""}`,
+      treffer.length === 0);
+  }
 }
 
 console.log("\n== DIE WIRKUNG DER BUENDE (v1.10.0) ==");

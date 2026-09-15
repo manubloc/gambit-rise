@@ -100,7 +100,11 @@ export const BUENDE = {
     figuren: ["captain", "strategist"],
     regelDe: "Der Kapitän zieht durch eigene Figuren hindurch.",
     regelEn: "The captain moves through friendly pieces.",
-    storyDe: "Ein Kapitän ohne Lotsen läuft auf Grund. Mit Lotsen kommt er überall durch.",
+    /* KEIN "LOTSE" - den gibt es nicht (Besitzerbefund: "es gibt doch
+       ueberhaupt keinen Lotse oder?"). Die Figur heisst STRATEGE. Wer in
+       einer Erklaerung einen Namen erfindet, den das Spiel nicht kennt,
+       schickt den Spieler auf die Suche nach etwas, das es nirgends gibt. */
+    storyDe: "Ein Kapitän allein läuft auf Grund. Der Stratege kennt die eigene Flotte und weiß, wo Platz ist.",
   },
   bannkreis: {
     id: "bannkreis",
