@@ -651,6 +651,31 @@ const erloschen = (m) => m.includes("#2f2a3d");
 }
 
 // ── 16. THE COURT WARNS WHILE A FIGHT RESTS ─────────────────────────────────
+/* ── DIE DECKS IM EDITOR (v1.15.0) ─────────────────────────────────────────
+   Uebergabe, Punkt 3: drei Aufstellungen je Spieler, "Aufstellung I-III",
+   umbenennbar; die Kartenauswahl erst ab Kapitel 5 - davor ist alles 8x8.
+   Proben ZUERST geschrieben. */
+{
+  const t = makeT("de");
+  const { mitDeckName, mitAktivemDeck, formationKey } = await import("./src/meta/index.js");
+  const frisch = defaultProfile();
+  const m1 = html(<ArmyScreen profile={frisch} dispatch={() => {}} t={t} initialTab="formation" />);
+  ok("drei Faecher stehen im Editor", (m1.match(/data-deck="\d"/g) || []).length === 3);
+  ok("sie heissen Aufstellung I, II, III", m1.includes("Aufstellung I") && m1.includes("Aufstellung II") && m1.includes("Aufstellung III"));
+  ok("Fach I ist anfangs aktiv", /data-deck="0"[^>]*data-aktiv="1"/.test(m1));
+  ok("vor Kapitel 5 gibt es keine Kartenwahl", !m1.includes(t("army.mapPick")));
+  const umbenannt = mitDeckName(mitAktivemDeck(frisch, formationKey("classic", "chess"), 1), formationKey("classic", "chess"), 1, "Sturmreihe");
+  const m2 = html(<ArmyScreen profile={umbenannt} dispatch={() => {}} t={t} initialTab="formation" />);
+  ok("ein eigener Name steht auf dem Fach", m2.includes("Sturmreihe") && !/Aufstellung II(?!I)/.test(m2));
+  ok("und das gewaehlte Fach ist aktiv", /data-deck="1"[^>]*data-aktiv="1"/.test(m2));
+  const spaet = { ...frisch, campaign: { ...frisch.campaign, league: 5 } };
+  const m3 = html(<ArmyScreen profile={spaet} dispatch={() => {}} t={t} initialTab="formation" />);
+  ok("ab Kapitel 5 erscheint die Kartenwahl", m3.includes(t("army.mapPick")));
+  const en = makeT("en");
+  const m4 = html(<ArmyScreen profile={{ ...frisch, lang: "en" }} dispatch={() => {}} t={en} initialTab="formation" />);
+  ok("auf Englisch heissen sie Formation I-III", m4.includes("Formation I") && m4.includes("Formation III"));
+}
+
 {
   const t = makeT("de");
   const base = withProgressPct(defaultProfile(), 100, 5);

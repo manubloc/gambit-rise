@@ -1,7 +1,7 @@
 {
   "name": "gambit",
   "private": true,
-  "version": "1.14.2",
+  "version": "1.15.0",
   "type": "module",
   "description": "GAMBIT — chess that levels up. Characters gain special moves and shields; new pieces unlock over time. Deterministic, UI-free core (command/event sim with replay) for cross-platform reuse.",
   "scripts": {
@@ -9,7 +9,7 @@
     "build": "vite build && npm run schaukammer",
     "build:single": "vite build --config vite.single.config.js && node scripts/singlefile-iife.mjs",
     "preview": "esbuild preview_assets.jsx --bundle --platform=node --jsx=automatic --outfile=.preview.mjs --format=esm --loader:.png=dataurl --external:react --external:react-dom --log-level=silent && node .preview.mjs",
-    "test": "node tools/pruefe-buttons.mjs && node tools/pruefe-dateinamen.mjs && node test_kontrast.mjs && node test_core.mjs && node test_engine.mjs && node test_progression.mjs && node test_features.mjs && node test_buende.mjs && node test_sperren.mjs && node test_kapitel1.mjs && node test_maps.mjs && node test_boards.mjs && node test_combat.mjs && node test_monster_gaben.mjs && node test_boss.mjs && node test_balance.mjs && node test_net.mjs && npm run smoke && npm run ui && node test_story.mjs && node test_saves.mjs && node test_worker.mjs && node test_dragon.mjs && node test_campaign_smoke.mjs && node test_sonderzuege.mjs && node test_anim.mjs && node test_zauber.mjs",
+    "test": "node tools/pruefe-buttons.mjs && node tools/pruefe-dateinamen.mjs && node test_kontrast.mjs && node test_core.mjs && node test_engine.mjs && node test_progression.mjs && node test_features.mjs && node test_buende.mjs && node test_decks.mjs && node test_sperren.mjs && node test_kapitel1.mjs && node test_maps.mjs && node test_boards.mjs && node test_combat.mjs && node test_monster_gaben.mjs && node test_boss.mjs && node test_balance.mjs && node test_net.mjs && npm run smoke && npm run ui && node test_story.mjs && node test_saves.mjs && node test_worker.mjs && node test_dragon.mjs && node test_campaign_smoke.mjs && node test_sonderzuege.mjs && node test_anim.mjs && node test_zauber.mjs",
     "smoke": "esbuild smoke_render.jsx --bundle --platform=node --jsx=automatic --outfile=.smoke.mjs --format=esm --external:react --external:react-dom --loader:.jpg=dataurl --loader:.png=dataurl --loader:.webp=dataurl --loader:.mp3=dataurl --loader:.webm=dataurl --loader:.css=empty --log-level=warning && node .smoke.mjs",
     "art": "node scripts/build-art.mjs",
     "prebuild": "npm run art",

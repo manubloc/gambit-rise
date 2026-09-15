@@ -8,6 +8,7 @@ import { verifyPin } from "../platform/index.js";
 import { makeT } from "./i18n/strings.js";
 import { SERVER_URL } from "./config.js";
 import { claimableCount, retinueScore, upgradeBoss } from "../meta/index.js";
+import { mitAktivemDeck, mitDeckName, mitAufstellung } from "../meta/index.js";   /* v1.15.0: Decks */
 import { naechsteErklaerung, merkschluessel } from "../meta/index.js";
 import { setLivery, fetchHouseDesign, crestArt, emblemArt, logoMenuArt } from "./ui/livery.js";
 import { Soundtrack } from "./ui/Soundtrack.jsx";
@@ -104,7 +105,11 @@ function reducer(state, a) {
     case "SET_HERO_COL": return { ...state, loadout: { ...state.loadout, heroCols: { ...(state.loadout.heroCols || {}), [a.mapId]: a.col } } };
     case "SET_SPAR": return { ...state, spar: { ...(state.spar || {}), [a.posten]: !!a.an } };   /* v1.0.37 */
     case "SET_GEGNERSTIL": return { ...state, gegnerStil: a.stil };   /* v1.0.50: die Sicht auf den Gegner */
-    case "SET_FORMATION": return { ...state, loadout: { ...state.loadout, formations: { ...(state.loadout.formations || {}), [formationKey(a.mapId, a.rules)]: a.formation } } };   /* v1.0.20: je Regelwerk ein Plan */
+    /* v1.15.0: Speichern schreibt ins AKTIVE Fach und spiegelt es nach
+       formations[key] - der alte Leseweg bleibt fuer alle gueltig. */
+    case "SET_FORMATION": return mitAufstellung(state, formationKey(a.mapId, a.rules), a.formation);
+    case "DECK_WAEHLEN": return mitAktivemDeck(state, formationKey(a.mapId, a.rules), a.index);
+    case "DECK_UMBENENNEN": return mitDeckName(state, formationKey(a.mapId, a.rules), a.index, a.name);
     case "CAMPAIGN_CLEAR": return advanceCampaign(state, a.id);
     case "RECORD_STAGE": return recordStage(state, a);
     case "UPGRADE_PIECE": return upgradePiece(state, a.id);

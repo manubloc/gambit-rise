@@ -45,3 +45,4 @@ export { BOSS_MAX_LEVEL, bossLevelOf, bossUpgradeCost, bossSpecLeveled, upgradeB
    erklaert. Siehe freigaben.js. */
 export { FREIGABEN, freigegeben, darfHeldSetzen, darfReiheStellen,
   erklaertWas, naechsteErklaerung, merkeErklaert, merkschluessel, ersteFigurDa } from "./freigaben.js";
+export { DECK_ANZAHL, deckStand, deckName, mitAktivemDeck, mitDeckName, mitAufstellung } from "./decks.js";   /* v1.15.0 */

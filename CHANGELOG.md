@@ -1,5 +1,18 @@
 # Changelog - Grand Gambit
 
+## 1.15.0
+- DECKS: DREI AUFSTELLUNGEN JE BRETT UND REGELWERK (Uebergabe, Punkt 3).
+  Im Aufstellungs-Editor stehen drei Faecher, "Aufstellung I-III"; tippen
+  wechselt, das aktive noch einmal tippen benennt es um (leer = zurueck zum
+  Standardnamen). Der Kern (decks.js) spiegelt das aktive Fach nach
+  formations[key], sodass Armee bauen, Vorausschau und Editor weiter dieselbe
+  Stelle lesen; alte Spielstaende werden ohne Umschreiben zu Fach I. Die
+  Faecher ueberleben das Laden (profile.js setzte loadout neu zusammen und
+  haette sie verworfen). 24 Proben im Kern (test_decks.mjs, in npm test),
+  8 im Editor - zuerst geschrieben, dann gebaut.
+- DIE KARTENWAHL ERSCHEINT ERST AB KAPITEL 5: bis dahin ist jede Station
+  8x8, eine Auswahl mit nur einer Wahl ist keine.
+
 ## 1.14.2
 - DIE KULISSEN SIND JETZT ZU SEHEN (Besitzerbefund: "man erkennt sie nicht").
   Sie lagen mit 42 % Deckung unter einem dunklen Verlauf ueber die ganze

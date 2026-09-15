@@ -63,7 +63,9 @@ function migrate(p) {
     xpEarned: Math.max(p.xpEarned || 0, p.xp || 0),
     pieces,
     stats: { ...d.stats, ...(p.stats || {}) },
-    loadout: { formations, heroCols: { ...((p.loadout || {}).heroCols || {}) } },
+    /* v1.15.0: die drei Faecher (decks) ueberleben das Laden - hier wurde
+       loadout neu zusammengesetzt und haette sie stillschweigend verworfen. */
+    loadout: { formations, heroCols: { ...((p.loadout || {}).heroCols || {}) }, decks: { ...((p.loadout || {}).decks || {}) } },
     notices: { ...(p.notices || {}) },
     spar: { ...(p.spar || {}) },
     gegnerStil: p.gegnerStil || "farbig",

@@ -32,6 +32,7 @@ import { CoinIc, SkillIc } from "../icons.jsx";
 import { ItemIcon } from "../ItemIcon.jsx";
 import { BoardView } from "../board/BoardView.jsx";
 import { itemArt } from "../assets/items/itemArt.js";
+import { DECK_ANZAHL, deckStand, deckName } from "../../../meta/index.js";   /* v1.15.0: Decks */
 
 const aName = (id, en) => ABILITIES[id][en ? "nameEn" : "nameDe"];
 
@@ -877,11 +878,18 @@ function FormationEditor({ profile, dispatch, t, en }) {
     return f && formationLegalOn(f, unlockedIds, m, ownedLeagueBosses(profile)) ? f : m.defaultFormation;
   };
   const saved = loadFormation(mapId);
+  /* v1.15.0: DREI FAECHER JE BRETT UND REGELWERK. Das aktive Fach ist nach
+     formations[key] gespiegelt (decks.js), loadFormation liest also weiter
+     dieselbe Stelle. Der Index steht hier nur, damit der Entwurf beim
+     Wechsel neu laedt - und fuer die Anzeige. */
+  const deckKey = formationKey(mapId, regel);
+  const deck = deckStand(profile, deckKey);
+  const [umbenennen, setUmbenennen] = useState(null);   // Index des Fachs, dessen Name gerade getippt wird
 
   const [draft, setDraft] = useState(saved);
   const [pick, setPick] = useState(null);
   // Load the selected map's saved formation when the map changes.
-  useEffect(() => { setDraft(loadFormation(mapId)); setPick(null); }, [mapId, regel]); // eslint-disable-line
+  useEffect(() => { setDraft(loadFormation(mapId)); setPick(null); }, [mapId, regel, deck.aktiv]); // eslint-disable-line
 
   const legal = formationLegalOn(draft, unlockedIds, map, ownedLeagueBosses(profile));
   const changed = JSON.stringify(draft) !== JSON.stringify(saved);
@@ -1307,6 +1315,36 @@ function FormationEditor({ profile, dispatch, t, en }) {
       <Chip color={flexCount === flexNeed - (dragonFielded ? 1 : 0) ? T.green : T.danger} bg={T.panel2}>{t("army.flex")} {flexCount}/{flexNeed - (dragonFielded ? 1 : 0)}</Chip>
     </div>
 
+    {/* v1.15.0: DIE DREI FAECHER. Tippen wechselt (ein ungespeicherter
+        Entwurf verfaellt dabei - der Speichern-Knopf zeigt vorher, ob einer
+        offen ist). Das aktive Fach noch einmal tippen oeffnet das
+        Umbenennen; leer lassen heisst zurueck zu "Aufstellung I". */}
+    <div style={{ display: "grid", gridTemplateColumns: `repeat(${DECK_ANZAHL}, 1fr)`, gap: 6, marginBottom: 10 }}>
+      {Array.from({ length: DECK_ANZAHL }, (_, i) => {
+        const aktiv = i === deck.aktiv;
+        const belegt = !!deck.liste[i]?.formation;
+        const name = deckName(profile, deckKey, i, en);
+        if (umbenennen === i) {
+          return <input key={i} autoFocus defaultValue={deck.liste[i]?.name || ""} maxLength={24} data-deck={String(i)}
+            placeholder={name}
+            onBlur={(e) => { dispatch({ type: "DECK_UMBENENNEN", mapId, rules: regel, index: i, name: e.target.value }); setUmbenennen(null); }}
+            onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); if (e.key === "Escape") setUmbenennen(null); }}
+            style={{ fontFamily: "inherit", fontSize: 12, padding: "6px 8px", borderRadius: 9, minWidth: 0,
+              background: "#120c22", color: "#f2ecdc", border: "1px solid rgba(167,139,250,.75)", outline: "none" }} />;
+        }
+        return <button key={i} type="button" data-deck={String(i)} data-aktiv={aktiv ? "1" : "0"}
+          onClick={() => { if (aktiv) setUmbenennen(i); else { klang("menue"); dispatch({ type: "DECK_WAEHLEN", mapId, rules: regel, index: i }); } }}
+          title={aktiv ? (en ? "Tap to rename" : "Antippen zum Umbenennen") : undefined}
+          style={{ fontFamily: "inherit", fontSize: 12, fontWeight: aktiv ? 800 : 600, padding: "6px 6px", borderRadius: 9, minWidth: 0,
+            whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", cursor: "pointer",
+            background: aktiv ? "radial-gradient(130% 120% at 50% -12%, rgba(124,58,237,.42) 0%, rgba(34,22,60,.8) 60%)" : "rgba(12,8,22,.5)",
+            color: aktiv ? "#f2ecdc" : belegt ? T.text : T.dim,
+            border: `1px solid ${aktiv ? "rgba(167,139,250,.85)" : "rgba(124,58,237,.35)"}`,
+            boxShadow: aktiv ? "0 0 10px rgba(124,58,237,.35)" : "none" }}>
+          {name}{!belegt && !aktiv ? <span style={{ opacity: .55 }}> ·</span> : null}
+        </button>;
+      })}
+    </div>
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
       <Button variant="primary" disabled={!legal || !changed} onClick={() => dispatch({ type: "SET_FORMATION", mapId, rules: regel, formation: draft })}>{t("common.save")}</Button>
       <Button variant="subtle" onClick={() => setDraft(map.defaultFormation)}>{t("army.standard")}</Button>
@@ -1317,7 +1355,12 @@ function FormationEditor({ profile, dispatch, t, en }) {
   </Panel>
 
   {/* map choice — its own strip below the box: ONE row, scroll if it must */}
-  <div style={{ minWidth: 0, maxWidth: "100%" }}>
+  {/* v1.15.0 (Uebergabe): DIE KARTENWAHL ERSCHEINT ERST AB KAPITEL 5 - bis
+      dahin ist jede Station 8x8 (Klassik, Hof, Schneise unterscheiden sich
+      in Loechern, nicht im Mass, und das Scharmuetzel fuehrt erst der
+      Endboss von Kapitel 5 ein). Eine Auswahl, die nur eine Wahl kennt, ist
+      keine. */}
+  {(profile.campaign?.league || 1) >= 5 && <div style={{ minWidth: 0, maxWidth: "100%" }}>
     <FieldLabel>{t("army.mapPick")}</FieldLabel>
     {/* v1.0.87 (Besitzer: "pro Karte eine kleine Visualisierung, ohne
         Scrollbalken, es ist ja noch Platz"): RASTER statt Streifen. Jede
@@ -1332,7 +1375,7 @@ function FormationEditor({ profile, dispatch, t, en }) {
           label={<><span>{open ? null : <LockIc size={11} />}{en ? m.nameEn : m.nameDe}</span><span style={{ opacity: .7, fontWeight: 600 }}>{m.w}×{m.h}</span></>} />;
       })}
     </div>
-  </div>
+  </div>}
   </>;
 }
 
