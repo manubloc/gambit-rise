@@ -19,6 +19,19 @@ export function createGame(whiteArmy = defaultArmy(), blackArmy = defaultArmy(),
   }
   const s = createInitialState(whiteArmy, blackArmy, map, rules);
   if (opts && typeof opts === "object" && opts.potions) s.potions = { w: opts.potions.w || 0, b: opts.potions.b || 0 };
+  /* ── DIE ERWACHTEN BUENDE (v1.10.1) ──────────────────────────────────────
+     Sie stehen als Liste im Spielstand und werden GENAU EINMAL gesetzt - beim
+     Aufbau der Partie, aus den Stufen des Profils. Der Kern liest sie nur.
+
+     Das ist Absicht: "ist mein Bund erwacht?" haengt an Stufen, und Stufen
+     aendern sich waehrend einer Partie nicht. Die Frage in jedem Zug neu zu
+     beantworten waere Arbeit ohne Ertrag - und sie wuerde den Kern zwingen,
+     das Profil zu kennen, das ihn nichts angeht. */
+  if (opts && typeof opts === "object" && Array.isArray(opts.buende)) s.buende = opts.buende.slice();
+  /* Einmal-je-Partie-Buende brauchen ein Gedaechtnis. */
+  s.sturmVerbraucht = {};
+  s.konzilVerbraucht = {};
+  s.geleitVerbraucht = {};
   s.log = [];
   s.seed = seed >>> 0;
   return s;

@@ -371,5 +371,53 @@ import { bossSpec, bossById } from "./src/content/index.js";
     !r.state.welle && r.state.board[idx(1, 2, 8)].hp === 2 && r.state.board[idx(0, 0, 8)].used.blast !== true);
 }
 
+console.log("\n== DIE BUENDE WIRKEN IM GEFECHT (v1.10.1) ==");
+{
+  const { createGame: cg2, applyMove: am2 } = await import("./src/core/index.js");
+  const { legalMovesFrom: lm2 } = await import("./src/core/sim/transitions.js");
+  const { buildArmyFromFormation: ba2, defaultFormation: df2 } = await import("./src/meta/index.js");
+  const { mapById: mb2 } = await import("./src/content/index.js");
+  const w2 = 8;
+  const fig2 = (kind, id, c, hp, atk) =>
+    ({ kind, charId: id, color: c, hp, maxHp: hp, atk, abilities: [], level: 10, shield: 0 });
+  const stellung = (buende) => {
+    const ar = () => ba2(() => 10, df2(mb2("classic")));
+    const g = cg2(ar(), ar(), { rules: "hp", map: mb2("classic"), buende });
+    for (let i = 0; i < 64; i++) g.board[i] = null;
+    return g;
+  };
+
+  /* DER PALADIN NIMMT DEN TREFFER - das ist die Probe, die zaehlt: nicht ob
+     die Funktion true sagt, sondern ob im GEFECHT der Koenig unverletzt
+     bleibt und der Paladin blutet. */
+  {
+    const g = stellung(["krone"]);
+    g.board[3 * w2 + 4] = fig2("K", "king", "w", 20, 5);
+    g.board[3 * w2 + 5] = fig2("U", "paladin", "w", 18, 6);
+    g.board[4 * w2 + 4] = fig2("R", "rook", "b", 12, 7);
+    g.board[0] = fig2("K", "king", "b", 20, 5);
+    g.turn = "b";
+    const z = lm2(g, 4 * w2 + 4).find((m3) => m3.to === 3 * w2 + 4);
+    const n = am2(g, z);
+    ok("der Koenig bleibt unverletzt, wenn der Paladin daneben steht",
+      n.board[3 * w2 + 4] && n.board[3 * w2 + 4].hp === 20);
+    ok("und der Paladin traegt den Schaden", n.board[3 * w2 + 5].hp < 18);
+  }
+
+  /* OHNE BUND trifft es den Koenig - sonst waere die Probe oben wertlos. */
+  {
+    const g = stellung([]);
+    g.board[3 * w2 + 4] = fig2("K", "king", "w", 20, 5);
+    g.board[3 * w2 + 5] = fig2("U", "paladin", "w", 18, 6);
+    g.board[4 * w2 + 4] = fig2("R", "rook", "b", 12, 7);
+    g.board[0] = fig2("K", "king", "b", 20, 5);
+    g.turn = "b";
+    const z = lm2(g, 4 * w2 + 4).find((m3) => m3.to === 3 * w2 + 4);
+    const n = am2(g, z);
+    ok("ohne erwachten Bund trifft es den Koenig selbst",
+      n.board[3 * w2 + 4].hp < 20 && n.board[3 * w2 + 5].hp === 18);
+  }
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

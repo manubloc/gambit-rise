@@ -1,6 +1,7 @@
 import { other, WHITE, BLACK, BASE_HP, BASE_ATK, HP_REMIS_HALBZUEGE } from "../domain/constants.js";
 import { cloneBoard, findKing } from "../domain/board.js";
 import { pseudoMoves, pieceMoves, talentWirkt } from "../rules/moves.js";
+import { kroneFaengtAb, schildwachtDeckt } from "../rules/buende.js";
 import { inCheck } from "../rules/attacks.js";
 import { schlageSperre, loeseFalleAus, zerfalleSperren } from "../rules/sperren.js";
 import { familyOf, familyCount, crownWallSoak } from "../rules/families.js";
@@ -78,6 +79,7 @@ export function applyMove(state, move, opts) {
     ns.sperren = sperren;
     ns.turn = piece.color === WHITE ? BLACK : WHITE;
     ns.lastMove = { ...move, schlag: true, gefallen };
+    if (typeof bundKrone !== "undefined" && bundKrone != null) ns.lastMove.bundKrone = bundKrone;
     /* v1.0.63: hier stand `ns.ply` - ein Zaehler, den cloneState gar nicht
        mitkopiert und den niemand liest. Der Schlag gegen eine Sperre KOSTET
        den Zug, also muss er auch den Zugzaehler weiterdrehen; sonst alterte
@@ -125,6 +127,7 @@ export function applyMove(state, move, opts) {
     if (ns.shiftArmed === piece.color) { ns.turn = piece.color; ns.shiftArmed = null; }
     else ns.turn = other(state.turn);
     ns.lastMove = { consumed: (typeof move !== "undefined" && move && move.consumes) || null, from: move.from, to: move.to, color: piece.color, kind: piece.kind, capture: false, spawned: true, special: "spawn" };
+    if (typeof bundKrone !== "undefined" && bundKrone != null) ns.lastMove.bundKrone = bundKrone;
     ns.moveCount = state.moveCount + 1;
     ns.ohneSchaden = geschaffen ? 0 : (state.ohneSchaden || 0) + 1;
     if (record) { ns.history = [...state.history, state]; }
@@ -175,6 +178,10 @@ export function applyMove(state, move, opts) {
     else ns.turn = other(state.turn);
     ns.lastMove = { consumed: (typeof move !== "undefined" && move && move.consumes) || null, from: move.from, to: settled ? move.to : move.from, color: piece.color, kind: piece.kind,
       capture: lethal, damaged, lethal, special: move.special, bounced: !settled };
+    if (typeof bundKrone !== "undefined" && bundKrone != null) ns.lastMove.bundKrone = bundKrone;
+    /* v1.10.1: hat der Paladin eingegriffen, merkt der Zug es sich - die
+       Anzeige liest den letzten Zug, Ereignislisten gibt es hier nicht. */
+    if (typeof bundKrone !== "undefined" && bundKrone != null) ns.lastMove.bundKrone = bundKrone;
     ns.moveCount = state.moveCount + 1;
     ns.ohneSchaden = (damaged || lethal) ? 0 : (state.ohneSchaden || 0) + 1;
     if (record) { ns.history = [...state.history, state]; }
@@ -199,13 +206,36 @@ export function applyMove(state, move, opts) {
           return q && q.color === target.color && q.aura && q.aura.type === "wardAdj"; });
       /* v1.2.0: in Klassik schweigen die Lebenstalente (siehe NUR_MIT_LEBEN
          in moves.js) - dort gibt es weder Schaden noch Leben. */
-      const soak = (target.abilities.includes("bulwark") && talentWirkt("bulwark", state.rules) ? 1 : 0) + wall + (warded ? 1 : 0);
+      /* ── DIE SCHILDWACHT DECKT IHRE REIHE (v1.10.1) ─────────────────────
+         Techniker und Schildtraeger geben allen eigenen Figuren auf ihrer
+         gemeinsamen Reihe oder Linie einen Schild - er zaehlt wie ein
+         Bollwerk, also einen Punkt weniger Schaden. */
+      const wacht = schildwachtDeckt(state, ti) ? 1 : 0;
+      const soak = (target.abilities.includes("bulwark") && talentWirkt("bulwark", state.rules) ? 1 : 0) + wall + (warded ? 1 : 0) + wacht;
       // BALANCE: strikes from afar carry less weight — a leap or a ranged
       // shot lands at HALF force (rounded up); melee keeps its full bite.
       const afar = move.special === "leap" || move.special === "shot" || move.noAdvance;
       const force = afar ? Math.ceil((piece.atk || 1) / 2) : (piece.atk || 1);
       dmg = Math.max(1, force - soak);
-      target.hp -= dmg;
+      /* ── DER PALADIN SPRINGT EIN (v1.10.1) ──────────────────────────────
+         Steht er direkt neben dem Koenig, nimmt er den Treffer statt seiner.
+         NUR von nebenan - der Besitzer war da ausdruecklich: "Der darf nicht
+         irgendwo stehen."
+
+         Wichtig fuer den Ablauf: der Schaden wandert VOLLSTAENDIG auf den
+         Paladin, der Koenig bleibt unberuehrt. Ein halber Uebertrag waere
+         schwerer zu erklaeren und im Gefecht nicht ablesbar. */
+      let bundKrone = null;
+      const retter = kroneFaengtAb(state, ti);
+      if (retter != null) {
+        const pal = b[retter];
+        pal.hp -= dmg;
+        /* Damit die Anzeige es zeigen kann: der Zug merkt sich, dass der
+           Bund gegriffen hat. Ereignislisten gibt es in diesem Kern nicht -
+           die Anzeige liest den letzten Zug. */
+        bundKrone = retter;
+        if (pal.hp <= 0) b[retter] = null;
+      } else target.hp -= dmg;
       if (move.consumes) piece.used[move.consumes] = true; // one spell per game: the book closes
       if (has("lifesteal") && talentWirkt("lifesteal", state.rules)) piece.hp = Math.min(piece.maxHp, piece.hp + Math.ceil(dmg / 2));
       /* ── SCHOCKWELLE (v0.79, blast): EINMAL pro Partie trifft der erste

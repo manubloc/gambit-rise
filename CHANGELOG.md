@@ -1,5 +1,17 @@
 # Changelog - Grand Gambit
 
+## 1.10.1
+- DIE ERSTEN ZWEI BUENDE WIRKEN IM GEFECHT. Der Paladin faengt Treffer fuer
+  den Koenig ab (nur von nebenan), die Schildwacht deckt ihre gemeinsame
+  Reihe. Gemessen an einer echten Stellung: der Koenig bleibt bei 20/20, der
+  Paladin faellt von 18 auf 11.
+- DIE ERWACHTEN BUENDE STEHEN IM SPIELSTAND und werden genau einmal gesetzt,
+  beim Aufbau der Partie. Stufen aendern sich waehrend einer Partie nicht -
+  die Frage in jedem Zug neu zu beantworten waere Arbeit ohne Ertrag, und sie
+  wuerde den Kern zwingen, das Profil zu kennen, das ihn nichts angeht.
+- MIT GEGENPROBE: ohne erwachten Bund trifft es den Koenig selbst. Ohne sie
+  waere die erste Probe wertlos.
+
 ## 1.10.0
 - DIE WIRKUNG DER BUENDE steht als eigene Regelschicht (core/rules/buende.js):
   acht Funktionen, die der Kern an wenigen Stellen befragt, statt dass Buende
