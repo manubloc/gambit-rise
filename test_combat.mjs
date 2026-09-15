@@ -446,13 +446,19 @@ console.log("\n== GEZEITEN: der Kapitaen zieht durch (v1.10.2) ==");
      Figur im Schach. */
   ok("ohne Bund endet der Kapitaen vor der eigenen Figur",
     spalten(stell([])).join(",") === "1,2");
-  /* Mit Gezeiten zieht er hindurch und erreicht auch den Gegner dahinter.
-     EIGENE Figuren sind dabei ebenso durchlaessig wie fremde - ein Lotse, der
-     nur um Feinde herumfuehrt, waere seltsam, und in der eigenen Aufstellung
-     steht man sich am haeufigsten selbst im Weg. */
+  /* Mit Gezeiten zieht er durch die EIGENEN hindurch - aber nicht durch
+     Gegner. Besitzerentscheid nach dem ersten Bau: "Ich faende auch ok, dass
+     der Kapitaen nur seine eigenen umschiffen kann und nicht Gegner, dann ist
+     es auch nicht ganz so stark."
+
+     Beides stimmt: es ist schwaecher (ein Kapitaen, der durch feindliche
+     Linien gleitet, waere kaum aufzuhalten) und schluessiger (ein Lotse kennt
+     die eigene Flotte, fremde Schiffe stehen ihm im Weg wie jedem anderen). */
   const mit = spalten(stell(["gezeiten"]));
-  ok(`mit Gezeiten zieht er hindurch (${mit.join(",")})`, mit.includes(4) && mit.includes(5));
-  ok("und erreicht den Gegner dahinter", mit.includes(6));
+  ok(`mit Gezeiten zieht er durch die eigene Figur (${mit.join(",")})`,
+    mit.includes(4) && mit.includes(5));
+  ok("und schlaegt den Gegner dahinter", mit.includes(6));
+  ok("aber HINTER dem Gegner ist Schluss - er ist kein Geist", !mit.includes(7));
 }
 
 console.log("\n== DIE BUENDE UEBERLEBEN JEDEN ZUG (v1.10.3) ==");

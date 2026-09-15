@@ -98,15 +98,23 @@ function slide(moves, from, f0, r0, dirs, piece, board, D, state) {
          ueberall durch." Steht der Stratege auf dem Brett, endet der Zug des
          Kapitaens nicht an einer Figur - er umschifft sie.
 
-         EIGENE FIGUREN sind dabei EBENSO durchlaessig wie fremde. Das ist
-         Absicht: ein Lotse, der nur um Feinde herumfuehrt, waere seltsam -
-         und in der eigenen Aufstellung steht man sich am haeufigsten selbst
-         im Weg. Das ZIELFELD muss frei oder feindlich bleiben; hindurch geht
-         es durch alles. */
+         NUR DIE EIGENEN (Besitzerentscheid nach dem ersten Bau): "Ich faende
+         auch ok, dass der Kapitaen natuerlich auch gerne nur seine eigenen
+         umschiffen kann und nicht Gegner, dann ist es auch nicht ganz so
+         stark."
+
+         Er hat in beidem recht. Es ist SCHWAECHER - ein Kapitaen, der durch
+         feindliche Linien gleitet, waere kaum aufzuhalten gewesen. Und es ist
+         SCHLUESSIGER: ein Lotse kennt die eigene Flotte und weiss, wie man
+         zwischen ihr hindurchkommt; fremde Schiffe stehen ihm genauso im Weg
+         wie jedem anderen.
+
+         An einem Gegner endet der Zug also weiterhin - mit Schlag, wie
+         ueblich. */
       const lotse = gezeitenDurchbruch(state, piece);
       if (t && t.color === piece.color) { if (!lotse) break; f += df; r += dr; continue; }
       push(moves, from, i, piece, !!t, t ? t.kind : null, {});
-      if (t && !lotse) break;
+      if (t) break;
       f += df; r += dr;
     }
   }

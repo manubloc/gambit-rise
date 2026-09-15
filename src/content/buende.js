@@ -98,8 +98,8 @@ export const BUENDE = {
     stimmung: "wildnis",
     nameDe: "Gezeiten", nameEn: "Tides",
     figuren: ["captain", "strategist"],
-    regelDe: "Der Kapitän zieht durch besetzte Felder hindurch.",
-    regelEn: "The captain moves through occupied squares.",
+    regelDe: "Der Kapitän zieht durch eigene Figuren hindurch.",
+    regelEn: "The captain moves through friendly pieces.",
     storyDe: "Ein Kapitän ohne Lotsen läuft auf Grund. Mit Lotsen kommt er überall durch.",
   },
   bannkreis: {
