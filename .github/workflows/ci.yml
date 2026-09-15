@@ -12,6 +12,12 @@ jobs:
       - uses: actions/setup-node@v7
         with: { node-version: 22, cache: npm }
       - run: npm ci
+      # test_zauber misst die Sockelfarbe des Drachen IM BILD, mit python3 +
+      # Pillow. Lokal ist Pillow da, auf dem Runner nicht - daran ist die CI
+      # seit v1.1.9 gescheitert, 52 Laeufe lang, waehrend lokal alles gruen
+      # blieb. Die Probe wird NICHT uebersprungen: sie soll auch hier messen.
+      - name: Pillow fuer die Bildmessung
+        run: python3 -m pip install --quiet --break-system-packages pillow || python3 -m pip install --quiet pillow
       - run: npm test
       - run: npm run build
       - run: npm run build:single

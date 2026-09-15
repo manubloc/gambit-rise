@@ -330,7 +330,21 @@ console.log("\n== KARTENFIGUREN UND DRACHE (Besitzerbefunde v1.1.9) ==");
     pg.includes('big ? "1.42em"') && pg.includes('marginTop: big ? "-0.09em"'));
   /* der Sockel ist im BILD gefaerbt - das prueft eine Messung, nicht der Text */
   const { execSync } = await import("node:child_process");
-  const farbe = execSync("python3 -c \"from PIL import Image; im=Image.open('src/app/ui/assets/painted/painted-dragon.webp').convert('RGBA'); px=im.load(); w,h=im.size; s=[px[x,y][:3] for y in range(int(h*0.93),h) for x in range(int(w*0.4),int(w*0.6),4) if px[x,y][3]>200]; print(int(sum(c[0] for c in s)/len(s)), int(sum(c[2] for c in s)/len(s)))\"").toString().trim().split(" ").map(Number);
+  const BEFEHL = "python3 -c \"from PIL import Image; im=Image.open('src/app/ui/assets/painted/painted-dragon.webp').convert('RGBA'); px=im.load(); w,h=im.size; s=[px[x,y][:3] for y in range(int(h*0.93),h) for x in range(int(w*0.4),int(w*0.6),4) if px[x,y][3]>200]; print(int(sum(c[0] for c in s)/len(s)), int(sum(c[2] for c in s)/len(s)))\"";
+  /* OHNE encoding wirft execSync ein Objekt, dessen stderr als roher Buffer
+     im Log landet - eine Liste von Bytezahlen, die niemand liest. Genau
+     daran hing die CI seit v1.1.9 drei Tage fest: auf dem Runner fehlte
+     Pillow, und die Meldung war ein Zahlenhaufen. Jetzt sagt sie es. */
+  let roh;
+  try {
+    roh = execSync(BEFEHL, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+  } catch (e) {
+    const grund = String(e.stderr || "").trim() || e.message;
+    throw new Error(
+      "Die Sockelmessung braucht python3 mit Pillow und hat es nicht gefunden.\n" +
+      "Installieren: python3 -m pip install pillow\nGemeldet wurde:\n" + grund);
+  }
+  const farbe = roh.trim().split(" ").map(Number);
   ok(`der Drachensockel ist entsaettigt (R ${farbe[0]} ~ B ${farbe[1]}, vorher 157 gegen 47)`,
     Math.abs(farbe[0] - farbe[1]) < 25);
 }

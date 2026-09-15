@@ -1537,6 +1537,22 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
       rueck.length === 0);
   }
 
+  /* ── WAS DIE PROBEN BRAUCHEN, MUSS DIE CI AUCH HABEN (v1.13.3) ──────────
+     test_zauber misst die Sockelfarbe des Drachen mit python3 + Pillow.
+     Lokal liegt Pillow herum, auf dem Runner nicht - und so ist npm test
+     dort 52 Laeufe lang gescheitert, waehrend hier alles gruen war. Ein
+     gruener Lauf auf DIESER Maschine sagt nichts, wenn die CI eine andere
+     Ausstattung hat. Diese Probe haelt beide zusammen. */
+  {
+    const { readdirSync } = await import("node:fs");
+    const proben = readdirSync(".").filter((f) => /^test_.*\.mjs$/.test(f));
+    const mitPython = proben.filter((f) => readFileSync(f, "utf8").includes("python3"));
+    const ci = readFileSync(".github/workflows/ci.yml", "utf8");
+    const installiert = /pip install[^\n]*pillow/i.test(ci);
+    ok(`wer python3 ruft, bekommt es in der CI auch (${mitPython.join(", ") || "niemand"})`,
+      mitPython.length === 0 || installiert);
+  }
+
   /* 2. Bauer und Grand Gambit tragen in der Aufstellung EIN Mass. */
   ok("kein getrenntes Mass mehr fuer Held und Bauer",
     !/isHero \? "clamp\(26px, 10\.5vw, 86px\)" : "clamp\(24px, 9\.4vw, 76px\)"/.test(q));

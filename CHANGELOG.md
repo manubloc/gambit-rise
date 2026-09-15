@@ -1,5 +1,15 @@
 # Changelog - Grand Gambit
 
+## 1.13.3
+- DIE CI SCHEITERTE SEIT DREI TAGEN, LOKAL WAR ALLES GRUEN: test_zauber misst
+  die Sockelfarbe des Drachen mit python3 + Pillow. Auf dieser Maschine liegt
+  Pillow herum, auf dem GitHub-Runner nicht - seit v1.1.9 ist npm test dort an
+  der vorletzten Suite gestorben, 52 Laeufe lang. Aufgefallen ist es nie, weil
+  execSync ohne encoding sein stderr als rohes Byte-Array ins Log kippt: die
+  Meldung "ModuleNotFoundError: No module named 'PIL'" stand als Zahlenliste
+  da. Die CI installiert Pillow jetzt, die Probe meldet den Grund im Klartext,
+  und eine neue Probe haelt fest: was hier python3 ruft, muss die CI mitbringen.
+
 ## 1.13.2
 - DIE PROBE PRUEFTE GLEICHHEIT, NICHT FORTSCHRITT: der Commit, der das
   vergessene Hochzaehlen behob, hat selbst nicht hochgezaehlt. Er zog
