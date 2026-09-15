@@ -589,7 +589,30 @@ const erloschen = (m) => m.includes("#2f2a3d");
   const t = makeT("de");
   const prof = withProgressPct(defaultProfile(), 100, 5);
   const tree = html(<ArmyScreen profile={prof} dispatch={() => {}} t={t} initialTab="tree" />);
-  // ── DER GROSSE DRACHE IM BLATT (Besitzer, v0.72.3) ──────────────────────
+  /* ── DIE KACHELN TRAGEN IHRE KULISSEN (v1.14.0) ─────────────────────────
+     Das Verzeichnis rendert unter SSR nicht (es wartet auf seine Gemaelde),
+     also misst messe_kulissen.mjs im echten Chromium, ob jede Kachel ihr
+     Bild traegt. Hier bleibt, was SSR pruefen kann: dass die Listen
+     zusammenhalten und die Kachel ueberhaupt danach greift. */
+  {
+    const { BUENDE } = await import("./src/content/buende.js");
+    const { MEISTER_KULISSE, MONSTER_GRUPPE, GROSSMEISTER_IDS } = await import("./src/app/ui/kulissen.js");
+    const { KULISSE_URL } = await import("./src/app/ui/KulissenBilder.jsx");
+    ok("jeder Grossmeister aus LEAGUE_BOSSES hat einen Kulisseneintrag",
+      GROSSMEISTER_IDS.every((id) => MEISTER_KULISSE[id]));
+    const gruppen = [...new Set(Object.values(MONSTER_GRUPPE))].map((g) => `monster-${g}`);
+    const namen = [...Object.values(MEISTER_KULISSE), ...gruppen, ...Object.keys(BUENDE).map((b) => `bund-${b}`), "drache"];
+    ok(`jeder Kulissenname hat sein Bild (${namen.length})`, namen.every((n) => KULISSE_URL[n]));
+    const arm = readFileSync("src/app/ui/screens/ArmyScreen.jsx", "utf8");
+    ok("die Kachel greift nach kulisseFuer({ charId, bossId })", arm.includes("kulisseFuer({ charId: artId, bossId })"));
+    ok("und die Monsterkacheln reichen ihre Boss-Id durch", (arm.match(/<Tile key=\{b\.id\} img=\{img\} bossId=\{b\.id\}/g) || []).length === 3);
+    /* die globale Einblendregel darf Bilder mit eigener Deckung nicht mehr
+       auf 1 festnageln - Messbefund, siehe messe_kulissen.mjs */
+    const main = readFileSync("src/app/main.jsx", "utf8");
+    ok("die Einblendregel nimmt Bilder mit eigener Deckung aus", main.includes("img[data-gg-loaded]:not([data-gg-still])"));
+    const be = readFileSync("src/app/ui/BundErwacht.jsx", "utf8");
+    ok("das Bundfenster nimmt seine Kulisse ebenfalls aus", be.includes('data-gg-still=""'));
+  }  // ── DER GROSSE DRACHE IM BLATT (Besitzer, v0.72.3) ──────────────────────
   // Er deckt 2x2 und schiebt diesen Block - das Blatt zeigte ihn als Punkt.
   {
     const dia = html(<MoveDiagram kind="D" />);

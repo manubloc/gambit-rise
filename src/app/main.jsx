@@ -105,7 +105,12 @@ style.textContent = GLOBAL_CSS + `
      soft rise; cached ones appear instantly (no flicker mid-battle). The
      fade NEVER hides an image for good — a safety timer always reveals it. */
   img[data-gg-loading] { opacity: 0; }
-  img[data-gg-loaded] { animation: ggImgIn .45s ease both; }
+  /* v1.14.0 (Messbefund): "both" haelt die Deckung nach dem Einblenden
+     dauerhaft auf 1 und ueberschreibt damit jede Inline-Deckung. Die
+     Kulissen im Bundfenster und auf den Kacheln sollen gedaempft liegen
+     (42 %) und lagen deshalb bei 100 % - gemessen im lebenden DOM. Bilder,
+     die ihre eigene Deckung tragen, nehmen sich mit data-gg-still heraus. */
+  img[data-gg-loaded]:not([data-gg-still]) { animation: ggImgIn .45s ease both; }
   @keyframes ggImgIn { from { opacity: 0; transform: scale(.985); } to { opacity: 1; transform: none; } }
   /* v0.80: der Riss-Stern eines Fernangriffs - schnell aufbersten, lange
      nachglimmen, mit leichter Drehung im Verloeschen. */

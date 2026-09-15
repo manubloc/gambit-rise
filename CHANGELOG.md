@@ -1,5 +1,25 @@
 # Changelog - Grand Gambit
 
+## 1.14.0
+- JEDE KACHEL IM HOFSTAAT TRAEGT IHRE KULISSE - so, wie es in der Bundsitzung
+  abgemacht war: jede Figur das Bild ihres Bundes, jeder der zwoelf
+  Grossmeister sein eigenes, die dreizehn uebrigen Monster in vier Gruppen
+  (Brut, Untot, Gesindel, Gemaeuer), der Drache allein. Bauer und Gambit haben
+  keinen Bund und behalten den Verlauf. Zuordnung in kulissen.js (reine
+  Daten, in node pruefbar), Bilder in KulissenBilder.jsx.
+- DIE ZEHN BUENDE, JEDER FUER SICH, TESTGETRIEBEN (Besitzerwunsch): neue
+  Suite test_buende.mjs mit demselben Vierklang je Bund - Erwachen nur bei
+  Hoechststufe aller Figuren, Wirkung im Gefecht, Gegenprobe ohne Bund,
+  Kulisse auf der Kachel. 77 Proben; die zwoelf Kulissenproben standen beim
+  ersten Lauf rot, danach kam der Code.
+- GEMESSEN IM LEBENDEN HOFSTAAT (messe_kulissen.mjs, echtes Chromium): alle 50
+  Kacheln tragen ihr Bild, geladen und sichtbar. Dabei ein Befund, den kein
+  Quelltextvergleich gefunden haette: die Deckung lag bei 100 % statt 42 %.
+  Die globale Einblendregel (animation ... both) haelt jede Bilddeckung nach
+  dem Einblenden auf 1 fest - das traf auch die Kulisse im Bundfenster, die
+  nie gedaempft war. Bilder mit eigener Deckung nehmen sich jetzt mit
+  data-gg-still heraus; nachgemessen 0.42.
+
 ## 1.13.4
 - JEDER BUND HAT JETZT SEINE EIGENE KULISSE: bis hierher teilten sich die zehn
   Buende vier Stimmungsbilder (Hof, Wildnis, Riss, Schmiede) - drei Buende

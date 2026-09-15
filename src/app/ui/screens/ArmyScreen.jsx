@@ -26,6 +26,8 @@ import { PieceGlyph } from "../board/PieceGlyph.jsx";
 import { PieceArt } from "../board/PieceArt.jsx";
 import { paintedFitById, paintedFitFor, paintedById, paintedForPiece, schlichtAn } from "../board/paintedArt.js";
 import { GAMBIT_STUFEN } from "../board/gambitStufen.js";
+import { kulisseFuer } from "../kulissen.js";
+import { KulisseHinterGrund } from "../KulissenBilder.jsx";
 import { CoinIc, SkillIc } from "../icons.jsx";
 import { ItemIcon } from "../ItemIcon.jsx";
 import { BoardView } from "../board/BoardView.jsx";
@@ -1713,15 +1715,23 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
   };
 
   const Tile = ({ img, name, dim, dark, action, glow, origin, onOpen, sigil = null, sigilBig = null, stufe = null, kind = null, hero = false, lvl = 1,
-    werte = null, xpAnteil = null, artId = null }) => (
+    werte = null, xpAnteil = null, artId = null, bossId = null }) => (
     /* v1.0.11 (Besitzer): die Kachel KLINGT beim Tippen. Der Klangfaenger
        hoert nur auf button/[role=button] — diese div blieb stumm. */
+    /* v1.14.0: DIE KACHEL TRAEGT DIE KULISSE IHRES BUNDES (Besitzerentscheid
+       aus der Bundsitzung). Grossmeister eigene, Monster nach Gruppe, der
+       Drache allein; Bauer und Gambit ohne. isolation: isolate oeffnet einen
+       eigenen Stapel, damit das Bild mit z -1 ueber dem Kachelgrund, aber
+       unter Figur und Schrift liegt. overflow: hidden beschneidet es auf die
+       runden Ecken. */
     <div onClick={onOpen ? () => { klang("menue"); onOpen(); } : undefined} style={{ position: "relative",
+      isolation: "isolate", overflow: "hidden",
       // der leichte Riss-Verlauf der Menueleisten, eine Stufe stiller
       background: "radial-gradient(130% 120% at 50% -12%, rgba(124,58,237,.20) 0%, rgba(34,22,60,.55) 46%, rgba(12,8,22,.7) 100%)",
       border: `1px solid ${glow ? T.gold : "rgba(124,58,237,.38)"}`,
       borderRadius: 11, padding: "10px 7px 9px", textAlign: "center", minWidth: 0, cursor: onOpen ? "pointer" : "default",
       boxShadow: glow ? "0 0 10px rgba(240,206,122,.22)" : "0 0 6px rgba(124,58,237,.12)" }}>
+      <KulisseHinterGrund name={dark ? null : kulisseFuer({ charId: artId, bossId })} deckung={dim ? 0.3 : 0.42} />
       {/* v1.0.11 (Besitzer): das ECK-SIGIL ist fort — die Kachel gehört ganz
           der Figur. Das Vektorzeichen lebt weiter in der Chronik (beide
           Gesichter) und als Sperr-Silhouette unten, wenn kein Gemälde da ist. */}
@@ -1882,12 +1892,12 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
       fill="#c9a45c" rim="#1b1408" rimW={1.6} detail="#7a5c26" accent="#eac96b" />;
     const sigBig = <PieceArt kind="X" bossId={b.id} art={b.art} size={58} level={1}
       fill="#c9a45c" rim="#1b1408" rimW={1.6} detail="#7a5c26" accent="#eac96b" />;
-    if (bribedSet.has(b.id) || ownedBossSet.has(b.id)) return <Tile key={b.id} img={img} glow sigil={sig} sigilBig={sigBig}
+    if (bribedSet.has(b.id) || ownedBossSet.has(b.id)) return <Tile key={b.id} img={img} bossId={b.id} glow sigil={sig} sigilBig={sigBig}
       onOpen={() => setDetail(k)} stufe={characterLevel(profile, k) || 1}
       name={en ? b.nameEn : b.nameDe} origin={bribedSet.has(b.id) ? t("tree.allied") : t("tree.inCourt")} />;
     if (met.has(k)) {
       const can = monsterBribable(b);
-      return <Tile key={b.id} img={img} dim sigil={sig} sigilBig={sigBig} name={en ? b.nameEn : b.nameDe} origin={t("tree.masters")}
+      return <Tile key={b.id} img={img} bossId={b.id} dim sigil={sig} sigilBig={sigBig} name={en ? b.nameEn : b.nameDe} origin={t("tree.masters")}
         onOpen={() => setDetail(k)}
         action={can ? (sacrificeFor === b.id
           ? <div style={{ marginTop: 5 }}>
@@ -1909,7 +1919,7 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
                 background: "linear-gradient(165deg, #b78de0, #7a5ab0)", border: "1px solid rgba(226,205,255,.5)", color: "#17110a" }}>
               {t("tree.bribe", { g: MONSTER_BRIBE_GOLD })}</button>) : null} />;
     }
-    if (sighted.has(b.id)) return <Tile key={b.id} img={img} dark sigil={sig} sigilBig={sigBig} name={en ? b.nameEn : b.nameDe} origin={t("tree.sighted")} />;
+    if (sighted.has(b.id)) return <Tile key={b.id} img={img} bossId={b.id} dark sigil={sig} sigilBig={sigBig} name={en ? b.nameEn : b.nameDe} origin={t("tree.sighted")} />;
     return <Tile key={b.id} img={img} dark name={"???"} />;
   };
   const grid = { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(96px, 1fr))", gap: 7 };

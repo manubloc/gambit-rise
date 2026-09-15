@@ -85,7 +85,7 @@ export function BundErwacht({ bundId, en, onClose }) {
         position: "relative", overflow: "hidden" }}>
 
         {/* die Kulisse DIESES Bundes, gedaempft - der Text hat Vorrang */}
-        {BILD[b.id] && <img src={BILD[b.id]} alt="" aria-hidden draggable={false}
+        {BILD[b.id] && <img src={BILD[b.id]} alt="" aria-hidden draggable={false} data-kulisse={`bund-${b.id}`} data-gg-still=""
           style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
             objectFit: "cover", opacity: 0.42, pointerEvents: "none" }} />}
         <div aria-hidden style={{ position: "absolute", inset: 0, pointerEvents: "none",
