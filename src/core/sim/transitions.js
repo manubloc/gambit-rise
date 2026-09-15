@@ -1,7 +1,7 @@
 import { other, WHITE, BLACK, BASE_HP, BASE_ATK, HP_REMIS_HALBZUEGE } from "../domain/constants.js";
 import { cloneBoard, findKing } from "../domain/board.js";
 import { pseudoMoves, pieceMoves, talentWirkt } from "../rules/moves.js";
-import { kroneFaengtAb, schildwachtDeckt, trinkliedHeilt } from "../rules/buende.js";
+import { kroneFaengtAb, schildwachtDeckt, trinkliedHeilt, faehrteFolgt } from "../rules/buende.js";
 import { inCheck } from "../rules/attacks.js";
 import { schlageSperre, loeseFalleAus, zerfalleSperren } from "../rules/sperren.js";
 import { familyOf, familyCount, crownWallSoak } from "../rules/families.js";
@@ -64,6 +64,33 @@ function altern(ns) {
      TRINKLIED heilt die Seite, die GERADE GEZOGEN HAT. Nicht die am Zug
      befindliche: der Alchemist arbeitet, waehrend seine Leute ausruhen, nicht
      waehrend sie kaempfen. */
+  /* ── FAEHRTE: der Partner rueckt nach (v1.10.6) ──────────────────────────
+     "Zieht einer von beiden, rueckt der andere ein Feld nach." Gemeint ist
+     ein Schritt in DIESELBE Richtung, in die der erste gezogen ist - die
+     beiden folgen einer Spur, sie laufen nicht auseinander.
+
+     Der Nachzug ist FREIWILLIG in dem Sinne, dass er ausfaellt, wenn das
+     Feld besetzt oder vom Brett ist. Er kostet keinen eigenen Zug und
+     schlaegt nie: ein Nachruecken, das nebenbei eine Figur nimmt, waere ein
+     zweiter Zug in einem - und genau das soll ein Bund nicht sein. */
+  if (ns.lastMove && ns.lastMove.to != null) {
+    const pf = faehrteFolgt(ns, ns.lastMove.to);
+    if (pf != null) {
+      const W2 = ns.w;
+      const df = Math.sign((ns.lastMove.to % W2) - (ns.lastMove.from % W2));
+      const dr = Math.sign(Math.floor(ns.lastMove.to / W2) - Math.floor(ns.lastMove.from / W2));
+      const zf = pf + dr * W2 + df;
+      const neueSpalte = (pf % W2) + df;
+      if (df || dr) {
+        if (zf >= 0 && zf < ns.board.length && neueSpalte >= 0 && neueSpalte < W2 && !ns.board[zf]) {
+          ns.board[zf] = ns.board[pf];
+          ns.board[pf] = null;
+          ns.lastMove.bundFaehrte = { von: pf, nach: zf };
+        }
+      }
+    }
+  }
+
   const heiler = ns.lastMove ? ns.lastMove.color : null;
   if (heiler) {
     const zf = trinkliedHeilt(ns, heiler);

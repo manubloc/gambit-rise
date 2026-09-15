@@ -1,5 +1,17 @@
 # Changelog - Grand Gambit
 
+## 1.10.6
+- FAEHRTE: zieht Späher oder Kundschafter, rückt der andere ein Feld in
+  DIESELBE Richtung nach. Der Nachzug faellt aus, wenn das Feld besetzt ist,
+  und schlaegt nie - ein Nachruecken, das nebenbei eine Figur nimmt, waere ein
+  zweiter Zug in einem.
+- SCHATTEN: der verborgene Attentaeter faellt aus der KI-Bewertung. Gemessen:
+  1164 auf 457. "Unsichtbar" muss fuer den GEGNER gelten, nicht nur fuer die
+  Anzeige - sonst waere es ein Trick, der allein den Menschen taeuscht und
+  gegen die KI wirkungslos bliebe. Treffen kann sie ihn weiterhin, wenn ein
+  Zug ohnehin auf sein Feld fuehrt: Tarnung ist keine Unverwundbarkeit.
+- Sechs von zehn Buenden wirken jetzt im Gefecht.
+
 ## 1.10.1
 - DIE ERSTEN ZWEI BUENDE WIRKEN IM GEFECHT. Der Paladin faengt Treffer fuer
   den Koenig ab (nur von nebenan), die Schildwacht deckt ihre gemeinsame

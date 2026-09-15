@@ -501,5 +501,62 @@ console.log("\n== DIE BUENDE UEBERLEBEN JEDEN ZUG (v1.10.3) ==");
   }
 }
 
+console.log("\n== FAEHRTE UND SCHATTEN (v1.10.6) ==");
+{
+  const { createGame: cg5, applyMove: am5 } = await import("./src/core/index.js");
+  const { legalMovesFrom: lm5 } = await import("./src/core/sim/transitions.js");
+  const { buildArmyFromFormation: ba5, defaultFormation: df5 } = await import("./src/meta/index.js");
+  const { mapById: mb5 } = await import("./src/content/index.js");
+  const { evaluate: ev5 } = await import("./src/ai/evaluate.js");
+  const w5 = 8;
+  const f5 = (k, id, c, hp) => ({ kind: k, charId: id, color: c, hp, maxHp: hp, atk: 6, abilities: [], level: 10, shield: 0 });
+  const leer = (buende) => {
+    const ar = () => ba5(() => 10, df5(mb5("classic")));
+    const g = cg5(ar(), ar(), { rules: "hp", map: mb5("classic"), buende });
+    for (let i = 0; i < 64; i++) g.board[i] = null;
+    g.board[7 * w5 + 7] = f5("K", "king", "b", 20);
+    g.board[7 * w5 + 0] = f5("K", "king", "w", 20);
+    return g;
+  };
+
+  /* FAEHRTE: der Partner rueckt in DIESELBE Richtung nach - die beiden
+     folgen einer Spur, sie laufen nicht auseinander. */
+  {
+    const bau = (buende) => {
+      const g = leer(buende);
+      g.board[2 * w5 + 2] = f5("H", "hawk", "w", 9);
+      g.board[5 * w5 + 5] = f5("P", "pathfinder", "w", 9);
+      g.turn = "w";
+      return g;
+    };
+    const g1 = bau([]);
+    const n1 = am5(g1, lm5(g1, 2 * w5 + 2).find((m2) => m2.to === 3 * w5 + 3));
+    ok("ohne Bund bleibt der Kundschafter stehen",
+      n1.board.findIndex((p) => p && p.charId === "pathfinder") === 5 * w5 + 5);
+    const g2 = bau(["faehrte"]);
+    const n2 = am5(g2, lm5(g2, 2 * w5 + 2).find((m2) => m2.to === 3 * w5 + 3));
+    ok("mit Faehrte rueckt er in dieselbe Richtung nach",
+      n2.board.findIndex((p) => p && p.charId === "pathfinder") === 6 * w5 + 6);
+  }
+
+  /* SCHATTEN: "unsichtbar" muss fuer die KI gelten, nicht nur fuer die
+     Anzeige - sonst waere es ein Trick, der allein den Menschen taeuscht. */
+  {
+    const bau = (buende, lastMove = null) => {
+      const g = leer(buende);
+      g.board[2 * w5 + 2] = f5("A", "assassin", "w", 9);
+      g.board[5 * w5 + 5] = f5("W", "sorceress", "w", 9);
+      g.lastMove = lastMove;
+      return g;
+    };
+    const ohne = ev5(bau([]), "w");
+    const mit = ev5(bau(["schatten"]), "w");
+    ok(`die KI rechnet den verborgenen Attentaeter nicht ein (${ohne} -> ${mit})`, mit < ohne);
+    /* und sie sieht ihn wieder, sobald die Hexerin gezogen hat */
+    const verraten = ev5(bau(["schatten"], { color: "w", charId: "sorceress", from: 0, to: 1 }), "w");
+    ok("sobald die Hexerin zieht, zaehlt er wieder", verraten === ohne);
+  }
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
