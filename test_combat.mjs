@@ -628,5 +628,53 @@ console.log("\n== BANNKREIS, KONZIL, GELEIT (v1.10.8) ==");
   }
 }
 
+console.log("\n== STURM: DIE AMAZONE KEHRT ZURUECK (v1.11.1) ==");
+{
+  const { createGame: cg7, applyMove: am7 } = await import("./src/core/index.js");
+  const { legalMovesFrom: lm7 } = await import("./src/core/sim/transitions.js");
+  const { buildArmyFromFormation: ba7, defaultFormation: df7 } = await import("./src/meta/index.js");
+  const { mapById: mb7 } = await import("./src/content/index.js");
+  const w7 = 8;
+  const f7 = (k, id, c, hp, atk, heim) =>
+    ({ kind: k, charId: id, color: c, hp, maxHp: hp, atk, abilities: [], level: 10, shield: 0, startFeld: heim });
+  const bau = (buende, heimBesetzt = false) => {
+    const ar = () => ba7(() => 10, df7(mb7("classic")));
+    const g = cg7(ar(), ar(), { rules: "hp", map: mb7("classic"), buende });
+    for (let i = 0; i < 64; i++) g.board[i] = null;
+    g.board[4 * w7 + 4] = f7("M", "amazon", "w", 3, 14, 3);   // fast tot, Startfeld 3
+    g.board[5 * w7 + 5] = f7("V", "warlock", "w", 12, 8, 4);
+    g.board[4 * w7 + 5] = f7("R", "rook", "b", 12, 20, 60);   // schlaegt zu
+    g.board[7 * w7 + 7] = f7("K", "king", "b", 20, 5, 63);
+    g.board[7 * w7 + 0] = f7("K", "king", "w", 20, 5, 56);
+    if (heimBesetzt) g.board[3] = f7("P", "pawn", "w", 8, 3, 3);
+    g.turn = "b";
+    return g;
+  };
+  const schlag = (g) => am7(g, lm7(g, 4 * w7 + 5).find((m2) => m2.to === 4 * w7 + 4));
+
+  {
+    const n = schlag(bau([]));
+    ok("ohne Bund faellt die Amazone", n.board.findIndex((p) => p && p.charId === "amazon") < 0);
+  }
+  {
+    const n = schlag(bau(["sturm"]));
+    const wo = n.board.findIndex((p) => p && p.charId === "amazon");
+    /* SIE KEHRT AUF IHR STARTFELD ZURUECK, nicht auf das Feld wo sie fiel -
+       sonst waere es blosse Unverwundbarkeit. Der Weg zurueck an die Front
+       kostet Zuege, und das ist der Preis. */
+    ok(`mit Sturm kehrt sie auf ihr Startfeld zurueck (Feld ${wo})`, wo === 3);
+    ok("mit halber Kraft, nicht voll geheilt", n.board[3].hp > 0 && n.board[3].hp < n.board[3].maxHp);
+    ok("und der Rueckruf ist verbraucht", n.sturmVerbraucht && n.sturmVerbraucht.w === true);
+  }
+  {
+    /* Ist ihr Startfeld besetzt, faellt sie doch. Ein Rueckruf ins Nichts
+       waere Willkuer - und der Gegner kann das Feld bewusst blockieren, eine
+       Gegenwehr, die man planen kann. */
+    const n = schlag(bau(["sturm"], true));
+    ok("bei besetztem Startfeld faellt sie doch",
+      n.board.findIndex((p) => p && p.charId === "amazon") < 0);
+  }
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

@@ -126,7 +126,18 @@ export function createInitialState(whiteArmy = defaultArmy(), blackArmy = defaul
       p.hp = p.maxHp;
       p.atk = Math.round(basisAtk + (lvl - 1) * wachsAtk);
       p.shield = 0;
+
     }
+    /* ── JEDE FIGUR MERKT SICH IHR STARTFELD (v1.11.1) ──────────────────
+       Gebraucht wird es bisher nur vom Sturm - die Amazone kehrt dorthin
+       zurueck, statt zu fallen. Es kostet nichts und beantwortet eine Frage,
+       die sonst niemand mehr beantworten kann: wo stand diese Figur am
+       Anfang?
+
+       Die Schleife darueber laeuft mit `for (const p of board)` und hat
+       keinen Index - deshalb hier eine eigene, statt sie umzubauen. */
+    for (let i = 0; i < board.length; i++) if (board[i]) board[i].startFeld = i;
+
     // ── the two houses: commitment pays ───────────────────────────────────────
     // crown kin harden together (4+ → +1 HP); shadows sharpen (4+ → +1 atk)
     // and bank time rifts (2/4/6 → 1/2/3). The crown's shield wall is LIVING —

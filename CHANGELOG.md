@@ -1,5 +1,19 @@
 # Changelog - Grand Gambit
 
+## 1.11.1
+- ALLE ZEHN BUENDE WIRKEN. Der Sturm war der letzte: wird die Amazone
+  geschlagen, kehrt sie einmal je Partie auf ihr STARTFELD zurueck, mit
+  halber Kraft.
+- SIE KEHRT NICHT DORTHIN ZURUECK, WO SIE FIEL - das waere blosse
+  Unverwundbarkeit. Der Weg zurueck an die Front kostet Zuege, und das ist
+  der Preis.
+- IST IHR STARTFELD BESETZT, FAELLT SIE DOCH. Ein Rueckruf ins Nichts waere
+  Willkuer; so kann der Gegner das Feld bewusst blockieren - eine Gegenwehr,
+  die man planen kann.
+- Jede Figur merkt sich jetzt ihr Startfeld. Gebraucht wird es bisher nur
+  hier, aber es beantwortet eine Frage, die sonst niemand mehr beantworten
+  kann.
+
 ## 1.11.0
 - BANNKREIS, KONZIL UND GELEIT wirken - damit stehen neun von zehn Buenden im
   Gefecht. Es fehlt nur noch der Sturm (Rueckkehr der Amazone).

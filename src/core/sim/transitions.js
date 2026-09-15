@@ -1,7 +1,7 @@
 import { other, WHITE, BLACK, BASE_HP, BASE_ATK, HP_REMIS_HALBZUEGE } from "../domain/constants.js";
 import { cloneBoard, findKing } from "../domain/board.js";
 import { pseudoMoves, pieceMoves, talentWirkt } from "../rules/moves.js";
-import { kroneFaengtAb, schildwachtDeckt, nachtwacheHeilt, faehrteFolgt, konzilLehntAb } from "../rules/buende.js";
+import { kroneFaengtAb, schildwachtDeckt, nachtwacheHeilt, faehrteFolgt, konzilLehntAb, sturmRuftZurueck } from "../rules/buende.js";
 import { inCheck } from "../rules/attacks.js";
 import { schlageSperre, loeseFalleAus, zerfalleSperren } from "../rules/sperren.js";
 import { familyOf, familyCount, crownWallSoak } from "../rules/families.js";
@@ -283,7 +283,7 @@ export function applyMove(state, move, opts) {
          Wichtig fuer den Ablauf: der Schaden wandert VOLLSTAENDIG auf den
          Paladin, der Koenig bleibt unberuehrt. Ein halber Uebertrag waere
          schwerer zu erklaeren und im Gefecht nicht ablesbar. */
-      let bundKrone = null, bundKonzil = false;
+      let bundKrone = null, bundKonzil = false, bundSturm = null;
       /* ── DAS KONZIL LEHNT AB (v1.10.8) ──────────────────────────────────
          Vor dem Paladin, denn der Rat greift frueher: er verhindert den
          Schlag ueberhaupt, waehrend der Paladin ihn nur umlenkt. */
@@ -335,7 +335,36 @@ export function applyMove(state, move, opts) {
         }
         if (welle.length) damaged = true;
       }
-      if (target.hp <= 0) {                       // kill
+      if (target.hp <= 0 && sturmRuftZurueck(state, target)) {
+        /* ── DER STURM: DIE AMAZONE KEHRT ZURUECK (v1.11.1) ─────────────────
+           "Sie fiel. Er rief. Sie stand wieder auf, und niemand sprach je
+           darueber." Einmal je Partie, und nur solange der Warlock steht.
+
+           SIE KEHRT AUF IHR STARTFELD ZURUECK, nicht auf das Feld, wo sie
+           fiel - sonst waere es blosse Unverwundbarkeit. Der Weg zurueck an
+           die Front kostet Zuege, und das ist der Preis.
+
+           Ist ihr Startfeld besetzt, faellt sie doch: ein Rueckruf ins Nichts
+           waere Willkuer, und der Gegner kann das Feld bewusst blockieren -
+           eine Gegenwehr, die man planen kann. */
+        const heim = target.startFeld != null ? target.startFeld : null;
+        if (heim != null && !b[heim]) {
+          target.hp = Math.max(1, Math.round(target.maxHp / 2));
+          b[heim] = target;
+          b[ti] = null;
+          ns.sturmVerbraucht = { ...(ns.sturmVerbraucht || {}), [target.color]: true };
+          bundSturm = heim;
+          /* der Angreifer rueckt vor, als waere das Feld leer - es ist leer */
+          if (!move.noAdvance) { b[move.to] = piece; b[move.from] = null; piece.hasMoved = true; }
+          damaged = true;
+        } else {
+          lethal = true;
+          ns.captured[piece.color].push(target.kind);
+          if (dragonAnchor >= 0) clearDragon(dragonAnchor);
+          if (move.noAdvance) b[move.to] = null;
+          else { b[move.to] = piece; b[move.from] = null; piece.hasMoved = true; }
+        }
+      } else if (target.hp <= 0) {                 // kill
         lethal = true;
         ns.captured[piece.color].push(target.kind);
         if (dragonAnchor >= 0) clearDragon(dragonAnchor);  // the beast falls: all four squares clear
