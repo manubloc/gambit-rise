@@ -1,5 +1,21 @@
 # Changelog - Grand Gambit
 
+## 1.13.1
+- DAS BUNDFENSTER TRAEGT DIE FARBE SEINER FAEHIGKEIT: das Symbol sitzt in der
+  Regelbox statt ueber dem Namen, die Box uebernimmt den Grundton des
+  Symbolhintergrunds. Wer das Zeichen spaeter auf einer Karte wiedersieht,
+  erkennt die Farbe. Fenster und Knopf tragen die leuchtende Kontur
+  (ggUpPulse).
+
+## 1.13.0
+- DIE KARTEN KOMMEN NACH UND NACH: bis Kapitel 4 nur 8x8 (Klassik, Hof,
+  Schneise - sie unterscheiden sich in Loechern, nicht im Mass). Das
+  Scharmuetzel fuehrt der Endboss von Kapitel 5 ein, die Arena der von
+  Kapitel 7. Vorher liefen alle fuenf Karten ab Kapitel 1 reihum.
+
+## 1.12.1
+- DER GELEIT-KNOPF im Gefecht: zwei der drei Figuren waehlen, sie tauschen.
+
 ## 1.12.0
 - DAS ERWACHEN-FENSTER (Besitzerwunsch): erreicht die letzte Figur eines
   Bundes die Hoechststufe, geht ein Fenster auf und stellt ihn vor. Es

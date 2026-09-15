@@ -1471,6 +1471,35 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
       gs.includes("setGeleitWahl(null); setGeleitAktiv(false);"));
   }
 
+  /* ── DIE VERSION IM PAKET MUSS ZUM NEUESTEN EINTRAG PASSEN (v1.13.2) ────
+     GEFUNDEN durch einen Hinweis aus einer Parallelsitzung, und es war ein
+     Fehler mit Reichweite: package.json stand auf 1.4.4, waehrend die
+     Commits bis 1.13.1 gelaufen waren - NEUN Minor-Versionen lang.
+
+     Die Ursache war eine vergessene Zeile bei v1.4.5. Danach lief jede
+     folgende Ersetzung ins Leere, weil sie den falschen Vorgaengerwert
+     suchte (sed meldet das nicht, es passiert einfach nichts).
+
+     DAS BETRIFFT DIE AUSLIEFERUNG, nicht nur eine Notiz: vite.config.js
+     schreibt version.json aus pkg.version, und daran erkennt die App, ob
+     eine neue Fassung bereitsteht. Neun Versionen lang haette kein Geraet
+     ein Update angeboten bekommen.
+
+     Diese Probe vergleicht package.json mit dem obersten Eintrag im
+     CHANGELOG - der wird bei jeder Fassung von Hand gepflegt und ist damit
+     die zuverlaessigere Quelle. */
+  {
+    const pkg = JSON.parse(readFileSync("package.json", "utf8"));
+    const chg = readFileSync("CHANGELOG.md", "utf8");
+    const oben = (chg.match(/^## (\d+\.\d+\.\d+)/m) || [])[1];
+    ok(`package.json (${pkg.version}) passt zum obersten CHANGELOG-Eintrag (${oben})`,
+      oben && pkg.version === oben);
+    /* und der Lock muss mitziehen, sonst meldet npm bei jedem Lauf einen
+       Unterschied */
+    const lock = JSON.parse(readFileSync("package-lock.json", "utf8"));
+    ok("package-lock traegt dieselbe Version", lock.version === pkg.version);
+  }
+
   /* 2. Bauer und Grand Gambit tragen in der Aufstellung EIN Mass. */
   ok("kein getrenntes Mass mehr fuer Held und Bauer",
     !/isHero \? "clamp\(26px, 10\.5vw, 86px\)" : "clamp\(24px, 9\.4vw, 76px\)"/.test(q));
