@@ -15,7 +15,9 @@
 // Hand gesetzt — jede Linie gehört zu genau einer Fähigkeit.
 import { T } from "./theme.js";
 
-const FAMILIE = {
+/* v1.13.1: die Familienfarben werden auch ausserhalb gebraucht - das
+   Erwachen-Fenster faerbt seine Regelbox in der Farbe der Faehigkeit. */
+export const FAMILIE = {
   schritt:  { grund: "#123c2a", tief: "#0a2418", ring: "#6fe0a8", strich: "#c8f5dd" },
   sprung:   { grund: "#12314e", tief: "#0a1d30", ring: "#6fc2f0", strich: "#cfeaff" },
   schlag:   { grund: "#4a1420", tief: "#2c0a12", ring: "#f07a8a", strich: "#ffd9de" },
@@ -36,7 +38,7 @@ const FAMILIE = {
    fuer etwas Groesseres stehen. Jedes zeigt das DING, nach dem der Bund
    heisst, nicht seine Wirkung: eine Krone, ein Rat, eine Spur. Die Wirkung
    steht daneben in Worten. */
-const BUND_Z = {
+export const BUND_Z = {
   bund_krone:       ["krone",    <g key="g"><path d="M5 16h14" /><path d="M5 16l1.5-7 3.5 4L12 7l2 6 3.5-4L19 16" /></g>],
   bund_konzil:      ["krone",    <g key="g"><circle cx="12" cy="12" r="6" /><circle cx="12" cy="7" r="1.5" fill="currentColor" stroke="none" /><circle cx="16.5" cy="14.5" r="1.5" fill="currentColor" stroke="none" /><circle cx="7.5" cy="14.5" r="1.5" fill="currentColor" stroke="none" /></g>],
   bund_geleit:      ["sprung",   <g key="g"><path d="M7 9h10" /><path d="M14 6l3 3-3 3" /><path d="M17 15H7" /><path d="M10 12l-3 3 3 3" /></g>],

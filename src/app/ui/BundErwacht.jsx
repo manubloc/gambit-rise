@@ -19,7 +19,7 @@ import { T } from "./theme.js";
 import { BUENDE } from "../../content/buende.js";
 import { CHARACTERS } from "../../content/index.js";
 import { paintedForPiece } from "./board/paintedArt.js";
-import { AbilityIcon } from "./AbilityIcons.jsx";
+import { AbilityIcon, FAMILIE, BUND_Z } from "./AbilityIcons.jsx";
 
 /* ── DIE ECHTEN KULISSEN (v1.12.1) ───────────────────────────────────────
    Besitzerwunsch: "Was ich gut faende, wenn diese Popups evtl auch den
@@ -50,6 +50,8 @@ export function BundErwacht({ bundId, en, onClose }) {
   const name = en ? (b.nameEn || b.nameDe) : b.nameDe;
   const regel = en ? (b.regelEn || b.regelDe) : b.regelDe;
   const story = en ? (b.storyEn || b.storyDe) : b.storyDe;
+  /* Die Familienfarbe des Bundsymbols - sie faerbt die Regelbox. */
+  const fam = FAMILIE[(BUND_Z[`bund_${b.id}`] || [])[0]] || FAMILIE.riss;
 
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 64, display: "grid", placeItems: "center",
@@ -58,6 +60,9 @@ export function BundErwacht({ bundId, en, onClose }) {
       <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 380,
         background: KULISSE[b.stimmung] || KULISSE.hof,
         border: "1px solid rgba(167,139,250,.5)", borderRadius: 18,
+        /* v1.13.1: dieselbe leuchtende Kontur wie am Verbessern-Knopf - der
+           Besitzer mag sie, und hier passt sie: ein Bund erwacht. */
+        animation: "ggUpPulse 2.6s ease-in-out infinite",
         boxShadow: "0 18px 60px rgba(0,0,0,.7), 0 0 40px rgba(124,58,237,.18)",
         padding: "18px 16px 16px", textAlign: "center",
         position: "relative", overflow: "hidden" }}>
@@ -75,9 +80,6 @@ export function BundErwacht({ bundId, en, onClose }) {
         <div className="gg-serif" style={{ fontSize: 10.5, letterSpacing: ".18em",
           color: "rgba(196,181,253,.9)", marginBottom: 4 }}>
           {en ? "A BOND AWAKENS" : "EIN BUND ERWACHT"}
-        </div>
-        <div style={{ display: "flex", justifyContent: "center", marginBottom: 4 }}>
-          <AbilityIcon id={`bund_${b.id}`} size={38} />
         </div>
         <div className="gg-quill" style={{ fontSize: 27, fontWeight: 700, color: "#f2ecdc",
           marginBottom: 12, textShadow: "0 0 18px rgba(167,139,250,.45)" }}>{name}</div>
@@ -103,9 +105,19 @@ export function BundErwacht({ bundId, en, onClose }) {
 
         {/* WAS - die Regel, in einem Satz. Hervorgehoben, weil sie der
             eigentliche Gewinn ist. */}
-        <div style={{ background: "rgba(124,58,237,.16)", border: "1px solid rgba(167,139,250,.42)",
-          borderRadius: 11, padding: "10px 12px", marginBottom: 10 }}>
-          <div className="gg-quill" style={{ fontSize: 14.5, lineHeight: 1.35, color: "#f0ead9" }}>{regel}</div>
+        {/* ── DIE REGEL TRAEGT DIE FARBE IHRER FAEHIGKEIT (v1.13.1) ────────
+            Besitzerwunsch: das Symbol gehoert zur Beschreibung, nicht ueber
+            den Namen - und die Box soll die Farbe des Symbolhintergrunds
+            haben, nur eine Spur heller.
+
+            Das bindet beides zusammen: wer das Zeichen spaeter auf einer
+            Karte wiedersieht, erkennt die Farbe und weiss, wovon die Rede
+            ist. */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10,
+          background: fam.grund, border: `1px solid ${fam.ring}66`,
+          borderRadius: 11, padding: "10px 12px", marginBottom: 10, textAlign: "left" }}>
+          <AbilityIcon id={`bund_${b.id}`} size={34} />
+          <div className="gg-quill" style={{ fontSize: 14, lineHeight: 1.32, color: fam.strich }}>{regel}</div>
         </div>
 
         {/* WARUM - die Geschichte. Kursiv und stiller, sie erklaert nichts,
@@ -117,6 +129,7 @@ export function BundErwacht({ bundId, en, onClose }) {
           border: "1px solid rgba(167,139,250,.6)",
           background: "linear-gradient(180deg,#5b21b6,#3b1080)", color: "#fff",
           font: "700 14.5px system-ui", letterSpacing: ".02em",
+          animation: "ggUpPulse 2.2s ease-in-out infinite",
           boxShadow: "0 0 16px rgba(124,58,237,.45)" }}>
           {en ? "Understood" : "Verstanden"}
         </button>
