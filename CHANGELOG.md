@@ -1,5 +1,19 @@
 # Changelog - Grand Gambit
 
+## 1.10.0
+- DIE WIRKUNG DER BUENDE steht als eigene Regelschicht (core/rules/buende.js):
+  acht Funktionen, die der Kern an wenigen Stellen befragt, statt dass Buende
+  quer durch das Regelwerk greifen.
+- DIE ORTSBEDINGUNGEN sind drin, beide vom Besitzer ausdruecklich verlangt:
+  der Paladin deckt den Koenig NUR von einem Nachbarfeld aus, Techniker und
+  Schildtraeger wirken NUR, wenn sie sich eine Reihe oder Linie teilen.
+- DER ATTENTAETER verbirgt sich nur, solange Hexerin und Magier STILLSTEHEN -
+  wer sie zieht, verraet ihn fuer einen Zug. Aus einer Faehigkeit, die einfach
+  laeuft, wird damit eine Entscheidung in jedem Zug.
+- 18 Proben, die auch die Gegenfaelle festhalten: ein gefallener Paladin
+  deckt nicht mehr, ein Kapitaen ohne Lotsen laeuft auf Grund, der Sturm wirkt
+  nur einmal je Partie.
+
 ## 1.9.1
 - DER MENUEHINTERGRUND FOLGT ENDLICH DEM KAPITEL. Besitzerbefund, mehrfach
   vorgetragen: "Du hast es immer noch nicht geschafft, die Hintergruende in

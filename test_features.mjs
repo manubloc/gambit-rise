@@ -536,5 +536,112 @@ console.log("\n== DIE ZEHN BUENDE (v1.9.0) ==");
   ok("bundVon findet die Zugehoerigkeit", bundVon("paladin") === "krone" && bundVon("pawn") === null);
 }
 
+console.log("\n== DIE WIRKUNG DER BUENDE (v1.10.0) ==");
+{
+  const B = await import("./src/core/rules/buende.js");
+  const w = 8;
+  const brett = () => new Array(64).fill(null);
+  const setz = (b, f, r, p) => { b[r * w + f] = p; };
+  const fig = (kind, charId, color = "w", hp = 12) => ({ kind, charId, color, hp, maxHp: hp });
+
+  /* KRONE - NUR NEBENAN. Das war die ausdrueckliche Forderung des Besitzers:
+     "Das gilt nur, wenn er neben dem Koenig auch steht. Der darf nicht
+     irgendwo stehen." Ein Leibwaechter, der quer ueber das Brett schuetzt,
+     waere keiner - und die Probe ist genau deshalb doppelt. */
+  {
+    const b = brett();
+    setz(b, 4, 0, fig("K", "king", "w", 20));
+    setz(b, 5, 0, fig("U", "paladin"));
+    const st = { board: b, w, h: 8, buende: ["krone"] };
+    ok("der Paladin faengt einen Treffer ab, wenn er daneben steht",
+      B.kroneFaengtAb(st, 4) === 5);
+    b[5] = null; setz(b, 5, 7, fig("U", "paladin"));
+    ok("und nicht, wenn er woanders steht", B.kroneFaengtAb(st, 4) === null);
+    /* ein Paladin am Ende kann niemanden mehr decken */
+    b[7 * w + 5] = null; setz(b, 5, 0, { ...fig("U", "paladin"), hp: 0 });
+    ok("ein gefallener Paladin deckt nicht mehr", B.kroneFaengtAb(st, 4) === null);
+  }
+
+  /* SCHILDWACHT - beide in derselben Reihe ODER Linie (Besitzer: "das kann
+     vertikal wie horizontal sein"). */
+  {
+    const b = brett();
+    setz(b, 1, 3, fig("E", "engineer"));
+    setz(b, 5, 3, fig("G", "guardian"));
+    setz(b, 3, 3, fig("R", "rook"));
+    setz(b, 3, 6, fig("B", "bishop"));
+    const st = { board: b, w, h: 8, buende: ["schildwacht"] };
+    ok("wer in ihrer Reihe steht, ist gedeckt", B.schildwachtDeckt(st, 3 * w + 3));
+    ok("wer woanders steht, nicht", !B.schildwachtDeckt(st, 6 * w + 3));
+    b[3 * w + 5] = null; setz(b, 5, 6, fig("G", "guardian"));
+    ok("und gar nichts, wenn die beiden sich nicht teilen", !B.schildwachtDeckt(st, 3 * w + 3));
+  }
+
+  /* SCHATTEN - der Besitzer hat die Regel selbst geschaerft: nicht dauerhaft
+     unsichtbar, sondern nur solange die beiden STILLSTEHEN. */
+  {
+    const b = brett();
+    setz(b, 2, 2, fig("A", "assassin"));
+    setz(b, 6, 6, fig("W", "sorceress"));
+    const st = { board: b, w, h: 8, buende: ["schatten"], lastMove: null };
+    const att = b[2 * w + 2];
+    ok("der Attentaeter ist unsichtbar, solange die Hexerin stillsteht",
+      B.schattenVerbirgt(st, att));
+    st.lastMove = { color: "w", charId: "sorceress", from: 0, to: 1 };
+    ok("und zeigt sich, sobald sie zieht", !B.schattenVerbirgt(st, att));
+    st.lastMove = { color: "w", charId: "rook", from: 0, to: 1 };
+    ok("ein anderer Zug verraet ihn nicht", B.schattenVerbirgt(st, att));
+    b[6 * w + 6] = null;
+    ok("ohne Hexerin und Magier keine Tarnung", !B.schattenVerbirgt(st, att));
+  }
+
+  /* TRINKLIED - heilt den, dem am meisten fehlt. */
+  {
+    const b = brett();
+    setz(b, 3, 3, fig("L", "alchemist"));
+    setz(b, 3, 4, { ...fig("R", "rook"), hp: 5, maxHp: 12 });
+    setz(b, 4, 3, { ...fig("B", "bishop"), hp: 11, maxHp: 12 });
+    setz(b, 7, 7, { ...fig("Q", "queen"), hp: 1, maxHp: 20 });
+    const st = { board: b, w, h: 8, buende: ["trinklied"] };
+    ok("der Alchemist heilt den angrenzenden mit dem groessten Fehlbetrag",
+      B.trinkliedHeilt(st, "w") === 4 * w + 3);
+    /* die Dame fehlt mehr, steht aber nicht daneben - Nachbarschaft zaehlt */
+    ok("eine ferne Figur wird nicht geheilt, auch wenn ihr mehr fehlt",
+      B.trinkliedHeilt(st, "w") !== 7 * w + 7);
+  }
+
+  /* GEZEITEN und STURM haengen daran, dass der Partner ueberhaupt steht. */
+  {
+    const b = brett();
+    setz(b, 2, 2, fig("C", "captain"));
+    setz(b, 5, 5, fig("S", "strategist"));
+    const st = { board: b, w, h: 8, buende: ["gezeiten"] };
+    ok("der Kapitaen bricht durch, solange der Stratege steht",
+      B.gezeitenDurchbruch(st, b[2 * w + 2]));
+    b[5 * w + 5] = null;
+    ok("ohne Lotsen laeuft er auf Grund", !B.gezeitenDurchbruch(st, b[2 * w + 2]));
+  }
+  {
+    const b = brett();
+    setz(b, 1, 1, fig("M", "amazon", "w", 24));
+    setz(b, 6, 6, fig("V", "warlock"));
+    const st = { board: b, w, h: 8, buende: ["sturm"], sturmVerbraucht: {} };
+    ok("die Amazone kehrt zurueck, solange der Warlock steht",
+      B.sturmRuftZurueck(st, b[1 * w + 1]));
+    st.sturmVerbraucht = { w: true };
+    ok("aber nur einmal je Partie", !B.sturmRuftZurueck(st, b[1 * w + 1]));
+  }
+
+  /* BANNKREIS - zwei Felder Umkreis. */
+  {
+    const b = brett();
+    setz(b, 4, 4, fig("Y", "seeress", "b"));
+    const st = { board: b, w, h: 8, buende: ["bannkreis"] };
+    ok("im Umkreis von zwei Feldern sind Talente gesperrt",
+      B.bannkreisSperrt(st, 6 * w + 4, "w"));
+    ok("drei Felder weiter nicht mehr", !B.bannkreisSperrt(st, 7 * w + 4, "w"));
+  }
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
