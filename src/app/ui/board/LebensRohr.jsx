@@ -37,15 +37,30 @@ export const ROHR_BREITE_VOM_SOCKEL = 1.12;
    Telefon ist eine Zelle aber nur 38 bis 48 px breit, und 9,2 % davon sind
    3,5 bis 4,4 px. Auf so wenig Hoehe traegt die Glasoptik nicht: Reif, Glanz
    und Bodenreflex haetten je unter einem Pixel. Deshalb steht hier ein
-   groesserer Anteil - die WIRKUNG der Vorlage zaehlt, nicht ihre Zahl. */
-export const ROHR_HOEHE_VON_ZELLE = 0.17;
+   groesserer Anteil - die WIRKUNG der Vorlage zaehlt, nicht ihre Zahl.
+
+   WARUM 0,155 UND NICHT 0,17 (v1.13.2): gerechnet waren 0,17, am Brett stand
+   aber seit v1.5.1 fest `0.155em` im Aufruf - und der Aufruf ist das, was der
+   Besitzer sieht. Diese Konstante trug bis v1.13.1 die 0,17 und wurde von
+   NIEMANDEM gelesen: eine tote Zahl, die einer lebenden widersprach. Wer sie
+   aenderte, aenderte nichts - genau die Art Falle, die den naechsten eine
+   Runde kostet. Jetzt traegt sie den Wert, der wirklich am Brett steht, und
+   PieceGlyph liest sie. Der Zahlenwert am Brett ist damit UNVERAENDERT: das
+   Rohr sieht aus wie zuvor, nur die Falle ist fort.
+
+   WEITERHIN OFFEN, ehrlich benannt: dieser Wert ist nie im laufenden Gefecht
+   nachgemessen worden. Er stammt aus Bildentwuerfen auf 150-px-Zellen. Wer
+   ihn aendern will, misst vorher mit `node messe_rohr.mjs`. */
+export const ROHR_HOEHE_VON_ZELLE = 0.155;
 /* GEMESSEN AM GERENDERTEN SVG: 0,29 war zu viel - die Enden standen hoch und
    das Rohr sah aus wie eine Banane. In der Bildstrecke sank die Mitte um 4 px
    bei 14 px Hoehe, also knapp ein Drittel - aber dort ueber die volle BREITE
    verteilt, waehrend die Q-Kurve hier steiler ansetzt. 0,17 trifft die
    Wirkung der Vorlage. */
 export const ROHR_KRUEMMUNG = 0.17;          // Anteil der Rohrhoehe, um die die Mitte sinkt
-export const ROHR_HEBUNG = 1.00;             // Rohrhoehen ueber dem Figurenfuss
+/* v1.14.1: hier stand ROHR_TIEFE_UNTER_FUSS = 0.085 (vorher ROHR_HEBUNG). Das
+   Rohr haengt nicht mehr an einer festen Tiefe unter dem Fuss, sondern auf der
+   GEMESSENEN Sockellinie jeder Figur - siehe sockelLinieEm in PieceGlyph. */
 export const REIF_DICKE = 0.06;              // Anteil der Rohrhoehe
 export const PERLE_VON_ROHR = 0.80;          // Durchmesser
 export const PERLE_TIEFE = 0.28;             // Mitte bei 28 % der Rohrhoehe -> halb eingetaucht
@@ -161,7 +176,11 @@ export default function LebensRohr({
   const perleY = y0 + H * PERLE_TIEFE + senk * 0.55;
 
   return (
-    <svg className={className}
+    /* data-gg="rohr": DAMIT MAN ES MESSEN KANN. Ohne Kennung war das Rohr im
+       DOM nur "irgendein SVG unter der Figur" und von den Wappen-, Orb- und
+       Zugzeichen-SVGs nicht sicher zu unterscheiden. `messe_rohr.mjs` sucht
+       danach. Kostet nichts und aendert nichts am Bild. */
+    <svg className={className} data-gg="rohr"
       width={inEm ? breite : VB_W} height={inEm ? `calc(${breite} * ${VB_H / VB_W})` : VB_H}
       viewBox={`0 0 ${VB_W} ${VB_H}`}
       style={{ display: "block", pointerEvents: "none", overflow: "visible", ...(style || {}) }}
@@ -219,7 +238,14 @@ export default function LebensRohr({
 
       {/* der Reif ist der AEUSSERE Pfad - das Glas liegt als eigener,
           kleinerer Pfad darin, sodass ringsum der Metallrand stehen bleibt */}
-      <path d={rohrPfad} fill={`url(#${id}reif)`} />
+      {/* data-gg="rohr-koerper": DAS ROHR SELBST, und das ist ein Unterschied.
+          Das SVG aussenrum ist deutlich groesser als das Rohr - es reserviert
+          Platz fuer die Perle (padOben), fuer den Reif und fuer die Senkung.
+          Gemessen: bei 28 px Rohrbreite ist der SVG-Kasten 13 px hoch, das
+          Rohr darin aber nur 5,2 px. Wer den SVG-Kasten misst, misst 2,2-mal
+          zu viel - genau die Falle, in die getBoundingClientRect schon einmal
+          gefuehrt hat. messe_rohr.mjs misst deshalb DIESEN Pfad. */}
+      <path d={rohrPfad} data-gg="rohr-koerper" fill={`url(#${id}reif)`} />
       <g clipPath={`url(#${id}innen)`}>
         <path d={innenPfad} fill={`url(#${id}glas)`} />
         {/* Fluessigkeiten - rechteckig, vom Rohr beschnitten */}

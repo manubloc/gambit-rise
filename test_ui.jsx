@@ -1360,6 +1360,31 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
        einer Figur ohne Talent hoeher als bei einer mit (Besitzerbefund). */
     ok("die Zeichenflaeche haengt nicht davon ab, ob eine Perle da ist",
       lr.includes("const padOben = Math.ceil(pd * 2.1 / 2 + 2);"));
+    /* v1.13.2: KEINE TOTE KONSTANTE MEHR. ROHR_HOEHE_VON_ZELLE stand auf
+       0,17 und wurde nirgends gelesen, waehrend am Brett fest 0,155 stand.
+       Wer die Konstante aenderte, aenderte nichts - eine stille Falle. Diese
+       Probe haelt die beiden zusammen: jede exportierte Rohr-Konstante muss
+       auch wirklich jemand lesen. */
+    {
+      const konstanten = [...lr.matchAll(/export const (ROHR_[A-Z_]+|PERLE_[A-Z_]+|REIF_[A-Z_]+)\s*=/g)].map((m) => m[1]);
+      const quellen = ["src/app/ui/board/PieceGlyph.jsx", "src/app/ui/screens/ArmyScreen.jsx",
+        "src/app/ui/board/LebensRohr.jsx"].map((p) => readFileSync(p, "utf8")).join("\n");
+      const tot = konstanten.filter((k) => {
+        /* der Export selbst zaehlt nicht als Benutzung - nur Vorkommen
+           ausserhalb der Zeile `export const X =`. */
+        const treffer = (quellen.match(new RegExp(`\\b${k}\\b`, "g")) || []).length;
+        const deklaration = (quellen.match(new RegExp(`export const ${k}\\s*=`, "g")) || []).length;
+        return treffer - deklaration === 0;
+      });
+      ok(`keine tote Rohr-Konstante (${konstanten.length} geprueft)`
+        + (tot.length ? " - tot: " + tot.join(", ") : ""), tot.length === 0);
+      ok("die Hoehe am Brett kommt aus der Konstante, nicht aus einer nackten Zahl",
+        pg.includes("ROHR_HOEHE_VON_ZELLE.toFixed(3)"));
+      /* GEGENPROBE: ohne sie koennte die Probe oben bestehen, waehrend
+         daneben weiter eine feste Zahl steht und in Wahrheit gewinnt. */
+      ok("und daneben steht keine feste Hoehe mehr",
+        !/hoehe=\{`\$\{\(0\.\d+\)\.toFixed/.test(pg));
+    }
   }
 
   /* ── JEDES LIVE-BILD BRAUCHT EINE HQ-FASSUNG (v1.4.0) ────────────────────
@@ -1677,8 +1702,27 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
   const q = _rfSW("src/app/ui/board/PieceGlyph.jsx", "utf8");
   ok("der Riegel existiert und kennt beide Toene",
     q.includes('const nurSockel = ton === "schwarz" || ton === "weiss"'));
-  ok("Schein UND Bodenschleier stehen dahinter", (q.match(/\{!nurSockel && <span/g) || []).length === 2);
+  ok("Schein UND Bodenschleier stehen dahinter", (q.match(/\{!nurSockel && !schneide && <span/g) || []).length === 2);
 }
+/* ── DER SOCKEL IST FORT, DIE FIGUR STEHT IM ROHR (v1.14.1) ────────────────
+   Gemessen (messe_rohr.mjs): der Sockel ist 0,3-0,4 Zellen hoch, das Rohr
+   0,155 - es konnte ihn nie verschlucken. Jetzt endet das Bild an der
+   gemessenen Sockelkante, und das Rohr sitzt mit seiner Mitte darauf. Beide
+   lesen dieselbe Quelle (sockelLinieEm), sonst driften sie auseinander. */
+{
+  const { readFileSync: _rfR } = await import("node:fs");
+  const q = _rfR("src/app/ui/board/PieceGlyph.jsx", "utf8");
+  ok("beide Bilder werden an der Sockelkante geschnitten", (q.match(/clipPath: schnitt, WebkitClipPath: schnitt/g) || []).length === 2);
+  ok("der Schnitt gilt nur im HP-Gefecht, nicht in Klassik", q.includes("!klassisch && hpMode && piece.maxHp > 0"));
+  ok("das Rohr sitzt auf der Sockellinie, nicht auf einer festen Tiefe",
+    q.includes("const mitte = sockelLinieEm(piece)") && !q.includes("ROHR_TIEFE_UNTER_FUSS"));
+  const { sockelLinieEm } = await import("./src/app/ui/board/PieceGlyph.jsx");
+  const l = sockelLinieEm({ kind: "R", charId: "rook", color: "w", atk: 5, maxHp: 10, level: 3 });
+  ok(`die Sockellinie liegt im plausiblen Bereich (${l.toFixed(3)} em ueber dem Zellboden)`, l > 0.05 && l < 0.4);
+  const r = _rfR("src/app/ui/board/LebensRohr.jsx", "utf8");
+  ok("keine tote Tiefen-Konstante mehr im Rohr", !r.includes("export const ROHR_TIEFE_UNTER_FUSS"));
+}
+
 
 /* ── DIE SOCKELKANTE WIRD JE FIGUR GEMESSEN (v1.0.72) ──────────────────────
    Besitzer: "jede Figur einzeln durchpruefen ... nicht die Fuesse oder der

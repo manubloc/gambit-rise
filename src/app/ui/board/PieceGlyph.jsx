@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from "react";
-import LebensRohr, { ROHR_BREITE_VOM_SOCKEL, ROHR_KRUEMMUNG } from "./LebensRohr.jsx";
+import LebensRohr, { ROHR_BREITE_VOM_SOCKEL, ROHR_HOEHE_VON_ZELLE, ROHR_KRUEMMUNG } from "./LebensRohr.jsx";
 import { ABILITIES, TAGS } from "../../../content/index.js";
 import { T } from "../theme.js";
 import { PieceArt } from "./PieceArt.jsx";
@@ -160,6 +160,31 @@ export function rohrAnteile(piece) {
   return { leben: voll * hp / summe, kraft: voll * atk * KRAFT_GEWICHT / summe };
 }
 
+/* ── WO DER SOCKEL ANFAENGT, in em ueber dem Zellboden (v1.14.1) ──────────
+   Besitzerwunsch seit v1.5.1: "ich will den Sockel nicht mehr sehen". Bis
+   hierher hing das Rohr fest 0,085 em unter dem Fuss und war 0,155 em hoch -
+   der Sockel ist aber 0,3 bis 0,4 Zellen hoch (gemessen: 5 bis 10 px schauten
+   oben heraus bei 38-px-Zellen, bei jeder Figur, messe_rohr.mjs). Ein Rohr,
+   das ihn wirklich verschluckt, waere ein Fass.
+
+   Also andersherum: das BILD wird an der gemessenen Sockelkante abgeschnitten
+   (clip-path), und das Rohr sitzt mit seiner Mitte genau auf dieser Linie.
+   Die Figur steht damit IM Rohr statt auf ihrem Teller - wie in der
+   Bildstrecke. Diese Funktion rechnet die Linie aus denselben Groessen, mit
+   denen der Glyph seine Figur setzt (Fit, Fusslinie, Sockelkante); Rohr
+   (in der Zelle) und Schnitt (im Glyph) lesen dieselbe Quelle. Vor der
+   ersten Messung gilt fuer beide der Fallback - sie bleiben deckungsgleich. */
+export function sockelLinieEm(piece) {
+  const painting = paintedForPiece(piece, true);
+  const fit = painting ? paintedFitFor(piece) : { h: 1, y: 0 };
+  const kante = (painting && sockelKanteAusCache(painting)) || KANTE_FALLBACK;
+  const fuss = (painting && fusslinieAusCache(painting)) ?? HAUSLINIE;
+  const ps = piece.bossId ? 1.14 : 0.99;               // pieceSize im HP-Gefecht
+  const ausgleich = (fuss - HAUSLINIE) * fit.h * 1.16;  // dieselbe Rechnung wie im Glyph
+  const y = (fit.y || 0) + ausgleich;                   // positiv = nach unten
+  return 0.015 - y + kante * ps * 1.16 * fit.h;         // 0.015 = paddingBottom des Glyphs
+}
+
 function StatDuo({ piece, focus, shrink = 1 }) {
   const d = 0.405 * (focus ? 1.4 : 1) * shrink;  // orb diameter in em — a size up, numerals with it
   const gap = d * 0.045;                         // a hair apart — nearly kissing
@@ -190,20 +215,25 @@ function StatDuo({ piece, focus, shrink = 1 }) {
     <StatOrbBadge kind={kind} v={v} size={`${d}em`} num={0.58} />
   </span>;
   /* v1.3.0: das Rohr ersetzt beide Perlen. Es misst sich an der Zellbreite
-     (17 %, gerechnet: bei 38-48 px Zelle sind das 6,5-8,2 px - unter 6 traegt
-     die Glasoptik nicht mehr). Die Breite folgt dem gemessenen Sockel. */
+     (15,5 %: bei 38-48 px Zelle sind das 5,9-7,4 px - unter 6 traegt die
+     Glasoptik kaum noch). Die Breite folgt dem gemessenen Sockel.
+     v1.13.2: hier stand bis eben "17 %". Das war die gerechnete Zahl aus der
+     Bildstrecke, nicht die eingebaute - der Aufruf trug 0,155. Der Kommentar
+     log also seit v1.5.1, und zwar gleichlautend an zwei Stellen. */
   if (ROHR_STATT_PERLEN) {
     const { leben, kraft } = rohrAnteile(piece);
     /* GEMESSEN AM GERENDERTEN BRETT (Besitzerbefund "viel zu hoch, der Sockel
        schaut unten raus"): bei bottom -0,02 em sass das Rohr auf der
        Sockeloberkante und liess den Sockelfuss stehen. Es muss TIEFER - so
        tief, dass es den Sockel verschluckt, wie in der Bildstrecke. */
-    return <span style={{ position: "absolute", bottom: "-0.085em", left: "50%",
+    /* v1.14.1: Mitte des Rohrs auf der Sockellinie - siehe sockelLinieEm. */
+    const mitte = sockelLinieEm(piece);
+    return <span style={{ position: "absolute", bottom: `${(mitte - ROHR_HOEHE_VON_ZELLE / 2).toFixed(4)}em`, left: "50%",
       transform: "translateX(-50%)", zIndex: 3, pointerEvents: "none", lineHeight: 0 }}>
       {/* Die Masse rechnen in em, damit sie mit der Zelle wachsen: die Figur
           ist 1 em breit, der Sockel nimmt davon rund 80 %, das Rohr 112 % des
-          Sockels. Die Hoehe sind 17 % der Zelle (gerechnet: 6,5-8,2 px auf
-          dem Telefon - unter 6 traegt die Glasoptik nicht). */}
+          Sockels. Die Hoehe sind 15,5 % der Zelle (5,9-7,4 px auf dem
+          Telefon) und stehen in ROHR_HOEHE_VON_ZELLE. */}
       <LebensRohr lebenAnteil={leben} kraftAnteil={kraft}
         talentBereit={kannWirken && !verbraucht}
         /* und SCHMALER: 0,80 em Sockelbreite war zu viel, weil die Figur die
@@ -213,7 +243,12 @@ function StatDuo({ piece, focus, shrink = 1 }) {
            hoeher als zuvor (Besitzer: "viel zu klein, muss viel hoeher sein,
            ich will den Sockel nicht mehr sehen"). */
         breite={`${(ROHR_BREITE_VOM_SOCKEL * 0.68).toFixed(3)}em`}
-        hoehe={`${(0.155).toFixed(3)}em`}
+        /* v1.13.2: AUS DER KONSTANTE, nicht mehr fest. Hier stand `0.155`
+           als nackte Zahl, waehrend ROHR_HOEHE_VON_ZELLE daneben 0,17 trug
+           und von niemandem gelesen wurde. Zwei Zahlen fuer ein Mass, eine
+           davon tot - wer die Konstante anfasste, aenderte nichts. Der Wert
+           ist derselbe geblieben, nur die Quelle ist jetzt eindeutig. */
+        hoehe={`${ROHR_HOEHE_VON_ZELLE.toFixed(3)}em`}
         /* AM BRETT gekruemmt - hier steht die Figur auf ihrem Sockel, und das
            Rohr nimmt dessen Woelbung auf. Ueberall sonst gilt die gerade
            Voreinstellung. */
@@ -573,6 +608,10 @@ export function PieceGlyph({ piece, showLevel = true, pov = "w", artStyle = "pai
   /* v1.0.80: der Leerraum unter DIESER Figur - fuer die gemeinsame Fusslinie. */
   const [fussLinie, setFussLinie] = useState(
     () => (painting && fusslinieAusCache(painting)) ?? HAUSLINIE);
+  /* v1.14.1: IM HP-GEFECHT ENDET DAS BILD AN DER SOCKELKANTE - der Teller
+     bleibt weg, das Rohr uebernimmt seinen Platz (siehe sockelLinieEm). */
+  const schneide = ROHR_STATT_PERLEN && !!painting && !big && !klassisch && hpMode && piece.maxHp > 0;
+  const schnitt = schneide ? `inset(0 0 ${(sockelKante * 100).toFixed(2)}% 0)` : undefined;
   useEffect(() => {
     let lebt = true;
     if (painting && !big) {
@@ -706,6 +745,7 @@ export function PieceGlyph({ piece, showLevel = true, pov = "w", artStyle = "pai
           </span>)}
         {painting
           ? <img src={painting} alt="" draggable={false} decoding="async" style={{ width: "100%", height: "100%",
+              clipPath: schnitt, WebkitClipPath: schnitt,
               // the gallery hangs in a dim hall — lift the paintings a step:
               // your golden court shines brighter, the steel foe a touch too
               objectFit: "contain", objectPosition: big ? "center" : "center bottom",
@@ -782,13 +822,14 @@ export function PieceGlyph({ piece, showLevel = true, pov = "w", artStyle = "pai
               bleibt, ist ein Hauch: schmaler, flacher, ein Viertel der alten
               Deckung, nur damit die Glut einen Boden hat.
               v1.0.66: im Ton der jeweiligen Seite. */}
-          {!nurSockel && <span aria-hidden style={{
+          {!nurSockel && !schneide && <span aria-hidden style={{
             position: "absolute", left: "50%", bottom: "-1%", width: "78%", height: "16%",
             transform: "translateX(-50%)", borderRadius: "50%", pointerEvents: "none",
             background: `radial-gradient(ellipse 50% 46% at 50% 58%, rgba(${GLUT_SCHEIN[ton][0]},${(0.12 + 0.10 * gefahr).toFixed(2)}) 0%, rgba(${GLUT_SCHEIN[ton][1]},${(0.08 + 0.08 * gefahr).toFixed(2)}) 46%, rgba(${GLUT_SCHEIN[ton][1]},0) 72%)`,
             filter: "blur(1.5px)" }} />}
           <img src={painting} alt="" aria-hidden draggable={false} decoding="async" style={{
             position: "absolute", inset: 0, width: "100%", height: "100%",
+            clipPath: schnitt, WebkitClipPath: schnitt,
             objectFit: "contain", objectPosition: big ? "center" : "center bottom",
             /* v1.0.66 (Besitzerbefund "zu hell"): DIE GLUT STEHT JETZT AUF DEM
                KOPF - im Sinne des Besitzers. Bisher lag ihr Maximum ganz
@@ -811,7 +852,7 @@ export function PieceGlyph({ piece, showLevel = true, pov = "w", artStyle = "pai
               schwarzer Schleier ueber den untersten Prozenten - er nimmt dem
               Fuss die Helligkeit, ohne die Glut zu senken. Im weissen Ton
               faellt er schwaecher aus, sonst frisst er das Licht. */}
-          {!nurSockel && <span aria-hidden style={{
+          {!nurSockel && !schneide && <span aria-hidden style={{
             position: "absolute", left: 0, right: 0, bottom: 0, height: "13%",
             pointerEvents: "none", borderRadius: "0 0 4px 4px",
             background: `linear-gradient(0deg, rgba(0,0,0,${ton === "weiss" ? 0.42 : 0.62}) 0%, rgba(0,0,0,${ton === "weiss" ? 0.18 : 0.28}) 45%, rgba(0,0,0,0) 100%)` }} />}

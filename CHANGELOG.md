@@ -1,5 +1,17 @@
 # Changelog - Grand Gambit
 
+## 1.14.1
+- DER SOCKEL IST FORT, DIE FIGUR STEHT IM ROHR (Besitzerwunsch seit v1.5.1:
+  "ich will den Sockel nicht mehr sehen"). Gemessen mit messe_rohr.mjs: der
+  Sockel ist 0,3 bis 0,4 Zellen hoch, das Rohr 0,155 - es schauten bei jeder
+  Figur 5 bis 10 px heraus, und ein Rohr, das ihn verschluckt, waere ein Fass.
+  Jetzt endet das Bild an der GEMESSENEN Sockelkante jeder Figur (clip-path),
+  und das Rohr sitzt mit seiner Mitte genau auf dieser Linie. Rohr und Schnitt
+  rechnen aus derselben Funktion (sockelLinieEm). Nachgemessen: 40 von 40
+  Figuren gedeckt. Nur im HP-Gefecht - in Klassik steht der Teller weiter.
+- Der Lebensrohr-Patch aus der Parallelsitzung ist mit drin: zwei tote
+  Konstanten beseitigt, data-gg="rohr" zum Messen, messe_rohr.mjs.
+
 ## 1.14.0
 - JEDE KACHEL IM HOFSTAAT TRAEGT IHRE KULISSE - so, wie es in der Bundsitzung
   abgemacht war: jede Figur das Bild ihres Bundes, jeder der zwoelf
