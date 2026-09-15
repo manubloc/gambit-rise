@@ -2,6 +2,8 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { mitHeld } from "../namen.js";   /* v1.0.13: {held} in Erzaehltexten */
 import { klang, klangVorwaermen, klangEinstellen } from "../klang.js";
 import { musikBereich } from "../musik.js";
+import { geleitTauschbar } from "../../../core/rules/buende.js";
+import { geleitCommand } from "../../../core/sim/commands.js";
 import { WHITE, BLACK, createGame, reduce, moveCommand, potionCommand, shiftCommand, status, undo, encodeState, decodeState, HP_REMIS_HALBZUEGE, VALUE,
   SPERR_ARTEN, MAX_SPERREN, setzFelder as sperrFelder, setzeSperre, nimmSperre, sperrenAnzahl } from "../../../core/index.js";
 import { difficultyById, mapById, MAPS, campaignTag, chapterForRow, CHARACTERS as CHARACTERS_BY_ID, voiceFor, ITEMS, KIND_TO_CHAR } from "../../../content/index.js";
@@ -349,6 +351,16 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
   const [rated, setRated] = useState(null);          // { rating, delta } after a pvp match
   const [rematch, setRematch] = useState("");        // "" | "wait" | "offer"
   const [banner, setBanner] = useState(null);
+  /* ── DER PLATZTAUSCH DES GELEITS (v1.12.1) ───────────────────────────────
+     Zwei Zustaende: ob der Knopf armiert ist, und welche Figur bereits
+     gewaehlt wurde. Beim zweiten Tippen tauschen sie.
+
+     Warum nicht einfach Zielfelder anzeigen wie bei einem Zug: der Tausch IST
+     kein Zug. Wuerde er so aussehen, erwartete man ein Zielfeld - und jede
+     Figur, die man antippt, waere ein moegliches Ziel. Der armierte Knopf
+     sagt vorher, was gleich passiert. */
+  const [geleitAktiv, setGeleitAktiv] = useState(false);
+  const [geleitWahl, setGeleitWahl] = useState(null);
   const [intro, setIntro] = useState(() => !resume && !!(match && match.node && (match.node.storyDe || match.node.storyEn)));
   // the life-battle briefing rides just behind the story card, every match,
   // until the player waves it off for good
@@ -909,6 +921,21 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
      stuende - der Setzbalken kam dann nie. */
   const setzPhase = setzen && !intro && !(brief && state.rules === "hp") && !banner && !scout && !scoutWaitOpp;
   const myTurn = (hotseat ? true : state.turn === myColor) && !banner && !scout && !scoutWaitOpp && !setzen && !(daily && dailySent);
+  /* Ist der Platztausch gerade moeglich? Nur wenn der Bund erwacht ist, alle
+     drei Figuren stehen und er noch nicht verbraucht wurde. */
+  const geleitFelder = geleitTauschbar(state, myColor);
+  const geleitOffen = !!geleitFelder;
+  /* Erst die eine Figur, dann die andere - beim zweiten Tippen tauschen sie.
+     Wer dieselbe zweimal tippt, nimmt die Wahl zurueck; das ist der
+     erwartete Weg zurueck, ohne einen eigenen Abbrechen-Knopf. */
+  const geleitTipp = (feld) => {
+    if (!geleitFelder || !geleitFelder.includes(feld)) return;
+    if (geleitWahl == null) { setGeleitWahl(feld); try { klang("menue"); } catch {} return; }
+    if (geleitWahl === feld) { setGeleitWahl(null); return; }
+    try { klang("zeitriss"); } catch {}
+    setState((s2) => reduce(s2, geleitCommand(myColor, geleitWahl, feld)).state);
+    setGeleitWahl(null); setGeleitAktiv(false);
+  };
   const st = status(state);
   const hpMode = state.rules === "hp";
   /* v0.86 (Besitzer): REINES SCHACH IST REINES SCHACH - gleich, auf welchem
@@ -1151,7 +1178,12 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
         <BoardView state={state} onMove={play} interactive={myTurn} showCoords={klassikOptik} lastMove={state.lastMove} animateFor={null} hotseat={hotseat} feld={feld} feldDunkel={feldDunkel} ruhig={armResign || !!banner} mattSeite={banner && (banner.reason === "checkmate" || banner.reason === "regicide") ? (banner.result === "win" ? (myColor === "w" ? "b" : "w") : myColor) : null} effekt={brettEffekt}
           flip={viewColor === BLACK} theme={{ ...(map.theme || {}), ...boardPalette(profile, match) }} fitBox pick={scout && pvp ? myColor : potionArm ? WHITE : null}
           onPick={scout && pvp ? scoutTap : usePotion} pov={viewColor}
-          setzFelder={setzPhase ? setzbar : null} onSetz={setzPhase ? setzeOderNimm : null}
+          /* v1.12.1: im Geleit-Modus dienen dieselben Regler der Figurenwahl.
+             setzFelder zeigt die drei Bundfiguren als waehlbar, onSetz nimmt
+             die Wahl entgegen - erst die eine, dann die andere, dann tauschen
+             sie. Ein eigener Klickweg waere doppelte Arbeit fuer dasselbe. */
+          setzFelder={setzPhase ? setzbar : (geleitAktiv ? geleitFelder : null)}
+          onSetz={setzPhase ? setzeOderNimm : (geleitAktiv ? geleitTipp : null)}
           knownKinds={knownAtStart} seerVision={seerVision} onEnemyTap={onEnemyTap} introSpot={introSpots} onInspect={setInspect}
           texture={boardTexture(match, profile)} ground={boardGround(match, profile)} artStyle={profile.pieceStyle === "svg" ? "svg" : klassikOptik ? "classic" : livery() === "carved" ? "carved" : "painted"} friendly={!!match?.friendly}
           pulse={classic ? 0.2 : match?.boss
@@ -1336,6 +1368,26 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
               style={kasten(state.shiftArmed === WHITE, myTurn || state.shiftArmed === WHITE)}>
               <span style={{ fontSize: 21, lineHeight: 1, color: "#b3a4e0" }}>⧗</span>
               <span style={zahl}>{state.shiftArmed === WHITE ? "✓" : (state.shifts?.w || 0)}</span>
+            </button>
+          )}
+          {/* ── DER GELEIT-KNOPF (v1.12.1) ───────────────────────────────────
+              Besitzerentscheid: "Ich faende es richtig, wenn du Geleit mit
+              einem Knopf aktivierbar machst und dann waehle ich eine Figur aus
+              und eine zweite und diese tauschen miteinander."
+
+              Er erscheint nur, wenn der Bund erwacht ist, alle drei Figuren
+              stehen und der Tausch noch offen ist - sonst waere er ein toter
+              Knopf, der Fragen aufwirft.
+
+              Ein Druck ARMIERT nur; die Wahl der zwei Figuren geschieht danach
+              auf dem Brett. Das ist derselbe Ablauf wie beim Riss-Sprung, den
+              der Spieler schon kennt. */}
+          {!pvp && !hotseat && !banner && geleitOffen && (
+            <button onClick={() => { if (!myTurn) return; try { klang("menue"); } catch {} setGeleitAktiv((v) => !v); }}
+              disabled={!myTurn} title={en ? "Escort: swap two of knight, bishop, rook" : "Geleit: zwei von Springer, Läufer, Turm tauschen"}
+              style={kasten(geleitAktiv, myTurn)}>
+              <span style={{ fontSize: 19, lineHeight: 1, color: "#b3a4e0" }}>⇄</span>
+              <span style={zahl}>{geleitAktiv ? (geleitWahl == null ? "1" : "2") : "1"}</span>
             </button>
           )}
           {!pvp && !hotseat && (profile.items?.hourglass || 0) > 0 && (

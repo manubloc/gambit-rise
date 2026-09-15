@@ -1455,6 +1455,22 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
     ok("ein erwachter Bund geht vor den Lehrstunden", app2.includes("&& !teach)\n    ? offenerBund(profile)"));
   }
 
+  /* v1.12.1: DER GELEIT-KNOPF. Besitzerentscheid: erst armieren, dann zwei
+     Figuren waehlen, dann tauschen sie. */
+  {
+    const gs = readFileSync("src/app/ui/screens/GameScreen.jsx", "utf8");
+    ok("der Knopf erscheint nur, wenn der Tausch offen ist", gs.includes("geleitOffen && ("));
+    ok("er armiert, statt sofort zu tauschen", gs.includes("setGeleitAktiv((v) => !v)"));
+    /* Die Wahl laeuft ueber denselben Weg wie das Setzen in der Aufstellung -
+       ein eigener Klickweg waere doppelte Arbeit fuer dasselbe. */
+    ok("die Wahl nutzt die vorhandenen Feldregler",
+      gs.includes("(geleitAktiv ? geleitFelder : null)") && gs.includes("(geleitAktiv ? geleitTipp : null)"));
+    ok("zweimal dieselbe Figur nimmt die Wahl zurueck",
+      gs.includes("if (geleitWahl === feld) { setGeleitWahl(null); return; }"));
+    ok("und nach dem Tausch ist der Knopf wieder aus",
+      gs.includes("setGeleitWahl(null); setGeleitAktiv(false);"));
+  }
+
   /* 2. Bauer und Grand Gambit tragen in der Aufstellung EIN Mass. */
   ok("kein getrenntes Mass mehr fuer Held und Bauer",
     !/isHero \? "clamp\(26px, 10\.5vw, 86px\)" : "clamp\(24px, 9\.4vw, 76px\)"/.test(q));
