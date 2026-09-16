@@ -55,3 +55,18 @@ export function kulisseFuer({ charId = null, bossId = null } = {}) {
 
 /* Fuer die Probe: jeder Grossmeister aus LEAGUE_BOSSES hat einen Eintrag. */
 export const GROSSMEISTER_IDS = LEAGUE_BOSSES;
+
+/* ── DIE FORM DES STUFEN-ABZEICHENS (v1.21.0) ─────────────────────────────────
+   Nach dem Wesen des Bundes: Medaillon fuer den Hof und die, die ein Kapitel
+   halten; Schild fuer Kaempfer und Mauer; Banner fuer Rat, Weg und See -
+   das Gesindel klaut sie; Siegel fuer das Arkane und das, was nicht
+   menschlich ist. */
+const FORM_BUND = { krone: "medaillon", nachtwache: "medaillon", geleit: "schild", schildwacht: "schild", sturm: "schild",
+  konzil: "banner", faehrte: "banner", gezeiten: "banner", schatten: "siegel", bannkreis: "siegel" };
+const FORM_GRUPPE = { gemaeuer: "schild", gesindel: "banner", brut: "siegel", untot: "siegel" };
+export function formFuer({ charId = null, bossId = null } = {}) {
+  if (bossId) return MEISTER_KULISSE[bossId] ? "medaillon" : FORM_GRUPPE[MONSTER_GRUPPE[bossId]] || "siegel";
+  if (charId === "dragon") return "siegel";
+  const bund = charId ? bundVon(charId) : null;
+  return (bund && FORM_BUND[bund]) || "medaillon";   // Bauer, Gambit: Medaillon
+}

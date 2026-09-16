@@ -1,5 +1,17 @@
 # Changelog - Grand Gambit
 
+## 1.21.0
+- DAS STUFEN-ABZEICHEN (Besitzerentscheid nach sechs Entwuerfen): drei Ebenen
+  in einem Zeichen. FORM nach Bund - Medaillon (Krone, Nachtwache, Bauer,
+  Gambit, Grossmeister), Schild (Geleit, Schildwacht, Sturm, Gemaeuer), Banner
+  (Konzil, Faehrte, Gezeiten, Gesindel), Siegel (Schatten, Bannkreis, Drache,
+  Brut, Untot). FARBE der Figur im gebeizten Innenfeld. METALL nach Stufe -
+  Bronze 1-3, Silber 4-6, Gold 7-9, Gold mit Lorbeer auf der Hoechststufe;
+  je Metall ein Zierat (Hammerschlag, Gravur, Filigran mit Steinen). Matte
+  Fassung mit Lichtband, Kordelrand, Patina, gemeisselte Elfenbeinziffer mit
+  dunkler Kontur. Fremdes grau ohne Metall. Gemessen: 32 Abzeichen, alle vier
+  Formen, alle Metalle.
+
 ## 1.20.2
 - STRATEGE UND KAPITAEN SASSEN ZU HOCH (Besitzerbefund) - genauer: die
   Amazone daneben sass zu tief. Ihre Talentspalte links wuchs mit zwei

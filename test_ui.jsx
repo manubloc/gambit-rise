@@ -702,6 +702,28 @@ const erloschen = (m) => m.includes("#2f2a3d");
   ok("ohne Zug steht rechts das Zeichen des Talents, gross", ohne.includes("♛") && ohne.includes("font-size:44px"));
 }
 
+/* ── DAS STUFEN-ABZEICHEN (v1.21.0) ────────────────────────────────────────
+   Drei Ebenen: Form nach Bund, Farbe der Figur, Metall nach Stufe. */
+{
+  const { StufenAbzeichen, metallFuer } = await import("./src/app/ui/StufenAbzeichen.jsx");
+  const { formFuer } = await import("./src/app/ui/kulissen.js");
+  ok("Bronze 1-3, Silber 4-6, Gold 7-9, Gold auf Zehn",
+    ["bronze","bronze","bronze","silber","silber","silber","gold","gold","gold","gold"].every((m, i) => metallFuer(i + 1, 10) === m));
+  ok("der Gambit misst sich an seiner eigenen Hoechststufe", metallFuer(12, 12) === "gold" && metallFuer(4, 12) === "bronze");
+  ok("Krone: Medaillon, Geleit: Schild, Konzil: Banner, Schatten: Siegel",
+    formFuer({ charId: "king" }) === "medaillon" && formFuer({ charId: "knight" }) === "schild" && formFuer({ charId: "queen" }) === "banner" && formFuer({ charId: "mage" }) === "siegel");
+  ok("Grossmeister: Medaillon, Gemaeuer: Schild, Gesindel: Banner, Brut: Siegel, Drache: Siegel",
+    formFuer({ bossId: "b12" }) === "medaillon" && formFuer({ bossId: "b01" }) === "schild" && formFuer({ bossId: "b04" }) === "banner" && formFuer({ bossId: "b03" }) === "siegel" && formFuer({ charId: "dragon" }) === "siegel");
+  const m = html(<StufenAbzeichen form="medaillon" stufe={10} maxStufe={10} farbe="#05479e" />);
+  ok("auf Zehn: goldenes Medaillon mit Lorbeer", m.includes('data-metall="gold"') && m.includes("--lorbeer:1") && m.includes("#sa-medaillon") && m.includes("#sa-zier-gold"));
+  const b = html(<StufenAbzeichen form="schild" stufe={2} farbe="#9e1d05" />);
+  ok("auf Zwei: bronzener Schild ohne Lorbeer, mit Hammerschlag", b.includes('data-metall="bronze"') && b.includes("--lorbeer:0") && b.includes("#sa-zier-bronze"));
+  const g = html(<StufenAbzeichen form="siegel" stufe={9} farbe="#935a9e" grau />);
+  ok("Fremdes ist grau, ohne Metall und Zierat", g.includes('data-metall="grau"') && !g.includes("sa-zier"));
+  const arm = readFileSync("src/app/ui/screens/ArmyScreen.jsx", "utf8");
+  ok("die Kachel traegt das Abzeichen und der Hofstaat die Zeichnung einmal", arm.includes("<StufenAbzeichen form={formFuer({ charId: artId, bossId })}") && (arm.match(/<AbzeichenDefs \/>/g) || []).length === 1);
+}
+
 /* ── DIE DECKS IM EDITOR (v1.15.0) ─────────────────────────────────────────
    Uebergabe, Punkt 3: drei Aufstellungen je Spieler, "Aufstellung I-III",
    umbenennbar; die Kartenauswahl erst ab Kapitel 5 - davor ist alles 8x8.

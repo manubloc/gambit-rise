@@ -31,7 +31,9 @@ import { KulisseHinterGrund } from "../KulissenBilder.jsx";
 import { BundTafel } from "../BundTafel.jsx";
 import { SockelBand, bandBekannt, bodenAusgleichProzent } from "../SockelBand.jsx";   /* v1.17.0: das Band im Sockel */
 import { paintedIdOf } from "../board/paintedArt.js";
-import { figurFarbe, hellDunkel } from "../figurfarbe.js";   /* v1.19.0: Medaillon und Kulisse in der Farbe der Figur */   /* v1.16.0: Bund, Kapitel, Gruppe, Herkunft - erst auf dem Blatt */
+import { figurFarbe, hellDunkel } from "../figurfarbe.js";   /* v1.19.0: Medaillon und Kulisse in der Farbe der Figur */
+import { StufenAbzeichen, AbzeichenDefs } from "../StufenAbzeichen.jsx";   /* v1.21.0 */
+import { formFuer } from "../kulissen.js";   /* v1.16.0: Bund, Kapitel, Gruppe, Herkunft - erst auf dem Blatt */
 import { CoinIc, SkillIc } from "../icons.jsx";
 import { ItemIcon } from "../ItemIcon.jsx";
 import { BoardView } from "../board/BoardView.jsx";
@@ -1824,17 +1826,14 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
             (Speichen aus einem konischen Verlauf) und Schattierung: Glanz
             oben, Schatten unten, ein Rand im helleren Ton. Grau fuer Fremdes,
             Violett nur noch, wenn keine Farbe bekannt ist. */}
+        {/* v1.21.0: DAS STUFEN-ABZEICHEN - Form nach Bund, Farbe der Figur,
+            Metall nach Stufe (Bronze, Silber, Gold, Lorbeer auf Zehn). 30 px,
+            ragt 4 px ueber die Kopfzeile, wie in der Vorlage. */}
         {stufe != null
-          ? (() => { const f = (dim || dark) ? "#5a5650" : (ton || figurFarbe(paintedIdOf(img)) || "#5b3fa6");
-              return <div data-stufe={String(stufe)} data-medaillon={f} style={{ width: 21, height: 21, flex: "0 0 auto", borderRadius: "50%",
-              display: "flex", alignItems: "center", justifyContent: "center", position: "relative", overflow: "hidden",
-              background: `repeating-conic-gradient(from 0deg, ${hellDunkel(f, 0.10)} 0deg 6deg, ${hellDunkel(f, -0.12)} 6deg 12deg)`,
-              border: `1px solid ${hellDunkel(f, 0.42)}`,
-              boxShadow: `0 1px 4px rgba(0,0,0,.55), inset 0 3px 5px rgba(255,255,255,.28), inset 0 -3px 5px rgba(0,0,0,.45), 0 0 8px ${f}55`,
-              font: "700 10.5px Georgia, serif", color: "#fff6dc", textShadow: "0 1px 1px rgba(0,0,0,.7)", lineHeight: "21px", height: 21 }}>
-              <span aria-hidden style={{ position: "absolute", inset: 0, borderRadius: "50%",
-                background: `radial-gradient(circle at 50% 42%, ${hellDunkel(f, 0.18)}cc 0%, ${f}88 45%, ${hellDunkel(f, -0.35)}dd 100%)` }} />
-              <span style={{ position: "relative" }}>{stufe}</span></div>; })()
+          ? <div style={{ width: 21, height: 21, flex: "0 0 auto", position: "relative" }}>
+              <div style={{ position: "absolute", top: -4, right: -5 }}>
+                <StufenAbzeichen form={formFuer({ charId: artId, bossId })} stufe={stufe} maxStufe={bossId ? BOSS_MAX_LEVEL : maxLevelFor(artId || "pawn")}
+                  farbe={ton || figurFarbe(paintedIdOf(img)) || "#5b3fa6"} grau={!!(dim || dark)} size={30} /></div></div>
           : <div style={{ width: 21, height: 21, flex: "0 0 auto" }} />}
       </div>
       {/* v1.0.11 (Besitzer): das ECK-SIGIL ist fort — die Kachel gehört ganz
@@ -2255,6 +2254,7 @@ export function ArmyScreen({ profile, dispatch, t, initialTab, account = null, i
         aus Taten und Popups nutzen initialTab="gear") - er steht nur nicht
         mehr in der Tab-Leiste, denn sein Zuhause ist jetzt das Lager. */}
     {tab === "gear" && <GearPanel profile={profile} dispatch={dispatch} t={t} en={en} initialGearInfo={initialGearInfo} />}
+    <AbzeichenDefs />
     {tab === "formation" && <FormationEditor profile={profile} dispatch={dispatch} t={t} en={en} />}
     {/* Die Chronik wohnt seit v0.51 in der AKADEMIE - ChroniclePanel bleibt hier nur exportiert. */}
     {tab === "tree" && <CodexTree profile={profile} dispatch={dispatch} t={t} en={en} onZoom={setZoomChar} account={account} />}
