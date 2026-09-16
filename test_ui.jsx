@@ -651,6 +651,38 @@ const erloschen = (m) => m.includes("#2f2a3d");
 }
 
 // ── 16. THE COURT WARNS WHILE A FIGHT RESTS ─────────────────────────────────
+/* ── DIE BUNDTAFEL AUF DEM BLATT (v1.16.0) ─────────────────────────────────
+   Besitzerentscheid: die Kachel traegt nur den Namen; Bund, Kapitel, Gruppe
+   und Herkunft stehen beim Antippen. Gerendert geprueft. */
+{
+  const { BundTafel, herkunftsWort } = await import("./src/app/ui/BundTafel.jsx");
+  const { BUENDE } = await import("./src/content/buende.js");
+  const { LEAGUE_BOSSES } = await import("./src/content/index.js");
+  const p0 = defaultProfile();
+  const m = html(<BundTafel profile={p0} charId="paladin" en={false} status="eigen" />);
+  ok("der Paladin sieht seinen Bund: Krone", m.includes("Bund · Krone") && m.includes('data-bundtafel="bund-krone"'));
+  ok("mit der Regel des Bundes", m.includes(BUENDE.krone.regelDe));
+  ok("und beiden Mitgliedern samt Stufe", m.includes('data-mitglied="paladin"') && m.includes('data-mitglied="king"') && /data-stufe="\d+"/.test(m));
+  ok("und dem Stand: 0 von 2 auf Hoechststufe", m.includes("0 von 2 auf Höchststufe"));
+  const pMax = { ...p0, pieces: { ...p0.pieces, levels: { ...(p0.pieces?.levels || {}), paladin: 10, king: 10 } } };
+  const m2 = html(<BundTafel profile={pMax} charId="paladin" en={false} />);
+  ok("stehen alle auf Zehn, heisst es: erwacht", m2.includes("erwacht"));
+  const m3 = html(<BundTafel profile={p0} charId="pawn" en={false} status="eigen" />);
+  ok("der Bauer hat keinen Bund - das Blatt sagt es und zeigt trotzdem seine Kulisse", m3.includes("Ohne Bund") && m3.includes('data-bundtafel="figur-bauer"'));
+  const m4 = html(<BundTafel profile={p0} charId="dragon" en={false} />);
+  ok("der Drache: erbeutetes Ungeheuer, kein Bund", m4.includes("Ungeheuer") && m4.includes('data-bundtafel="drache"'));
+  const m5 = html(<BundTafel profile={p0} bossId={LEAGUE_BOSSES[6]} en={false} status="verbuendet" />);
+  ok("ein Grossmeister nennt sein Kapitel (VII) und die Herkunft", m5.includes("Großmeister · Kapitel VII") && m5.includes("Verbündet"));
+  const m6 = html(<BundTafel profile={p0} bossId="b03" en={false} status="gesichtet" />);
+  ok("ein Monster nennt seine Gruppe (Brut) und die Herkunft", m6.includes("Gruppe · Brut") && m6.includes("Gesichtet") && m6.includes('data-bundtafel="monster-brut"'));
+  const m7 = html(<BundTafel profile={p0} charId="paladin" en={true} />);
+  ok("auf Englisch: Covenant · Crown", m7.includes("Covenant · Crown") && m7.includes(BUENDE.krone.regelEn));
+  ok("die Herkunftsworte sind die alten Kachelworte", herkunftsWort("eigen", false) === "Im Hof" && herkunftsWort("begegnet", true) === "Met in battle");
+  const arm = readFileSync("src/app/ui/screens/ArmyScreen.jsx", "utf8");
+  ok("das Figurenblatt traegt die Tafel", arm.includes('<BundTafel profile={profile} charId={char.id}'));
+  ok("und das Monsterblatt auch", arm.includes('<BundTafel profile={profile} bossId={b.id}'));
+}
+
 /* ── DIE DECKS IM EDITOR (v1.15.0) ─────────────────────────────────────────
    Uebergabe, Punkt 3: drei Aufstellungen je Spieler, "Aufstellung I-III",
    umbenennbar; die Kartenauswahl erst ab Kapitel 5 - davor ist alles 8x8.

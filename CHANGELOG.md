@@ -1,5 +1,17 @@
 # Changelog - Grand Gambit
 
+## 1.16.0
+- DIE BUNDTAFEL AUF DEM BLATT: was die Kachel nicht mehr traegt, steht beim
+  Antippen - Bund mit Regel, Mitgliedern samt Stufe und Stand (x von n auf
+  Hoechststufe / erwacht), Geschichte; bei Grossmeistern das Kapitel, bei
+  Monstern die Gruppe, dazu die Herkunft (Im Hof, Verbuendet, Begegnet,
+  Gesichtet). Bauer, Gambit und Drache: "Ohne Bund", mit eigener Kulisse. Die
+  Tafel spricht die Sprache der Kachel: Kulissenstreifen, Kapitaelchen,
+  Serife, Stufenkreise. In voller Breite unter dem Kopf des Blatts.
+- RICHTLINIEN festgehalten in docs/richtlinien-hofstaat.md (Besitzer: "daraus
+  Guidelines ableiten") - sechs Regeln fuer Kachel, Blatt, Kulisse, Farbe,
+  Schrift und Messen.
+
 ## 1.15.1
 - EINE KACHEL FUER ALLE (Besitzervorlage): oben links die Talente, in der
   Mitte das Lebensrohr, rechts die Stufe; darunter die Figur, unten nur der

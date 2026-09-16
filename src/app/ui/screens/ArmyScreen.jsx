@@ -28,6 +28,7 @@ import { paintedFitById, paintedFitFor, paintedById, paintedForPiece, schlichtAn
 import { GAMBIT_STUFEN } from "../board/gambitStufen.js";
 import { kulisseFuer } from "../kulissen.js";
 import { KulisseHinterGrund } from "../KulissenBilder.jsx";
+import { BundTafel } from "../BundTafel.jsx";   /* v1.16.0: Bund, Kapitel, Gruppe, Herkunft - erst auf dem Blatt */
 import { CoinIc, SkillIc } from "../icons.jsx";
 import { ItemIcon } from "../ItemIcon.jsx";
 import { BoardView } from "../board/BoardView.jsx";
@@ -679,6 +680,9 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
         </div>
       </div>
     </div>
+    {/* v1.16.0: DIE BUNDTAFEL - was die Kachel nicht mehr traegt, steht hier,
+        in voller Breite unter dem Kopf, nicht in der schmalen Spalte neben dem Bild */}
+    {open && <BundTafel profile={profile} charId={char.id} en={en} status={unlocked ? "eigen" : null} />}
     {open && epic && (
       <div style={{ marginTop: 7, fontSize: 11.5, lineHeight: 1.5 }}>
         <span style={{ color: T.gold, fontWeight: 700 }}>{t("army.gambitTag")}</span>{" "}
@@ -2079,6 +2083,9 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
               </div>
               {/* v1.0.11 (Besitzer): das Vektor-Zeichen im Kopf ist fort. */}
             </div>
+            {/* v1.16.0: Kapitel oder Gruppe, und die Herkunft - vorher auf der Kachel */}
+            <BundTafel profile={profile} bossId={b.id} en={en}
+              status={bribedSet.has(b.id) ? "verbuendet" : ownedBossSet.has(b.id) ? "eigen" : met.has("X:" + b.id) ? "begegnet" : sighted.has(b.id) ? "gesichtet" : null} />
             {(en ? b.flavorEn : b.flavorDe) && <div className="gg-serif" style={{ marginTop: 8, fontSize: 12, lineHeight: 1.45,
               color: "#b9a9c5", fontStyle: "italic" }}>„{en ? b.flavorEn : b.flavorDe}"</div>}
             {(() => {
