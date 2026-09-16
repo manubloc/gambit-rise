@@ -289,11 +289,37 @@ export const bossEntryId = (id) => (isBossEntry(id) ? id.slice(5) : null);
 export const BOSS_MAX_LEVEL = 5;
 export const bossLevelOf = (profile, bossId) => Math.max(1, Math.min(BOSS_MAX_LEVEL, profile?.pieces?.bossLevels?.[bossId] || 1));
 export const bossUpgradeCost = (level) => 1 + 2 * level;   // 2->3, 3->5, 4->7, 5->9
+/* ── DAS ZIELPROFIL JEDER MONSTERART (v1.23.0, Besitzer) ─────────────────────
+   "Alle Figuren, die man spielen kann und die gegen einen spielen, sollten in
+   maximalster Form alle Sachen abdecken." Gemessen vorher: 25 Monster
+   zwischen 19 und 39 % Blau, Budgets 14 bis 29 - dieselbe Enge wie bei den
+   Figuren vor v1.22.0. Jetzt dasselbe Budget wie jede Figur (24 auf der
+   Hoechststufe 5), verteilt von Bollwerk bis Klinge:
+     Bollwerk  - Koloss, Hueter, Bollwerk, Waechter
+     Standhaft - Brutmutter, Lanzenmeister, Osric, Richter, Seuchenkoenig
+     Ausgewogen- Doppelritter, Eisenfaust, Asra, Wandlerin, Blutmagd, Kanonier
+     Klinge    - Fluesterin, Schleicher, Streuner, Hetzer, Schattenfuerst,
+                 Skorpion, Sturmklaue, Zerreisser, Brandstifter, Geist
+   Das Wachstum laeuft linear vom Grundwert zum Ziel. */
+export const BOSS_BUDGET = 24;
+export const ZIEL_PROFIL_BOSS = {
+  b14: [21, 3], b20: [20, 4], b06: [20, 4], b01: [19, 5],
+  b03: [17, 7], b17: [17, 7], b25: [16, 8], b12: [16, 8], b24: [16, 8],
+  b10: [13, 11], b18: [12, 12], b23: [12, 12], b21: [13, 11], b16: [11, 13], b08: [10, 14],
+  b11: [8, 16], b04: [8, 16], b05: [9, 15], b02: [7, 17], b19: [7, 17], b09: [6, 18], b15: [6, 18], b22: [5, 19], b13: [5, 19], b07: [4, 20],
+};
 export function bossSpecLeveled(b, level) {
   const spec = bossSpec(b);
   const l = Math.max(1, Math.min(BOSS_MAX_LEVEL, level || 1));
-  const atkPlus = (l >= 3 ? 1 : 0) + (l >= 5 ? 1 : 0);
-  return { ...spec, level: l, hp: spec.hp + (l - 1), maxHp: spec.hp + (l - 1), atk: spec.atk + atkPlus };
+  const ziel = ZIEL_PROFIL_BOSS[b.id];
+  if (!ziel) {
+    const atkPlus = (l >= 3 ? 1 : 0) + (l >= 5 ? 1 : 0);
+    return { ...spec, level: l, hp: spec.hp + (l - 1), maxHp: spec.hp + (l - 1), atk: spec.atk + atkPlus };
+  }
+  const t = (l - 1) / Math.max(1, BOSS_MAX_LEVEL - 1);
+  const hp = Math.max(1, Math.round(spec.hp + t * (ziel[0] - spec.hp)));
+  const atk = Math.max(1, Math.round(spec.atk + t * (ziel[1] - spec.atk)));
+  return { ...spec, level: l, hp, maxHp: hp, atk };
 }
 export function upgradeBoss(profile, bossId) {
   const owned = new Set([...ownedLeagueBosses(profile), ...(profile.campaign?.bribedBosses || [])]);

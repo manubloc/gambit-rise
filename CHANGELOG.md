@@ -1,5 +1,23 @@
 # Changelog - Grand Gambit
 
+## 1.23.0
+- DIE MONSTER SIND GENAUSO GESPREIZT WIE DIE FIGUREN (Besitzer: "alle Figuren,
+  die man spielen kann und die gegen einen spielen, sollten in maximalster Form
+  alle Sachen abdecken"). Gemessen vorher: 25 Monster zwischen 19 und 39 %
+  Blau, Budgets 14 bis 29. Jetzt dasselbe Budget wie jede Figur (24 auf ihrer
+  Hoechststufe 5), von Koloss 21/3 (13 %) bis Geist 4/20 (83 %). 24 von 25
+  Monstern tragen je eine Faehigkeit; nur der Koloss keine.
+- ALLE FIGUREN GLEICH GROSS, DER TELLER IST DAS MASS (Besitzer): jede Figur
+  wird auf dieselbe Tellerbreite skaliert, um den Fuss herum; das Band
+  wandert mit. Der Hetzer (Teller fast doppelt so breit wie ein Springer)
+  steht jetzt in Reihe. Drache ausgenommen. Gemessen: 32 Teller 57,2-57,5 px
+  (Spanne 0,3; vorher 40-65), Bodenlinie weiter 0,0 px.
+- DAS ABZEICHEN mit gleichem Abstand nach oben und rechts (4/4 px, vorher
+  7/4); die Ziffer in der Farbwelt ihres Metalls - Bronze warm, Silber kuehl,
+  Gold gelblich.
+- GROSSMEISTER tragen einen leuchtenden violetten Rahmen im Hofstaat.
+- Die Kulisse der Figuren traegt den Farbschleier etwas staerker (30 statt 22 %).
+
 ## 1.22.2
 - JEDE FIGUR HAT DASSELBE BUDGET (Besitzer-Klarstellung): 24 Punkte Leben +
   Angriff auf der Hoechststufe fuer alle, nur der Drache 48 - er nimmt vier

@@ -59,7 +59,10 @@ export function StufenAbzeichen({ form = "medaillon", stufe = 1, maxStufe = 10, 
     {hoechst && <use href="#sa-lorbeer" data-lorbeer="1" />}
     <use href={`#sa-${form}`} />
     {zier && <use href={`#${zier}`} />}
+    {/* v1.23.0 (Besitzer): die Ziffer in der Farbwelt ihres Metalls - Bronze
+        warm, Silber kuehl, Gold gelblich, Grau stumpf - mit derselben dunklen
+        Kontur, damit sie auf jedem Feld steht. */}
     <text x="32" y={ZIFFER_Y[form] || 38.5} textAnchor="middle" fontSize={gross} fontWeight="800" fontFamily="Georgia, serif"
-      fill="url(#sa-elfenbein)" filter="url(#sa-gravur)">{n}</text>
+      fill={{ bronze: "#f6d9b8", silber: "#eef2f7", gold: "#fff0c2", grau: "#c9c5bc" }[metall]} filter="url(#sa-gravur)">{n}</text>
   </svg>;
 }

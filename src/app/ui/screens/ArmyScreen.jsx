@@ -27,9 +27,10 @@ import { PieceArt } from "../board/PieceArt.jsx";
 import { paintedFitById, paintedFitFor, paintedById, paintedForPiece, schlichtAn } from "../board/paintedArt.js";
 import { GAMBIT_STUFEN } from "../board/gambitStufen.js";
 import { kulisseFuer } from "../kulissen.js";
+import { LEAGUE_BOSSES } from "../../../content/index.js";   /* v1.23.0: Grossmeister-Rahmen */
 import { KulisseHinterGrund, KULISSE_URL } from "../KulissenBilder.jsx";
 import { BundTafel } from "../BundTafel.jsx";
-import { SockelBand, bandBekannt, bodenAusgleichProzent } from "../SockelBand.jsx";   /* v1.17.0: das Band im Sockel */
+import { SockelBand, bandBekannt, bodenAusgleichProzent, sockelSkalierung } from "../SockelBand.jsx";   /* v1.17.0: das Band im Sockel */
 import { paintedIdOf } from "../board/paintedArt.js";
 import { figurFarbe, hellDunkel } from "../figurfarbe.js";   /* v1.19.0: Medaillon und Kulisse in der Farbe der Figur */
 import { StufenAbzeichen, AbzeichenDefs } from "../StufenAbzeichen.jsx";   /* v1.21.0 */
@@ -1797,7 +1798,7 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
   };
 
   const Tile = ({ img, name, dim, dark, action, glow, origin, onOpen, sigil = null, sigilBig = null, stufe = null, kind = null, hero = false, lvl = 1,
-    werte = null, xpAnteil = null, artId = null, bossId = null, talente = [], ton = null }) => (
+    werte = null, xpAnteil = null, artId = null, bossId = null, talente = [], ton = null, meister = false }) => (
     /* v1.0.11 (Besitzer): die Kachel KLINGT beim Tippen. Der Klangfaenger
        hoert nur auf button/[role=button] — diese div blieb stumm. */
     /* v1.14.0: DIE KACHEL TRAEGT DIE KULISSE IHRES BUNDES (Besitzerentscheid
@@ -1812,7 +1813,9 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
       background: "radial-gradient(130% 120% at 50% -12%, rgba(124,58,237,.20) 0%, rgba(34,22,60,.55) 46%, rgba(12,8,22,.7) 100%)",
       border: `1px solid ${glow ? T.gold : "rgba(124,58,237,.38)"}`,
       borderRadius: 11, padding: "10px 7px 9px", textAlign: "center", minWidth: 0, cursor: onOpen ? "pointer" : "default",
-      boxShadow: glow ? "0 0 10px rgba(240,206,122,.22)" : "0 0 6px rgba(124,58,237,.12)" }}>
+      /* v1.23.0 (Besitzer): Grossmeister tragen einen leuchtenden violetten Rahmen */
+      ...(meister ? { border: "1px solid rgba(167,139,250,.85)", boxShadow: "0 0 14px rgba(124,58,237,.55), inset 0 0 10px rgba(124,58,237,.18)" } : null),
+      boxShadow: meister ? "0 0 14px rgba(124,58,237,.55), inset 0 0 10px rgba(124,58,237,.18)" : glow ? "0 0 10px rgba(240,206,122,.22)" : "0 0 6px rgba(124,58,237,.12)" }}>
       {/* v1.15.1 (Besitzer): was noch nicht zu einem gehoert, steht in
           GRAUSTUFEN da - Kulisse wie Figur. Vorher fehlte dunklen Kacheln die
           Kulisse ganz, gedaempfte trugen sie farbig. Monster bekommen dazu
@@ -1821,7 +1824,7 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
           Figuren - aber schwaecher, sie tragen mehrere Farben. Ton der Figur
           aus der Messung (figurfarbe.json), 22 % statt 45 %. */}
       <KulisseHinterGrund name={kulisseFuer({ charId: artId, bossId })} deckung={dark ? 0.5 : dim ? 0.7 : 0.92}
-        grau={!!(dim || dark)} ton={ton || figurFarbe(paintedIdOf(img))} tonStaerke={ton ? 0.45 : 0.22} />
+        grau={!!(dim || dark)} ton={ton || figurFarbe(paintedIdOf(img))} tonStaerke={ton ? 0.45 : 0.30} />
       {/* v1.15.1: DIE KOPFZEILE - fuer JEDE Kachel gleich (Besitzervorlage):
           links die Talente, in der Mitte das Lebensrohr, rechts die Stufe.
           Monster tragen dieselbe Zeile; wo nichts zu zeigen ist, bleibt der
@@ -1861,7 +1864,8 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
         {stufe != null
           ? <div style={{ width: 21, height: 21, flex: "0 0 auto", position: "relative" }}>
               {/* v1.21.2 (Besitzer): groesser - 36 px statt 30, ragt 7 px ueber die Kopfzeile und 7 px in den Rand */}
-              <div style={{ position: "absolute", top: -7, right: -8 }}>
+              {/* v1.23.0 (Besitzer): gleicher Abstand nach oben und rechts - 4 px zum Kachelrand beidseits */}
+              <div style={{ position: "absolute", top: -7, right: -4 }}>
                 <StufenAbzeichen form={formFuer({ charId: artId, bossId })} stufe={stufe} maxStufe={bossId ? BOSS_MAX_LEVEL : maxLevelFor(artId || "pawn")}
                   farbe={ton || figurFarbe(paintedIdOf(img)) || "#5b3fa6"} grau={!!(dim || dark)} size={36} /></div></div>
           : <div style={{ width: 21, height: 21, flex: "0 0 auto" }} />}
@@ -1875,7 +1879,9 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
         </div>
       : img ? <div data-boden={bodenAusgleichProzent(paintedIdOf(img)).toFixed(2)} style={{ position: "relative", width: "118%", aspectRatio: "1 / 1", margin: "0 0 -7px -9%",
           /* v1.20.1: alle Figuren auf dieselbe Bodenlinie (siehe bodenAusgleichProzent) */
-          transform: `translateY(${bodenAusgleichProzent(paintedIdOf(img)).toFixed(2)}%)` }}>
+          /* v1.23.0: und alle auf dieselbe Tellerbreite (sockelSkalierung), um den Fuss herum */
+          transformOrigin: "50% 100%", "--skala": sockelSkalierung(paintedIdOf(img)).toFixed(3),
+          transform: `translateY(${bodenAusgleichProzent(paintedIdOf(img)).toFixed(2)}%) scale(var(--skala))` }}>
         {/* v1.17.0: Bild und Sockelband in EINEM Kasten mit denselben
             Massen, die vorher das Bild allein trug - so bleibt die
             Zentrierung (siehe unten), und der SVG liegt deckungsgleich. */}
@@ -2022,7 +2028,8 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
     const mSpec = bossSpecLeveled(b, mLv);
     const mWerte = rohrAnteile({ hp: mSpec.hp, atk: mSpec.atk, level: mLv, maxLevel: BOSS_MAX_LEVEL });
     const ton = b.accent || null;
-    if (bribedSet.has(b.id) || ownedBossSet.has(b.id)) return <Tile key={b.id} img={img} bossId={b.id} glow sigil={sig} sigilBig={sigBig} werte={mWerte} ton={ton}
+    const meister = LEAGUE_BOSSES.includes(b.id);
+    if (bribedSet.has(b.id) || ownedBossSet.has(b.id)) return <Tile key={b.id} img={img} bossId={b.id} glow meister={meister} sigil={sig} sigilBig={sigBig} werte={mWerte} ton={ton}
       onOpen={() => setDetail(k)} stufe={mLv}
       name={en ? b.nameEn : b.nameDe} origin={bribedSet.has(b.id) ? t("tree.allied") : t("tree.inCourt")} />;
     if (met.has(k)) {

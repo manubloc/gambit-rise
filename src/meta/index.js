@@ -39,7 +39,7 @@ export { emptyRecords, recordStage, totalBestMoves, fmtMs } from "./records.js";
 export { BOARDS, LB_MAX, mergeBoard, fetchBoard, submitScore } from "./leaderboard.js";
 
 export { SP_SHARD_GOLD, SP_SHARDS_PER_LEAGUE, SP_VAULT_MIN_CLEARED, spShardCap, buySpShard } from "./leveling.js";
-export { BOSS_MAX_LEVEL, bossLevelOf, bossUpgradeCost, bossSpecLeveled, upgradeBoss } from "./leveling.js";
+export { BOSS_MAX_LEVEL, bossLevelOf, bossUpgradeCost, bossSpecLeveled, ZIEL_PROFIL_BOSS, BOSS_BUDGET, upgradeBoss } from "./leveling.js";
 
 /* v1.0.43: die Freischalt-Ordnung - was wann aufgeht und welcher Satz es
    erklaert. Siehe freigaben.js. */

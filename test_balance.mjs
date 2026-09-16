@@ -258,5 +258,18 @@ if (failed > 0) process.exit(1);
   const q = Object.entries(ZIEL_PROFIL).map(([k, [h, a]]) => a / (h + a));
   ok(`die Verteilung reicht von ${Math.round(Math.min(...q) * 100)} % bis ${Math.round(Math.max(...q) * 100)} % Blau`, Math.min(...q) <= 0.15 && Math.max(...q) >= 0.8);
 }
+/* ── DIE MONSTER SIND GENAUSO GESPREIZT (v1.23.0) ─────────────────────────── */
+{
+  const { BOSSES } = await import("./src/content/index.js");
+  const { bossSpecLeveled, BOSS_MAX_LEVEL, ZIEL_PROFIL_BOSS, BOSS_BUDGET } = await import("./src/meta/index.js");
+  const l = Array.isArray(BOSSES) ? BOSSES : Object.values(BOSSES);
+  const w = l.map((b) => { const s = bossSpecLeveled(b, BOSS_MAX_LEVEL); return { id: b.id, hp: s.hp, atk: s.atk, q: s.atk / (s.hp + s.atk) }; });
+  const ohne = l.filter((b) => !ZIEL_PROFIL_BOSS[b.id]).map((b) => b.id);
+  ok(`jedes der ${l.length} Monster hat ein Zielprofil${ohne.length ? " (fehlen: " + ohne.join(", ") + ")" : ""}`, ohne.length === 0);
+  const falsch = w.filter((x) => x.hp + x.atk !== BOSS_BUDGET).map((x) => x.id);
+  ok(`jedes Monster hat auf der Hoechststufe ${BOSS_BUDGET} Punkte${falsch.length ? " (falsch: " + falsch.join(", ") + ")" : ""}`, falsch.length === 0);
+  const q = w.map((x) => x.q);
+  ok(`die Monster spannen von ${Math.round(Math.min(...q) * 100)} % bis ${Math.round(Math.max(...q) * 100)} % Blau (vorher 19 bis 39)`, Math.min(...q) <= 0.15 && Math.max(...q) >= 0.8);
+}
 console.log(`\nRESULT (Budget): ${passed} passed, ${failed} failed`);
 if (failed) process.exit(1);

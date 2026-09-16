@@ -49,7 +49,9 @@ import("./src/meta/leveling.js").then(({ bossUpgradeCost, bossSpecLeveled, upgra
     ok("Bestien lernen teuer: Kosten 5,7,9,11 steigen ueberproportional", k.join(",") === "5,7,9,11" && (k[1] - k[0]) === 2);
     const b = bossById("b01");
     const l5 = bossSpecLeveled(b, 5);
-    ok("Rang 5 traegt +4 Leben und +2 Angriffskraft", l5.hp === b.hp + 4 && l5.atk === b.atk + 2 && l5.maxHp === l5.hp);
+    /* v1.23.0: Rang 5 erreicht das ZIELPROFIL der Art (Waechter 19/5, ein
+       Bollwerk), nicht mehr pauschal +4/+2 - siehe ZIEL_PROFIL_BOSS. */
+    ok("Rang 5 erreicht das Zielprofil des Waechters: 19 Leben, 5 Angriff", l5.hp === 19 && l5.atk === 5 && l5.maxHp === l5.hp);
     const prof = { sp: 20, pieces: {}, campaign: { bribedBosses: ["b01"] }, stats: {} };
     const p1 = upgradeBoss(prof, "b01");
     ok("ein bestochenes Wesen steigt im Rang und zahlt", p1.pieces.bossLevels.b01 === 2 && p1.sp === 20 - bossUpgradeCost(2));

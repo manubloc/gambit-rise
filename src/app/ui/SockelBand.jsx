@@ -25,10 +25,28 @@ export const bandBekannt = (paintedId) => !!(paintedId && MASS[paintedId]);
    gemeinsame Bodenlinie 555 setzt; Ausreisser (Bosse mit anderem Rahmen)
    werden bei +-6 % gekappt. */
 export const BODEN_LINIE = 555;
+/* v1.23.0 (Besitzer: "die Figuren sind zum Teil sehr unterschiedlich gross,
+   nimm den Sockel als Anhaltspunkt"): der Teller ist das Mass. Gemessen:
+   Figuren-Teller von 120 bis 204 px halber Breite (Median 136), Monster von
+   92 bis 249 (der Hetzer 249, fast doppelt so breit wie ein Springer). Jede
+   Figur wird so skaliert, dass ihr Teller die Zielbreite hat, um den Fuss
+   herum (transform-origin unten Mitte); das Band sitzt im selben Kasten und
+   wandert mit. Der Drache bleibt gross - er ist es. Gekappt bei 0,55 .. 1,35. */
+export const ZIEL_RX = 136;
+export function sockelSkalierung(paintedId) {
+  const m = paintedId && MASS[paintedId];
+  if (!m || paintedId === "dragon") return 1;
+  return Math.max(0.55, Math.min(1.35, ZIEL_RX / m.rx));   /* der Hetzer (rx 249) braucht 0,55 */
+}
+
 export function bodenAusgleichProzent(paintedId) {
   const m = paintedId && MASS[paintedId];
   if (!m) return 0;
-  return Math.max(-6, Math.min(6, ((BODEN_LINIE - m.boden) / m.H) * 100));
+  /* v1.23.0: mit der Skalierung um den Fuss herum liegt die Bodenkante bei
+     (H - boden) * k ueber der Unterkante; sie soll bei (H - 555) liegen. */
+  const k = sockelSkalierung(paintedId);
+  const soll = m.H - BODEN_LINIE, ist = (m.H - m.boden) * k;
+  return Math.max(-8, Math.min(8, ((ist - soll) / m.H) * 100));
 }
 
 /* Punkte auf dem vorderen Halbbogen der Ellipse, von links (theta = pi)

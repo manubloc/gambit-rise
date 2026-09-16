@@ -183,7 +183,16 @@ const kopf = await page.evaluate(() => {
     return n ? Math.round(n.getBoundingClientRect().top - kachel.getBoundingClientRect().top) : null;
   }).filter((v) => v !== null);
   const talente = document.querySelectorAll("[data-kopf] [data-talent]").length;
-  return { kacheln, stufen, grau, farbig, toene, meisterMitRohr, baender, boden, namen, talente };
+  /* v1.23.0: gleiche Tellerbreite - der Goldfuss jedes Bandes hat auf dem Schirm dieselbe Breite */
+  const teller = [...document.querySelectorAll("svg[data-gg=\"sockelband\"]")].map((sv) => {
+    const p = sv.querySelector("path"); const bb = p.getBBox(); const vb = sv.viewBox.baseVal; const r = sv.getBoundingClientRect();
+    const skala = r.width / vb.width;   /* getBoundingClientRect enthaelt die Skalierung schon */
+    return Math.round(bb.width * skala * 10) / 10;
+  });
+  const abz = [...document.querySelectorAll("svg[data-abzeichen]")].map((a) => { const k = a.closest("[data-kopf]").parentElement; const ra = a.getBoundingClientRect(), rk = k.getBoundingClientRect();
+    return [Math.round((ra.top - rk.top) * 10) / 10, Math.round((rk.right - ra.right) * 10) / 10]; });
+  const meister = document.querySelectorAll("img[data-kulisse^=\"meister-\"]").length;
+  return { kacheln, stufen, grau, farbig, toene, meisterMitRohr, baender, boden, namen, talente, teller, abz, meister };
 });
 const kopfH = [...new Set(kopf.kacheln.map((h) => String(h).split("|")[0]))];
 const rohrVersatz = kopf.kacheln.map((h) => String(h).split("|")[1]).filter((x) => x !== undefined).map(Number);
@@ -205,6 +214,12 @@ ok(`jedes Sockelband liegt deckungsgleich auf seinem Bild (${kopf.baender.length
   const n = [...new Set(kopf.namen)];
   ok(`die Namenszeile sitzt in jeder Kachel gleich hoch (${kopf.namen.length} Kacheln, ${n.join("/")} px unter der Kante)`, kopf.namen.length >= 50 && n.length === 1);
   ok(`- auch wenn Talente in der Spalte haengen (${kopf.talente} Talentzeichen im Hofstaat)`, kopf.talente >= 2);
+}
+{
+  const t = kopf.teller.filter((w) => w > 0); const mn = Math.min(...t), mx = Math.max(...t);
+  ok(`alle Teller sind gleich breit (${t.length} gemessen, ${mn}-${mx} px, Spanne ${(mx - mn).toFixed(1)} px; Drache ausgenommen)`, t.length >= 30 && (mx - mn) <= 14);
+  const o = [...new Set(kopf.abz.map((x) => x[0]))], r = [...new Set(kopf.abz.map((x) => x[1]))];
+  ok(`das Abzeichen hat ueberall denselben Abstand nach oben und rechts (${o.join("/")} / ${r.join("/")} px)`, o.length === 1 && r.length === 1 && Math.abs(o[0] - r[0]) <= 1);
 }
 const deckungen = [...new Set(gemessen.map((g) => g.deckung))];
 ok(`die Kulisse ist deutlich zu sehen, aber nicht ueber der Figur (Deckung ${deckungen.join("/")})`, deckungen.every((d) => Number(d) >= 0.5 && Number(d) < 1));
