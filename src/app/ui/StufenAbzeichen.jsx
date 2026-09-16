@@ -63,6 +63,6 @@ export function StufenAbzeichen({ form = "medaillon", stufe = 1, maxStufe = 10, 
         warm, Silber kuehl, Gold gelblich, Grau stumpf - mit derselben dunklen
         Kontur, damit sie auf jedem Feld steht. */}
     <text x="32" y={ZIFFER_Y[form] || 38.5} textAnchor="middle" fontSize={gross} fontWeight="800" fontFamily="Georgia, serif"
-      fill={{ bronze: "#f6d9b8", silber: "#eef2f7", gold: "#fff0c2", grau: "#c9c5bc" }[metall]} filter="url(#sa-gravur)">{n}</text>
+      fill={{ bronze: "#efb47c", silber: "#dde4ee", gold: "#f7d76c", grau: "#b9b5ac" }[metall]}   /* v1.23.2: deutlich im Ton - Kupfer, Silber, Gold */ filter="url(#sa-gravur)">{n}</text>
   </svg>;
 }

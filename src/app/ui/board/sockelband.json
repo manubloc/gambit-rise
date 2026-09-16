@@ -7,7 +7,8 @@
   "ry": 33.7,
   "boden": 559,
   "ring": 23,
-  "schatten": 1
+  "schatten": 1,
+  "oben": 26
  },
  "amazon": {
   "W": 576,
@@ -17,7 +18,8 @@
   "ry": 20.6,
   "boden": 557,
   "ring": 14,
-  "schatten": 1
+  "schatten": 1,
+  "oben": 21
  },
  "archbishop": {
   "W": 576,
@@ -27,7 +29,8 @@
   "ry": 24.7,
   "boden": 555,
   "ring": 21,
-  "schatten": 1
+  "schatten": 1,
+  "oben": 19
  },
  "assassin": {
   "W": 576,
@@ -37,7 +40,8 @@
   "ry": 34.5,
   "boden": 552,
   "ring": 22,
-  "schatten": 2
+  "schatten": 2,
+  "oben": 26
  },
  "bard": {
   "W": 576,
@@ -47,7 +51,8 @@
   "ry": 24.7,
   "boden": 560,
   "ring": 21,
-  "schatten": 0
+  "schatten": 0,
+  "oben": 19
  },
  "bishop": {
   "W": 576,
@@ -57,7 +62,8 @@
   "ry": 27.1,
   "boden": 557,
   "ring": 19,
-  "schatten": 1
+  "schatten": 1,
+  "oben": 22
  },
  "boss-archenemy": {
   "W": 193,
@@ -67,7 +73,8 @@
   "ry": 6.6,
   "boden": 381,
   "ring": 8,
-  "schatten": 5
+  "schatten": 5,
+  "oben": 5
  },
  "boss-b01": {
   "W": 576,
@@ -77,7 +84,8 @@
   "ry": 37.8,
   "boden": 559,
   "ring": 8,
-  "schatten": 2
+  "schatten": 2,
+  "oben": 26
  },
  "boss-b02": {
   "W": 576,
@@ -87,7 +95,8 @@
   "ry": 63.3,
   "boden": 575,
   "ring": 8,
-  "schatten": 0
+  "schatten": 0,
+  "oben": 1
  },
  "boss-b03": {
   "W": 576,
@@ -97,7 +106,8 @@
   "ry": 33.7,
   "boden": 550,
   "ring": 8,
-  "schatten": 4
+  "schatten": 4,
+  "oben": 32
  },
  "boss-b04": {
   "W": 576,
@@ -107,7 +117,8 @@
   "ry": 36.2,
   "boden": 550,
   "ring": 8,
-  "schatten": 10
+  "schatten": 10,
+  "oben": 33
  },
  "boss-b05": {
   "W": 576,
@@ -117,7 +128,8 @@
   "ry": 46.9,
   "boden": 552,
   "ring": 21,
-  "schatten": 4
+  "schatten": 4,
+  "oben": 31
  },
  "boss-b06": {
   "W": 576,
@@ -127,7 +139,8 @@
   "ry": 37.8,
   "boden": 535,
   "ring": 8,
-  "schatten": 6
+  "schatten": 6,
+  "oben": 70
  },
  "boss-b07": {
   "W": 576,
@@ -137,7 +150,8 @@
   "ry": 38.6,
   "boden": 559,
   "ring": 8,
-  "schatten": 5
+  "schatten": 5,
+  "oben": 25
  },
  "boss-b08": {
   "W": 576,
@@ -147,7 +161,8 @@
   "ry": 45.2,
   "boden": 550,
   "ring": 25,
-  "schatten": 4
+  "schatten": 4,
+  "oben": 34
  },
  "boss-b09": {
   "W": 576,
@@ -157,7 +172,8 @@
   "ry": 29.6,
   "boden": 553,
   "ring": 8,
-  "schatten": 5
+  "schatten": 5,
+  "oben": 22
  },
  "boss-b10": {
   "W": 576,
@@ -167,7 +183,8 @@
   "ry": 33.7,
   "boden": 559,
   "ring": 8,
-  "schatten": 2
+  "schatten": 2,
+  "oben": 44
  },
  "boss-b11": {
   "W": 576,
@@ -177,7 +194,8 @@
   "ry": 38.6,
   "boden": 555,
   "ring": 8,
-  "schatten": 7
+  "schatten": 7,
+  "oben": 37
  },
  "boss-b12": {
   "W": 576,
@@ -187,7 +205,8 @@
   "ry": 32.1,
   "boden": 555,
   "ring": 16,
-  "schatten": 2
+  "schatten": 2,
+  "oben": 28
  },
  "boss-b13": {
   "W": 576,
@@ -197,7 +216,8 @@
   "ry": 52.6,
   "boden": 547,
   "ring": 21,
-  "schatten": 2
+  "schatten": 2,
+  "oben": 48
  },
  "boss-b14": {
   "W": 576,
@@ -207,7 +227,8 @@
   "ry": 41.1,
   "boden": 552,
   "ring": 8,
-  "schatten": 7
+  "schatten": 7,
+  "oben": 48
  },
  "boss-b15": {
   "W": 576,
@@ -217,7 +238,8 @@
   "ry": 44.4,
   "boden": 542,
   "ring": 8,
-  "schatten": 4
+  "schatten": 4,
+  "oben": 46
  },
  "boss-b16": {
   "W": 576,
@@ -227,7 +249,8 @@
   "ry": 42.8,
   "boden": 554,
   "ring": 15,
-  "schatten": 3
+  "schatten": 3,
+  "oben": 23
  },
  "boss-b17": {
   "W": 576,
@@ -237,7 +260,8 @@
   "ry": 32.1,
   "boden": 560,
   "ring": 8,
-  "schatten": 7
+  "schatten": 7,
+  "oben": 27
  },
  "boss-b18": {
   "W": 576,
@@ -247,7 +271,8 @@
   "ry": 35.4,
   "boden": 556,
   "ring": 22,
-  "schatten": 4
+  "schatten": 4,
+  "oben": 45
  },
  "boss-b19": {
   "W": 576,
@@ -257,7 +282,8 @@
   "ry": 32.1,
   "boden": 557,
   "ring": 8,
-  "schatten": 13
+  "schatten": 13,
+  "oben": 20
  },
  "boss-b20": {
   "W": 576,
@@ -267,7 +293,8 @@
   "ry": 30.4,
   "boden": 562,
   "ring": 8,
-  "schatten": 21
+  "schatten": 21,
+  "oben": 21
  },
  "boss-b21": {
   "W": 576,
@@ -277,7 +304,8 @@
   "ry": 33.7,
   "boden": 554,
   "ring": 8,
-  "schatten": 5
+  "schatten": 5,
+  "oben": 29
  },
  "boss-b22": {
   "W": 576,
@@ -287,7 +315,8 @@
   "ry": 36.2,
   "boden": 533,
   "ring": 28,
-  "schatten": 2
+  "schatten": 2,
+  "oben": 54
  },
  "boss-b23": {
   "W": 576,
@@ -297,7 +326,8 @@
   "ry": 28.8,
   "boden": 558,
   "ring": 15,
-  "schatten": 3
+  "schatten": 3,
+  "oben": 22
  },
  "boss-b24": {
   "W": 576,
@@ -307,7 +337,8 @@
   "ry": 43.6,
   "boden": 552,
   "ring": 8,
-  "schatten": 4
+  "schatten": 4,
+  "oben": 42
  },
  "boss-b25": {
   "W": 576,
@@ -317,7 +348,8 @@
   "ry": 32.9,
   "boden": 559,
   "ring": 12,
-  "schatten": 4
+  "schatten": 4,
+  "oben": 32
  },
  "boss-beast": {
   "W": 205,
@@ -327,7 +359,8 @@
   "ry": 4.9,
   "boden": 381,
   "ring": 8,
-  "schatten": 6
+  "schatten": 6,
+  "oben": 4
  },
  "boss-golem": {
   "W": 206,
@@ -337,7 +370,8 @@
   "ry": 4.9,
   "boden": 381,
   "ring": 8,
-  "schatten": 6
+  "schatten": 6,
+  "oben": 4
  },
  "boss-leaguemaster": {
   "W": 269,
@@ -347,7 +381,8 @@
   "ry": 54.3,
   "boden": 382,
   "ring": 8,
-  "schatten": 2
+  "schatten": 2,
+  "oben": 2
  },
  "boss-serpent": {
   "W": 192,
@@ -357,7 +392,8 @@
   "ry": 6.6,
   "boden": 381,
   "ring": 8,
-  "schatten": 10
+  "schatten": 10,
+  "oben": 4
  },
  "boss-tyrant": {
   "W": 242,
@@ -367,7 +403,8 @@
   "ry": 6.6,
   "boden": 381,
   "ring": 8,
-  "schatten": 7
+  "schatten": 7,
+  "oben": 5
  },
  "boss-wraith": {
   "W": 191,
@@ -377,7 +414,8 @@
   "ry": 4.9,
   "boden": 381,
   "ring": 8,
-  "schatten": 9
+  "schatten": 9,
+  "oben": 3
  },
  "captain": {
   "W": 576,
@@ -387,7 +425,8 @@
   "ry": 27.1,
   "boden": 555,
   "ring": 25,
-  "schatten": 0
+  "schatten": 0,
+  "oben": 21
  },
  "chancellor": {
   "W": 576,
@@ -397,7 +436,8 @@
   "ry": 36.2,
   "boden": 553,
   "ring": 21,
-  "schatten": 1
+  "schatten": 1,
+  "oben": 44
  },
  "dragon": {
   "W": 576,
@@ -407,7 +447,8 @@
   "ry": 41.9,
   "boden": 548,
   "ring": 8,
-  "schatten": 1
+  "schatten": 1,
+  "oben": 35
  },
  "engineer": {
   "W": 576,
@@ -417,7 +458,8 @@
   "ry": 28.8,
   "boden": 556,
   "ring": 20,
-  "schatten": 0
+  "schatten": 0,
+  "oben": 31
  },
  "gambit-t1": {
   "W": 576,
@@ -427,7 +469,8 @@
   "ry": 26.3,
   "boden": 555,
   "ring": 20,
-  "schatten": 0
+  "schatten": 0,
+  "oben": 21
  },
  "gambit-t2": {
   "W": 576,
@@ -437,7 +480,8 @@
   "ry": 28.8,
   "boden": 555,
   "ring": 22,
-  "schatten": 0
+  "schatten": 0,
+  "oben": 21
  },
  "gambit-t3": {
   "W": 576,
@@ -447,7 +491,8 @@
   "ry": 27.1,
   "boden": 555,
   "ring": 22,
-  "schatten": 0
+  "schatten": 0,
+  "oben": 21
  },
  "gambit-t4": {
   "W": 576,
@@ -457,7 +502,8 @@
   "ry": 26.3,
   "boden": 555,
   "ring": 21,
-  "schatten": 0
+  "schatten": 0,
+  "oben": 21
  },
  "gambit-t5": {
   "W": 576,
@@ -467,7 +513,8 @@
   "ry": 28.0,
   "boden": 555,
   "ring": 22,
-  "schatten": 0
+  "schatten": 0,
+  "oben": 21
  },
  "gambit-t6": {
   "W": 576,
@@ -477,7 +524,8 @@
   "ry": 28.0,
   "boden": 555,
   "ring": 21,
-  "schatten": 0
+  "schatten": 0,
+  "oben": 21
  },
  "gambit": {
   "W": 576,
@@ -487,7 +535,8 @@
   "ry": 26.3,
   "boden": 555,
   "ring": 20,
-  "schatten": 0
+  "schatten": 0,
+  "oben": 21
  },
  "guardian": {
   "W": 576,
@@ -497,7 +546,8 @@
   "ry": 34.5,
   "boden": 558,
   "ring": 8,
-  "schatten": 1
+  "schatten": 1,
+  "oben": 22
  },
  "haendler": {
   "W": 576,
@@ -507,7 +557,8 @@
   "ry": 44.4,
   "boden": 533,
   "ring": 8,
-  "schatten": 6
+  "schatten": 6,
+  "oben": 23
  },
  "hawk": {
   "W": 576,
@@ -517,7 +568,8 @@
   "ry": 24.7,
   "boden": 557,
   "ring": 8,
-  "schatten": 2
+  "schatten": 2,
+  "oben": 26
  },
  "inquisitor": {
   "W": 576,
@@ -527,7 +579,8 @@
   "ry": 29.6,
   "boden": 548,
   "ring": 20,
-  "schatten": 1
+  "schatten": 1,
+  "oben": 22
  },
  "king": {
   "W": 576,
@@ -537,7 +590,8 @@
   "ry": 24.7,
   "boden": 557,
   "ring": 17,
-  "schatten": 1
+  "schatten": 1,
+  "oben": 23
  },
  "knight": {
   "W": 576,
@@ -547,7 +601,8 @@
   "ry": 24.7,
   "boden": 557,
   "ring": 15,
-  "schatten": 1
+  "schatten": 1,
+  "oben": 25
  },
  "mage": {
   "W": 576,
@@ -557,7 +612,8 @@
   "ry": 27.1,
   "boden": 560,
   "ring": 22,
-  "schatten": 1
+  "schatten": 1,
+  "oben": 18
  },
  "paladin": {
   "W": 576,
@@ -567,7 +623,8 @@
   "ry": 34.5,
   "boden": 560,
   "ring": 18,
-  "schatten": 0
+  "schatten": 0,
+  "oben": 23
  },
  "pathfinder": {
   "W": 576,
@@ -577,7 +634,8 @@
   "ry": 37.0,
   "boden": 555,
   "ring": 21,
-  "schatten": 1
+  "schatten": 1,
+  "oben": 27
  },
  "pawn-t2": {
   "W": 576,
@@ -587,7 +645,8 @@
   "ry": 27.1,
   "boden": 555,
   "ring": 23,
-  "schatten": 0
+  "schatten": 0,
+  "oben": 21
  },
  "pawn-t3": {
   "W": 576,
@@ -597,7 +656,8 @@
   "ry": 26.3,
   "boden": 555,
   "ring": 22,
-  "schatten": 0
+  "schatten": 0,
+  "oben": 21
  },
  "pawn": {
   "W": 576,
@@ -607,7 +667,8 @@
   "ry": 29.6,
   "boden": 555,
   "ring": 24,
-  "schatten": 0
+  "schatten": 0,
+  "oben": 21
  },
  "queen": {
   "W": 576,
@@ -617,7 +678,8 @@
   "ry": 28.0,
   "boden": 567,
   "ring": 16,
-  "schatten": 1
+  "schatten": 1,
+  "oben": 19
  },
  "rook": {
   "W": 576,
@@ -627,7 +689,8 @@
   "ry": 28.8,
   "boden": 556,
   "ring": 25,
-  "schatten": 2
+  "schatten": 2,
+  "oben": 26
  },
  "schatzkammer": {
   "W": 576,
@@ -637,7 +700,8 @@
   "ry": 86.3,
   "boden": 633,
   "ring": 8,
-  "schatten": 2
+  "schatten": 2,
+  "oben": 0
  },
  "seeress": {
   "W": 576,
@@ -647,7 +711,8 @@
   "ry": 31.2,
   "boden": 553,
   "ring": 19,
-  "schatten": 0
+  "schatten": 0,
+  "oben": 30
  },
  "sorceress": {
   "W": 576,
@@ -657,7 +722,8 @@
   "ry": 28.0,
   "boden": 559,
   "ring": 19,
-  "schatten": 1
+  "schatten": 1,
+  "oben": 22
  },
  "standard": {
   "W": 576,
@@ -667,7 +733,8 @@
   "ry": 25.5,
   "boden": 559,
   "ring": 8,
-  "schatten": 0
+  "schatten": 0,
+  "oben": 14
  },
  "strategist": {
   "W": 576,
@@ -677,7 +744,8 @@
   "ry": 32.1,
   "boden": 556,
   "ring": 66,
-  "schatten": 0
+  "schatten": 0,
+  "oben": 27
  },
  "warlock": {
   "W": 576,
@@ -687,6 +755,7 @@
   "ry": 39.5,
   "boden": 565,
   "ring": 18,
-  "schatten": 2
+  "schatten": 2,
+  "oben": 27
  }
 }

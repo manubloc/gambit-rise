@@ -30,7 +30,7 @@ import { kulisseFuer } from "../kulissen.js";
 import { LEAGUE_BOSSES } from "../../../content/index.js";   /* v1.23.0: Grossmeister-Rahmen */
 import { KulisseHinterGrund, KULISSE_URL } from "../KulissenBilder.jsx";
 import { BundTafel } from "../BundTafel.jsx";
-import { SockelBand, bandBekannt, bodenAusgleichProzent, sockelSkalierung } from "../SockelBand.jsx";   /* v1.17.0: das Band im Sockel */
+import { SockelBand, bandBekannt, bodenAusgleichProzent, sockelSkalierung, figurStreckung, tellerMitteProzent } from "../SockelBand.jsx";   /* v1.17.0: das Band im Sockel */
 import { paintedIdOf } from "../board/paintedArt.js";
 import { figurFarbe, hellDunkel } from "../figurfarbe.js";   /* v1.19.0: Medaillon und Kulisse in der Farbe der Figur */
 import { StufenAbzeichen, AbzeichenDefs } from "../StufenAbzeichen.jsx";   /* v1.21.0 */
@@ -1825,6 +1825,16 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
           aus der Messung (figurfarbe.json), 22 % statt 45 %. */}
       <KulisseHinterGrund name={kulisseFuer({ charId: artId, bossId })} deckung={dark ? 0.5 : dim ? 0.7 : 0.92}
         grau={!!(dim || dark)} ton={ton || figurFarbe(paintedIdOf(img))} tonStaerke={ton ? 0.45 : 0.30} />
+      {/* v1.23.2 (Besitzer, aus der Vorlage): DIE ECKVERZIERUNG - vier kleine
+          Goldwinkel mit Punkt, in jeder Ecke der Kachel, wie die Beschlaege
+          einer Kartenbox. Grau bei Fremdem, violett beim Grossmeister. */}
+      {[["0", "0", 0], ["auto", "0", 90], ["auto", "auto", 180], ["0", "auto", 270]].map(([t, l, rot], i) =>
+        <svg key={i} data-ecke={i} viewBox="0 0 16 16" width="14" height="14" aria-hidden style={{ position: "absolute", top: t === "0" ? 5 : "auto", bottom: t === "auto" ? 5 : "auto",
+          left: l === "0" ? 5 : "auto", right: l === "auto" ? 5 : "auto", transform: `rotate(${rot}deg)`, zIndex: 1, pointerEvents: "none", opacity: dark ? .35 : .85 }}>
+          <path d="M1.5 9.5V2.6c0-.6.5-1.1 1.1-1.1H9.5" fill="none" stroke={meister ? "#c3aaf5" : "#e9cf8a"} strokeWidth="1.3" strokeLinecap="round" />
+          <path d="M1.5 12.5c0 1.6 1 2.4 2.4 2.4M12.5 1.5c1.6 0 2.4 1 2.4 2.4" fill="none" stroke={meister ? "#c3aaf5" : "#e9cf8a"} strokeWidth="1" strokeLinecap="round" opacity=".8" />
+          <circle cx="4.6" cy="4.6" r="1.25" fill={meister ? "#c3aaf5" : "#e9cf8a"} />
+        </svg>)}
       {/* v1.15.1: DIE KOPFZEILE - fuer JEDE Kachel gleich (Besitzervorlage):
           links die Talente, in der Mitte das Lebensrohr, rechts die Stufe.
           Monster tragen dieselbe Zeile; wo nichts zu zeigen ist, bleibt der
@@ -1880,8 +1890,9 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
       : img ? <div data-boden={bodenAusgleichProzent(paintedIdOf(img)).toFixed(2)} style={{ position: "relative", width: "118%", aspectRatio: "1 / 1", margin: "0 0 -7px -9%",
           /* v1.20.1: alle Figuren auf dieselbe Bodenlinie (siehe bodenAusgleichProzent) */
           /* v1.23.0: und alle auf dieselbe Tellerbreite (sockelSkalierung), um den Fuss herum */
-          transformOrigin: "50% 100%", "--skala": sockelSkalierung(paintedIdOf(img)).toFixed(3),
-          transform: `translateY(${bodenAusgleichProzent(paintedIdOf(img)).toFixed(2)}%) scale(var(--skala))` }}>
+          transformOrigin: "50% 100%", "--skala": sockelSkalierung(paintedIdOf(img)).toFixed(3), "--streck": figurStreckung(paintedIdOf(img)).toFixed(3),
+          /* v1.23.2: auf den Teller zentriert, auf Bauernhoehe gestreckt (siehe SockelBand.jsx) */
+          transform: `translate(${tellerMitteProzent(paintedIdOf(img)).toFixed(2)}%, ${bodenAusgleichProzent(paintedIdOf(img)).toFixed(2)}%) scale(var(--skala), calc(var(--skala) * var(--streck)))` }}>
         {/* v1.17.0: Bild und Sockelband in EINEM Kasten mit denselben
             Massen, die vorher das Bild allein trug - so bleibt die
             Zentrierung (siehe unten), und der SVG liegt deckungsgleich. */}

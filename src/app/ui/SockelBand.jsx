@@ -39,12 +39,34 @@ export function sockelSkalierung(paintedId) {
   return Math.max(0.55, Math.min(1.35, ZIEL_RX / m.rx));   /* der Hetzer (rx 249) braucht 0,55 */
 }
 
+/* v1.23.2 (Besitzer, mit Screenshot): "der Turm muss groesser werden, aber
+   nicht der Sockel; der Gambit fast identisch wie der Bauer; der Laeufer
+   minimal kleiner; die Dame weiter nach links". Gemessen, nach der
+   Tellerskalierung: Turm 461 px hoch, Bauer 561, Laeufer 601, Gambit 603 -
+   und die Dame steht mit ihrem Teller 39,5 px rechts der Bildmitte. Der
+   Teller ist das Mass fuer die Breite (sockelSkalierung); die FIGUR wird
+   zusaetzlich auf die Hoehe des Bauern gezogen, nur senkrecht, vom Fuss aus
+   (bis +-20 %, sonst verzerrt es), und jede Figur wird auf ihren Teller
+   zentriert. */
+export const ZIEL_HOEHE = 561;   // der Bauer, die Vorlage des Besitzers
+export function figurStreckung(paintedId) {
+  const m = paintedId && MASS[paintedId];
+  if (!m || paintedId === "dragon" || m.oben == null) return 1;
+  const h = (m.boden - m.oben) * sockelSkalierung(paintedId);
+  return Math.max(0.85, Math.min(1.2, ZIEL_HOEHE / h));
+}
+export function tellerMitteProzent(paintedId) {
+  const m = paintedId && MASS[paintedId];
+  if (!m) return 0;
+  return -((m.cx - m.W / 2) / m.W) * 100;   // negativ = nach links
+}
+
 export function bodenAusgleichProzent(paintedId) {
   const m = paintedId && MASS[paintedId];
   if (!m) return 0;
   /* v1.23.0: mit der Skalierung um den Fuss herum liegt die Bodenkante bei
      (H - boden) * k ueber der Unterkante; sie soll bei (H - 555) liegen. */
-  const k = sockelSkalierung(paintedId);
+  const k = sockelSkalierung(paintedId) * figurStreckung(paintedId);   // v1.23.2: senkrecht zaehlt auch die Streckung
   const soll = m.H - BODEN_LINIE, ist = (m.H - m.boden) * k;
   return Math.max(-8, Math.min(8, ((ist - soll) / m.H) * 100));
 }

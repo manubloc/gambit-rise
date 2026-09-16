@@ -192,7 +192,15 @@ const kopf = await page.evaluate(() => {
   const abz = [...document.querySelectorAll("svg[data-abzeichen]")].map((a) => { const k = a.closest("[data-kopf]").parentElement; const ra = a.getBoundingClientRect(), rk = k.getBoundingClientRect();
     return [Math.round((ra.top - rk.top) * 10) / 10, Math.round((rk.right - ra.right) * 10) / 10]; });
   const meister = document.querySelectorAll("img[data-kulisse^=\"meister-\"]").length;
-  return { kacheln, stufen, grau, farbig, toene, meisterMitRohr, baender, boden, namen, talente, teller, abz, meister };
+  /* v1.23.2: Figurenhoehe - Scheitel des Bildes ueber der Bodenkante, auf dem Schirm */
+  const hoehen = [...document.querySelectorAll("[data-boden]")].map((w) => {
+    const img = w.querySelector("img"); if (!img) return null; const r = img.getBoundingClientRect();
+    const sv = w.querySelector("svg[data-gg=\"sockelband\"]"); if (!sv) return null; const vb = sv.viewBox.baseVal; const sr = sv.getBoundingClientRect();
+    const p = sv.querySelector("path"); const bb = p.getBBox(); const bodenPx = sr.top + (bb.y + bb.height) / vb.height * sr.height;
+    const st = getComputedStyle(w).getPropertyValue("--skala"); return Math.round((bodenPx - r.top) * 10) / 10;   /* r.top ist der Kastenrand, nicht der Scheitel - reicht als Vergleichsmass, da alle Bilder oben Luft haben */
+  }).filter((v) => v !== null);
+  const ecken = document.querySelectorAll("[data-ecke]").length;
+  return { kacheln, stufen, grau, farbig, toene, meisterMitRohr, baender, boden, namen, talente, teller, abz, meister, hoehen, ecken };
 });
 const kopfH = [...new Set(kopf.kacheln.map((h) => String(h).split("|")[0]))];
 const rohrVersatz = kopf.kacheln.map((h) => String(h).split("|")[1]).filter((x) => x !== undefined).map(Number);
@@ -221,6 +229,7 @@ ok(`jedes Sockelband liegt deckungsgleich auf seinem Bild (${kopf.baender.length
   const o = [...new Set(kopf.abz.map((x) => x[0]))], r = [...new Set(kopf.abz.map((x) => x[1]))];
   ok(`das Abzeichen hat ueberall denselben Abstand nach oben und rechts (${o.join("/")} / ${r.join("/")} px)`, o.length === 1 && r.length === 1 && Math.abs(o[0] - r[0]) <= 1);
 }
+ok(`jede Kachel traegt vier Eckverzierungen (${kopf.ecken} gemessen)`, kopf.ecken >= 52 * 4);
 const deckungen = [...new Set(gemessen.map((g) => g.deckung))];
 ok(`die Kulisse ist deutlich zu sehen, aber nicht ueber der Figur (Deckung ${deckungen.join("/")})`, deckungen.every((d) => Number(d) >= 0.5 && Number(d) < 1));
 const masse = gemessen[0] ? `${gemessen[0].w}x${gemessen[0].h}` : "-";

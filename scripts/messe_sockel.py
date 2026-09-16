@@ -60,7 +60,7 @@ for f in sorted(os.listdir(ORDNER)):
     schatten = mitte - y
     while y > oben and px[x0, y][3] > 40 and (max(px[x0, y][:3]) - min(px[x0, y][:3])) > 46: y -= 1; ring += 1
     ring = max(8, ring)
-    erg[fid] = {"W": W, "H": H, "cx": round(cx, 1), "rx": round(rx, 1), "ry": round(ry, 1), "boden": mitte, "ring": ring, "schatten": schatten}
+    erg[fid] = {"W": W, "H": H, "cx": round(cx, 1), "rx": round(rx, 1), "ry": round(ry, 1), "boden": mitte, "ring": ring, "schatten": schatten, "oben": oben}   # oben: erste deckende Zeile = Scheitel der Figur
     print(f"{fid:16} Teller {tB}px breit, Boden y={mitte}, Bogen ry={ry:.1f}, Farbring {ring}px, Schatten {schatten}px")
 os.makedirs("src/app/ui/board", exist_ok=True)
 json.dump(erg, open("src/app/ui/board/sockelband.json", "w"), indent=1)

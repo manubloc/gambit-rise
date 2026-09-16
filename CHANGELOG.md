@@ -1,5 +1,16 @@
 # Changelog - Grand Gambit
 
+## 1.23.2
+- DIE FIGUREN AUF BAUERNHOEHE, DER TELLER BLEIBT (Besitzer mit Screenshot):
+  gemessen nach der Tellerskalierung Turm 461 px hoch, Bauer 561, Laeufer
+  601, Gambit 603 - und die Dame mit ihrem Teller 39,5 px rechts der
+  Bildmitte. Jede Figur wird jetzt senkrecht auf die Hoehe des Bauern
+  gezogen (bis +-20 %) und auf ihren Teller zentriert; Teller und Band
+  bleiben, wo sie sind. Bodenlinie und Tellerbreite weiter gemessen 0,0/0,3.
+- DIE ZIFFER DEUTLICH IM METALLTON: Kupfer auf Bronze, Silber, Gold.
+- DIE ECKVERZIERUNG (aus der Vorlage): vier Goldwinkel mit Punkt in jeder
+  Kachelecke, violett beim Grossmeister, matt bei Fremdem. 208 gemessen.
+
 ## 1.23.1
 - PFLICHT IST NUR DER KOENIG (Besitzerentscheid): der Laeufer ist keine
   Pflichtfigur mehr und frei besetzbar wie Turm und Springer; jeder freie
