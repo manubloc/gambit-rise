@@ -167,7 +167,16 @@ const kopf = await page.evaluate(() => {
     const img = sv.parentElement.querySelector("img"); const a = sv.getBoundingClientRect(), b = img.getBoundingClientRect();
     return Math.max(Math.abs(a.left - b.left), Math.abs(a.top - b.top), Math.abs(a.width - b.width), Math.abs(a.height - b.height));
   });
-  return { kacheln, stufen, grau, farbig, toene, meisterMitRohr, baender };
+  /* v1.20.1: die Bodenlinie jeder Figur, relativ zur Unterkante ihrer Kachel */
+  const boden = [...document.querySelectorAll("[data-boden]")].map((w) => {
+    const sv = w.querySelector("svg[data-gg=\"sockelband\"]"); if (!sv) return null;
+    const vb = sv.viewBox.baseVal; const r = sv.getBoundingClientRect();
+    const seg = sv.querySelector("path"); const bb = seg.getBBox();   /* der Goldfuss: sein unterster Punkt ist die Bodenkante */
+    const yPx = r.top + (bb.y + bb.height) / vb.height * r.height;
+    const kachel = w.closest("[data-kopf]")?.parentElement || w.parentElement;
+    return Math.round((kachel.getBoundingClientRect().bottom - yPx) * 10) / 10;
+  }).filter((v) => v !== null);
+  return { kacheln, stufen, grau, farbig, toene, meisterMitRohr, baender, boden };
 });
 const kopfH = [...new Set(kopf.kacheln.map((h) => String(h).split("|")[0]))];
 const rohrVersatz = kopf.kacheln.map((h) => String(h).split("|")[1]).filter((x) => x !== undefined).map(Number);
@@ -181,6 +190,10 @@ ok(`was noch nicht zu einem gehoert, steht in Graustufen (${kopf.grau.length} gr
 ok(`Monster tragen einen Farbschleier im eigenen Ton (${kopf.toene})`, kopf.toene >= 12);
 ok(`Grossmeister und Monster tragen das Sockelband wie alle anderen (${kopf.meisterMitRohr})`, kopf.meisterMitRohr >= 25);
 ok(`jedes Sockelband liegt deckungsgleich auf seinem Bild (${kopf.baender.length} Baender, max. ${Math.max(...kopf.baender).toFixed(2)} px Abweichung)`, kopf.baender.length >= 30 && kopf.baender.every((d) => d <= 0.5));
+{
+  const b = kopf.boden; const mn = Math.min(...b), mx = Math.max(...b);
+  ok(`alle Figuren stehen auf derselben Bodenlinie (${b.length} gemessen, ${mn}-${mx} px ueber der Kachelkante, Spanne ${(mx - mn).toFixed(1)} px)`, b.length >= 30 && mx - mn <= 2.5);
+}
 const deckungen = [...new Set(gemessen.map((g) => g.deckung))];
 ok(`die Kulisse ist deutlich zu sehen, aber nicht ueber der Figur (Deckung ${deckungen.join("/")})`, deckungen.every((d) => Number(d) >= 0.5 && Number(d) < 1));
 const masse = gemessen[0] ? `${gemessen[0].w}x${gemessen[0].h}` : "-";

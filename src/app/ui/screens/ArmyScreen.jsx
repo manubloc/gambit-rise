@@ -29,7 +29,7 @@ import { GAMBIT_STUFEN } from "../board/gambitStufen.js";
 import { kulisseFuer } from "../kulissen.js";
 import { KulisseHinterGrund } from "../KulissenBilder.jsx";
 import { BundTafel } from "../BundTafel.jsx";
-import { SockelBand, bandBekannt } from "../SockelBand.jsx";   /* v1.17.0: das Band im Sockel */
+import { SockelBand, bandBekannt, bodenAusgleichProzent } from "../SockelBand.jsx";   /* v1.17.0: das Band im Sockel */
 import { paintedIdOf } from "../board/paintedArt.js";
 import { figurFarbe, hellDunkel } from "../figurfarbe.js";   /* v1.19.0: Medaillon und Kulisse in der Farbe der Figur */   /* v1.16.0: Bund, Kapitel, Gruppe, Herkunft - erst auf dem Blatt */
 import { CoinIc, SkillIc } from "../icons.jsx";
@@ -1838,7 +1838,9 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
         opacity: dark ? 0.5 : dim ? 0.7 : 1, filter: dark ? "brightness(0.35)" : "none" }}>
           <PieceArt kind={kind} size={"112%"} level={lvl} hero={hero} />   {/* v1.0.35: Kachelfigur groesser */}
         </div>
-      : img ? <div style={{ position: "relative", width: "118%", aspectRatio: "1 / 1", margin: "0 0 -7px -9%" }}>
+      : img ? <div data-boden={bodenAusgleichProzent(paintedIdOf(img)).toFixed(2)} style={{ position: "relative", width: "118%", aspectRatio: "1 / 1", margin: "0 0 -7px -9%",
+          /* v1.20.1: alle Figuren auf dieselbe Bodenlinie (siehe bodenAusgleichProzent) */
+          transform: `translateY(${bodenAusgleichProzent(paintedIdOf(img)).toFixed(2)}%)` }}>
         {/* v1.17.0: Bild und Sockelband in EINEM Kasten mit denselben
             Massen, die vorher das Bild allein trug - so bleibt die
             Zentrierung (siehe unten), und der SVG liegt deckungsgleich. */}

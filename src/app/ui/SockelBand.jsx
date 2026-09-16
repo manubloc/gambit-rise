@@ -17,6 +17,20 @@ import MASS from "./board/sockelband.json";
 
 export const bandBekannt = (paintedId) => !!(paintedId && MASS[paintedId]);
 
+/* v1.20.1 (Besitzer: "die Koenigin sitzt im Verhaeltnis zu den anderen nicht
+   richtig"): die Gemaelde haben nicht denselben unteren Rand - die Dame
+   steht mit dem Boden bei y=567, Koenig, Turm, Laeufer bei 555-557. Auf der
+   Kachel sass sie damit 1,9 % tiefer als ihre Nachbarn. Diese Funktion gibt
+   die Verschiebung in Prozent der Bildhoehe, die JEDE Figur auf die
+   gemeinsame Bodenlinie 555 setzt; Ausreisser (Bosse mit anderem Rahmen)
+   werden bei +-6 % gekappt. */
+export const BODEN_LINIE = 555;
+export function bodenAusgleichProzent(paintedId) {
+  const m = paintedId && MASS[paintedId];
+  if (!m) return 0;
+  return Math.max(-6, Math.min(6, ((BODEN_LINIE - m.boden) / m.H) * 100));
+}
+
 /* Punkte auf dem vorderen Halbbogen der Ellipse, von links (theta = pi)
    nach rechts (theta = 2 pi); y waechst nach unten. */
 function bogen(m, hoch, tA, tB, n = 18) {

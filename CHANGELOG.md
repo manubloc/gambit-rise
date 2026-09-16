@@ -1,5 +1,13 @@
 # Changelog - Grand Gambit
 
+## 1.20.1
+- ALLE FIGUREN STEHEN AUF DERSELBEN BODENLINIE (Besitzerbefund: "die Koenigin
+  sitzt im Verhaeltnis zu den anderen nicht richtig"). Die Gemaelde haben
+  nicht denselben unteren Rand: die Dame steht mit dem Boden bei y=567,
+  Koenig, Turm, Laeufer bei 555-557. Jede Kachel schiebt ihr Bild jetzt um
+  den gemessenen Unterschied auf die gemeinsame Linie 555 (sockelband.json).
+  Gemessen im Chromium: vorher 8,9 px Spanne zwischen den Figuren, jetzt 0,0.
+
 ## 1.20.0
 - DAS TALENT-FREISCHALTFENSTER (Uebergabe, Punkt 4): wie das Bundfenster -
   Figur links vor ihrer Kulisse, Zugdiagramm rechts, wo das Talent einen Zug
