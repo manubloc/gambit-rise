@@ -1831,9 +1831,10 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
             ragt 4 px ueber die Kopfzeile, wie in der Vorlage. */}
         {stufe != null
           ? <div style={{ width: 21, height: 21, flex: "0 0 auto", position: "relative" }}>
-              <div style={{ position: "absolute", top: -4, right: -5 }}>
+              {/* v1.21.2 (Besitzer): groesser - 36 px statt 30, ragt 7 px ueber die Kopfzeile und 7 px in den Rand */}
+              <div style={{ position: "absolute", top: -7, right: -8 }}>
                 <StufenAbzeichen form={formFuer({ charId: artId, bossId })} stufe={stufe} maxStufe={bossId ? BOSS_MAX_LEVEL : maxLevelFor(artId || "pawn")}
-                  farbe={ton || figurFarbe(paintedIdOf(img)) || "#5b3fa6"} grau={!!(dim || dark)} size={30} /></div></div>
+                  farbe={ton || figurFarbe(paintedIdOf(img)) || "#5b3fa6"} grau={!!(dim || dark)} size={36} /></div></div>
           : <div style={{ width: 21, height: 21, flex: "0 0 auto" }} />}
       </div>
       {/* v1.0.11 (Besitzer): das ECK-SIGIL ist fort — die Kachel gehört ganz

@@ -1,5 +1,10 @@
 # Changelog - Grand Gambit
 
+## 1.21.2
+- ABZEICHEN GROESSER UND KRAEFTIGER (Besitzer): 36 px statt 30 auf der Kachel;
+  die Figurenfarbe im Feld satter und heller gestellt (Saettigung x1,3,
+  Helligkeit 0,50), Beize und Randschatten leiser, damit sie durchkommt.
+
 ## 1.21.1
 - ABZEICHEN NACHGEZOGEN (Besitzerabnahme): die Lorbeerblaetter zeigen nach
   oben, entlang des Zweigs; der Lorbeer waechst auf der Hoechststufe um JEDE

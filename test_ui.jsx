@@ -718,7 +718,7 @@ const erloschen = (m) => m.includes("#2f2a3d");
   ok("auf Zehn: goldenes Medaillon mit Lorbeer", m.includes('data-metall="gold"') && m.includes('data-lorbeer="1"') && m.includes("#sa-medaillon") && m.includes("#sa-zier-gold"));
   const sch10 = html(<StufenAbzeichen form="schild" stufe={10} farbe="#9e1d05" />);
   ok("der Lorbeer waechst auch um den Schild", sch10.includes('data-lorbeer="1"'));
-  ok("das Innenfeld traegt die Figurenfarbe", m.includes("--t:#05479e") && !readFileSync("src/app/ui/abzeichenDefs.js", "utf8").includes('class="ton"'));
+  ok("das Innenfeld traegt die Figurenfarbe, kraeftiger gestellt", /--t:#[0-9a-f]{6}/.test(m) && !m.includes("--t:#05479e") && !readFileSync("src/app/ui/abzeichenDefs.js", "utf8").includes('class="ton"'));
   const b = html(<StufenAbzeichen form="schild" stufe={2} farbe="#9e1d05" />);
   ok("auf Zwei: bronzener Schild ohne Lorbeer, mit Hammerschlag", b.includes('data-metall="bronze"') && !b.includes("data-lorbeer") && b.includes("#sa-zier-bronze"));
   const g = html(<StufenAbzeichen form="siegel" stufe={9} farbe="#935a9e" grau />);
