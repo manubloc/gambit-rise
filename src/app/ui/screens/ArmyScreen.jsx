@@ -28,7 +28,9 @@ import { paintedFitById, paintedFitFor, paintedById, paintedForPiece, schlichtAn
 import { GAMBIT_STUFEN } from "../board/gambitStufen.js";
 import { kulisseFuer } from "../kulissen.js";
 import { KulisseHinterGrund } from "../KulissenBilder.jsx";
-import { BundTafel } from "../BundTafel.jsx";   /* v1.16.0: Bund, Kapitel, Gruppe, Herkunft - erst auf dem Blatt */
+import { BundTafel } from "../BundTafel.jsx";
+import { SockelBand, bandBekannt } from "../SockelBand.jsx";   /* v1.17.0: das Band im Sockel */
+import { paintedIdOf } from "../board/paintedArt.js";   /* v1.16.0: Bund, Kapitel, Gruppe, Herkunft - erst auf dem Blatt */
 import { CoinIc, SkillIc } from "../icons.jsx";
 import { ItemIcon } from "../ItemIcon.jsx";
 import { BoardView } from "../board/BoardView.jsx";
@@ -1799,7 +1801,7 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
              Rohrkoerper sitzt darin unten: gemessen 3,4 px unter der Mitte
              der Stufe. Um genau das hochgerueckt. */
           transform: "translateY(-3.4px)" }}>
-          {werte && <LebensRohr lebenAnteil={werte.leben} kraftAnteil={werte.kraft} talentBereit={false} breite="4.2em" hoehe="0.72em"
+          {werte && !bandBekannt(paintedIdOf(img)) && <LebensRohr lebenAnteil={werte.leben} kraftAnteil={werte.kraft} talentBereit={false} breite="4.2em" hoehe="0.72em"
             style={dim || dark ? { filter: "grayscale(1)", opacity: .6 } : undefined} />}
         </div>
         {/* Die Stufe: die Ziffer sitzt als Flex-Kind mit line-height 1 in der
@@ -1821,7 +1823,11 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
         opacity: dark ? 0.5 : dim ? 0.7 : 1, filter: dark ? "brightness(0.35)" : "none" }}>
           <PieceArt kind={kind} size={"112%"} level={lvl} hero={hero} />   {/* v1.0.35: Kachelfigur groesser */}
         </div>
-      : img ? <img src={img} alt="" decoding="async" /* v1.0.35 (Besitzer): "unter Figuren in den Kacheln koennten sie auch
+      : img ? <div style={{ position: "relative", width: "118%", aspectRatio: "1 / 1", margin: "0 0 -7px -9%" }}>
+        {/* v1.17.0: Bild und Sockelband in EINEM Kasten mit denselben
+            Massen, die vorher das Bild allein trug - so bleibt die
+            Zentrierung (siehe unten), und der SVG liegt deckungsgleich. */}
+        <img src={img} alt="" decoding="async" /* v1.0.35 (Besitzer): "unter Figuren in den Kacheln koennten sie auch
              noch etwas groesser sein." 104 % liessen an den Seiten Luft, die
              die Kachel groesser wirken liess als ihr Bild. Jetzt 118 % mit
              etwas mehr Ueberhang nach unten. */
@@ -1854,8 +1860,7 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
            die "verschobenen Kacheln". Jetzt zentriert der Rand ALLEIN:
            118 % Breite, -9 % links - kein Transform, nichts, was spaeter
            greifen koennte. Gleiches Ergebnis, eine Fehlerklasse weniger. */
-        style={{ width: "118%", aspectRatio: "1 / 1", objectFit: "contain", display: "block",
-        margin: "0 0 -7px -9%",
+        style={{ width: "100%", aspectRatio: "1 / 1", objectFit: "contain", display: "block",
         /* v1.0.59: HIER LAG DER ABSTURZ ("ch is not defined", Besitzer-Foto).
            Diese Kachel ist die generische Tile-Komponente - sie kennt die
            champTile-Variablen NICHT, sie bekommt kind und hero als PROPS.
@@ -1866,6 +1871,8 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
            jetzt nachgeholt (test_ui rendert die Kachel). */
         filter: dark ? "brightness(0) opacity(.55)" : dim ? "grayscale(1) brightness(.8)" : "brightness(1.14) saturate(1.05)",
         userSelect: "none" }} />
+        {werte && <SockelBand paintedId={paintedIdOf(img)} leben={werte.leben} kraft={werte.kraft} grau={!!(dim || dark)} id={`sb-${artId || bossId || "x"}`} />}
+        </div>
         : <div style={{ width: "100%", aspectRatio: "1 / 1", display: "grid", placeItems: "center", margin: "0 auto" }}>
             {/* NEVER A QUESTION MARK WHERE A FIGURE BELONGS. If no painting is
                 at hand, the tile shows the piece's own shape as a black

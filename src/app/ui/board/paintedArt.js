@@ -334,6 +334,10 @@ function paintedRoh(piece) {
 
 /** Painting by character id — for the court's character cards. */
 export const paintedById = (id) => PAINTED[id] || null;
+/* v1.17.0: der Weg zurueck - von der URL zur Id, damit das Sockelband weiss,
+   welches Gemaelde (und damit welche Sockelmessung) vor ihm liegt. */
+const URL_ZU_ID = new Map(Object.entries(PAINTED).map(([k, v]) => [v, k]));
+export const paintedIdOf = (url) => (url && URL_ZU_ID.get(url)) || null;
 
 // ── Base-width normalisation ────────────────────────────────────────────────
 // Every painting is 1024x1024, but each figure fills a different share of it,

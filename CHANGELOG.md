@@ -1,5 +1,18 @@
 # Changelog - Grand Gambit
 
+## 1.17.0
+- DAS BAND IM SOCKEL (Besitzervorlage "Integrated Status Display"): im
+  Hofstaat sitzt Leben/Staerke jetzt als Ring auf der Vorderseite des
+  Tellers - rot links, dunkel in der Mitte, blau rechts, in Gold gefasst,
+  mit Glanz oben und Rundungsschatten an den Enden. Jeder der 69 Sockel ist
+  einzeln vermessen (scripts/messe_sockel.py -> sockelband.json: Ellipse der
+  Bodenkante, Tellerbreite, gemalter Farbring), das Band wird in Bildpixeln
+  auf derselben Ellipse gezeichnet; der SVG liegt deckungsgleich auf dem
+  Bild (gemessen 0,00 px). Das Rohr in der Kopfzeile entfaellt, wo ein Band
+  ist. Bandhoehe 17 % der Tellerbreite. Das Brett folgt nach der Abnahme.
+- docs/backlog.md: Stufen-Medaillon in der Figurenfarbe, Farbangleich fuer
+  alle Kacheln, Sockelband auf dem Brett, Geleit-Kulisse.
+
 ## 1.16.0
 - DIE BUNDTAFEL AUF DEM BLATT: was die Kachel nicht mehr traegt, steht beim
   Antippen - Bund mit Regel, Mitgliedern samt Stufe und Stand (x von n auf

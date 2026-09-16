@@ -161,18 +161,26 @@ const kopf = await page.evaluate(() => {
   const farbig = [...document.querySelectorAll("img[data-kulisse][data-grau=\"0\"]")].map((i) => getComputedStyle(i).filter);
   const toene = [...document.querySelectorAll("[data-kulisse-ton]")].length;
   const meisterMitRohr = [...document.querySelectorAll("img[data-kulisse^=\"meister-\"], img[data-kulisse^=\"monster-\"]")]
-    .map((i) => !!i.parentElement.querySelector("[data-gg=\"rohr\"]")).filter(Boolean).length;
-  return { kacheln, stufen, grau, farbig, toene, meisterMitRohr };
+    .map((i) => !!i.parentElement.querySelector("svg[data-gg=\"sockelband\"]")).filter(Boolean).length;
+  const baender = [...document.querySelectorAll("svg[data-gg=\"sockelband\"]")].map((sv) => {
+    /* das Band muss auf dem Bild liegen: derselbe Kasten wie sein Bild */
+    const img = sv.parentElement.querySelector("img"); const a = sv.getBoundingClientRect(), b = img.getBoundingClientRect();
+    return Math.max(Math.abs(a.left - b.left), Math.abs(a.top - b.top), Math.abs(a.width - b.width), Math.abs(a.height - b.height));
+  });
+  return { kacheln, stufen, grau, farbig, toene, meisterMitRohr, baender };
 });
 const kopfH = [...new Set(kopf.kacheln.map((h) => String(h).split("|")[0]))];
 const rohrVersatz = kopf.kacheln.map((h) => String(h).split("|")[1]).filter((x) => x !== undefined).map(Number);
 ok(`die Stufe steht in jeder Kachel gleich hoch (${kopf.kacheln.length} Kacheln, ${kopfH.join("/")} px unter der Kante)`, kopf.kacheln.length >= 50 && kopfH.length === 1);
-ok(`und das Rohr liegt auf der Mitte der Stufe (${rohrVersatz.length} Rohre, max. ${Math.max(...rohrVersatz.map(Math.abs)).toFixed(1)} px daneben)`, rohrVersatz.length >= 30 && rohrVersatz.every((v) => Math.abs(v) <= 1.5));
+/* v1.17.0: das Band sitzt im Sockel - das Rohr in der Kopfzeile gibt es nur
+   noch fuer Figuren ohne Sockelmessung; die Kopfzeilenprobe misst nur noch die Stufe */
+ok(`kein Rohr mehr in der Kopfzeile, wo ein Sockelband ist (${rohrVersatz.length} Rohre)`, rohrVersatz.length === 0);
 const maxDx = Math.max(...kopf.stufen.map((s) => Math.abs(s.dx))), maxDy = Math.max(...kopf.stufen.map((s) => Math.abs(s.dy)));
 ok(`die Stufenziffer sitzt mittig im Kreis (${kopf.stufen.length} gemessen, max. Versatz ${maxDx.toFixed(2)}/${maxDy.toFixed(2)} px)`, kopf.stufen.length > 0 && maxDx <= 1 && maxDy <= 1);
 ok(`was noch nicht zu einem gehoert, steht in Graustufen (${kopf.grau.length} grau, ${kopf.farbig.length} farbig)`, kopf.grau.length > 0 && kopf.grau.every((f) => /grayscale/.test(f)) && kopf.farbig.every((f) => f === "none"));
 ok(`Monster tragen einen Farbschleier im eigenen Ton (${kopf.toene})`, kopf.toene >= 12);
-ok(`Grossmeister und Monster tragen das Rohr wie alle anderen (${kopf.meisterMitRohr})`, kopf.meisterMitRohr >= 25);
+ok(`Grossmeister und Monster tragen das Sockelband wie alle anderen (${kopf.meisterMitRohr})`, kopf.meisterMitRohr >= 25);
+ok(`jedes Sockelband liegt deckungsgleich auf seinem Bild (${kopf.baender.length} Baender, max. ${Math.max(...kopf.baender).toFixed(2)} px Abweichung)`, kopf.baender.length >= 30 && kopf.baender.every((d) => d <= 0.5));
 const deckungen = [...new Set(gemessen.map((g) => g.deckung))];
 ok(`die Kulisse ist deutlich zu sehen, aber nicht ueber der Figur (Deckung ${deckungen.join("/")})`, deckungen.every((d) => Number(d) >= 0.5 && Number(d) < 1));
 const masse = gemessen[0] ? `${gemessen[0].w}x${gemessen[0].h}` : "-";
