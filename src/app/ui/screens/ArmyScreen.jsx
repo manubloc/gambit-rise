@@ -719,6 +719,7 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
           })()}
         </div>
         {feier && <AufstiegsFeier art={feier.art} gambitTier={feier.tier || 1} bild={feier.bild}
+          charId={feier.charId} kind={feier.kind} abId={feier.abId}
           chName={en ? char.nameEn : char.nameDe} ab={feier.ab} t={t} onClose={() => setFeier(null)} />}
         {!maxed && <button disabled={!affordable}
           onClick={() => { klang("stufe");
@@ -826,7 +827,7 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
                  Faehigkeit dann ist"): die frisch gekaufte Faehigkeit erklaert
                  sich sofort selbst - Zeichen, Name und ihre WIRKUNG im
                  Klartext aus ABILITIES.descDe/descEn. Kein Nachschlagen. */
-              setFeier({ art: "faehigkeit", ab: {
+              setFeier({ art: "faehigkeit", bild: paintedById(char.id), charId: char.id, kind: char.kind, abId: rg.id, ab: {
                 icon: ab.icon, name: en ? ab.nameEn : ab.nameDe,
                 desc: en ? ab.descEn : ab.descDe, once: ab.once } });
             }} /></div>;
@@ -2269,7 +2270,7 @@ export function ArmyScreen({ profile, dispatch, t, initialTab, account = null, i
  * Der Strahlenkranz laeuft nur einmal und verglueht; ohne Animationen
  * (Schalter aus) erscheint das Fenster still, aber vollstaendig.
  */
-export function AufstiegsFeier({ art, gambitTier = 1, bild = null, chName = "", ab = null, t, onClose }) {
+export function AufstiegsFeier({ art, gambitTier = 1, bild = null, chName = "", ab = null, t, onClose, charId = null, kind = null, abId = null }) {
   const an = animAn();
   const stufe = GAMBIT_STUFEN[Math.max(0, Math.min(5, gambitTier - 1))];
   const rang = art === "rang";
@@ -2318,10 +2319,27 @@ export function AufstiegsFeier({ art, gambitTier = 1, bild = null, chName = "", 
           <div className="gg-serif" style={{ fontSize: 13, lineHeight: 1.62, color: T.ink, fontStyle: "italic",
             margin: "11px 4px 4px" }}>{stufe.text}</div>
         </> : <>
-          <div style={{ position: "relative", fontSize: 44, lineHeight: 1.1, margin: "10px 0 4px",
-            color: `rgba(${ton},1)`, textShadow: `0 0 18px rgba(${ton},.7)`,
-            ...(an ? { animation: "ggFeierBild .8s cubic-bezier(.2,1.3,.4,1) .1s both" } : null) }}>
-            {ab?.icon || "✦"}</div>
+          {/* v1.20.0 (Uebergabe, Punkt 4): DAS TALENT-FREISCHALTFENSTER wie das
+              Bundfenster - FIGUR LINKS vor ihrer Kulisse, ZUGDIAGRAMM RECHTS
+              (wo das Talent einen Zug hat; sonst sein Zeichen, gross). Jede
+              freigeschaltete Faehigkeit stellt sich so vor. */}
+          <div data-talentfenster={abId || ""} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, alignItems: "stretch", margin: "10px 0 4px" }}>
+            <div style={{ position: "relative", height: 150, overflow: "hidden", borderRadius: 12, isolation: "isolate",
+              display: "grid", placeItems: "end center", border: `1px solid rgba(${ton},.3)`, background: "rgba(10,7,19,.6)" }}>
+              <KulisseHinterGrund name={kulisseFuer({ charId })} deckung={0.8} radius={12} />
+              {bild && <img src={bild} alt="" draggable={false} style={{ height: "96%", width: "auto", maxWidth: "88%",
+                objectFit: "contain", objectPosition: "bottom", transformOrigin: "50% 100%",
+                filter: "drop-shadow(0 4px 10px rgba(0,0,0,.6))",
+                ...(an ? { animation: "ggFeierBild .8s cubic-bezier(.2,1.3,.4,1) .1s both" } : null) }} />}
+            </div>
+            <div style={{ display: "grid", placeItems: "center", borderRadius: 12, padding: 6,
+              border: `1px solid rgba(${ton},.3)`, background: "rgba(10,7,19,.6)" }}>
+              {abId && ABILITY_MOVE[abId]
+                ? <MoveDiagram kind={kind} moveSpec={null} extra={ABILITY_MOVE[abId]} breite={128} />
+                : <div style={{ fontSize: 44, lineHeight: 1.1, color: `rgba(${ton},1)`, textShadow: `0 0 18px rgba(${ton},.7)`,
+                    ...(an ? { animation: "ggFeierBild .8s cubic-bezier(.2,1.3,.4,1) .1s both" } : null) }}>{ab?.icon || "✦"}</div>}
+            </div>
+          </div>
           <div style={{ fontSize: 11, color: T.dim }}>{t("rang.faehigVon", { ch: chName })}</div>
           <div className="gg-serif" style={{ fontSize: 20, fontWeight: 900, color: "#dcd2ff", marginTop: 1 }}>
             {ab?.name || ""}</div>

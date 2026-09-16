@@ -1,5 +1,12 @@
 # Changelog - Grand Gambit
 
+## 1.20.0
+- DAS TALENT-FREISCHALTFENSTER (Uebergabe, Punkt 4): wie das Bundfenster -
+  Figur links vor ihrer Kulisse, Zugdiagramm rechts, wo das Talent einen Zug
+  hat (sonst sein Zeichen, gross); darunter Name und Wirkung. Jede
+  freigeschaltete Faehigkeit stellt sich so vor. Vier gerenderte Proben,
+  im Chromium ausgeloest (Springer lernt Weitsprung).
+
 ## 1.19.0
 - DAS MEDAILLON (Besitzerwunsch): der Stufenkreis oben rechts traegt die
   Farbe der Figur - Koenig blau, Springer rot, Magier violett, Drache gruen;

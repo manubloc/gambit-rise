@@ -683,6 +683,25 @@ const erloschen = (m) => m.includes("#2f2a3d");
   ok("und das Monsterblatt auch", arm.includes('<BundTafel profile={profile} bossId={b.id}'));
 }
 
+/* ── DAS TALENT-FREISCHALTFENSTER (v1.20.0) ─────────────────────────────────
+   Uebergabe, Punkt 4: wie das Bundfenster - Figur links, Zugdiagramm rechts.
+   Gerendert geprueft, mit einem Talent, das einen Zug hat, und einem ohne. */
+{
+  const { AufstiegsFeier } = await import("./src/app/ui/screens/ArmyScreen.jsx");
+  const { paintedById } = await import("./src/app/ui/board/paintedArt.js");
+  const t = makeT("de");
+  const mitZug = html(<AufstiegsFeier art="faehigkeit" bild={paintedById("knight")} charId="knight" kind="N" abId="knight_longleap"
+    ab={{ icon: "✦", name: "Sprung", desc: "…" }} chName="Springer" t={t} onClose={() => {}} />);
+  ok("das Fenster steht (data-talentfenster)", mitZug.includes('data-talentfenster="knight_longleap"'));
+  ok("links die Figur vor ihrer Kulisse", mitZug.includes('data-kulisse="bund-geleit"') && mitZug.includes("<img"));
+  /* das Diagramm ist ein Raster aus divs, kein SVG; sein Kennzeichen ist der
+     Figurenpunkt im 8-px-Feld - und das grosse Zeichen (44 px) fehlt dann */
+  ok("rechts das Zugdiagramm, wenn das Talent einen Zug hat", mitZug.includes("font-size:8px") && !mitZug.includes("font-size:44px"));
+  const ohne = html(<AufstiegsFeier art="faehigkeit" bild={paintedById("king")} charId="king" kind="K" abId="__kein_zug__"
+    ab={{ icon: "♛", name: "Krone", desc: "…" }} chName="Koenig" t={t} onClose={() => {}} />);
+  ok("ohne Zug steht rechts das Zeichen des Talents, gross", ohne.includes("♛") && ohne.includes("font-size:44px"));
+}
+
 /* ── DIE DECKS IM EDITOR (v1.15.0) ─────────────────────────────────────────
    Uebergabe, Punkt 3: drei Aufstellungen je Spieler, "Aufstellung I-III",
    umbenennbar; die Kartenauswahl erst ab Kapitel 5 - davor ist alles 8x8.
