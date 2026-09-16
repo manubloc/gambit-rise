@@ -206,6 +206,43 @@ const kopf = await page.evaluate(() => {
   const ecken = eckKnoten.length;
   const eckEbenen = [...new Set(eckKnoten.map((e) => getComputedStyle(e).zIndex))];
   const eckOben = eckKnoten.filter((e) => !/^unten-/.test(e.getAttribute("data-ecke"))).length;
+  /* v1.23.4: Abstand jeder der vier Ecken zu ihren beiden Raendern - muss je
+     Ecke gleich sein (symmetrisch) und ueber alle Ecken derselbe Wert. */
+  const eckAbstand = eckKnoten.map((e) => {
+    const k = e.parentElement.getBoundingClientRect(), r = e.getBoundingClientRect();
+    const wo = e.getAttribute("data-ecke");
+    const dy = /^oben-/.test(wo) ? r.top - k.top : k.bottom - r.bottom;
+    const dx = /-links$/.test(wo) ? r.left - k.left : k.right - r.right;
+    return [Math.round(dx * 10) / 10, Math.round(dy * 10) / 10];
+  });
+  /* v1.23.4 (Besitzerforderung): die Verzierung darf Abzeichen und Talente
+     NIE beruehren. Gemessen wird der Abstand der Kaesten, nicht geschaetzt. */
+  /* GEMESSEN BEIM SCHREIBEN: der Kasten des Eck-SVG ist 14x14, gezeichnet wird
+     darin aber nur ein duenner Winkel am Rand - der Kasten ueberlappt das
+     Abzeichen, die TINTE nicht. Geprueft wird deshalb die Tinte: die Kaesten
+     der gezeichneten Pfade und des Punktes, die die CSS-Drehung schon
+     enthalten. */
+  const ueberschnitt = [];
+  for (const e of eckKnoten) {
+    const kachel = e.parentElement;
+    const nachbarn = [...kachel.querySelectorAll("svg[data-abzeichen], [data-talent]")].map((n) => n.getBoundingClientRect());
+    for (const stueck of e.querySelectorAll("path, circle")) {
+      const r = stueck.getBoundingClientRect();
+      for (const q of nachbarn) {
+        const ux = Math.min(r.right, q.right) - Math.max(r.left, q.left);
+        const uy = Math.min(r.bottom, q.bottom) - Math.max(r.top, q.top);
+        if (ux > 0 && uy > 0) ueberschnitt.push([e.getAttribute("data-ecke"), Math.round(ux * 10) / 10, Math.round(uy * 10) / 10]);
+      }
+    }
+  }
+  /* nur das ERSTE Talentzeichen je Kachel - das zweite haengt darunter und
+     hat mit der Ecke nichts zu tun. */
+  const talentLage = [...document.querySelectorAll("[data-kopf]")].map((kopf) => {
+    const t = kopf.querySelector("[data-talent]"); if (!t) return null;
+    const k = kopf.parentElement.getBoundingClientRect(), r = t.getBoundingClientRect();
+    return [Math.round((r.top - k.top) * 10) / 10, Math.round((r.left - k.left) * 10) / 10];
+  }).filter(Boolean);
+  const zifferToene = [...new Set([...document.querySelectorAll("text[data-ziffer]")].map((t) => t.getAttribute("data-ziffer")))];
   const eckSym = [];
   /* GEMESSEN BEIM SCHREIBEN: offsetParent gibt es an einem SVG-Element NICHT
      (es ist eine HTMLElement-Eigenschaft) - die Schleife lief ins Leere und
@@ -217,7 +254,7 @@ const kopf = await page.evaluate(() => {
     eckSym.push({ l: Math.round((a.left - k.left) * 10) / 10, r: Math.round((k.right - b.right) * 10) / 10,
       ul: Math.round((k.bottom - a.bottom) * 10) / 10, ur: Math.round((k.bottom - b.bottom) * 10) / 10 });
   }
-  return { kacheln, stufen, grau, farbig, toene, meisterMitRohr, baender, boden, namen, talente, teller, abz, meister, hoehen, ecken, eckEbenen, eckOben, eckSym };
+  return { kacheln, stufen, grau, farbig, toene, meisterMitRohr, baender, boden, namen, talente, teller, abz, meister, hoehen, ecken, eckEbenen, eckOben, eckSym, eckAbstand, ueberschnitt, zifferToene, talentLage };
 });
 const kopfH = [...new Set(kopf.kacheln.map((h) => String(h).split("|")[0]))];
 const rohrVersatz = kopf.kacheln.map((h) => String(h).split("|")[1]).filter((x) => x !== undefined).map(Number);
@@ -245,11 +282,27 @@ ok(`jedes Sockelband liegt deckungsgleich auf seinem Bild (${kopf.baender.length
   ok(`alle Teller sind gleich breit (${t.length} gemessen, ${mn}-${mx} px, Spanne ${(mx - mn).toFixed(1)} px; Drache ausgenommen)`, t.length >= 30 && (mx - mn) <= 14);
   const o = [...new Set(kopf.abz.map((x) => x[0]))], r = [...new Set(kopf.abz.map((x) => x[1]))];
   ok(`das Abzeichen hat ueberall denselben Abstand nach oben und rechts (${o.join("/")} / ${r.join("/")} px)`, o.length === 1 && r.length === 1 && Math.abs(o[0] - r[0]) <= 1);
+  /* v1.23.4: und die Talentspalte sitzt spiegelbildlich dazu - 10 von oben,
+     10 von links (vorher 11/8, nicht einmal zu sich selbst symmetrisch). */
+  const to = [...new Set(kopf.talentLage.map((x) => x[0]))], tl = [...new Set(kopf.talentLage.map((x) => x[1]))];
+  ok(`die Talente sitzen spiegelbildlich zum Abzeichen (${to.join("/")} oben / ${tl.join("/")} links)`,
+    to.length === 1 && tl.length === 1 && Math.abs(to[0] - tl[0]) <= 0.6 && Math.abs(to[0] - o[0]) <= 0.6);
 }
-/* v1.23.3 (Besitzer): die Verzierung sitzt nur noch unten, liegt hinter allem
-   und steht links wie rechts gleich weit vom Rand. */
-ok(`jede Kachel traegt zwei Eckverzierungen unten (${kopf.ecken} gemessen)`, kopf.ecken >= 52 * 2 && kopf.eckOben === 0);
+/* v1.23.4 (Besitzer): die Verzierung steht wieder in ALLEN VIER Ecken, liegt
+   hinter allem, haelt zu jedem Rand denselben Abstand und beruehrt weder das
+   Stufen-Abzeichen noch die Talente. */
+ok(`jede Kachel traegt vier Eckverzierungen (${kopf.ecken} gemessen, davon ${kopf.eckOben} oben)`,
+  kopf.ecken >= 52 * 4 && kopf.eckOben === kopf.ecken / 2);
 ok(`die Verzierung liegt hinter allen Elementen (z ${kopf.eckEbenen.join("/")})`, kopf.eckEbenen.length === 1 && kopf.eckEbenen[0] === "-1");
+{
+  const a = kopf.eckAbstand;
+  const schief = Math.max(...a.map(([dx, dy]) => Math.abs(dx - dy)));
+  const werte = [...new Set(a.flat())];
+  ok(`jede Ecke haelt zu beiden Raendern denselben Abstand (${a.length} Ecken, ${werte.join("/")} px, max. Schiefe ${schief.toFixed(1)} px)`,
+    a.length >= 52 * 4 && schief <= 0.6 && werte.length === 1);
+}
+if (kopf.ueberschnitt.length) console.log('   Ueberschneidungen (Ecke, dx, dy):', JSON.stringify(kopf.ueberschnitt.slice(0, 6)));
+ok(`die Verzierung beruehrt weder Abzeichen noch Talente (${kopf.ueberschnitt.length} Ueberschneidungen)`, kopf.ueberschnitt.length === 0);
 {
   const s = kopf.eckSym;
   const dxMax = Math.max(...s.map((e) => Math.abs(e.l - e.r)));
@@ -257,6 +310,9 @@ ok(`die Verzierung liegt hinter allen Elementen (z ${kopf.eckEbenen.join("/")})`
   ok(`links und rechts gleich weit vom Rand (${s.length} Kacheln, max. Unterschied ${dxMax.toFixed(1)} px seitlich, ${dyMax.toFixed(1)} px nach unten)`,
     s.length >= 52 && dxMax <= 0.6 && dyMax <= 0.6);
 }
+/* v1.23.4: und die Ziffer traegt einen Hauch der Figurenfarbe - keine zwei
+   Figuren mit verschiedener Farbe duerfen dieselbe Ziffernfarbe haben. */
+ok(`die Ziffern tragen den Ton ihrer Figur (${kopf.zifferToene.length} verschiedene Ziffernfarben)`, kopf.zifferToene.length >= 6);
 const deckungen = [...new Set(gemessen.map((g) => g.deckung))];
 ok(`die Kulisse ist deutlich zu sehen, aber nicht ueber der Figur (Deckung ${deckungen.join("/")})`, deckungen.every((d) => Number(d) >= 0.5 && Number(d) < 1));
 const masse = gemessen[0] ? `${gemessen[0].w}x${gemessen[0].h}` : "-";

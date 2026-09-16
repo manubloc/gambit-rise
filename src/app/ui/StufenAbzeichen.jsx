@@ -46,6 +46,37 @@ export function kraeftig(hex) {
   return `#${hx(f(h + 1 / 3))}${hx(f(h))}${hx(f(h - 1 / 3))}`;
 }
 
+/* ── EIN HAUCH DER FIGURENFARBE IN DER ZIFFER (v1.23.4) ───────────────────
+   Besitzer: "dass die Zahlen immer angepasste Farben zu dem Emblem haben,
+   nur ganz duenn und ein Hauch von, aber auf jeden Fall ein bisschen."
+
+   Bisher war die Ziffer FEST je Metall (Kupfer, Silber, Gold) - auf dem roten
+   Springer und auf dem blauen Koenig genau dieselbe. Jetzt bekommt sie 18 %
+   der Figurenfarbe beigemischt.
+
+   WICHTIG, und der Grund fuer den zweiten Schritt: eine reine Mischung macht
+   die Ziffer dunkler, sobald die Figurenfarbe dunkel ist (Marineblau frisst
+   Silber auf), und die Lesbarkeit war eine ausdrueckliche Besitzerforderung
+   ("Ziffern muessen gut lesbar sein"). Deshalb wird die Helligkeit nach dem
+   Mischen wieder genau auf die des Metalls gezogen: es aendert sich der TON,
+   nicht die Helligkeit. Das ist der "Hauch".
+
+   Fremdes (grau) bleibt grau - was einem nicht gehoert, traegt keine Farbe. */
+const MISCHUNG = 0.18;
+const ZIFFER_METALL = { bronze: "#efb47c", silber: "#dde4ee", gold: "#f7d76c", grau: "#b9b5ac" };
+const zuRgb = (hex) => { const n = parseInt(hex.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
+const alsHex = (v) => `#${v.map((x) => Math.max(0, Math.min(255, Math.round(x))).toString(16).padStart(2, "0")).join("")}`;
+const helligkeit = ([r, g, b]) => 0.2126 * r + 0.7152 * g + 0.0722 * b;   // Rec.709
+export function zifferFarbe(metall, farbe) {
+  const grund = ZIFFER_METALL[metall] || ZIFFER_METALL.gold;
+  if (metall === "grau" || !farbe || farbe[0] !== "#") return grund;
+  const g = zuRgb(grund), f = zuRgb(kraeftig(farbe));
+  const mix = g.map((v, i) => v * (1 - MISCHUNG) + f[i] * MISCHUNG);
+  const ziel = helligkeit(g), ist = helligkeit(mix);
+  if (ist <= 0) return grund;
+  return alsHex(mix.map((v) => v * (ziel / ist)));      // Ton verschoben, Helligkeit gehalten
+}
+
 export function StufenAbzeichen({ form = "medaillon", stufe = 1, maxStufe = 10, farbe = "#5b3fa6", grau = false, size = 30, id = "" }) {
   const metall = grau ? "grau" : metallFuer(stufe, maxStufe);
   const hoechst = !grau && stufe >= maxStufe;
@@ -59,10 +90,12 @@ export function StufenAbzeichen({ form = "medaillon", stufe = 1, maxStufe = 10, 
     {hoechst && <use href="#sa-lorbeer" data-lorbeer="1" />}
     <use href={`#sa-${form}`} />
     {zier && <use href={`#${zier}`} />}
-    {/* v1.23.0 (Besitzer): die Ziffer in der Farbwelt ihres Metalls - Bronze
-        warm, Silber kuehl, Gold gelblich, Grau stumpf - mit derselben dunklen
-        Kontur, damit sie auf jedem Feld steht. */}
+    {/* v1.23.0: die Ziffer in der Farbwelt ihres Metalls - Bronze warm, Silber
+        kuehl, Gold gelblich, Grau stumpf, mit dunkler Kontur.
+        v1.23.4 (Besitzer): dazu ein Hauch der Figurenfarbe - 18 %, bei
+        gehaltener Helligkeit (siehe zifferFarbe). */}
     <text x="32" y={ZIFFER_Y[form] || 38.5} textAnchor="middle" fontSize={gross} fontWeight="800" fontFamily="Georgia, serif"
-      fill={{ bronze: "#efb47c", silber: "#dde4ee", gold: "#f7d76c", grau: "#b9b5ac" }[metall]}   /* v1.23.2: deutlich im Ton - Kupfer, Silber, Gold */ filter="url(#sa-gravur)">{n}</text>
+      data-ziffer={zifferFarbe(metall, grau ? null : farbe)}
+      fill={zifferFarbe(metall, grau ? null : farbe)} filter="url(#sa-gravur)">{n}</text>
   </svg>;
 }

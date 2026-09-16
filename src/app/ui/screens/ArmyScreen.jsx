@@ -1839,20 +1839,46 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
              ("die Ecke ist ein bisschen dicker"). Jetzt 0,85 - eine Spur
              feiner als die Striche - und der Eckradius 3,5 statt 0,6, damit
              die Kontur der Kachelrundung (11) folgt.
-          3. NUR NOCH UNTEN (Besitzerentscheid: "mach sie einfach mal nur
-             unten, da musst du sonst nichts in die Hand nehmen"). Oben sassen
-             Stufen-Abzeichen und Talentspalte im selben Raum; sie dorthin zu
-             bekommen haette beide verschieben muessen - der Umbau waere "zu
-             wild" geworden. Unten ist der Platz frei, also stehen sie dort
-             allein und ohne dass irgendetwas anderes weicht.
           Die Verzierung liegt auf z -1, also HINTER allem ausser der Kulisse
           ("die muessen natuerlich hinter allen Elementen sein"). */}
-      {[["links", 270], ["rechts", 180]].map(([seite, rot]) =>
-        <svg key={seite} data-ecke={`unten-${seite}`} viewBox="0 0 16 16" width="14" height="14" aria-hidden
-          style={{ position: "absolute", bottom: 5, left: seite === "links" ? 5 : "auto", right: seite === "rechts" ? 5 : "auto",
+      {/* v1.23.4 (Besitzer): WIEDER IN ALLEN VIER ECKEN, aber mit gerechnetem
+          SICHERHEITSABSTAND ("es muss auf jeden Fall sichergestellt werden,
+          dass wir nie dieses Emblem mit der Stufe oder die Faehigkeiten damit
+          ueberschneiden ... und immer ein symmetrischer Abstand dazu, von
+          rechts und oben oder links und oben").
+
+          GEMESSEN, warum es vorher nicht ging: das Stufen-Abzeichen stand
+          4 px unter der Oberkante und 4 px vor dem rechten Rand und ist
+          36x36 gross - es besetzte die ganze rechte obere Ecke. Die
+          Talentspalte sass bei 11 oben / 8 links, also nicht einmal
+          symmetrisch zu sich selbst (die Kachel hat 10 px Polster oben, 7 an
+          den Seiten). Der Winkel bei Abstand 5 lief mit seinem Punkt genau
+          hinein.
+
+          GEBAUT: beide ruecken auf SYMMETRISCHE 10/10 - das Abzeichen 10 von
+          oben und 10 von rechts, die Talente 10 von oben und 10 von links.
+          Die Verzierung rueckt weiter in den Rand, auf Abstand 3. Damit
+          reicht ihre tiefste Tinte (der Punkt, Mitte 7,0 px, Halbmesser 0,9)
+          bis 7,9 px - 2,1 px Luft zu beidem. Nachgemessen in
+          messe_kulissen.mjs, alle vier Ecken und beide Nachbarn. */}
+      {[["oben-links", 0, true, true], ["oben-rechts", 90, true, false],
+        ["unten-rechts", 180, false, false], ["unten-links", 270, false, true]].map(([wo, rot, oben, links]) =>
+        <svg key={wo} data-ecke={wo} viewBox="0 0 16 16" width="14" height="14" aria-hidden
+          style={{ position: "absolute", top: oben ? 3 : "auto", bottom: oben ? "auto" : 3,
+            left: links ? 3 : "auto", right: links ? "auto" : 3,
             transform: `rotate(${rot}deg)`, zIndex: -1, pointerEvents: "none", opacity: dark ? .35 : .85 }}>
-          <path d="M1.5 9.5V5A3.5 3.5 0 0 1 5 1.5H9.5" fill="none" stroke={meister ? "#c3aaf5" : "#e9cf8a"} strokeWidth="0.85" strokeLinecap="round" />
-          <path d="M1.5 12.5c0 1.6 1 2.4 2.4 2.4M12.5 1.5c1.6 0 2.4 1 2.4 2.4" fill="none" stroke={meister ? "#c3aaf5" : "#e9cf8a"} strokeWidth="1" strokeLinecap="round" opacity=".8" />
+          {/* v1.23.4: der Winkel in DREI Stuecken statt einem. Grund ist die
+              Probe: ein L hat als Kasten ein Quadrat, und ein Kastenvergleich
+              meldet deshalb eine Ueberschneidung mit dem Abzeichen, wo gar
+              keine Tinte liegt. Zerlegt in Arm - Bogen - Arm ist jeder Kasten
+              wieder so duenn wie der Strich, und der Abstand zum Abzeichen
+              laesst sich messen statt behaupten. Gezeichnet aendert sich
+              nichts: gleiche Punkte, gleiche Staerke, runde Enden. */}
+          <path d="M1.5 9.5V5" fill="none" stroke={meister ? "#c3aaf5" : "#e9cf8a"} strokeWidth="0.85" strokeLinecap="round" />
+          <path d="M1.5 5A3.5 3.5 0 0 1 5 1.5" fill="none" stroke={meister ? "#c3aaf5" : "#e9cf8a"} strokeWidth="0.85" strokeLinecap="round" />
+          <path d="M5 1.5H9.5" fill="none" stroke={meister ? "#c3aaf5" : "#e9cf8a"} strokeWidth="0.85" strokeLinecap="round" />
+          <path d="M1.5 12.5c0 1.6 1 2.4 2.4 2.4" fill="none" stroke={meister ? "#c3aaf5" : "#e9cf8a"} strokeWidth="1" strokeLinecap="round" opacity=".8" />
+          <path d="M12.5 1.5c1.6 0 2.4 1 2.4 2.4" fill="none" stroke={meister ? "#c3aaf5" : "#e9cf8a"} strokeWidth="1" strokeLinecap="round" opacity=".8" />
           <circle cx="4.6" cy="4.6" r="1.05" fill={meister ? "#c3aaf5" : "#e9cf8a"} />
         </svg>)}
       {/* v1.15.1: DIE KOPFZEILE - fuer JEDE Kachel gleich (Besitzervorlage):
@@ -1866,7 +1892,10 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
           die Talente haengen als eigene Spalte ueber dem Bild (absolut), wie
           in der Vorlage. Gemessen: Namenszeile in allen Kacheln gleich. */}
       <div data-kopf="1" style={{ position: "relative", display: "flex", alignItems: "flex-start", gap: 4, marginBottom: 2, height: 21 }}>
-        <div style={{ position: "absolute", left: 0, top: 0, display: "flex", flexDirection: "column", gap: 3, width: 21, zIndex: 2 }}>
+        {/* v1.23.4: die Talentspalte auf symmetrische 10/10 zum Kachelrand
+            (vorher 11 oben / 8 links) - dieselbe Lage wie das Abzeichen
+            gegenueber, und damit frei von der Eckverzierung. */}
+        <div style={{ position: "absolute", left: 2, top: -1, display: "flex", flexDirection: "column", gap: 3, width: 21, zIndex: 2 }}>
           {(talente || []).slice(0, 2).map((id) => <span key={id} data-talent={id} style={{ width: 21, height: 21, display: "grid", placeItems: "center",
             borderRadius: 6, background: "rgba(12,8,22,.7)", border: "1px solid rgba(233,207,138,.45)",
             filter: dim || dark ? "grayscale(1)" : "none" }}><AbilityIcon id={id} size={15} /></span>)}
@@ -1894,8 +1923,11 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
         {stufe != null
           ? <div style={{ width: 21, height: 21, flex: "0 0 auto", position: "relative" }}>
               {/* v1.21.2 (Besitzer): groesser - 36 px statt 30, ragt 7 px ueber die Kopfzeile und 7 px in den Rand */}
-              {/* v1.23.0 (Besitzer): gleicher Abstand nach oben und rechts - 4 px zum Kachelrand beidseits */}
-              <div style={{ position: "absolute", top: -7, right: -4 }}>
+              {/* v1.23.0 (Besitzer): gleicher Abstand nach oben und rechts */}
+              {/* v1.23.4: 10 px beidseits statt 4 - der Platz gehoert jetzt
+                  auch der Eckverzierung, und 10/10 ist dieselbe Lage wie die
+                  Talentspalte auf der anderen Seite. */}
+              <div style={{ position: "absolute", top: -1, right: 2 }}>
                 <StufenAbzeichen form={formFuer({ charId: artId, bossId })} stufe={stufe} maxStufe={bossId ? BOSS_MAX_LEVEL : maxLevelFor(artId || "pawn")}
                   farbe={ton || figurFarbe(paintedIdOf(img)) || "#5b3fa6"} grau={!!(dim || dark)} size={36} /></div></div>
           : <div style={{ width: 21, height: 21, flex: "0 0 auto" }} />}

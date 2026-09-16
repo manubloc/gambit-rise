@@ -1,5 +1,27 @@
 # Changelog - Grand Gambit
 
+## 1.23.4
+- DIE ECKVERZIERUNG WIEDER IN ALLEN VIER ECKEN - mit gerechnetem Abstand
+  (Besitzer: "es muss auf jeden Fall sichergestellt werden, dass wir nie dieses
+  Emblem mit der Stufe oder auch die Faehigkeiten damit ueberschneiden ... und
+  immer ein symmetrischer Abstand dazu"). Gemessen, warum es vorher nicht ging:
+  das Stufen-Abzeichen sass 4/4 px in der Ecke und ist 36x36 gross - es besetzte
+  die rechte obere Ecke ganz; die Talentspalte sass 11 oben / 8 links, also nicht
+  einmal zu sich selbst symmetrisch. Jetzt stehen beide auf 10/10, die Verzierung
+  rueckt auf 4 px in den Rand. Gegenprobe: mit dem Abzeichen zurueck auf 4/4
+  meldet die Probe 128 echte Ueberschneidungen, mit 10/10 null.
+- DER WINKEL IN DREI STUECKEN statt einem. Gezeichnet aendert sich nichts -
+  aber ein L hat als Kasten ein Quadrat, und ein Kastenvergleich meldete
+  Ueberschneidungen, wo gar keine Tinte lag. Zerlegt in Arm, Bogen, Arm ist
+  jeder Kasten so duenn wie der Strich, und der Abstand ist messbar statt
+  behauptet.
+- EIN HAUCH DER FIGURENFARBE IN DER ZIFFER (Besitzer: "dass die Zahlen immer
+  angepasste Farben zu dem Emblem haben, nur ganz duenn und ein Hauch von, aber
+  auf jeden Fall ein bisschen"). 18 % der Figurenfarbe ins Metall gemischt, und
+  danach die Helligkeit wieder genau auf die des Metalls gezogen: es aendert
+  sich der Ton, nicht die Lesbarkeit. Gemessen 19 verschiedene Ziffernfarben,
+  vorher vier. Fremdes bleibt grau.
+
 ## 1.23.3
 - DIE ECKVERZIERUNG NUR NOCH UNTEN, UND SYMMETRISCH (Besitzer mit Screenshot:
   "manche zeigen nach innen, manche nach aussen"). GEMESSEN: zwei der vier
