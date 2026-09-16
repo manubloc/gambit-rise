@@ -800,7 +800,12 @@ export function PieceGlyph({ piece, showLevel = true, pov = "w", artStyle = "pai
                    dunkler; die eigene Seite bleibt unangetastet in ihren
                    Originalfarben. Kein Grauschleier wie frueher - die Figur
                    bleibt erkennbar, sie tritt nur zurueck. */
-                : "grayscale(0.5) saturate(0.72) brightness(0.76) contrast(1.06)",
+                /* v1.22.2 (Besitzer): "gib den Gegnern wieder mehr Farbe - nur
+                   ein Hauch von Graustufen, man muss sie klar sehen". Vorher
+                   halbe Entfaerbung und ein Viertel dunkler; jetzt ein Fuenftel
+                   Grau und kaum dunkler. Die Trennung tragen Sockelband und
+                   Riss-Violett. */
+                : "grayscale(0.22) saturate(0.9) brightness(0.92)",
               userSelect: "none", pointerEvents: "none" }} />
           : <PieceArt kind={piece.kind} fill={fill} rim={rim} rimW={rimW} detail={detail} accent={accent} size="100%" level={showLevel ? lvl : 1} art={piece.art} bossId={piece.bossId} hero={showHero} />}
         {/* v1.0.50: DIE GRUNDFARBE STEIGT AUF. Nur im getoenten Stil: eine

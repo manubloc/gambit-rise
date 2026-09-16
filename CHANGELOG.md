@@ -1,5 +1,15 @@
 # Changelog - Grand Gambit
 
+## 1.22.2
+- JEDE FIGUR HAT DASSELBE BUDGET (Besitzer-Klarstellung): 24 Punkte Leben +
+  Angriff auf der Hoechststufe fuer alle, nur der Drache 48 - er nimmt vier
+  Felder ein und ist langsam, eine Mauer. Die Verhaeltnisse aus v1.22.0
+  bleiben (Koenig 12 % Blau bis Attentaeter 83 %), die Budgets sind
+  angeglichen; vorher streuten sie von 10 (Bauer) bis 46 (Koenig). Eine Probe
+  haelt das Budget fest.
+- DIE GEGENSEITE HAT WIEDER FARBE (Besitzer: "nur ein Hauch von Graustufen,
+  man muss sie klar sehen"): ein Fuenftel Grau statt halb, kaum noch dunkler.
+
 ## 1.22.1
 - DIE VOLLBILD-ANSICHT TRAEGT DIE KULISSE DER FIGUR (Besitzer: "mega cool,
   wenn wir hier den Hintergrund mit reinnehmen"): in voller Groesse hinter

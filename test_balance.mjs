@@ -142,8 +142,11 @@ const hpState = (board) => ({ board, w: 8, h: 8, holes: new Set(), rules: "hp", 
   /* v1.22.0: das ZIELPROFIL loest die relative Steigerung ab - der Koenig
      laeuft von 10 auf 40, die Dame von 7 auf 18. Auf Stufe 5: 23 und 12. Die
      Probe haelt weiter fest, worauf es ankommt: der Koenig ist ein Bollwerk. */
+  /* v1.22.2: gleiches Budget fuer alle (24), der Koenig 21/3, die Dame 14/10.
+     Auf Stufe 5: 15 und 10. Der Koenig bleibt das Bollwerk - zaeher als die
+     Dame, aber nicht mehr mit dem doppelten Budget. */
   ok(`a level-5 king carries ${king.maxHp} HP, the queen ${queen.maxHp}`,
-    king.maxHp === 23 && queen.maxHp === 12 && king.maxHp > queen.maxHp * 1.5);
+    king.maxHp === 15 && queen.maxHp === 10 && king.maxHp >= queen.maxHp * 1.4);
 }
 
 /* ── DIE PROFILE SIND WEIT GESPREIZT (v1.22.0, Besitzerentscheid) ───────────
@@ -156,8 +159,8 @@ const hpState = (board) => ({ board, w: 8, h: 8, holes: new Set(), rules: "hp", 
   const arten = Object.keys(ZIEL_PROFIL);
   const b = arten.map(blau); const mn = Math.min(...b), mx = Math.max(...b);
   ok(`die Profile spannen von ${Math.round(mn * 100)} % bis ${Math.round(mx * 100)} % Blau (vorher 16 bis 55)`, mn <= 0.15 && mx >= 0.80);
-  ok("der Attentaeter ist eine Klinge: 4 Leben, 18 Angriff", werteBeiStufe("S", HOECHSTSTUFE).hp === 4 && werteBeiStufe("S", HOECHSTSTUFE).atk === 18);
-  ok("der Koenig ist ein Bollwerk: 40 Leben, 6 Angriff", werteBeiStufe("K", HOECHSTSTUFE).hp === 40 && werteBeiStufe("K", HOECHSTSTUFE).atk === 6);
+  ok("der Attentaeter ist eine Klinge: 4 Leben, 20 Angriff", werteBeiStufe("S", HOECHSTSTUFE).hp === 4 && werteBeiStufe("S", HOECHSTSTUFE).atk === 20);
+  ok("der Koenig ist ein Bollwerk: 21 Leben, 3 Angriff (v1.22.2: dasselbe Budget wie alle)", werteBeiStufe("K", HOECHSTSTUFE).hp === 21 && werteBeiStufe("K", HOECHSTSTUFE).atk === 3);
   ok("das Ziel ist auf der Hoechststufe genau erreicht", arten.every((k) => { const w = werteBeiStufe(k, HOECHSTSTUFE); return w.hp === ZIEL_PROFIL[k][0] && w.atk === ZIEL_PROFIL[k][1]; }));
   const { BASE_HP: bh1, BASE_ATK: ba1 } = await import("./src/core/index.js");
   ok("auf Stufe 1 gelten die Grundwerte", arten.every((k) => { const w = werteBeiStufe(k, 1); return w.hp === (bh1[k] || 1) && w.atk === (ba1[k] || 1); }));
@@ -245,3 +248,15 @@ console.log("\n== DIE PROFILE WERDEN AUSGEPRAEGTER, NICHT AEHNLICHER (v1.7.0) ==
 
 console.log(`\nRESULT: ${passed} passed, ${failed} failed`);
 if (failed > 0) process.exit(1);
+
+/* ── JEDE FIGUR HAT DASSELBE BUDGET (v1.22.2, Besitzer-Klarstellung) ─────────
+   Nur der Drache hat das Doppelte. */
+{
+  const { ZIEL_PROFIL, BUDGET_HOECHSTSTUFE, BUDGET_DRACHE } = await import("./src/core/domain/constants.js");
+  const falsch = Object.entries(ZIEL_PROFIL).filter(([k, [h, a]]) => h + a !== (k === "D" ? BUDGET_DRACHE : BUDGET_HOECHSTSTUFE));
+  ok(`jede Art hat auf der Hoechststufe ${BUDGET_HOECHSTSTUFE} Punkte, der Drache ${BUDGET_DRACHE}${falsch.length ? " (falsch: " + falsch.map(([k]) => k).join(", ") + ")" : ""}`, falsch.length === 0);
+  const q = Object.entries(ZIEL_PROFIL).map(([k, [h, a]]) => a / (h + a));
+  ok(`die Verteilung reicht von ${Math.round(Math.min(...q) * 100)} % bis ${Math.round(Math.max(...q) * 100)} % Blau`, Math.min(...q) <= 0.15 && Math.max(...q) >= 0.8);
+}
+console.log(`\nRESULT (Budget): ${passed} passed, ${failed} failed`);
+if (failed) process.exit(1);

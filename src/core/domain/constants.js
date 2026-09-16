@@ -61,11 +61,17 @@ export const BASE_ATK = { P: 1, N: 2, B: 2, H: 2, R: 3, A: 3, C: 4, Q: 4, M: 5, 
    Laeufer, Dame, Kanzler, Inquisitor, Springer, Kundschafter) - Klinge
    63-82 % (Hexerin, Spaeher, Amazone, Magier, Warlock, Attentaeter).
    Der Attentaeter faellt auf einen Schlag - er ist im Schatten unsichtbar. */
+/* v1.22.2 (Besitzer, Klarstellung): JEDE FIGUR HAT DASSELBE BUDGET. "Wir
+   vergeben immer 100 Punkte, egal welcher Figur, und teilen sie auf - mal
+   80/20, mal 50/50, hoechstens 90/10." Das Budget ist hier 24 (Leben +
+   Angriff auf der Hoechststufe); nur der DRACHE hat das Doppelte, 48, weil er
+   vier Felder einnimmt und langsam ist - eine Mauer. Die Verhaeltnisse aus
+   v1.22.0 sind erhalten, die Budgets angeglichen: vorher streuten sie von 10
+   (Bauer) bis 46 (Koenig). */
+export const BUDGET_HOECHSTSTUFE = 24;
+export const BUDGET_DRACHE = 48;
 export const ZIEL_PROFIL = {
-  K: [40, 6], D: [36, 6], G: [22, 4], F: [18, 5], U: [20, 6], L: [14, 5], R: [17, 6],
-  P: [7, 3], J: [13, 6], T: [15, 8], SE: [10, 6], A: [14, 9], V: [12, 8],
-  Y: [11, 8], B: [9, 7], Q: [18, 14], C: [15, 14], I: [12, 11], N: [8, 9], O: [7, 9],
-  Z: [7, 12], H: [6, 10], M: [14, 24], E: [6, 13], W: [5, 18], S: [4, 18],
+  K: [21, 3], D: [41, 7], G: [20, 4], F: [19, 5], U: [18, 6], L: [18, 6], R: [18, 6], P: [17, 7], J: [16, 8], T: [16, 8], SE: [15, 9], A: [15, 9], V: [14, 10], Y: [14, 10], B: [14, 10], Q: [14, 10], C: [12, 12], I: [13, 11], N: [11, 13], O: [10, 14], Z: [9, 15], H: [9, 15], M: [9, 15], E: [8, 16], W: [5, 19], S: [4, 20],
 };
 export const HOECHSTSTUFE = 10;
 

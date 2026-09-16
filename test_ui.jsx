@@ -1919,8 +1919,9 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
     !/piece\.shield > 0 && \(/.test(pg));
   ok("der Schild wirkt weiterhin im Kern",
     (await import("node:fs")).readFileSync("src/core/rules/moves.js", "utf8").includes("shield"));
-  ok("die Gegenseite ist entfaerbt und dunkler (v1.0.76)",
-    pg.includes("grayscale(0.5) saturate(0.72) brightness(0.76)"));
+  /* v1.22.2 (Besitzer): nur noch ein Hauch Grau - "man muss sie klar sehen" */
+  ok("die Gegenseite traegt nur einen Hauch Grau (v1.22.2)",
+    pg.includes("grayscale(0.22) saturate(0.9) brightness(0.92)"));
   ok("das Atmen liegt NICHT mehr auf derselben Ebene wie die Landung",
     !/ggLandung[^`]*ggAtmen/.test(pg));
   ok("eine hoehere Kante verschiebt beide Formen",
