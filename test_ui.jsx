@@ -727,6 +727,19 @@ const erloschen = (m) => m.includes("#2f2a3d");
   ok("die Kachel traegt das Abzeichen und der Hofstaat die Zeichnung einmal", arm.includes("<StufenAbzeichen form={formFuer({ charId: artId, bossId })}") && (arm.match(/<AbzeichenDefs \/>/g) || []).length === 1);
 }
 
+/* ── DIE VOLLBILD-ANSICHT (v1.22.1) ────────────────────────────────────────
+   Kulisse dahinter, Satz lesbar, und vorbereitet fuer "Figur gewonnen". */
+{
+  const { CharLightbox } = await import("./src/app/ui/screens/ArmyScreen.jsx");
+  const { CHARACTERS } = await import("./src/content/index.js");
+  const m = html(<CharLightbox char={CHARACTERS.chancellor} en={false} onClose={() => {}} />);
+  ok("die Kulisse der Figur steht hinter ihr (Kanzler: Konzil)", m.includes("data-vollbild") && m.includes("bund-konzil"));
+  ok("der Satz steht mit 16 px auf der dunklen Platte", m.includes("font-size:16px") && m.includes(CHARACTERS.chancellor.flavorDe));
+  const g = html(<CharLightbox char={CHARACTERS.engineer} en={false} onClose={() => {}} titel="Der Techniker hat sich dir angeschlossen"
+    aktionen={[{ id: "karte", label: "Zurueck zur Karte" }, { id: "hof", label: "Zum Hofstaat", primary: true }]} />);
+  ok("mit Titel und Aktionen wird es der Moment des Gewinnens", g.includes("angeschlossen") && g.includes('data-aktion="karte"') && g.includes('data-aktion="hof"'));
+}
+
 /* ── DIE DECKS IM EDITOR (v1.15.0) ─────────────────────────────────────────
    Uebergabe, Punkt 3: drei Aufstellungen je Spieler, "Aufstellung I-III",
    umbenennbar; die Kartenauswahl erst ab Kapitel 5 - davor ist alles 8x8.

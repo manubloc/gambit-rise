@@ -27,7 +27,7 @@ import { PieceArt } from "../board/PieceArt.jsx";
 import { paintedFitById, paintedFitFor, paintedById, paintedForPiece, schlichtAn } from "../board/paintedArt.js";
 import { GAMBIT_STUFEN } from "../board/gambitStufen.js";
 import { kulisseFuer } from "../kulissen.js";
-import { KulisseHinterGrund } from "../KulissenBilder.jsx";
+import { KulisseHinterGrund, KULISSE_URL } from "../KulissenBilder.jsx";
 import { BundTafel } from "../BundTafel.jsx";
 import { SockelBand, bandBekannt, bodenAusgleichProzent } from "../SockelBand.jsx";   /* v1.17.0: das Band im Sockel */
 import { paintedIdOf } from "../board/paintedArt.js";
@@ -1601,33 +1601,57 @@ export function GearPanel({ profile, dispatch, t, en, initialGearInfo = null }) 
 }
 
 // Tap a figurine → the painting fills the stage. One tap anywhere closes it.
-function CharLightbox({ char, en, onClose }) {
+/* ── DIE VOLLBILD-ANSICHT (v1.22.1, Besitzer) ──────────────────────────────
+   "Genau diese Art der Ansicht mega cool - mit dem Hintergrund, den ich fuer
+   jede Figur geschaffen habe." Die Kulisse der Figur steht jetzt hinter ihr,
+   in voller Groesse, oben und unten abgedunkelt, damit Name und Satz stehen.
+   Der Satz war unten abgeschnitten und zu klein: jetzt 16 px auf einer
+   dunklen Platte, mit Abstand zur Leiste.
+
+   Vorbereitet fuer den Moment, in dem man eine Figur GEWINNT: titel (oben,
+   z. B. "hat sich dir angeschlossen") und aktionen (unten, z. B. "Zurueck
+   zur Karte", "Zum Hofstaat"). Ohne beides ist es die Ansicht von heute. */
+export function CharLightbox({ char, en, onClose, titel = null, aktionen = null }) {
   if (!char) return null;
-  // ein Wesen kommt als { boss: true, id: "boss-bXX" } - dieselbe Lupe
   const src = char.boss ? (paintedById("boss-" + char.bid) || paintedById("boss-" + char.art)) : bildnisVon(char.id, char.level || 1);
+  const kul = char.boss ? kulisseFuer({ bossId: char.bid }) : kulisseFuer({ charId: char.id });
+  const kulUrl = kul ? KULISSE_URL[kul] : null;
+  const name = en ? char.nameEn : char.nameDe;
+  const satz = en ? char.flavorEn : char.flavorDe;
   return (
-    <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 80, background: "rgba(5, 8, 16, .88)",
-      backdropFilter: "blur(7px)", WebkitBackdropFilter: "blur(7px)", display: "grid", placeItems: "center",
-      cursor: "zoom-out", padding: 20 }}>
-      <div style={{ textAlign: "center", maxWidth: 520 }}>
-        {src && <img src={src} alt="" style={{ height: "min(58vh, 470px)", maxWidth: "88vw", objectFit: "contain",
-          filter: "drop-shadow(0 18px 40px rgba(0,0,0,.65))" }} />}
-        <div className="gg-quill" style={{ color: char.boss ? "#e7b7c9" : T.goldBright, fontSize: 25, letterSpacing: ".04em", marginTop: 14,
-          textShadow: char.boss ? "0 0 12px rgba(139,92,246,.45)" : "0 0 10px rgba(240,206,122,.3)" }}>
-          {en ? char.nameEn : char.nameDe}</div>
-        {(en ? char.flavorEn : char.flavorDe) && (
-          <div className="gg-serif" style={{ color: "#9a947f", fontStyle: "italic", fontSize: 13.5, lineHeight: 1.5, marginTop: 6 }}>
-            „{en ? char.flavorEn : char.flavorDe}“</div>
-        )}
+    <div data-vollbild={char.id || char.bid || ""} onClick={aktionen ? undefined : onClose} style={{ position: "fixed", inset: 0, zIndex: 80, background: "#07050d",
+      display: "grid", gridTemplateRows: "auto 1fr auto", cursor: aktionen ? "default" : "zoom-out", overflow: "hidden" }}>
+      {kulUrl && <img src={kulUrl} alt="" aria-hidden draggable={false} data-gg-still="" data-kulisse={kul} style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
+        objectFit: "cover", objectPosition: "center 30%", opacity: .92, pointerEvents: "none", zIndex: 0 }} />}
+      <div aria-hidden style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 0,
+        background: "linear-gradient(180deg, rgba(7,5,13,.82) 0%, rgba(7,5,13,.15) 22%, rgba(7,5,13,.05) 55%, rgba(7,5,13,.72) 78%, rgba(7,5,13,.96) 100%)" }} />
+      {/* oben: die Ueberschrift des Moments - oder nichts */}
+      <div style={{ position: "relative", zIndex: 1, textAlign: "center", padding: "max(18px, env(safe-area-inset-top)) 20px 0", minHeight: 24 }}>
+        {titel && <div className="gg-serif" style={{ fontSize: 12, letterSpacing: ".22em", textTransform: "uppercase", color: "#e9cf8a",
+          textShadow: "0 1px 6px rgba(0,0,0,.8)", animation: "ggFeierBild .7s cubic-bezier(.2,1.3,.4,1) both" }}>{titel}</div>}
+      </div>
+      {/* Mitte: die Figur, gross */}
+      <div style={{ position: "relative", zIndex: 1, display: "grid", placeItems: "center", padding: "0 16px", minHeight: 0 }}>
+        {src && <img src={src} alt="" style={{ height: "min(56vh, 520px)", maxWidth: "90vw", objectFit: "contain",
+          filter: "drop-shadow(0 22px 44px rgba(0,0,0,.75))", ...(titel ? { animation: "ggFeierBild .9s cubic-bezier(.2,1.3,.4,1) .15s both" } : null) }} />}
+      </div>
+      {/* unten: Name, Satz, Aktionen - auf der dunklen Platte, mit Luft zur Leiste */}
+      <div style={{ position: "relative", zIndex: 1, textAlign: "center", padding: "10px 22px max(26px, env(safe-area-inset-bottom))" }}>
+        <div className="gg-quill" style={{ color: char.boss ? "#e7b7c9" : T.goldBright, fontSize: 28, letterSpacing: ".04em",
+          textShadow: "0 2px 10px rgba(0,0,0,.9)" }}>{name}</div>
+        {satz && <div className="gg-serif" style={{ color: "#d9d2bb", fontStyle: "italic", fontSize: 16, lineHeight: 1.5, marginTop: 8,
+          textShadow: "0 1px 6px rgba(0,0,0,.9)", maxWidth: 560, marginLeft: "auto", marginRight: "auto" }}>„{satz}“</div>}
+        {aktionen && <div style={{ display: "grid", gridTemplateColumns: `repeat(${aktionen.length}, 1fr)`, gap: 10, marginTop: 18, maxWidth: 520, marginLeft: "auto", marginRight: "auto" }}>
+          {aktionen.map((a, i) => <button key={i} type="button" onClick={(e) => { e.stopPropagation(); a.onClick?.(); }} data-aktion={a.id || i}
+            style={{ fontFamily: "inherit", fontSize: 14, fontWeight: 800, padding: "12px 10px", borderRadius: 12, cursor: "pointer",
+              background: a.primary ? "linear-gradient(180deg, #f0d894, #c9a95c)" : "rgba(12,8,22,.75)",
+              color: a.primary ? "#2a1f0a" : "#f2ecdc", border: `1px solid ${a.primary ? "#e9cf8a" : "rgba(233,207,138,.45)"}` }}>{a.label}</button>)}
+        </div>}
       </div>
     </div>
   );
 }
 
-// ── the three HOUSES: colors & names for badges and the muster line ──────────
-// ONE NAME PER HOUSE, everywhere: the register's headings, the caption under
-// a tile and the line under a name all say the same thing now — no more
-// "Kronenfiguren" here and "FIGUREN DER KRONE" there.
 const FAMILIES = {
   crown:  { de: "Figuren der Krone", en: "Pieces of the Crown", color: "#c9a45c" },
   shadow: { de: "Figuren des Schattens", en: "Pieces of the Shadow", color: "#8a7ab8" },

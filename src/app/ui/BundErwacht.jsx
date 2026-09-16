@@ -87,7 +87,7 @@ export function BundErwacht({ bundId, en, onClose }) {
         {/* die Kulisse DIESES Bundes, gedaempft - der Text hat Vorrang */}
         {BILD[b.id] && <img src={BILD[b.id]} alt="" aria-hidden draggable={false} data-kulisse={`bund-${b.id}`} data-gg-still=""
           style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
-            objectFit: "cover", opacity: 0.42, pointerEvents: "none" }} />}
+            objectFit: "cover", opacity: 0.6, pointerEvents: "none" }} />}
         <div aria-hidden style={{ position: "absolute", inset: 0, pointerEvents: "none",
           background: "linear-gradient(180deg, rgba(10,7,19,.32) 0%, rgba(10,7,19,.62) 58%, rgba(10,7,19,.86) 100%)" }} />
         <div style={{ position: "relative" }}>
@@ -109,7 +109,7 @@ export function BundErwacht({ bundId, en, onClose }) {
             const ch = CHARACTERS[id];
             if (!ch) return null;
             const bild = paintedForPiece({ kind: ch.kind, color: "w", hero: id === "gambit", level: 10 }, false);
-            const h = b.figuren.length > 2 ? 78 : 92;
+            const h = Math.round((b.figuren.length > 2 ? 78 : 92) * 1.2);   /* v1.22.1 (Besitzer): "gerne noch ein bisschen groesser" */
             return <div key={id} style={{ textAlign: "center" }}>
               {bild && <img src={bild} alt="" draggable={false}
                 style={{ height: h, display: "block", filter: "drop-shadow(0 6px 14px rgba(0,0,0,.6))" }} />}
@@ -139,7 +139,7 @@ export function BundErwacht({ bundId, en, onClose }) {
 
         {/* WARUM - die Geschichte. Kursiv und stiller, sie erklaert nichts,
             sie faerbt. */}
-        <div className="gg-quill" style={{ fontSize: 12.5, lineHeight: 1.45, fontStyle: "italic",
+        <div className="gg-quill" style={{ fontSize: 14.5, lineHeight: 1.45, fontStyle: "italic",
           color: "rgba(214,206,232,.78)", marginBottom: 14, padding: "0 4px" }}>{story}</div>
 
         <button onClick={onClose} style={{ width: "100%", padding: "11px 12px", borderRadius: 11,

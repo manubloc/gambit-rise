@@ -1,5 +1,16 @@
 # Changelog - Grand Gambit
 
+## 1.22.1
+- DIE VOLLBILD-ANSICHT TRAEGT DIE KULISSE DER FIGUR (Besitzer: "mega cool,
+  wenn wir hier den Hintergrund mit reinnehmen"): in voller Groesse hinter
+  der Figur, oben und unten abgedunkelt. Der Satz unten war abgeschnitten und
+  zu klein - jetzt 16 px auf der dunklen Platte, mit Luft zur Leiste. Und die
+  Ansicht kennt jetzt einen Titel und Aktionen: das wird der Moment, in dem
+  man eine Figur gewinnt ("hat sich dir angeschlossen", "Zurueck zur Karte",
+  "Zum Hofstaat"); die Verdrahtung ans Kapitelende folgt.
+- DAS BUNDFENSTER: Geschichte 14,5 statt 12,5 px (Besitzer: "minimal zu
+  klein"), Kulisse 60 statt 42 %, Figuren 20 % groesser.
+
 ## 1.22.0
 - JEDE FIGUR EIN INDIVIDUUM - DIE PROFILE SIND GESPREIZT (Besitzerentscheid:
   "die sind alle viel zu nah beieinander; es darf welche geben mit ganz viel
