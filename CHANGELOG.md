@@ -1,5 +1,14 @@
 # Changelog - Grand Gambit
 
+## 1.23.1
+- PFLICHT IST NUR DER KOENIG (Besitzerentscheid): der Laeufer ist keine
+  Pflichtfigur mehr und frei besetzbar wie Turm und Springer; jeder freie
+  Platz nimmt, was man gesammelt hat. Der Platz der Dame haelt weiter die
+  Dame oder einen gewonnenen Meister - sonst nichts. Auf allen fuenf Karten.
+  Vier Proben. Die Zweier-Grenze fuer Laeufer, Springer, Turm steht noch aus:
+  die Grundstellung der Arena traegt vier Springer, und ein frischer
+  Klassiksatz kann zehn Plaetze anders nicht fuellen - Entscheidung offen.
+
 ## 1.23.0
 - DIE MONSTER SIND GENAUSO GESPREIZT WIE DIE FIGUREN (Besitzer: "alle Figuren,
   die man spielen kann und die gegen einen spielen, sollten in maximalster Form

@@ -223,9 +223,10 @@ function boostSpec(char, dupes) {
 const BACK_SIZE = DEFAULT_BACK_RANK.length; // 10
 // The fixed-count heavy pieces every legal formation must contain (positionable,
 // but not multipliable — this keeps material balanced without a points budget).
-export const FORMATION_REQUIRED = { king: 1, queen: 1, bishop: 2 };
+export const FORMATION_REQUIRED = { king: 1, queen: 1 };   /* v1.23.1: der Laeufer ist keine Pflicht mehr (Besitzer) */
 // The remaining slots are "flex": a knight or any unlocked flank-eligible fairy.
-export const FORMATION_FLEX = new Set(CHARACTER_LIST.filter((c) => c.flank).map((c) => c.id));
+/* v1.23.1: der Laeufer ist keine Pflicht mehr, also frei besetzbar wie Turm und Springer */
+export const FORMATION_FLEX = new Set([...CHARACTER_LIST.filter((c) => c.flank).map((c) => c.id), "bishop"]);
 export const FORMATION_FLEX_COUNT = BACK_SIZE - Object.values(FORMATION_REQUIRED).reduce((a, b) => a + b, 0); // 4
 
 /** The standard back rank expressed as character ids (the default formation). */

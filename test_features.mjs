@@ -685,5 +685,25 @@ console.log("\n== DIE WIRKUNG DER BUENDE (v1.10.0) ==");
   }
 }
 
+/* ── PFLICHT IST NUR DER KOENIG (v1.23.1, Besitzerentscheid) ─────────────────
+   "Die Laeufer gehoeren nicht zu den Pflichtfiguren. Es gibt nur ein paar
+   Regeln: jede gesammelte Figur einmal, Laeufer, Springer und Turm zweimal,
+   die Dame ist ein Meister - ein gewonnener Meister darf sie ersetzen, sonst
+   nirgends." */
+{
+  const { formationLegalOn, defaultFormation } = await import("./src/meta/index.js");
+  const { mapById } = await import("./src/content/index.js");
+  const arena = mapById("arena");
+  const alle = ["gambit","pawn","knight","bishop","rook","queen","king","paladin","amazon","mage"];
+  const f = defaultFormation(arena); const ohneLaeufer = f.map((id) => (id === "bishop" ? "rook" : id));
+  ok("eine Aufstellung ganz ohne Laeufer ist erlaubt", formationLegalOn(ohneLaeufer, alle, arena) === true);
+  const einLaeufer = f.map((id, i) => (id === "bishop" && i > 4 ? "paladin" : id));
+  ok("ein einzelner Laeufer neben einem Paladin ebenso", formationLegalOn(einLaeufer, alle, arena) === true);
+  const ohneKoenig = f.map((id) => (id === "king" ? "rook" : id));
+  ok("ohne Koenig geht nichts", formationLegalOn(ohneKoenig, alle, arena) === false);
+  const turmStattDame = f.map((id) => (id === "queen" ? "rook" : id));
+  ok("der Platz der Dame nimmt keinen Turm - nur die Dame oder einen Meister", formationLegalOn(turmStattDame, alle, arena) === false);
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
