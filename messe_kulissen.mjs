@@ -87,6 +87,7 @@ await page.evaluate(({ chars, kinds, bosse }) => {
     const p = JSON.parse(roh);
     p.gold = 9000; p.sp = 60;
     p.unlocked = chars;
+    p.pieces = p.pieces || {}; p.pieces.abilities = { ...(p.pieces.abilities || {}), amazon: ["ranged_shot", "teleport"], knight: ["knight_longleap", "knight_outrider"] };
     p.codex = p.codex || {}; p.codex.met = [...kinds, ...bosse.map((b) => "X:" + b)];
     p.campaign = p.campaign || {}; p.campaign.bribedBosses = bosse.slice(0, 12);   /* die Haelfte bleibt "begegnet" - fuer die Graustufen-Messung */
     return JSON.stringify(p);
@@ -176,7 +177,13 @@ const kopf = await page.evaluate(() => {
     const kachel = w.closest("[data-kopf]")?.parentElement || w.parentElement;
     return Math.round((kachel.getBoundingClientRect().bottom - yPx) * 10) / 10;
   }).filter((v) => v !== null);
-  return { kacheln, stufen, grau, farbig, toene, meisterMitRohr, baender, boden };
+  /* v1.20.2: die Namenszeile sitzt in jeder Kachel gleich weit unter der Oberkante */
+  const namen = [...document.querySelectorAll("[data-kopf]")].map((k) => {
+    const kachel = k.parentElement; const n = [...kachel.querySelectorAll(".gg-quill")].pop();
+    return n ? Math.round(n.getBoundingClientRect().top - kachel.getBoundingClientRect().top) : null;
+  }).filter((v) => v !== null);
+  const talente = document.querySelectorAll("[data-kopf] [data-talent]").length;
+  return { kacheln, stufen, grau, farbig, toene, meisterMitRohr, baender, boden, namen, talente };
 });
 const kopfH = [...new Set(kopf.kacheln.map((h) => String(h).split("|")[0]))];
 const rohrVersatz = kopf.kacheln.map((h) => String(h).split("|")[1]).filter((x) => x !== undefined).map(Number);
@@ -193,6 +200,11 @@ ok(`jedes Sockelband liegt deckungsgleich auf seinem Bild (${kopf.baender.length
 {
   const b = kopf.boden; const mn = Math.min(...b), mx = Math.max(...b);
   ok(`alle Figuren stehen auf derselben Bodenlinie (${b.length} gemessen, ${mn}-${mx} px ueber der Kachelkante, Spanne ${(mx - mn).toFixed(1)} px)`, b.length >= 30 && mx - mn <= 2.5);
+}
+{
+  const n = [...new Set(kopf.namen)];
+  ok(`die Namenszeile sitzt in jeder Kachel gleich hoch (${kopf.namen.length} Kacheln, ${n.join("/")} px unter der Kante)`, kopf.namen.length >= 50 && n.length === 1);
+  ok(`- auch wenn Talente in der Spalte haengen (${kopf.talente} Talentzeichen im Hofstaat)`, kopf.talente >= 2);
 }
 const deckungen = [...new Set(gemessen.map((g) => g.deckung))];
 ok(`die Kulisse ist deutlich zu sehen, aber nicht ueber der Figur (Deckung ${deckungen.join("/")})`, deckungen.every((d) => Number(d) >= 0.5 && Number(d) < 1));

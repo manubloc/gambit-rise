@@ -1795,8 +1795,14 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
           links die Talente, in der Mitte das Lebensrohr, rechts die Stufe.
           Monster tragen dieselbe Zeile; wo nichts zu zeigen ist, bleibt der
           Platz leer, das Mass aber steht. */}
-      <div data-kopf="1" style={{ display: "flex", alignItems: "flex-start", gap: 4, marginBottom: 2, minHeight: 21 }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: 3, width: 21, flex: "0 0 auto" }}>
+      {/* v1.20.2 (Besitzer: "warum sind Stratege und Kapitaen so hoch?"): die
+          Talentspalte links wuchs mit zwei Zeichen auf 45 px und drueckte
+          Figur und Namen ihrer Kachel nach unten - die Nachbarn ohne Talente
+          sassen 24 px hoeher. Die Kopfzeile hat jetzt eine FESTE Hoehe (21),
+          die Talente haengen als eigene Spalte ueber dem Bild (absolut), wie
+          in der Vorlage. Gemessen: Namenszeile in allen Kacheln gleich. */}
+      <div data-kopf="1" style={{ position: "relative", display: "flex", alignItems: "flex-start", gap: 4, marginBottom: 2, height: 21 }}>
+        <div style={{ position: "absolute", left: 0, top: 0, display: "flex", flexDirection: "column", gap: 3, width: 21, zIndex: 2 }}>
           {(talente || []).slice(0, 2).map((id) => <span key={id} data-talent={id} style={{ width: 21, height: 21, display: "grid", placeItems: "center",
             borderRadius: 6, background: "rgba(12,8,22,.7)", border: "1px solid rgba(233,207,138,.45)",
             filter: dim || dark ? "grayscale(1)" : "none" }}><AbilityIcon id={id} size={15} /></span>)}

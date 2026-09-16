@@ -1,5 +1,14 @@
 # Changelog - Grand Gambit
 
+## 1.20.2
+- STRATEGE UND KAPITAEN SASSEN ZU HOCH (Besitzerbefund) - genauer: die
+  Amazone daneben sass zu tief. Ihre Talentspalte links wuchs mit zwei
+  Zeichen auf 45 px und drueckte Figur und Namen ihrer Kachel um 24 px nach
+  unten; die Reihe wurde hoeher, die Nachbarn ohne Talente blieben oben.
+  Die Kopfzeile hat jetzt eine feste Hoehe, die Talente haengen als eigene
+  Spalte ueber dem Bild. Gemessen: Namenszeile vorher 153/177 px unter der
+  Kante, jetzt 153 in allen 52 Kacheln.
+
 ## 1.20.1
 - ALLE FIGUREN STEHEN AUF DERSELBEN BODENLINIE (Besitzerbefund: "die Koenigin
   sitzt im Verhaeltnis zu den anderen nicht richtig"). Die Gemaelde haben
