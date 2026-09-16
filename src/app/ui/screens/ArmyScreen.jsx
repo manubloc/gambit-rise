@@ -10,7 +10,7 @@ import { CHARACTER_LIST, CHARACTERS, ABILITIES, TAGS, SPERRGRUND, faehigkeitZust
 import LebensRohr from "../board/LebensRohr.jsx";
 import { rohrAnteile } from "../board/PieceGlyph.jsx";
 import { talentFarbe } from "../../../content/abilities.js";
-import { BASE_HP, BASE_ATK, SHIELD_HP, createGame, familyOf, crownHp, crownWallSoak, shadowRifts, shadowAtk } from "../../../core/index.js";
+import { BASE_HP, BASE_ATK, SHIELD_HP, werteBeiStufe, createGame, familyOf, crownHp, crownWallSoak, shadowRifts, shadowAtk } from "../../../core/index.js";
 import {
   characterLevel, resolveCharacter, isUnlocked, upgradeCost, canUpgrade, maxLevelFor, gambitTier, clearedCount,
   formationKey, formationLegalOn, formationCounts, buildArmyFromFormation, buildArmyFrom, defaultFormation, buildAiArmyForMap, hpUnlocked, ownedLeagueBosses, isBossEntry, bossEntryId, crownSlots,
@@ -564,8 +564,11 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
   const { abilities, shield } = resolveCharacter(char, level, chosen);
   const stars = dupeCount(profile, char.id);
   const isKing = char.kind === "K";
-  const maxHp = (BASE_HP[char.kind] || 1) + (level - 1) + (isKing ? 0 : shield * SHIELD_HP);
-  const atk = (BASE_ATK[char.kind] || 1) + Math.floor((level - 1) / 2);
+  /* v1.22.0: das Blatt rechnet wie der Kern (werteBeiStufe) - vorher stand
+     hier eine DRITTE Staffelung (+1 Angriff alle zwei Stufen). */
+  const _w = werteBeiStufe(char.kind, level, { maxLevel: maxLevelFor(char.id) });
+  const maxHp = _w.hp + (isKing ? 0 : shield * SHIELD_HP);
+  const atk = _w.atk;
   const rungs = char.ladder.filter((r) => r.ability).map((r) => ({ level: r.level, id: r.ability }));
   const maxed = level >= maxLevelFor(char.id);
   const cost = upgradeCost(char.id, level);
@@ -1749,9 +1752,11 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
     const lv = characterLevel(profile, cid) || 1;
     const hp0 = BASE_HP[ch.kind], atk0 = BASE_ATK[ch.kind];
     if (!hp0 || !atk0) return null;
-    /* dieselbe Staffelung wie im Kern: Leben je Stufe +1, Angriff alle drei */
-    const hp = hp0 + (lv - 1);
-    const atk = atk0 + Math.floor((lv - 1) / 3);
+    /* v1.22.0: DIESELBE Rechnung wie im Kern (werteBeiStufe). Vorher stand
+       hier eine eigene Staffelung (+1 Leben je Stufe, +1 Angriff alle drei),
+       die dem Kern seit dem relativen Wachstum nicht mehr entsprach - die
+       Kachel zeigte andere Werte als das Gefecht. */
+    const { hp, atk } = werteBeiStufe(ch.kind, lv, { maxLevel: maxLevelFor(cid) });
     return rohrAnteile({ hp, atk, level: lv, maxLevel: maxLevelFor(cid) });
   };
   /* Wie weit bis zur naechsten Stufe? Aus den Skillpunkten, die sie kostet. */

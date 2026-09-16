@@ -6,7 +6,7 @@
 export {
   FILES, RANKS, NUM_SQUARES, WHITE, BLACK, other, KIND,
   idx, fileOf, rankOf, inBounds, dirOf, startPawnRank, promoRank,
-  VALUE, SHIELD_VALUE, BASE_HP, BASE_ATK, SHIELD_HP, HP_REMIS_HALBZUEGE,
+  VALUE, SHIELD_VALUE, BASE_HP, BASE_ATK, SHIELD_HP, ZIEL_PROFIL, HOECHSTSTUFE, werteBeiStufe, HP_REMIS_HALBZUEGE,
 } from "./domain/constants.js";
 export { makePiece, emptyBoard, clonePiece, cloneBoard, findKing, newId } from "./domain/board.js";
 export { DEFAULT_BACK_RANK, FLANK_SLOTS, defaultArmy, createInitialState } from "./domain/setup.js";

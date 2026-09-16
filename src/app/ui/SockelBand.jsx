@@ -96,7 +96,7 @@ export function SockelBand({ paintedId, leben = 0, kraft = 0, grau = false, id =
       <linearGradient id={u("glanz")} x1="0" y1="0" x2="0" y2="1">
         <stop offset="0" stopColor="#000" stopOpacity=".62" /><stop offset=".22" stopColor="#000" stopOpacity=".12" />
         <stop offset=".3" stopColor="#fff" stopOpacity=".22" /><stop offset=".5" stopColor="#fff" stopOpacity=".04" />
-        <stop offset=".8" stopColor="#000" stopOpacity=".05" /><stop offset="1" stopColor="#000" stopOpacity=".5" />
+        <stop offset=".82" stopColor="#000" stopOpacity=".04" /><stop offset="1" stopColor="#000" stopOpacity=".28" />   {/* v1.22.0 (Besitzer): unten weniger Verlauf ins Dunkle */}
       </linearGradient>
       {grau && <filter id={u("grau")}><feColorMatrix type="saturate" values="0" /></filter>}
     </defs>

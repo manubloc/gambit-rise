@@ -139,8 +139,34 @@ const hpState = (board) => ({ board, w: 8, h: 8, holes: new Set(), rules: "hp", 
      (Grundleben 7) bei 13 statt 11. Die Probe haelt weiter fest, WORAUF es
      ankommt: der Koenig muss deutlich zaeher sein als die Dame, damit ein
      aufgestiegener Hof ihn belagern und nicht aufbrechen kann. */
+  /* v1.22.0: das ZIELPROFIL loest die relative Steigerung ab - der Koenig
+     laeuft von 10 auf 40, die Dame von 7 auf 18. Auf Stufe 5: 23 und 12. Die
+     Probe haelt weiter fest, worauf es ankommt: der Koenig ist ein Bollwerk. */
   ok(`a level-5 king carries ${king.maxHp} HP, the queen ${queen.maxHp}`,
-    king.maxHp === 24 && queen.maxHp === 13 && king.maxHp > queen.maxHp * 1.5);
+    king.maxHp === 23 && queen.maxHp === 12 && king.maxHp > queen.maxHp * 1.5);
+}
+
+/* ── DIE PROFILE SIND WEIT GESPREIZT (v1.22.0, Besitzerentscheid) ───────────
+   "Es darf welche geben mit ganz viel Leben und kaum Angriff, und welche mit
+   ganz viel Angriff, die auf einen Schlag kaputt sind." Gemessen auf der
+   Hoechststufe, ueber alle Arten. */
+{
+  const { ZIEL_PROFIL, werteBeiStufe, HOECHSTSTUFE } = await import("./src/core/index.js");
+  const blau = (k) => { const w = werteBeiStufe(k, HOECHSTSTUFE); return w.atk / (w.hp + w.atk); };
+  const arten = Object.keys(ZIEL_PROFIL);
+  const b = arten.map(blau); const mn = Math.min(...b), mx = Math.max(...b);
+  ok(`die Profile spannen von ${Math.round(mn * 100)} % bis ${Math.round(mx * 100)} % Blau (vorher 16 bis 55)`, mn <= 0.15 && mx >= 0.80);
+  ok("der Attentaeter ist eine Klinge: 4 Leben, 18 Angriff", werteBeiStufe("S", HOECHSTSTUFE).hp === 4 && werteBeiStufe("S", HOECHSTSTUFE).atk === 18);
+  ok("der Koenig ist ein Bollwerk: 40 Leben, 6 Angriff", werteBeiStufe("K", HOECHSTSTUFE).hp === 40 && werteBeiStufe("K", HOECHSTSTUFE).atk === 6);
+  ok("das Ziel ist auf der Hoechststufe genau erreicht", arten.every((k) => { const w = werteBeiStufe(k, HOECHSTSTUFE); return w.hp === ZIEL_PROFIL[k][0] && w.atk === ZIEL_PROFIL[k][1]; }));
+  const { BASE_HP: bh1, BASE_ATK: ba1 } = await import("./src/core/index.js");
+  ok("auf Stufe 1 gelten die Grundwerte", arten.every((k) => { const w = werteBeiStufe(k, 1); return w.hp === (bh1[k] || 1) && w.atk === (ba1[k] || 1); }));
+  const mono = arten.every((k) => { let ok2 = true; for (let l = 2; l <= HOECHSTSTUFE; l++) { const a = werteBeiStufe(k, l - 1), c = werteBeiStufe(k, l); if (c.hp < a.hp || c.atk < a.atk) ok2 = false; } return ok2; });
+  ok("keine Figur verliert beim Aufstieg Leben oder Angriff", mono);
+  /* das Niveau bleibt: mittleres Budget der Hofstaat-Arten etwa wie vorher (24) */
+  const budget = arten.filter((k) => k !== "K" && k !== "D").map((k) => { const w = werteBeiStufe(k, HOECHSTSTUFE); return w.hp + w.atk; });
+  const mittel = budget.reduce((a, c) => a + c, 0) / budget.length;
+  ok(`das mittlere Budget bleibt beim alten Niveau (${mittel.toFixed(1)} Punkte, vorher 21,6)`, mittel >= 19 && mittel <= 25);
 }
 
 // ── v0.25.0 INVARIANT: the single-cast law holds through FULL AI GAMES ───────

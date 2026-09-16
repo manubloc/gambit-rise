@@ -1,4 +1,4 @@
-import { FILES, RANKS, WHITE, BLACK, KIND, idx, BASE_HP, BASE_ATK, SHIELD_HP } from "./constants.js";
+import { FILES, RANKS, WHITE, BLACK, KIND, idx, BASE_HP, BASE_ATK, SHIELD_HP, werteBeiStufe } from "./constants.js";
 import { familyOf, crownHp, shadowAtk, shadowRifts } from "../rules/families.js";
 import { emptyBoard, makePiece } from "./board.js";
 
@@ -120,11 +120,14 @@ export function createInitialState(whiteArmy = defaultArmy(), blackArmy = defaul
          bleibt das Niveau (14,0 Leben, 7,6 Angriff im Mittel), und die Spanne
          der Profile waechst trotzdem von 15 auf 43 Prozentpunkte. Genau das
          war das Ziel: andere VERTEILUNG, gleiches Niveau. */
-      const wachsHp = 0.22 * basisHp * koenigsBonus;
-      const wachsAtk = 0.20 * basisAtk;
-      p.maxHp = Math.round(basisHp + (lvl - 1) * wachsHp) + (p.shield || 0) * SHIELD_HP;
+      /* v1.22.0: das ZIELPROFIL loest das relative Wachstum ab - jede Art
+         laeuft linear von ihrem Grundwert auf ihr Ziel (ZIEL_PROFIL in
+         constants.js). Eine Rechnung fuer Kern und Hofstaat: werteBeiStufe. */
+      void koenigsBonus;
+      const w = werteBeiStufe(p.kind, lvl, { baseHp: basisHp, baseAtk: basisAtk, maxLevel: p.maxLevel || undefined });
+      p.maxHp = w.hp + (p.shield || 0) * SHIELD_HP;
       p.hp = p.maxHp;
-      p.atk = Math.round(basisAtk + (lvl - 1) * wachsAtk);
+      p.atk = w.atk;
       p.shield = 0;
 
     }

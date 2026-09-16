@@ -1,5 +1,23 @@
 # Changelog - Grand Gambit
 
+## 1.22.0
+- JEDE FIGUR EIN INDIVIDUUM - DIE PROFILE SIND GESPREIZT (Besitzerentscheid:
+  "die sind alle viel zu nah beieinander; es darf welche geben mit ganz viel
+  Leben und welche mit ganz viel Angriff, die auf einen Schlag kaputt sind").
+  Jede Art hat jetzt ein ZIELPROFIL [Leben, Angriff] auf der Hoechststufe
+  (ZIEL_PROFIL in constants.js), das Wachstum laeuft linear vom Grundwert
+  dorthin. Blauanteil vorher 16-55 %, jetzt 13-82 %: Koenig 40/6, Drache 36/6,
+  Schildtraeger 22/4 (Bollwerke) - Bauer 7/3, Turm 17/6, Erzbischof 14/9
+  (standhaft) - Dame 18/14, Kanzler 15/14, Springer 8/9 (ausgewogen) -
+  Amazone 14/24, Magier 6/13, Warlock 5/18, Attentaeter 4/18 (Klingen). Das
+  mittlere Budget bleibt beim alten Niveau (21,6 Punkte).
+- EINE RECHNUNG FUER ALLE (werteBeiStufe): Kern, Hofstaat-Kachel und
+  Figurenblatt rechneten Leben und Angriff bisher DREI verschieden - die
+  Kachel zeigte +1/+1/3, das Blatt +1/+1/2, der Kern relativ. Jetzt eine
+  Funktion; sieben Proben in test_balance halten Spreizung, Ziel, Grundwerte
+  und Budget fest.
+- Sockelband: unten weniger Verlauf ins Dunkle (Besitzer).
+
 ## 1.21.2
 - ABZEICHEN GROESSER UND KRAEFTIGER (Besitzer): 36 px statt 30 auf der Kachel;
   die Figurenfarbe im Feld satter und heller gestellt (Saettigung x1,3,
