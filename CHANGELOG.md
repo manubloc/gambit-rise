@@ -1,5 +1,18 @@
 # Changelog - Grand Gambit
 
+## 1.18.0
+- DAS SOCKELBAND AUF DEM BRETT (Besitzerabnahme: "grundsaetzlich super"):
+  dieselbe Anzeige wie im Hofstaat, im Teller der Figur. Der Schnitt an der
+  Sockelkante aus v1.14.1 entfaellt, wo ein Band ist - der Teller traegt jetzt
+  die Anzeige. 40 Baender gemessen, 0,00 px Abweichung, kein Rohr mehr.
+- BAND-FEINSCHLIFF nach Vorlage: eingelassen (Schatten von beiden Fassungen
+  ins Band, als saesse es in einer Nut), keine Stege mehr zwischen Rot,
+  Schwarz und Blau - die Farben stossen stumpf aneinander.
+- AUF STUFE 1 IST ETWAS ZU SEHEN: die Fuellung beginnt bei 28 % statt bei
+  10 % und laeuft bis 100 % auf der Hoechststufe. Gilt fuer Band und Rohr.
+- DER DRACHE IST EIN KOLOSS (Besitzer): Leben 6 -> 10, Angriff 4 -> 2 -
+  "er greift ja eh schon flaechig an".
+
 ## 1.17.0
 - DAS BAND IM SOCKEL (Besitzervorlage "Integrated Status Display"): im
   Hofstaat sitzt Leben/Staerke jetzt als Ring auf der Vorderseite des

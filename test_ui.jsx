@@ -1520,7 +1520,7 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
       as3.includes("const hp0 = BASE_HP[ch.kind], atk0 = BASE_ATK[ch.kind]"));
     ok("das Rohr misst sich an der EIGENEN Hoechststufe der Figur",
       pg3.includes("const maxLv = Math.max(2, piece.maxLevel || VOLL_BEI_STUFE)")
-      && pg3.includes("const voll = stufe / maxLv;"));
+      && pg3.includes("const voll = 0.28 + 0.72 * ((stufe - 1) / (maxLv - 1));"));
     ok("der Stufenkreis traegt Lila auf Schwarz", as3.includes('border: "1px solid rgba(167,139,250,.75)"'));
     ok("der Erfahrungsbalken ist fort", !as3.includes("xpAnteil.hat}/{xpAnteil.kosten}"));
     /* und gerechnet: auf der Hoechststufe bleibt kein Schwarz */
@@ -1529,7 +1529,12 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
     const summe = voll.leben + voll.kraft;
     ok(`auf der Hoechststufe ist das Rohr voll (${Math.round(summe * 100)} %)`, summe > 0.995);
     const halb = rohrAnteile({ hp: 14, atk: 6, level: 10, maxLevel: 20 });
-    ok("auf halber Stufe ist es halb voll", Math.abs((halb.leben + halb.kraft) - 0.5) < 0.02);
+    /* v1.18.0 (Besitzer): "auch bei Stufe 1 muss minimal was sichtbar sein" -
+       die Fuellung beginnt bei 28 % und laeuft linear bis 100 %. Auf halber
+       Stufe (10 von 20) sind das 28 + 72 * 9/19 = 62 %. */
+    ok(`auf halber Stufe ist es zu ${Math.round((halb.leben + halb.kraft) * 100)} % voll (28 % Grundfuellung plus die Haelfte des Wegs)`, Math.abs((halb.leben + halb.kraft) - (0.28 + 0.72 * 9 / 19)) < 0.02);
+    const eins = rohrAnteile({ hp: 6, atk: 3, level: 1, maxLevel: 10 });
+    ok(`auf Stufe 1 ist etwas zu sehen (${Math.round((eins.leben + eins.kraft) * 100)} %, davon Rot ${Math.round(eins.leben * 100)} % und Blau ${Math.round(eins.kraft * 100)} %)`, eins.leben > 0.1 && eins.kraft > 0.1);
   }
 
   /* v1.9.1: DER MENUEHINTERGRUND FOLGT DEM KAPITEL. Besitzerbefund,

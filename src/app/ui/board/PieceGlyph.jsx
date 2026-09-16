@@ -1,5 +1,7 @@
 import { useRef, useState, useEffect } from "react";
 import LebensRohr, { ROHR_BREITE_VOM_SOCKEL, ROHR_HOEHE_VON_ZELLE, ROHR_KRUEMMUNG } from "./LebensRohr.jsx";
+import { SockelBand, bandBekannt } from "../SockelBand.jsx";
+import { paintedIdOf } from "./paintedArt.js";
 import { ABILITIES, TAGS } from "../../../content/index.js";
 import { T } from "../theme.js";
 import { PieceArt } from "./PieceArt.jsx";
@@ -156,7 +158,12 @@ export function rohrAnteile(piece) {
      soll das Rohr zeigen. */
   const maxLv = Math.max(2, piece.maxLevel || VOLL_BEI_STUFE);
   const stufe = Math.max(1, Math.min(maxLv, piece.level || 1));
-  const voll = stufe / maxLv;
+  /* v1.18.0 (Besitzer): "auch bei Stufe 1 muss minimal was sichtbar sein".
+     Vorher lief die Fuellung linear von 10 % (Stufe 1 von 10) bis 100 % -
+     auf den ersten Stufen war das Band praktisch schwarz. Jetzt beginnt sie
+     bei 28 % und laeuft bis 100 % auf der Hoechststufe; das Profil
+     (Rot zu Blau) bleibt, was es war. */
+  const voll = 0.28 + 0.72 * ((stufe - 1) / (maxLv - 1));
   return { leben: voll * hp / summe, kraft: voll * atk * KRAFT_GEWICHT / summe };
 }
 
@@ -226,6 +233,8 @@ function StatDuo({ piece, focus, shrink = 1 }) {
        schaut unten raus"): bei bottom -0,02 em sass das Rohr auf der
        Sockeloberkante und liess den Sockelfuss stehen. Es muss TIEFER - so
        tief, dass es den Sockel verschluckt, wie in der Bildstrecke. */
+    /* v1.18.0: traegt der Sockel das Band, gibt es kein Rohr mehr */
+    if (bandBekannt(paintedIdOf(paintedForPiece(piece, true)))) return null;
     /* v1.14.1: Mitte des Rohrs auf der Sockellinie - siehe sockelLinieEm. */
     const mitte = sockelLinieEm(piece);
     return <span style={{ position: "absolute", bottom: `${(mitte - ROHR_HOEHE_VON_ZELLE / 2).toFixed(4)}em`, left: "50%",
@@ -610,7 +619,12 @@ export function PieceGlyph({ piece, showLevel = true, pov = "w", artStyle = "pai
     () => (painting && fusslinieAusCache(painting)) ?? HAUSLINIE);
   /* v1.14.1: IM HP-GEFECHT ENDET DAS BILD AN DER SOCKELKANTE - der Teller
      bleibt weg, das Rohr uebernimmt seinen Platz (siehe sockelLinieEm). */
-  const schneide = ROHR_STATT_PERLEN && !!painting && !big && !klassisch && hpMode && piece.maxHp > 0;
+  /* v1.18.0: DAS BAND IM SOCKEL, auch auf dem Brett (Besitzervorlage "same
+     indicator, real gameplay"). Der Teller wird nicht mehr abgeschnitten -
+     er TRAEGT jetzt die Anzeige, wie in der Vorlage. Der Schnitt aus v1.14.1
+     bleibt nur fuer Gemaelde ohne Sockelmessung. */
+  const bandDa = ROHR_STATT_PERLEN && !!painting && !klassisch && hpMode && piece.maxHp > 0 && bandBekannt(paintedIdOf(painting));
+  const schneide = ROHR_STATT_PERLEN && !!painting && !big && !klassisch && hpMode && piece.maxHp > 0 && !bandDa;
   const schnitt = schneide ? `inset(0 0 ${(sockelKante * 100).toFixed(2)}% 0)` : undefined;
   useEffect(() => {
     let lebt = true;
@@ -848,6 +862,8 @@ export function PieceGlyph({ piece, showLevel = true, pov = "w", artStyle = "pai
             WebkitMaskImage: sockelVerlauf(sockelKante, nurSockel),
             maskImage: sockelVerlauf(sockelKante, nurSockel),
             userSelect: "none", pointerEvents: "none" }} />
+          {bandDa && (() => { const { leben, kraft } = rohrAnteile(piece);
+            return <SockelBand paintedId={paintedIdOf(painting)} leben={leben} kraft={kraft} ausrichtung="unten" id={`sbb-${piece.charId || piece.bossId || "x"}`} />; })()}
           {/* v1.0.66: DER SCHATTEN, AUS DEM SIE AUFSTEIGT. Ein schmaler
               schwarzer Schleier ueber den untersten Prozenten - er nimmt dem
               Fuss die Helligkeit, ohne die Glut zu senken. Im weissen Ton

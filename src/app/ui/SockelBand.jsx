@@ -34,7 +34,10 @@ function segment(m, h, tA, tB) {
   return P(unten) + " " + P(oben).replace(/^M/, "L") + " Z";
 }
 
-export function SockelBand({ paintedId, leben = 0, kraft = 0, grau = false, id = "sb" }) {
+/* ausrichtung: "mitte" fuer die Kachel (objectFit contain, mittig), "unten"
+   fuer das Brett (objectPosition center bottom) - der SVG muss genau so
+   liegen wie sein Bild. */
+export function SockelBand({ paintedId, leben = 0, kraft = 0, grau = false, id = "sb", ausrichtung = "mitte" }) {
   const m = MASS[paintedId];
   if (!m) return null;
   /* Bandhoehe: 17 % der Tellerbreite. Die Vorlage hat 26 px Band auf 180 px
@@ -52,7 +55,7 @@ export function SockelBand({ paintedId, leben = 0, kraft = 0, grau = false, id =
   const b = tR - (tR - tL) * Math.max(0, Math.min(1, kraft));
   const mitteA = Math.min(a, b), mitteB = Math.max(a, b);
   const u = (k) => `${id}-${k}`;
-  return <svg viewBox={`0 0 ${m.W} ${m.H}`} preserveAspectRatio="xMidYMid meet" aria-hidden data-gg="sockelband"
+  return <svg viewBox={`0 0 ${m.W} ${m.H}`} preserveAspectRatio={ausrichtung === "unten" ? "xMidYMax meet" : "xMidYMid meet"} aria-hidden data-gg="sockelband"
     style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", overflow: "visible" }}>
     <defs>
       {/* Farbe: oben hell, unten tief - eine gewoelbte Lackflaeche */}
@@ -73,8 +76,13 @@ export function SockelBand({ paintedId, leben = 0, kraft = 0, grau = false, id =
         <stop offset="0" stopColor="#000" stopOpacity=".55" /><stop offset=".2" stopColor="#000" stopOpacity="0" />
         <stop offset=".8" stopColor="#000" stopOpacity="0" /><stop offset="1" stopColor="#000" stopOpacity=".55" />
       </linearGradient>
+      {/* v1.18.0 (Besitzer): EINGELASSEN - ein Schatten von der oberen und
+          unteren Fassung ins Band hinein, als saesse es in einer Nut des
+          Tellers; der Glanz bleibt, aber unter dem Schatten. */}
       <linearGradient id={u("glanz")} x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stopColor="#fff" stopOpacity=".45" /><stop offset=".3" stopColor="#fff" stopOpacity=".08" /><stop offset="1" stopColor="#fff" stopOpacity="0" />
+        <stop offset="0" stopColor="#000" stopOpacity=".62" /><stop offset=".22" stopColor="#000" stopOpacity=".12" />
+        <stop offset=".3" stopColor="#fff" stopOpacity=".22" /><stop offset=".5" stopColor="#fff" stopOpacity=".04" />
+        <stop offset=".8" stopColor="#000" stopOpacity=".05" /><stop offset="1" stopColor="#000" stopOpacity=".5" />
       </linearGradient>
       {grau && <filter id={u("grau")}><feColorMatrix type="saturate" values="0" /></filter>}
     </defs>
@@ -91,10 +99,8 @@ export function SockelBand({ paintedId, leben = 0, kraft = 0, grau = false, id =
       {/* Goldfassung: Linien oben und unten, Stege an den Nahtstellen */}
       <path d={P(bogen(m, h, tL, tR))} fill="none" stroke={`url(#${u("gold")})`} strokeWidth={rand} />
       <path d={P(bogen(m, rand * 0.5, tL, tR))} fill="none" stroke="#5a3d12" strokeWidth={rand * 0.6} opacity=".7" />
-      {[mitteA, mitteB].filter((t) => t > tL + 0.02 && t < tR - 0.02).map((t, i) => {
-        const [x1, y1] = bogen(m, 0, t, t, 1)[0], [x2, y2] = bogen(m, h, t, t, 1)[0];
-        return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#c99a45" strokeWidth={rand * 0.7} opacity=".85" />;
-      })}
+      {/* v1.18.0 (Besitzer): KEINE Stege zwischen Rot, Schwarz und Blau -
+          die Farben stossen stumpf aneinander, wie in der Vorlage. */}
     </g>
   </svg>;
 }

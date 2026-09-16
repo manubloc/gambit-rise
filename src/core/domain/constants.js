@@ -37,8 +37,10 @@ export const SHIELD_VALUE = 70; // each shield charge is worth ~this to the AI
 // rules="hp". With 1 HP everywhere the game would be ordinary chess; these give
 // bigger pieces staying power so capturing becomes attrition. The king is tanky
 // because killing it wins the game (regicide).
-export const BASE_HP = { P: 2, N: 3, B: 3, H: 3, R: 5, A: 5, C: 6, Q: 7, M: 8, K: 10, X: 10, S: 3, G: 6, D: 6, E: 3, Z: 3, L: 4, W: 4, U: 6, I: 5, J: 4, T: 5, F: 5, Y: 4, O: 3, V: 4, SE: 3, };
-export const BASE_ATK = { P: 1, N: 2, B: 2, H: 2, R: 3, A: 3, C: 4, Q: 4, M: 5, K: 3, X: 3, S: 4, G: 2, D: 4, E: 3, Z: 3, L: 2, W: 4, U: 3, I: 3, J: 2, T: 3, F: 2, Y: 2, O: 2, V: 2, SE: 2, };
+/* v1.18.0 (Besitzer): der Drache ist ein Koloss - mehr Leben, weniger
+   Angriff, "weil er ja eh schon flaechig angreift". D: 6/4 -> 10/2. */
+export const BASE_HP = { P: 2, N: 3, B: 3, H: 3, R: 5, A: 5, C: 6, Q: 7, M: 8, K: 10, X: 10, S: 3, G: 6, D: 10, E: 3, Z: 3, L: 4, W: 4, U: 6, I: 5, J: 4, T: 5, F: 5, Y: 4, O: 3, V: 4, SE: 3, };
+export const BASE_ATK = { P: 1, N: 2, B: 2, H: 2, R: 3, A: 3, C: 4, Q: 4, M: 5, K: 3, X: 3, S: 4, G: 2, D: 2, E: 3, Z: 3, L: 2, W: 4, U: 3, I: 3, J: 2, T: 3, F: 2, Y: 2, O: 2, V: 2, SE: 2, };
 /* HP-Remis: bleiben so viele HALBZUEGE ohne jeden Schaden, endet die Partie
    unentschieden. 120 Halbzuege = 60 Zuege je Seite. Zaehler springt auf 0,
    sobald Schaden faellt, jemand stirbt oder ein Boss nachschafft. */

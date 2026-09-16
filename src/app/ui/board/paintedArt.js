@@ -336,7 +336,7 @@ function paintedRoh(piece) {
 export const paintedById = (id) => PAINTED[id] || null;
 /* v1.17.0: der Weg zurueck - von der URL zur Id, damit das Sockelband weiss,
    welches Gemaelde (und damit welche Sockelmessung) vor ihm liegt. */
-const URL_ZU_ID = new Map(Object.entries(PAINTED).map(([k, v]) => [v, k]));
+const URL_ZU_ID = new Map([...Object.entries(PAINTED), ...Object.entries(PAINTED_KLEIN)].map(([k, v]) => [v, k]));   // gross UND klein (Brett, 1/3-Mass, gleiches Verhaeltnis)
 export const paintedIdOf = (url) => (url && URL_ZU_ID.get(url)) || null;
 
 // ── Base-width normalisation ────────────────────────────────────────────────
