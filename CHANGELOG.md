@@ -1,5 +1,19 @@
 # Changelog - Grand Gambit
 
+## 1.19.0
+- DAS MEDAILLON (Besitzerwunsch): der Stufenkreis oben rechts traegt die
+  Farbe der Figur - Koenig blau, Springer rot, Magier violett, Drache gruen;
+  Monster den Akzent ihres Bosses. Mit Struktur (Speichen aus einem konischen
+  Verlauf), Glanz oben, Schatten unten, Rand im helleren Ton. Grau fuer
+  Fremdes. Die Farbe ist GEMESSEN (scripts/messe_farbe.py -> figurfarbe.json):
+  der volleste Farbtonsektor der gesaettigten Pixel oberhalb des Sockels,
+  ohne Hauttoene - beim Magier gewann anfangs die Haut, weil die Robe zu
+  gedeckt fuer die Spannenregel war; die HSV-Saettigung entscheidet jetzt.
+- FARBANGLEICH FUER ALLE KACHELN, leise: die Kulisse der Figuren bekommt
+  denselben Farbschleier wie die der Monster, mit 22 % statt 45 % - die
+  Figuren tragen mehrere Farben.
+- docs/backlog.md um die erledigten Punkte gekuerzt.
+
 ## 1.18.0
 - DAS SOCKELBAND AUF DEM BRETT (Besitzerabnahme: "grundsaetzlich super"):
   dieselbe Anzeige wie im Hofstaat, im Teller der Figur. Der Schnitt an der

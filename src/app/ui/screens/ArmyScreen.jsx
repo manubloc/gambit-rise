@@ -30,7 +30,8 @@ import { kulisseFuer } from "../kulissen.js";
 import { KulisseHinterGrund } from "../KulissenBilder.jsx";
 import { BundTafel } from "../BundTafel.jsx";
 import { SockelBand, bandBekannt } from "../SockelBand.jsx";   /* v1.17.0: das Band im Sockel */
-import { paintedIdOf } from "../board/paintedArt.js";   /* v1.16.0: Bund, Kapitel, Gruppe, Herkunft - erst auf dem Blatt */
+import { paintedIdOf } from "../board/paintedArt.js";
+import { figurFarbe, hellDunkel } from "../figurfarbe.js";   /* v1.19.0: Medaillon und Kulisse in der Farbe der Figur */   /* v1.16.0: Bund, Kapitel, Gruppe, Herkunft - erst auf dem Blatt */
 import { CoinIc, SkillIc } from "../icons.jsx";
 import { ItemIcon } from "../ItemIcon.jsx";
 import { BoardView } from "../board/BoardView.jsx";
@@ -1784,8 +1785,11 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
           GRAUSTUFEN da - Kulisse wie Figur. Vorher fehlte dunklen Kacheln die
           Kulisse ganz, gedaempfte trugen sie farbig. Monster bekommen dazu
           einen Farbschleier im Ton der Figur. */}
+      {/* v1.19.0 (Besitzer): der Farbangleich der Monster auch bei den
+          Figuren - aber schwaecher, sie tragen mehrere Farben. Ton der Figur
+          aus der Messung (figurfarbe.json), 22 % statt 45 %. */}
       <KulisseHinterGrund name={kulisseFuer({ charId: artId, bossId })} deckung={dark ? 0.5 : dim ? 0.7 : 0.92}
-        grau={!!(dim || dark)} ton={ton} />
+        grau={!!(dim || dark)} ton={ton || figurFarbe(paintedIdOf(img))} tonStaerke={ton ? 0.45 : 0.22} />
       {/* v1.15.1: DIE KOPFZEILE - fuer JEDE Kachel gleich (Besitzervorlage):
           links die Talente, in der Mitte das Lebensrohr, rechts die Stufe.
           Monster tragen dieselbe Zeile; wo nichts zu zeigen ist, bleibt der
@@ -1808,12 +1812,22 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
             Mitte - kein SVG-Text mehr, dessen Grundlinie je Schrift wanderte
             (Besitzerbefund: "nicht sauber ausgemittelt"). Gemessen in
             messe_kulissen.mjs. */}
+        {/* v1.19.0 (Besitzer): DAS MEDAILLON - der Stufenkreis in der Farbe
+            der Figur (Monster: Akzent des Bosses), mit feiner Struktur
+            (Speichen aus einem konischen Verlauf) und Schattierung: Glanz
+            oben, Schatten unten, ein Rand im helleren Ton. Grau fuer Fremdes,
+            Violett nur noch, wenn keine Farbe bekannt ist. */}
         {stufe != null
-          ? <div data-stufe={String(stufe)} style={{ width: 21, height: 21, flex: "0 0 auto", borderRadius: "50%",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              background: "radial-gradient(circle at 50% 40%, #241a3e, #120c22)", border: "1px solid rgba(167,139,250,.75)",
-              boxShadow: "0 0 8px rgba(124,58,237,.5), inset 0 0 6px rgba(124,58,237,.25)",
-              font: "600 10.5px Georgia, serif", color: "#d8c4ff", lineHeight: "21px", height: 21 }}>{stufe}</div>
+          ? (() => { const f = (dim || dark) ? "#5a5650" : (ton || figurFarbe(paintedIdOf(img)) || "#5b3fa6");
+              return <div data-stufe={String(stufe)} data-medaillon={f} style={{ width: 21, height: 21, flex: "0 0 auto", borderRadius: "50%",
+              display: "flex", alignItems: "center", justifyContent: "center", position: "relative", overflow: "hidden",
+              background: `repeating-conic-gradient(from 0deg, ${hellDunkel(f, 0.10)} 0deg 6deg, ${hellDunkel(f, -0.12)} 6deg 12deg)`,
+              border: `1px solid ${hellDunkel(f, 0.42)}`,
+              boxShadow: `0 1px 4px rgba(0,0,0,.55), inset 0 3px 5px rgba(255,255,255,.28), inset 0 -3px 5px rgba(0,0,0,.45), 0 0 8px ${f}55`,
+              font: "700 10.5px Georgia, serif", color: "#fff6dc", textShadow: "0 1px 1px rgba(0,0,0,.7)", lineHeight: "21px", height: 21 }}>
+              <span aria-hidden style={{ position: "absolute", inset: 0, borderRadius: "50%",
+                background: `radial-gradient(circle at 50% 42%, ${hellDunkel(f, 0.18)}cc 0%, ${f}88 45%, ${hellDunkel(f, -0.35)}dd 100%)` }} />
+              <span style={{ position: "relative" }}>{stufe}</span></div>; })()
           : <div style={{ width: 21, height: 21, flex: "0 0 auto" }} />}
       </div>
       {/* v1.0.11 (Besitzer): das ECK-SIGIL ist fort — die Kachel gehört ganz

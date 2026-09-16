@@ -77,7 +77,7 @@ export const KULISSE_URL = {
    damit Kulisse und Figur sich grob angleichen. Der Schleier liegt als
    mix-blend-mode: color ueber dem Bild - er faerbt, ohne Helligkeit oder
    Zeichnung zu nehmen. */
-export function KulisseHinterGrund({ name, radius = 11, deckung = 0.92, grau = false, ton = null }) {
+export function KulisseHinterGrund({ name, radius = 11, deckung = 0.92, grau = false, ton = null, tonStaerke = 0.45 }) {
   const src = name ? KULISSE_URL[name] : null;
   if (!src) return null;
   return <>
@@ -86,7 +86,7 @@ export function KulisseHinterGrund({ name, radius = 11, deckung = 0.92, grau = f
         borderRadius: radius, opacity: deckung, pointerEvents: "none", zIndex: -1,
         filter: grau ? "grayscale(1) brightness(.55)" : "none" }} />
     {ton && !grau && <div aria-hidden data-kulisse-ton={ton} style={{ position: "absolute", inset: 0, borderRadius: radius, pointerEvents: "none", zIndex: -1,
-      background: ton, mixBlendMode: "color", opacity: 0.45 }} />}
+      background: ton, mixBlendMode: "color", opacity: tonStaerke }} />}
     <div aria-hidden style={{ position: "absolute", inset: 0, borderRadius: radius, pointerEvents: "none", zIndex: -1,
       background: "linear-gradient(180deg, rgba(10,7,19,0) 0%, rgba(10,7,19,0) 58%, rgba(10,7,19,.55) 82%, rgba(10,7,19,.78) 100%)" }} />
   </>;
