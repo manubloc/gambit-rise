@@ -30,23 +30,21 @@ export const ABZEICHEN_DEFS = `
  <!-- ZIERAT je Metall: Bronze Hammerschlag, Silber gravierte Doppellinie, Gold Filigran mit vier Steinen -->
  <symbol id="sa-zier-bronze" viewBox="0 0 64 64"><g fill="#000" fill-opacity=".22"><circle cx="32" cy="12.2" r="1.1"/><circle cx="51.8" cy="32" r="1.1"/><circle cx="32" cy="51.8" r="1.1"/><circle cx="12.2" cy="32" r="1.1"/><circle cx="46" cy="18" r=".9"/><circle cx="46" cy="46" r=".9"/><circle cx="18" cy="46" r=".9"/><circle cx="18" cy="18" r=".9"/></g><g fill="#fff" fill-opacity=".22"><circle cx="32" cy="11.4" r=".8"/><circle cx="52.6" cy="32" r=".8"/><circle cx="32" cy="51" r=".8"/><circle cx="11.4" cy="32" r=".8"/></g></symbol>
  <symbol id="sa-zier-silber" viewBox="0 0 64 64"><circle cx="32" cy="32" r="20.2" fill="none" stroke="#000" stroke-opacity=".32" stroke-width=".7"/><circle cx="32" cy="32" r="20.2" fill="none" stroke="#fff" stroke-opacity=".38" stroke-width=".5" stroke-dasharray="6 2"/><circle cx="32" cy="32" r="18.3" fill="none" stroke="#000" stroke-opacity=".25" stroke-width=".5"/></symbol>
- <symbol id="sa-zier-gold" viewBox="0 0 64 64"><g fill="none" stroke="#5a3d10" stroke-opacity=".7" stroke-width=".55"><path d="M26 11.4c2 1.6 4 1.6 6 0 2 1.6 4 1.6 6 0"/><path d="M26 52.6c2-1.6 4-1.6 6 0 2-1.6 4-1.6 6 0"/><path d="M11.4 26c1.6 2 1.6 4 0 6 1.6 2 1.6 4 0 6"/><path d="M52.6 26c-1.6 2-1.6 4 0 6-1.6 2-1.6 4 0 6"/></g><g fill="none" stroke="#fff6d6" stroke-opacity=".55" stroke-width=".4"><path d="M26 10.8c2 1.6 4 1.6 6 0 2 1.6 4 1.6 6 0"/><path d="M26 52c2-1.6 4-1.6 6 0 2-1.6 4-1.6 6 0"/></g><g><circle cx="46.2" cy="17.8" r="1.5" fill="#c1121f"/><circle cx="46.2" cy="17.8" r="1.5" fill="url(#sa-glanzpunkt)"/><circle cx="17.8" cy="17.8" r="1.5" fill="#1f5fbf"/><circle cx="17.8" cy="17.8" r="1.5" fill="url(#sa-glanzpunkt)"/><circle cx="17.8" cy="46.2" r="1.5" fill="#1f8a3c"/><circle cx="17.8" cy="46.2" r="1.5" fill="url(#sa-glanzpunkt)"/><circle cx="46.2" cy="46.2" r="1.5" fill="#c1121f"/><circle cx="46.2" cy="46.2" r="1.5" fill="url(#sa-glanzpunkt)"/></g><g fill="#fff" fill-opacity=".9"><path d="M14 20l.6 1.6 1.6.6-1.6.6-.6 1.6-.6-1.6-1.6-.6 1.6-.6z"/><path d="M50 43l.5 1.3 1.3.5-1.3.5-.5 1.3-.5-1.3-1.3-.5 1.3-.5z"/></g></symbol>
- <symbol id="sa-zier-gold-schild" viewBox="0 0 64 64"><g><circle cx="16.5" cy="14" r="1.6" fill="#c1121f"/><circle cx="16.5" cy="14" r="1.6" fill="url(#sa-glanzpunkt)"/><circle cx="47.5" cy="14" r="1.6" fill="#1f5fbf"/><circle cx="47.5" cy="14" r="1.6" fill="url(#sa-glanzpunkt)"/><circle cx="32" cy="55.5" r="1.4" fill="#1f8a3c"/><circle cx="32" cy="55.5" r="1.4" fill="url(#sa-glanzpunkt)"/></g><g fill="#fff" fill-opacity=".9"><path d="M13 22l.6 1.6 1.6.6-1.6.6-.6 1.6-.6-1.6-1.6-.6 1.6-.6z"/><path d="M50 40l.5 1.3 1.3.5-1.3.5-.5 1.3-.5-1.3-1.3-.5 1.3-.5z"/></g></symbol>
- <symbol id="sa-zier-gold-siegel" viewBox="0 0 64 64"><g><circle cx="32" cy="8.5" r="1.5" fill="#c1121f"/><circle cx="32" cy="8.5" r="1.5" fill="url(#sa-glanzpunkt)"/><circle cx="55.5" cy="32" r="1.5" fill="#1f5fbf"/><circle cx="55.5" cy="32" r="1.5" fill="url(#sa-glanzpunkt)"/><circle cx="32" cy="55.5" r="1.5" fill="#1f8a3c"/><circle cx="32" cy="55.5" r="1.5" fill="url(#sa-glanzpunkt)"/><circle cx="8.5" cy="32" r="1.5" fill="#c1121f"/><circle cx="8.5" cy="32" r="1.5" fill="url(#sa-glanzpunkt)"/></g><g fill="#fff" fill-opacity=".9"><path d="M14 20l.6 1.6 1.6.6-1.6.6-.6 1.6-.6-1.6-1.6-.6 1.6-.6z"/><path d="M50 43l.5 1.3 1.3.5-1.3.5-.5 1.3-.5-1.3-1.3-.5 1.3-.5z"/></g></symbol>
+ <symbol id="sa-zier-gold" viewBox="0 0 64 64"><g fill="none" stroke="#5a3d10" stroke-opacity=".7" stroke-width=".55"><path d="M26 11.4c2 1.6 4 1.6 6 0 2 1.6 4 1.6 6 0"/><path d="M26 52.6c2-1.6 4-1.6 6 0 2-1.6 4-1.6 6 0"/><path d="M11.4 26c1.6 2 1.6 4 0 6 1.6 2 1.6 4 0 6"/><path d="M52.6 26c-1.6 2-1.6 4 0 6-1.6 2-1.6 4 0 6"/></g><g fill="none" stroke="#fff6d6" stroke-opacity=".55" stroke-width=".4"><path d="M26 10.8c2 1.6 4 1.6 6 0 2 1.6 4 1.6 6 0"/><path d="M26 52c2-1.6 4-1.6 6 0 2-1.6 4-1.6 6 0"/></g><g fill="#fff" fill-opacity=".9"><path d="M14 20l.6 1.6 1.6.6-1.6.6-.6 1.6-.6-1.6-1.6-.6 1.6-.6z"/><path d="M50 43l.5 1.3 1.3.5-1.3.5-.5 1.3-.5-1.3-1.3-.5 1.3-.5z"/></g></symbol>
+ <symbol id="sa-zier-gold-schild" viewBox="0 0 64 64"><g fill="none" stroke="#5a3d10" stroke-opacity=".7" stroke-width=".55"><path d="M20 12.5c2 1.4 4 1.4 6 0M38 12.5c2 1.4 4 1.4 6 0"/></g><g fill="none" stroke="#fff6d6" stroke-opacity=".55" stroke-width=".4"><path d="M20 11.9c2 1.4 4 1.4 6 0M38 11.9c2 1.4 4 1.4 6 0"/></g><g fill="#fff" fill-opacity=".9"><path d="M13 22l.6 1.6 1.6.6-1.6.6-.6 1.6-.6-1.6-1.6-.6 1.6-.6z"/><path d="M50 40l.5 1.3 1.3.5-1.3.5-.5 1.3-.5-1.3-1.3-.5 1.3-.5z"/></g></symbol>
+ <symbol id="sa-zier-gold-siegel" viewBox="0 0 64 64"><g fill="none" stroke="#5a3d10" stroke-opacity=".7" stroke-width=".55"><path d="M26 9.5c2 1.5 4 1.5 6 0 2 1.5 4 1.5 6 0M26 54.5c2-1.5 4-1.5 6 0 2-1.5 4-1.5 6 0"/></g><g fill="none" stroke="#fff6d6" stroke-opacity=".55" stroke-width=".4"><path d="M26 8.9c2 1.5 4 1.5 6 0 2 1.5 4 1.5 6 0"/></g><g fill="#fff" fill-opacity=".9"><path d="M14 20l.6 1.6 1.6.6-1.6.6-.6 1.6-.6-1.6-1.6-.6 1.6-.6z"/><path d="M50 43l.5 1.3 1.3.5-1.3.5-.5 1.3-.5-1.3-1.3-.5 1.3-.5z"/></g></symbol>
+ <symbol id="sa-lorbeer" viewBox="0 0 64 64"><g filter="url(#sa-wurf)"><g id="sa-lorbeerL" class="lorbeer"><path d="M13.5 46.5c-5.5-6.5-6.5-17.5-2-25" fill="none" stroke="var(--md,url(#sa-goldDunkel))" stroke-width="2.4" stroke-linecap="round"/><g fill="var(--m,url(#sa-gold))" stroke="#5a3d10" stroke-width=".35" stroke-linejoin="round"><path d="M0 0c2.4-1.4 3.4-4.4 2.6-7.6-2.8 1.1-4.3 4-2.6 7.6z" transform="translate(13.2 45.5) rotate(-38)"/><path d="M0 0c2.4-1.4 3.4-4.4 2.6-7.6-2.8 1.1-4.3 4-2.6 7.6z" transform="translate(12.0 47.0) rotate(-72) scale(.72)"/><path d="M0 0c2.4-1.4 3.4-4.4 2.6-7.6-2.8 1.1-4.3 4-2.6 7.6z" transform="translate(10.4 39.5) rotate(-26)"/><path d="M0 0c2.4-1.4 3.4-4.4 2.6-7.6-2.8 1.1-4.3 4-2.6 7.6z" transform="translate(9.200000000000001 41.0) rotate(-60) scale(.72)"/><path d="M0 0c2.4-1.4 3.4-4.4 2.6-7.6-2.8 1.1-4.3 4-2.6 7.6z" transform="translate(9.2 33) rotate(-14)"/><path d="M0 0c2.4-1.4 3.4-4.4 2.6-7.6-2.8 1.1-4.3 4-2.6 7.6z" transform="translate(7.999999999999999 34.5) rotate(-48) scale(.72)"/><path d="M0 0c2.4-1.4 3.4-4.4 2.6-7.6-2.8 1.1-4.3 4-2.6 7.6z" transform="translate(9.4 26.5) rotate(-4)"/><path d="M0 0c2.4-1.4 3.4-4.4 2.6-7.6-2.8 1.1-4.3 4-2.6 7.6z" transform="translate(8.200000000000001 28.0) rotate(-38) scale(.72)"/><path d="M0 0c2.4-1.4 3.4-4.4 2.6-7.6-2.8 1.1-4.3 4-2.6 7.6z" transform="translate(11 21) rotate(8)"/><path d="M0 0c2.4-1.4 3.4-4.4 2.6-7.6-2.8 1.1-4.3 4-2.6 7.6z" transform="translate(9.8 22.5) rotate(-26) scale(.72)"/></g></g><use href="#sa-lorbeerL" transform="translate(64 0) scale(-1 1)"/></g></symbol>
  <symbol id="sa-medaillon" viewBox="0 0 64 64">
   <g filter="url(#sa-wurf)">
-   <g id="sa-lorbeerL" class="lorbeer" style="opacity:var(--lorbeer,0)"><path d="M12 45c-5-6-6-16-1-23" fill="none" stroke="var(--md,url(#sa-goldDunkel))" stroke-width="2.6" stroke-linecap="round"/>
-    <g fill="var(--m,url(#sa-gold))" stroke="#5a3d10" stroke-width=".35">
-     <path d="M10 22c3 0 5 3 4 6-3 0-5-3-4-6z"/><path d="M7.5 29c3 .5 4.5 4 3 7-3-.5-4.5-4-3-7z"/><path d="M8 36.5c3 1 4 5 2 7.5-3-1-4-5-2-7.5z"/><path d="M11 43c3 1.5 3 5.5 1 7.5-3-1.5-3-5.5-1-7.5z"/>
-    </g></g>
-   <use href="#sa-lorbeerL" class="lorbeer" style="opacity:var(--lorbeer,0)" transform="translate(64 0) scale(-1 1)"/>
+   
+   
    <circle cx="32" cy="32" r="21.5" fill="var(--m,url(#sa-gold))"/>
    <circle cx="32" cy="32" r="21.5" fill="var(--m,url(#sa-gold))" filter="url(#sa-korn)"/>
    <circle cx="32" cy="32" r="21.5" fill="none" stroke="url(#sa-kanteHell)" stroke-width="1.2"/>
    <circle cx="32" cy="32" r="21.5" fill="none" stroke="url(#sa-kanteDunkel)" stroke-width="1.2"/>
    <circle cx="32" cy="32" r="17.4" fill="var(--md,url(#sa-goldDunkel))"/>
-   <circle cx="32" cy="32" r="16.4" class="ton" filter="url(#sa-innen)"/>
-   <circle cx="32" cy="32" r="16.4" class="ton" filter="url(#sa-maser)"/>
+   <circle cx="32" cy="32" r="16.4" fill="var(--t,#5b3fa6)" filter="url(#sa-innen)"/>
+   <circle cx="32" cy="32" r="16.4" fill="var(--t,#5b3fa6)" filter="url(#sa-maser)"/>
    <circle cx="32" cy="32" r="16.4" fill="url(#sa-beize)"/>
    <circle cx="32" cy="32" r="16.4" fill="url(#sa-emaille)"/>
    <circle cx="32" cy="32" r="19.4" fill="none" stroke="#000" stroke-opacity=".35" stroke-width="2.2" stroke-dasharray=".6 2.2" stroke-linecap="round"/>
@@ -62,8 +60,8 @@ export const ABZEICHEN_DEFS = `
    <use href="#sa-sf" filter="url(#sa-korn)"/>
    <use href="#sa-sf" fill="none" stroke="url(#sa-kanteHell)" stroke-width="1.2"/><use href="#sa-sf" fill="none" stroke="url(#sa-kanteDunkel)" stroke-width="1.2"/>
    <path d="M32 10.2l16.2 5V31c0 11-7.4 18.6-16.2 22.8C23.2 49.6 15.8 42 15.8 31V15.2z" fill="var(--md,url(#sa-goldDunkel))"/>
-   <path d="M32 11.6l15 4.6V31c0 10.2-6.9 17.3-15 21.2C23.9 48.3 17 41.2 17 31V16.2z" class="ton" filter="url(#sa-innen)"/>
-   <path d="M32 11.6l15 4.6V31c0 10.2-6.9 17.3-15 21.2C23.9 48.3 17 41.2 17 31V16.2z" class="ton" filter="url(#sa-maser)"/>
+   <path d="M32 11.6l15 4.6V31c0 10.2-6.9 17.3-15 21.2C23.9 48.3 17 41.2 17 31V16.2z" fill="var(--t,#5b3fa6)" filter="url(#sa-innen)"/>
+   <path d="M32 11.6l15 4.6V31c0 10.2-6.9 17.3-15 21.2C23.9 48.3 17 41.2 17 31V16.2z" fill="var(--t,#5b3fa6)" filter="url(#sa-maser)"/>
    <path d="M32 11.6l15 4.6V31c0 10.2-6.9 17.3-15 21.2C23.9 48.3 17 41.2 17 31V16.2z" fill="url(#sa-beize)"/>
    <path d="M32 11.6l15 4.6V31c0 10.2-6.9 17.3-15 21.2C23.9 48.3 17 41.2 17 31V16.2z" fill="url(#sa-emaille)"/>
    <use href="#sa-sf" fill="var(--m,url(#sa-gold))" filter="url(#sa-patina)"/>
@@ -79,8 +77,8 @@ export const ABZEICHEN_DEFS = `
    <path id="sa-bf" d="M16.5 7.6h31V57l-15.5-8.2L16.5 57z" fill="var(--m,url(#sa-gold))"/>
    <use href="#sa-bf" fill="none" stroke="url(#sa-kanteHell)" stroke-width="1"/><use href="#sa-bf" fill="none" stroke="url(#sa-kanteDunkel)" stroke-width="1"/>
    <path d="M19.3 7.6h25.4v44.6L32 45.5l-12.7 6.7z" fill="var(--md,url(#sa-goldDunkel))"/>
-   <path d="M20.5 7.6h23v42.6L32 44l-11.5 6.2z" class="ton" filter="url(#sa-innen)"/>
-   <path d="M20.5 7.6h23v42.6L32 44l-11.5 6.2z" class="ton" filter="url(#sa-maser)"/>
+   <path d="M20.5 7.6h23v42.6L32 44l-11.5 6.2z" fill="var(--t,#5b3fa6)" filter="url(#sa-innen)"/>
+   <path d="M20.5 7.6h23v42.6L32 44l-11.5 6.2z" fill="var(--t,#5b3fa6)" filter="url(#sa-maser)"/>
    <path d="M20.5 7.6h23v42.6L32 44l-11.5 6.2z" fill="url(#sa-beize)"/>
    <path d="M24 7.6v40M32 7.6v36M40 7.6v40" stroke="#000" stroke-opacity=".22" stroke-width="3"/>
    <path d="M26.4 7.6v39M34.4 7.6v35.5M42.4 7.6v39" stroke="#fff" stroke-opacity=".14" stroke-width="1.6"/>
@@ -92,12 +90,12 @@ export const ABZEICHEN_DEFS = `
 
  <symbol id="sa-siegel" viewBox="0 0 64 64">
   <g filter="url(#sa-wurf)">
-   <path id="sa-zk" d="M32 3.5l5.2 7.6 9.1-2.4 1.3 9.3 8.6 3.8-4.6 8.2 4.6 8.2-8.6 3.8-1.3 9.3-9.1-2.4L32 60.5l-5.2-7.6-9.1 2.4-1.3-9.3-8.6-3.8 4.6-8.2-4.6-8.2 8.6-3.8 1.3-9.3 9.1 2.4z" fill="var(--m,url(#sa-gold))"/>
+   <path id="sa-zk" d="M32.00 3.00L38.16 9.01L46.50 6.89L48.83 15.17L57.11 17.50L54.99 25.84L61.00 32.00L54.99 38.16L57.11 46.50L48.83 48.83L46.50 57.11L38.16 54.99L32.00 61.00L25.84 54.99L17.50 57.11L15.17 48.83L6.89 46.50L9.01 38.16L3.00 32.00L9.01 25.84L6.89 17.50L15.17 15.17L17.50 6.89L25.84 9.01Z" fill="var(--m,url(#sa-gold))"/>
    <use href="#sa-zk" filter="url(#sa-korn)"/>
    <use href="#sa-zk" fill="none" stroke="url(#sa-kanteHell)" stroke-width="1"/><use href="#sa-zk" fill="none" stroke="url(#sa-kanteDunkel)" stroke-width="1"/>
-   <path d="M32 12.5c3 0 4.8 2.3 7.2 3s5.2-.4 7.3 1.6 1.9 5 3.1 7.4 3.7 4 3.7 7.5-2.5 5.1-3.7 7.5-1 5.4-3.1 7.4-5 .9-7.3 1.6-4.2 3-7.2 3-4.8-2.3-7.2-3-5.2.4-7.3-1.6-1.9-5-3.1-7.4-3.7-4-3.7-7.5 2.5-5.1 3.7-7.5 1-5.4 3.1-7.4 5-.9 7.3-1.6 4.2-3 7.2-3z" fill="var(--md,url(#sa-goldDunkel))"/>
-   <circle cx="32" cy="32" r="17" class="ton" filter="url(#sa-innen)"/>
-   <circle cx="32" cy="32" r="17" class="ton" filter="url(#sa-maser)"/>
+   <path d="M32.00 10.60L34.66 11.77L37.02 13.26L39.81 13.15L42.70 13.47L44.42 15.82L45.72 18.28L48.18 19.58L50.53 21.30L50.85 24.19L50.74 26.98L52.23 29.34L53.40 32.00L52.23 34.66L50.74 37.02L50.85 39.81L50.53 42.70L48.18 44.42L45.72 45.72L44.42 48.18L42.70 50.53L39.81 50.85L37.02 50.74L34.66 52.23L32.00 53.40L29.34 52.23L26.98 50.74L24.19 50.85L21.30 50.53L19.58 48.18L18.28 45.72L15.82 44.42L13.47 42.70L13.15 39.81L13.26 37.02L11.77 34.66L10.60 32.00L11.77 29.34L13.26 26.98L13.15 24.19L13.47 21.30L15.82 19.58L18.28 18.28L19.58 15.82L21.30 13.47L24.19 13.15L26.98 13.26L29.34 11.77Z" fill="var(--md,url(#sa-goldDunkel))"/>
+   <circle cx="32" cy="32" r="17" fill="var(--t,#5b3fa6)" filter="url(#sa-innen)"/>
+   <circle cx="32" cy="32" r="17" fill="var(--t,#5b3fa6)" filter="url(#sa-maser)"/>
    <circle cx="32" cy="32" r="17" fill="url(#sa-beize)"/>
    <circle cx="32" cy="32" r="17" fill="url(#sa-emaille)"/>
    <use href="#sa-zk" fill="var(--m,url(#sa-gold))" filter="url(#sa-patina)"/>

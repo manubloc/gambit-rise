@@ -37,6 +37,9 @@ export function StufenAbzeichen({ form = "medaillon", stufe = 1, maxStufe = 10, 
   const gross = n.length > 1 ? 19 : 22;
   return <svg viewBox="0 0 64 64" width={size} height={size} data-stufe={n} data-abzeichen={form} data-metall={metall}
     style={{ ...METALL_VARS[metall], "--t": grau ? "#5a5650" : farbe, "--lorbeer": hoechst ? 1 : 0, overflow: "visible", display: "block" }}>
+    {/* der Lorbeer waechst auf der Hoechststufe um JEDE Form (Besitzer:
+        "an das Goldene kommen die Blaetter ran") - hinter der Form gezeichnet */}
+    {hoechst && <use href="#sa-lorbeer" data-lorbeer="1" />}
     <use href={`#sa-${form}`} />
     {zier && <use href={`#${zier}`} />}
     <text x="32" y={ZIFFER_Y[form] || 38.5} textAnchor="middle" fontSize={gross} fontWeight="800" fontFamily="Georgia, serif"

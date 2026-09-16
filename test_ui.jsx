@@ -715,9 +715,12 @@ const erloschen = (m) => m.includes("#2f2a3d");
   ok("Grossmeister: Medaillon, Gemaeuer: Schild, Gesindel: Banner, Brut: Siegel, Drache: Siegel",
     formFuer({ bossId: "b12" }) === "medaillon" && formFuer({ bossId: "b01" }) === "schild" && formFuer({ bossId: "b04" }) === "banner" && formFuer({ bossId: "b03" }) === "siegel" && formFuer({ charId: "dragon" }) === "siegel");
   const m = html(<StufenAbzeichen form="medaillon" stufe={10} maxStufe={10} farbe="#05479e" />);
-  ok("auf Zehn: goldenes Medaillon mit Lorbeer", m.includes('data-metall="gold"') && m.includes("--lorbeer:1") && m.includes("#sa-medaillon") && m.includes("#sa-zier-gold"));
+  ok("auf Zehn: goldenes Medaillon mit Lorbeer", m.includes('data-metall="gold"') && m.includes('data-lorbeer="1"') && m.includes("#sa-medaillon") && m.includes("#sa-zier-gold"));
+  const sch10 = html(<StufenAbzeichen form="schild" stufe={10} farbe="#9e1d05" />);
+  ok("der Lorbeer waechst auch um den Schild", sch10.includes('data-lorbeer="1"'));
+  ok("das Innenfeld traegt die Figurenfarbe", m.includes("--t:#05479e") && !readFileSync("src/app/ui/abzeichenDefs.js", "utf8").includes('class="ton"'));
   const b = html(<StufenAbzeichen form="schild" stufe={2} farbe="#9e1d05" />);
-  ok("auf Zwei: bronzener Schild ohne Lorbeer, mit Hammerschlag", b.includes('data-metall="bronze"') && b.includes("--lorbeer:0") && b.includes("#sa-zier-bronze"));
+  ok("auf Zwei: bronzener Schild ohne Lorbeer, mit Hammerschlag", b.includes('data-metall="bronze"') && !b.includes("data-lorbeer") && b.includes("#sa-zier-bronze"));
   const g = html(<StufenAbzeichen form="siegel" stufe={9} farbe="#935a9e" grau />);
   ok("Fremdes ist grau, ohne Metall und Zierat", g.includes('data-metall="grau"') && !g.includes("sa-zier"));
   const arm = readFileSync("src/app/ui/screens/ArmyScreen.jsx", "utf8");

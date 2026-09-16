@@ -1,5 +1,15 @@
 # Changelog - Grand Gambit
 
+## 1.21.1
+- ABZEICHEN NACHGEZOGEN (Besitzerabnahme): die Lorbeerblaetter zeigen nach
+  oben, entlang des Zweigs; der Lorbeer waechst auf der Hoechststufe um JEDE
+  Form, nicht nur ums Medaillon. Das Siegel ist ein regelmaessiger
+  Zackenstern (12 Spitzen, berechnet statt gezeichnet). Die bunten Steine
+  sind fort - "laecherlich" -, Filigran und Funken bleiben.
+- DAS INNENFELD TRAEGT WIEDER DIE FIGURENFARBE: im Spiel fehlte die
+  CSS-Regel aus dem Vorschlag (class="ton"), die Felder waren schwarz. Die
+  Farbe steht jetzt direkt am Element; eine Probe wacht darueber.
+
 ## 1.21.0
 - DAS STUFEN-ABZEICHEN (Besitzerentscheid nach sechs Entwuerfen): drei Ebenen
   in einem Zeichen. FORM nach Bund - Medaillon (Krone, Nachtwache, Bauer,
