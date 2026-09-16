@@ -1,5 +1,21 @@
 # Changelog - Grand Gambit
 
+## 1.23.3
+- DIE ECKVERZIERUNG NUR NOCH UNTEN, UND SYMMETRISCH (Besitzer mit Screenshot:
+  "manche zeigen nach innen, manche nach aussen"). GEMESSEN: zwei der vier
+  Ecken waren falsch gedreht - unten links stand auf 90 statt 270, oben rechts
+  auf 270 statt 90; die beiden Eintraege der Liste waren vertauscht. Oben
+  sassen ausserdem Stufen-Abzeichen und Talentspalte im selben Raum, sie haetten
+  weichen muessen ("der Umbau ist zu wild"). Jetzt stehen die Winkel nur unten,
+  wo der Platz frei ist - gemessen 104 Stueck auf 52 Kacheln, links wie rechts
+  0,0 px Unterschied zum Rand.
+- FEINER UND RUNDER IM ECK (Besitzer: "die Ecke ist ein bisschen dicker").
+  Gemessen: der Hauptwinkel stand auf 1,3 px, die kleinen Striche desselben
+  Zeichens auf 1,0. Jetzt 0,85 - eine Spur feiner als die Striche - und der
+  Eckradius 3,5 statt 0,6, damit die Kontur der Kachelrundung (11) folgt.
+- HINTER ALLEN ELEMENTEN (Besitzer): die Verzierung lag auf z 1 und damit ueber
+  der Figur; sie liegt jetzt auf z -1, direkt ueber der Kulisse. Gemessen.
+
 ## 1.23.2
 - DIE FIGUREN AUF BAUERNHOEHE, DER TELLER BLEIBT (Besitzer mit Screenshot):
   gemessen nach der Tellerskalierung Turm 461 px hoch, Bauer 561, Laeufer

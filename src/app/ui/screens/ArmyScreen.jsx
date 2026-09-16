@@ -1825,15 +1825,35 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
           aus der Messung (figurfarbe.json), 22 % statt 45 %. */}
       <KulisseHinterGrund name={kulisseFuer({ charId: artId, bossId })} deckung={dark ? 0.5 : dim ? 0.7 : 0.92}
         grau={!!(dim || dark)} ton={ton || figurFarbe(paintedIdOf(img))} tonStaerke={ton ? 0.45 : 0.30} />
-      {/* v1.23.2 (Besitzer, aus der Vorlage): DIE ECKVERZIERUNG - vier kleine
-          Goldwinkel mit Punkt, in jeder Ecke der Kachel, wie die Beschlaege
-          einer Kartenbox. Grau bei Fremdem, violett beim Grossmeister. */}
-      {[["0", "0", 0], ["auto", "0", 90], ["auto", "auto", 180], ["0", "auto", 270]].map(([t, l, rot], i) =>
-        <svg key={i} data-ecke={i} viewBox="0 0 16 16" width="14" height="14" aria-hidden style={{ position: "absolute", top: t === "0" ? 5 : "auto", bottom: t === "auto" ? 5 : "auto",
-          left: l === "0" ? 5 : "auto", right: l === "auto" ? 5 : "auto", transform: `rotate(${rot}deg)`, zIndex: 1, pointerEvents: "none", opacity: dark ? .35 : .85 }}>
-          <path d="M1.5 9.5V2.6c0-.6.5-1.1 1.1-1.1H9.5" fill="none" stroke={meister ? "#c3aaf5" : "#e9cf8a"} strokeWidth="1.3" strokeLinecap="round" />
+      {/* v1.23.2 (Besitzer, aus der Vorlage): DIE ECKVERZIERUNG - kleine
+          Goldwinkel mit Punkt, wie die Beschlaege einer Kartenbox. Grau bei
+          Fremdem, violett beim Grossmeister. */}
+      {/* v1.23.3 (Besitzer mit Screenshot): DREI BEFUNDE, ALLE GEMESSEN.
+          1. ZWEI DER VIER ECKEN WAREN FALSCH GEDREHT. Der Grundpfad zeichnet
+             einen Winkel OBEN LINKS; die Liste gab unten links 90 statt 270
+             und oben rechts 270 statt 90 - die beiden Eintraege waren
+             vertauscht, deshalb zeigten zwei Winkel nach innen ("manche
+             zeigen nach innen, manche nach aussen").
+          2. DER WINKEL WAR DICKER ALS DER REST SEINES EIGENEN ZEICHENS:
+             Hauptwinkel 1,3 px, die beiden kleinen Striche daneben 1,0
+             ("die Ecke ist ein bisschen dicker"). Jetzt 0,85 - eine Spur
+             feiner als die Striche - und der Eckradius 3,5 statt 0,6, damit
+             die Kontur der Kachelrundung (11) folgt.
+          3. NUR NOCH UNTEN (Besitzerentscheid: "mach sie einfach mal nur
+             unten, da musst du sonst nichts in die Hand nehmen"). Oben sassen
+             Stufen-Abzeichen und Talentspalte im selben Raum; sie dorthin zu
+             bekommen haette beide verschieben muessen - der Umbau waere "zu
+             wild" geworden. Unten ist der Platz frei, also stehen sie dort
+             allein und ohne dass irgendetwas anderes weicht.
+          Die Verzierung liegt auf z -1, also HINTER allem ausser der Kulisse
+          ("die muessen natuerlich hinter allen Elementen sein"). */}
+      {[["links", 270], ["rechts", 180]].map(([seite, rot]) =>
+        <svg key={seite} data-ecke={`unten-${seite}`} viewBox="0 0 16 16" width="14" height="14" aria-hidden
+          style={{ position: "absolute", bottom: 5, left: seite === "links" ? 5 : "auto", right: seite === "rechts" ? 5 : "auto",
+            transform: `rotate(${rot}deg)`, zIndex: -1, pointerEvents: "none", opacity: dark ? .35 : .85 }}>
+          <path d="M1.5 9.5V5A3.5 3.5 0 0 1 5 1.5H9.5" fill="none" stroke={meister ? "#c3aaf5" : "#e9cf8a"} strokeWidth="0.85" strokeLinecap="round" />
           <path d="M1.5 12.5c0 1.6 1 2.4 2.4 2.4M12.5 1.5c1.6 0 2.4 1 2.4 2.4" fill="none" stroke={meister ? "#c3aaf5" : "#e9cf8a"} strokeWidth="1" strokeLinecap="round" opacity=".8" />
-          <circle cx="4.6" cy="4.6" r="1.25" fill={meister ? "#c3aaf5" : "#e9cf8a"} />
+          <circle cx="4.6" cy="4.6" r="1.05" fill={meister ? "#c3aaf5" : "#e9cf8a"} />
         </svg>)}
       {/* v1.15.1: DIE KOPFZEILE - fuer JEDE Kachel gleich (Besitzervorlage):
           links die Talente, in der Mitte das Lebensrohr, rechts die Stufe.

@@ -199,8 +199,25 @@ const kopf = await page.evaluate(() => {
     const p = sv.querySelector("path"); const bb = p.getBBox(); const bodenPx = sr.top + (bb.y + bb.height) / vb.height * sr.height;
     const st = getComputedStyle(w).getPropertyValue("--skala"); return Math.round((bodenPx - r.top) * 10) / 10;   /* r.top ist der Kastenrand, nicht der Scheitel - reicht als Vergleichsmass, da alle Bilder oben Luft haben */
   }).filter((v) => v !== null);
-  const ecken = document.querySelectorAll("[data-ecke]").length;
-  return { kacheln, stufen, grau, farbig, toene, meisterMitRohr, baender, boden, namen, talente, teller, abz, meister, hoehen, ecken };
+  /* v1.23.3: die Verzierung steht nur noch UNTEN, zwei je Kachel. Gemessen
+     wird die Zahl, die Ebene (muss hinter allem liegen) und die Symmetrie:
+     der Abstand nach links unten muss dem nach rechts unten gleichen. */
+  const eckKnoten = [...document.querySelectorAll("[data-ecke]")];
+  const ecken = eckKnoten.length;
+  const eckEbenen = [...new Set(eckKnoten.map((e) => getComputedStyle(e).zIndex))];
+  const eckOben = eckKnoten.filter((e) => !/^unten-/.test(e.getAttribute("data-ecke"))).length;
+  const eckSym = [];
+  /* GEMESSEN BEIM SCHREIBEN: offsetParent gibt es an einem SVG-Element NICHT
+     (es ist eine HTMLElement-Eigenschaft) - die Schleife lief ins Leere und
+     die Probe meldete 0 Kacheln. Die Kachel ist der direkte Elternknoten. */
+  for (const li of document.querySelectorAll('[data-ecke="unten-links"]')) {
+    const kachel = li.parentElement; if (!kachel) continue;
+    const re = kachel.querySelector('[data-ecke="unten-rechts"]'); if (!re) continue;
+    const k = kachel.getBoundingClientRect(), a = li.getBoundingClientRect(), b = re.getBoundingClientRect();
+    eckSym.push({ l: Math.round((a.left - k.left) * 10) / 10, r: Math.round((k.right - b.right) * 10) / 10,
+      ul: Math.round((k.bottom - a.bottom) * 10) / 10, ur: Math.round((k.bottom - b.bottom) * 10) / 10 });
+  }
+  return { kacheln, stufen, grau, farbig, toene, meisterMitRohr, baender, boden, namen, talente, teller, abz, meister, hoehen, ecken, eckEbenen, eckOben, eckSym };
 });
 const kopfH = [...new Set(kopf.kacheln.map((h) => String(h).split("|")[0]))];
 const rohrVersatz = kopf.kacheln.map((h) => String(h).split("|")[1]).filter((x) => x !== undefined).map(Number);
@@ -229,7 +246,17 @@ ok(`jedes Sockelband liegt deckungsgleich auf seinem Bild (${kopf.baender.length
   const o = [...new Set(kopf.abz.map((x) => x[0]))], r = [...new Set(kopf.abz.map((x) => x[1]))];
   ok(`das Abzeichen hat ueberall denselben Abstand nach oben und rechts (${o.join("/")} / ${r.join("/")} px)`, o.length === 1 && r.length === 1 && Math.abs(o[0] - r[0]) <= 1);
 }
-ok(`jede Kachel traegt vier Eckverzierungen (${kopf.ecken} gemessen)`, kopf.ecken >= 52 * 4);
+/* v1.23.3 (Besitzer): die Verzierung sitzt nur noch unten, liegt hinter allem
+   und steht links wie rechts gleich weit vom Rand. */
+ok(`jede Kachel traegt zwei Eckverzierungen unten (${kopf.ecken} gemessen)`, kopf.ecken >= 52 * 2 && kopf.eckOben === 0);
+ok(`die Verzierung liegt hinter allen Elementen (z ${kopf.eckEbenen.join("/")})`, kopf.eckEbenen.length === 1 && kopf.eckEbenen[0] === "-1");
+{
+  const s = kopf.eckSym;
+  const dxMax = Math.max(...s.map((e) => Math.abs(e.l - e.r)));
+  const dyMax = Math.max(...s.map((e) => Math.abs(e.ul - e.ur)));
+  ok(`links und rechts gleich weit vom Rand (${s.length} Kacheln, max. Unterschied ${dxMax.toFixed(1)} px seitlich, ${dyMax.toFixed(1)} px nach unten)`,
+    s.length >= 52 && dxMax <= 0.6 && dyMax <= 0.6);
+}
 const deckungen = [...new Set(gemessen.map((g) => g.deckung))];
 ok(`die Kulisse ist deutlich zu sehen, aber nicht ueber der Figur (Deckung ${deckungen.join("/")})`, deckungen.every((d) => Number(d) >= 0.5 && Number(d) < 1));
 const masse = gemessen[0] ? `${gemessen[0].w}x${gemessen[0].h}` : "-";
