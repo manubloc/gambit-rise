@@ -437,7 +437,11 @@ await page.screenshot({ path: "/mnt/user-data/outputs/hofstaat-kulissen-2.png", 
     }, name);
     await page.waitForTimeout(900);
     const f = await page.evaluate(() => {
-      const bilder = [...document.querySelectorAll("img")].filter((i) => /drop-shadow/.test(getComputedStyle(i).filter));
+      /* v1.24.2: der Schimmer sitzt im Blatt jetzt auf dem KASTEN um Bild und
+         Band (damit das Band mitleuchtet), nicht mehr auf dem Bild selbst -
+         gemessen wird deshalb der naechste Traeger des Filters. */
+      const traeger = (i) => /drop-shadow/.test(getComputedStyle(i).filter) ? i : (i.parentElement && /drop-shadow/.test(getComputedStyle(i.parentElement).filter) ? i.parentElement : null);
+      const bilder = [...document.querySelectorAll("img")].map(traeger).filter(Boolean);
       const gross = bilder.map((i) => ({ b: i.getBoundingClientRect().width, f: getComputedStyle(i).filter }))
         .filter((x) => x.b > 90).sort((a, b) => b.b - a.b)[0];
       return gross ? gross.f.match(/rgba?\([^)]+\)/)?.[0] || gross.f.slice(0, 40) : null;

@@ -701,15 +701,26 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
         {/* Figur links, Name darunter - rechts Zugbild und Zeichen */}
         <div style={{ display: "flex", gap: 10, alignItems: "flex-end", padding: "0 6px" }}>
           <div style={{ flex: "0 0 auto", width: 148 }}>
-            <div style={{ position: "relative", width: 148, height: 150 }}>
-              <img src={portraet} alt="" draggable={false} style={{ position: "absolute", inset: 0,
-                width: "100%", height: "100%", objectFit: "contain", objectPosition: "bottom",
-                transformOrigin: "50% 100%",
+            {/* ── DERSELBE KASTEN WIE AUF DER KACHEL ────────────────────────
+                Besitzer: "auch dort hast du dieses Band anders, teilweise bei
+                der gleichen Figur. Wieso vermessen wir das alles und dann
+                kriegst du es nicht uebertragen?"
+                MEIN FEHLER, gemessen: im ersten Bau trug das BILD die
+                Skalierung (translate + scale), das Band daneben aber NICHT -
+                es wurde unskaliert ueber ein skaliertes Bild gelegt. Auf der
+                Kachel stehen Bild und Band in EINEM Kasten, und der Kasten
+                traegt die Verwandlung; genau so jetzt auch hier. Kein zweites
+                Mass, keine zweite Rechnung - derselbe Bau. */}
+            <div style={{ position: "relative", width: 148, height: 148 }}>
+              <div style={{ position: "absolute", inset: 0, transformOrigin: "50% 100%",
                 transform: `translate(${tellerMitteProzent(pid).toFixed(2)}%, ${bodenAusgleichProzent(pid).toFixed(2)}%) scale(${sockelSkalierung(pid).toFixed(3)}, ${(sockelSkalierung(pid) * figurStreckung(pid)).toFixed(3)})`,
-                filter: `drop-shadow(0 0 12px ${ton}88) drop-shadow(0 3px 5px rgba(0,0,0,.55))` }} />
-              {bandBekannt(pid) && <SockelBand paintedId={pid} id={`blatt-${char.id}`}
-                leben={1} kraft={hpUnlocked(profile) ? Math.max(0, Math.min(1, atk / 12)) : 0}
-                grau={!hpUnlocked(profile)} ausrichtung="unten" />}
+                filter: `drop-shadow(0 0 12px ${ton}88) drop-shadow(0 3px 5px rgba(0,0,0,.55))` }}>
+                <img src={portraet} alt="" draggable={false} style={{ position: "absolute", inset: 0,
+                  width: "100%", height: "100%", objectFit: "contain", objectPosition: "center" }} />
+                {bandBekannt(pid) && <SockelBand paintedId={pid} id={`blatt-${char.id}`}
+                  leben={1} kraft={hpUnlocked(profile) ? Math.max(0, Math.min(1, atk / 12)) : 0}
+                  grau={!hpUnlocked(profile)} ausrichtung="mitte" />}
+              </div>
             </div>
             <div style={{ textAlign: "center", marginTop: 4 }}>
               <div className="gg-quill" style={{ fontSize: 20, lineHeight: 1.1, color: "#f3ecd2",

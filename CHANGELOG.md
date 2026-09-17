@@ -1,5 +1,15 @@
 # Changelog - Grand Gambit
 
+## 1.24.2
+- DAS BAND IM FIGURENBLATT SITZT JETZT WIE AUF DER KACHEL (Besitzer: "auch
+  dort hast du dieses Band anders, teilweise bei der gleichen Figur"). Mein
+  Fehler, gemessen: im ersten Bau trug das BILD die Skalierung, das Band
+  daneben aber nicht - es lag unskaliert ueber einem skalierten Bild. Auf der
+  Kachel stehen Bild und Band in EINEM Kasten, und der Kasten traegt die
+  Verwandlung; genau so jetzt auch im Blatt. Gemessen, Band gegen Bild: Kachel
+  0/0/0/0, Blatt 0/0/0/0 px. Der Schimmer sitzt auf dem Kasten, damit das Band
+  mitleuchtet; die Messprobe folgt ihm dorthin.
+
 ## 1.24.1
 - DER GAMBIT BLEIBT UNTER DEM DOPPELTEN (Besitzer: "Er darf nicht doppelt so
   viel haben ... ein bisschen weniger als der Drache"). Gemessen auf
