@@ -6,7 +6,9 @@
 import { createGame, applyMove, status } from "./src/core/index.js";
 import { chooseMove } from "./src/ai/index.js";
 import { buildStageMatch, buildArmyForMap, defaultProfile, resolveCharacter } from "./src/meta/index.js";
-import { mapById, CHARACTERS } from "./src/content/index.js";
+import { mapById, CHARACTERS, CHARACTER_LIST } from "./src/content/index.js";
+import { maxLevelFor } from "./src/meta/index.js";
+import { werteBeiStufe, SHIELD_HP } from "./src/core/index.js";
 
 let passed = 0, failed = 0;
 const ok = (name, cond) => { if (cond) { passed++; console.log("  ok  - " + name); } else { failed++; console.log("  FAIL- " + name); } };
@@ -277,3 +279,32 @@ if (failed > 0) process.exit(1);
 }
 console.log(`\nRESULT (Budget): ${passed} passed, ${failed} failed`);
 if (failed) process.exit(1);
+
+/* ── v1.24.3 (Besitzer): EIN PUNKTEBUDGET FUER ALLE ──────────────────────────
+   "In Summe darf jede Figur, mit Ausnahme vielleicht des Drachen und des
+   Gambits, immer nur die gleiche Punktzahl haben ... sonst wird es zu wild.
+   Die Figuren haben ja durch ihre Zuege schon teilweise richtig krasse
+   Vorteile."
+
+   GEMESSEN, und der Befund war ueberraschend: Grundleben + Angriff ist bei
+   JEDER Figur genau 24 - das Budget gab es also schon. Ungleich machten es
+   allein die Schilde: der Koenig hatte keinen, die meisten einen, Bauer,
+   Springer, Attentaeter, Wachter, Seherin und Paladin drei. Daraus ergaben
+   sich Summen von 24 bis 30. Jetzt tragen alle normalen Figuren genau ZWEI
+   Schilde, und damit alle die Summe 28.
+
+   Die Unterschiede bleiben dort, wo sie hingehoeren: in der Aufteilung
+   (Attentaeter 20 Angriff / 8 Leben gegen Schildtraeger 4 / 24) und in den
+   Zuegen. */
+{
+  const norm = CHARACTER_LIST.filter((ch) => !["dragon", "gambit"].includes(ch.id));
+  const summe = (ch) => { const max = maxLevelFor(ch.id);
+    const r = resolveCharacter(ch, max, ch.ladder.filter((x) => x.ability).map((x) => x.ability));
+    const w = werteBeiStufe(ch.kind, max, { maxLevel: max });
+    return w.hp + r.shield * SHIELD_HP + w.atk; };
+  const s = norm.map(summe);
+  ok(`alle ${norm.length} normalen Figuren haben dieselbe Punktsumme (${Math.min(...s)})`,
+    norm.length >= 25 && Math.min(...s) === Math.max(...s));
+  const schilde = norm.map((ch) => resolveCharacter(ch, maxLevelFor(ch.id), null).shield);
+  ok(`und alle genau zwei Schilde (${[...new Set(schilde)].join(",")})`, schilde.every((x) => x === 2));
+}

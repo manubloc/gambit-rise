@@ -1,5 +1,23 @@
 # Changelog - Grand Gambit
 
+## 1.24.3
+- EIN PUNKTEBUDGET FUER ALLE (Besitzer: "In Summe darf jede Figur, mit
+  Ausnahme vielleicht des Drachen und des Gambits, immer nur die gleiche
+  Punktzahl haben"). GEMESSEN, und der Befund war ueberraschend: Grundleben
+  plus Angriff ist bei JEDER Figur genau 24 - das Budget gab es also schon.
+  Ungleich machten es allein die Schilde: der Koenig hatte keinen, die meisten
+  einen, Bauer, Springer, Attentaeter, Waechter, Seherin und Paladin drei.
+  Daraus ergaben sich Summen von 24 bis 30. Jetzt tragen alle 25 normalen
+  Figuren genau ZWEI Schilde und damit alle die Summe 28. Die Unterschiede
+  bleiben, wo sie hingehoeren: in der Aufteilung (Attentaeter 20/8 gegen
+  Schildtraeger 4/24) und in den Zuegen.
+- Die zwei Ausnahmen: Grand Gambit 42 (1,5-mal) und Drache 54 (1,9-mal). Der
+  Drache nimmt vier Felder ein; nach dem Wunsch des Besitzers duerfte er
+  deutlich mehr tragen (vier- bis fuenffach). Das ist nicht gemacht - eine
+  Verdopplung seiner Werte ohne Balancelauf waere geraten, nicht gemessen.
+- Neue Probe in test_balance.mjs: alle normalen Figuren auf derselben Summe,
+  und alle mit genau zwei Schilden.
+
 ## 1.24.2
 - DAS BAND IM FIGURENBLATT SITZT JETZT WIE AUF DER KACHEL (Besitzer: "auch
   dort hast du dieses Band anders, teilweise bei der gleichen Figur"). Mein
