@@ -1,5 +1,36 @@
 # Changelog - Grand Gambit
 
+## 1.23.8
+- DAS SOCKELBAND SITZT AUF DER GEMESSENEN STANDFLAECHE (Besitzer: "Mir geht es
+  darum, dass die Rundung sauber tangential an der Hinterseite uebereinstimmt -
+  gerne nochmal fuer alle pruefen"). Bis hierher war die Bandhoehe 17 % der
+  TELLERBREITE, eine Zahl, die mit dem gemalten Teller nichts zu tun hat.
+  GEMESSEN: sie stand im Mittel 20 px ueber dem gemalten Ring - beim Engineer
+  11, bei boss-b01 48, bei der Schatzkammer 84. Genau das war die Kante, die
+  oben nicht ueberlief.
+- NEU GEMESSEN FUER ALLE 69 GEMAELDE (scripts/messe_tellerkante.py). Der alte
+  Hilfswert `ring` taugte nicht: er sucht ueber die FARBSAETTIGUNG einer
+  einzigen Spalte und faellt auf grauem Stein auf seinen Notnagel 8 zurueck -
+  bei 29 der 69 Figuren. Jetzt zaehlt der KNICK im Breitenverlauf: der Teller
+  ist leicht konisch und verliert nach oben langsam an Breite (Gambit-t2 noch
+  97 % nach 42 px), erst wo der Koerper beginnt, faellt sie steil ab. Median
+  der Tellerhoehen 43 px statt 16.
+- DREI IRRWEGE, die es bis hierher gebraucht hat: (1) staerkster Helligkeits-
+  sprung entlang der Ellipse - er fand bei vielen das untere Zierband statt
+  des grauen Abschlusses oben; (2) Tellerfarbe ablesen und nach oben laufen -
+  die Probestelle liegt im Schatten des Tellerbogens, Warlock kam mit 7 px
+  statt 50; (3) eine feste Breitenschwelle - sie traf die untere Stufe. Dazu
+  ein eigener Rechenfehler: auf die gefundene Zeile hatte ich noch ry addiert,
+  obwohl die Silhouette genau zwischen den MITTEN beider Ellipsen am breitesten
+  ist. Der Alchemist kam damit auf 4 px statt 37.
+- ZWEI HANDWERTE, als solche markiert (`tellerVonHand`): boss-b02 auf 75 - sein
+  Sockel faellt in zwei Stufen, der Automat nahm die erste; der Besitzer hat an
+  einer Kandidatenleiter 75 bestaetigt. gambit-t2 auf 45, wie bei gambit-t3
+  gemessen (deckungsgleiches Breitenprofil, der Automat fand einen Scheinknick
+  bei 14).
+- SCHATZKAMMER, HAENDLER UND STANDARTE TRAGEN KEIN BAND MEHR (Besitzer: "das
+  sind ja keine Figuren").
+
 ## 1.23.7
 - DER RISSBODEN STEHT WIEDER IM MENUE (Besitzer: "Mach mal den beigen
   Hintergrund weg. Dahinter sieht man den Hintergrund, der es sein sollte,

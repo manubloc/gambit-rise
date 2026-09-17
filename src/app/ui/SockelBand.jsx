@@ -91,16 +91,35 @@ function segment(m, h, tA, tB) {
 /* ausrichtung: "mitte" fuer die Kachel (objectFit contain, mittig), "unten"
    fuer das Brett (objectPosition center bottom) - der SVG muss genau so
    liegen wie sein Bild. */
+/* Besitzer: "Schatzkammer, Haendler brauchen natuerlich kein Band - das sind
+   ja keine Figuren." Dasselbe gilt fuer die Standarte: ein Banner steht auf
+   keinem Teller. */
+const OHNE_BAND = new Set(["schatzkammer", "haendler", "standard"]);
+
 export function SockelBand({ paintedId, leben = 0, kraft = 0, grau = false, id = "sb", ausrichtung = "mitte" }) {
   const m = MASS[paintedId];
-  if (!m) return null;
-  /* Bandhoehe: 17 % der Tellerbreite. Die Vorlage hat 26 px Band auf 180 px
-     Teller (14 %), aber ihr Teller ist ein hoher Trommelsockel; unsere
-     gemalten Teller sind flacher, der Farbring nur 15-25 px. Bei 14 % las
-     sich das Band auf der 117-px-Kachel als Strich (gemessen ~8 px) - bei
-     17 % steht es wie in der Vorlage. Das Band deckt den gemalten Ring und
-     ein Stueck der Trommel darueber. */
-  const h = Math.round(m.rx * 2 * 0.17);
+  if (!m || OHNE_BAND.has(paintedId)) return null;
+  /* ── BANDHOEHE: DIE GEMESSENE TELLERHOEHE ────────────────────────────────
+     Bis v1.23.7 waren es 17 % der Tellerbreite - eine Zahl, die mit dem
+     gemalten Teller nichts zu tun hat. Besitzer: "Mir geht es darum, dass die
+     Rundung sauber tangential an der Hinterseite uebereinstimmt."
+
+     Das geht nur, wenn die obere Kante des Bandes AUF der Standflaeche liegt,
+     auf der die Figur steht. Die ist jetzt fuer alle 69 Gemaelde gemessen
+     (scripts/messe_tellerkante.py) und steht als `teller` in
+     sockelband.json. Gemessen wird der KNICK im Breitenverlauf: der Teller
+     ist leicht konisch und verliert nach oben langsam an Breite, erst wo der
+     Koerper beginnt, faellt sie steil ab.
+
+     GEMESSEN, warum die alte Zahl nicht passen konnte: sie stand im Mittel
+     20 px ueber dem gemalten Ring - beim Engineer 11, bei boss-b01 48, bei
+     der Schatzkammer 84. Der alte Hilfswert `ring` half nicht: er wird ueber
+     die FARBSAETTIGUNG einer einzigen Spalte gesucht und faellt auf grauem
+     Stein auf seinen Notnagel 8 zurueck - bei 29 der 69 Figuren.
+
+     Zwei Teller haben keinen eindeutigen Knick und sind von Hand gesetzt
+     (`tellerVonHand`): boss-b02 auf 75 und gambit-t2 auf 45. */
+  const h = Math.round(m.teller || m.rx * 2 * 0.17);
   const rand = Math.max(2, h * 0.13);
   const tL = Math.PI, tR = 2 * Math.PI;
   /* die Anteile laufen ueber den Winkel, nicht ueber x - so bleiben die
