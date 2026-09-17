@@ -1,5 +1,31 @@
 # Changelog - Grand Gambit
 
+## 1.23.9
+- DER SOCKEL WIRD NACH UNTEN VERLAENGERT (Besitzer: "Du nimmst als Mass immer
+  die Oberkante ... und nach unten tust du nichts aus dem Bild ablesen, sondern
+  machst einfach eine feste Pixelanzahl, sodass jeder gleich hoch ist. Ich
+  moechte nicht, dass du die Unterkante des Sockels in irgendeiner Weise zu
+  lesen versuchst, sondern eine saubere Parallelverschiebung von der oberen
+  gemessenen Kontur nach unten."). Genau so gebaut: die untere Kontur ist
+  dieselbe Ellipse wie die obere, nur tiefer. Die gemalte Unterkante wird nicht
+  mehr gelesen; das Band haengt ruhig darunter hinaus.
+- DIE HOEHE IST EIN BILDSCHIRMMASS, kein Bildmass: 46 px, geteilt durch
+  sockelSkalierung und figurStreckung. Ohne diese Division waere das Band beim
+  Hetzer (rx 249) halb so hoch wie beim Springer - gemessen lagen die Hoehen
+  zwischen 17,2 und 24,8 px, jetzt zwischen 17,7 und 21,8 (Spanne 7,6 -> 4,1).
+  Der Rest kommt aus der Rundung auf ganze Bildpixel und der Kappung von
+  sockelSkalierung bei 0,55; die Probe laesst deshalb 4,5 px zu, nicht 0.
+- DIE BODENLINIENPROBE MISST JETZT DIE BODENLINIE, nicht den untersten Punkt
+  des Bandes. Der haengt seit der Verlaengerung bei jeder Figur anders tief
+  (Besitzer: "man sieht die Unterkante des Sockels nie"). Das Band bringt die
+  gemalte Bodenlinie als data-bodenlinie mit; gemessen stehen jetzt alle 32
+  Figuren auf 28,4 px ueber der Kachelkante - Spanne 0,0.
+- EIGENER IRRWEG, dem Besitzer zuerst als Frage gezeigt: ich hatte zwei
+  Lesarten von "gleich hoch" gebaut - gleiche Hoehe mit unterschiedlich tiefen
+  Unterkanten, und gemeinsame Unterkante mit unterschiedlichen Hoehen. Die
+  zweite las die gemalte Unterkante und machte boss-b22 zu duenn. Richtig ist
+  die erste.
+
 ## 1.23.8
 - DAS SOCKELBAND SITZT AUF DER GEMESSENEN STANDFLAECHE (Besitzer: "Mir geht es
   darum, dass die Rundung sauber tangential an der Hinterseite uebereinstimmt -

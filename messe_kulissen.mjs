@@ -167,6 +167,16 @@ const kopf = await page.evaluate(() => {
   const toene = [...document.querySelectorAll("[data-kulisse-ton]")].length;
   const meisterMitRohr = [...document.querySelectorAll("img[data-kulisse^=\"meister-\"], img[data-kulisse^=\"monster-\"]")]
     .map((i) => !!i.parentElement.querySelector("svg[data-gg=\"sockelband\"]")).filter(Boolean).length;
+  /* v1.23.9: sind die Baender jetzt UEBERALL gleich hoch? Gemessen wird die
+     gezeichnete Hoehe des Goldrands in Bildschirmpixeln, je Kachel. */
+  const bandHoehen = [...document.querySelectorAll("svg[data-gg=\"sockelband\"]")].map((sv) => {
+    const wer = sv.parentElement?.querySelector("img")?.currentSrc?.split("/").pop() || "?";
+    const teile = [...sv.querySelectorAll("path")];
+    if (!teile.length) return null;
+    const oben = Math.min(...teile.map((t) => t.getBoundingClientRect().top));
+    const unten = Math.max(...teile.map((t) => t.getBoundingClientRect().bottom));
+    return { wer, h: Math.round((unten - oben) * 10) / 10 };
+  }).filter((x) => x && x.h > 0);
   const baender = [...document.querySelectorAll("svg[data-gg=\"sockelband\"]")].map((sv) => {
     /* das Band muss auf dem Bild liegen: derselbe Kasten wie sein Bild */
     const img = sv.parentElement.querySelector("img"); const a = sv.getBoundingClientRect(), b = img.getBoundingClientRect();
@@ -176,8 +186,13 @@ const kopf = await page.evaluate(() => {
   const boden = [...document.querySelectorAll("[data-boden]")].map((w) => {
     const sv = w.querySelector("svg[data-gg=\"sockelband\"]"); if (!sv) return null;
     const vb = sv.viewBox.baseVal; const r = sv.getBoundingClientRect();
-    const seg = sv.querySelector("path"); const bb = seg.getBBox();   /* der Goldfuss: sein unterster Punkt ist die Bodenkante */
-    const yPx = r.top + (bb.y + bb.height) / vb.height * r.height;
+    /* v1.23.9: die Bodenkante ist NICHT mehr der unterste Punkt des Bandes -
+       das Band haengt seit der Parallelverschiebung bei jeder Figur anders
+       tief darunter (Besitzer: "man sieht die Unterkante des Sockels nie").
+       Gemessen wird deshalb die gemalte Bodenlinie selbst, die das Band als
+       data-bodenlinie mitbringt. */
+    const bl = Number(sv.getAttribute("data-bodenlinie"));
+    const yPx = r.top + bl / vb.height * r.height;
     const kachel = w.closest("[data-kopf]")?.parentElement || w.parentElement;
     return Math.round((kachel.getBoundingClientRect().bottom - yPx) * 10) / 10;
   }).filter((v) => v !== null);
@@ -272,7 +287,7 @@ const kopf = await page.evaluate(() => {
     eckSym.push({ l: Math.round((a.left - k.left) * 10) / 10, r: Math.round((k.right - b.right) * 10) / 10,
       ul: Math.round((k.bottom - a.bottom) * 10) / 10, ur: Math.round((k.bottom - b.bottom) * 10) / 10 });
   }
-  return { kacheln, stufen, grau, farbig, toene, meisterMitRohr, baender, boden, namen, talente, teller, abz, meister, hoehen, ecken, eckEbenen, eckOben, eckSym, eckAbstand, ueberschnitt, zifferToene, talentLage, talentZahl, spalten };
+  return { kacheln, stufen, grau, farbig, toene, meisterMitRohr, baender, boden, namen, talente, teller, abz, meister, hoehen, ecken, eckEbenen, eckOben, eckSym, eckAbstand, ueberschnitt, zifferToene, talentLage, talentZahl, spalten, bandHoehen };
 });
 const kopfH = [...new Set(kopf.kacheln.map((h) => String(h).split("|")[0]))];
 const rohrVersatz = kopf.kacheln.map((h) => String(h).split("|")[1]).filter((x) => x !== undefined).map(Number);
@@ -285,6 +300,23 @@ ok(`die Stufenziffer sitzt mittig im Kreis (${kopf.stufen.length} gemessen, max.
 ok(`was noch nicht zu einem gehoert, steht in Graustufen (${kopf.grau.length} grau, ${kopf.farbig.length} farbig)`, kopf.grau.length > 0 && kopf.grau.every((f) => /grayscale/.test(f)) && kopf.farbig.every((f) => f === "none"));
 ok(`Monster tragen einen Farbschleier im eigenen Ton (${kopf.toene})`, kopf.toene >= 12);
 ok(`Grossmeister und Monster tragen das Sockelband wie alle anderen (${kopf.meisterMitRohr})`, kopf.meisterMitRohr >= 25);
+/* v1.23.9 (Besitzer): "alle Sockel sollen nach unten hin die gleiche Hoehe
+   haben". Weil die Skalierung jeden Teller auf dieselbe Breite zieht, muessen
+   die Baender dann auch gleich hoch GEZEICHNET sein. */
+{
+  const h = kopf.bandHoehen.map((x) => x.h);
+  const kl = Math.min(...h), gr = Math.max(...h);
+  const sortiert = [...kopf.bandHoehen].sort((a, b) => a.h - b.h);
+  console.log("   niedrigste:", sortiert.slice(0, 3).map((x) => `${x.wer} ${x.h}`).join(" | "));
+  console.log("   hoechste:  ", sortiert.slice(-3).map((x) => `${x.wer} ${x.h}`).join(" | "));
+  ok(`alle Sockelbaender sind gleich hoch (${h.length} gemessen, ${kl.toFixed(1)} bis ${gr.toFixed(1)} px, Spanne ${(gr - kl).toFixed(1)})`,
+    /* GEMESSEN: mit der Massstabsdivision liegt die Spanne bei 4,1 px um
+       einen Mittelwert von knapp 20 - vorher waren es 7,6. Der Rest kommt aus
+       der Rundung der Bandhoehe auf ganze Bildpixel und der Kappung von
+       sockelSkalierung bei 0,55 fuer die breitesten Teller (Hetzer rx 249).
+       4,5 px ist deshalb die ehrliche Schranke, nicht 0. */
+    h.length >= 30 && gr - kl <= 4.5);
+}
 ok(`jedes Sockelband liegt deckungsgleich auf seinem Bild (${kopf.baender.length} Baender, max. ${Math.max(...kopf.baender).toFixed(2)} px Abweichung)`, kopf.baender.length >= 30 && kopf.baender.every((d) => d <= 0.5));
 {
   const b = kopf.boden; const mn = Math.min(...b), mx = Math.max(...b);
