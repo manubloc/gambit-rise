@@ -74,8 +74,13 @@ const AST_EN = ["A side path branches toward", "Off the road lies", "A quiet det
 
    SCHARMUETZEL (6x6) kommt ab Kapitel 6, ARENA (10x10) ab Kapitel 8 - erst
    dann aendert sich das Mass, und erst dann muss der Spieler umdenken. */
-const MAPS = ["classic", "courtyard", "gauntlet"];          // alle 8x8
-const MAPS_AB = { skirmish: 6, arena: 8 };                   // Kapitel der Einfuehrung
+/* v1.24.0 (Besitzerentscheid "Tabula Rasa"): Arena und Scharmuetzel sind
+   gestrichen. Es bleiben die drei 8x8-Karten - und weil sie alle dasselbe Mass
+   haben, duerfen sie frueh kommen: Klassik von Anfang an, der Hof ab Kapitel
+   II, die Schneise ab Kapitel III. Der Spieler lernt Loecher und Sperren,
+   nicht ein neues Brett. */
+const MAPS = ["classic"];
+const MAPS_AB = { courtyard: 2, gauntlet: 3 };               // Kapitel der Einfuehrung
 
 /** Welche Karten stehen in diesem Kapitel zur Verfuegung? */
 function kartenFuer(kapitel) {
@@ -95,9 +100,9 @@ function kartenFuer(kapitel) {
    einmal, man kaempft darauf um etwas, und ab dem naechsten Kapitel gehoert
    sie dazu.
 
-   Deshalb bekommt der Boss von Kapitel 5 das Scharmuetzel und der von
-   Kapitel 7 die Arena. */
-const BOSS_ZEIGT = { 5: "skirmish", 7: "arena" };
+   Deshalb zeigt der Boss von Kapitel 1 den Hof und der von Kapitel 2 die
+   Schneise (v1.24.0; vorher Scharmuetzel und Arena). */
+const BOSS_ZEIGT = { 1: "courtyard", 2: "gauntlet" };
 
 // KAPITEL I IST DIE SCHULE DES SCHACHS (Besitzerwunsch, v0.77): die erste
 // HAELFTE des Hauptastes wird auf WECHSELNDEN Karten nach reinen Schachregeln

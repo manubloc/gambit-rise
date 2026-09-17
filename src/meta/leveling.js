@@ -241,7 +241,7 @@ function boostSpec(char, dupes) {
 }
 
 // ── Formation (custom back rank) ──────────────────────────────────────────────
-const BACK_SIZE = DEFAULT_BACK_RANK.length; // 10
+const BACK_SIZE = DEFAULT_BACK_RANK.length; // 8 (v1.24.3)
 // The fixed-count heavy pieces every legal formation must contain (positionable,
 // but not multipliable — this keeps material balanced without a points budget).
 export const FORMATION_REQUIRED = { king: 1, queen: 1 };   /* v1.23.1: der Laeufer ist keine Pflicht mehr (Besitzer) */
@@ -380,7 +380,9 @@ export function buildArmyFromFormation(levelOf, formation, chosenOf = null, boos
 }
 
 // ── Map-aware formation & army ────────────────────────────────────────────────
-const ARENA = () => mapById("arena");
+/* v1.24.3: Arena und Scharmuetzel sind gestrichen (Besitzerentscheid
+   "Tabula Rasa" vom 16.9.) - die Standardkarte ist Klassik, 8x8. */
+const STANDARDKARTE = () => mapById("classic");
 /** THE CROWN SITS STILL. King and queen always occupy the same two squares —
  *  centre-right for the king, his consort to his left — on every board width.
  *  Wandering royals made each map feel like a new game; a fixed pair is what
@@ -434,13 +436,21 @@ export function formationLegalOn(formation, unlockedIds, map, ownedBosses = []) 
      besetzen"), und nur die REKRUTIERTEN sind auf eins begrenzt - das ist
      der Teil, der bisher ganz fehlte: man konnte vier Amazonen aufstellen. */
   const FREI_BESETZBAR = new Set(["bishop", "rook", "knight"]);
+  /* ── v1.24.3: DIE ZWEIER-GRENZE (Besitzerentscheid zum 8x8-Umbau) ────────
+     Auf acht Plaetzen darf man Laeufer, Springer und Turm ZWEIMAL aufstellen -
+     wie im Schach. Alles andere bleibt einmalig.
+     WARUM DAS VORHER NICHT NUR VERGESSEN WAR, sondern unmoeglich: die alte
+     Grundstellung der Arena war zehn Felder breit und trug VIER Springer -
+     eine Zweier-Grenze haette die eigene Startaufstellung verboten. Erst mit
+     acht Plaetzen ist die Regel ueberhaupt widerspruchsfrei. */
+  const HOECHSTZAHL = { bishop: 2, rook: 2, knight: 2 };
   const jeFigur = new Map();
   for (const id of formation) {
     if (id == null || isBossEntry(id) || id === "king" || id === "queen") continue;
     if (FREI_BESETZBAR.has(id)) continue;
     jeFigur.set(id, (jeFigur.get(id) || 0) + 1);
   }
-  for (const [, n] of jeFigur) if (n > 1) return false;
+  for (const [id, n] of jeFigur) if (n > (HOECHSTZAHL[id] || 1)) return false;
   if (bossN > 1) return false;                      // one boss at most on the field
   // THE CROWN KEEPS ITS SQUARES: not merely adjacent — fixed. The king may sit
   // nowhere else, and the queen's square holds either the queen or the one
@@ -621,7 +631,7 @@ export function buildAiArmyForMap(difficultyId, map, seed = 0) {
 
 /** Player army. Defaults to the 10×10 Arena (used by the campaign); the app
  *  passes the active map for quick play. */
-export const buildArmy = (profile, map = ARENA(), excludeId = null, rules = null, standard = false) => buildArmyForMap(profile, map, excludeId, rules, standard);
+export const buildArmy = (profile, map = STANDARDKARTE(), excludeId = null, rules = null, standard = false) => buildArmyForMap(profile, map, excludeId, rules, standard);
 
 export const buildAiArmy = (difficultyId) => {
   const d = difficultyById(difficultyId);

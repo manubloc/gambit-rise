@@ -1,4 +1,6 @@
 import { storage } from "../platform/index.js";
+import { formationLegalOn } from "./leveling.js";
+import { mapById } from "../content/maps.js";
 
 const KEY = "profile";
 
@@ -27,12 +29,46 @@ export function defaultProfile() {
     stats: emptyStats(),
   };
 }
+/* ── DIE ALTE ZEHNERREIHE WIRD ACHT (v1.24.0) ─────────────────────────────
+   Mit dem Wegfall der Arena liegen in gespeicherten Profilen noch
+   10er-Aufstellungen. Sie sind nicht verloren: die 10er-Reihe ist die
+   Achterreihe PLUS die beiden zusaetzlichen Flankenspringer (Plaetze 2 und
+   7). Wer sie herausnimmt, bekommt genau die Achterreihe zurueck - und
+   Koenig und Dame landen von selbst auf ihren neuen Feldern 4 und 3
+   (vorher 5 und 4), weil beide links von sich je einen Platz verlieren.
+
+   Wird die Aufstellung dabei ungueltig - zwei Amazonen, die vorher auf
+   verschiedenen Plaetzen standen und jetzt beide bleiben, oder eine dritte
+   Figur derselben Art unter der neuen Zweier-Grenze -, dann gibt es NULL
+   zurueck; der Aufrufer nimmt dann die Grundstellung der Karte. Lieber eine
+   saubere Grundstellung als eine kaputte Erinnerung. */
+const ALTE_FLANKEN = [2, 7];      // die beiden Extra-Plaetze der 10er-Reihe
+export function formationAufAcht(formation, unlockedIds = null, map = null) {
+  if (!Array.isArray(formation)) return null;
+  let acht = null;
+  if (formation.length === 8) acht = [...formation];
+  else if (formation.length === 10) acht = formation.filter((_, i) => !ALTE_FLANKEN.includes(i));
+  else return null;               // 6er-Scharmuetzel laesst sich nicht hochrechnen
+  if (unlockedIds && map && !formationLegalOn(acht, unlockedIds, map)) return null;
+  return acht;
+}
+
 function migrate(p) {
   const d = defaultProfile();
   const lo = p.loadout || {};
-  const formations = { ...(lo.formations || {}) };
-  // legacy single 10-wide formation → the Arena map's slot
-  if (lo.formation && !formations.arena) formations.arena = lo.formation;
+  const formations = {};
+  const gueltig = new Set(["classic", "courtyard", "gauntlet"]);
+  /* v1.24.0: gespeicherte Aufstellungen auf die drei verbliebenen Karten
+     umrechnen. Die 10er-Aufstellung der Arena zaehlt als Erbe: sie fuellt
+     jede 8x8-Karte, die noch keine eigene hat. Das 6x6-Scharmuetzel faellt
+     weg (nicht hochrechenbar). */
+  for (const [id, f] of Object.entries(lo.formations || {})) {
+    if (!gueltig.has(id)) continue;
+    const a = formationAufAcht(f);
+    if (a) formations[id] = a;
+  }
+  const erbe = formationAufAcht((lo.formations || {}).arena || lo.formation || null);
+  if (erbe) for (const id of gueltig) if (!formations[id]) formations[id] = erbe;
   // v1 → v2: charXp auto-levels become purchased levels; any piece the player
   // had progressed counts as unlocked; linear campaign progress maps onto the
   // intro nodes of the new branching map.

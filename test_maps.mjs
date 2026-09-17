@@ -18,8 +18,15 @@ ok("classic default is the standard back rank",
 ok("at least one classic map exists", MAPS.some((m) => m.classic));
 
 // Sizes and playable counts
-ok("arena is 10x10 fully open", playableCount(mapById("arena")) === 100);
-ok("skirmish is a small 6x6", mapById("skirmish").w === 6 && playableCount(mapById("skirmish")) === 36);
+/* v1.24.0 (Besitzerentscheid "Tabula Rasa"): Arena und Scharmuetzel sind
+   gestrichen. Geprueft wird jetzt, dass sie WEG sind - und dass ein alter
+   Kartenname sauber auf Klassik zurueckfaellt statt undefined zu liefern. */
+ok("es gibt genau drei Karten", MAPS.length === 3);
+ok("alle drei sind voll 8x8 breit", MAPS.every((m) => m.w === 8 && m.h === 8));
+ok("die Arena ist fort", !MAPS.some((m) => m.id === "arena"));
+ok("das Scharmuetzel ist fort", !MAPS.some((m) => m.id === "skirmish"));
+ok("ein alter Kartenname faellt auf Klassik zurueck", mapById("arena").id === "classic");
+ok("Klassik ist voll offen", playableCount(mapById("classic")) === 64);
 
 // Holes (obstacles / shapes)
 const yard = mapById("courtyard");

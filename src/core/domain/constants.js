@@ -1,6 +1,9 @@
 // Board geometry. Change FILES/RANKS to resize — the whole engine is size-agnostic.
-export const FILES = 10;
-export const RANKS = 10;
+/* v1.24.0: DAS BRETT IST 8x8 (Besitzerentscheid, siehe content/maps.js).
+   Die Maschine bleibt massunabhaengig - w/h kommen aus der Karte; diese
+   beiden Zahlen sind nur noch der Standard, wenn keine Karte danebensteht. */
+export const FILES = 8;
+export const RANKS = 8;
 export const NUM_SQUARES = FILES * RANKS;
 
 export const WHITE = "w";

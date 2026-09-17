@@ -20,13 +20,17 @@ export const playableCount = (map) => map.w * map.h - (map.holes ? map.holes.len
 export const CLASSIC_SQ = { sqLight: "#8a8371", sqDark: "#3a3e49" };
 
 const CHESS_BACK = ["rook", "knight", "bishop", "queen", "king", "bishop", "knight", "rook"];
-// Full 10-wide GAMBIT back rank (matches DEFAULT_BACK_RANK in core).
-const ARENA_BACK = ["rook", "knight", "knight", "bishop", "queen", "king", "bishop", "knight", "knight", "rook"];
 
 /* v1.23.1 (Besitzer): PFLICHT IST NUR DER KOENIG. Der Platz der Dame haelt
    die Dame oder einen gewonnenen Meister ("die Meister duerfen die Dame
    ersetzen, sonst nirgends"); der Laeufer ist keine Pflichtfigur mehr - alle
    uebrigen Plaetze sind frei mit allem besetzbar, was man gesammelt hat. */
+/* v1.24.0 (Besitzerentscheid 16.09., "Tabula Rasa"): DIE ARENA UND DAS
+   SCHARMUETZEL SIND GESTRICHEN. Auf 10x10 werden die Figuren auf dem Handy
+   zu klein zum Bedienen, und jede abweichende Brettbreite zwang die
+   Aufstellung, ein zweites Mal zu existieren. Es bleiben die drei 8x8-Karten
+   Klassik, Hof und Schneise - sie unterscheiden sich in Loechern, nicht im
+   Mass. Dadurch gilt EINE Aufstellung ueberall. */
 export const MAPS = [
   {
     id: "classic", nameDe: "Klassik", nameEn: "Classic", theme: CLASSIC_SQ,
@@ -34,20 +38,6 @@ export const MAPS = [
     back: { whiteBack: 0, blackBack: 7, whitePawn: 1, blackPawn: 6 },
     formation: { required: { king: 1, queen: 1 }, flex: 6 },
     defaultFormation: CHESS_BACK,
-  },
-  {
-    id: "arena", nameDe: "Arena", nameEn: "Arena", theme: CLASSIC_SQ,
-    w: 10, h: 10, holes: [], classic: false,
-    back: { whiteBack: 0, blackBack: 9, whitePawn: 1, blackPawn: 8 },
-    formation: { required: { king: 1, queen: 1 }, flex: 8 },
-    defaultFormation: ARENA_BACK,
-  },
-  {
-    id: "skirmish", nameDe: "Scharmützel", nameEn: "Skirmish", theme: CLASSIC_SQ,
-    w: 6, h: 6, holes: [], classic: false,
-    back: { whiteBack: 0, blackBack: 5, whitePawn: 1, blackPawn: 4 },
-    formation: { required: { king: 1, queen: 1 }, flex: 4 },
-    defaultFormation: ["rook", "knight", "queen", "king", "bishop", "knight"],
   },
   {
     id: "courtyard", nameDe: "Hof", nameEn: "Courtyard", theme: CLASSIC_SQ,

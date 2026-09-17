@@ -28,13 +28,19 @@ const filesOnRank0 = pieceMoves(holed, idx(0, 0, 8)).filter((m) => rankOf(m.to, 
 ok("rook is stopped before a hole", JSON.stringify(filesOnRank0) === JSON.stringify([1, 2, 3]));
 ok("no move ever lands on a hole", !pieceMoves(holed, idx(0, 0, 8)).some((m) => m.to === idx(4, 0, 8)));
 
-// ── Small 6×6 board runs ─────────────────────────────────────────────────────
-const sk = mapById("skirmish");
+/* ── Die Maschine bleibt massunabhaengig (v1.24.0) ─────────────────────────
+   Das 6x6-Scharmuetzel ist als KARTE gestrichen (Besitzerentscheid), aber die
+   Eigenschaft, die es hier bewies, gilt weiter: die Maschine rechnet auf jeder
+   Breite. Deshalb steht hier jetzt ein 6x6-Brett von Hand statt aus dem
+   Katalog - gestrichen ist die Karte, nicht die Faehigkeit. */
+const sk = { id: "adhoc6", w: 6, h: 6, holes: [],
+  back: { whiteBack: 0, blackBack: 5, whitePawn: 1, blackPawn: 4 },
+  defaultFormation: ["rook", "knight", "queen", "king", "bishop", "knight"] };
 const a6 = army(sk.defaultFormation.map((id) => ({ rook: "R", knight: "N", bishop: "B", queen: "Q", king: "K" }[id])));
 let s6 = createGame(a6, a6, { map: sk });
-ok("skirmish board has 36 squares", s6.board.length === 36);
-ok("skirmish has legal opening moves", legalMoves(s6).length > 0);
-ok("skirmish is not over at the start", status(s6).over === false);
+ok("a 6x6 board has 36 squares", s6.board.length === 36);
+ok("a 6x6 board has legal opening moves", legalMoves(s6).length > 0);
+ok("a 6x6 board is not over at the start", status(s6).over === false);
 
 // ── Shaped board (courtyard, 4 center holes) ─────────────────────────────────
 const yard = mapById("courtyard");

@@ -2,13 +2,16 @@ import { FILES, RANKS, WHITE, BLACK, KIND, idx, BASE_HP, BASE_ATK, SHIELD_HP, we
 import { familyOf, crownHp, shadowAtk, shadowRifts } from "../rules/families.js";
 import { emptyBoard, makePiece } from "./board.js";
 
-// Default 10-wide back rank. Indices 2 and 7 are the "flank" slots that new
-// unlocked characters can occupy (knights by default).
+/* v1.24.0: DIE GRUNDSTELLUNG IST DIE DES SCHACHS (8 Plaetze, R N B Q K B N R).
+   Vorher stand hier die 10er-Reihe der Arena mit vier Springern; mit dem
+   Wegfall von Arena und Scharmuetzel gibt es nur noch EINE Breite. Die
+   Flankenplaetze (neue Figuren ziehen dort ein) sind jetzt die beiden
+   Springerfelder 1 und 6. */
 export const DEFAULT_BACK_RANK = [
-  KIND.ROOK, KIND.KNIGHT, KIND.KNIGHT, KIND.BISHOP, KIND.QUEEN,
-  KIND.KING, KIND.BISHOP, KIND.KNIGHT, KIND.KNIGHT, KIND.ROOK,
+  KIND.ROOK, KIND.KNIGHT, KIND.BISHOP, KIND.QUEEN,
+  KIND.KING, KIND.BISHOP, KIND.KNIGHT, KIND.ROOK,
 ];
-export const FLANK_SLOTS = [2, 7];
+export const FLANK_SLOTS = [1, 6];
 
 /** A plain level-1 army (no abilities, no shields). Progression enriches this. */
 export function defaultArmy() {
@@ -18,7 +21,7 @@ export function defaultArmy() {
   };
 }
 
-// Default map = the classic 10×10 GAMBIT board (back ranks at the edges).
+// Default map = the classic 8×8 board (back ranks at the edges).
 export const DEFAULT_MAP = {
   w: FILES, h: RANKS, holes: [],
   back: { whiteBack: 0, blackBack: RANKS - 1, whitePawn: 1, blackPawn: RANKS - 2 },

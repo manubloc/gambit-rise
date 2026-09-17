@@ -8,8 +8,12 @@ import { mapById, CHARACTERS } from "./src/content/index.js";
 let pass = 0, fail = 0;
 const ok = (name, cond) => { if (cond) { pass++; console.log("  ok  -", name); } else { fail++; console.log(" FAIL -", name); } };
 
-const map = mapById("arena");
+/* v1.24.0: die Arena ist gestrichen - der Drache wird auf Klassik geprueft.
+   Die Feldnummern hingen an W=10; sie werden jetzt aus W gerechnet. */
+const map = mapById("classic");
 const W = map.w;
+const FLY = 2 * W + 2;          // Landeblock (Reihe 2, Linie 2)
+const FOE = FLY + 1;            // der Feind unter dem Landeblock
 const dform = [...map.defaultFormation]; dform[0] = "dragon"; dform[1] = null;
 const mk = (lvl = 5, rules = "hp") => createGame(
   buildArmyFromFormation(() => lvl, dform),
@@ -42,25 +46,25 @@ const mk = (lvl = 5, rules = "hp") => createGame(
 {
   // hand-built: dragon anchor 0, one WEAK foe pawn at 22 → fly to 21 covers it, it dies → settle
   const g = mk(9); // level 9: range 4, atk 8
-  g.board[22] = { id: 901, kind: "P", color: "b", level: 1, abilities: [], shield: 0, used: {}, hasMoved: true, maxHp: 2, hp: 2, atk: 1 };
-  const fly = legalMoves(g, "w").find((m) => m.special === "dragonFly" && m.to === 21);
+  g.board[FOE] = { id: 901, kind: "P", color: "b", level: 1, abilities: [], shield: 0, used: {}, hasMoved: true, maxHp: 2, hp: 2, atk: 1 };
+  const fly = legalMoves(g, "w").find((m) => m.special === "dragonFly" && m.to === FLY);
   ok("flight may land on foes", !!fly);
   const g2 = applyMove(g, fly);
   ok("all covered foes fell -> he settles on the new block",
-    g2.board[21]?.kind === "D" && g2.board[0] === null && g2.lastMove.bounced === false && g2.captured.w.includes("P"));
-  ok("the wings are spent: once per game", (g2.board[21].used || {}).dragon_flight === true &&
+    g2.board[FLY]?.kind === "D" && g2.board[0] === null && g2.lastMove.bounced === false && g2.captured.w.includes("P"));
+  ok("the wings are spent: once per game", (g2.board[FLY].used || {}).dragon_flight === true &&
     !legalMoves(g2, "w").some((m) => m.special === "dragonFly"));
 }
 {
   // a TOUGH foe on the landing zone survives → the strike counts, he falls back
   const g = mk(3); // level 3: flight range 2, atk 5
-  g.board[22] = { id: 902, kind: "R", color: "b", level: 1, abilities: [], shield: 0, used: {}, hasMoved: true, maxHp: 20, hp: 20, atk: 3 };
-  const fly = legalMoves(g, "w").find((m) => m.special === "dragonFly" && m.to === 21);
+  g.board[FOE] = { id: 902, kind: "R", color: "b", level: 1, abilities: [], shield: 0, used: {}, hasMoved: true, maxHp: 20, hp: 20, atk: 3 };
+  const fly = legalMoves(g, "w").find((m) => m.special === "dragonFly" && m.to === FLY);
   const g2 = applyMove(g, fly);
   ok("a survivor throws him back to his take-off block",
-    g2.board[0]?.kind === "D" && g2.board[21] === null && g2.lastMove.bounced === true);
+    g2.board[0]?.kind === "D" && g2.board[FLY] === null && g2.lastMove.bounced === true);
   ok("the strike still counts (rook bruised) and the wings are spent anyway",
-    g2.board[22].hp < 20 && (g2.board[0].used || {}).dragon_flight === true);
+    g2.board[FOE].hp < 20 && (g2.board[0].used || {}).dragon_flight === true);
 }
 
 // ── on foot he crushes a foe caught under his leading edge ──────────────────
@@ -90,12 +94,12 @@ const mk = (lvl = 5, rules = "hp") => createGame(
 // ── formation law ────────────────────────────────────────────────────────────
 {
   const owned = [...unlockedCharacterIds({ campaign: { unlocked: Object.keys(CHARACTERS) } })];
-  // required counts (K/Q/2R/2B) must survive: the dragon eats two FLEX slots.
-  // The crown sits on its fixed squares here (5/4 on a 10-wide rank) so these
-  // cases test the DRAGON law alone, not the seating of the royals.
-  const f1 = ["dragon", null, "rook", "rook", "queen", "king", "bishop", "bishop", "knight", "knight"];
-  const f2 = ["rook", "knight", "knight", "bishop", "queen", "king", "bishop", "dragon", "rook", "knight"];
-  const f3 = ["dragon", "knight", "rook", "rook", "queen", "king", "bishop", "bishop", "knight", "knight"];
+  // Der Drache frisst zwei FLEX-Plaetze. Die Krone sitzt auf ihren festen
+  // Feldern (v1.24.0: 4/3 auf der Achterreihe), damit diese Faelle allein das
+  // DRACHENGESETZ pruefen, nicht die Sitzordnung der Koenigspaare.
+  const f1 = ["dragon", null, "rook", "queen", "king", "bishop", "knight", "rook"];
+  const f2 = ["rook", "knight", "bishop", "queen", "king", "dragon", "knight", "rook"];
+  const f3 = ["dragon", "knight", "rook", "queen", "king", "bishop", "knight", "rook"];
   ok("dragon at the edge with an empty wing is lawful", formationLegal(f1, owned) === true);
   ok("a dragon in the middle is turned away", formationLegal(f2, owned) === false);
   ok("without the empty wing slot he may not deploy", formationLegal(f3, owned) === false);
@@ -103,7 +107,7 @@ const mk = (lvl = 5, rules = "hp") => createGame(
 
 // ── the AI wields him without breaking the board ─────────────────────────────
 {
-  const dform = ["dragon", null, "rook", "rook", "bishop", "queen", "king", "bishop", "knight", "knight"];
+  const dform = ["dragon", null, "rook", "queen", "king", "bishop", "knight", "rook"];
   // one seed is a lottery ticket — the single-cast law reshuffled every game
   // tree, so we assert the TRUTH we care about: his moves stay ON OFFER, a
   // full game ends cleanly, and across a handful of seeds the AI does pick him.
@@ -134,7 +138,7 @@ const mk = (lvl = 5, rules = "hp") => createGame(
 // the tap handler must let a valid move win over the "wing = dragon" redirect,
 // or he can never walk forward. Here we assert the move is legal & lands right.
 {
-  const dform = ["dragon", null, "rook", "rook", "bishop", "queen", "king", "bishop", "knight", "knight"];
+  const dform = ["dragon", null, "rook", "queen", "king", "bishop", "knight", "rook"];
   const g = createGame(buildArmyFromFormation(() => 6, dform), buildArmyFromFormation(() => 4, map.defaultFormation), { map, rules: "hp", seed: 7 });
   const W2 = g.w;
   const anchor = g.board.findIndex((x) => x && x.big && x.kind === "D");

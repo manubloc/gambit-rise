@@ -39,7 +39,7 @@ ok("rook without breach is blocked by adjacent piece", !canReach(movesAt(b, idx(
 b = blank(); b[idx(4, 4)] = P(KIND.AMAZON, "w");
 let m = movesAt(b, idx(4, 4));
 ok("Amazon moves like a knight", canReach(m, idx(5, 6)) && canReach(m, idx(6, 5)));
-ok("Amazon moves like a queen (file + diagonal)", canReach(m, idx(4, 9)) && canReach(m, idx(8, 8)));
+ok("Amazon moves like a queen (file + diagonal)", canReach(m, idx(4, 7)) && canReach(m, idx(7, 7)));  /* v1.24.0: 8x8 */
 
 b = blank(); b[idx(4, 4)] = P(KIND.HAWK, "w");
 m = movesAt(b, idx(4, 4));
@@ -50,29 +50,29 @@ ok("Hawk is NOT a full bishop (no long diagonal)", !canReach(m, idx(7, 7)));
 // ── Formation ─────────────────────────────────────────────────────────────────
 const allUnlocked = unlockedCharacterIds({ campaign: { unlocked: ["hawk","archbishop","chancellor","amazon","assassin","guardian","dragon","mage","sorceress","alchemist","warlock","paladin","inquisitor","bard","engineer","standard","strategist","pathfinder"] } });
 const def = defaultFormation();
-ok("defaultFormation has 10 slots", def.length === 10);
+ok("defaultFormation has 8 slots", def.length === 8);          /* v1.24.0: Arena gestrichen */
 ok("defaultFormation is legal", formationLegal(def, allUnlocked));
 
 const twoQueens = [...def]; twoQueens[1] = "queen";
 ok("two queens is illegal", !formationLegal(twoQueens, allUnlocked));
 
-const noKing = [...def]; noKing[5] = "rook";
+const noKing = [...def]; noKing[4] = "rook";                   /* v1.24.0: der Koenig steht auf 4 */
 ok("missing king is illegal", !formationLegal(noKing, allUnlocked));
 
 const lockedFairy = [...def]; lockedFairy[1] = "amazon";
 ok("unlocked-only is enforced", !formationLegal(lockedFairy, ["king", "queen", "rook", "bishop", "knight"]) && formationLegal(lockedFairy, allUnlocked));
 
 const army = buildArmyFromFormation(() => 1, def);
-ok("formation army has a 10-piece back rank", army.back.length === 10);
-ok("formation army back rank matches kinds", army.back[0].kind === KIND.ROOK && army.back[5].kind === KIND.KING);
+ok("formation army has an 8-piece back rank", army.back.length === 8);
+ok("formation army back rank matches kinds", army.back[0].kind === KIND.ROOK && army.back[4].kind === KIND.KING);
 
-// buildArmy prefers a legal custom formation, falls back otherwise (Arena map by default)
+// buildArmy prefers a legal custom formation, falls back otherwise (Klassik by default, v1.24.0)
 const rich = { xp: 0, campaign: { cleared: [], unlocked: ["archbishop"] }, pieces: { levels: {} }, loadout: {} };
 const custom = [...def]; custom[1] = "archbishop";
-ok("buildArmy uses a legal custom formation", buildArmy({ ...rich, loadout: { formations: { arena: custom } } }).back[1].kind === KIND.ARCHBISHOP);
+ok("buildArmy uses a legal custom formation", buildArmy({ ...rich, loadout: { formations: { classic: custom } } }).back[1].kind === KIND.ARCHBISHOP);
 
 const illegal = [...def]; illegal[1] = "queen";
-const fb = buildArmy({ ...rich, loadout: { formations: { arena: illegal } } });
+const fb = buildArmy({ ...rich, loadout: { formations: { classic: illegal } } });
 ok("buildArmy falls back to standard on illegal formation", fb.back.filter((s) => s.kind === KIND.QUEEN).length === 1);
 
 // ── Campaign (branching graph) ───────────────────────────────────────────────
@@ -82,7 +82,8 @@ ok("story starts as chess on the classic board", s0.map === "classic" && s0.rule
 ok("stage match builds a full enemy army", s0.aiArmy.back.length === 8 && s0.aiArmy.pawn.kind === KIND.PAWN);
 ok("stage match carries a search depth", typeof s0.depth === "number" && s0.depth >= 1);
 ok("classic stages field base-level enemies", s0.aiArmy.back.every((p) => (p.level || 1) === 1));
-ok("later stages open new arenas", CAMPAIGN.some((s) => s.map === "arena") && CAMPAIGN.some((s) => s.rules === "hp"));
+/* v1.24.0: die Arena ist gestrichen - die neuen Buehnen sind Hof und Schneise. */
+ok("later stages open new boards", CAMPAIGN.some((s) => s.map === "courtyard") && CAMPAIGN.some((s) => s.map === "gauntlet") && CAMPAIGN.some((s) => s.rules === "hp"));
 
 const last = buildStageMatch("L01s44");
 ok("final stage is a boss fight", last.boss && last.aiArmy.back.some((s) => s.kind === "X"));
@@ -136,17 +137,17 @@ ok("early chapters yield in one win, the deep road demands two",
 import { formationLegalOn as fLegal, buildArmyFromFormation as bFromForm, ownedLeagueBosses } from "./src/meta/index.js";
 import { mapById as mapOf } from "./src/content/index.js";
 {
-  const arena = mapOf("arena");
+  const karte = mapOf("classic");   /* v1.24.0: die Arena ist gestrichen */
   const ids = ["hawk","assassin","pathfinder","dragon","guardian","bard","paladin","inquisitor","standard","engineer","chancellor","archbishop","mage","alchemist","sorceress","warlock","strategist","amazon","captain","knight","bishop","rook","queen","king","pawn"];
-  const base = ["rook","knight","knight","bishop","queen","king","bishop","knight","knight","rook"];
-  const withBoss = [...base]; withBoss[4] = "boss:b12";  // v0.38.1: Kapitel-I-Trophaee ist der Richter (Osric ans Ende)
+  const base = ["rook","knight","bishop","queen","king","bishop","knight","rook"];
+  const withBoss = [...base]; withBoss[3] = "boss:b12";  // v0.38.1: Kapitel-I-Trophaee ist der Richter (Osric ans Ende)
   const prof1 = { stats: { leaguesWon: 1 } }, prof0 = { stats: {} };
   ok("league bosses are trophies of finished leagues", ownedLeagueBosses(prof1).join() === "b12" && ownedLeagueBosses(prof0).length === 0);
-  ok("a boss stands in for the queen — if you own him", fLegal(withBoss, ids, arena, ["b12"]) && !fLegal(withBoss, ids, arena, []));
+  ok("a boss stands in for the queen — if you own him", fLegal(withBoss, ids, karte, ["b12"]) && !fLegal(withBoss, ids, karte, []));
   const twoBosses = [...withBoss]; twoBosses[0] = "boss:b12";
-  ok("one boss at most on the field", !fLegal(twoBosses, ids, arena, ["b12"]));
+  ok("one boss at most on the field", !fLegal(twoBosses, ids, karte, ["b12"]));
   const army = bFromForm(() => 1, withBoss);
-  ok("the fielded boss brings his stats and aura", army.back[4].bossId === "b12" && army.back[4].aura.type === "noEnemyPotions");
+  ok("the fielded boss brings his stats and aura", army.back[3].bossId === "b12" && army.back[3].aura.type === "noEnemyPotions");
 }
 ok("from chapter IV every station fields its own stage; the finale always does",
   ["L01s02","L01s16","L07s41","L01s22"].every((id) => effectiveMap(nbId(id), 4) === nbId(id).map)
@@ -182,7 +183,17 @@ ok("paid tolls reset with the league — every climate has its own gatekeeper", 
   ok("pure chess stays vanilla while HP battles scale with the world",
     bsm2(chessN.id, { xp: 0, campaign: { league: 13, cleared: [], unlocked: [] } }).aiArmy.back[0].level === 1
     && bsm2(hpN.id, lg).aiArmy.back[0].level > 1);
-  ok("chapter I bends every stage onto the classic board", effectiveMap(ha2(1).find((n) => n.map !== "classic"), 1) === "classic");
+  /* v1.24.0: Kapitel I hat jetzt GENAU EINE Nicht-Klassik-Station - das Finale,
+   auf dem der Grossmeister den Hof einfuehrt. Gemessen: L01s44. Finale behalten
+   ihre Buehne, alles andere beugt sich weiterhin aufs klassische Brett. */
+{
+  const fremde = ha2(1).filter((n) => n.map !== "classic");
+  ok("in Kapitel I steht nur das Finale auf einer anderen Buehne",
+    fremde.length === 1 && fremde[0].final === true && fremde[0].map === "courtyard");
+  ok("chapter I bends every ordinary stage onto the classic board",
+    ha2(1).filter((n) => !n.final).every((n) => effectiveMap(n, 1) === "classic"));
+  ok("das Finale behaelt seine Buehne", effectiveMap(fremde[0], 1) === "courtyard");
+}
 }
 
 // ── Healing draught: a real, guarded core command ─────────────────────────────
@@ -230,9 +241,10 @@ ok("the hero exists, costs more than a common pawn, learns Masquerade at 8",
   CH2.gambit.epic === true && upc2("gambit") === 2 && upc2("pawn") === 1 &&
   CH2.gambit.ladder.some((e) => e.level === 8 && e.ability === "gambit_masquerade"));
 const hp0 = { ...prof, loadout: { ...prof.loadout, heroCols: {} } };
+/* v1.24.0: gemessen auf Klassik (8 breit) statt auf der gestrichenen Arena. */
 ok("his file defaults to the center and clamps to the board",
-  heroColFor(hp0, mapBy2("arena")) === 5 &&
-  heroColFor({ ...hp0, loadout: { ...hp0.loadout, heroCols: { arena: 99 } } }, mapBy2("arena")) === 9);
+  heroColFor(hp0, mapBy2("classic")) === 4 &&
+  heroColFor({ ...hp0, loadout: { ...hp0.loadout, heroCols: { classic: 99 } } }, mapBy2("classic")) === 7);
 const hpX = { ...prof, loadout: { flank: ["knight", "knight"], formations: {}, heroCols: { arena: 2 } },
   /* v0.81: der Held zieht erst mit, wenn er erwacht ist (drei Stationen). */
   campaign: { ...(prof.campaign || {}), cleared: ["L01s01", "L01s02", "L01s03"] },
@@ -307,7 +319,7 @@ ok("the AI values the hero above a common pawn", (() => {
 
 // ── Unlocks ride on campaign reach ───────────────────────────────────────────
 const fresh = { xp: 0, campaign: { cleared: [], unlocked: [] } };
-ok("fresh profile: only classic, no HP", mapUnlocked(fresh, "classic") && !mapUnlocked(fresh, "skirmish") && !hpUnlocked(fresh));
+ok("fresh profile: only classic, no HP", mapUnlocked(fresh, "classic") && !mapUnlocked(fresh, "gauntlet") && !hpUnlocked(fresh));
 // v0.77: Das Erwachen sitzt in der MITTE von Kapitel I - erst wer die
 // Schachhaelfte hinter sich hat, sieht Lebenspunkte. Zwei Siegen reicht nicht
 // mehr; der Weg wird darum wirklich gegangen.
@@ -333,12 +345,26 @@ ok("fresh profile: only classic, no HP", mapUnlocked(fresh, "classic") && !mapUn
     unlocked: [...(nachKapEins.campaign.unlocked || []), ...bisFuenf] } };
   ok("hp opens once the awakening is reachable", hpUnlocked(bisErwachen));
 }
-/* v1.13.0: DIE KARTEN KOMMEN SPAETER. Das Scharmuetzel war frueher von
-   Anfang an dabei; seit dem Besitzerentscheid fuehrt es der Grossmeister von
-   Kapitel 5 ein, die Arena der von Kapitel 7. Geprueft wird jetzt, was
-   unveraendert gilt: die 8x8-Karten stehen frueh offen, die Arena nicht. */
-ok("die 8x8-Karten stehen frueh offen, die Arena nicht",
-  mapUnlocked(prof, "courtyard") && mapUnlocked(prof, "gauntlet") && !mapUnlocked(prof, "arena"));
+/* v1.24.0: Arena und Scharmuetzel sind gestrichen. Die drei verbliebenen
+   Karten haben dasselbe Mass, also duerfen sie frueh kommen - der Hof ab
+   Kapitel II, die Schneise ab Kapitel III, eingefuehrt vom Grossmeister des
+   Vorkapitels. Geprueft wird, dass beide offen stehen, wenn man so weit ist. */
+/* GEMESSEN: mit frischem Profil ist nur Klassik offen - die beiden anderen
+   Buehnen fuehrt je ein Grossmeister ein. */
+ok("frisch steht keine der beiden neuen Buehnen offen",
+  !mapUnlocked({ xp: 0, campaign: { cleared: [], unlocked: [] } }, "courtyard") &&
+  !mapUnlocked({ xp: 0, campaign: { cleared: [], unlocked: [] } }, "gauntlet"));
+/* GEMESSEN: die Schneise oeffnet erst mit Kapitel II - ihr Grossmeister steht
+   am Ende von Kapitel II, vorher fuehrt kein erreichbarer Weg auf sie. */
+{
+  const nach1 = CAMPAIGN.filter((n) => n.league === 1 && n.haupt)
+    .reduce((p, n) => advanceCampaign(p, n.id), { xp: 0, campaign: { cleared: [], unlocked: [] } });
+  ok("nach Kapitel I: Hof ja, Schneise noch nicht",
+    mapUnlocked(nach1, "courtyard") && !mapUnlocked(nach1, "gauntlet"));
+  const nach2 = { ...nach1, campaign: { ...nach1.campaign, league: 2,
+    cleared: [...nach1.campaign.cleared, ...CAMPAIGN.filter((n) => n.league === 2).map((n) => n.id)] } };
+  ok("nach Kapitel II steht auch die Schneise offen", mapUnlocked(nach2, "gauntlet"));
+}
 
 
 // ── v0.20: turncoat duels bench your own copy of the challenger ──────────────
@@ -348,20 +374,20 @@ ok("die 8x8-Karten stehen frueh offen, die Arena nicht",
   const { figurStation: figT } = await import("./test_helpers12.mjs");
   const hawkT = figT("hawk");
   const prof = { campaign: { league: hawkT.league, cleared: [], unlocked: ["hawk"] },
-    loadout: { formations: { skirmish: null } }, charXp: {}, items: {} };
+    loadout: { formations: { classic: null } }, charXp: {}, items: {} };
   const mt = buildStageMatch(hawkT.id, prof); // die Falkenstation stellt den eigenen Falken
   ok("rematch vs owned challenger is flagged turncoat", mt.turncoat === true && mt.excludeId === "hawk");
-  const arena = mapById("arena");
+  const karte2 = mapById("classic");   /* v1.24.0 */
   /* v1.1.6: EINE rekrutierte Figur je Aufstellung. Diese Probe stellte zwei
      Habichte auf - das war vor der Besitzerregel erlaubt und ist es nicht
      mehr ("jede Figur, die man neu dazubekommt, nur einmal"). Sie prueft
      ohnehin das Verraeter-Duell, nicht die Anzahl; ein Habicht genuegt dafuer,
      der zweite Platz nimmt einen Springer. */
-  const saved = ["rook","hawk","knight","bishop","queen","king","bishop","knight","knight","rook"];
-  const p2 = { ...prof, loadout: { formations: { arena: saved } } };
+  const saved = ["rook","hawk","bishop","queen","king","bishop","knight","rook"];
+  const p2 = { ...prof, loadout: { formations: { classic: saved } } };
   const kinds = (a) => a.back.map((x) => x.kind).join("");
-  ok("player army fields the hawk normally", kinds(buildArmy(p2, arena)).includes("H"));
-  ok("player army benches the hawk in a turncoat duel", !kinds(buildArmy(p2, arena, "hawk")).includes("H"));
+  ok("player army fields the hawk normally", kinds(buildArmy(p2, karte2)).includes("H"));
+  ok("player army benches the hawk in a turncoat duel", !kinds(buildArmy(p2, karte2, "hawk")).includes("H"));
   const fresh = buildStageMatch("L01s02", { campaign: { league: 1, cleared: [], unlocked: [] } });
   ok("first encounter is no turncoat", !fresh.turncoat && !fresh.excludeId);
 }
@@ -693,16 +719,20 @@ console.log("\n== DIE WIRKUNG DER BUENDE (v1.10.0) ==");
 {
   const { formationLegalOn, defaultFormation } = await import("./src/meta/index.js");
   const { mapById } = await import("./src/content/index.js");
-  const arena = mapById("arena");
+  const karte2 = mapById("classic");   /* v1.24.0 */
   const alle = ["gambit","pawn","knight","bishop","rook","queen","king","paladin","amazon","mage"];
-  const f = defaultFormation(arena); const ohneLaeufer = f.map((id) => (id === "bishop" ? "rook" : id));
-  ok("eine Aufstellung ganz ohne Laeufer ist erlaubt", formationLegalOn(ohneLaeufer, alle, arena) === true);
+  /* v1.24.0: die Ersatzfiguren sind jetzt REKRUTIERTE statt Tuerme - mit der
+     Zweier-Grenze waeren vier Tuerme aus einem zweiten Grund illegal, und die
+     Probe bewiese nicht mehr, was sie behauptet. */
+  const f = defaultFormation();
+  const ohneLaeufer = ["rook", "knight", "paladin", "queen", "king", "mage", "knight", "rook"];
+  ok("eine Aufstellung ganz ohne Laeufer ist erlaubt", formationLegalOn(ohneLaeufer, alle, karte2) === true);
   const einLaeufer = f.map((id, i) => (id === "bishop" && i > 4 ? "paladin" : id));
-  ok("ein einzelner Laeufer neben einem Paladin ebenso", formationLegalOn(einLaeufer, alle, arena) === true);
-  const ohneKoenig = f.map((id) => (id === "king" ? "rook" : id));
-  ok("ohne Koenig geht nichts", formationLegalOn(ohneKoenig, alle, arena) === false);
-  const turmStattDame = f.map((id) => (id === "queen" ? "rook" : id));
-  ok("der Platz der Dame nimmt keinen Turm - nur die Dame oder einen Meister", formationLegalOn(turmStattDame, alle, arena) === false);
+  ok("ein einzelner Laeufer neben einem Paladin ebenso", formationLegalOn(einLaeufer, alle, karte2) === true);
+  const ohneKoenig = f.map((id) => (id === "king" ? "amazon" : id));
+  ok("ohne Koenig geht nichts", formationLegalOn(ohneKoenig, alle, karte2) === false);
+  const turmStattDame = f.map((id) => (id === "queen" ? "amazon" : id));
+  ok("der Platz der Dame nimmt keine gewoehnliche Figur - nur die Dame oder einen Meister", formationLegalOn(turmStattDame, alle, karte2) === false);
 }
 
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);

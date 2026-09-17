@@ -128,8 +128,16 @@ ok("every dragon node unfolds its 2x2 block with valid wing refs", dragonNodes >
      Klassik, Hof und Schneise sind alle drei 8x8 - sie unterscheiden sich in
      Loechern und Sperren, nicht im Mass. Die Abwechslung bleibt also, nur
      ohne dass der Spieler umdenken muss. */
-  ok("in der Schachschule wechseln die Karten - aber alle im selben Mass",
-    new Set(k1.filter((n) => n.haupt).map((n) => n.map)).size >= 3);
+  /* v1.24.0: Arena und Scharmuetzel sind gestrichen, und die drei Karten
+     kommen jetzt NACH UND NACH: Kapitel I ist reines Klassik, erst sein
+     Grossmeister zeigt den Hof. Gemessen: genau eine Nicht-Klassik-Station in
+     Kapitel I, und die ist das Finale. */
+  const k1Karten = new Set(k1.filter((n) => n.haupt).map((n) => n.map));
+  ok("die Schachschule spielt Klassik - nur ihr Finale zeigt den Hof",
+    [...k1Karten].sort().join(",") === "classic,courtyard" &&
+    k1.filter((n) => n.map !== "classic").every((n) => n.final === true));
+  ok("ueber die ersten drei Kapitel kommen alle drei Buehnen vor",
+    new Set(CAMPAIGN.filter((n) => n.league <= 3).map((n) => n.map)).size === 3);
   /* v1.0.20: Die Schachschule WIRBT SEHR WOHL FIGUREN AN - das ist ihr Zweck.
      Der Besitzer will, dass Kapitel I neue Figuren und neue Gangarten
      schenkt, waehrend die Lebenspunkte noch schlafen. Frueher stand hier das
@@ -178,7 +186,9 @@ console.log("\n== DIE KARTEN KOMMEN NACH UND NACH (v1.13.0) ==");
   /* Und die neuen Karten fuehrt der GROSSMEISTER ein - nicht irgendeine
      Station mittendrin. Eine neue Kartenform zwischen zwei gewoehnlichen
      Gefechten wirkt wie ein Zufall. */
-  for (const [karte, kapitel] of [["skirmish", 5], ["arena", 7]]) {
+  /* v1.24.0: die eingefuehrten Karten sind jetzt Hof (Kapitel I) und Schneise
+     (Kapitel II) - Arena und Scharmuetzel sind gestrichen. */
+  for (const [karte, kapitel] of [["courtyard", 1], ["gauntlet", 2]]) {
     const erste = st2.find((s) => s.map === karte);
     ok(`${karte} erscheint zuerst in Kapitel ${kapitel}`, erste && erste.league === kapitel);
     ok(`und zwar beim Endboss`, erste && !!erste.boss);

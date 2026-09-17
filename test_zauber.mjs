@@ -198,8 +198,13 @@ console.log("\n== ALLE TALENTE DER CHRONIK, EINZELN GEPRUEFT (Besitzerauftrag) =
     b[mitte] = { id: "t", kind, color: "w", level: 30, abilities: [id], used: {}, hp: 5, maxHp: 5, atk: 2 };
     b[7 * W + 4] = { id: "bk", kind: "K", color: "b", level: 1, abilities: [], used: {} };
     b[0 * W + 0] = { id: "wk", kind: "K", color: "w", level: 1, abilities: [], used: {} };
-    /* ein Gegner in Reichweite, damit auch Schlag-Talente etwas finden */
-    b[4 * W + 3] = { id: "bp", kind: "P", color: "b", level: 1, abilities: [], used: {}, hp: 3, maxHp: 3, atk: 1 };
+    /* v1.24.0 GEMESSEN: der Gegner stand DIREKT VOR der Probefigur (4*W+3) und
+       blockierte jeden Bauernzug. Das fiel nie auf, weil der Kern ohne Karte
+       bis dahin 10 breit rechnete und dieses 64-Felder-Brett gar nicht traf -
+       die Zuege landeten neben der Wirklichkeit. Seit das Standardmass 8x8 ist,
+       stimmt die Rechnung, und der Aufbau muss es auch: der Gegner steht jetzt
+       SCHRAEG davor - vor der Figur bleibt frei, Schlag-Talente finden ihn. */
+    b[4 * W + 4] = { id: "bp", kind: "P", color: "b", level: 1, abilities: [], used: {}, hp: 3, maxHp: 3, atk: 1 };
     let zuege = [];
     for (const regel of ["chess", "hp"]) {
       try { zuege = zuege.concat(legalMoves(spiel(b, "w", regel), mitte)); } catch { /* Art passt nicht */ }

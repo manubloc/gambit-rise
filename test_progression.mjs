@@ -411,16 +411,19 @@ console.log("\n== EINE JE REKRUTIERTE FIGUR, die drei Offiziere frei (v1.1.6) ==
   const L = await import("./src/meta/leveling.js");
   const { MAPS, CHARACTER_LIST } = await import("./src/content/index.js");
   const alle = CHARACTER_LIST.map((c) => c.id);
-  const arena = MAPS.find((m) => m.id === "arena");
-  const basis = ["rook","knight","knight","bishop","queen","king","bishop","knight","knight","rook"];
-  ok("die Grundstellung der Arena bleibt erlaubt (vier Springer!)",
-    L.formationLegalOn(basis, alle, arena, []));
+  /* v1.24.3: Arena und Scharmuetzel sind gestrichen - gespielt wird auf acht
+     Plaetzen. Die alte Zehnerreihe trug VIER Springer und war genau der Grund,
+     warum eine Zweier-Grenze vorher unmoeglich war. Jetzt die Schachreihe. */
+  const brett = MAPS.find((m) => m.id === "classic");
+  const basis = ["rook","knight","bishop","queen","king","bishop","knight","rook"];
+  ok("die Schachgrundstellung ist erlaubt (je zwei Laeufer, Springer, Tuerme)",
+    L.formationLegalOn(basis, alle, brett, []));
   const einHabicht = [...basis]; einHabicht[1] = "hawk";
-  ok("EINE rekrutierte Figur ist erlaubt", L.formationLegalOn(einHabicht, alle, arena, []));
-  const zweiHabichte = [...basis]; zweiHabichte[1] = "hawk"; zweiHabichte[8] = "hawk";
-  ok("ZWEI derselben rekrutierten Figur sind verboten", !L.formationLegalOn(zweiHabichte, alle, arena, []));
-  const zweiVerschieden = [...basis]; zweiVerschieden[1] = "hawk"; zweiVerschieden[8] = "amazon";
-  ok("zwei VERSCHIEDENE rekrutierte sind erlaubt", L.formationLegalOn(zweiVerschieden, alle, arena, []));
+  ok("EINE rekrutierte Figur ist erlaubt", L.formationLegalOn(einHabicht, alle, brett, []));
+  const zweiHabichte = [...basis]; zweiHabichte[1] = "hawk"; zweiHabichte[6] = "hawk";
+  ok("ZWEI derselben rekrutierten Figur sind verboten", !L.formationLegalOn(zweiHabichte, alle, brett, []));
+  const zweiVerschieden = [...basis]; zweiVerschieden[1] = "hawk"; zweiVerschieden[6] = "amazon";
+  ok("zwei VERSCHIEDENE rekrutierte sind erlaubt", L.formationLegalOn(zweiVerschieden, alle, brett, []));
 }
 
 console.log("\n== FREIE FASSUNG ODER VOLLE: ein Wert, keine Verzweigung (v1.1.10) ==");

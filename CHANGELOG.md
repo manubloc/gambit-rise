@@ -1,6 +1,28 @@
 # Changelog - Grand Gambit
 
 ## 1.24.3
+- DER 8x8-UMBAU IST DRIN (Besitzerentscheid "Tabula Rasa" vom 16.9.). Arena
+  (10x10) und Scharmuetzel (6x6) sind gestrichen; es bleiben Klassik, Hof und
+  Schneise, alle 8x8. FILES/RANKS von 10 auf 8, die Grundreihe auf die
+  Schachreihe R N B Q K B N R, die Flankenplaetze von [2,7] auf [1,6].
+  Gemessen: Brett 160 Felder mit 64 Figuren, Stationen 210 Klassik / 181 Hof /
+  138 Schneise, in Summe 529.
+- DIE ZWEIER-GRENZE: Laeufer, Springer und Turm duerfen zweimal aufgestellt
+  werden, alles andere einmal. Sie war vorher nicht vergessen, sondern
+  unmoeglich - die alte Arena-Grundstellung war zehn Felder breit und trug
+  VIER Springer; eine Zweier-Grenze haette die eigene Startaufstellung
+  verboten.
+- WIEDERGEFUNDEN: dieser Umbau war am 16.9. gebaut und dann verschwunden. Er
+  lag nicht auf dem Zweig umbau-8x8 (dort steckte die Eckverzierung unter
+  falschem Namen), sondern in stash@{1}. Von dort sind Karten, Kern,
+  Generator, Kampagnenstaffelung, Profil-Migration und sieben Probendateien
+  uebernommen - leveling.js NICHT, weil der Stash acht Fassungen alt ist und
+  die Gambit-Kuerzung zurueckgedreht haette; seine drei Aenderungen sind
+  einzeln portiert.
+- Eine Probe stand noch auf der Arena-Zehnerreihe mit vier Springern und
+  steht jetzt auf der Schachreihe mit acht Plaetzen.
+
+## 1.24.3
 - EIN PUNKTEBUDGET FUER ALLE (Besitzer: "In Summe darf jede Figur, mit
   Ausnahme vielleicht des Drachen und des Gambits, immer nur die gleiche
   Punktzahl haben"). GEMESSEN, und der Befund war ueberraschend: Grundleben

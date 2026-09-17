@@ -378,18 +378,16 @@ export const seaAccessible = (profile) =>
 export const leagueRewardMult = (league) => 1 + 0.5 * ((league || 1) - 1);
 export const leagueBump = (league) => 2 * ((league || 1) - 1);
 
-/** Which boards a league fields: Kronland is (almost) pure classic chess — only
- *  the Citadel keeps its arena. New boards then enter one league at a
- *  time (II: skirmish · III: courtyard & gauntlet · IV+: everything). */
+/* v1.24.0: DREI BUEHNEN, EINE NACH DER ANDEREN. Arena und Scharmuetzel sind
+   gestrichen (siehe content/maps.js), also ruecken Hof und Schneise nach vorn:
+   Kapitel I ist reines Klassik, ab II kommt der Hof dazu, ab III die Schneise.
+   Der Grossmeister des Vorkapitels zeigt die neue Buehne jeweils zuerst. */
 export function effectiveMap(node, league = 1) {
   if (!node) return "classic";
   if (node.final) return node.map; // das Kapitelfinale behaelt seine Buehne
-  // DAS KLASSISCHE BRETT REGIERT DEN ANFANG: Kapitel I spielt rein 8x8,
-  // dann betreten die Buehnen die Welt eine nach der anderen
-  // (II: skirmish · III: courtyard & gauntlet · ab IV: alles).
   const lg = leagueNo(league);
-  if (lg >= 4) return node.map;
-  const allowed = lg === 1 ? ["classic"] : lg === 2 ? ["classic", "skirmish"] : ["classic", "skirmish", "courtyard", "gauntlet"];
+  if (lg >= 3) return node.map;
+  const allowed = lg === 1 ? ["classic"] : ["classic", "courtyard"];
   return allowed.includes(node.map) ? node.map : "classic";
 }
 
