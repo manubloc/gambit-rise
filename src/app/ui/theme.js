@@ -165,9 +165,29 @@ export const GLOBAL_CSS = `
   button:focus:not(:focus-visible), a:focus:not(:focus-visible) { outline: none; }
   /* Tastatur-Fokus ist sichtbar und violett - Fokus ist eine Auswahl. */
   button:focus-visible, a:focus-visible { outline: 2px solid ${T.riftLine}; outline-offset: 2px; }
+  /* ── WARUM DER GRUND AM HTML HAENGT UND NICHT AM BODY (v1.23.5) ──────────
+     Besitzerbefund, mehrfach und zu Recht: "Du hast es immer noch nicht
+     geschafft, diesen Hintergrund im Hauptmenue sichtbar zu machen."
+
+     GEMESSEN, nicht vermutet: das Kapitelbild (ground-01..12) und der
+     Rissboden lagen beide im Baum, waren geladen, hatten Deckung 1 - und
+     malten NULL Pixel. Dasselbe Band zweimal fotografiert, einmal mit und
+     einmal ohne die Ebene: groesster Unterschied 0.
+
+     Die Ursache ist eine Regel des Malens, keine Zeile Spiellogik. Der Grund
+     des BODY wandert nur dann auf die Leinwand (und damit unter alles), wenn
+     das HTML-Element selbst keinen hat. index.html setzte Schwarz auf BEIDE.
+     Damit blieb der Grund des body sein eigener Kasten - und ein eigener
+     Kasten des body wird NACH den Ebenen mit negativem z-index gemalt. Beide
+     Hintergrundebenen liegen auf z -1. Sie wurden also gemalt und sofort
+     wieder zugedeckt, auf jedem Schirm, in jedem Menue.
+
+     Jetzt traegt das HTML den Grund (er wandert auf die Leinwand, unter
+     alles), der body traegt keinen. Gegenprobe in messe_kulissen.mjs. */
+  html { background: ${T.bg}; }
   body {
     margin: 0; color: ${T.text};
-    background: ${T.bg};
+    background: transparent;
     font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     -webkit-font-smoothing: antialiased; overflow-x: hidden;
   }

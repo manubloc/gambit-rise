@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8">
+<title>Grand Gambit — Entwurf Figurenblatt</title>
+<style>
+@font-face { font-family:"Cormorant"; src:url(FONT_CORM_I) format("woff2"); font-weight:500; font-style:italic; }
+@font-face { font-family:"Cormorant"; src:url(FONT_CORM) format("woff2"); font-weight:600; font-style:normal; }
+@font-face { font-family:"Cinzel"; src:url(FONT_CINZ) format("woff2"); font-weight:600; }
+:root{
+  --gold:#e9cf8a; --goldHell:#f6e9a4; --ink:#f0e9d8; --dim:#a9a48e; --faint:#837e6f;
+  --linie:#2f2450; --tafel:#1c1533; --riss:#a78bfa; --rissHell:#c4b5fd;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#07050c;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);padding:26px}
+.reihen{display:flex;gap:26px;align-items:flex-start}
+.quill{font-family:"Cormorant",Georgia,serif;font-style:italic;font-weight:500}
+.serif{font-family:Georgia,"Palatino Linotype",serif}
+.kaps{font-family:Georgia,serif;letter-spacing:.13em;text-transform:uppercase}
+
+.spalte{display:flex;flex-direction:column;gap:9px}
+.marke{font:600 12px/1.4 Georgia,serif;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)}
+.marke small{display:block;letter-spacing:0;text-transform:none;font-weight:400;color:var(--faint);font-size:11px;margin-top:3px}
+
+/* ── das Blatt ────────────────────────────────────────────────────────── */
+.blatt{width:370px;border-radius:22px;overflow:hidden;position:relative;
+  border:1px solid var(--riss);
+  box-shadow:0 18px 50px rgba(0,0,0,.6),0 0 26px rgba(139,92,246,.55);
+  background:radial-gradient(130% 110% at 50% -10%,rgba(124,58,237,.28) 0%,rgba(26,16,44,.97) 46%,rgba(8,5,14,.99) 100%)}
+.rumpf{padding:14px 16px 16px;display:flex;flex-direction:column;gap:12px}
+.zu{position:absolute;top:9px;right:9px;z-index:5;width:30px;height:30px;border-radius:50%;
+  display:grid;place-items:center;background:rgba(10,13,20,.72);border:1px solid var(--riss);
+  color:var(--rissHell);font-size:13px}
+
+/* ── OBERTEIL: die Kulisse traegt Namen, Figur, Zugbild, Faehigkeiten ──── */
+.buehne{position:relative;isolation:isolate;border-radius:14px;overflow:hidden;
+  border:1px solid rgba(233,207,138,.28);padding:11px 12px 12px;
+  background:linear-gradient(180deg,rgba(20,13,36,.9),rgba(10,7,19,.96))}
+.buehne .kulisse{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  object-position:center 38%;opacity:.62;z-index:-2}
+.buehne .schleier{position:absolute;inset:0;z-index:-1;
+  background:linear-gradient(180deg,rgba(8,5,14,.86) 0%,rgba(8,5,14,.30) 30%,rgba(8,5,14,.12) 62%,rgba(8,5,14,.46) 100%)}
+.ecke{position:absolute;width:14px;height:14px;z-index:-1;pointer-events:none;opacity:.85}
+.ecke.ol{top:4px;left:4px;transform:rotate(0deg)}
+.ecke.or{top:4px;right:4px;transform:rotate(90deg)}
+.ecke.ur{bottom:4px;right:4px;transform:rotate(180deg)}
+.ecke.ul{bottom:4px;left:4px;transform:rotate(270deg)}
+
+.name{font-size:23px;line-height:1.1;color:#f3ecd2;text-shadow:0 1px 6px rgba(0,0,0,.8)}
+.haus{font-size:10.5px;letter-spacing:.1em;color:#cbbf9a;margin-top:3px;display:flex;align-items:center;gap:6px;
+  text-shadow:0 1px 4px rgba(0,0,0,.9)}
+.spruch{font-size:12px;line-height:1.4;color:#cec7ab;font-style:italic;margin-top:6px;
+  text-shadow:0 1px 5px rgba(0,0,0,.9)}
+
+.reihe{display:flex;gap:12px;align-items:flex-end;margin-top:10px}
+.figurplatz{flex:0 0 auto;width:148px;height:184px;position:relative;display:grid;place-items:end center}
+.figurplatz img{width:100%;height:100%;object-fit:contain;object-position:bottom;
+  filter:drop-shadow(0 0 10px rgba(139,92,246,.55)) drop-shadow(0 3px 5px rgba(0,0,0,.5))}
+.rechts{flex:0 0 auto;width:154px;display:flex;flex-direction:column;gap:8px}
+
+/* Zugbild */
+.zugbild{display:grid;grid-template-columns:repeat(7,1fr);gap:1.5px;padding:4px;border-radius:8px;
+  background:rgba(8,12,22,.55);border:1px solid rgba(255,255,255,.07)}
+.zugbild i{aspect-ratio:1;border-radius:3px;position:relative;display:block}
+.z-hell{background:rgba(255,255,255,.05)} .z-dunkel{background:rgba(255,255,255,.02)}
+.z-sprung{background:rgba(233,197,63,.5);box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)}
+.z-ich{background:linear-gradient(160deg,#e7c877,#b1863c);box-shadow:0 0 5px rgba(231,200,119,.7)}
+.z-ich:after{content:"✦";position:absolute;inset:0;display:grid;place-items:center;font-size:8px;font-weight:900;color:#1a1206}
+
+/* Faehigkeiten als Zeichenreihe, direkt unter dem Zugbild */
+.zeichenreihe{display:flex;justify-content:space-between;align-items:center}
+.zeichenreihe .leer{width:22px;height:22px;border-radius:50%;border:1px dashed rgba(233,207,138,.3);
+  background:rgba(8,5,14,.45)}
+.zeichenreihe .bund{position:relative}
+/* v-Entwurf: was noch nicht gelernt ist, steht in Graustufen und blass -
+   dieselbe Regel wie im Hofstaat ("was noch nicht zu einem gehoert, steht in
+   Graustufen"). So zaehlt die Reihe sichtbar, was man HAT. */
+.ungelernt{filter:grayscale(1);opacity:.42}
+.zeile.ungelernt{filter:none;opacity:1}
+.zeile.ungelernt svg{filter:grayscale(1);opacity:.5}
+.zeichenreihe .bund:before{content:"";position:absolute;left:-6px;top:50%;width:3px;height:3px;border-radius:50%;
+  background:rgba(233,207,138,.5)}
+
+/* ── WERTE: dieselbe Sprache wie die Faehigkeiten, keine Bubbles ──────── */
+.werte{display:flex;gap:10px}
+.wert{flex:1 1 0;display:flex;align-items:center;justify-content:center;gap:9px;padding:7px 10px;border-radius:11px;
+  background:rgba(16,11,30,.72);border:1px solid var(--linie)}
+.wert .zahl{font:800 17px/1 Georgia,serif;color:var(--ink)}
+.wert .was{font-size:9px;letter-spacing:.11em;text-transform:uppercase;color:var(--faint);
+  font-family:Georgia,serif;margin-top:3px}
+
+/* ── Leiter ──────────────────────────────────────────────────────────── */
+.leiter{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:12px;
+  background:var(--tafel);border:1px solid var(--linie)}
+.leiter .text{flex:1;font-size:12.5px;color:#b9b295;display:flex;align-items:center;gap:8px}
+.gewinn{display:inline-flex;align-items:center;gap:3px;font:800 12px/1 Georgia,serif}
+.knopf{padding:9px 15px;border-radius:10px;font:800 13px/1 system-ui,sans-serif;letter-spacing:.02em;
+  background:linear-gradient(172deg,rgba(40,24,72,.97),rgba(14,9,28,.99));color:var(--rissHell);
+  border:1px solid var(--riss);box-shadow:0 0 12px rgba(139,92,246,.4),inset 0 0 10px rgba(124,58,237,.14);
+  text-shadow:0 0 8px rgba(196,181,253,.8)}
+.sprossen{display:flex;gap:4px}
+.sprossen i{flex:1;height:5px;border-radius:3px;background:var(--tafel);border:1px solid var(--linie);display:block}
+.sprossen i.voll{background:linear-gradient(90deg,#d1ad55,#eac96b);border:none;box-shadow:0 0 6px rgba(234,201,107,.4)}
+
+/* ── Fähigkeitenliste ────────────────────────────────────────────────── */
+.abschnitt{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#c9b26a;font-family:Georgia,serif}
+.liste{display:flex;flex-direction:column;gap:7px}
+.zeile{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:11px;
+  background:rgba(16,11,30,.6);border:1px solid var(--linie)}
+.zeile .titel{flex:1;min-width:0}
+.zeile .titel b{display:block;font:700 12.5px/1.25 system-ui,sans-serif;color:var(--ink)}
+.zeile .titel span{display:block;font-size:10px;color:var(--faint);margin-top:2px}
+.zeile .wann{font-size:10.5px;letter-spacing:.06em;color:var(--dim);font-family:Georgia,serif;white-space:nowrap}
+.zeile.fern{opacity:.5}
+.zeile.bund{border-color:rgba(233,207,138,.45);background:linear-gradient(180deg,rgba(38,28,12,.6),rgba(16,11,30,.7))}
+.zeile.bund .titel b{color:var(--gold)}
+.trenner{display:flex;align-items:center;gap:8px;margin:1px 0}
+.trenner i{flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(233,207,138,.35),transparent);display:block}
+.trenner span{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:rgba(233,207,138,.7);font-family:Georgia,serif}
+
+/* die aufgeklappte Bundtafel */
+.bundtafel{position:relative;isolation:isolate;overflow:hidden;border-radius:12px;
+  border:1px solid rgba(233,207,138,.3);padding:10px 12px 11px;
+  background:linear-gradient(180deg,rgba(20,13,36,.9),rgba(10,7,19,.96))}
+.bundtafel .kul{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 35%;opacity:.3;z-index:-2}
+.bundtafel .sch{position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(10,7,19,.92) 0%,rgba(10,7,19,.6) 55%,rgba(10,7,19,.35) 100%)}
+.bkopf{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.bkopf .l{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);font-family:Georgia,serif}
+.bkopf .r{font-size:10.5px;color:#cfc9b4;font-family:Georgia,serif;white-space:nowrap}
+.bregel{font-size:12.5px;line-height:1.45;color:#cfc9b4;margin-top:5px;font-family:Georgia,serif}
+.mitglieder{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.mitglied{display:inline-flex;align-items:center;gap:5px;padding:3px 8px 3px 4px;border-radius:999px;
+  background:rgba(10,7,19,.7);border:1px solid rgba(233,207,138,.3)}
+.mitglied img{width:20px;height:20px;border-radius:50%;object-fit:cover;object-position:center 22%;background:#0b0714}
+.mitglied b{font:700 11.5px/1 system-ui,sans-serif;color:var(--ink)}
+.mitglied em{font:600 10px/1 Georgia,serif;color:var(--gold);font-style:normal;
+  border:1px solid rgba(233,207,138,.4);border-radius:999px;padding:2px 5px}
+.bspruch{font-size:11.5px;line-height:1.45;color:#b9b295;font-style:italic;margin-top:8px;font-family:Georgia,serif}
+.hinweis{font-size:10.5px;color:var(--faint);font-style:italic;font-family:Georgia,serif}
+</style></head>
+<body>
+<div class="reihen">
+
+<!-- ══ BLATT A: Stufe 1, kein Bund ═══════════════════════════════════════ -->
+<div class="spalte">
+  <div class="marke">A · Stufe 1 — wie es die meiste Zeit aussieht
+    <small>Kein Bund, nirgends. Fünf Zeichen, fünf leere Ringe.</small></div>
+  <div class="blatt">
+    <div class="zu">✕</div>
+    <div class="rumpf">
+
+      <div class="buehne">
+        <img class="kulisse" src="KULISSE" alt="">
+        <div class="schleier"></div>
+        ECKEN
+        <div class="name quill">Springer</div>
+        <div class="haus"><span style="width:8px;height:8px;transform:rotate(45deg);border-radius:2px;background:#6fc2f0;box-shadow:0 0 4px #6fc2f088"></span>Freie Figur</div>
+        <div class="spruch serif">„Reitet Winkel, die keine Mauer je bedacht hat.“</div>
+        <div class="reihe">
+          <div class="figurplatz"><img src="FIGUR" alt=""></div>
+          <div class="rechts">
+            <div class="zugbild">ZUGBILD</div>
+            <div class="zeichenreihe">
+              <span class="ungelernt">IC_longleap</span> <span class="ungelernt">IC_outrider</span> <span class="ungelernt">IC_teleport</span> <span class="ungelernt">IC_lifesteal</span> <span class="ungelernt">IC_bulwark</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="werte">
+        <div class="wert">IC_angriff<div><div class="zahl">2</div><div class="was">Angriff</div></div></div>
+        <div class="wert">IC_leben<div><div class="zahl">3</div><div class="was">Leben</div></div></div>
+      </div>
+
+      <div class="leiter">
+        <div class="text">Stufe 1 → 2
+          <span class="gewinn" style="color:#5ad4b0">GL_herz +1</span></div>
+        <div class="knopf">Verbessern · 2 ✧</div>
+      </div>
+      <div class="sprossen"><i class="voll"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+
+      <div class="abschnitt">Fähigkeiten</div>
+      <div class="liste">
+        <div class="zeile ungelernt">IC_longleap<div class="titel"><b>Weitsprung</b><span>Zusätzliche, weitere Springer-Sprünge.</span></div><div class="wann">Stufe 3</div></div>
+        <div class="zeile ungelernt">IC_outrider<div class="titel"><b>Vorreiter</b><span>Zusätzliche diagonale Weitsprünge.</span></div><div class="wann">Stufe 5</div></div>
+        <div class="zeile fern">IC_teleport<div class="titel"><b>Blinzeln</b><span>Teleportiert 1× auf ein freies Feld in der Nähe.</span></div><div class="wann">Stufe 6</div></div>
+        <div class="zeile fern">IC_lifesteal<div class="titel"><b>Lebensraub</b><span>Heilt beim Zufügen um die Hälfte des Schadens.</span></div><div class="wann">Stufe 8</div></div>
+        <div class="zeile fern">IC_bulwark<div class="titel"><b>Bollwerk</b><span>Erleidet 1 Schaden weniger pro Treffer.</span></div><div class="wann">Stufe 9</div></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══ BLATT B: Bund vorgestellt, letzte Sprosse ═════════════════════════ -->
+<div class="spalte">
+  <div class="marke">B · nachdem eine Figur die Zehn erreicht hat
+    <small>Der Bund ist jetzt bekannt: sechstes Zeichen, letzte Sprosse, hier aufgeklappt.</small></div>
+  <div class="blatt">
+    <div class="zu">✕</div>
+    <div class="rumpf">
+
+      <div class="buehne">
+        <img class="kulisse" src="KULISSE" alt="">
+        <div class="schleier"></div>
+        ECKEN
+        <div class="name quill">Springer</div>
+        <div class="haus"><span style="width:8px;height:8px;transform:rotate(45deg);border-radius:2px;background:#6fc2f0;box-shadow:0 0 4px #6fc2f088"></span>Bund · Geleit</div>
+        <div class="spruch serif">„Reitet Winkel, die keine Mauer je bedacht hat.“</div>
+        <div class="reihe">
+          <div class="figurplatz"><img src="FIGUR" alt=""></div>
+          <div class="rechts">
+            <div class="zugbild">ZUGBILD9</div>
+            <div class="zeichenreihe">
+              IC_longleap IC_outrider IC_teleport IC_lifesteal IC_bulwark <span class="bund">IC_geleit</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="werte">
+        <div class="wert">IC_angriff<div><div class="zahl">6</div><div class="was">Angriff</div></div></div>
+        <div class="wert">IC_leben<div><div class="zahl">11</div><div class="was">Leben</div></div></div>
+      </div>
+
+      <div class="leiter">
+        <div class="text serif" style="letter-spacing:.03em;color:#c9b26a">Höchststufe erreicht</div>
+      </div>
+      <div class="sprossen">SPROSSEN10</div>
+
+      <div class="abschnitt">Fähigkeiten</div>
+      <div class="liste">
+        <div class="zeile">IC_longleap<div class="titel"><b>Weitsprung</b><span>Erlernt · Stufe 3</span></div><div class="wann" style="color:#5ad4b0">✓</div></div>
+        <div class="zeile">IC_outrider<div class="titel"><b>Vorreiter</b><span>Erlernt · Stufe 5</span></div><div class="wann" style="color:#5ad4b0">✓</div></div>
+        <div class="zeile">IC_teleport<div class="titel"><b>Blinzeln</b><span>Erlernt · Stufe 6</span></div><div class="wann" style="color:#5ad4b0">✓</div></div>
+        <div class="zeile">IC_lifesteal<div class="titel"><b>Lebensraub</b><span>Erlernt · Stufe 8</span></div><div class="wann" style="color:#5ad4b0">✓</div></div>
+        <div class="zeile">IC_bulwark<div class="titel"><b>Bollwerk</b><span>Erlernt · Stufe 9</span></div><div class="wann" style="color:#5ad4b0">✓</div></div>
+        <div class="trenner"><i></i><span>und ganz am Ende</span><i></i></div>
+        <div class="zeile bund">IC_geleit<div class="titel"><b>Bund · Geleit</b><span>Frei ab der Höchststufe</span></div><div class="wann" style="color:#e9cf8a">Stufe 10</div></div>
+        <div class="bundtafel">
+          <img class="kul" src="KULISSE" alt=""><div class="sch"></div>
+          <div class="bkopf"><span class="l">Bund · Geleit</span><span class="r">1 von 3 auf Höchststufe</span></div>
+          <div class="bregel">Einmal je Partie tauschen zwei von ihnen die Plätze.</div>
+          <div class="mitglieder">
+            <span class="mitglied"><img src="FIGUR" alt=""><b>Springer</b><em>10</em></span>
+            <span class="mitglied"><img src="LAEUFER" alt=""><b>Läufer</b><em>1</em></span>
+            <span class="mitglied"><img src="TURM" alt=""><b>Turm</b><em>1</em></span>
+          </div>
+          <div class="bspruch">„Die drei, die schon da waren, als es noch kein Reich gab.“</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</div>
+
+<!-- ══ die Zeichen zur Wahl ══════════════════════════════════════════════ -->
+<div style="margin-top:22px;max-width:788px">
+  <div class="marke">Die zwei neuen Zeichen — welche Fassung?
+    <small>Gezeigt in der Größe, in der sie im Blatt stehen (26 px), und daneben dreifach vergrößert.</small></div>
+  <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:10px">WAHL</div>
+</div>
+</body></html>

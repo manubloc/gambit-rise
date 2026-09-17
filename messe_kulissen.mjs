@@ -1,3 +1,4 @@
+import { execSync } from "node:child_process";
 import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
 import { extname, join } from "node:path";
@@ -87,7 +88,10 @@ await page.evaluate(({ chars, kinds, bosse }) => {
     const p = JSON.parse(roh);
     p.gold = 9000; p.sp = 60;
     p.unlocked = chars;
-    p.pieces = p.pieces || {}; p.pieces.abilities = { ...(p.pieces.abilities || {}), amazon: ["ranged_shot", "teleport"], knight: ["knight_longleap", "knight_outrider"] };
+    p.pieces = p.pieces || {}; p.pieces.abilities = { ...(p.pieces.abilities || {}), amazon: ["ranged_shot", "teleport"], knight: ["knight_longleap", "knight_outrider"],
+      /* v1.23.6: die Dame mit ALLEN zehn - nur so laesst sich die Fuenfergrenze
+         und die Ziffer dahinter ueberhaupt messen. */
+      queen: ["queen_knightleap", "ranged_shot", "teleport", "lifesteal", "ranged_volley", "bulwark", "regen", "blast", "pull", "chain"] };
     p.codex = p.codex || {}; p.codex.met = [...kinds, ...bosse.map((b) => "X:" + b)];
     p.campaign = p.campaign || {}; p.campaign.bribedBosses = bosse.slice(0, 12);   /* die Haelfte bleibt "begegnet" - fuer die Graustufen-Messung */
     return JSON.stringify(p);
@@ -237,6 +241,20 @@ const kopf = await page.evaluate(() => {
   }
   /* nur das ERSTE Talentzeichen je Kachel - das zweite haengt darunter und
      hat mit der Ecke nichts zu tun. */
+  const talentZahl = [...document.querySelectorAll("[data-talentspalte]")].map((sp) => sp.querySelectorAll("[data-talent]").length);
+  const spalten = [...document.querySelectorAll("[data-talentspalte]")].map((sp) => {
+    /* GEMESSEN BEIM SCHREIBEN: die Spalte haengt in der KOPFZEILE, nicht
+       direkt in der Kachel - sp.parentElement gab den Kopf, und der Name lag
+       ausserhalb. Die Kachel ist eine Ebene hoeher. */
+    const kachel = sp.closest("[data-kopf]").parentElement; const k = kachel.getBoundingClientRect();
+    const zeichen = sp.querySelectorAll("[data-talent]").length;
+    const mehrK = sp.querySelector("[data-talentmehr]");
+    const kinder = [...sp.children].map((c) => c.getBoundingClientRect());
+    const name = [...kachel.children].filter((c) => (c.textContent || "").trim().length > 1).pop();
+    return { zeichen, mehr: mehrK ? Number(mehrK.getAttribute("data-talentmehr")) : null,
+      unterkante: kinder.length ? Math.round((kinder[kinder.length - 1].bottom - k.top) * 10) / 10 : 0,
+      nameOben: name ? Math.round((name.getBoundingClientRect().top - k.top) * 10) / 10 : 999 };
+  });
   const talentLage = [...document.querySelectorAll("[data-kopf]")].map((kopf) => {
     const t = kopf.querySelector("[data-talent]"); if (!t) return null;
     const k = kopf.parentElement.getBoundingClientRect(), r = t.getBoundingClientRect();
@@ -254,7 +272,7 @@ const kopf = await page.evaluate(() => {
     eckSym.push({ l: Math.round((a.left - k.left) * 10) / 10, r: Math.round((k.right - b.right) * 10) / 10,
       ul: Math.round((k.bottom - a.bottom) * 10) / 10, ur: Math.round((k.bottom - b.bottom) * 10) / 10 });
   }
-  return { kacheln, stufen, grau, farbig, toene, meisterMitRohr, baender, boden, namen, talente, teller, abz, meister, hoehen, ecken, eckEbenen, eckOben, eckSym, eckAbstand, ueberschnitt, zifferToene, talentLage };
+  return { kacheln, stufen, grau, farbig, toene, meisterMitRohr, baender, boden, namen, talente, teller, abz, meister, hoehen, ecken, eckEbenen, eckOben, eckSym, eckAbstand, ueberschnitt, zifferToene, talentLage, talentZahl, spalten };
 });
 const kopfH = [...new Set(kopf.kacheln.map((h) => String(h).split("|")[0]))];
 const rohrVersatz = kopf.kacheln.map((h) => String(h).split("|")[1]).filter((x) => x !== undefined).map(Number);
@@ -302,6 +320,19 @@ ok(`die Verzierung liegt hinter allen Elementen (z ${kopf.eckEbenen.join("/")})`
     a.length >= 52 * 4 && schief <= 0.6 && werte.length === 1);
 }
 if (kopf.ueberschnitt.length) console.log('   Ueberschneidungen (Ecke, dx, dy):', JSON.stringify(kopf.ueberschnitt.slice(0, 6)));
+/* v1.23.6: die Kachel zeigt hoechstens fuenf Zeichen; wer mehr hat, traegt
+   statt der ueberzaehligen eine Ziffer. */
+{
+  const sp = kopf.spalten;
+  /* v1.23.6: der Besitzer hat sich nach dem Bildblatt fuer VIER entschieden. */
+  const zuviel = sp.filter((x) => x.zeichen > 4);
+  const falscheZiffer = sp.filter((x) => x.mehr !== null && x.zeichen !== 4);
+  ok(`keine Kachel zeigt mehr als vier Zeichen (${sp.length} Spalten, groesste ${Math.max(0, ...sp.map((x) => x.zeichen))})`, sp.length > 0 && zuviel.length === 0);
+  ok(`wo mehr da ist, steht die Ziffer (${sp.filter((x) => x.mehr !== null).length} Kacheln mit Ziffer)`, falscheZiffer.length === 0);
+  const unten = sp.map((x) => x.unterkante);
+  ok(`die Spalte bleibt ueber dem Namen (tiefste Unterkante ${Math.max(0, ...unten).toFixed(1)} px, Name bei ${sp[0] ? sp[0].nameOben.toFixed(1) : "-"})`,
+    sp.length > 0 && unten.every((u, i) => u <= sp[i].nameOben));
+}
 ok(`die Verzierung beruehrt weder Abzeichen noch Talente (${kopf.ueberschnitt.length} Ueberschneidungen)`, kopf.ueberschnitt.length === 0);
 {
   const s = kopf.eckSym;
@@ -313,6 +344,45 @@ ok(`die Verzierung beruehrt weder Abzeichen noch Talente (${kopf.ueberschnitt.le
 /* v1.23.4: und die Ziffer traegt einen Hauch der Figurenfarbe - keine zwei
    Figuren mit verschiedener Farbe duerfen dieselbe Ziffernfarbe haben. */
 ok(`die Ziffern tragen den Ton ihrer Figur (${kopf.zifferToene.length} verschiedene Ziffernfarben)`, kopf.zifferToene.length >= 6);
+/* ── DER HINTERGRUND MUSS WIRKLICH ZU SEHEN SEIN (v1.23.5) ────────────────
+   Besitzerbefund, mehrfach: "Du hast es immer noch nicht geschafft, diesen
+   Hintergrund im Hauptmenue sichtbar zu machen." Er hatte jedes Mal recht,
+   und keine Probe hat es je gemerkt - weil alle nur GEPRUEFT haben, ob die
+   Ebene im Baum liegt und ihr Bild geladen ist. Beides stimmte. Gemalt wurde
+   trotzdem nichts.
+   Diese Probe fotografiert dasselbe Stueck Schirm zweimal, einmal mit und
+   einmal ohne die Ebene, und vergleicht die Pixel. Nur das kann die Frage
+   beantworten, die der Besitzer stellt: SIEHT man ihn? */
+{
+  const marken = await page.evaluate(() => {
+    const riss = document.querySelector("[data-riss]");
+    const hg = [...document.querySelectorAll("div")].find((d) => { const s = getComputedStyle(d);
+      return s.position === "fixed" && s.zIndex === "-1" && d.getBoundingClientRect().width > 300; });
+    const bild = hg && hg.querySelector("img");
+    if (riss) riss.setAttribute("data-probe-riss", "1");
+    if (bild) bild.setAttribute("data-probe-hg", "1");
+    return { riss: !!riss, bild: !!bild, bodyGrund: getComputedStyle(document.body).backgroundColor };
+  });
+  ok(`der Grund haengt am HTML, nicht am body (body: ${marken.bodyGrund})`, /^rgba\([^)]*,\s*0\)$|^transparent$/.test(marken.bodyGrund));
+  const feld = { x: 0, y: 420, width: 390, height: 420 };
+  /* Verglichen wird mit Pillow - dieselbe Werkbank, die auch die Bilder im
+     Archiv vermisst (die CI installiert Pillow vor npm test). pngjs ist
+     nicht im Baum, und fuer zwei Fotos lohnt keine neue Abhaengigkeit. */
+  for (const [marke, name] of [["data-probe-hg", "das Kapitelbild"], ["data-probe-riss", "der Rissboden"]]) {
+    const daIst = marke === "data-probe-hg" ? marken.bild : marken.riss;
+    if (!daIst) { ok(`${name} liegt im Baum`, false); continue; }
+    await page.screenshot({ path: "/tmp/gg_hg_mit.png", clip: feld });
+    await page.evaluate((m) => { document.querySelector(`[${m}]`).style.visibility = "hidden"; }, marke);
+    await page.waitForTimeout(160);
+    await page.screenshot({ path: "/tmp/gg_hg_ohne.png", clip: feld });
+    await page.evaluate((m) => { document.querySelector(`[${m}]`).style.visibility = ""; }, marke);
+    await page.waitForTimeout(120);
+    const zeile = execSync("python3 -c \"from PIL import Image, ImageChops; a=Image.open('/tmp/gg_hg_mit.png').convert('RGB'); b=Image.open('/tmp/gg_hg_ohne.png').convert('RGB'); d=ImageChops.difference(a,b); px=list(d.getdata()); print(max(max(p) for p in px), sum(1 for p in px if max(p)>3))\"",
+      { encoding: "utf8" }).trim();
+    const [max, flaeche] = zeile.split(/\s+/).map(Number);
+    ok(`${name} malt wirklich Pixel (groesster Unterschied ${max}, ${flaeche} Pixel)`, max >= 12 && flaeche >= 2000);
+  }
+}
 const deckungen = [...new Set(gemessen.map((g) => g.deckung))];
 ok(`die Kulisse ist deutlich zu sehen, aber nicht ueber der Figur (Deckung ${deckungen.join("/")})`, deckungen.every((d) => Number(d) >= 0.5 && Number(d) < 1));
 const masse = gemessen[0] ? `${gemessen[0].w}x${gemessen[0].h}` : "-";
@@ -321,6 +391,33 @@ await page.screenshot({ path: "/mnt/user-data/outputs/hofstaat-kulissen.png", fu
 await page.evaluate(() => document.querySelector('img[data-kulisse="meister-hetzer"]')?.scrollIntoView({ block: "center" }));
 await page.waitForTimeout(400);
 await page.screenshot({ path: "/mnt/user-data/outputs/hofstaat-kulissen-2.png", fullPage: false });
+/* ── v1.23.6: DER SCHIMMER TRAEGT DIE FARBE DER FIGUR ─────────────────────
+   Besitzer: "es ist ja immer so ein Schimmer hinter den Figuren - nimm dafuer
+   bitte auch die Farbe, die du fuer das Emblem holst." Geprueft wird am
+   geoeffneten Blatt: der Schein darf nicht mehr bei allen derselbe sein. */
+{
+  const toene = [];
+  for (const name of ["Springer", "König", "Dame"]) {
+    await page.evaluate((n) => {
+      const k = [...document.querySelectorAll("[data-kopf]")].map((x) => x.parentElement)
+        .find((x) => (x.textContent || "").includes(n));
+      if (k) { k.scrollIntoView({ block: "center" }); k.click(); }
+    }, name);
+    await page.waitForTimeout(900);
+    const f = await page.evaluate(() => {
+      const bilder = [...document.querySelectorAll("img")].filter((i) => /drop-shadow/.test(getComputedStyle(i).filter));
+      const gross = bilder.map((i) => ({ b: i.getBoundingClientRect().width, f: getComputedStyle(i).filter }))
+        .filter((x) => x.b > 90).sort((a, b) => b.b - a.b)[0];
+      return gross ? gross.f.match(/rgba?\([^)]+\)/)?.[0] || gross.f.slice(0, 40) : null;
+    });
+    if (f) toene.push(`${name}:${f}`);
+    await page.keyboard.press("Escape");
+    await page.evaluate(() => { const x = [...document.querySelectorAll("button")].find((b) => b.getAttribute("aria-label") === "close"); if (x) x.click(); });
+    await page.waitForTimeout(500);
+  }
+  const eindeutig = [...new Set(toene.map((t) => t.split(":")[1]))];
+  ok(`der Schimmer traegt die Farbe der Figur (${toene.join(" · ") || "nichts gemessen"})`, toene.length >= 2 && eindeutig.length >= 2);
+}
 console.log(`\nRESULT: ${passed} passed, ${failed} failed`);
 if (fehler.length) console.log("SEITENFEHLER:", fehler);
 await browser.close(); srv.close();

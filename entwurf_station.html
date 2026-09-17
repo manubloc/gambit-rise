@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8">
+<title>Grand Gambit — Entwurf Stationsfenster</title>
+<style>
+@font-face { font-family:"Cormorant"; src:url(FONT_CORM_I) format("woff2"); font-weight:500; font-style:italic; }
+@font-face { font-family:"Cormorant"; src:url(FONT_CORM) format("woff2"); font-weight:600; font-style:normal; }
+:root{ --gold:#e9cf8a; --goldHell:#f6e9a4; --ink:#f0e9d8; --dim:#a9a48e; --faint:#837e6f;
+  --linie:#2f2450; --tafel:#1c1533; --riss:#a78bfa; --rissHell:#c4b5fd; }
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#07050c;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);padding:26px}
+.reihen{display:flex;gap:26px;align-items:flex-start;flex-wrap:wrap}
+.quill{font-family:"Cormorant",Georgia,serif;font-style:italic;font-weight:500}
+.spalte{display:flex;flex-direction:column;gap:9px}
+.marke{font:600 12px/1.4 Georgia,serif;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)}
+.marke small{display:block;letter-spacing:0;text-transform:none;font-weight:400;color:var(--faint);font-size:11px;margin-top:3px}
+
+.blatt{width:358px;border-radius:20px;overflow:hidden;position:relative;border:1px solid var(--riss);
+  box-shadow:0 18px 50px rgba(0,0,0,.6),0 0 26px rgba(139,92,246,.45);
+  background:radial-gradient(130% 110% at 50% -10%,rgba(124,58,237,.26) 0%,rgba(26,16,44,.97) 46%,rgba(8,5,14,.99) 100%)}
+.rumpf{padding:13px 14px 14px;display:flex;flex-direction:column;gap:10px}
+
+.kopf{display:flex;align-items:center;gap:7px}
+.kopf .ort{font-size:21px;color:#f3ecd2;line-height:1;flex:1;min-width:0}
+.i{width:20px;height:20px;border-radius:50%;flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;
+  border:1px solid rgba(233,207,138,.45);color:var(--gold);font:italic 700 12px/1 Georgia,serif}
+.x{width:26px;height:26px;border-radius:50%;flex:0 0 auto;display:grid;place-items:center;
+  background:rgba(10,13,20,.7);border:1px solid var(--riss);color:var(--rissHell);font-size:12px}
+.vorwort{font:italic 12px/1.45 Georgia,serif;color:#b9b295}
+
+/* Bedingungen und Lohn — eine Reihe Marken in der Sprache der Zeichen */
+.marken{display:flex;flex-wrap:wrap;gap:6px}
+.mk{display:inline-flex;align-items:center;gap:5px;padding:4px 9px 4px 5px;border-radius:999px;
+  background:rgba(16,11,30,.7);border:1px solid var(--linie);font:600 11px/1 system-ui,sans-serif;color:#cfc9b4}
+.mk.hart{border-color:rgba(240,122,138,.45);color:#ffd9de}
+.mk.lohn{border-color:rgba(233,207,138,.42);color:var(--gold)}
+
+/* Die Bühne des Gegners: Kulisse, Eckverzierung, Figur links */
+.buehne{position:relative;isolation:isolate;border-radius:14px;overflow:hidden;
+  border:1px solid rgba(233,207,138,.28);padding:11px 12px 12px;
+  background:linear-gradient(180deg,rgba(20,13,36,.9),rgba(10,7,19,.96))}
+.buehne .kulisse{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 34%;opacity:.6;z-index:-2}
+.buehne .schleier{position:absolute;inset:0;z-index:-1;
+  background:linear-gradient(180deg,rgba(8,5,14,.84) 0%,rgba(8,5,14,.28) 32%,rgba(8,5,14,.14) 62%,rgba(8,5,14,.5) 100%)}
+.ecke{position:absolute;width:10px;height:10px;z-index:-1;opacity:.85}
+.ecke.ol{top:2px;left:2px;transform:rotate(0deg)} .ecke.or{top:2px;right:2px;transform:rotate(90deg)}
+.ecke.ur{bottom:2px;right:2px;transform:rotate(180deg)} .ecke.ul{bottom:2px;left:2px;transform:rotate(270deg)}
+
+.gegner{display:flex;gap:12px;align-items:flex-end}
+.gplatz{flex:0 0 auto;width:122px;height:150px;position:relative}
+.gplatz img{width:100%;height:100%;object-fit:contain;object-position:bottom;
+  filter:drop-shadow(0 0 10px rgba(139,92,246,.5)) drop-shadow(0 3px 5px rgba(0,0,0,.55))}
+.gtext{flex:1;min-width:0;display:flex;flex-direction:column;gap:7px;padding-bottom:2px}
+.gname{font-size:19px;color:#f3ecd2;line-height:1.1;text-shadow:0 1px 6px rgba(0,0,0,.85)}
+.gart{font:600 9.5px/1 Georgia,serif;letter-spacing:.13em;text-transform:uppercase;color:#e7b7c9;
+  text-shadow:0 1px 5px rgba(0,0,0,.9)}
+.gsatz{font:italic 11.5px/1.4 Georgia,serif;color:#cec7ab;text-shadow:0 1px 5px rgba(0,0,0,.9)}
+.gwerte{display:flex;gap:8px;margin-top:2px}
+.gwert{display:inline-flex;align-items:center;gap:6px;padding:4px 9px 4px 4px;border-radius:999px;
+  background:rgba(8,5,14,.7);border:1px solid var(--linie)}
+.gwert b{font:800 14px/1 Georgia,serif;color:var(--ink)}
+
+/* Was er mitbringt: dieselben Zeichen wie die Fähigkeiten im Hofstaat */
+.kannzeile{display:flex;align-items:center;gap:7px;margin-top:9px;flex-wrap:wrap}
+.kannzeile .wort{font:600 9.5px/1 Georgia,serif;letter-spacing:.13em;text-transform:uppercase;color:#c9b26a;
+  text-shadow:0 1px 5px rgba(0,0,0,.9)}
+
+.tat{display:flex;gap:8px}
+.knopf{flex:1;padding:12px 15px;border-radius:12px;text-align:center;font:800 14px/1 system-ui,sans-serif;
+  background:linear-gradient(172deg,rgba(40,24,72,.97),rgba(14,9,28,.99));color:var(--rissHell);
+  border:1px solid var(--riss);box-shadow:0 0 12px rgba(139,92,246,.4),inset 0 0 10px rgba(124,58,237,.14);
+  text-shadow:0 0 8px rgba(196,181,253,.8)}
+.knopf.zu{background:#151827;color:#8d94ad;border-color:#3d4666;box-shadow:none;text-shadow:none}
+.knopf.neben{flex:0 0 auto;background:rgba(16,11,30,.8);border-color:var(--linie);color:var(--dim);
+  box-shadow:none;text-shadow:none;font-weight:700}
+.infobox{font:italic 11.5px/1.45 Georgia,serif;color:#b9b295;padding:9px 11px;border-radius:11px;
+  background:rgba(16,11,30,.7);border:1px solid rgba(233,207,138,.28)}
+</style></head>
+<body><div class="reihen">
+
+<!-- A: die gewöhnliche Station -->
+<div class="spalte">
+  <div class="marke">A · gewöhnliche Station
+    <small>Bedingungen und Lohn als Marken, der Gegner auf seiner Kulisse.</small></div>
+  <div class="blatt"><div class="rumpf">
+    <div class="kopf"><div class="ort quill">Silbermühl</div><div class="i">i</div><div class="x">✕</div></div>
+    <div class="vorwort">Am Mühlbach steht ein Mann, der seit Jahren niemanden vorbeiließ.</div>
+    <div class="marken">
+      <span class="mk">MK_brett Klassik</span>
+      <span class="mk">MK_regel Schach</span>
+      <span class="mk lohn">MK_xp +40 XP</span>
+      <span class="mk lohn">MK_gold +18</span>
+    </div>
+    <div class="buehne">
+      <img class="kulisse" src="KUL_gesindel" alt=""><div class="schleier"></div>ECKEN
+      <div class="gegner">
+        <div class="gplatz"><img src="FIG_gegner" alt=""></div>
+        <div class="gtext">
+          <div><div class="gart">Gesindel</div><div class="gname quill">Der Wegelagerer</div></div>
+          <div class="gsatz">„Er nimmt nicht viel. Nur alles, was du trägst.“</div>
+          <div class="gwerte">
+            <span class="gwert">IC_angriff<b>2</b></span>
+            <span class="gwert">IC_leben<b>6</b></span>
+          </div>
+        </div>
+      </div>
+      <div class="kannzeile"><span class="wort">Er kann</span> IC_pull IC_blast</div>
+    </div>
+    <div class="tat"><div class="knopf">Antreten</div><div class="knopf neben">Hofstaat</div></div>
+  </div></div>
+</div>
+
+<!-- B: die Großmeister-Station, verschlossen, mit offener Info -->
+<div class="spalte">
+  <div class="marke">B · Großmeister, noch verschlossen — Info offen
+    <small>Der (i) hinter dem Namen klappt den Erklärtext auf, wie auf der Karte.</small></div>
+  <div class="blatt"><div class="rumpf">
+    <div class="kopf"><div class="ort quill">Bannerhöhe</div><div class="i" style="border-color:rgba(233,207,138,.8);background:rgba(201,164,92,.25)">i</div><div class="x">✕</div></div>
+    <div class="vorwort">Niemand berichtet, was hier wartet — erst wer angetreten ist, weiß es.</div>
+    <div class="infobox">Blau sind Gleitzüge, Gelb sind Sprünge, ✦ ist die Figur selbst. Schwer +1 heißt: der Gegner beginnt eine Stufe über dir.</div>
+    <div class="marken">
+      <span class="mk">MK_brett Klassik</span>
+      <span class="mk">MK_regel Schach</span>
+      <span class="mk hart">MK_hart Schwer +1</span>
+      <span class="mk lohn">MK_xp +99 XP</span>
+      <span class="mk lohn">MK_gold +29</span>
+    </div>
+    <div class="buehne">
+      <img class="kulisse" src="KUL_richter" alt=""><div class="schleier"></div>ECKEN
+      <div class="gegner">
+        <div class="gplatz"><img src="FIG_richter" alt=""></div>
+        <div class="gtext">
+          <div><div class="gart">Großmeister · Tyrann</div><div class="gname quill">Der Richter</div></div>
+          <div class="gsatz">„Sein Urteil ist gefällt, ehe der Fall beginnt.“</div>
+          <div class="gwerte">
+            <span class="gwert">IC_angriff<b>3</b></span>
+            <span class="gwert">IC_leben<b>11</b></span>
+          </div>
+        </div>
+      </div>
+      <div class="kannzeile"><span class="wort">Er kann</span> IC_bulwark IC_blast IC_chain</div>
+    </div>
+    <div class="tat"><div class="knopf zu">✕ Gesperrt — erst die Vorstationen</div></div>
+  </div></div>
+</div>
+
+</div></body></html>

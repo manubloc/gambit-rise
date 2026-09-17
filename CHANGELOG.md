@@ -1,5 +1,51 @@
 # Changelog - Grand Gambit
 
+## 1.23.6
+- HOECHSTENS VIER ZEICHEN AUF DER KACHEL, der Rest als stille Ziffer
+  (Besitzer: "wenn man es wissen will, muss man halt auf die Karte druecken,
+  fertig" - und nach dem Bildblatt: "machen wir max. 4 + 6"). GEMESSEN an der
+  gebauten Fassung: Kachel 119x179, die Spalte beginnt 7 px unter der Kante,
+  der Name steht bei 153,1 - 146 px frei. Bei 19 px Zeichen passen sechs
+  hinein, bei 21 px ebenfalls sechs; kleiner zu werden gewinnt kein einziges
+  Zeichen dazu. Sechs klebt mit 5 px am Namen, vier laesst 65 px Luft.
+  Nachgemessen nach dem Umstellen: tiefste Unterkante 114,0 px, der Name
+  beginnt bei 153,1 - die Spalte kommt ihm nicht mehr nahe. Die Dame hat zehn
+  Faehigkeiten, die Amazone neun - sie tragen jetzt vier Zeichen und "+6"
+  bzw. "+5". Das Antippen der Ziffer oeffnet dasselbe Blatt wie das Antippen
+  der Kachel.
+- DER SCHIMMER HINTER DER FIGUR TRAEGT IHRE FARBE (Besitzer: "nimm dafuer
+  bitte auch die Farbe, die du fuer das Emblem holst"). Bisher schien hinter
+  JEDER Figur dasselbe Riss-Violett. Gemessen am geoeffneten Blatt: Springer
+  rgba(158,29,5), Koenig rgba(5,71,158), Dame rgba(158,46,49). Gegenprobe mit
+  der alten Zeile: dreimal dasselbe rgba(122,60,255) - die Probe faellt.
+  Monster nehmen den Akzent ihres Meisters; wo keine Farbe bekannt ist,
+  bleibt es beim Riss.
+
+## 1.23.5
+- DER HINTERGRUND IST WIEDER DA - Kapitelbild UND Rissboden. Besitzerbefund,
+  mehrfach und zu Recht: "Du hast es immer noch nicht geschafft, diesen
+  Hintergrund im Hauptmenue sichtbar zu machen." GEMESSEN statt vermutet:
+  beide Ebenen lagen im Baum, ihre Bilder waren geladen, Deckung 1 - und sie
+  malten NULL Pixel (dasselbe Band zweimal fotografiert, mit und ohne die
+  Ebene: groesster Unterschied 0). Ursache ist eine Malregel: der Grund des
+  body wandert nur dann unter alles, wenn das HTML-Element keinen eigenen
+  hat. index.html setzte Schwarz auf BEIDE - damit blieb der Grund des body
+  sein eigener Kasten, und der wird NACH allen Ebenen mit negativem z-index
+  gemalt. Beide Hintergruende liegen auf z -1, wurden also gemalt und sofort
+  zugedeckt. Jetzt traegt das HTML den Grund, der body keinen.
+- EINE PROBE, DIE DAS NIE WIEDER DURCHLAESST. Alle bisherigen Proben haben
+  gefragt, ob die Ebene im Baum liegt - das stimmte jedes Mal. Die neue Probe
+  fotografiert denselben Schirmausschnitt mit und ohne die Ebene und
+  vergleicht die Pixel (Pillow). Gemessen: Kapitelbild 93.603 Pixel,
+  Rissboden 56.803. Gegenprobe mit der alten Regel: beide null.
+- DIE ECKVERZIERUNG KLEINER UND TIEFER IN DER ECKE (Besitzer), 10 px statt 14
+  bei Abstand 1 statt 3 - damit Stufen-Abzeichen und Talente selbst weiter
+  nach aussen ruecken koennen: beide jetzt auf 7/7 statt 10/10.
+- ALLE FAEHIGKEITEN AUF DER KACHEL (Besitzer: "ich habe beim Kanzler alle
+  aktiviert, es werden aber nicht alle angezeigt; die muessten die ganze Karte
+  links runter fuellen"). Die Spalte zeigte stur die ersten zwei. Jetzt alle,
+  etwas schmaler (19 px statt 21), damit der Figur mehr Bahn bleibt.
+
 ## 1.23.4
 - DIE ECKVERZIERUNG WIEDER IN ALLEN VIER ECKEN - mit gerechnetem Abstand
   (Besitzer: "es muss auf jeden Fall sichergestellt werden, dass wir nie dieses

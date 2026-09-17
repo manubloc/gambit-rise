@@ -108,8 +108,14 @@
     <style>
       /* Bevor das Bundle da ist, gilt noch der Standard des Browsers: weisser
          Grund und 8px Rand am body - beim Laden blitzt das als heller Rahmen
-         auf. Deshalb hier, vor allem anderen, Schwarz ohne Rand. */
-      html, body { margin:0; padding:0; background:#000; }
+         auf. Deshalb hier, vor allem anderen, Schwarz ohne Rand.
+         v1.23.5: das Schwarz haengt am HTML, NICHT am body. Hat der body
+         einen eigenen Grund, wird der nach allen Ebenen mit negativem
+         z-index gemalt - und deckte damit Kapitelbild und Rissboden
+         vollstaendig zu (gemessen: null Pixel Unterschied). */
+      html, body { margin:0; padding:0; }
+      html { background:#000; }
+      body { background:transparent; }
       @keyframes ggBootAtem { 0%,100% { transform:scale(1) translateZ(0); }
         50% { transform:scale(1.035) translateZ(0); } }
       @keyframes ggBootKreis { from { transform:rotate(0deg) translateZ(0); } to { transform:rotate(360deg) translateZ(0); } }

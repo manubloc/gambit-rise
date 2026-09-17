@@ -291,6 +291,15 @@ const ABILITY_MOVE = {
 /* v1.1.17: das Diagramm nimmt jetzt eine Breite entgegen. In der Wischreihe
    der Aufstellung steht es in einer 132-px-Karte; die feste Breite von
    min(150px, 52vw) haette sie gesprengt. */
+/* Der Schein hinter einer Figur, aus ihrer eigenen Farbe: derselbe Hex, auf
+   die Deckung des alten Riss-Scheins gebracht (.55). Ohne Farbe bleibt der
+   Riss - besser ein ehrliches Violett als gar kein Schein. */
+export function schimmer(hex) {
+  if (!hex || hex[0] !== "#" || hex.length !== 7) return T.riftGlow;
+  const n = parseInt(hex.slice(1), 16);
+  return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},.55)`;
+}
+
 export function MoveDiagram({ kind, moveSpec, extra = null, breite = null, talente = null }) {
   const sp = specForKind(kind, moveSpec);
   // DER GROSSE DRACHE (Besitzer, v0.72.3): er ist KEIN einzelnes Feld - er
@@ -631,7 +640,14 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
                  schweben) und mit dem violetten Schein statt eines Rahmens. */
               style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain",
               objectPosition: "bottom",
-              filter: `drop-shadow(0 0 10px ${T.riftGlow}) drop-shadow(0 3px 5px rgba(0,0,0,.5))`,
+              /* v1.23.6 (Besitzer): "es ist ja immer so ein Schimmer hinter den
+                 Figuren - nimm dafuer bitte auch die Farbe, die du fuer das
+                 Emblem holst." Bisher schien hinter JEDER Figur dasselbe
+                 Riss-Violett; jetzt schimmert der Springer rot, der Koenig
+                 blau, der Magier violett - dieselbe gemessene Figurenfarbe,
+                 die auch das Stufen-Abzeichen traegt. Wo keine bekannt ist,
+                 bleibt es beim Riss. */
+              filter: `drop-shadow(0 0 10px ${schimmer(figurFarbe(paintedIdOf(portraet)))}) drop-shadow(0 3px 5px rgba(0,0,0,.5))`,
               cursor: unlocked && onZoom ? "zoom-in" : "default" }} />
           : <div style={{ padding: 8 }}><Glyph kind={char.kind} level={level} abilities={abilities} shield={shield} hero={epic} art={"painted"} size={bigArt ? 104 : 76} /></div>}
         {/* v1.0.11 (Besitzer): der Vektor-Zwilling im Eck ist fort — die
@@ -853,6 +869,24 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
     })()}
   </Panel>;
 }
+
+/* ── WIE VIELE ZEICHEN DIE KACHEL TRAEGT (v1.23.6) ────────────────────────
+   GEMESSEN an der gebauten Fassung, nicht geschaetzt: die Kachel ist
+   119 x 179 px, die Talentspalte beginnt 7 px unter der Oberkante, der Name
+   steht bei 153,1 - dazwischen liegen 146 px. Bei 19 px Zeichen und 3 px
+   Abstand passen SECHS hinein (129 px), bei 21 px ebenfalls sechs (141 px);
+   kleiner zu werden gewinnt also kein einziges Zeichen dazu.
+
+   Sechs klebt mit 5 px am Namen. Der Besitzer hat sich nach dem Bildblatt
+   fuer VIER entschieden ("machen wir max. 4 + 6"): das laesst 65 px Luft, die
+   Spalte bleibt deutlich kuerzer als die Figur, und die stille Ziffer traegt
+   den Rest (Besitzer: "wenn man es wissen will, muss man halt auf die Karte
+   druecken, fertig"). Das Antippen der Ziffer oeffnet dasselbe Blatt wie das
+   Antippen der Kachel - der Klick steigt einfach auf.
+
+   Die reichsten Figuren: Dame 10, Amazone 9, Erzbischof und Kanzler 7 - die
+   Dame zeigt also vier Zeichen und "+6". */
+export const TALENT_KACHEL_MAX = 4;
 
 const SlotGlyph = ({ kind, size = 29, art = "painted", hero = false, level = 1, bossId = null }) => (
   // DER DECKEL DER HUELLE: die Groesse mass sich per 9vw am VIEWPORT, nicht an
@@ -1861,11 +1895,18 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
           reicht ihre tiefste Tinte (der Punkt, Mitte 7,0 px, Halbmesser 0,9)
           bis 7,9 px - 2,1 px Luft zu beidem. Nachgemessen in
           messe_kulissen.mjs, alle vier Ecken und beide Nachbarn. */}
+      {/* v1.23.5 (Besitzer): "mach die Verzierung noch ein Stueck weiter in die
+          Ecke und noch ein bisschen kleiner" - damit Stufe und Faehigkeiten
+          selbst weiter nach aussen ruecken koennen. 10 px statt 14, Abstand 1
+          statt 3. Gerechnet: die tiefste Tinte ist der Punkt, Mitte
+          4,6/16 x 10 = 2,9 px, Halbmesser 0,7 - er reicht bis 2+2,9+0,7 = 5,6
+          px von jeder Kante. Abzeichen und Talente stehen auf 7, also bleiben
+          1,4 px Luft. Nachgemessen, nicht geschaetzt. */}
       {[["oben-links", 0, true, true], ["oben-rechts", 90, true, false],
         ["unten-rechts", 180, false, false], ["unten-links", 270, false, true]].map(([wo, rot, oben, links]) =>
-        <svg key={wo} data-ecke={wo} viewBox="0 0 16 16" width="14" height="14" aria-hidden
-          style={{ position: "absolute", top: oben ? 3 : "auto", bottom: oben ? "auto" : 3,
-            left: links ? 3 : "auto", right: links ? "auto" : 3,
+        <svg key={wo} data-ecke={wo} viewBox="0 0 16 16" width="10" height="10" aria-hidden
+          style={{ position: "absolute", top: oben ? 1 : "auto", bottom: oben ? "auto" : 1,
+            left: links ? 1 : "auto", right: links ? "auto" : 1,
             transform: `rotate(${rot}deg)`, zIndex: -1, pointerEvents: "none", opacity: dark ? .35 : .85 }}>
           {/* v1.23.4: der Winkel in DREI Stuecken statt einem. Grund ist die
               Probe: ein L hat als Kasten ein Quadrat, und ein Kastenvergleich
@@ -1894,11 +1935,21 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
       <div data-kopf="1" style={{ position: "relative", display: "flex", alignItems: "flex-start", gap: 4, marginBottom: 2, height: 21 }}>
         {/* v1.23.4: die Talentspalte auf symmetrische 10/10 zum Kachelrand
             (vorher 11 oben / 8 links) - dieselbe Lage wie das Abzeichen
-            gegenueber, und damit frei von der Eckverzierung. */}
-        <div style={{ position: "absolute", left: 2, top: -1, display: "flex", flexDirection: "column", gap: 3, width: 21, zIndex: 2 }}>
-          {(talente || []).slice(0, 2).map((id) => <span key={id} data-talent={id} style={{ width: 21, height: 21, display: "grid", placeItems: "center",
-            borderRadius: 6, background: "rgba(12,8,22,.7)", border: "1px solid rgba(233,207,138,.45)",
-            filter: dim || dark ? "grayscale(1)" : "none" }}><AbilityIcon id={id} size={15} /></span>)}
+            gegenueber, und damit frei von der Eckverzierung.
+            v1.23.5 (Besitzer): auf 7/7, also weiter in die Ecke - und ALLE
+            Faehigkeiten statt der ersten zwei ("ich habe beim Kanzler alle
+            aktiviert, es werden aber nicht alle angezeigt; die muessten die
+            ganze Karte links runter fuellen"). Die Spalte liegt auf z 2, also
+            ueber dem Gemaelde, und ist etwas schmaler (19 statt 21), damit
+            der Figur in der Mitte mehr Bahn bleibt. */}
+        <div data-talentspalte="1" style={{ position: "absolute", left: -1, top: -4, display: "flex", flexDirection: "column", gap: 3, width: 19, zIndex: 2 }}>
+          {(talente || []).slice(0, TALENT_KACHEL_MAX).map((id) => <span key={id} data-talent={id} style={{ width: 19, height: 19, display: "grid", placeItems: "center",
+            borderRadius: 6, background: "rgba(12,8,22,.78)", border: "1px solid rgba(233,207,138,.45)",
+            filter: dim || dark ? "grayscale(1)" : "none" }}><AbilityIcon id={id} size={14} /></span>)}
+          {(talente || []).length > TALENT_KACHEL_MAX && <span data-talentmehr={(talente || []).length - TALENT_KACHEL_MAX}
+            style={{ width: 19, height: 19, display: "grid", placeItems: "center", borderRadius: 6,
+              background: "rgba(12,8,22,.78)", border: "1px solid rgba(233,207,138,.3)",
+              font: "700 9.5px/1 Georgia, serif", color: dim || dark ? "#8d8776" : "#e9cf8a" }}>+{(talente || []).length - TALENT_KACHEL_MAX}</span>}
         </div>
         <div style={{ flex: "1 1 auto", minWidth: 0, height: 21, display: "flex", justifyContent: "center", alignItems: "center", lineHeight: 0, overflow: "visible",
           /* der SVG-Kasten des Rohrs reserviert oben Platz fuer die Perle, der
@@ -1925,9 +1976,11 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
               {/* v1.21.2 (Besitzer): groesser - 36 px statt 30, ragt 7 px ueber die Kopfzeile und 7 px in den Rand */}
               {/* v1.23.0 (Besitzer): gleicher Abstand nach oben und rechts */}
               {/* v1.23.4: 10 px beidseits statt 4 - der Platz gehoert jetzt
-                  auch der Eckverzierung, und 10/10 ist dieselbe Lage wie die
-                  Talentspalte auf der anderen Seite. */}
-              <div style={{ position: "absolute", top: -1, right: 2 }}>
+                  auch der Eckverzierung, und dieselbe Lage wie die
+                  Talentspalte auf der anderen Seite.
+                  v1.23.5 (Besitzer): 7/7 - die kleinere Verzierung gibt den
+                  Platz frei, das Abzeichen rueckt weiter in die Ecke. */}
+              <div style={{ position: "absolute", top: -4, right: -1 }}>
                 <StufenAbzeichen form={formFuer({ charId: artId, bossId })} stufe={stufe} maxStufe={bossId ? BOSS_MAX_LEVEL : maxLevelFor(artId || "pawn")}
                   farbe={ton || figurFarbe(paintedIdOf(img)) || "#5b3fa6"} grau={!!(dim || dark)} size={36} /></div></div>
           : <div style={{ width: 21, height: 21, flex: "0 0 auto" }} />}
@@ -2205,7 +2258,8 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
                 title={en ? "Tap to enlarge" : "Antippen zum Vergrößern"}
                 /* v1.0.14 (Besitzer): im Popup war oben Luft - das Bild nimmt sie. */
                 style={{ width: 148, height: 178, objectFit: "contain", objectPosition: "bottom", cursor: "zoom-in",
-                filter: `drop-shadow(0 0 10px ${T.riftGlow})` }} />}
+                /* v1.23.6: derselbe Schimmer wie beim Hofstaat, hier im Akzent des Meisters */
+                filter: `drop-shadow(0 0 10px ${schimmer(b.accent)})` }} />}
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div className="gg-quill" style={{ fontSize: 21, color: "#e7b7c9" }}>{en ? b.nameEn : b.nameDe}</div>
                 <div className="gg-serif" style={{ fontSize: 11, letterSpacing: ".14em", color: T.riftBright, textTransform: "uppercase", marginTop: 2 }}>{fam}</div>
