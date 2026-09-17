@@ -111,3 +111,31 @@ import g12K from "./assets/ground-12.carved.webp";
 // auf dem Oedlandboden. 11 und 12 sind beruhigte Ausschnitte der Kapitelkarten.
 const GROUNDS_K = { 1: g01K, 2: g02K, 3: g03K, 4: g04K, 5: g05K, 6: g06K, 7: g08K, 8: g09K, 9: g07K, 10: g10K, 11: g11K, 12: g12K };
 export const groundArt = (league) => GROUNDS_K[league] || null;
+
+/* ── DER RISSBODEN (v1.23.7) ──────────────────────────────────────────────
+   Besitzer, zum wiederholten Mal und diesmal mit Bild: "Mach mal den beigen
+   Hintergrund weg. Dahinter sieht man den Hintergrund, der es sein sollte,
+   sowie die anderen, die abhaengig davon kommen, wo man in der Kampagne ist."
+
+   GEFUNDEN: die Bilder, die er meint, heissen riss-01 bis riss-10 - das
+   Schachbrett unten, oben Schwarz, und der Riss waechst von einem Glimmen
+   (01) bis zur klaffenden Spalte (10). Sie liegen seit jeher im Baum und
+   werden vom Vorlader bei JEDEM Start geladen - gezeigt hat sie nie jemand.
+   Das Menue trug stattdessen seit v1.9.1 die Kapitelboeden ground-01..12,
+   und das sind Gelaendekacheln der Weltkarte: Wiese, Acker, Wald, Sand. Daher
+   das Beige.
+
+   Zehn Bilder auf zwoelf Kapitel: die letzten drei Kapitel teilen sich den
+   weitesten Riss - weiter aufreissen kann er nicht. */
+import r01 from "./assets/riss/riss-01.webp";
+import r02 from "./assets/riss/riss-02.webp";
+import r03 from "./assets/riss/riss-03.webp";
+import r04 from "./assets/riss/riss-04.webp";
+import r05 from "./assets/riss/riss-05.webp";
+import r06 from "./assets/riss/riss-06.webp";
+import r07 from "./assets/riss/riss-07.webp";
+import r08 from "./assets/riss/riss-08.webp";
+import r09 from "./assets/riss/riss-09.webp";
+import r10 from "./assets/riss/riss-10.webp";
+const RISSE = [r01, r02, r03, r04, r05, r06, r07, r08, r09, r10];
+export const rissBoden = (league) => RISSE[Math.min(RISSE.length, Math.max(1, league || 1)) - 1];

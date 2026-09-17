@@ -1,5 +1,19 @@
 # Changelog - Grand Gambit
 
+## 1.23.7
+- DER RISSBODEN STEHT WIEDER IM MENUE (Besitzer: "Mach mal den beigen
+  Hintergrund weg. Dahinter sieht man den Hintergrund, der es sein sollte,
+  sowie die anderen, die abhaengig davon kommen, wo man in der Kampagne ist").
+  GEFUNDEN: die gesuchten Bilder heissen riss-01 bis riss-10 - Schachbrett
+  unten, oben Schwarz, und der Riss waechst von einem Glimmen bis zur
+  klaffenden Spalte. Sie liegen seit jeher im Baum und werden vom Vorlader bei
+  JEDEM Start geladen - gezeigt hat sie nie jemand. Das Menue trug seit v1.9.1
+  stattdessen ground-01..12, und das sind Gelaendekacheln der Weltkarte:
+  Wiese, Acker, Wald, Sand. Genau daher das Beige. Jetzt waehlt rissBoden()
+  nach Kapitel; die letzten drei Kapitel teilen sich den weitesten Riss.
+  Gegengeprueft im Chromium: das Menue laedt jetzt riss-01 statt
+  ground-01.carved.
+
 ## 1.23.6
 - HOECHSTENS VIER ZEICHEN AUF DER KACHEL, der Rest als stille Ziffer
   (Besitzer: "wenn man es wissen will, muss man halt auf die Karte druecken,

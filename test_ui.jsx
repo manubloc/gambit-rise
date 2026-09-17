@@ -1596,10 +1596,16 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
 
   /* v1.9.1: DER MENUEHINTERGRUND FOLGT DEM KAPITEL. Besitzerbefund,
      mehrfach vorgetragen: die zwoelf Kapitelbilder gibt es laengst, aber das
-     Menue zeigte immer dieselbe Halle - nur der Farbhauch wechselte. */
+     Menue zeigte immer dieselbe Halle - nur der Farbhauch wechselte.
+     v1.23.7: es waren die FALSCHEN Bilder. ground-01..12 sind Gelaendekacheln
+     der Weltkarte (Wiese, Acker, Wald, Sand) - daher der beige Grund, den der
+     Besitzer sah. Gemeint waren riss-01..10: Schachbrett unten, oben Schwarz,
+     der Riss waechst mit dem Kapitel. Die Probe haelt jetzt fest, dass der
+     Rissboden genommen wird UND dass die Gelaendekachel nicht zurueckkehrt. */
   {
     const mb = readFileSync("src/app/ui/MysticBackground.jsx", "utf8");
-    ok("das Menue nimmt das Bild des Kapitels", mb.includes("groundArt((("));
+    ok("das Menue nimmt den Rissboden des Kapitels", mb.includes("rissBoden(league)"));
+    ok("und nicht mehr die Gelaendekachel der Weltkarte", !/groundArt\s*\(/.test(mb));
     ok("und faellt auf die Halle zurueck, wenn keines da ist", mb.includes("|| bgHall()"));
   }
 
