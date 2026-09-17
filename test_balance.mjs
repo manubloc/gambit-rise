@@ -79,7 +79,11 @@ const g5 = SEEDS.map((s) => playOut(base, base, { seed: s, map: mapById("classic
 ok(`mirrored armies fight a full game — shortest ${floorOver(g5)} plies (>= 20)`, floorOver(g5) >= 20);
 
 // 6) the hero spec really scales: level 30 gambit carries 6 shields into battle
-ok("the level-30 gambit walks in with six shields", resolveCharacter(CHARACTERS.gambit, 30, null).shield === 6);
+/* v1.24.0: Stufe 30 gibt es nicht mehr - die Hoechststufe ist 20. Die elf
+   Schilde liegen jetzt zwischen Stufe 4 und 20; auf halbem Weg (Stufe 10)
+   sind es drei. */
+ok("der Gambit traegt auf halbem Weg drei Schilde, auf Stufe 20 elf",
+  resolveCharacter(CHARACTERS.gambit, 10, null).shield === 3 && resolveCharacter(CHARACTERS.gambit, 20, null).shield === 11);
 
 // ── strikes from afar & the crowned head ─────────────────────────────────────
 import { legalMovesFrom, idx } from "./src/core/index.js";

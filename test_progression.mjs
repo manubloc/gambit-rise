@@ -83,11 +83,19 @@ ok("abilities gate on level then charge SP", (() => {
 ok("levels cap at MAX_PIECE_LEVEL", characterLevel(upgradePiece({ ...eco, sp: 99, pieces: { levels: { rook: MAX_PIECE_LEVEL } } }, "rook"), "rook") === MAX_PIECE_LEVEL);
 
 // ── the hero alone climbs three tiers of ten ─────────────────────────────────
-ok("gambit cap is 60, common pieces stay at 10", maxLevelFor("gambit") === 60 && maxLevelFor("rook") === 10 && GAMBIT_MAX_LEVEL === 60);
-ok("six tiers, switching every ten levels", gambitTier(1) === 1 && gambitTier(10) === 1 && gambitTier(11) === 2 && gambitTier(21) === 3 && gambitTier(31) === 4 && gambitTier(41) === 5 && gambitTier(51) === 6 && gambitTier(60) === 6);
-ok("the climb grows steep: 2/3/4/6/8/10 SP by tier", upgradeCost("gambit", 1) === 2 && upgradeCost("gambit", 10) === 3 && upgradeCost("gambit", 15) === 3 && upgradeCost("gambit", 30) === 6 && upgradeCost("gambit", 45) === 8 && upgradeCost("gambit", 59) === 10);
-ok("the full road to 60 costs 328 SP", Array.from({ length: 59 }, (_, i) => upgradeCost("gambit", i + 1)).reduce((a, b) => a + b, 0) === 328);
-ok("the risen gambit banks shields all the way: 6 at L30, 11 at L60", resolveCharacter(CHARACTERS.gambit, 30, null).shield === 6 && resolveCharacter(CHARACTERS.gambit, 60, null).shield === 11 && resolveCharacter(CHARACTERS.gambit, 10, null).shield === 2);
+/* v1.24.0 (Besitzer, mehrfach): "Ein Gambit soll keine 60 Stufen haben, es
+   duerfen maximal 20 sein." Die Proben standen auf 60 und mussten mit. */
+ok("gambit cap is 20, common pieces stay at 10", maxLevelFor("gambit") === 20 && maxLevelFor("rook") === 10 && GAMBIT_MAX_LEVEL === 20);
+/* die sechs Raenge bleiben ALLE erreichbar - sonst waeren vier der sechs
+   Gemaelde nie zu sehen: I 1-3, II 4-6, III 7-10, IV 11-13, V 14-16, VI 17-20 */
+ok("sechs Raenge, verteilt auf zwanzig Stufen", gambitTier(1) === 1 && gambitTier(3) === 1 && gambitTier(4) === 2 && gambitTier(7) === 3 && gambitTier(11) === 4 && gambitTier(14) === 5 && gambitTier(17) === 6 && gambitTier(20) === 6);
+ok("der Aufstieg kostet 2/2/3/3/4/4 je Rang", upgradeCost("gambit", 1) === 2 && upgradeCost("gambit", 3) === 2 && upgradeCost("gambit", 6) === 3 && upgradeCost("gambit", 10) === 3 && upgradeCost("gambit", 13) === 4 && upgradeCost("gambit", 19) === 4);
+/* GEMESSEN, warum 60 Stufen kein Vorteil waren, sondern eine Strafe: sie
+   kosteten 328 SP und endeten bei denselben hp 17 / atk 7, die ein Bauer mit
+   9 SP erreicht - Faktor 36 fuer dasselbe Ziel. Jetzt 59 SP, rund das
+   Sechsfache eines Bauern: ein Heldenaufschlag, keine Mauer. */
+ok("der ganze Weg auf 20 kostet 59 SP", Array.from({ length: 19 }, (_, i) => upgradeCost("gambit", i + 1)).reduce((a, b) => a + b, 0) === 59);
+ok("die Schilde reichen bis zur Zwanzig: 11 auf Stufe 20", resolveCharacter(CHARACTERS.gambit, 20, null).shield === 11 && resolveCharacter(CHARACTERS.gambit, 10, null).shield === 3);
 ok("the gambit can be upgraded past ten", characterLevel(upgradePiece({ sp: 99, pieces: { levels: { gambit: 10 } } }, "gambit"), "gambit") === 11);
 /* v1.0.49 (Besitzerentscheid): DER HELD STEHT VON ANFANG AN. Bis v1.0.48 trat
    er erst nach drei geschafften Stationen an. Der Gambit ist aber die Figur,
@@ -96,7 +104,11 @@ ok("the gambit can be upgraded past ten", characterLevel(upgradePiece({ sp: 99, 
    kennenlernt, nachdem man ihn dreimal aufs Feld geschickt hat, erklaert sich
    zu spaet. GAMBIT_ERWACHT_AB steht darum auf 0; die Schwelle bleibt als
    Konstante bestehen, damit ein spaeteres Anheben eine Zahl ist, keine Regel. */
-const wach = { pieces: { levels: { gambit: 15 } }, campaign: { cleared: ["L01s01", "L01s02", "L01s03"] } };
+/* v1.24.0: Stufe 15 gab mit den alten Zehnerbloecken Rang II. Seit die sechs
+   Raenge auf zwanzig Stufen verteilt sind, ist Stufe 15 Rang V - fuer die
+   Proben, die den Prunkritter (Rang II) meinen, steht das Profil deshalb auf
+   Stufe 5. */
+const wach = { pieces: { levels: { gambit: 5 } }, campaign: { cleared: ["L01s01", "L01s02", "L01s03"] } };
 ok("der Held fuehrt die Armee von der ERSTEN Partie an",
   !!buildArmyForMap({ pieces: { levels: { gambit: 15 } }, campaign: { cleared: [] } }, mapById("arena")).hero);
 ok("und bleibt es natuerlich auch spaeter", !!buildArmyForMap(wach, mapById("arena")).hero);

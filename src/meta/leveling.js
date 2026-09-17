@@ -95,11 +95,32 @@ export const MAX_PIECE_LEVEL = 10;
 // The hero alone climbs THREE tiers of ten (Stufe I/II/III → level 30). Each
 // tier is earned prestige: own portrait + a quiet aura, visible only to the
 // player and on the map — never to the opponent.
-export const GAMBIT_MAX_LEVEL = 60;                    // six tiers, ten levels each
+/* ── v1.24.0: ZWANZIG STUFEN, NICHT SECHZIG (Besitzer, mehrfach) ───────────
+   "Ein Gambit soll keine 60 Stufen haben. Es dürfen maximal 20 sein."
+
+   GEMESSEN, warum das nicht nur Kosmetik ist: die Werte skalieren am
+   VERHAELTNIS Stufe/Hoechststufe. Der Gambit stand damit auf Stufe 60 bei
+   hp 17 / atk 7 - genau da, wo ein Bauer auf Stufe 10 steht. Der Weg dorthin
+   kostete ihn aber 328 Fertigkeitspunkte gegen 9 beim Bauern, Faktor 36 fuer
+   dasselbe Ziel. Sechzig Stufen waren also kein Vorteil, sondern eine Strafe.
+
+   Mit zwanzig Stufen laeuft dieselbe Kurve in zwanzig Schritten: Stufe 5
+   hp 5/atk 2, Stufe 10 hp 9/atk 4, Stufe 20 hp 17/atk 7. Er bleibt der Held
+   ueber die Schilde und die sechs Raenge, nicht ueber eine laengere Leiter.
+
+   DIE SECHS RAENGE BLEIBEN ALLE ERREICHBAR: sie haengen nicht mehr an
+   Zehnerbloecken, sondern verteilen sich auf die zwanzig Stufen -
+   I 1-3, II 4-6, III 7-10, IV 11-13, V 14-16, VI 17-20. Sonst waeren vier
+   der sechs Gemaelde (gambit-t3 bis t6) nie zu sehen.
+
+   DIE KOSTEN: vorher 2/3/4/6/8/10 je Rang, was die 328 ergab. Jetzt
+   2/2/3/3/4/4 - in Summe 59 SP fuer alle neunzehn Schritte, also rund das
+   Sechsfache eines Bauern. Ein Heldenaufschlag, keine Mauer. */
+export const GAMBIT_MAX_LEVEL = 20;
 export const maxLevelFor = (charId) => (charId === "gambit" ? GAMBIT_MAX_LEVEL : MAX_PIECE_LEVEL);
-export const gambitTier = (level) => Math.min(6, Math.floor((Math.max(1, level) - 1) / 10) + 1);
-// the hero's climb grows steep: SP per level step, by the tier being entered
-export const GAMBIT_STEP_COST = [2, 3, 4, 6, 8, 10];
+export const gambitTier = (level) =>
+  Math.min(6, Math.max(1, Math.ceil(Math.max(1, level) * 6 / GAMBIT_MAX_LEVEL)));
+export const GAMBIT_STEP_COST = [2, 2, 3, 3, 4, 4];
 /** SKILL POINTS are the piece currency: earned per player level (and by
  *  claiming achievements), spent deliberately on levels + abilities.
  *  Cost per level step follows the piece's board value. */

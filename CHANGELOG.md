@@ -1,5 +1,38 @@
 # Changelog - Grand Gambit
 
+## 1.24.0
+- DAS FIGURENBLATT NACH ENTWURF 8 GEBAUT. Acht Runden Entwurf mit dem
+  Besitzer, jede an gerenderten Blaettern entschieden: EINE Buehne mit der
+  Kulisse und den Eckverzierungen traegt alles; die Figur links, ihr Name
+  darunter; rechts das Zugbild und darunter die Faehigkeitszeichen als
+  abgerundete Vierecke, fuenf je Reihe, leere Plaetze als gestricheltes
+  Viereck; die Stufenanzeige oben rechts mit dem Emblem an ihrem Ende; der
+  Satz mittig unter beiden Spalten; Angriff und Leben im Rot und Blau des
+  Sockelbandes mit dem Zuwachs klein und violett im selben Kasten. Das
+  Zugbild stand vorher ZWEIMAL auf dem Blatt - der eigene Abschnitt weiter
+  unten faellt im grossen Blatt weg.
+- DER GRAND GAMBIT HAT ZWANZIG STUFEN, NICHT SECHZIG (Besitzer, mehrfach:
+  "Ein Gambit soll keine 60 Stufen haben, es duerfen maximal 20 sein").
+  GEMESSEN, warum das keine Kosmetik war: die Werte skalieren am Verhaeltnis
+  Stufe/Hoechststufe, also stand er auf Stufe 60 bei hp 17 / atk 7 - genau da,
+  wo ein Bauer auf Stufe 10 steht. Der Weg kostete ihn 328 Fertigkeitspunkte
+  gegen 9 beim Bauern, Faktor 36 fuer dasselbe Ziel. Sechzig Stufen waren kein
+  Vorteil, sondern eine Strafe. Jetzt 59 SP fuer alle neunzehn Schritte, rund
+  das Sechsfache eines Bauern.
+- DIE SECHS RAENGE BLEIBEN ALLE ERREICHBAR: sie haengen nicht mehr an
+  Zehnerbloecken, sondern verteilen sich auf die zwanzig Stufen (I 1-3,
+  II 4-6, III 7-10, IV 11-13, V 14-16, VI 17-20). Ohne das waeren vier der
+  sechs Gemaelde nie zu sehen gewesen.
+- DIE SCHILDE lagen auf Stufe 12 bis 58 - neun davon waren nach der Kuerzung
+  unerreichbar. Sie sind im gleichen Abstand auf 10 bis 20 umgerechnet; der
+  Held traegt dieselben elf Schilde wie vorher, nur in zwanzig Stufen.
+- GEWICHTUNG NACHGERECHNET, wie der Besitzer es verlangt hat. Auf
+  Hoechststufe: Gambit hp 39 / atk 7 (11 Schilde), Bauer hp 23 / atk 7,
+  Turm hp 22 / atk 6, Springer hp 17 / atk 13, Dame hp 16 / atk 10. Der Held
+  ist also die Mauer, Springer und Dame sind die Klingen - das liest sich
+  stimmig. Offen bleibt, ob seine elf Schilde gegen die Dame mit einem zu
+  viel sind; das ist eine Entscheidung, keine Messung.
+
 ## 1.23.9
 - DER SOCKEL WIRD NACH UNTEN VERLAENGERT (Besitzer: "Du nimmst als Mass immer
   die Oberkante ... und nach unten tust du nichts aus dem Bild ablesen, sondern

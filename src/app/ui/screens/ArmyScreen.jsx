@@ -119,6 +119,87 @@ function StatPill({ icon, val, color }) {
 // power = gold, life = green, energy = blue.
 
 // a dossier line: LABEL ........ value — the wanted-poster rhythm
+
+/* ═══ DAS FIGURENBLATT, ENTWURF 8 ═════════════════════════════════════════
+   Acht Runden Entwurf mit dem Besitzer, jede an gerenderten Blaettern
+   entschieden. Was dabei herauskam und hier gebaut ist:
+
+   - EINE Buehne traegt alles: Stufe, Figur, Zuege, Zeichen, Werte, Knopf.
+     "Ziehe diesen Hintergrund und diesen Container ueber alles, was du
+     aktuell in dem Vorschlag drin hast." Entwurf 5 hatte noch das Blatt mit
+     eigenem violettem Verlauf UNTER der Buehne; das Polster liess ihn als
+     hellen Rahmen stehen ("da hast du noch einen Hintergrund reingebaut, der
+     so hell ist"). Deshalb hat die Buehne kein Polster um sich.
+   - Die Figur LINKS, ihr Name DARUNTER - wie auf der Kachel.
+   - Rechts das Zugbild, darunter die Faehigkeitszeichen: "direkt unter dem
+     Schachbrettmuster, so dass es auf gleicher Hoehe mit der Figur ist."
+   - Die Stufenanzeige oben rechts, das Emblem direkt an ihrem Ende.
+   - Die Zeichen sind ABGERUNDETE VIERECKE, nicht Kreise, und fuenf je Reihe.
+   - Angriff und Leben im Rot und Blau des Sockelbandes, als heller Strich auf
+     dunklem Grund ("eher das Design von den Faehigkeiten"), Zahl und Wort im
+     selben Ton, der Zuwachs klein und violett im selben Kasten.
+   - Kein Kreuz: geblaettert wird mit den Pfeilen, zurueck geht es ueber die
+     Reiter. "So dass wir mal davon ausgehen, dass man das Spiel auch am
+     Gamepad spielen koennte." */
+const BAND_ROT = ["#571419", "#2e080b", "#ff9f96", "#ffe6e2"];
+const BAND_BLAU = ["#16295a", "#0a1633", "#a3c1ff", "#e4eeff"];
+const WZ_KLINGE = <><path d="M12 3.2l2.1 3.6v7.4H9.9V6.8z" /><path d="M7.4 14.2h9.2" /><path d="M12 14.2v4.3" /><path d="M10.3 18.5h3.4" /></>;
+const WZ_HERZ = <path d="M12 19.4c-3.8-3-6.7-5.4-6.7-8.5A3.7 3.7 0 0 1 12 8.2a3.7 3.7 0 0 1 6.7 2.7c0 3.1-2.9 5.5-6.7 8.5z" />;
+/* dasselbe Medaillon wie ein Faehigkeitszeichen, nur im Ton des Bandes */
+function WertZeichen({ art, size = 26, id }) {
+  const [grund, tief, ring, strich] = art === "rot" ? BAND_ROT : BAND_BLAU;
+  const u = (k) => `wz-${id}-${art}-${k}`;
+  return <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden style={{ display: "block", flex: "0 0 auto" }}>
+    <defs>
+      <radialGradient id={u("g")} cx="50%" cy="28%" r="82%">
+        <stop offset="0" stopColor={grund} /><stop offset="1" stopColor={tief} />
+      </radialGradient>
+      <linearGradient id={u("s")} x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stopColor="#fff" stopOpacity=".22" /><stop offset=".5" stopColor="#fff" stopOpacity="0" />
+      </linearGradient>
+    </defs>
+    <rect x="1" y="1" width="22" height="22" rx="6.2" fill={`url(#${u("g")})`} />
+    <rect x="1" y="1" width="22" height="22" rx="6.2" fill={`url(#${u("s")})`} />
+    <rect x="1" y="1" width="22" height="22" rx="6.2" fill="none" stroke={ring} strokeWidth="1.5" />
+    <g transform="translate(12 12) scale(.78) translate(-12 -12)" fill="none" stroke={strich}
+      strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">{art === "rot" ? WZ_KLINGE : WZ_HERZ}</g>
+  </svg>;
+}
+/* die Stufenanzeige: zehn Striche je Reihe, beim Gambit also mehrere Reihen */
+function StufenStriche({ stufe, maxStufe }) {
+  /* GEMESSEN beim ersten Bau: der Grand Gambit hat SECHZIG Stufen - das
+     ergaben sechs Reihen Striche und sprengte den Kopf des Blattes. Der
+     Besitzer will ihn ohnehin auf zwanzig kuerzen; bis das in der Staffelung
+     entschieden ist, zeigt die Anzeige hoechstens ZWANZIG Striche in zwei
+     Reihen und fasst den Rest zusammen. */
+  const zeige = Math.min(20, maxStufe);
+  const reihen = [];
+  for (let r = 0; r * 10 < zeige; r++) {
+    reihen.push(Array.from({ length: Math.min(10, zeige - r * 10) }, (_, i) =>
+      (r * 10 + i) < Math.round(stufe / maxStufe * zeige)));
+  }
+  return <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+    {reihen.map((z, ri) => <div key={ri} style={{ display: "flex", gap: 3.5 }}>
+      {z.map((voll, i) => <span key={i} style={{ width: 9, height: 6, borderRadius: 3, display: "block",
+        background: voll ? "linear-gradient(90deg,#d1ad55,#eac96b)" : "rgba(255,255,255,.12)",
+        boxShadow: voll ? "0 0 5px rgba(234,201,107,.5)" : "none" }} />)}
+    </div>)}
+  </div>;
+}
+/* die Eckverzierung der Kachel, kleiner - v1.23.6 */
+const BLATT_ECKE = <svg viewBox="0 0 16 16" width="10" height="10" aria-hidden>
+  <path d="M1.5 9.5V5" fill="none" stroke="#e9cf8a" strokeWidth="0.85" strokeLinecap="round" />
+  <path d="M1.5 5A3.5 3.5 0 0 1 5 1.5" fill="none" stroke="#e9cf8a" strokeWidth="0.85" strokeLinecap="round" />
+  <path d="M5 1.5H9.5" fill="none" stroke="#e9cf8a" strokeWidth="0.85" strokeLinecap="round" />
+  <path d="M1.5 12.5c0 1.6 1 2.4 2.4 2.4" fill="none" stroke="#e9cf8a" strokeWidth="1" strokeLinecap="round" opacity=".8" />
+  <path d="M12.5 1.5c1.6 0 2.4 1 2.4 2.4" fill="none" stroke="#e9cf8a" strokeWidth="1" strokeLinecap="round" opacity=".8" />
+  <circle cx="4.6" cy="4.6" r="1.05" fill="#e9cf8a" />
+</svg>;
+const BlattEcken = () => <>{[["top:2px;left:2px", 0], ["top:2px;right:2px", 90], ["bottom:2px;right:2px", 180], ["bottom:2px;left:2px", 270]]
+  .map(([pos, dreh], i) => { const [a, b] = pos.split(";").map((x) => x.split(":"));
+    return <div key={i} aria-hidden style={{ position: "absolute", [a[0]]: a[1], [b[0]]: b[1],
+      transform: `rotate(${dreh}deg)`, zIndex: -1, lineHeight: 0, opacity: .85, pointerEvents: "none" }}>{BLATT_ECKE}</div>; })}</>;
+
 function SheetRow({ label, children }) {
   return <div style={{ display: "flex", alignItems: "baseline", gap: 8, padding: "3px 0" }}>
     <span className="gg-serif" style={{ fontSize: 11.5, letterSpacing: ".14em", color: "#9a8f6f",
@@ -591,6 +672,97 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
     {/* THE DOSSIER HEAD: a wanted-poster masthead — portrait to the side, name
         and house up top, the game's own stat orbs for instant recognition, and
         the vital lines beneath in a ledger rhythm. */}
+    {/* ── DIE BUEHNE (Entwurf 8) - nur im grossen Blatt ──────────────── */}
+    {bigArt ? (() => {
+      const kul = KULISSE_URL[kulisseFuer({ charId: char.id })];
+      const pid = paintedIdOf(portraet) || char.id;   /* bildnisVon gibt die Bild-URL, nicht ein Objekt */
+      const ton = figurFarbe(pid) || "#5b3fa6";
+      const maxSt = maxLevelFor(char.id);
+      const gezeigt = rungs.slice(0, 10);
+      const reihen = []; for (let r = 0; r * 5 < Math.max(5, gezeigt.length); r++) reihen.push(gezeigt.slice(r * 5, r * 5 + 5));
+      return <div style={{ position: "relative", isolation: "isolate", borderRadius: 15, overflow: "hidden",
+        padding: "10px 12px 12px", border: "1px solid rgba(233,207,138,.26)",
+        background: "linear-gradient(180deg, rgba(20,13,36,.9), rgba(10,7,19,.96))" }}>
+        {kul && <img src={kul} alt="" data-gg-still="" draggable={false} style={{ position: "absolute", inset: 0,
+          width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 38%", opacity: .66, zIndex: -2 }} />}
+        <div aria-hidden style={{ position: "absolute", inset: 0, zIndex: -1,
+          background: "linear-gradient(180deg, rgba(8,5,14,.6) 0%, rgba(8,5,14,.22) 38%, rgba(8,5,14,.72) 100%)" }} />
+        <BlattEcken />
+        {/* oben rechts: Stufenanzeige, und an ihrem Ende das Emblem */}
+        <div style={{ display: "flex", alignItems: "center", marginBottom: 6 }}>
+          <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 4 }}>
+            <StufenStriche stufe={level} maxStufe={maxSt} />
+            {/* Die Zeichnung der Abzeichen steht genau EINMAL im Hofstaat und
+                gilt fuer das ganze Dokument - hier darf sie nicht noch einmal
+                eingehaengt werden (test_ui prueft die Anzahl). */}
+            <StufenAbzeichen form={formFuer({ charId: char.id })} stufe={level} maxStufe={maxSt} farbe={ton} size={40} />
+          </div>
+        </div>
+        {/* Figur links, Name darunter - rechts Zugbild und Zeichen */}
+        <div style={{ display: "flex", gap: 10, alignItems: "flex-end", padding: "0 6px" }}>
+          <div style={{ flex: "0 0 auto", width: 148 }}>
+            <div style={{ position: "relative", width: 148, height: 150 }}>
+              <img src={portraet} alt="" draggable={false} style={{ position: "absolute", inset: 0,
+                width: "100%", height: "100%", objectFit: "contain", objectPosition: "bottom",
+                transformOrigin: "50% 100%",
+                transform: `translate(${tellerMitteProzent(pid).toFixed(2)}%, ${bodenAusgleichProzent(pid).toFixed(2)}%) scale(${sockelSkalierung(pid).toFixed(3)}, ${(sockelSkalierung(pid) * figurStreckung(pid)).toFixed(3)})`,
+                filter: `drop-shadow(0 0 12px ${ton}88) drop-shadow(0 3px 5px rgba(0,0,0,.55))` }} />
+              {bandBekannt(pid) && <SockelBand paintedId={pid} id={`blatt-${char.id}`}
+                leben={1} kraft={hpUnlocked(profile) ? Math.max(0, Math.min(1, atk / 12)) : 0}
+                grau={!hpUnlocked(profile)} ausrichtung="unten" />}
+            </div>
+            <div style={{ textAlign: "center", marginTop: 4 }}>
+              <div className="gg-quill" style={{ fontSize: 20, lineHeight: 1.1, color: "#f3ecd2",
+                textShadow: "0 1px 6px rgba(0,0,0,.9)" }}>{en ? char.nameEn : char.nameDe}</div>
+              <div style={{ fontSize: 9, letterSpacing: ".14em", textTransform: "uppercase", color: "#cbbf9a",
+                marginTop: 4, textShadow: "0 1px 5px rgba(0,0,0,.9)" }}>
+                {epic ? (en ? "The Grand Gambit" : "Der Grand Gambit") : fam ? (en ? FAMILIES[fam].en : FAMILIES[fam].de) : (en ? "Free piece" : "Freie Figur")}
+              </div>
+            </div>
+          </div>
+          <div style={{ flex: "0 0 auto", width: 154, display: "flex", flexDirection: "column", gap: 6 }}>
+            <div style={{ width: 154, maxWidth: 154, overflow: "hidden" }}>
+              <MoveDiagram kind={char.kind} moveSpec={char.moveSpec} talente={chosen} breite={154} />
+            </div>
+            {reihen.map((z, ri) => <div key={ri} style={{ display: "flex", gap: 6 }}>
+              {Array.from({ length: ri === 0 ? 5 : z.length }, (_, i) => {
+                const rg = z[i];
+                return rg && chosen.includes(rg.id)
+                  ? <AbilityIcon key={i} id={rg.id} size={26} />
+                  : <span key={i} style={{ width: 26, height: 26, borderRadius: 7, display: "block",
+                      border: "1px dashed rgba(233,207,138,.32)", background: "rgba(8,5,14,.4)",
+                      opacity: rg ? .75 : .45 }} />;
+              })}
+            </div>)}
+          </div>
+        </div>
+        {/* der Satz, mittig unter beiden Spalten */}
+        {!epic && (en ? char.flavorEn : char.flavorDe) && <div className="gg-serif" style={{ margin: "9px 0 10px",
+          textAlign: "center", fontSize: 11.5, lineHeight: 1.4, color: "#cec7ab", fontStyle: "italic",
+          textShadow: "0 1px 5px rgba(0,0,0,.9)" }}>„{en ? char.flavorEn : char.flavorDe}“</div>}
+        {/* die Werte - nur wenn die alte Magie erwacht ist (v1.0.33) */}
+        {hpUnlocked(profile) && <div style={{ display: "flex", gap: 9 }}>
+          {[["rot", atk, en ? "Attack" : "Angriff", "#ffb3aa", "#e08a84"],
+            ["blau", maxHp, en ? "Life" : "Leben", "#b6cdff", "#8ba6e0"]].map(([art, wert, wort, hell, matt]) =>
+            <div key={art} style={{ flex: 1, display: "flex", alignItems: "center", gap: 8, padding: "6px 9px",
+              borderRadius: 11, background: "rgba(10,7,19,.72)", border: `1px solid ${T.line}` }}>
+              <WertZeichen art={art} id={char.id} />
+              <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
+                <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8 }}>
+                  <span style={{ font: "800 15px/1 Georgia, serif", color: hell }}>{wert}</span>
+                  {!maxed && <b style={{ font: "800 11.5px/1 Georgia, serif", color: "#c4b5fd",
+                    textShadow: "0 0 7px rgba(167,139,250,.75)" }}>+1</b>}
+                </div>
+                <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8 }}>
+                  <span style={{ font: "600 8.5px/1 Georgia, serif", letterSpacing: ".11em", textTransform: "uppercase", color: matt }}>{wort}</span>
+                  {!maxed && <span style={{ font: "600 7.5px/1 Georgia, serif", letterSpacing: ".09em",
+                    textTransform: "uppercase", color: "#9a8fc0" }}>{en ? "next" : "nächste"}</span>}
+                </div>
+              </div>
+            </div>)}
+        </div>}
+      </div>;
+    })() : (
     <div style={{ display: "flex", gap: 13, alignItems: "stretch", cursor: onToggle ? "pointer" : "default" }}
       onClick={onToggle ? (e) => { e.stopPropagation(); onToggle(); } : undefined}>
       {/* v1.0.65 (Besitzerentscheid): DAS BILD STEHT FREI - wie beim Monster.
@@ -705,6 +877,7 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
         </div>
       </div>
     </div>
+    )}
     {/* v1.16.0: DIE BUNDTAFEL - was die Kachel nicht mehr traegt, steht hier,
         in voller Breite unter dem Kopf, nicht in der schmalen Spalte neben dem Bild */}
     {open && <BundTafel profile={profile} charId={char.id} en={en} status={unlocked ? "eigen" : null} />}
@@ -795,7 +968,11 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
         ))}
       </div>;
     })()}
-    {open && unlocked && char.kind !== "P" && (
+    {/* v1.24.0: im grossen Blatt steht das Zugbild jetzt OBEN auf der Buehne,
+        neben der Figur - der eigene Abschnitt weiter unten zeigte es ein
+        zweites Mal. Die Legende zieht mit nach oben, sobald der (i) dort
+        sitzt; bis dahin bleibt sie hier bei der kleinen Fassung. */}
+    {open && unlocked && char.kind !== "P" && !bigArt && (
       <div style={{ marginTop: 12 }}>
         <div className="gg-serif" style={{ fontSize: 10, letterSpacing: ".12em", color: "#c9b26a", marginBottom: 5 }}>{(en ? "Base moves" : "Grundzüge").toUpperCase()}</div>
         <MoveDiagram kind={char.kind} moveSpec={char.moveSpec} />

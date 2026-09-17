@@ -43,19 +43,21 @@ flavorDe: "Geboren, geopfert zu werden — entschlossen, es nicht zu bleiben.", 
       { level: 9, ability: "pawn_early_promo" },
       // Stufen II & III (the hero alone climbs to 30): quiet, passive gains —
       // the splendor is the point, the shields are the nod to it
+      /* v1.24.0: die Schilde lagen auf 12 bis 58 - mit der Kuerzung auf
+         zwanzig Stufen waren neun davon unerreichbar. Sie sind auf den
+         Bereich 10 bis 20 umgerechnet (12->10, 16->11, 21->12, 26->13,
+         34->15, 40->16, 46->17, 52->19, 58->20), im gleichen Abstand
+         zueinander wie vorher. Der Held bekommt damit dieselben elf Schilde
+         wie bisher, nur in zwanzig statt in achtundfuenfzig Stufen. */
+      { level: 10, shield: 1 },
+      { level: 11, shield: 1 },
       { level: 12, shield: 1 },
+      { level: 13, shield: 1 },
+      { level: 15, shield: 1 },
       { level: 16, shield: 1 },
-      { level: 21, shield: 1 },
-      { level: 26, shield: 1 },
-      // Stufen IV-VI: the long road (31-60). Every ten levels the armor grows
-      // another plate — with +1 HP per level and +1 ATK every other level
-      // coming for free, the shields keep the WALL feeling without breaking
-      // the sums: the price does the balancing (2/3/4/6/8/10 SP per step).
-      { level: 34, shield: 1 },
-      { level: 40, shield: 1 },
-      { level: 46, shield: 1 },
-      { level: 52, shield: 1 },
-      { level: 58, shield: 1 },
+      { level: 17, shield: 1 },
+      { level: 19, shield: 1 },
+      { level: 20, shield: 1 },
     ],
   },
   knight: {
