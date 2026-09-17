@@ -82,8 +82,8 @@ ok(`mirrored armies fight a full game — shortest ${floorOver(g5)} plies (>= 20
 /* v1.24.0: Stufe 30 gibt es nicht mehr - die Hoechststufe ist 20. Die elf
    Schilde liegen jetzt zwischen Stufe 4 und 20; auf halbem Weg (Stufe 10)
    sind es drei. */
-ok("der Gambit traegt auf halbem Weg drei Schilde, auf Stufe 20 elf",
-  resolveCharacter(CHARACTERS.gambit, 10, null).shield === 3 && resolveCharacter(CHARACTERS.gambit, 20, null).shield === 11);
+ok("der Gambit traegt auf halbem Weg drei Schilde, auf Stufe 20 neun - hp 35, unter dem Doppelten des Mittels",
+  resolveCharacter(CHARACTERS.gambit, 10, null).shield === 3 && resolveCharacter(CHARACTERS.gambit, 20, null).shield === 9);
 
 // ── strikes from afar & the crowned head ─────────────────────────────────────
 import { legalMovesFrom, idx } from "./src/core/index.js";

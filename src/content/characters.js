@@ -49,12 +49,17 @@ flavorDe: "Geboren, geopfert zu werden — entschlossen, es nicht zu bleiben.", 
          34->15, 40->16, 46->17, 52->19, 58->20), im gleichen Abstand
          zueinander wie vorher. Der Held bekommt damit dieselben elf Schilde
          wie bisher, nur in zwanzig statt in achtundfuenfzig Stufen. */
+      /* v1.24.1 (Besitzer): "Er darf nicht doppelt so viel haben" und "ein
+         bisschen weniger als der Drache". GEMESSEN auf Hoechststufe: Drache
+         hp 47, Gambit mit elf Schilden hp 39 - unter dem Drachen, aber mehr
+         als das Doppelte der Dame (16) und des Mittelwerts aller Figuren
+         (18). Zwei Schilde weniger (die auf 11 und 16 fallen weg) bringen ihn
+         auf hp 35: unter dem Doppelten des Mittels (36), 1,5-mal der Bauer,
+         deutlich unter dem Drachen. Neun Schilde statt elf. */
       { level: 10, shield: 1 },
-      { level: 11, shield: 1 },
       { level: 12, shield: 1 },
       { level: 13, shield: 1 },
       { level: 15, shield: 1 },
-      { level: 16, shield: 1 },
       { level: 17, shield: 1 },
       { level: 19, shield: 1 },
       { level: 20, shield: 1 },

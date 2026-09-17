@@ -95,7 +95,7 @@ ok("der Aufstieg kostet 2/2/3/3/4/4 je Rang", upgradeCost("gambit", 1) === 2 && 
    9 SP erreicht - Faktor 36 fuer dasselbe Ziel. Jetzt 59 SP, rund das
    Sechsfache eines Bauern: ein Heldenaufschlag, keine Mauer. */
 ok("der ganze Weg auf 20 kostet 59 SP", Array.from({ length: 19 }, (_, i) => upgradeCost("gambit", i + 1)).reduce((a, b) => a + b, 0) === 59);
-ok("die Schilde reichen bis zur Zwanzig: 11 auf Stufe 20", resolveCharacter(CHARACTERS.gambit, 20, null).shield === 11 && resolveCharacter(CHARACTERS.gambit, 10, null).shield === 3);
+ok("die Schilde reichen bis zur Zwanzig: 9 auf Stufe 20 (v1.24.1: zwei weniger, damit er unter dem Doppelten bleibt)", resolveCharacter(CHARACTERS.gambit, 20, null).shield === 9 && resolveCharacter(CHARACTERS.gambit, 10, null).shield === 3);
 ok("the gambit can be upgraded past ten", characterLevel(upgradePiece({ sp: 99, pieces: { levels: { gambit: 10 } } }, "gambit"), "gambit") === 11);
 /* v1.0.49 (Besitzerentscheid): DER HELD STEHT VON ANFANG AN. Bis v1.0.48 trat
    er erst nach drei geschafften Stationen an. Der Gambit ist aber die Figur,

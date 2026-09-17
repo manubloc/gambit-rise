@@ -1,5 +1,14 @@
 # Changelog - Grand Gambit
 
+## 1.24.1
+- DER GAMBIT BLEIBT UNTER DEM DOPPELTEN (Besitzer: "Er darf nicht doppelt so
+  viel haben ... ein bisschen weniger als der Drache"). Gemessen auf
+  Hoechststufe: Drache hp 47, Gambit mit elf Schilden hp 39 - unter dem
+  Drachen, aber mehr als das Doppelte der Dame (16) und des Mittelwerts aller
+  Figuren (18). Zwei Schilde weniger (Stufe 11 und 16) bringen ihn auf hp 35:
+  unter dem Doppelten des Mittels, 1,5-mal der Bauer, deutlich unter dem
+  Drachen. Neun Schilde statt elf.
+
 ## 1.24.0
 - DAS FIGURENBLATT NACH ENTWURF 8 GEBAUT. Acht Runden Entwurf mit dem
   Besitzer, jede an gerenderten Blaettern entschieden: EINE Buehne mit der
