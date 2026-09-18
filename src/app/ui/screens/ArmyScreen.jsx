@@ -650,6 +650,9 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
 
   const level = unlocked ? characterLevel(profile, char.id) : 1;
   /* v1.0.79: das Bildnis dieser Figur - beim Gambit das seines RANGES. */
+  /* v1.24.5: dasselbe Bildnis wie die Kachel. Beim Gambit und beim Bauern
+     haengt das Gemaelde an der Stufe (gambit-t1..t6); zeigte das Blatt eine
+     andere Stufe als die Kachel, standen zwei verschiedene Figuren da. */
   const portraet = bildnisVon(char.id, level);
   const chosen = chosenAbilities(profile, char.id);
   const { abilities, shield } = resolveCharacter(char, level, chosen);
@@ -718,7 +721,15 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
                 <img src={portraet} alt="" draggable={false} style={{ position: "absolute", inset: 0,
                   width: "100%", height: "100%", objectFit: "contain", objectPosition: "center" }} />
                 {bandBekannt(pid) && <SockelBand paintedId={pid} id={`blatt-${char.id}`}
-                  leben={1} kraft={hpUnlocked(profile) ? Math.max(0, Math.min(1, atk / 12)) : 0}
+                  /* ── v1.24.5 (Besitzer): DIESELBEN ANTEILE WIE DIE KACHEL ──
+                     "Ich habe Figuren, wo im Pop-up das eine andere Wertigkeit
+                      hat wie in der Uebersicht. Das geht nicht."
+                     Richtig, und es war meine eigene Erfindung: hier stand
+                     leben=1 und kraft=atk/12 - eine zweite Rechnung neben
+                     rohrAnteile(), das die Kachel und das Gefecht benutzen.
+                     Jetzt liest das Blatt dieselbe Quelle wie die Kachel. */
+                  {...(() => { const w = rohrAnteile({ hp: maxHp, atk, level, maxLevel: maxLevelFor(char.id) });
+                    return { leben: w ? w.leben : 0, kraft: w ? w.kraft : 0 }; })()}
                   grau={!hpUnlocked(profile)} ausrichtung="mitte" />}
               </div>
             </div>

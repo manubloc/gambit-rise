@@ -1,5 +1,39 @@
 # Changelog - Grand Gambit
 
+## 1.24.4
+- WARUM DIE FIGUREN AUF DEM BRETT NIE ANGEPASST WURDEN - und jetzt sind. Das
+  Element, das die Figur setzt, traegt die Atmen-Animation ggAtmen, und die
+  animiert `transform`. Eine laufende Animation auf `transform` ueberschreibt
+  die Inline-Eigenschaft `transform` vollstaendig, solange sie laeuft - sie
+  laeuft endlos. Deshalb war jede Skalierung und jeder Versatz dort seit jeher
+  wirkungslos: die Handtabelle PAINTED_FIT, die Seitwaertskorrektur der Dame,
+  jede Hebung. Bewiesen mit einem fest eingetragenen Hebebetrag, der keinen
+  Pixel bewegte. Loesung: die einzelnen Eigenschaften `translate` und `scale`
+  statt `transform` - eine Animation auf `transform` laesst sie unangetastet,
+  der Browser setzt beides zusammen. Danach bewegten sich die Figuren zum
+  ersten Mal: Turm 88 -> 84 px, Bauer 75 -> 79 px.
+- EIN MASS FUER ALLES: das Brett rechnet die gemessene Skalierung aus
+  sockelband.json wie Hofstaat und Figurenblatt (Teller auf 136, Figur auf
+  Bauernhoehe, Ausrichtung auf den Teller). Die Handtabelle bleibt im Code;
+  FIT_GEMESSEN = false holt sie zurueck. Der Versatz in Prozent der
+  Figurenhoehe, nicht in em - Einheiten sauber getrennt.
+- DER RING STEHT IMMER, auch ohne Werte: eigene Figuren weissgrau, Gegner
+  schwarz. Vorher 0 Baender auf dem Brett, jetzt 32.
+- GEGNERFELDER VIOLETT GETOENT statt Kontur - die Kontur bleibt dem
+  Anwaehlen vorbehalten. Abgeschwaecht und zum Rand auslaufend.
+- EINE WERTEQUELLE FUER KACHEL UND BLATT: das Blatt las leben=1 und
+  kraft=atk/12 (meine Erfindung), die Kachel rohrAnteile(). Jetzt beide
+  rohrAnteile().
+- DAS BAND IM FIGURENBLATT SITZT WIE AUF DER KACHEL: Bild und Band in EINEM
+  Kasten, der die Verwandlung traegt. Gemessen 0/0/0/0 px Abweichung.
+- OFFEN, gemessen: die Offiziersreihe sitzt noch rund 4 px tiefer als Bauer
+  und Gambit (Luft 4,7-6,1 gegen 8,7-9,9 px); die obersten 8 px der
+  hoechsten Koepfe der gegnerischen Reihe schneidet ein Rahmen mit
+  overflow hidden ab; die harte Kante des Lilas am Feldrand fehlt.
+- Fuenf Proben in test_ui standen auf "gleiches y" fuer Bauer und Gambit-
+  Raenge; mit der gemessenen Anpassung ist die BODENLINIE das Mass, nicht die
+  Zahl - sie pruefen jetzt, wo die Bodenkante landet.
+
 ## 1.24.3
 - DER 8x8-UMBAU IST DRIN (Besitzerentscheid "Tabula Rasa" vom 16.9.). Arena
   (10x10) und Scharmuetzel (6x6) sind gestrichen; es bleiben Klassik, Hof und
@@ -21,24 +55,6 @@
   einzeln portiert.
 - Eine Probe stand noch auf der Arena-Zehnerreihe mit vier Springern und
   steht jetzt auf der Schachreihe mit acht Plaetzen.
-
-## 1.24.3
-- EIN PUNKTEBUDGET FUER ALLE (Besitzer: "In Summe darf jede Figur, mit
-  Ausnahme vielleicht des Drachen und des Gambits, immer nur die gleiche
-  Punktzahl haben"). GEMESSEN, und der Befund war ueberraschend: Grundleben
-  plus Angriff ist bei JEDER Figur genau 24 - das Budget gab es also schon.
-  Ungleich machten es allein die Schilde: der Koenig hatte keinen, die meisten
-  einen, Bauer, Springer, Attentaeter, Waechter, Seherin und Paladin drei.
-  Daraus ergaben sich Summen von 24 bis 30. Jetzt tragen alle 25 normalen
-  Figuren genau ZWEI Schilde und damit alle die Summe 28. Die Unterschiede
-  bleiben, wo sie hingehoeren: in der Aufteilung (Attentaeter 20/8 gegen
-  Schildtraeger 4/24) und in den Zuegen.
-- Die zwei Ausnahmen: Grand Gambit 42 (1,5-mal) und Drache 54 (1,9-mal). Der
-  Drache nimmt vier Felder ein; nach dem Wunsch des Besitzers duerfte er
-  deutlich mehr tragen (vier- bis fuenffach). Das ist nicht gemacht - eine
-  Verdopplung seiner Werte ohne Balancelauf waere geraten, nicht gemessen.
-- Neue Probe in test_balance.mjs: alle normalen Figuren auf derselben Summe,
-  und alle mit genau zwei Schilden.
 
 ## 1.24.2
 - DAS BAND IM FIGURENBLATT SITZT JETZT WIE AUF DER KACHEL (Besitzer: "auch

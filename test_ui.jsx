@@ -1777,14 +1777,20 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
   const bauer = paintedFitFor({ kind: "P" });
   const held  = paintedFitFor({ kind: "P", hero: true, tier: 1 });
   ok("Bauer und Gambit Stufe I sind gleich hoch gezeichnet", bauer.h === held.h);
-  ok("und stehen auf derselben Fusslinie", bauer.y === held.y);
+  /* v1.24.5c: mit der GEMESSENEN Anpassung ist "gleiches y" nicht mehr das
+     Mass - jedes Gemaelde hat seine eigene Bodenkante, und y ist genau der
+     Betrag, der sie auf die gemeinsame Linie 555 zieht. Gleich sein muss die
+     LINIE, nicht die Zahl. Geprueft wird deshalb, wo die Bodenkante landet. */
+  const MASS = JSON.parse((await import("node:fs")).readFileSync("src/app/ui/board/sockelband.json", "utf8"));
+  const linie = (id, f) => { const m = MASS[id]; return (f.y || 0) + ((m.H - m.boden) * f.h / m.H) * 100; };
+  ok("und stehen auf derselben Bodenlinie", Math.abs(linie("pawn", bauer) - linie("gambit-t1", held)) < 0.6);
   /* v1.0.73 (Besitzer): der Held ist in JEDEM Rang so gross wie ein Bauer und
      steht auf derselben Fusslinie - der Aufstieg zeigt sich am Bild, nicht an
      der Koerpergroesse. v1.0.66 hatte nur Stufe I geradegezogen. */
   for (let t = 1; t <= 6; t++) {
     const r = paintedFitFor({ kind: "P", hero: true, tier: t });
     ok(`Rang ${t}: gleiche Groesse wie der Bauer`, r.h === bauer.h);
-    ok(`Rang ${t}: gleiche Fusslinie wie der Bauer`, r.y === bauer.y);
+    ok(`Rang ${t}: gleiche Bodenlinie wie der Bauer`, Math.abs(linie(t === 1 ? "gambit-t1" : "gambit-t" + t, r) - linie("pawn", bauer)) < 0.6);
   }
 }
 {
@@ -1838,7 +1844,11 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
   const { readFileSync: _rfR } = await import("node:fs");
   const q = _rfR("src/app/ui/board/PieceGlyph.jsx", "utf8");
   ok("beide Bilder werden an der Sockelkante geschnitten", (q.match(/clipPath: schnitt, WebkitClipPath: schnitt/g) || []).length === 2);
-  ok("der Schnitt gilt nur im HP-Gefecht, nicht in Klassik", q.includes("!klassisch && hpMode && piece.maxHp > 0"));
+  /* v1.24.4: der RING steht jetzt immer (Besitzer: "wir haben doch dieses
+     graue Band, wenn noch gar nichts dargestellt ist"), der SCHNITT dagegen
+     nach wie vor nur im HP-Gefecht - er greift ja nur fuer Gemaelde ohne
+     Sockelmessung. Die Bedingung heisst deshalb jetzt werteAn statt hpMode. */
+  ok("der Schnitt gilt nur im HP-Gefecht, nicht in Klassik", q.includes("!klassisch && werteAn && !bandDa"));
   ok("das Rohr sitzt auf der Sockellinie, nicht auf einer festen Tiefe",
     q.includes("const mitte = sockelLinieEm(piece)") && !q.includes("ROHR_TIEFE_UNTER_FUSS"));
   const { sockelLinieEm } = await import("./src/app/ui/board/PieceGlyph.jsx");

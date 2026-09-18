@@ -102,7 +102,10 @@ function segment(m, h, tA, tB, fuss = 0) {
    keinem Teller. */
 const OHNE_BAND = new Set(["schatzkammer", "haendler", "standard"]);
 
-export function SockelBand({ paintedId, leben = 0, kraft = 0, grau = false, id = "sb", ausrichtung = "mitte" }) {
+/* `hell`: die helle Graufassung fuer die EIGENEN Figuren (Besitzer: "meine
+   eigenen Figuren brauchen natuerlich die helle Variante"). Ohne sie wirken
+   beide Seiten gleich, weil das Brett den Gegner nur dunkler filtert. */
+export function SockelBand({ paintedId, leben = 0, kraft = 0, grau = false, hell = false, id = "sb", ausrichtung = "mitte" }) {
   const m = MASS[paintedId];
   if (!m || OHNE_BAND.has(paintedId)) return null;
   /* ── BANDHOEHE: DIE GEMESSENE TELLERHOEHE ────────────────────────────────
@@ -186,8 +189,18 @@ export function SockelBand({ paintedId, leben = 0, kraft = 0, grau = false, id =
       <linearGradient id={u("blau")} x1="0" y1="0" x2="0" y2="1">
         <stop offset="0" stopColor="#8fb4ff" /><stop offset=".35" stopColor="#2d63e6" /><stop offset="1" stopColor="#0d2a7a" />
       </linearGradient>
+      {/* ── v1.24.4 (Besitzer): DER LEERE RING ──────────────────────────────
+          "Wenn der Lebensbalken noch nicht aktiv ist, dann fuellst du diesen
+           schwarzen Anteil mit so einem grauen Verlauf, von mir aus auch mit
+           einem weissgrauen - und fuer die Gegner nehmen wir dann diese
+           Variante, wenn es leer ist."
+          Also: eigene Figur ohne Werte -> weissgrauer Verlauf, Gegner ohne
+          Werte -> das Schwarz wie bisher. Derselbe Ring, derselbe Bau, nur
+          andere Stufen im Verlauf. */}
       <linearGradient id={u("dunkel")} x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stopColor="#3a3a44" /><stop offset=".4" stopColor="#15151b" /><stop offset="1" stopColor="#050507" />
+        {hell
+          ? <><stop offset="0" stopColor="#f2efe8" /><stop offset=".4" stopColor="#cfc9bd" /><stop offset="1" stopColor="#6f6a60" /></>
+          : <><stop offset="0" stopColor="#3a3a44" /><stop offset=".4" stopColor="#15151b" /><stop offset="1" stopColor="#050507" /></>}
       </linearGradient>
       <linearGradient id={u("gold")} x1="0" y1="0" x2="0" y2="1">
         <stop offset="0" stopColor="#f6e2a6" /><stop offset=".5" stopColor="#c99a45" /><stop offset="1" stopColor="#6e4e1c" />

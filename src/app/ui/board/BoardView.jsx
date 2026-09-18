@@ -512,6 +512,24 @@ export function BoardView({ state, onMove, interactive, lastMove, mattSeite = nu
           display: "grid", placeItems: "center", cursor: interactive ? "pointer" : "default" }}>
           {randVerlauf && <div aria-hidden style={{ position: "absolute", inset: 0, pointerEvents: "none",
             zIndex: 1, background: randVerlauf }} />}
+          {/* ── v1.24.4 (Besitzer): DAS GEGNERFELD IST VIOLETT GETOENT ────────
+              "Markiere einfach die Gegnerfelder ... vielleicht machst du es
+               noch ein bisschen sanfter und nicht die Kontur, sondern wirklich
+               nur die Faerbung des Schachfeldes mit dem Lila. Und wenn man
+               dann die Figur anwaehlen wuerde, wuerde die Kontur kommen."
+              Also nur eine Toenung, kein Rahmen - die Kontur bleibt dem
+              Anwaehlen vorbehalten und hebt sich dadurch deutlich ab. Die
+              Gemaelde bleiben unangetastet: wer wem gehoert, sagt das Feld. */}
+          {piece && piece.color !== pov && <div aria-hidden data-gegnerfeld="" style={{ position: "absolute", inset: 0,
+            pointerEvents: "none", zIndex: 1,
+            /* v1.24.5 (Besitzer): "der Farbton Lila ist viel zu wenig, man sieht ja gar
+               nichts" - die Toenung lag bei .34 im Kern und wurde durch
+               mixBlendMode screen zusaetzlich verduennt. Jetzt kraeftig und
+               ohne Mischmodus, aber weiterhin OHNE Kontur. */
+            /* v1.24.5b (Besitzer): "etwas zu stark, aber gerne mit minimalem Verlauf
+               zum Schachbrettfeld" - also schwaecher und zu den Raendern hin
+               auslaufend, damit das Feld darunter noch durchkommt. */
+            background: "radial-gradient(112% 112% at 50% 44%, rgba(139,92,246,.46) 0%, rgba(116,58,220,.34) 52%, rgba(90,44,170,.10) 88%, rgba(90,44,170,0) 100%)" }} />}
           {(feld || !ground) && (() => {
             // DIE FELDER DES BESITZERS (v0.66) SIEGEN AUCH UEBER DEM BODEN:
             // seine Kacheln SIND die Felder - der gemalte Grund weicht. liegt ein Kapitel-Streifen an,

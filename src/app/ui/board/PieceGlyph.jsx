@@ -6,7 +6,7 @@ import { ABILITIES, TAGS } from "../../../content/index.js";
 import { T } from "../theme.js";
 import { PieceArt } from "./PieceArt.jsx";
 import { BladesIc } from "../icons.jsx";
-import { paintedForPiece, paintedById, paintedFitFor, CLASSIC_PAINTED, klassikFor } from "./paintedArt.js";
+import { paintedForPiece, paintedById, paintedFitFor, FIT_GEMESSEN, CLASSIC_PAINTED, klassikFor } from "./paintedArt.js";
 import { gegnerStil, gefahrVon, glutTon, glutFilter, GLUT_SCHEIN, sockelVerlauf } from "../gegnerstil.js";
 import { holeSockelKante, sockelKanteAusCache, KANTE_FALLBACK,
   holeFusslinie, fusslinieAusCache, HAUSLINIE } from "./sockelmass.js";
@@ -187,8 +187,12 @@ export function sockelLinieEm(piece) {
   const kante = (painting && sockelKanteAusCache(painting)) || KANTE_FALLBACK;
   const fuss = (painting && fusslinieAusCache(painting)) ?? HAUSLINIE;
   const ps = piece.bossId ? 1.14 : 0.99;               // pieceSize im HP-Gefecht
-  const ausgleich = (fuss - HAUSLINIE) * fit.h * 1.16;  // dieselbe Rechnung wie im Glyph
-  const y = (fit.y || 0) + ausgleich;                   // positiv = nach unten
+  /* v1.24.5c: die gemessene Anpassung liefert y in PROZENT der Figurenhoehe
+     (rund 1,3 em), die Handtabelle in em - hier auf em gebracht, und ohne die
+     alte Fusslinien-Korrektur, die im gemessenen Fall entfaellt. */
+  const yFit = fit.yProzent ? (fit.y || 0) / 100 * 1.3 : (fit.y || 0);
+  const ausgleich = FIT_GEMESSEN ? 0 : (fuss - HAUSLINIE) * fit.h * 1.16;
+  const y = yFit + ausgleich;                           // positiv = nach unten
   return 0.015 - y + kante * ps * 1.16 * fit.h;         // 0.015 = paddingBottom des Glyphs
 }
 
@@ -382,6 +386,8 @@ export function StatTriad({ piece, focus, shrink = 1 }) {
 /* v1.0.38: "aufsBrett" waehlt die KLEINE Fassung des Gemaeldes. Nur das
    Brett setzt sie - dort steht die Figur auf 50 px und 576 px waeren
    neunfach zu viel. Hofstaat, Popup und Zoom bleiben gross. */
+const BRETT_HEBUNG = 0;      // v1.24.5c: die Probe hat ihren Dienst getan - die Hebung liegt in paintedArt (HEBUNG)
+
 export function PieceGlyph({ piece, showLevel = true, pov = "w", artStyle = "painted", focus = false, big = false, fliegt = false, aufsBrett = false, effekt = null }) {
   if (!piece) return null;
   const white = piece.color === "w";
@@ -623,8 +629,18 @@ export function PieceGlyph({ piece, showLevel = true, pov = "w", artStyle = "pai
      indicator, real gameplay"). Der Teller wird nicht mehr abgeschnitten -
      er TRAEGT jetzt die Anzeige, wie in der Vorlage. Der Schnitt aus v1.14.1
      bleibt nur fuer Gemaelde ohne Sockelmessung. */
-  const bandDa = ROHR_STATT_PERLEN && !!painting && !klassisch && hpMode && piece.maxHp > 0 && bandBekannt(paintedIdOf(painting));
-  const schneide = ROHR_STATT_PERLEN && !!painting && !big && !klassisch && hpMode && piece.maxHp > 0 && !bandDa;
+  /* ── v1.24.4 (Besitzer): DAS BAND STEHT IMMER ────────────────────────────
+     "Die Baender sind hier unten gar nicht drin. Wir haben doch dieses graue
+      Band, wenn noch gar nichts dargestellt ist."
+     Richtig - bandDa verlangte hpMode, also trug eine Partie ohne Werte gar
+     keinen Ring. Der Sockel ist aber das Erkennungszeichen der Figur, nicht
+     nur eine Lebensanzeige: ohne Werte steht er grau da (die Fassung, die im
+     Entwurf "ohne Werte" hiess), mit Werten rot fuer Leben und blau fuer
+     Kraft. Die Gegnerseite wird vom Brett ohnehin gedunkelt, also liest sich
+     ihr Grau von selbst dunkler als das eigene. */
+  const werteAn = hpMode && piece.maxHp > 0;
+  const bandDa = ROHR_STATT_PERLEN && !!painting && !klassisch && bandBekannt(paintedIdOf(painting));
+  const schneide = ROHR_STATT_PERLEN && !!painting && !big && !klassisch && werteAn && !bandDa;
   const schnitt = schneide ? `inset(0 0 ${(sockelKante * 100).toFixed(2)}% 0)` : undefined;
   useEffect(() => {
     let lebt = true;
@@ -734,11 +750,38 @@ export function PieceGlyph({ piece, showLevel = true, pov = "w", artStyle = "pai
            darf groesser sein als ein Bauer - sie soll nur auf derselben Linie
            stehen. Ohne Messung (noch nicht geladen) ist der Ausgleich null,
            also genau der Stand von vorher. */
-        transform: (() => {
-          const ausgleich = big ? 0 : (fussLinie - HAUSLINIE) * fit.h * 1.16;
-          const y = (fit.y || 0) + ausgleich;
-          return (fit.h !== 1 || y !== 0) ? `translate(0, ${y.toFixed(4)}em) scale(${fit.h})` : undefined;
-        })(), transformOrigin: "50% 100%" }}>
+        /* ── v1.24.5c: WARUM DIE VERWANDLUNG NIE ANKAM ─────────────────────
+           Besitzer: "Finde jetzt raus, wie du die Figuren verschiebst - und es
+           muss immer auch in Kombination mit der Animation passieren."
+
+           GEMESSEN, mit einem fest eingetragenen Hebebetrag als Probe: keine
+           Bewegung, kein Pixel. Und dann gelesen: DIESES Element traegt die
+           Atmen-Animation ggAtmen (oben in derselben style-Liste), und die
+           animiert `transform`. Eine laufende CSS-Animation auf `transform`
+           UEBERSCHREIBT die Inline-Eigenschaft `transform` vollstaendig,
+           solange sie laeuft - und sie laeuft endlos. Deshalb war jede
+           Skalierung und jeder Versatz hier seit jeher wirkungslos: die
+           Handtabelle PAINTED_FIT, die gemessene Anpassung, die Hebung, die
+           Mitte der Dame. Die Figuren standen immer so, wie sie im Bild
+           sitzen, plus Atmen. Der Kommentar von v1.0.76 ahnte das Problem
+           ("damit sich zwei transform-Animationen nie mehr ueberschreiben"),
+           legte aber nur die Sprung-Animationen auf eine andere Ebene - die
+           Anpassung blieb hier, unter dem Atmen begraben.
+
+           LOESUNG: die EINZELNEN Verwandlungseigenschaften `translate` und
+           `scale` statt `transform`. Sie sind eigene CSS-Eigenschaften, eine
+           Animation auf `transform` laesst sie unangetastet, und der Browser
+           setzt beides zusammen (translate, dann scale, dann transform). So
+           atmet die Figur UND steht dabei richtig. */
+        ...(() => {
+          const ausgleich = (big || FIT_GEMESSEN) ? 0 : (fussLinie - HAUSLINIE) * fit.h * 1.16;
+          const y = (fit.y || 0) + ausgleich - BRETT_HEBUNG;
+          const x = fit.x || 0;
+          /* gemessene Anpassung liefert y in PROZENT der Elementhoehe, die
+             Handtabelle in em - beide Einheiten sauber getrennt */
+          const yEinheit = fit.yProzent ? "%" : "em";
+          return { translate: `${(x * 100).toFixed(3)}% ${y.toFixed(3)}${yEinheit}`, scale: `${fit.h}`, transformOrigin: "50% 100%" };
+        })() }}>
         {/* v1.0.70 (Besitzer): DER LEBENSTRANK LAEUFT DURCH DIE FIGUR. Ein
             roter Heilglanz wandert einmal von unten nach oben - MASKIERT auf
             das eigene Gemaelde (WebkitMaskImage: die Bilddatei selbst), nicht
@@ -868,7 +911,8 @@ export function PieceGlyph({ piece, showLevel = true, pov = "w", artStyle = "pai
             maskImage: sockelVerlauf(sockelKante, nurSockel),
             userSelect: "none", pointerEvents: "none" }} />
           {bandDa && (() => { const { leben, kraft } = rohrAnteile(piece);
-            return <SockelBand paintedId={paintedIdOf(painting)} leben={leben} kraft={kraft} ausrichtung="unten" id={`sbb-${piece.charId || piece.bossId || "x"}`} />; })()}
+            return <SockelBand paintedId={paintedIdOf(painting)} leben={werteAn ? leben : 0} kraft={werteAn ? kraft : 0}
+              grau={!werteAn} hell={!!white} ausrichtung="unten" id={`sbb-${piece.charId || piece.bossId || "x"}`} />; })()}
           {/* v1.0.66: DER SCHATTEN, AUS DEM SIE AUFSTEIGT. Ein schmaler
               schwarzer Schleier ueber den untersten Prozenten - er nimmt dem
               Fuss die Helligkeit, ohne die Glut zu senken. Im weissen Ton

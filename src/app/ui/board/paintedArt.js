@@ -2,6 +2,7 @@
 // imports — esbuild-friendly — and a resolver from a live board piece to its
 // painting. Pieces without a painting yet fall back to the drawn SVG silently,
 // so the set may grow one figure at a time.
+import SOCKELMASS from "./sockelband.json";
 import pPawn from "../assets/painted/painted-pawn.webp";
 import pHaendler from "../assets/painted/painted-haendler.webp";  // der fahrende Haendler am Stand
 /* v1.0.91: DIE SCHATZKAMMER HAT IHR BILD (Besitzerwunsch) - dasselbe Format
@@ -528,16 +529,106 @@ export function kunstId(piece) {
 
 export const paintedFitById = (id) => PAINTED_FIT[id] || { h: 1, y: 0, x: 0 };
 
+/* ── v1.24.4: EIN MASS FUER ALLES (Besitzer) ───────────────────────────────
+   "Dann ist es wichtig, dass du es ueberall gleich machst, das ist mir total
+   wichtig ... mach es einfach wahrscheinlich genau gleich, dass du wirklich
+   auch zum Teil jetzt Copy-Pasten kannst."
+
+   GEMESSEN, warum Brett und Hofstaat nie zusammenpassten: sie rechneten nach
+   zwei voelig verschiedenen Verfahren. Der Hofstaat nimmt die GEMESSENEN
+   Masse aus sockelband.json (Teller auf 136 px, Figur auf Bauernhoehe), das
+   Brett eine handgepflegte Tabelle PAINTED_FIT mit 27 Eintraegen, deren
+   Kommentare "dritter Anlauf - und diesmal die richtige Zahl" lauten. Von den
+   27 vergleichbaren Figuren wichen sie im Mittel um 4 % ab, im Einzelfall um
+   17 %: Warlock und Attentaeter standen auf dem Brett 17 % groesser als im
+   Hofstaat, der Gambit 11 % kleiner, die Dame 11 % groesser.
+
+   Jetzt rechnet das Brett DIESELBE Formel. Die Tabelle bleibt im Code stehen
+   (Besitzer: "dass du auf jeden Fall das andere wieder herholen kannst") -
+   HANDTABELLE auf true schaltet sie zurueck. */
+export const FIT_GEMESSEN = true;   /* false = zurueck zur Handtabelle */
+const HANDTABELLE = !FIT_GEMESSEN;                 // true = die alte PAINTED_FIT-Tabelle
+const ZIEL_RX = 136, ZIEL_HOEHE = 561, BODEN_LINIE = 555;
+const HEBUNG_PCT = 4;    // Prozent der Figurenhoehe, gemeinsame Hebung aller Brettfiguren
+/* das Verhaeltnis, um das die Dame durch die Messung kleiner wurde -
+   dieselbe Schrumpfung gilt fuer die handgesetzten Meistermasse */
+const BOSS_ANPASSUNG = 1.0237 / 1.1329;
+const mSkal = (m) => Math.max(0.55, Math.min(1.35, ZIEL_RX / m.rx));
+const mStreck = (m) => (m.oben == null ? 1
+  : Math.max(0.92, Math.min(1.10, ZIEL_HOEHE / ((m.boden - m.oben) * mSkal(m)))));
+/* Das Brett kennt nur EINEN Faktor und einen Versatz in em, keine getrennte
+   Breite und Hoehe - deshalb tragen h und y dieselbe Rechnung wie im
+   Hofstaat, in dessen Einheiten umgesetzt. */
+function gemessenerFit(id) {
+  const m = SOCKELMASS[id];
+  if (!m) return null;
+  const k = mSkal(m), st = mStreck(m), ges = k * st;
+  const aus = Math.max(-8, Math.min(8, (((m.H - m.boden) * ges - (m.H - BODEN_LINIE)) / m.H) * 100));
+  /* Besitzer: "die muessen alle etwas hoeher sein. Der Turm ist gerade am
+     hoechsten - den noch minimal hoeher und dann die anderen alle
+     angleichen." Die Ausrichtung auf die gemeinsame Bodenlinie 555 macht das
+     Angleichen; HEBUNG hebt danach ALLE um denselben Betrag. */
+  /* ── v1.24.4: AUSGERICHTET WIRD DIE UNTERKANTE DES BANDES ────────────────
+     Besitzer: "Turm, Pferd, Laeufer, Dame, Koenig sind immer noch nicht auf
+     der Hoehe wie der Gambit ... die Dame ist am niedrigsten, dann das Pferd,
+     dann der Turm, dann der Koenig."
+     GEMESSEN, warum: bodenAusgleichProzent richtet die gemalte BODENKANTE aus
+     (alle innerhalb von 0,2 bis 2,1 %, also fast gleich). Sichtbar unten ist
+     aber seit v1.23.9 das BAND, und das haengt um (Hoehe - Standflaeche)
+     unter dieser Kante - bei jeder Figur anders weit. Genau diese Differenz
+     las das Auge als unterschiedliche Hoehe. Sie wird jetzt herausgerechnet:
+     ausgerichtet wird die Unterkante des Bandes, nicht die des Gemaeldes. */
+  /* v1.24.5c: die Korrektur um den Bandueberhang ist WEG. Sie mischte
+     Bildpixel und em, und sie war ohnehin nie sichtbar, weil die ganze
+     Verwandlung unter der Atmen-Animation lag. Jetzt, wo sie wirkt, richtet
+     bodenAusgleichProzent allein aus - wie im Hofstaat. */
+  /* v1.24.5d: GEMESSEN am Brett - Luft zur Feldkante: Offiziere 4,0-5,4 px,
+     Bauer und Gambit 9,0-9,7 px. Der Unterschied ist der BANDUEBERHANG: das
+     Band haengt um (Hoehe - Standflaeche) unter die Bodenkante, beim Turm
+     (Standflaeche 19) viel tiefer als beim Bauern (49). Ausgerichtet wird
+     deshalb die Unterkante des BANDES. In PROZENT der Elementhoehe, nicht in
+     em - das war der Einheitenfehler von vorhin. */
+  const bandHoch = Math.max(8, Math.round(46 / Math.max(0.2, ges)));
+  const haengt = Math.max(0, bandHoch - (m.teller || 0));       // Bildpixel unter der Bodenkante
+  const yPct = aus - HEBUNG_PCT - (haengt * ges / m.H) * 100;    // alles in Prozent der Hoehe
+  return { h: Number(ges.toFixed(4)), y: Number(yPct.toFixed(3)), yProzent: true, x: Number((-((m.cx - m.W / 2) / m.W)).toFixed(4)) };
+}
+
+/* dieselbe Nachschlagekette wie paintedForPiece, damit Mass und Gemaelde
+   immer zusammengehoeren */
+function paintedIdFuerStueck(piece) {
+  if (piece.bossId) return "boss-" + piece.bossId;
+  if (piece.hero) return "gambit-t" + Math.min(6, Math.max(1, piece.tier || 1));
+  return KIND2ID[piece.kind] || null;
+}
+
 export function paintedFitFor(piece) {
   if (!piece || piece.big) return { h: 1, y: 0, x: 0 };
+  /* ── AUSNAHME: DIE MEISTER ─────────────────────────────────────────────
+     Eine Probe hat es gefangen, und sie hat recht: mit der gemessenen
+     Skalierung waere boss-b01 auf 0,7575 gekommen gegen 1,0237 der Dame -
+     26 % kleiner. Ihre Teller sind breit gemalt, und weil das Mass den TELLER
+     auf 136 px zieht, schrumpft die Figur darueber. Die Aufstellung verspricht
+     aber, dass ein Meister den PLATZ DER DAME einnimmt; seine Groesse ist also
+     ein Spielversprechen, keine Eigenschaft des Gemaeldes. Fuer Meister bleibt
+     deshalb BOSS_FIT das Mass - aber MITSKALIERT: die Tabelle war gegen die
+     alte Dame (1,1329) abgestimmt, die gemessene steht auf 1,0237. Ohne den
+     Faktor waere der Meister plotzlich 8 % groesser als sie. */
+  if (!HANDTABELLE && !piece.bossId) {
+    const id = paintedIdFuerStueck(piece);
+    const f = id && gemessenerFit(id);
+    if (f) return f;
+  }
   if (piece.bossId) {
     // Same lookup chain as paintedForPiece, so the fit always matches the
     // portrait actually shown.
-    if (piece.bossId.startsWith("pb_")) return PIECE_BOSS_FIT[piece.bossId.slice(3)] || { h: 1.113, y: 0, x: 0 };
-    return BOSS_FIT[piece.bossId]
+    const anpassen = (f) => (!f || HANDTABELLE) ? f
+      : { ...f, h: Number((f.h * BOSS_ANPASSUNG).toFixed(4)), y: Number((f.y - HEBUNG_PCT / 100 * 1.3).toFixed(4)) };   /* Handtabelle rechnet in em: 4 % von ~1,3 em Figurenhoehe */
+    if (piece.bossId.startsWith("pb_")) return anpassen(PIECE_BOSS_FIT[piece.bossId.slice(3)] || { h: 1.113, y: 0, x: 0 });
+    return anpassen(BOSS_FIT[piece.bossId]
       || (piece.bossId === "b23" ? BOSS_FIT["archenemy"] : null)
       || (piece.bossId === "b25" ? BOSS_FIT["leaguemaster"] : null)
-      || BOSS_FIT[piece.art || ""] || { h: 1.113, y: 0, x: 0 };
+      || BOSS_FIT[piece.art || ""] || { h: 1.113, y: 0, x: 0 });
   }
   if (piece.hero) {
     const t = Math.min(6, Math.max(1, piece.tier || 1));
