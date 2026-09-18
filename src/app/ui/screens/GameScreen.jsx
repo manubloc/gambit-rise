@@ -110,15 +110,24 @@ const useMeasureEffect = typeof window !== "undefined" ? useLayoutEffect : useEf
 // the totals and the item buttons all measure from this.
 const HUD_PAD = 12;
 
-function ForceBadge({ hp, atk, neon, t }) {
-  // the army totals speak the SAME jewel language as every piece on the board
-  // NO PILL: the jewels ARE the badge — a frame around them only fought the
-  // orb's own rim. They stand bare, big, and close, exactly as on the board.
+/* ── v1.24.7 (Besitzer): KEINE BLASEN IM GEFECHT, SONDERN DER HOFWERT ──────
+   "Die Bubbles Angriff und Leben will ich nicht sehen. Dafuer in klein den
+    Hofwert."
+   Die beiden 38-px-Juwelen sassen ueber dem Brett und ueberdeckten im
+   Hochformat die obere Reihe (siehe Besitzerfoto: 181/442 lagen auf den
+   Figuren). Leben und Angriff stehen ohnehin an jeder Figur im Sockelband -
+   die Summe daneben war eine dritte Anzeige derselben Sache. Statt ihrer
+   steht jetzt klein der Hofwert der Seite: eine Zahl, die man sonst nirgends
+   im Gefecht sieht. */
+function ForceBadge({ hp, atk, neon, t, wert }) {
   return (
-    <span style={{ display: "inline-flex", alignItems: "center", gap: 2, whiteSpace: "nowrap",
-      filter: `drop-shadow(0 1px 2px rgba(0,0,0,.6)) drop-shadow(0 0 7px ${neon}44)` }}>
-      <StatOrbBadge kind="power" v={atk} size={38} />
-      <StatOrbBadge kind="life" v={hp} size={38} />
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 5, whiteSpace: "nowrap",
+      padding: "3px 9px", borderRadius: 999, background: "rgba(10,7,19,.66)",
+      border: `1px solid ${neon}55`, font: "700 11px/1 Georgia, serif", letterSpacing: ".04em",
+      color: neon, textShadow: "0 1px 3px rgba(0,0,0,.8)" }}>
+      <span style={{ font: "600 8.5px/1 Georgia, serif", letterSpacing: ".12em",
+        textTransform: "uppercase", opacity: .8 }}>{t("online.score")}</span>
+      {wert}
     </span>
   );
 }
@@ -1116,7 +1125,7 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
         minHeight: 26, marginBottom: -6, flex: "0 0 auto" }}>
         <span data-gg-tray="w"><Tray kinds={state.captured.b} color="w" /></span>
         <div style={{ flex: 1 }} />
-        {hpMode && <ForceBadge hp={F.b.hp} atk={F.b.atk} neon={T.magenta} t={t} />}
+        {hpMode && <ForceBadge hp={F.b.hp} atk={F.b.atk} neon={T.magenta} t={t} wert={F.b.hp + F.b.atk} />}
       </div>
 
 </>);
@@ -1330,7 +1339,7 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
           </div>}
         </div>
         <span data-gg-tray="b"><Tray kinds={state.captured.w} color="b" /></span>
-        {hpMode && <ForceBadge hp={F.w.hp} atk={F.w.atk} neon={T.lime} t={t} />}
+        {hpMode && <ForceBadge hp={F.w.hp} atk={F.w.atk} neon={T.lime} t={t} wert={F.w.hp + F.w.atk} />}
       </div>
 </>);
 

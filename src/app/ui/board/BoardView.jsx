@@ -937,8 +937,12 @@ export function BoardView({ state, onMove, interactive, lastMove, mattSeite = nu
   })();
 
   const board = (
+    /* v1.24.7 (Besitzer): "das Schachbrett ist zu nah an den oberen Buttons,
+       etwas mehr Abstand". Die obere Figurenreihe ragt ueber die Brettkante
+       hinaus (gemessen 49 px) und stiess deshalb an Zuruecl und Aufgeben.
+       12 px Luft oben, ohne die Brettgroesse anzutasten. */
     <div style={{ position: "relative", width: bw ?? `min(100%, ${maxPx}px)`, maxWidth: "100%",
-      margin: fitBox ? 0 : "0 auto", fontSize: glyph,
+      margin: fitBox ? "12px 0 0" : "12px auto 0", fontSize: glyph,
       borderRadius: 12, boxShadow: brettSchatten }}>
       <div style={{ ...(cell
           ? { width: bw, height: bh, gridTemplateColumns: `repeat(${W}, ${cell}px)`, gridTemplateRows: `repeat(${H}, ${cell}px)` }

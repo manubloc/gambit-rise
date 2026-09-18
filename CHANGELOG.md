@@ -1,5 +1,25 @@
 # Changelog - Grand Gambit
 
+## 1.24.7
+- KEINE BLASEN MEHR IM GEFECHT, SONDERN DER HOFWERT (Besitzer: "Die Bubbles
+  Angriff und Leben will ich nicht sehen. Dafuer in klein den Hofwert"). Die
+  zwei 38-px-Juwelen sassen ueber dem Brett und ueberdeckten im Hochformat die
+  obere Figurenreihe. Leben und Angriff stehen ohnehin an jeder Figur im
+  Sockelband - die Summe daneben war eine dritte Anzeige derselben Sache. An
+  ihrer Stelle steht klein der Hofwert der Seite.
+- MEHR ABSTAND NACH OBEN (Besitzer: "das Schachbrett ist zu nah an den oberen
+  Buttons"). Die obere Figurenreihe ragt gemessen 49 px ueber die Brettkante
+  und stiess an Zurueck und Aufgeben - 12 px Luft, ohne die Brettgroesse
+  anzutasten.
+- NOCH OFFEN, vom Besitzer gemeldet: die Faehigkeiten stehen DOPPELT (Pillen
+  im Talentband und der Zeichen-Slider darunter); die Auswahl am Slider
+  greift nicht sauber; die Schachfelder sind nicht perfekt ausgerichtet und
+  in Welt 1 runder; die Freistellung von boss-b22, boss-b25 und boss-b14 ist
+  im HQ-Original schon ausgefranst.
+- GEFUNDEN: die fal-Auftragshistorie ist noch erreichbar (268 Auftraege, 186
+  Bildadressen). Der Zugriff braucht rest.alpha.fal.ai/requests/ mit
+  start_time und end_time, page ab 1 und den Parameter size statt limit.
+
 ## 1.24.6
 - DAS BAND RECHNET IN PUNKTEN, NICHT IN PROZENTEN (Besitzer: "Es gibt bei
   jeder Figur immer irgendwie 100 Punkte ... wenn ich 80 Lebenspunkte habe und
