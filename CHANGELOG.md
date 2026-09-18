@@ -1,5 +1,18 @@
 # Changelog - Grand Gambit
 
+## 1.24.5
+- ROT IST EINE LEBENSANZEIGE, KEIN VERHAELTNIS (Besitzer: "Wenn der Balken
+  10 mm breit waere und die Figur greift an, dann muss das Leben um
+  entsprechend 10 sinken - und das tut es nicht"). GEMESSEN, warum nicht: Rot
+  und Blau wurden aus dem AKTUELLEN Leben als Anteil an Leben + Kraft
+  gerechnet. Sank das Leben von 20 auf 10, fiel Rot nur von 60 auf 43 % - und
+  Blau WUCHS von 40 auf 57 %, obwohl die Kraft gleich blieb; bei 0 Leben war
+  der Ring ganz blau. Das Band zeigte das Verhaeltnis, nicht den Schaden.
+  Jetzt teilt sich der Ring nach dem VOLLEN Leben (das Profil der Figur, wie
+  in der Uebersicht), und Rot schrumpft danach linear: halbes Leben, halbes
+  Rot (68 -> 34 %), Blau bleibt (32 -> 32 %), bei 0 Leben ist das Rot weg.
+  Drei Proben dazu in test_ui.
+
 ## 1.24.4
 - WARUM DIE FIGUREN AUF DEM BRETT NIE ANGEPASST WURDEN - und jetzt sind. Das
   Element, das die Figur setzt, traegt die Atmen-Animation ggAtmen, und die

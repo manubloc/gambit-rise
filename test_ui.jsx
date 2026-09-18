@@ -1592,6 +1592,15 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
     ok(`auf halber Stufe ist es zu ${Math.round((halb.leben + halb.kraft) * 100)} % voll (28 % Grundfuellung plus die Haelfte des Wegs)`, Math.abs((halb.leben + halb.kraft) - (0.28 + 0.72 * 9 / 19)) < 0.02);
     const eins = rohrAnteile({ hp: 6, atk: 3, level: 1, maxLevel: 10 });
     ok(`auf Stufe 1 ist etwas zu sehen (${Math.round((eins.leben + eins.kraft) * 100)} %, davon Rot ${Math.round(eins.leben * 100)} % und Blau ${Math.round(eins.kraft * 100)} %)`, eins.leben > 0.1 && eins.kraft > 0.1);
+    /* v1.24.5 (Besitzer): ROT IST EINE LEBENSANZEIGE. Halbes Leben, halbes
+       Rot - und Blau bleibt, was die Kraft ist. Vorher wuchs Blau, wenn das
+       Leben sank (Verhaeltnisrechnung); bei 0 Leben war der Ring ganz blau. */
+    const ganz = rohrAnteile({ hp: 20, maxHp: 20, atk: 6, level: 10, maxLevel: 10 });
+    const halbLeben = rohrAnteile({ hp: 10, maxHp: 20, atk: 6, level: 10, maxLevel: 10 });
+    const leer = rohrAnteile({ hp: 0, maxHp: 20, atk: 6, level: 10, maxLevel: 10 });
+    ok(`halbes Leben ist halbes Rot (${Math.round(ganz.leben * 100)} % -> ${Math.round(halbLeben.leben * 100)} %)`, Math.abs(halbLeben.leben - ganz.leben / 2) < 0.005);
+    ok(`Blau bleibt beim Schaden, was es war (${Math.round(ganz.kraft * 100)} % -> ${Math.round(halbLeben.kraft * 100)} %)`, Math.abs(halbLeben.kraft - ganz.kraft) < 0.005);
+    ok("bei 0 Leben ist das Rot weg, das Blau nicht", leer.leben === 0 && Math.abs(leer.kraft - ganz.kraft) < 0.005);
   }
 
   /* v1.9.1: DER MENUEHINTERGRUND FOLGT DEM KAPITEL. Besitzerbefund,

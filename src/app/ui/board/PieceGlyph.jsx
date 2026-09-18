@@ -164,7 +164,25 @@ export function rohrAnteile(piece) {
      bei 28 % und laeuft bis 100 % auf der Hoechststufe; das Profil
      (Rot zu Blau) bleibt, was es war. */
   const voll = 0.28 + 0.72 * ((stufe - 1) / (maxLv - 1));
-  return { leben: voll * hp / summe, kraft: voll * atk * KRAFT_GEWICHT / summe };
+  /* ── v1.24.5: ROT IST EINE LEBENSANZEIGE, KEIN VERHAELTNIS ────────────────
+     Besitzer: "Wenn der Balken 10 mm breit waere und die Figur greift an,
+     dann muss das Leben um entsprechend 10 sinken. Das Verhaeltnis muss sich
+     visuell so reduzieren - und das tut es nicht."
+     GEMESSEN, warum nicht: Rot und Blau wurden aus dem AKTUELLEN Leben als
+     Anteil an (Leben + Kraft) gerechnet. Sinkt das Leben von 20 auf 10, fiel
+     Rot nur von 60 auf 43 Prozent - und BLAU WUCHS von 40 auf 57, obwohl die
+     Kraft gleich blieb. Bei 0 Leben war der Ring ganz blau. Das Band zeigte
+     das Verhaeltnis, nicht den Schaden.
+     Jetzt: Rot und Blau werden aus dem VOLLEN Leben (maxHp) aufgeteilt - das
+     ist das Profil der Figur, wie in der Uebersicht. Rot schrumpft danach
+     LINEAR mit dem Leben: halbes Leben, halbes Rot. Blau bleibt, was die
+     Kraft ist. Zehn Schaden auf zwanzig Leben nehmen die Haelfte des Rots. */
+  const maxHp = Math.max(hp, piece.maxHp || hp);
+  const summeVoll = maxHp + atk * KRAFT_GEWICHT;
+  const rotVoll = voll * maxHp / summeVoll;
+  const blau = voll * atk * KRAFT_GEWICHT / summeVoll;
+  const leben = maxHp > 0 ? rotVoll * (hp / maxHp) : 0;
+  return { leben, kraft: blau };
 }
 
 /* ── WO DER SOCKEL ANFAENGT, in em ueber dem Zellboden (v1.14.1) ──────────
