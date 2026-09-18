@@ -1,5 +1,23 @@
 # Changelog - Grand Gambit
 
+## 1.24.6
+- DAS BAND RECHNET IN PUNKTEN, NICHT IN PROZENTEN (Besitzer: "Es gibt bei
+  jeder Figur immer irgendwie 100 Punkte ... wenn ich 80 Lebenspunkte habe und
+  eine andere greift mit 20 an, hat die Figur danach noch 60. Einfach nur
+  Subtraktion. Der blaue Balken bleibt immer fest."). Die Ringbreite IST das
+  Punktebudget: Rot ist das Leben in Punkten, Blau die Staerke in Punkten, am
+  selben Massstab. Schaden nimmt Rot Punkt fuer Punkt weg, Blau bleibt
+  unberuehrt. GEMESSEN ist das Budget: jede normale Figur hat auf
+  Hoechststufe 28 Punkte (Bauer 21+7, Turm 22+6, Springer 15+13, Dame 18+10,
+  Koenig 25+3); Gambit 42, Drache 54. Deshalb max(28, maxHp + atk) - auf
+  Hoechststufe die eigene Summe, darunter der Normmassstab, sodass eine Figur
+  auf halbem Weg den Ring nur halb fuellt (gemessen 46 %).
+- DAS KRAFT_GEWICHT VON 1,6 FAELLT WEG: Blau zaehlte 1,6-fach, damit stimmte
+  keine Subtraktion. Ein Punkt ist ein Punkt.
+- Fuenf Proben, die auf der alten Stufenfuellung standen, sind durch Proben in
+  Punkten ersetzt: sechs Schaden nehmen genau sechs Punkte Rot (22 -> 16 von
+  28), Blau ruehrt sich nicht, bei 0 Leben bleibt nur Blau.
+
 ## 1.24.5
 - ROT IST EINE LEBENSANZEIGE, KEIN VERHAELTNIS (Besitzer: "Wenn der Balken
   10 mm breit waere und die Figur greift an, dann muss das Leben um

@@ -134,7 +134,8 @@ const EM_PX = 40;
    Gewicht hob den Angriff zu stark an und loeschte damit genau das Profil,
    das sichtbar werden soll. Bei 1,6 traegt der Koenig 67/27 und der
    Attentaeter 38/56 - so unterscheiden sich die Figuren wirklich. */
-const KRAFT_GEWICHT = 1.6;
+const KRAFT_GEWICHT = 1.6;   /* v1.24.6: nur noch fuer Altbestand - das Band rechnet in Punkten */
+const NORM_PUNKTE = 28;      /* gemessen: jede normale Figur hat auf Hoechststufe 28 Punkte (Leben + Angriff) */
 const VOLL_BEI_STUFE = 20;
 
 export function rohrAnteile(piece) {
@@ -156,33 +157,30 @@ export function rohrAnteile(piece) {
      eine voll ausgebaute Dame sind beide "fertig" - sie unterscheiden sich
      dann nur noch im VERHAELTNIS von Rot zu Blau, also im Profil. Genau das
      soll das Rohr zeigen. */
-  const maxLv = Math.max(2, piece.maxLevel || VOLL_BEI_STUFE);
-  const stufe = Math.max(1, Math.min(maxLv, piece.level || 1));
-  /* v1.18.0 (Besitzer): "auch bei Stufe 1 muss minimal was sichtbar sein".
-     Vorher lief die Fuellung linear von 10 % (Stufe 1 von 10) bis 100 % -
-     auf den ersten Stufen war das Band praktisch schwarz. Jetzt beginnt sie
-     bei 28 % und laeuft bis 100 % auf der Hoechststufe; das Profil
-     (Rot zu Blau) bleibt, was es war. */
-  const voll = 0.28 + 0.72 * ((stufe - 1) / (maxLv - 1));
-  /* ── v1.24.5: ROT IST EINE LEBENSANZEIGE, KEIN VERHAELTNIS ────────────────
-     Besitzer: "Wenn der Balken 10 mm breit waere und die Figur greift an,
-     dann muss das Leben um entsprechend 10 sinken. Das Verhaeltnis muss sich
-     visuell so reduzieren - und das tut es nicht."
-     GEMESSEN, warum nicht: Rot und Blau wurden aus dem AKTUELLEN Leben als
-     Anteil an (Leben + Kraft) gerechnet. Sinkt das Leben von 20 auf 10, fiel
-     Rot nur von 60 auf 43 Prozent - und BLAU WUCHS von 40 auf 57, obwohl die
-     Kraft gleich blieb. Bei 0 Leben war der Ring ganz blau. Das Band zeigte
-     das Verhaeltnis, nicht den Schaden.
-     Jetzt: Rot und Blau werden aus dem VOLLEN Leben (maxHp) aufgeteilt - das
-     ist das Profil der Figur, wie in der Uebersicht. Rot schrumpft danach
-     LINEAR mit dem Leben: halbes Leben, halbes Rot. Blau bleibt, was die
-     Kraft ist. Zehn Schaden auf zwanzig Leben nehmen die Haelfte des Rots. */
+  /* ── v1.24.6: PUNKTE, KEINE PROZENTE (Besitzer) ───────────────────────────
+     "Du solltest bei diesem Band gar nicht prozentual rechnen. Es gibt bei
+      jeder Figur immer irgendwie 100 Punkte, ausser bei Drache und Gambit. Und
+      wenn ich 80 Lebenspunkte habe und eine andere Figur greift mit 20 an,
+      dann hat die Figur danach noch 60. Wenn das Band 100 breit ist, ziehst du
+      es einfach ab - Subtraktion. Die Angriffsstaerke aendert sich nie, der
+      blaue Balken bleibt immer fest."
+
+     Also: die Ringbreite IST das Punktebudget der Figur. Rot ist ihr Leben in
+     Punkten, Blau ihre Staerke in Punkten, beide am selben Massstab. Schaden
+     nimmt Rot weg, Punkt fuer Punkt; Blau bleibt unberuehrt.
+
+     GEMESSEN, was das Budget ist: auf Hoechststufe kommt JEDE normale Figur
+     auf 28 Punkte (Leben + Angriff) - Bauer 21+7, Turm 22+6, Springer 15+13,
+     Dame 18+10, Koenig 25+3. Der Gambit hat 42, der Drache 54. Deshalb
+     `max(28, maxHp + atk)`: auf Hoechststufe genau die eigene Summe, darunter
+     der Normmassstab 28 - eine Figur auf halbem Weg fuellt den Ring also nur
+     zur Haelfte, und das ist die Aussage.
+
+     Das frueher hier stehende KRAFT_GEWICHT (Blau zaehlte 1,6-fach) faellt
+     weg: ein Punkt ist ein Punkt, sonst stimmt die Subtraktion nicht. */
   const maxHp = Math.max(hp, piece.maxHp || hp);
-  const summeVoll = maxHp + atk * KRAFT_GEWICHT;
-  const rotVoll = voll * maxHp / summeVoll;
-  const blau = voll * atk * KRAFT_GEWICHT / summeVoll;
-  const leben = maxHp > 0 ? rotVoll * (hp / maxHp) : 0;
-  return { leben, kraft: blau };
+  const budget = Math.max(NORM_PUNKTE, maxHp + atk);
+  return { leben: Math.max(0, Math.min(1, hp / budget)), kraft: Math.max(0, Math.min(1, atk / budget)) };
 }
 
 /* ── WO DER SOCKEL ANFAENGT, in em ueber dem Zellboden (v1.14.1) ──────────

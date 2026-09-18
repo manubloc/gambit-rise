@@ -1575,32 +1575,36 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
        kennt nur sechs Arten. Magier, Barde, Paladin fielen durch. */
     ok("die Werte kommen aus den Grundzahlen, nicht aus einer Aufstellung",
       as3.includes("const hp0 = BASE_HP[ch.kind], atk0 = BASE_ATK[ch.kind]"));
-    ok("das Rohr misst sich an der EIGENEN Hoechststufe der Figur",
-      pg3.includes("const maxLv = Math.max(2, piece.maxLevel || VOLL_BEI_STUFE)")
-      && pg3.includes("const voll = 0.28 + 0.72 * ((stufe - 1) / (maxLv - 1));"));
+    /* v1.24.6: das Rohr rechnet nicht mehr mit einer Stufenfuellung, sondern
+       in PUNKTEN gegen das Budget der Figur - die alte Quelltextprobe auf
+       `voll = 0.28 + 0.72 * ...` traf eine Zeile, die es nicht mehr gibt. */
+    ok("das Rohr rechnet in Punkten gegen das Budget der Figur",
+      pg3.includes("const budget = Math.max(NORM_PUNKTE, maxHp + atk)")
+      && pg3.includes("leben: Math.max(0, Math.min(1, hp / budget))"));
     ok("der Stufenkreis traegt Lila auf Schwarz", as3.includes('border: "1px solid rgba(167,139,250,.75)"'));
     ok("der Erfahrungsbalken ist fort", !as3.includes("xpAnteil.hat}/{xpAnteil.kosten}"));
     /* und gerechnet: auf der Hoechststufe bleibt kein Schwarz */
     const { rohrAnteile } = await import("./src/app/ui/board/PieceGlyph.jsx");
-    const voll = rohrAnteile({ hp: 24, atk: 9, level: 20, maxLevel: 20 });
-    const summe = voll.leben + voll.kraft;
-    ok(`auf der Hoechststufe ist das Rohr voll (${Math.round(summe * 100)} %)`, summe > 0.995);
-    const halb = rohrAnteile({ hp: 14, atk: 6, level: 10, maxLevel: 20 });
-    /* v1.18.0 (Besitzer): "auch bei Stufe 1 muss minimal was sichtbar sein" -
-       die Fuellung beginnt bei 28 % und laeuft linear bis 100 %. Auf halber
-       Stufe (10 von 20) sind das 28 + 72 * 9/19 = 62 %. */
-    ok(`auf halber Stufe ist es zu ${Math.round((halb.leben + halb.kraft) * 100)} % voll (28 % Grundfuellung plus die Haelfte des Wegs)`, Math.abs((halb.leben + halb.kraft) - (0.28 + 0.72 * 9 / 19)) < 0.02);
-    const eins = rohrAnteile({ hp: 6, atk: 3, level: 1, maxLevel: 10 });
-    ok(`auf Stufe 1 ist etwas zu sehen (${Math.round((eins.leben + eins.kraft) * 100)} %, davon Rot ${Math.round(eins.leben * 100)} % und Blau ${Math.round(eins.kraft * 100)} %)`, eins.leben > 0.1 && eins.kraft > 0.1);
-    /* v1.24.5 (Besitzer): ROT IST EINE LEBENSANZEIGE. Halbes Leben, halbes
-       Rot - und Blau bleibt, was die Kraft ist. Vorher wuchs Blau, wenn das
-       Leben sank (Verhaeltnisrechnung); bei 0 Leben war der Ring ganz blau. */
-    const ganz = rohrAnteile({ hp: 20, maxHp: 20, atk: 6, level: 10, maxLevel: 10 });
-    const halbLeben = rohrAnteile({ hp: 10, maxHp: 20, atk: 6, level: 10, maxLevel: 10 });
-    const leer = rohrAnteile({ hp: 0, maxHp: 20, atk: 6, level: 10, maxLevel: 10 });
-    ok(`halbes Leben ist halbes Rot (${Math.round(ganz.leben * 100)} % -> ${Math.round(halbLeben.leben * 100)} %)`, Math.abs(halbLeben.leben - ganz.leben / 2) < 0.005);
-    ok(`Blau bleibt beim Schaden, was es war (${Math.round(ganz.kraft * 100)} % -> ${Math.round(halbLeben.kraft * 100)} %)`, Math.abs(halbLeben.kraft - ganz.kraft) < 0.005);
-    ok("bei 0 Leben ist das Rot weg, das Blau nicht", leer.leben === 0 && Math.abs(leer.kraft - ganz.kraft) < 0.005);
+    const vollAlt = rohrAnteile({ hp: 24, maxHp: 24, atk: 9, level: 20, maxLevel: 20 });
+    /* ── v1.24.6 (Besitzer): DAS BAND RECHNET IN PUNKTEN ───────────────────
+       "Es gibt bei jeder Figur immer irgendwie 100 Punkte ... wenn ich 80
+        Lebenspunkte habe und eine andere greift mit 20 an, hat die Figur
+        danach noch 60. Einfach nur Subtraktion. Der blaue Balken bleibt immer
+        fest." Also: Ringbreite = Punktebudget, Rot = Leben in Punkten,
+       Blau = Staerke in Punkten. Gemessen ist das Budget auf Hoechststufe
+       28 Punkte fuer jede normale Figur. */
+    const voll = rohrAnteile({ hp: 22, maxHp: 22, atk: 6, level: 10, maxLevel: 10 });
+    ok(`auf Hoechststufe ist der Ring voll (${Math.round((voll.leben + voll.kraft) * 100)} %)`,
+      Math.abs((voll.leben + voll.kraft) - 1) < 0.005);
+    const nach6 = rohrAnteile({ hp: 16, maxHp: 22, atk: 6, level: 10, maxLevel: 10 });
+    ok(`sechs Schaden nehmen genau sechs Punkte Rot (${Math.round(voll.leben * 28)} -> ${Math.round(nach6.leben * 28)} von 28)`,
+      Math.abs((voll.leben - nach6.leben) * 28 - 6) < 0.05);
+    ok(`Blau ruehrt sich dabei nicht (${Math.round(voll.kraft * 28)} Punkte)`, Math.abs(nach6.kraft - voll.kraft) < 0.0005);
+    const tot = rohrAnteile({ hp: 0, maxHp: 22, atk: 6, level: 10, maxLevel: 10 });
+    ok("bei 0 Leben ist das Rot weg, das Blau bleibt", tot.leben === 0 && Math.abs(tot.kraft - voll.kraft) < 0.0005);
+    const halbeStufe = rohrAnteile({ hp: 9, maxHp: 9, atk: 4, level: 5, maxLevel: 10 });
+    ok(`auf halbem Weg ist der Ring halb voll (${Math.round((halbeStufe.leben + halbeStufe.kraft) * 100)} %)`,
+      (halbeStufe.leben + halbeStufe.kraft) > 0.35 && (halbeStufe.leben + halbeStufe.kraft) < 0.6);
   }
 
   /* v1.9.1: DER MENUEHINTERGRUND FOLGT DEM KAPITEL. Besitzerbefund,
