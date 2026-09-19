@@ -1,5 +1,24 @@
 # Changelog - Grand Gambit
 
+## 1.24.8
+- DIE KACHEL ZAEHLT DIE SCHILDE MIT (Besitzer, zum zweiten Mal gemeldet: "Im
+  Pop-up, wo ich trainieren kann, ist der Lebensbalken immer noch anders vom
+  Visuellen als in der Uebersicht - ein paar Figuren verhalten sich anders").
+  GEFUNDEN: das Blatt rechnet maxHp = werteBeiStufe(...).hp + shield *
+  SHIELD_HP, die Kachel rechnete nur werteBeiStufe(...) - OHNE Schilde. Beim
+  Springer auf Stufe 10 mit drei Schilden sind das 11 gegen 17 Lebenspunkte:
+  Rot 39 % gegen 57 % im Ring. Deshalb fielen genau die Figuren MIT
+  Schildsprossen auf und die anderen nicht. Richtig ist die Fassung mit
+  Schilden - sie sind dauerhaftes Leben und zaehlen im Gefecht mit; die
+  Kachel zieht nach. Der Koenig hat keine Schildsprossen, bei ihm aendert
+  sich nichts.
+- DIE ORIGINALE AUS DER FAL-HISTORIE SIND GESICHERT: 268 Auftraege, 186
+  Bildadressen, 185 geladen (279 Dateien mit den fruehen Rettungen). Sie
+  liegen NICHT freigestellt vor, sondern mit gruenem Hintergrund - daraus
+  laesst sich sauber neu freistellen. Genau hier lag der Fehler der alten
+  Fassungen: beim Entfernen des Gruens wurde an Umhaengen und duennen
+  Gliedmassen zu viel mitgenommen (boss-b22, boss-b25, boss-b14).
+
 ## 1.24.7
 - KEINE BLASEN MEHR IM GEFECHT, SONDERN DER HOFWERT (Besitzer: "Die Bubbles
   Angriff und Leben will ich nicht sehen. Dafuer in klein den Hofwert"). Die

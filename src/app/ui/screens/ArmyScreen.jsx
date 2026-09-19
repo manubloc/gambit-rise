@@ -2014,8 +2014,26 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
        hier eine eigene Staffelung (+1 Leben je Stufe, +1 Angriff alle drei),
        die dem Kern seit dem relativen Wachstum nicht mehr entsprach - die
        Kachel zeigte andere Werte als das Gefecht. */
+    /* ── v1.24.8 (Besitzer, zum zweiten Mal gemeldet): DIE SCHILDE FEHLTEN ──
+       "Im Pop-up, wo ich trainieren kann, ist der Lebensbalken und die
+        Angriffsstaerke immer noch anders vom Visuellen als in der Uebersicht.
+        Das muesste doch eins zu eins dasselbe sein."
+
+       GEFUNDEN: das Blatt rechnet
+         maxHp = werteBeiStufe(...).hp + shield * SHIELD_HP
+       und zaehlt damit die Schilde mit. Diese Kachel rechnete nur
+       werteBeiStufe(...) - OHNE Schilde. Beim Springer auf Stufe 10 mit drei
+       Schilden sind das 11 gegen 17 Lebenspunkte, also ein Drittel mehr Rot
+       im Ring. Genau die Figuren mit Schildsprossen fielen auf, die anderen
+       nicht - deshalb "ein paar Figuren verhalten sich anders".
+
+       Richtig ist die Fassung MIT Schilden: sie sind dauerhaftes Leben und
+       zaehlen im Gefecht mit. Die Kachel zieht also nach, nicht das Blatt.
+       Der Koenig hat keine Schildsprossen, bei ihm aendert sich nichts. */
     const { hp, atk } = werteBeiStufe(ch.kind, lv, { maxLevel: maxLevelFor(cid) });
-    return rohrAnteile({ hp, atk, level: lv, maxLevel: maxLevelFor(cid) });
+    const { shield } = resolveCharacter(ch, lv, chosenAbilities(profile, cid));
+    const hpGanz = hp + (ch.kind === "K" ? 0 : shield * SHIELD_HP);
+    return rohrAnteile({ hp: hpGanz, maxHp: hpGanz, atk, level: lv, maxLevel: maxLevelFor(cid) });
   };
   /* Wie weit bis zur naechsten Stufe? Aus den Skillpunkten, die sie kostet. */
   /* Es gibt keine Erfahrungspunkte JE FIGUR - Stufen kosten Skillpunkte aus
