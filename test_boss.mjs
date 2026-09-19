@@ -34,7 +34,10 @@ function loneBoss(boss) {
   const b = bossById("b06"); // Bollwerk: hp 11 atk 2 (v0.38: Panzer-Gegengewicht, 18->11)
   const s = bossGame(b);
   const p = s.board[idx(3, 7, 8)];
-  ok("boss stats come from its definition", p.hp === 11 && p.maxHp === 11 && p.atk === 2);
+  /* v1.25.1: alle 25 Monster tragen jetzt dasselbe Punktebudget 28 wie jede
+     eigene Figur (vorher 8 bis 23, Median 13). Das Bollwerk steht damit auf
+     23/5 statt 11/2 - die Verteilung dick-und-langsam ist geblieben. */
+  ok("boss stats come from its definition", p.hp === 24 && p.maxHp === 24 && p.atk === 4);
   ok("boss carries name/art/accent", p.name.de === "Das Bollwerk" && p.art === "golem" && !!p.accent);
 }
 

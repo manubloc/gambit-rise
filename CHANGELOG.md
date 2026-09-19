@@ -1,5 +1,19 @@
 # Changelog - Grand Gambit
 
+## 1.25.1
+- ALLE 25 MONSTER TRAGEN DAS PUNKTEBUDGET DER FIGUREN (Besitzer: "Hauptsache
+  wir haben am Ende die gleiche Logik wie bei den Figuren"). GEMESSEN, warum
+  das noetig war: jede eigene Figur kommt auf ihrer Hoechststufe auf 28 Punkte
+  (Bauer 21+7, Turm 22+6, Springer 15+13, Dame 18+10, Koenig 25+3), die
+  Monster lagen zwischen 8 und 23 - Median 13, also im Schnitt halb so stark
+  wie ein Bauer, und zwar ohne dass das je entschieden worden waere. Jetzt
+  ueberall 28, bei unveraenderter VERTEILUNG: der Koloss 24/4, der Geist
+  17/11, der Brandstifter 16/12. Alle 25 werden staerker, keines schwaecher.
+  Gegengewicht bleibt, was der Besitzer dafuer vorgesehen hat: fuenf Stufen
+  statt zehn, keine Leiter zum Waehlen, kein Bund - dafuer kauft man sie.
+- Eine Probe stand auf den alten Werten des Bollwerks (11/2) und steht jetzt
+  auf 24/4.
+
 ## 1.25.0
 - DIE NAECHSTE STUFE ZEIGT, WAS SIE WIRKLICH BRINGT (Besitzer: "Da steht
   naechste +1, aber das stimmt teilweise gar nicht. Bei der einen geht es bei
