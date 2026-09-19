@@ -663,6 +663,22 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
   const _w = werteBeiStufe(char.kind, level, { maxLevel: maxLevelFor(char.id) });
   const maxHp = _w.hp + (isKing ? 0 : shield * SHIELD_HP);
   const atk = _w.atk;
+  /* ── v1.25.0 (Besitzer): WAS DIE NAECHSTE STUFE WIRKLICH BRINGT ───────────
+     "Da steht naechste +1, aber das stimmt teilweise gar nicht. Bei der einen
+      geht es bei der naechsten Stufe plus 3 Angriff, bei der anderen plus 2
+      Leben - das muss hier richtig stehen."
+     Richtig: das "+1" war fest hingeschrieben. Die Werte wachsen aber am
+     VERHAELTNIS Stufe zu Hoechststufe, und die Schilde kommen sprungweise auf
+     ihren eigenen Sprossen dazu. Beides wird jetzt ausgerechnet, indem die
+     naechste Stufe durch dieselbe Kernrechnung geschickt wird - Differenz
+     statt Annahme. Auf der Hoechststufe steht nichts mehr da. */
+  const _wNext = level < maxLevelFor(char.id)
+    ? werteBeiStufe(char.kind, level + 1, { maxLevel: maxLevelFor(char.id) }) : null;
+  const _schildNext = level < maxLevelFor(char.id)
+    ? resolveCharacter(char, level + 1, chosen).shield : shield;
+  const plusAtk = _wNext ? Math.max(0, _wNext.atk - _w.atk) : 0;
+  const plusHp = _wNext
+    ? Math.max(0, (_wNext.hp + (isKing ? 0 : _schildNext * SHIELD_HP)) - maxHp) : 0;
   const rungs = char.ladder.filter((r) => r.ability).map((r) => ({ level: r.level, id: r.ability }));
   const maxed = level >= maxLevelFor(char.id);
   const cost = upgradeCost(char.id, level);
@@ -764,20 +780,20 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
           textShadow: "0 1px 5px rgba(0,0,0,.9)" }}>„{en ? char.flavorEn : char.flavorDe}“</div>}
         {/* die Werte - nur wenn die alte Magie erwacht ist (v1.0.33) */}
         {hpUnlocked(profile) && <div style={{ display: "flex", gap: 9 }}>
-          {[["rot", atk, en ? "Attack" : "Angriff", "#ffb3aa", "#e08a84"],
-            ["blau", maxHp, en ? "Life" : "Leben", "#b6cdff", "#8ba6e0"]].map(([art, wert, wort, hell, matt]) =>
+          {[["rot", atk, en ? "Attack" : "Angriff", "#ffb3aa", "#e08a84", plusAtk],
+            ["blau", maxHp, en ? "Life" : "Leben", "#b6cdff", "#8ba6e0", plusHp]].map(([art, wert, wort, hell, matt, plus]) =>
             <div key={art} style={{ flex: 1, display: "flex", alignItems: "center", gap: 8, padding: "6px 9px",
               borderRadius: 11, background: "rgba(10,7,19,.72)", border: `1px solid ${T.line}` }}>
               <WertZeichen art={art} id={char.id} />
               <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
                 <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8 }}>
                   <span style={{ font: "800 15px/1 Georgia, serif", color: hell }}>{wert}</span>
-                  {!maxed && <b style={{ font: "800 11.5px/1 Georgia, serif", color: "#c4b5fd",
-                    textShadow: "0 0 7px rgba(167,139,250,.75)" }}>+1</b>}
+                  {plus > 0 && <b style={{ font: "800 11.5px/1 Georgia, serif", color: "#c4b5fd",
+                    textShadow: "0 0 7px rgba(167,139,250,.75)" }}>+{plus}</b>}
                 </div>
                 <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8 }}>
                   <span style={{ font: "600 8.5px/1 Georgia, serif", letterSpacing: ".11em", textTransform: "uppercase", color: matt }}>{wort}</span>
-                  {!maxed && <span style={{ font: "600 7.5px/1 Georgia, serif", letterSpacing: ".09em",
+                  {plus > 0 && <span style={{ font: "600 7.5px/1 Georgia, serif", letterSpacing: ".09em",
                     textTransform: "uppercase", color: "#9a8fc0" }}>{en ? "next" : "nächste"}</span>}
                 </div>
               </div>

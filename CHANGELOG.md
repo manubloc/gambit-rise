@@ -1,5 +1,17 @@
 # Changelog - Grand Gambit
 
+## 1.25.0
+- DIE NAECHSTE STUFE ZEIGT, WAS SIE WIRKLICH BRINGT (Besitzer: "Da steht
+  naechste +1, aber das stimmt teilweise gar nicht. Bei der einen geht es bei
+  der naechsten Stufe plus 3 Angriff, bei der anderen plus 2 Leben"). Das "+1"
+  war fest hingeschrieben. Die Werte wachsen aber am Verhaeltnis Stufe zu
+  Hoechststufe, und die Schilde kommen sprungweise auf ihren eigenen Sprossen
+  dazu - der Zuwachs ist bei jeder Figur und auf jeder Stufe ein anderer.
+  GEMESSEN, Bauer: 1->2 bringt +1 Angriff und +4 Leben, 2->3 nur +1 Leben,
+  3->4 wieder +1 und +4. Springer 3->4: +2 Angriff. Jetzt wird die naechste
+  Stufe durch dieselbe Kernrechnung geschickt und die Differenz angezeigt -
+  auf der Hoechststufe steht nichts mehr da.
+
 ## 1.24.9
 - DER SCHADENSBLITZ (Besitzer: "Wenn eine Figur angreift, sieht man ganz kurz
   in Gelb, um wie viel dieser Angriff mich bei der Figur Leben gekostet hat" -
