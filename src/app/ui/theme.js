@@ -264,6 +264,18 @@ export const GLOBAL_CSS = `
   /* v1.4.9: das sanfte Erscheinen auf dem Brett - ohne Groessensprung. Nur
      Deckkraft und ein Hauch Hoehe, damit nichts "aufploppt". */
   @keyframes ggSanft { from { opacity: 0; transform: translateY(1.5%); } to { opacity: 1; transform: translateY(0); } }
+  /* ── v1.24.9 (Besitzer): DER SCHADENSBLITZ ────────────────────────────────
+     "Wenn eine Figur angreift, sieht man ganz kurz in Gelb, um wie viel
+      dieser Angriff mich bei der Figur Leben gekostet hat" - und dazu "eine
+      zoomartige Zahl, die wirklich gross wird und beim Grosswerden verblasst".
+     Zwei Keyframes, beide nur mit opacity und transform, wie es die Regel
+     verlangt: ggBlitz laesst das gelbe Stueck im Sockelband ausglimmen,
+     ggBlitzZahl laesst die Zahl darueber wachsen und dabei vergehen. */
+  @keyframes ggBlitz { 0% { opacity: 1; } 55% { opacity: .85; } 100% { opacity: 0; } }
+  @keyframes ggBlitzZahl {
+    0%   { opacity: 0;  transform: translate(-50%, 0) scale(.55); }
+    18%  { opacity: 1;  transform: translate(-50%, -12%) scale(1.15); }
+    100% { opacity: 0;  transform: translate(-50%, -78%) scale(2.35); } }
   @keyframes pop { from { transform: scale(.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
   /* v1.0.14: DAS SETZEN AUFS FELD. Kein Erscheinen, sondern ein Ankommen:
      die Figur staucht beim Aufsetzen kurz in die Breite und federt zurueck -

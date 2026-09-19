@@ -105,7 +105,10 @@ const OHNE_BAND = new Set(["schatzkammer", "haendler", "standard"]);
 /* `hell`: die helle Graufassung fuer die EIGENEN Figuren (Besitzer: "meine
    eigenen Figuren brauchen natuerlich die helle Variante"). Ohne sie wirken
    beide Seiten gleich, weil das Brett den Gegner nur dunkler filtert. */
-export function SockelBand({ paintedId, leben = 0, kraft = 0, grau = false, hell = false, id = "sb", ausrichtung = "mitte" }) {
+/* `schaden`: der gerade verlorene Anteil, in derselben Einheit wie `leben`.
+   Er wird dort gezeichnet, wo das Rot eben noch stand - also direkt hinter
+   dem heutigen Rot - und glimmt aus (v1.24.9). */
+export function SockelBand({ paintedId, leben = 0, kraft = 0, schaden = 0, grau = false, hell = false, id = "sb", ausrichtung = "mitte" }) {
   const m = MASS[paintedId];
   if (!m || OHNE_BAND.has(paintedId)) return null;
   /* ── BANDHOEHE: DIE GEMESSENE TELLERHOEHE ────────────────────────────────
@@ -197,6 +200,9 @@ export function SockelBand({ paintedId, leben = 0, kraft = 0, grau = false, hell
           Also: eigene Figur ohne Werte -> weissgrauer Verlauf, Gegner ohne
           Werte -> das Schwarz wie bisher. Derselbe Ring, derselbe Bau, nur
           andere Stufen im Verlauf. */}
+      <linearGradient id={u("blitz")} x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stopColor="#fff6c4" /><stop offset=".4" stopColor="#ffd84a" /><stop offset="1" stopColor="#b57f0c" />
+      </linearGradient>
       <linearGradient id={u("dunkel")} x1="0" y1="0" x2="0" y2="1">
         {hell
           ? <><stop offset="0" stopColor="#f2efe8" /><stop offset=".4" stopColor="#cfc9bd" /><stop offset="1" stopColor="#6f6a60" /></>
@@ -225,6 +231,9 @@ export function SockelBand({ paintedId, leben = 0, kraft = 0, grau = false, hell
       <path d={segment(m, h + rand, tL, tR, fuss - rand)} fill={`url(#${u("gold")})`} />
       {/* die drei Segmente */}
       {a > tL && <path d={segment(m, h, tL, a, fuss)} fill={`url(#${u("rot")})`} />}
+      {/* v1.24.9: der Schadensblitz - das Stueck, das das Rot eben verloren hat */}
+      {schaden > 0.001 && <path d={segment(m, h, a, Math.min(tR, a + (tR - tL) * schaden), fuss)}
+        fill={`url(#${u("blitz")})`} style={{ animation: "ggBlitz .62s ease-out both" }} />}
       {mitteB > mitteA && <path d={segment(m, h, mitteA, mitteB, fuss)} fill={`url(#${u("dunkel")})`} />}
       {b < tR && <path d={segment(m, h, b, tR, fuss)} fill={`url(#${u("blau")})`} />}
       {/* Glanz oben, Rundung an den Enden */}

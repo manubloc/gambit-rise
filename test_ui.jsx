@@ -1578,6 +1578,25 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
     /* v1.24.6: das Rohr rechnet nicht mehr mit einer Stufenfuellung, sondern
        in PUNKTEN gegen das Budget der Figur - die alte Quelltextprobe auf
        `voll = 0.28 + 0.72 * ...` traf eine Zeile, die es nicht mehr gibt. */
+    /* ── v1.24.9 (Besitzer): DER SCHADENSBLITZ ─────────────────────────────
+       "Man sieht ganz kurz in Gelb, um wie viel dieser Angriff mich bei der
+        Figur Leben gekostet hat" - dazu eine Zahl, die gross wird und dabei
+        verblasst. Geprueft wird, dass beides existiert und nur mit opacity
+        und transform animiert (Projektregel fuer Keyframes). */
+    const sb = readFileSync("src/app/ui/SockelBand.jsx", "utf8");
+    const pg9 = readFileSync("src/app/ui/board/PieceGlyph.jsx", "utf8");
+    const th9 = readFileSync("src/app/ui/theme.js", "utf8");
+    ok("das Band kennt den Schaden und zeichnet ihn hinter dem Rot",
+      sb.includes("schaden = 0") && sb.includes('animation: "ggBlitz'));
+    ok("die Figur merkt sich den Verlust selbst (der Spielzustand kennt nur das Jetzt)",
+      pg9.includes("const vorher = useRef(piece.hp)") && pg9.includes("const verlust = alt - piece.hp"));
+    ok("die Zahl waechst und verblasst", pg9.includes('animation: "ggBlitzZahl') && pg9.includes("−{blitz.n}"));
+    {
+      const k = th9.slice(th9.indexOf("@keyframes ggBlitz"), th9.indexOf("@keyframes ggBlitzZahl") + 400);
+      const eig = [...k.matchAll(/([a-z-]+):/g)].map((m) => m[1]).filter((x) => x !== "s");
+      ok(`die Blitz-Keyframes animieren nur opacity und transform (${[...new Set(eig)].join(", ")})`,
+        eig.every((x) => x === "opacity" || x === "transform"));
+    }
     ok("das Rohr rechnet in Punkten gegen das Budget der Figur",
       pg3.includes("const budget = Math.max(NORM_PUNKTE, maxHp + atk)")
       && pg3.includes("leben: Math.max(0, Math.min(1, hp / budget))"));

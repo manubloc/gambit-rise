@@ -655,6 +655,28 @@ export function PieceGlyph({ piece, showLevel = true, pov = "w", artStyle = "pai
      Kraft. Die Gegnerseite wird vom Brett ohnehin gedunkelt, also liest sich
      ihr Grau von selbst dunkler als das eigene. */
   const werteAn = hpMode && piece.maxHp > 0;
+  /* ── v1.24.9: DER SCHADENSBLITZ ───────────────────────────────────────────
+     Besitzer: "Wenn eine Figur angreift, sieht man ganz kurz in Gelb, um wie
+     viel dieser Angriff mich bei der Figur Leben gekostet hat."
+     Dafuer muss die Figur wissen, wie viel Leben sie eben noch hatte. Das
+     steht nirgends im Spielzustand - der kennt nur das Jetzt. Also merkt es
+     sich die Anzeige selbst: sinkt hp, wird die Differenz fuer 620 ms
+     festgehalten, genau so lange, wie die beiden Keyframes laufen. */
+  const vorher = useRef(piece.hp);
+  const [blitz, setBlitz] = useState(null);
+  useEffect(() => {
+    const alt = vorher.current;
+    vorher.current = piece.hp;
+    if (typeof alt !== "number" || typeof piece.hp !== "number") return;
+    const verlust = alt - piece.hp;
+    if (verlust <= 0) return;
+    setBlitz({ n: verlust, nr: Date.now() });
+    const t = setTimeout(() => setBlitz(null), 640);
+    return () => clearTimeout(t);
+  }, [piece.hp]);
+  const blitzAnteil = blitz && piece.maxHp > 0
+    ? Math.max(0, Math.min(1, rohrAnteile({ hp: blitz.n, maxHp: piece.maxHp, atk: piece.atk, level: piece.level, maxLevel: piece.maxLevel }).leben))
+    : 0;
   const bandDa = ROHR_STATT_PERLEN && !!painting && !klassisch && bandBekannt(paintedIdOf(painting));
   const schneide = ROHR_STATT_PERLEN && !!painting && !big && !klassisch && werteAn && !bandDa;
   const schnitt = schneide ? `inset(0 0 ${(sockelKante * 100).toFixed(2)}% 0)` : undefined;
@@ -928,7 +950,7 @@ export function PieceGlyph({ piece, showLevel = true, pov = "w", artStyle = "pai
             userSelect: "none", pointerEvents: "none" }} />
           {bandDa && (() => { const { leben, kraft } = rohrAnteile(piece);
             return <SockelBand paintedId={paintedIdOf(painting)} leben={werteAn ? leben : 0} kraft={werteAn ? kraft : 0}
-              grau={!werteAn} hell={!!white} ausrichtung="unten" id={`sbb-${piece.charId || piece.bossId || "x"}`} />; })()}
+              schaden={blitzAnteil} grau={!werteAn} hell={!!white} ausrichtung="unten" id={`sbb-${piece.charId || piece.bossId || "x"}`} />; })()}
           {/* v1.0.66: DER SCHATTEN, AUS DEM SIE AUFSTEIGT. Ein schmaler
               schwarzer Schleier ueber den untersten Prozenten - er nimmt dem
               Fuss die Helligkeit, ohne die Glut zu senken. Im weissen Ton
@@ -939,6 +961,20 @@ export function PieceGlyph({ piece, showLevel = true, pov = "w", artStyle = "pai
             background: `linear-gradient(0deg, rgba(0,0,0,${ton === "weiss" ? 0.42 : 0.62}) 0%, rgba(0,0,0,${ton === "weiss" ? 0.18 : 0.28}) 45%, rgba(0,0,0,0) 100%)` }} />}
         </>);
         })()}
+        {/* ── DIE ZAHL ZUM BLITZ (v1.24.9, Besitzer) ───────────────────────
+            "Eine zoomartige Zahl, in der gleichen Farbe wie der Blitz, die
+             wirklich gross wird und beim Grosswerden verblasst - und die Zahl
+             ist das, was der Angriff an Leben abgezogen hat."
+            Sie sitzt ueber der Figur, nicht im Band: dort hat sie Platz,
+            waechst nach oben aus dem Feld heraus und verdeckt nichts, was man
+            im Moment des Treffers braucht. Nur opacity und transform, wie es
+            die Regel fuer Keyframes verlangt. */}
+        {blitz && werteAn && <span key={blitz.nr} aria-hidden style={{ position: "absolute",
+          left: "50%", bottom: "34%", zIndex: 9, pointerEvents: "none",
+          font: "800 1.05em/1 Georgia, serif", color: "#ffe9a8", textShadow: "0 0 10px rgba(255,216,74,.9), 0 2px 4px rgba(0,0,0,.85)", whiteSpace: "nowrap",
+          animation: "ggBlitzZahl .62s cubic-bezier(.2,.7,.3,1) both" }}>
+          −{blitz.n}
+        </span>}
       </div>
 
       {stufenStern > 0 && <span key={stufenStern} aria-hidden style={{

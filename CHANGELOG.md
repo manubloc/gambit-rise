@@ -1,5 +1,23 @@
 # Changelog - Grand Gambit
 
+## 1.24.9
+- DER SCHADENSBLITZ (Besitzer: "Wenn eine Figur angreift, sieht man ganz kurz
+  in Gelb, um wie viel dieser Angriff mich bei der Figur Leben gekostet hat" -
+  dazu "eine zoomartige Zahl in der gleichen Farbe, die wirklich gross wird
+  und beim Grosswerden verblasst"). Im Sockelband glimmt das Stueck gelb aus,
+  das das Rot eben verloren hat, genau dort, wo es stand; darueber waechst die
+  Zahl des Verlusts aus dem Feld heraus und vergeht dabei. 620 ms, beide
+  Keyframes nur mit opacity und transform.
+- DAFUER MUSSTE DIE ANZEIGE EIN GEDAECHTNIS BEKOMMEN: der Spielzustand kennt
+  nur das Jetzt, nicht das Vorher. Die Figur merkt sich ihren letzten
+  Lebenswert selbst und haelt die Differenz fuer die Dauer der Animation.
+- ERST JETZT MOEGLICH: bis v1.24.6 war Rot ein Verhaeltnis, kein Lebensstand -
+  ein Blitz haette einen Betrag gezeigt, der mit dem Schaden nichts zu tun
+  hat. Seit das Band in Punkten rechnet, ist der verlorene Anteil genau der
+  Schaden.
+- Vier Proben in test_ui sichern das, darunter eine, die prueft, dass die
+  neuen Keyframes ausschliesslich opacity und transform animieren.
+
 ## 1.24.8
 - DIE KACHEL ZAEHLT DIE SCHILDE MIT (Besitzer, zum zweiten Mal gemeldet: "Im
   Pop-up, wo ich trainieren kann, ist der Lebensbalken immer noch anders vom
