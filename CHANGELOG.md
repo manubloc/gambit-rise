@@ -1,5 +1,24 @@
 # Changelog - Grand Gambit
 
+## 1.25.5
+- DIE NORM IST 24, NICHT 28 (Besitzerentscheid "alle 24, Gambit 36, Drache
+  48" - nach seiner Beobachtung, die Schilde seien doppelt). GEMESSEN, dass er
+  recht hat: OHNE Schilde landet jede eigene Figur auf genau 24 Punkten -
+  Alchemist 18+6, Amazone 9+15, Attentaeter 4+20, Bauer 17+7, Springer 11+13.
+  Die Grundwerte aus den Stufen ergeben die Summe von sich aus; die 28
+  entstanden nur, weil fast jede Figur ZWEI Schildsprossen hat, die je
+  +2 Leben obendrauf legten. Die Schilde tun also nichts, was die Stufen nicht
+  schon tun.
+- ALLE 25 MONSTER STEHEN JETZT AUF 24 (vorher 28 aus v1.25.1) - mit 28 lagen
+  sie ueber den Figuren. Die Verteilung bleibt: Waechter 20/4, Hetzer 17/7,
+  Brutmutter 21/3.
+- NOCH OFFEN aus demselben Entscheid: die Schilde selbst muessen aus Werten
+  und Aufstiegsplan verschwinden, der Gambit braucht dann sein eigenes Budget
+  36 (heute stecken seine 35 Leben in NEUN Schildsprossen statt zwei), der
+  Drache 48 (er steht ohne Schilde schon dort). Danach ist der Koenig kein
+  Sonderfall mehr - er ist heute die einzige Figur ohne Schilde und landet
+  deshalb bei 24 statt 28, was seinen unsichtbaren blauen Balken erklaerte.
+
 ## 1.25.4
 - DIE PERLEN SIND UEBERALL WEG (Besitzer, mehrfach: "Die Bubbles Angriff und
   Leben will ich nicht sehen - egal wo, auch in der Akademie und ueberall").
