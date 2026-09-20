@@ -1,5 +1,28 @@
 # Changelog - Grand Gambit
 
+## 1.25.2
+- DIE NEUN MONSTERFAEHIGKEITEN SIND ANGELEGT (Besitzer: "Die Faehigkeiten,
+  die die Monster haben, sollte grundsaetzlich keine der anderen Figuren
+  haben"): Gift (waechst mit der Stufe), Blenden (alle Gegner im Umkreis von
+  zwei Feldern setzen eine Runde aus), Aderlass (nimmt Hoechstleben bis zum
+  Ende der Partie), Schrecken, Wegelagerei (stiehlt Gold, waechst mit der
+  Stufe), Steinhaut, Widerhall, Unsterblich, Geistwandel.
+  GEMESSEN, warum es neue braucht: die vier, die Monster bisher tragen,
+  gehoeren alle auch Figuren - Blinzeln bei 15 von 27, Bollwerk bei 12,
+  Regeneration bei 11, Lebensraub bei 9. Sie den Figuren wegzunehmen waere
+  kein Umbau, sondern eine andere Leiter fuer das halbe Spiel.
+- SIE TRAGEN live: false - angekuendigt, im Kern noch nicht gebaut. Der
+  Eintrag steht, damit Blatt, Akademie und Karte denselben Text zeigen; die
+  Zuordnung zu den 25 Monstern folgt, sobald die Wirkung steht. Sonst nimmt
+  man ihnen ihre heutigen, funktionierenden Faehigkeiten und tauscht tote ein.
+- EINE NEUE PROBE sichert genau das: kein angekuendigtes Monstertalent darf
+  schon an einer Figur haengen. Sie hat dabei einen Altbestand gefunden -
+  chain und pull sind seit laengerem angekuendigt UND vergeben; das gehoert
+  getrennt angesehen.
+- ZWEI NEUE MARKEN, Beute und Zehrung, mit eigenen Farben. Ohne sie fiel die
+  Farbe der Goldfaehigkeit zufaellig mit dragon_flight2 zusammen - gefangen
+  von der Probe "alle Talente haben eine eigene Farbe".
+
 ## 1.25.1
 - ALLE 25 MONSTER TRAGEN DAS PUNKTEBUDGET DER FIGUREN (Besitzer: "Hauptsache
   wir haben am Ende die gleiche Logik wie bei den Figuren"). GEMESSEN, warum

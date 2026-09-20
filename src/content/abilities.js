@@ -29,6 +29,11 @@ export const TAGS = {
   sustain: { nameDe: "Zähigkeit",  nameEn: "Sustain",  color: "#3ad98a" },
   aoe:     { nameDe: "Fläche",     nameEn: "Area",     color: "#ff8a4c" },
   control: { nameDe: "Kontrolle",  nameEn: "Control",  color: "#ff5d8f" },
+  /* v1.25.2: eigene Marke fuer die Goldfaehigkeit der Monster. Ohne sie fiel
+     ihre Farbe zufaellig mit dragon_flight2 zusammen - die Probe "alle Talente
+     haben eine EIGENE Farbe" hat das gefangen. */
+  gold:    { nameDe: "Beute",      nameEn: "Plunder",  color: "#e0b341" },
+  dot:     { nameDe: "Zehrung",    nameEn: "Decay",    color: "#7bd14a" },
   promo:   { nameDe: "Krönung",    nameEn: "Promotion", color: "#ffd166" },
   trick:   { nameDe: "List",       nameEn: "Trickery",  color: "#e3c07a" },
 };
@@ -73,6 +78,31 @@ export const ABILITIES = {
   blast:                { id: "blast",                icon: "✺", tag: "aoe", hpOnly: true, sperre: "verborgen", once: true,  live: true, nameDe: "Schockwelle",  nameEn: "Blast",          descDe: "1× pro Partie: Der erste Nahkampfschlag trifft auch alle Gegner rings um das Ziel — mit halbem Schaden.",   descEn: "Once per battle: your first melee strike also hits every enemy around the target — at half damage." },
   chain:                { id: "chain",                icon: "↯", tag: "aoe", hpOnly: true, sperre: "verborgen", once: true,  live: false, nameDe: "Kettenblitz",  nameEn: "Chain",          descDe: "Schaden springt auf einen weiteren nahen Gegner über.", descEn: "Damage arcs to another nearby enemy." },
   pull:                 { id: "pull",                 icon: "⇲", tag: "control", hpOnly: true, sperre: "verborgen", once: true, live: false, nameDe: "Enterhaken",  nameEn: "Hook",           descDe: "Zieht einen Gegner in Sichtlinie zu dir heran.",      descEn: "Pulls an enemy in line toward you." },
+
+  /* ── v1.25.2: DIE FAEHIGKEITEN DER MONSTER (Besitzerentscheid) ─────────────
+     "Die Faehigkeiten, die die Monster haben, sollte grundsaetzlich keine der
+      anderen Figuren haben - dass die Monster sich dadurch auszeichnen."
+
+     GEMESSEN, warum es dafuer neue braucht: die vier, die Monster bisher
+     tragen, gehoeren alle auch Figuren - Blinzeln bei 15 von 27, Bollwerk bei
+     12, Regeneration bei 11, Lebensraub bei 9. Sie den Figuren wegzunehmen
+     waere kein Umbau, sondern eine andere Leiter fuer das halbe Spiel. Also
+     bekommen die Monster einen eigenen Satz.
+
+     `live: false` heisst: die Wirkung ist noch nicht im Kern gebaut, der
+     Eintrag steht aber schon, damit Blatt, Akademie und Karte denselben Text
+     zeigen. Die Zuordnung zu den 25 Monstern folgt, sobald die Wirkung
+     steht - vorher wuerde man ihnen ihre heutigen, funktionierenden
+     Faehigkeiten nehmen und tote eintauschen. */
+  gift:                 { id: "gift",                 icon: "☣", tag: "dot", hpOnly: true, sperre: "verborgen", once: false, live: false, monsterOnly: true, nameDe: "Gift",          nameEn: "Venom",          descDe: "Ein Treffer vergiftet: die Figur verliert jede Runde Leben, so viel wie die Stufe des Monsters.", descEn: "A hit poisons: the piece loses life every round, as much as the monster's level." },
+  blenden:              { id: "blenden",              icon: "◍", tag: "control", hpOnly: true, sperre: "verborgen", once: false, live: false, monsterOnly: true, nameDe: "Blenden",       nameEn: "Blind",          descDe: "Zieht das Monster, sind alle Gegner im Umkreis von zwei Feldern eine Runde lang blind — sie duerfen nicht ziehen.", descEn: "When the monster moves, every enemy within two squares is blinded for a round — they cannot move." },
+  aderlass:             { id: "aderlass",             icon: "🜄", tag: "dot", hpOnly: true, sperre: "verborgen", once: false, live: false, monsterOnly: true, nameDe: "Aderlass",      nameEn: "Bloodletting",   descDe: "Jeder Treffer nimmt der Figur 1 Hoechstleben — bis zum Ende der Partie.", descEn: "Every hit takes 1 maximum life from the piece — until the battle ends." },
+  schrecken:            { id: "schrecken",            icon: "◬", tag: "control", hpOnly: true, sperre: "verborgen", once: false, live: false, monsterOnly: true, nameDe: "Schrecken",     nameEn: "Dread",          descDe: "Das Feld, das das Monster verlaesst, bleibt eine Runde unbetretbar.", descEn: "The square the monster leaves stays impassable for a round." },
+  wegelagerei:          { id: "wegelagerei",          icon: "⛃", tag: "gold", hpOnly: true, sperre: "verborgen", once: false, live: false, monsterOnly: true, nameDe: "Wegelagerei",   nameEn: "Highway Robbery", descDe: "Jeder Treffer stiehlt dem Gegner Gold — mehr, je hoeher die Stufe.", descEn: "Every hit steals gold from the enemy — more at higher levels." },
+  steinhaut:            { id: "steinhaut",            icon: "⬢", tag: "sustain", hpOnly: true, sperre: "verborgen", once: true,  live: false, monsterOnly: true, nameDe: "Steinhaut",     nameEn: "Stoneskin",      descDe: "Die ersten zwei Treffer einer Partie richten keinen Schaden an.", descEn: "The first two hits of a battle deal no damage." },
+  widerhall:            { id: "widerhall",            icon: "↺", tag: "sustain", hpOnly: true, sperre: "verborgen", once: false, live: false, monsterOnly: true, nameDe: "Widerhall",     nameEn: "Echo",           descDe: "Wer das Monster trifft, bekommt die Haelfte des Schadens sofort zurueck.", descEn: "Whoever hits the monster takes half the damage straight back." },
+  unsterblich:          { id: "unsterblich",          icon: "✦", tag: "sustain", hpOnly: true, sperre: "verborgen", once: true,  live: false, monsterOnly: true, nameDe: "Unsterblich",   nameEn: "Undying",        descDe: "Einmal je Partie steht das Monster wieder auf — mit der Haelfte seiner Lebenspunkte.", descEn: "Once per battle the monster rises again — with half its life." },
+  geistwandel:          { id: "geistwandel",          icon: "☁", tag: "sustain", hpOnly: true, sperre: "verborgen", once: true,  live: false, monsterOnly: true, nameDe: "Geistwandel",   nameEn: "Wraithing",      descDe: "Faellt das Monster, kehrt es als Geist zurueck: bleich und durchscheinend, mit 3 Leben und doppeltem Angriff.", descEn: "When the monster falls it returns as a wraith: pale and translucent, with 3 life and double attack." },
 };
 
 /* WARUM eine Faehigkeit verriegelt ist - der Spieler soll es lesen koennen,

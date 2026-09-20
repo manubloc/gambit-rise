@@ -95,7 +95,12 @@ console.log("\n== Kern und Chronik sind sich einig, was passiv ist ==");
 {
   const { PASSIVE_TALENTE } = await import("./src/core/rules/moves.js");
   const { ABILITIES } = await import("./src/content/abilities.js");
-  const chronikPassiv = Object.values(ABILITIES).filter((a) => a.id && a.once === false).map((a) => a.id);
+  /* v1.25.2: Eintraege mit live:false sind angekuendigt, aber im Kern noch
+     nicht gebaut - genau dafuer gibt es das Feld. Sie stehen in der Chronik,
+     damit Blatt und Akademie denselben Text zeigen, und duerfen deshalb hier
+     nicht als fehlend gelten. Die Probe darunter stellt sicher, dass keine
+     davon an einer Figur oder einem Monster haengt. */
+  const chronikPassiv = Object.values(ABILITIES).filter((a) => a.id && a.once === false && a.live !== false).map((a) => a.id);
   const fehltImKern = chronikPassiv.filter((id) => !PASSIVE_TALENTE.has(id));
   const zuvielImKern = [...PASSIVE_TALENTE].filter((id) => !ABILITIES[id] || ABILITIES[id].once !== false);
   ok("jedes once:false der Chronik kennt der Kern als passiv" + (fehltImKern.length ? " - FEHLT: " + fehltImKern.join(",") : ""), fehltImKern.length === 0);
@@ -171,11 +176,30 @@ console.log("\n== ALLE TALENTE DER CHRONIK, EINZELN GEPRUEFT (Besitzerauftrag) =
   /* 3. Kern und Chronik muessen sich ueber PASSIV einig sein - in beide
         Richtungen. Ein Talent, das die Chronik dauerhaft nennt, der Kern aber
         nicht, verschwindet nach dem ersten Zauber (der Fehler aus v1.0.84). */
-  const passivChronik = alle.filter((a) => a.once === false).map((a) => a.id);
+  /* v1.25.2: live:false = angekuendigt, im Kern noch nicht gebaut (siehe oben). */
+  const passivChronik = alle.filter((a) => a.once === false && a.live !== false).map((a) => a.id);
   const fehltImKern = passivChronik.filter((id) => !PASSIVE_TALENTE.has(id));
   const zuvielImKern = [...PASSIVE_TALENTE].filter((id) => !ABILITIES[id] || ABILITIES[id].once !== false);
   ok(`alle ${passivChronik.length} dauerhaften Talente kennt der Kern`
     + (fehltImKern.length ? " - FEHLT: " + fehltImKern.join(",") : ""), fehltImKern.length === 0);
+
+  /* Die Gegenprobe zur Ausnahme: ein angekuendigtes Talent darf NIRGENDS
+     eingetragen sein, sonst traegt eine Figur etwas, das nichts tut. */
+  {
+    const { CHARACTER_LIST, BOSSES } = await import("./src/content/index.js");
+    const bosse = Array.isArray(BOSSES) ? BOSSES : Object.values(BOSSES);
+    const inBenutzung = new Set([
+      ...CHARACTER_LIST.flatMap((c) => c.ladder.filter((r) => r.ability).map((r) => r.ability)),
+      ...bosse.flatMap((b) => b.abilities || []),
+    ]);
+    /* Geprueft werden die MONSTERTALENTE: sie duerfen erst zugeordnet werden,
+       wenn ihre Wirkung im Kern steht. (chain und pull sind seit laengerem
+       angekuendigt UND vergeben - ein Altbestand, der hier nicht mitgemeint
+       ist und getrennt gehoert.) */
+    const totInBenutzung = Object.values(ABILITIES).filter((a) => a.live === false && a.monsterOnly && inBenutzung.has(a.id)).map((a) => a.id);
+    ok("kein angekuendigtes Monstertalent haengt schon an einer Figur"
+      + (totInBenutzung.length ? " - IN BENUTZUNG: " + totInBenutzung.join(",") : ""), totInBenutzung.length === 0);
+  }
   ok("und der Kern nennt keinen Zauber dauerhaft"
     + (zuvielImKern.length ? " - ZUVIEL: " + zuvielImKern.join(",") : ""), zuvielImKern.length === 0);
 
