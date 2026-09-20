@@ -314,8 +314,20 @@ function paintedRoh(piece) {
        richtig, aber er heilte nur den Weg, nicht die Quelle.
        Jetzt rechnet die Bildwahl den Rang notfalls SELBST aus dem Level -
        eine Stelle, die nicht mehr vergessen werden kann. */
+    /* ── v1.25.4 (Besitzer): EINE RANGFORMEL, NICHT ZWEI ─────────────────────
+       "Gambit hat in der Uebersicht bei Stufe 10 ein anderes Bild als im
+        offenen Pop-up."
+       GEMESSEN: hier stand noch die alte Zehnerblock-Rechnung
+       floor((level-1)/10)+1, das Blatt rechnet seit v1.24.0 mit den zwanzig
+       Stufen (ceil(level*6/20)). Ergebnis bei Stufe 10: Kachel Rang 1, Blatt
+       Rang 3. Bei Stufe 20: Rang 2 gegen Rang 6. Zwei Formeln, zwei Gemaelde.
+       Jetzt rechnet auch die Kachel mit den zwanzig Stufen. Die Formel steht
+       absichtlich hier ausgeschrieben statt importiert: paintedArt liegt im
+       Brett und darf nicht auf die Staffelung zugreifen (Ringschluss). Sie
+       muss mit gambitTier in leveling.js uebereinstimmen - eine Probe
+       vergleicht beide. */
     const gt = Math.min(6, Math.max(1,
-      piece.tier || (piece.level ? Math.min(6, Math.floor((Math.max(1, piece.level) - 1) / 10) + 1) : 1)));
+      piece.tier || (piece.level ? Math.min(6, Math.max(1, Math.ceil(Math.max(1, piece.level) * 6 / 20))) : 1)));
     return (gt >= 2 && PAINTED["gambit-t" + gt]) || PAINTED.gambit || null;
   }
   const id = KIND2ID[piece.kind];

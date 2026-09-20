@@ -1597,6 +1597,34 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
       ok(`die Blitz-Keyframes animieren nur opacity und transform (${[...new Set(eig)].join(", ")})`,
         eig.every((x) => x === "opacity" || x === "transform"));
     }
+    /* ── v1.25.4 (Besitzer, mehrfach): KEINE PERLEN MEHR, NIRGENDS ─────────
+       "Die Bubbles Angriff und Leben will ich nicht sehen. Die brauche ich
+        einfach nicht mehr, die koennen raus, egal wo. Auch in der Akademie
+        und ueberall." Das Sockelband sagt seit v1.24.4 dasselbe, an der Figur
+        statt darueber. Diese Probe haelt sie draussen. */
+    {
+      const dateien = [];
+      const suche = (dir) => { for (const f of readdirSync(dir, { withFileTypes: true })) {
+        const pfad = dir + "/" + f.name;
+        if (f.isDirectory()) suche(pfad); else if (/\.jsx$/.test(f.name)) dateien.push(pfad); } };
+      suche("src/app/ui");
+      const mitPerle = dateien.filter((f) => f !== "src/app/ui/board/PieceGlyph.jsx"
+        && /StatOrbBadge/.test(readFileSync(f, "utf8")));
+      ok("keine Datei zeigt mehr die Perlen" + (mitPerle.length ? " - NOCH DRIN: " + mitPerle.join(", ") : ""),
+        mitPerle.length === 0);
+    }
+    /* v1.25.4: die Rangformel steht an ZWEI Stellen - in leveling.js als
+       gambitTier und in paintedArt.js ausgeschrieben, weil das Brett nicht auf
+       die Staffelung zugreifen darf. Genau deshalb liefen sie auseinander und
+       Kachel und Blatt zeigten verschiedene Gemaelde. Diese Probe haelt sie
+       zusammen. */
+    {
+      const { gambitTier } = await import("./src/meta/leveling.js");
+      const ausPainted = (l) => Math.min(6, Math.max(1, Math.ceil(Math.max(1, l) * 6 / 20)));
+      const abw = [];
+      for (let l = 1; l <= 20; l++) if (gambitTier(l) !== ausPainted(l)) abw.push(l);
+      ok("Kachel und Blatt rechnen denselben Gambit-Rang" + (abw.length ? " - ABWEICHEND: " + abw.join(",") : ""), abw.length === 0);
+    }
     ok("das Rohr rechnet in Punkten gegen das Budget der Figur",
       pg3.includes("const budget = Math.max(1, piece.budget || Math.max(NORM_PUNKTE, maxHp + atk))")
       && pg3.includes("leben: Math.max(0, Math.min(1, hp / budget))"));

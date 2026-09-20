@@ -1,4 +1,4 @@
-import { StatOrbBadge as SheetOrb, JewelIc } from "../board/PieceGlyph.jsx";
+import { JewelIc } from "../board/PieceGlyph.jsx";
 import { FigurenIc, AufstellungIc } from "../RaumIcons.jsx";
 import { AbilityIcon, abilityTint } from "../AbilityIcons.jsx";
 import { useState, useEffect, useMemo, useRef } from "react";
@@ -767,7 +767,12 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
             <div style={{ width: 154, maxWidth: 154, overflow: "hidden" }}>
               <MoveDiagram kind={char.kind} moveSpec={char.moveSpec} talente={chosen} breite={154} />
             </div>
-            {reihen.map((z, ri) => <div key={ri} style={{ display: "flex", gap: 6 }}>
+            {/* v1.25.4 (Besitzer): "wenn mehrere Faehigkeiten wie hier
+                zweiteilig, mehr Abstand nach unten lassen - das wirkt zu
+                gedrungen." Die zweite Reihe stiess bisher direkt an die
+                Wertkaesten. */}
+            {reihen.map((z, ri) => <div key={ri} style={{ display: "flex", gap: 6,
+              marginBottom: ri === reihen.length - 1 && reihen.length > 1 ? 8 : 0 }}>
               {Array.from({ length: ri === 0 ? 5 : z.length }, (_, i) => {
                 const rg = z[i];
                 return rg && chosen.includes(rg.id)
@@ -910,8 +915,22 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
             BLEIBT, ist alles, was auch im Schach zaehlt: Stufe, Gangart,
             Herkunft, Erzaehlung. */}
         {hpUnlocked(profile) && <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 6, margin: "10px 0 2px" }}>
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><SheetOrb kind="power" v={atk} /><span style={{ fontSize: 10.5, color: "#9a8f6f", letterSpacing: ".04em" }}>{en ? "Attack" : "Angriffsstärke"}</span></span>
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><SheetOrb kind="life" v={maxHp} /><span style={{ fontSize: 10.5, color: "#9a8f6f", letterSpacing: ".04em" }}>{en ? "Life" : "Lebenspunkte"}</span></span>
+          {/* ── v1.25.4 (Besitzer, mehrfach): KEINE PERLEN MEHR ───────────────
+              "Die Bubbles Angriff und Leben will ich nicht sehen - egal wo,
+               auch in der Akademie und ueberall."
+              GEFUNDEN beim Aufraeumen: der Import der Perle war schon
+              entfernt, DIESE VIER STELLEN benutzten sie aber weiter - das
+              Figurenblatt stuerzte beim Oeffnen ab ("Da ist etwas
+              schiefgelaufen"), gefangen von der Messprobe, die den Schimmer
+              am geoeffneten Blatt sucht und nichts mehr fand. Statt der
+              Perlen stehen die Zahlen schlicht in den Farben des
+              Sockelbandes: Rot fuer Leben, Blau fuer Staerke. */}
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+            <b style={{ font: "800 13px/1 Georgia, serif", color: "#b6cdff" }}>{atk}</b>
+            <span style={{ fontSize: 10.5, color: "#9a8f6f", letterSpacing: ".04em" }}>{en ? "Attack" : "Angriffsstärke"}</span></span>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+            <b style={{ font: "800 13px/1 Georgia, serif", color: "#ffb3aa" }}>{maxHp}</b>
+            <span style={{ fontSize: 10.5, color: "#9a8f6f", letterSpacing: ".04em" }}>{en ? "Life" : "Lebenspunkte"}</span></span>
         </div>}
         {/* the ledger lines */}
         <div style={{ marginTop: 6 }}>
@@ -951,8 +970,10 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
                 <span>{en ? "Level" : "Stufe"} {level} → {level + 1}</span>
                 {/* the gains live INSIDE the spheres - one flex line centres
                     text, spheres and the button on the SAME axis */}
-                <SheetOrb kind="life" v={"+" + (hpAt(level + 1) - hpAt(level))} size={27} num={0.56} />
-                {atkAt(level + 1) > atkAt(level) && <SheetOrb kind="power" v="+1" size={27} num={0.56} />}
+                {/* v1.25.4: ohne Perlen - und der Angriffszuwachs ist jetzt
+                    die echte Differenz statt des festen "+1" (v1.25.0). */}
+                {hpAt(level + 1) > hpAt(level) && <b style={{ font: "800 12px/1 Georgia, serif", color: "#ffb3aa" }}>+{hpAt(level + 1) - hpAt(level)}</b>}
+                {atkAt(level + 1) > atkAt(level) && <b style={{ font: "800 12px/1 Georgia, serif", color: "#b6cdff" }}>+{atkAt(level + 1) - atkAt(level)}</b>}
               </span>;
           })()}
         </div>
@@ -1279,8 +1300,8 @@ function FormationEditor({ profile, dispatch, t, en }) {
               <span style={{ width: 7, height: 7, transform: "rotate(45deg)", borderRadius: 2, background: FAMILIES[f].color }} />
               {(en ? FAMILIES[f].en : FAMILIES[f].de)} {kin[f]}{label ? <> · {label}</> : null}
             </span>);
-          const cParts = <>{wall ? `${t("army.famWall")} ${wall}` : t("army.famNeedTwo")}{cHp ? <> · <span style={{ display: "inline-flex", verticalAlign: "-0.3em" }}><SheetOrb kind="life" v={"+" + cHp} size={25} num={0.56} /></span></> : null}</>;
-          const sParts = <>{rifts ? `${rifts} ⧗` : t("army.famNeedTwo")}{sAtk ? <> · <span style={{ display: "inline-flex", verticalAlign: "-0.3em" }}><SheetOrb kind="power" v={"+" + sAtk} size={25} num={0.56} /></span></> : null}</>;
+          const cParts = <>{wall ? `${t("army.famWall")} ${wall}` : t("army.famNeedTwo")}{cHp ? <> · <span style={{ display: "inline-flex", verticalAlign: "-0.3em" }}><b style={{ font: "800 11px/1 Georgia, serif", color: "#ffb3aa" }}>{"+" + cHp}</b></span></> : null}</>;
+          const sParts = <>{rifts ? `${rifts} ⧗` : t("army.famNeedTwo")}{sAtk ? <> · <span style={{ display: "inline-flex", verticalAlign: "-0.3em" }}><b style={{ font: "800 11px/1 Georgia, serif", color: "#b6cdff" }}>{"+" + sAtk}</b></span></> : null}</>;
           return <div style={{ display: "flex", gap: 6, justifyContent: "center", flexWrap: "wrap", marginTop: 8 }}>
             {chip("crown", cParts)}
             {chip("shadow", sParts)}
@@ -2524,8 +2545,8 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
               const kann = mein && lvl < BOSS_MAX_LEVEL && (profile.sp || 0) >= cost;
               return <>
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 6, margin: "12px 0 2px" }}>
-                  <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><SheetOrb kind="power" v={spec.atk} /><span style={{ fontSize: 10.5, color: "#a898b4", letterSpacing: ".04em" }}>{en ? "Attack" : "Angriffsstärke"}</span></span>
-                  <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><SheetOrb kind="life" v={spec.hp} /><span style={{ fontSize: 10.5, color: "#a898b4", letterSpacing: ".04em" }}>{en ? "Life" : "Lebenspunkte"}</span></span>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><b style={{ font: "800 12px/1 Georgia, serif", color: "#b6cdff" }}>{spec.atk}</b><span style={{ fontSize: 10.5, color: "#a898b4", letterSpacing: ".04em" }}>{en ? "Attack" : "Angriffsstärke"}</span></span>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><b style={{ font: "800 12px/1 Georgia, serif", color: "#ffb3aa" }}>{spec.hp}</b><span style={{ fontSize: 10.5, color: "#a898b4", letterSpacing: ".04em" }}>{en ? "Life" : "Lebenspunkte"}</span></span>
                 </div>
                 {/* DIE STUFENLEITER DER BESTIE: was jeder Rang bringt, offen
                     einsehbar wie die Fähigkeitsleiter des Hofes. */}
@@ -2539,8 +2560,8 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
                       <span className="gg-serif" style={{ fontSize: 11, color: da ? T.riftBright : "#8d84a0", minWidth: 52 }}>
                         {(en ? "Rank " : "Rang ") + r}</span>
                       <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
-                        <SheetOrb kind="life" v={sp2.hp} size={22} num={0.54} />
-                        {(r === 3 || r === 5) && <SheetOrb kind="power" v={sp2.atk} size={22} num={0.54} />}
+                        <b style={{ font: "800 11px/1 Georgia, serif", color: "#ffb3aa" }}>{sp2.hp}</b>
+                        {(r === 3 || r === 5) && <b style={{ font: "800 11px/1 Georgia, serif", color: "#b6cdff" }}>{sp2.atk}</b>}
                       </span>
                       <span style={{ flex: 1 }} />
                       <span style={{ fontSize: 10.5, color: da ? "#a898b4" : "#7b7290" }}>

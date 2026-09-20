@@ -7,7 +7,7 @@ import { Button } from "../primitives.jsx";
 import { PieceArt } from "../board/PieceArt.jsx";
 import { ItemIcon } from "../ItemIcon.jsx";
 import { SkullIc, BladesIc, HourglassIc, SkillStar, GoldCoin, HeartIc, GoldHeartIc, SwordsIc, HourglassGIc, GoldSkullIc, SkillIc, LevelIc, CoinIc } from "../icons.jsx";
-import { JewelIc, StatOrbBadge } from "../board/PieceGlyph.jsx";
+import { JewelIc } from "../board/PieceGlyph.jsx";
 
 const STEPS = [
   {
@@ -23,12 +23,21 @@ const STEPS = [
   {
     de: { title: "Die zwei Kugeln", text: "Unter jeder Figur liegen zwei Juwelen. BLAU ist die Kampfkraft: so viele Lebenspunkte reißt sie dem Gegner bei einem Angriff herunter. ROT sind ihre Lebenspunkte: so viel hält sie selbst aus. Ein goldener Stern darüber heißt, dass ihre eine Fähigkeit für diese Partie noch frei ist." },
     en: { title: "The two orbs", text: "Two jewels sit beneath every piece. BLUE is attack strength: that many life points it tears off an enemy when it strikes. RED is its own life: that much it endures. A golden star above them means its one ability is still unspent this match." },
-    art: <div style={{ display: "flex", gap: 10, alignItems: "center" }}><StatOrbBadge kind="power" v={3} size={30} /><StatOrbBadge kind="life" v={5} size={30} /></div>,
+    /* v1.25.4: die Lehre zeigt die Zahlen in den Farben des Sockelbandes,
+       nicht mehr als Perlen (Besitzer: "die koennen raus, egal wo"). */
+    art: <div style={{ display: "flex", gap: 14, alignItems: "baseline" }}>
+      <span style={{ font: "800 26px/1 Georgia, serif", color: "#b6cdff" }}>3</span>
+      <span style={{ font: "800 26px/1 Georgia, serif", color: "#ffb3aa" }}>5</span></div>,
   },
   {
     de: { title: "Angriff & Rückprall", text: "Ein Zug auf ein besetztes Feld ist ein Angriff: Deine Kampfkraft trifft seine Lebenspunkte. Hält der Gegner stand, springt deine Figur auf ihr Ausgangsfeld ZURÜCK — das ist kein Fehler, sondern die Regel. Erst wenn sein letzter Lebenspunkt fällt, rückst du auf sein Feld vor. Ein Angreifer mit 3 Kraft braucht gegen 5 Leben also zwei Angriffe." },
     en: { title: "Strike & rebound", text: "Moving onto an occupied square is an attack: your force meets their life. If the defender holds, your piece springs BACK to where it came from — that is the rule, not a glitch. Only when their last life point falls do you advance onto their square. So a striker with 3 force needs two attacks to fell 5 life." },
-    art: <div style={{ display: "flex", gap: 8, alignItems: "center" }}><StatOrbBadge kind="power" v={3} size={26} /><span style={{ color: "#8a6f4d", fontSize: 18 }}>→</span><StatOrbBadge kind="life" v={5} size={26} /><span style={{ color: "#8a6f4d", fontSize: 18 }}>→</span><StatOrbBadge kind="life" v={2} size={26} /></div>,
+    art: <div style={{ display: "flex", gap: 8, alignItems: "baseline" }}>
+      <span style={{ font: "800 22px/1 Georgia, serif", color: "#b6cdff" }}>3</span>
+      <span style={{ color: "#8a6f4d", fontSize: 18 }}>→</span>
+      <span style={{ font: "800 22px/1 Georgia, serif", color: "#ffb3aa" }}>5</span>
+      <span style={{ color: "#8a6f4d", fontSize: 18 }}>→</span>
+      <span style={{ font: "800 22px/1 Georgia, serif", color: "#ffb3aa" }}>2</span></div>,
   },
   {
     de: { title: "Tränke & Zeitenwender", text: "In der Vorratstruhe warten Helfer: Der Lebenstrank heilt im Kampf eine Figur um 2 Lebenspunkte (kostet den Zug). Der Zeitenwender nimmt deinen letzten Zug zurück — jede Umkehr verbrennt eine Sanduhr. Beides wird mit Gold gekauft und ist begrenzt." },

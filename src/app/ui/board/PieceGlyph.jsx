@@ -1002,7 +1002,7 @@ export function PieceGlyph({ piece, showLevel = true, pov = "w", artStyle = "pai
       {/* the twin gauges: LIFE bubbles on the left flank, ENERGY bubbles on the
           right — same jewel language, only the cold blue tells them apart.
           Level, strike and every richer detail live in the tap-to-inspect sheet. */}
-      {big && hpMode && piece.maxHp > 0 && <StatTriad piece={piece} focus={focus} shrink={0.98 / 1.48} />}
+      {/* v1.25.4: auch in der Grossansicht keine Perlen mehr - siehe BoardView. */}
 
 
       {/* v1.0.77 (Besitzer: "unter dem Grand Gambit sind so blaue Punkte,

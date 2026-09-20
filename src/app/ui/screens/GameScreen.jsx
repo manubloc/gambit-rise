@@ -86,7 +86,7 @@ const boardTexture = (match, profile) => {
   const pool = lg >= 8 ? [1, 2, 3, 3] : lg >= 5 ? [0, 1, 2, 3] : [0, 0, 1, 2, 3];
   return WEAR_TEX[pool[texHash((match.nodeId || "x") + ":" + lg) % pool.length]];
 };
-import { PieceGlyph, StatOrbBadge, JewelIc } from "../board/PieceGlyph.jsx";
+import { PieceGlyph, JewelIc } from "../board/PieceGlyph.jsx";
 import { StartMark } from "../HubSeals.jsx";
 
 function Tray({ kinds, color }) {
@@ -1612,8 +1612,10 @@ function HpBriefing({ t, onBegin, onNever }) {
           <span style={{ flex: 1, height: 1, background: "#c9bfa4" }} />
         </div>
         <div style={{ fontSize: 12.5, lineHeight: 1.5, textAlign: "center", color: "#5c5344" }}>{t("hpb.lead")}</div>
-        <Row orb={<StatOrbBadge kind="power" v={3} size={30} />} text={t("hpb.atk")} />
-        <Row orb={<StatOrbBadge kind="life" v={5} size={30} />} text={t("hpb.hp")} />
+        {/* v1.25.4: die Werteerklaerung zeigt die Zahlen in den Farben des
+            Sockelbandes statt als Perlen - dieselbe Sprache wie am Brett. */}
+        <Row orb={<span style={{ font: "800 22px/1 Georgia, serif", color: "#b6cdff" }}>3</span>} text={t("hpb.atk")} />
+        <Row orb={<span style={{ font: "800 22px/1 Georgia, serif", color: "#ffb3aa" }}>5</span>} text={t("hpb.hp")} />
         <div style={{ borderTop: "1px solid #d8cfb8", margin: "6px 0 0", paddingTop: 9, fontSize: 13, lineHeight: 1.5 }}>
           {t("hpb.bounce")}
         </div>

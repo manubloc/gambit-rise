@@ -1,5 +1,26 @@
 # Changelog - Grand Gambit
 
+## 1.25.4
+- DIE PERLEN SIND UEBERALL WEG (Besitzer, mehrfach: "Die Bubbles Angriff und
+  Leben will ich nicht sehen - egal wo, auch in der Akademie und ueberall").
+  Brett, Grossansicht, Kampfleiste, Kampagnenschirm, Galerie, Tutorial und
+  Hofstaat: die Zahlen stehen jetzt schlicht in den Farben des Sockelbandes,
+  Rot fuer Leben, Blau fuer Staerke. StatOrbBadge wird nirgends mehr
+  aufgerufen.
+- DABEI EINEN ABSTURZ GEFUNDEN UND BEHOBEN: der Import der Perle war im
+  Hofstaat schon entfernt, ACHT Stellen benutzten sie aber weiter - das
+  Figurenblatt brach beim Oeffnen ab ("Da ist etwas schiefgelaufen").
+  Gefangen hat das die Messprobe, die den Schimmer am GEOEFFNETEN Blatt sucht
+  und nichts mehr fand; sie meldet jetzt wieder drei verschiedene Farben.
+- EINE RANGFORMEL FUER DEN GAMBIT, NICHT ZWEI (Besitzer: "Gambit hat in der
+  Uebersicht bei Stufe 10 ein anderes Bild als im offenen Pop-up"). In
+  paintedArt stand noch die alte Zehnerblock-Rechnung, das Blatt rechnet seit
+  v1.24.0 mit den zwanzig Stufen. Bei Stufe 10 ergab das Rang 1 gegen Rang 3,
+  bei Stufe 20 Rang 2 gegen Rang 6 - zwei Formeln, zwei Gemaelde. Eine neue
+  Probe vergleicht beide Formeln ueber alle zwanzig Stufen.
+- MEHR LUFT UNTER DER ZWEITEN ZEICHENREIHE im Figurenblatt (Besitzer: "das
+  wirkt zu gedrungen").
+
 ## 1.25.3
 - AUF DER HOECHSTSTUFE BERUEHREN SICH ROT UND BLAU (Besitzer: "In der letzten
   Stufe sollten sich der blaue und der rote Balken immer beruehren, bei jeder

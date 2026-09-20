@@ -13,7 +13,7 @@ import { useState, useEffect } from "react";
 import { legalMovesFrom } from "../../core/index.js";
 import { ABILITIES, CHARACTERS, faehigkeitZustand } from "../../content/index.js";
 import { paintedForPiece } from "./board/paintedArt.js";
-import { StatOrbBadge } from "./board/PieceGlyph.jsx";
+
 import { T } from "./theme.js";
 
 const SONDER = {
@@ -179,8 +179,11 @@ export function KampfLeiste({ state, inspect, en, myColor = "w", banner = false,
                 UNTER der Figur - und im Massstab der grossen Figur. */}
             {(pc.maxHp > 0 || pc.atk != null || pc.shield > 0) && (
               <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 2 }}>
-                {pc.maxHp > 0 && <StatOrbBadge kind="life" v={pc.hp} size={24} />}
-                {pc.atk != null && <StatOrbBadge kind="power" v={pc.atk} size={24} />}
+                {/* v1.25.4: keine Perlen mehr - die Zahlen stehen schlicht in
+                    den Farben des Sockelbandes, Rot fuer Leben, Blau fuer
+                    Staerke. Dieselbe Sprache wie am Brett und im Blatt. */}
+                {pc.maxHp > 0 && <span style={{ font: "800 12px/1 Georgia, serif", color: "#ffb3aa" }}>{pc.hp}</span>}
+                {pc.atk != null && <span style={{ font: "800 12px/1 Georgia, serif", color: "#b6cdff" }}>{pc.atk}</span>}
                 {pc.shield > 0 && <span style={{ fontSize: 11.5, fontWeight: 800, color: "#9fc1e8" }}>⛨ {pc.shield}</span>}
               </div>
             )}

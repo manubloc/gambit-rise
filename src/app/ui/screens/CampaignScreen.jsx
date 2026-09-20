@@ -39,7 +39,7 @@ import { paintedForPiece, PAINTED, ENEMY_FILTER } from "../board/paintedArt.js";
 import { livery } from "../livery.js";
 import { ItemIcon } from "../ItemIcon.jsx";
 import { ElementIcon, GoldCoin, SkullIc, BladesIc, LockIc, HeartIc, MapPinIc, BackIc, WaveIc, AnchorIc, BoatIc, CheckIc, BoxIc } from "../icons.jsx";
-import { StatOrbBadge } from "../board/PieceGlyph.jsx";
+import {} from "../board/PieceGlyph.jsx";
 import { MAP_BITMAPS12 as MAP_BITMAPS } from "../mapBitmaps12.gen.js";
 import { WORLD_MAP, loreText } from "../worldMap.js";
 import { useMedia } from "../../App.jsx";
@@ -1144,8 +1144,10 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
                 <div className="gg-quill" style={{ fontSize: 15, color: PP.ink, lineHeight: 1.1 }}>
                   {en ? bossHier.nameEn : bossHier.nameDe}</div>
                 <div style={{ display: "flex", gap: 7, marginTop: 5 }}>
-                  <StatOrbBadge kind="power" v={bossHier.atk} size={24} num={0.52} />
-                  <StatOrbBadge kind="life" v={bossHier.hp} size={24} num={0.52} />
+                  {/* v1.25.4 (Besitzer): keine Perlen mehr, auch nicht auf der
+                      Karte - die Zahlen in den Farben des Sockelbandes. */}
+                  <span style={{ font: "800 13px/1 Georgia, serif", color: "#b6cdff" }}>{bossHier.atk}</span>
+                  <span style={{ font: "800 13px/1 Georgia, serif", color: "#ffb3aa" }}>{bossHier.hp}</span>
                 </div>
               </div>
             </div>;
@@ -1277,7 +1279,7 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
                   (kleiner Abstand zum Sockel); Ueberschrift und Fliesstext
                   ruecken dadurch sauber untereinander. */}
               <div style={{ display: "flex", alignItems: "center", gap: 3, marginTop: 1 }}><span style={{ display: "inline-flex", alignItems: "center", gap: 2, filter: "drop-shadow(0 1px 2px rgba(0,0,0,.35))" }}>
-                    <StatOrbBadge kind="power" v={boss.atk} size={28} num={0.52} /><StatOrbBadge kind="life" v={boss.hp} size={28} num={0.52} /></span>
+                    <span style={{ font: "800 14px/1 Georgia, serif", color: "#b6cdff" }}>{boss.atk}</span><span style={{ font: "800 14px/1 Georgia, serif", color: "#ffb3aa", marginLeft: 6 }}>{boss.hp}</span></span>
               </div>
             </div>
               <div style={{ minWidth: 0, flex: "1 1 auto", paddingBottom: 3 }}>

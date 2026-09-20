@@ -7,7 +7,7 @@ import { useState } from "react";
 import { T, SPACING } from "../theme.js";
 import { Button, Panel, PanelTitle, FieldLabel, MapChip, Bar, Chip, Segmented, Stat, Toggle } from "../primitives.jsx";
 import { GildedFrame, GoldShineButton, GoldRule, goldText } from "../Gilded.jsx";
-import { StatOrbBadge } from "../board/PieceGlyph.jsx";
+
 
 const H = ({ children }) => <div className="gg-display" style={{ fontSize: 19, color: T.gold, letterSpacing: ".04em", margin: "26px 0 10px" }}>{children}</div>;
 const Reihe = ({ children }) => <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>{children}</div>;
@@ -87,13 +87,10 @@ export function GalerieScreen() {
 
       <H>Kugeln: Leben & Energie</H>
       <Reihe>
-        {[1, 7, 12, 48, 120].map((v) => <StatOrbBadge key={"l" + v} kind="life" v={v} size={34} />)}
-        {[1, 7, 12, 48, 120].map((v) => <StatOrbBadge key={"e" + v} kind="energy" v={v} size={34} />)}
-      </Reihe>
-      <div style={{ height: 8 }} />
-      <Reihe>
-        {[3, 25].map((v) => <StatOrbBadge key={"s" + v} kind="life" v={v} size={22} />)}
-        {[3, 25].map((v) => <StatOrbBadge key={"t" + v} kind="energy" v={v} size={48} />)}
+        {/* v1.25.4: die Schaukammer zeigt keine Perlen mehr - sie sind aus
+            dem Spiel genommen (Besitzer: "die koennen raus, egal wo"). Die
+            Zahlensprache steht jetzt im Sockelband, und das hat seine eigene
+            Reihe weiter unten. */}
       </Reihe>
 
       <H>Schalter</H>

@@ -720,7 +720,12 @@ export function BoardView({ state, onMove, interactive, lastMove, mattSeite = nu
             <div aria-hidden style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: 0,
               display: "flex", justifyContent: "center", pointerEvents: "none",
               zIndex: (!ruhig && (isSel || isSpy)) ? 41 : rr + 4 }}>
-              <StatTriad piece={piece} focus={isSel || isSpy} />
+              {/* v1.25.4 (Besitzer, mehrfach): "Die Bubbles Angriff und Leben
+                  will ich nicht sehen - egal wo, die koennen raus." Auf dem
+                  Brett sagt das SOCKELBAND seit v1.24.4 dasselbe, und zwar an
+                  der Figur statt darueber: Rot ist das Leben in Punkten, Blau
+                  die Staerke. Die Perlen waren die dritte Anzeige derselben
+                  Zahl und verdeckten dabei die obere Reihe. */}
             </div>}
           {/* ── v1.0.74: DAS GANZE FELD ZEIGT DAS ZIEL ────────────────────
               Besitzerbefund: "es ist extrem stoerend, dass dieser Punkt
