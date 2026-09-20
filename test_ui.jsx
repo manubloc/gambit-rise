@@ -680,7 +680,11 @@ const erloschen = (m) => m.includes("#2f2a3d");
   ok("die Herkunftsworte sind die alten Kachelworte", herkunftsWort("eigen", false) === "Im Hof" && herkunftsWort("begegnet", true) === "Met in battle");
   const arm = readFileSync("src/app/ui/screens/ArmyScreen.jsx", "utf8");
   ok("das Figurenblatt traegt die Tafel", arm.includes('<BundTafel profile={profile} charId={char.id}'));
-  ok("und das Monsterblatt auch", arm.includes('<BundTafel profile={profile} bossId={b.id}'));
+  /* v1.25.9 (Besitzer): Monster haben keinen Bund - "dass die Monster keine
+     Buende haben, finde ich in Ordnung". Das Monsterfenster traegt deshalb
+     keine Bundtafel, dafuer DIESELBE Buehne wie das Figurenblatt. */
+  ok("das Monsterblatt traegt dieselbe Buehne wie das Figurenblatt, ohne Bundtafel",
+    arm.includes('<BlattBuehne kennung={"boss-" + b.id}') && !arm.includes('<BundTafel profile={profile} bossId={b.id}'));
 }
 
 /* ── DAS TALENT-FREISCHALTFENSTER (v1.20.0) ─────────────────────────────────

@@ -206,6 +206,125 @@ const BlattEcken = () => <>{[["top:2px;left:2px", 0], ["top:2px;right:2px", 90],
     return <div key={i} aria-hidden style={{ position: "absolute", [a[0]]: a[1], [b[0]]: b[1],
       transform: `rotate(${dreh}deg)`, zIndex: -1, lineHeight: 0, opacity: .85, pointerEvents: "none" }}>{BLATT_ECKE}</div>; })}</>;
 
+
+/* ═══ DIE BUEHNE ALS BAUTEIL (v1.25.9) ══════════════════════════════════════
+   Besitzer: "Ich wollte doch bei allen Monstern genau das gleiche Design wie
+   bei meinen Figuren - und auch von der Bedienung."
+   Bis hierher war die Buehne in das Figurenblatt eingebacken und las dessen
+   lokale Groessen. Jetzt ist sie ein Bauteil mit Eigenschaften: Figurenblatt
+   und Monsterfenster rufen DASSELBE auf. Was ein Monster nicht hat (Bund,
+   Leiter zum Waehlen), laesst es einfach weg. */
+function BlattBuehne({ kennung, name, haus, satz, portraet, pid, ton, kul, form, stufe, maxStufe,
+  zugKind, moveSpec, talente, zeichen, band, atk, maxHp, plusAtk, plusHp, werteAn, maxed, en }) {
+  const gezeigt = zeichen.slice(0, 10);
+  const reihen = []; for (let r = 0; r * 5 < Math.max(5, gezeigt.length); r++) reihen.push(gezeigt.slice(r * 5, r * 5 + 5));
+  return <div style={{ position: "relative", isolation: "isolate", borderRadius: 15, overflow: "hidden",
+        padding: "10px 12px 12px", border: "1px solid rgba(233,207,138,.26)",
+        background: "linear-gradient(180deg, rgba(20,13,36,.9), rgba(10,7,19,.96))" }}>
+        {kul && <img src={kul} alt="" data-gg-still="" draggable={false} style={{ position: "absolute", inset: 0,
+          width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 38%", opacity: .66, zIndex: -2 }} />}
+        <div aria-hidden style={{ position: "absolute", inset: 0, zIndex: -1,
+          background: "linear-gradient(180deg, rgba(8,5,14,.6) 0%, rgba(8,5,14,.22) 38%, rgba(8,5,14,.72) 100%)" }} />
+        <BlattEcken />
+        {/* oben rechts: Stufenanzeige, und an ihrem Ende das Emblem */}
+        <div style={{ display: "flex", alignItems: "center", marginBottom: 6 }}>
+          <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 4 }}>
+            <StufenStriche stufe={stufe} maxStufe={maxStufe} />
+            {/* Die Zeichnung der Abzeichen steht genau EINMAL im Hofstaat und
+                gilt fuer das ganze Dokument - hier darf sie nicht noch einmal
+                eingehaengt werden (test_ui prueft die Anzahl). */}
+            <StufenAbzeichen form={form} stufe={stufe} maxStufe={maxStufe} farbe={ton} size={40} />
+          </div>
+        </div>
+        {/* Figur links, Name darunter - rechts Zugbild und Zeichen */}
+        <div style={{ display: "flex", gap: 10, alignItems: "flex-end", padding: "0 6px" }}>
+          <div style={{ flex: "0 0 auto", width: 148 }}>
+            {/* ── DERSELBE KASTEN WIE AUF DER KACHEL ────────────────────────
+                Besitzer: "auch dort hast du dieses Band anders, teilweise bei
+                der gleichen Figur. Wieso vermessen wir das alles und dann
+                kriegst du es nicht uebertragen?"
+                MEIN FEHLER, gemessen: im ersten Bau trug das BILD die
+                Skalierung (translate + scale), das Band daneben aber NICHT -
+                es wurde unskaliert ueber ein skaliertes Bild gelegt. Auf der
+                Kachel stehen Bild und Band in EINEM Kasten, und der Kasten
+                traegt die Verwandlung; genau so jetzt auch hier. Kein zweites
+                Mass, keine zweite Rechnung - derselbe Bau. */}
+            <div style={{ position: "relative", width: 148, height: 148 }}>
+              <div style={{ position: "absolute", inset: 0, transformOrigin: "50% 100%",
+                transform: `translate(${tellerMitteProzent(pid).toFixed(2)}%, ${bodenAusgleichProzent(pid).toFixed(2)}%) scale(${sockelSkalierung(pid).toFixed(3)}, ${(sockelSkalierung(pid) * figurStreckung(pid)).toFixed(3)})`,
+                filter: `drop-shadow(0 0 12px ${ton}88) drop-shadow(0 3px 5px rgba(0,0,0,.55))` }}>
+                <img src={portraet} alt="" draggable={false} style={{ position: "absolute", inset: 0,
+                  width: "100%", height: "100%", objectFit: "contain", objectPosition: "center" }} />
+                {bandBekannt(pid) && <SockelBand paintedId={pid} id={`blatt-${kennung}`}
+                  /* ── v1.24.5 (Besitzer): DIESELBEN ANTEILE WIE DIE KACHEL ──
+                     "Ich habe Figuren, wo im Pop-up das eine andere Wertigkeit
+                      hat wie in der Uebersicht. Das geht nicht."
+                     Richtig, und es war meine eigene Erfindung: hier stand
+                     leben=1 und kraft=atk/12 - eine zweite Rechnung neben
+                     rohrAnteile(), das die Kachel und das Gefecht benutzen.
+                     Jetzt liest das Blatt dieselbe Quelle wie die Kachel. */
+                  {...band}
+                  grau={!werteAn} ausrichtung="mitte" />}
+              </div>
+            </div>
+            <div style={{ textAlign: "center", marginTop: 4 }}>
+              <div className="gg-quill" style={{ fontSize: 20, lineHeight: 1.1, color: "#f3ecd2",
+                textShadow: "0 1px 6px rgba(0,0,0,.9)" }}>{name}</div>
+              <div style={{ fontSize: 9, letterSpacing: ".14em", textTransform: "uppercase", color: "#cbbf9a",
+                marginTop: 4, textShadow: "0 1px 5px rgba(0,0,0,.9)" }}>
+                {haus}
+              </div>
+            </div>
+          </div>
+          <div style={{ flex: "0 0 auto", width: 154, display: "flex", flexDirection: "column", gap: 6 }}>
+            <div style={{ width: 154, maxWidth: 154, overflow: "hidden" }}>
+              <MoveDiagram kind={zugKind} moveSpec={moveSpec} talente={talente} breite={154} />
+            </div>
+            {/* v1.25.4 (Besitzer): "wenn mehrere Faehigkeiten wie hier
+                zweiteilig, mehr Abstand nach unten lassen - das wirkt zu
+                gedrungen." Die zweite Reihe stiess bisher direkt an die
+                Wertkaesten. */}
+            {reihen.map((z, ri) => <div key={ri} style={{ display: "flex", gap: 6,
+              marginBottom: ri === reihen.length - 1 && reihen.length > 1 ? 8 : 0 }}>
+              {Array.from({ length: ri === 0 ? 5 : z.length }, (_, i) => {
+                const rg = z[i];
+                return rg && rg.gelernt
+                  ? <AbilityIcon key={i} id={rg.id} size={26} />
+                  : <span key={i} style={{ width: 26, height: 26, borderRadius: 7, display: "block",
+                      border: "1px dashed rgba(233,207,138,.32)", background: "rgba(8,5,14,.4)",
+                      opacity: rg ? .75 : .45 }} />;
+              })}
+            </div>)}
+          </div>
+        </div>
+        {/* der Satz, mittig unter beiden Spalten */}
+        {satz && <div className="gg-serif" style={{ margin: "9px 0 10px",
+          textAlign: "center", fontSize: 11.5, lineHeight: 1.4, color: "#cec7ab", fontStyle: "italic",
+          textShadow: "0 1px 5px rgba(0,0,0,.9)" }}>„{satz}“</div>}
+        {/* die Werte - nur wenn die alte Magie erwacht ist (v1.0.33) */}
+        {werteAn && <div style={{ display: "flex", gap: 9 }}>
+          {[["rot", atk, en ? "Attack" : "Angriff", "#ffb3aa", "#e08a84", plusAtk],
+            ["blau", maxHp, en ? "Life" : "Leben", "#b6cdff", "#8ba6e0", plusHp]].map(([art, wert, wort, hell, matt, plus]) =>
+            <div key={art} style={{ flex: 1, display: "flex", alignItems: "center", gap: 8, padding: "6px 9px",
+              borderRadius: 11, background: "rgba(10,7,19,.72)", border: `1px solid ${T.line}` }}>
+              <WertZeichen art={art} id={kennung} />
+              <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
+                <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8 }}>
+                  <span style={{ font: "800 15px/1 Georgia, serif", color: hell }}>{wert}</span>
+                  {plus > 0 && <b style={{ font: "800 11.5px/1 Georgia, serif", color: "#c4b5fd",
+                    textShadow: "0 0 7px rgba(167,139,250,.75)" }}>+{plus}</b>}
+                </div>
+                <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8 }}>
+                  <span style={{ font: "600 8.5px/1 Georgia, serif", letterSpacing: ".11em", textTransform: "uppercase", color: matt }}>{wort}</span>
+                  {plus > 0 && <span style={{ font: "600 7.5px/1 Georgia, serif", letterSpacing: ".09em",
+                    textTransform: "uppercase", color: "#9a8fc0" }}>{en ? "next" : "nächste"}</span>}
+                </div>
+              </div>
+            </div>)}
+        </div>}
+      </div>;
+}
+
 function SheetRow({ label, children }) {
   return <div style={{ display: "flex", alignItems: "baseline", gap: 8, padding: "3px 0" }}>
     <span className="gg-serif" style={{ fontSize: 11.5, letterSpacing: ".14em", color: "#9a8f6f",
@@ -703,122 +822,20 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
     {/* ── DIE BUEHNE (Entwurf 8) - nur im grossen Blatt ──────────────── */}
     {bigArt ? (() => {
       const kul = KULISSE_URL[kulisseFuer({ charId: char.id })];
-      const pid = paintedIdOf(portraet) || char.id;   /* bildnisVon gibt die Bild-URL, nicht ein Objekt */
+      const pid = paintedIdOf(portraet) || char.id;
       const ton = figurFarbe(pid) || "#5b3fa6";
-      const maxSt = maxLevelFor(char.id);
-      const gezeigt = rungs.slice(0, 10);
-      const reihen = []; for (let r = 0; r * 5 < Math.max(5, gezeigt.length); r++) reihen.push(gezeigt.slice(r * 5, r * 5 + 5));
-      return <div style={{ position: "relative", isolation: "isolate", borderRadius: 15, overflow: "hidden",
-        padding: "10px 12px 12px", border: "1px solid rgba(233,207,138,.26)",
-        background: "linear-gradient(180deg, rgba(20,13,36,.9), rgba(10,7,19,.96))" }}>
-        {kul && <img src={kul} alt="" data-gg-still="" draggable={false} style={{ position: "absolute", inset: 0,
-          width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 38%", opacity: .66, zIndex: -2 }} />}
-        <div aria-hidden style={{ position: "absolute", inset: 0, zIndex: -1,
-          background: "linear-gradient(180deg, rgba(8,5,14,.6) 0%, rgba(8,5,14,.22) 38%, rgba(8,5,14,.72) 100%)" }} />
-        <BlattEcken />
-        {/* oben rechts: Stufenanzeige, und an ihrem Ende das Emblem */}
-        <div style={{ display: "flex", alignItems: "center", marginBottom: 6 }}>
-          <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 4 }}>
-            <StufenStriche stufe={level} maxStufe={maxSt} />
-            {/* Die Zeichnung der Abzeichen steht genau EINMAL im Hofstaat und
-                gilt fuer das ganze Dokument - hier darf sie nicht noch einmal
-                eingehaengt werden (test_ui prueft die Anzahl). */}
-            <StufenAbzeichen form={formFuer({ charId: char.id })} stufe={level} maxStufe={maxSt} farbe={ton} size={40} />
-          </div>
-        </div>
-        {/* Figur links, Name darunter - rechts Zugbild und Zeichen */}
-        <div style={{ display: "flex", gap: 10, alignItems: "flex-end", padding: "0 6px" }}>
-          <div style={{ flex: "0 0 auto", width: 148 }}>
-            {/* ── DERSELBE KASTEN WIE AUF DER KACHEL ────────────────────────
-                Besitzer: "auch dort hast du dieses Band anders, teilweise bei
-                der gleichen Figur. Wieso vermessen wir das alles und dann
-                kriegst du es nicht uebertragen?"
-                MEIN FEHLER, gemessen: im ersten Bau trug das BILD die
-                Skalierung (translate + scale), das Band daneben aber NICHT -
-                es wurde unskaliert ueber ein skaliertes Bild gelegt. Auf der
-                Kachel stehen Bild und Band in EINEM Kasten, und der Kasten
-                traegt die Verwandlung; genau so jetzt auch hier. Kein zweites
-                Mass, keine zweite Rechnung - derselbe Bau. */}
-            <div style={{ position: "relative", width: 148, height: 148 }}>
-              <div style={{ position: "absolute", inset: 0, transformOrigin: "50% 100%",
-                transform: `translate(${tellerMitteProzent(pid).toFixed(2)}%, ${bodenAusgleichProzent(pid).toFixed(2)}%) scale(${sockelSkalierung(pid).toFixed(3)}, ${(sockelSkalierung(pid) * figurStreckung(pid)).toFixed(3)})`,
-                filter: `drop-shadow(0 0 12px ${ton}88) drop-shadow(0 3px 5px rgba(0,0,0,.55))` }}>
-                <img src={portraet} alt="" draggable={false} style={{ position: "absolute", inset: 0,
-                  width: "100%", height: "100%", objectFit: "contain", objectPosition: "center" }} />
-                {bandBekannt(pid) && <SockelBand paintedId={pid} id={`blatt-${char.id}`}
-                  /* ── v1.24.5 (Besitzer): DIESELBEN ANTEILE WIE DIE KACHEL ──
-                     "Ich habe Figuren, wo im Pop-up das eine andere Wertigkeit
-                      hat wie in der Uebersicht. Das geht nicht."
-                     Richtig, und es war meine eigene Erfindung: hier stand
-                     leben=1 und kraft=atk/12 - eine zweite Rechnung neben
-                     rohrAnteile(), das die Kachel und das Gefecht benutzen.
-                     Jetzt liest das Blatt dieselbe Quelle wie die Kachel. */
-                  {...(() => {
-                    const mx = maxLevelFor(char.id);
-                    const wMax = werteBeiStufe(char.kind, mx, { maxLevel: mx, punkte: punkteVon(char.id) });
-                    const sMax = resolveCharacter(char, mx, chosen).shield;
-                    const budget = _heldFig ? HELD_PUNKTE : wMax.hp + wMax.atk;
-                    const w = rohrAnteile({ hp: maxHp, maxHp, atk, level, maxLevel: mx, budget });
-                    return { leben: w ? w.leben : 0, kraft: w ? w.kraft : 0 }; })()}
-                  grau={!hpUnlocked(profile)} ausrichtung="mitte" />}
-              </div>
-            </div>
-            <div style={{ textAlign: "center", marginTop: 4 }}>
-              <div className="gg-quill" style={{ fontSize: 20, lineHeight: 1.1, color: "#f3ecd2",
-                textShadow: "0 1px 6px rgba(0,0,0,.9)" }}>{en ? char.nameEn : char.nameDe}</div>
-              <div style={{ fontSize: 9, letterSpacing: ".14em", textTransform: "uppercase", color: "#cbbf9a",
-                marginTop: 4, textShadow: "0 1px 5px rgba(0,0,0,.9)" }}>
-                {epic ? (en ? "The Grand Gambit" : "Der Grand Gambit") : fam ? (en ? FAMILIES[fam].en : FAMILIES[fam].de) : (en ? "Free piece" : "Freie Figur")}
-              </div>
-            </div>
-          </div>
-          <div style={{ flex: "0 0 auto", width: 154, display: "flex", flexDirection: "column", gap: 6 }}>
-            <div style={{ width: 154, maxWidth: 154, overflow: "hidden" }}>
-              <MoveDiagram kind={char.kind} moveSpec={char.moveSpec} talente={chosen} breite={154} />
-            </div>
-            {/* v1.25.4 (Besitzer): "wenn mehrere Faehigkeiten wie hier
-                zweiteilig, mehr Abstand nach unten lassen - das wirkt zu
-                gedrungen." Die zweite Reihe stiess bisher direkt an die
-                Wertkaesten. */}
-            {reihen.map((z, ri) => <div key={ri} style={{ display: "flex", gap: 6,
-              marginBottom: ri === reihen.length - 1 && reihen.length > 1 ? 8 : 0 }}>
-              {Array.from({ length: ri === 0 ? 5 : z.length }, (_, i) => {
-                const rg = z[i];
-                return rg && chosen.includes(rg.id)
-                  ? <AbilityIcon key={i} id={rg.id} size={26} />
-                  : <span key={i} style={{ width: 26, height: 26, borderRadius: 7, display: "block",
-                      border: "1px dashed rgba(233,207,138,.32)", background: "rgba(8,5,14,.4)",
-                      opacity: rg ? .75 : .45 }} />;
-              })}
-            </div>)}
-          </div>
-        </div>
-        {/* der Satz, mittig unter beiden Spalten */}
-        {!epic && (en ? char.flavorEn : char.flavorDe) && <div className="gg-serif" style={{ margin: "9px 0 10px",
-          textAlign: "center", fontSize: 11.5, lineHeight: 1.4, color: "#cec7ab", fontStyle: "italic",
-          textShadow: "0 1px 5px rgba(0,0,0,.9)" }}>„{en ? char.flavorEn : char.flavorDe}“</div>}
-        {/* die Werte - nur wenn die alte Magie erwacht ist (v1.0.33) */}
-        {hpUnlocked(profile) && <div style={{ display: "flex", gap: 9 }}>
-          {[["rot", atk, en ? "Attack" : "Angriff", "#ffb3aa", "#e08a84", plusAtk],
-            ["blau", maxHp, en ? "Life" : "Leben", "#b6cdff", "#8ba6e0", plusHp]].map(([art, wert, wort, hell, matt, plus]) =>
-            <div key={art} style={{ flex: 1, display: "flex", alignItems: "center", gap: 8, padding: "6px 9px",
-              borderRadius: 11, background: "rgba(10,7,19,.72)", border: `1px solid ${T.line}` }}>
-              <WertZeichen art={art} id={char.id} />
-              <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
-                <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8 }}>
-                  <span style={{ font: "800 15px/1 Georgia, serif", color: hell }}>{wert}</span>
-                  {plus > 0 && <b style={{ font: "800 11.5px/1 Georgia, serif", color: "#c4b5fd",
-                    textShadow: "0 0 7px rgba(167,139,250,.75)" }}>+{plus}</b>}
-                </div>
-                <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8 }}>
-                  <span style={{ font: "600 8.5px/1 Georgia, serif", letterSpacing: ".11em", textTransform: "uppercase", color: matt }}>{wort}</span>
-                  {plus > 0 && <span style={{ font: "600 7.5px/1 Georgia, serif", letterSpacing: ".09em",
-                    textTransform: "uppercase", color: "#9a8fc0" }}>{en ? "next" : "nächste"}</span>}
-                </div>
-              </div>
-            </div>)}
-        </div>}
-      </div>;
+      const mx = maxLevelFor(char.id);
+      const wMax = werteBeiStufe(char.kind, mx, { maxLevel: mx });
+      const budget = wMax.hp + wMax.atk;
+      const band = rohrAnteile({ hp: maxHp, maxHp, atk, level, maxLevel: mx, budget });
+      return <BlattBuehne kennung={char.id} name={en ? char.nameEn : char.nameDe}
+        haus={epic ? (en ? "The Grand Gambit" : "Der Grand Gambit") : fam ? (en ? FAMILIES[fam].en : FAMILIES[fam].de) : (en ? "Free piece" : "Freie Figur")}
+        satz={!epic ? (en ? char.flavorEn : char.flavorDe) : ""} portraet={portraet} pid={pid} ton={ton} kul={kul}
+        form={formFuer({ charId: char.id })} stufe={level} maxStufe={mx}
+        zugKind={char.kind} moveSpec={char.moveSpec} talente={chosen}
+        zeichen={rungs.map((r) => ({ id: r.id, gelernt: chosen.includes(r.id) }))}
+        band={{ leben: band.leben, kraft: band.kraft }}
+        atk={atk} maxHp={maxHp} plusAtk={plusAtk} plusHp={plusHp} werteAn={hpUnlocked(profile)} maxed={maxed} en={en} />;
     })() : (
     <div style={{ display: "flex", gap: 13, alignItems: "stretch", cursor: onToggle ? "pointer" : "default" }}
       onClick={onToggle ? (e) => { e.stopPropagation(); onToggle(); } : undefined}>
@@ -2531,24 +2548,27 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
             background: "rgba(10,13,20,.72)", border: `1px solid ${T.riftLine}`, color: T.riftBright,
             fontFamily: "inherit", fontSize: 13, lineHeight: 1 }}>✕</button>
           <div className="gg-thinbar" style={{ flex: "1 1 auto", minHeight: 0, overflowY: "auto", padding: "18px 16px 16px" }}>
-            <div style={{ display: "flex", alignItems: "flex-end", gap: 12 }}>
-              {img && <img src={img} alt="" onClick={(e) => { e.stopPropagation(); onZoom && onZoom({ boss: true, bid: b.id, art: b.art, nameDe: b.nameDe, nameEn: b.nameEn, flavorDe: b.flavorDe, flavorEn: b.flavorEn }); }}
-                title={en ? "Tap to enlarge" : "Antippen zum Vergrößern"}
-                /* v1.0.14 (Besitzer): im Popup war oben Luft - das Bild nimmt sie. */
-                style={{ width: 148, height: 178, objectFit: "contain", objectPosition: "bottom", cursor: "zoom-in",
-                /* v1.23.6: derselbe Schimmer wie beim Hofstaat, hier im Akzent des Meisters */
-                filter: `drop-shadow(0 0 10px ${schimmer(b.accent)})` }} />}
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div className="gg-quill" style={{ fontSize: 21, color: "#e7b7c9" }}>{en ? b.nameEn : b.nameDe}</div>
-                <div className="gg-serif" style={{ fontSize: 11, letterSpacing: ".14em", color: T.riftBright, textTransform: "uppercase", marginTop: 2 }}>{fam}</div>
-              </div>
-              {/* v1.0.11 (Besitzer): das Vektor-Zeichen im Kopf ist fort. */}
-            </div>
-            {/* v1.16.0: Kapitel oder Gruppe, und die Herkunft - vorher auf der Kachel */}
-            <BundTafel profile={profile} bossId={b.id} en={en}
-              status={bribedSet.has(b.id) ? "verbuendet" : ownedBossSet.has(b.id) ? "eigen" : met.has("X:" + b.id) ? "begegnet" : sighted.has(b.id) ? "gesichtet" : null} />
-            {(en ? b.flavorEn : b.flavorDe) && <div className="gg-serif" style={{ marginTop: 8, fontSize: 12, lineHeight: 1.45,
-              color: "#b9a9c5", fontStyle: "italic" }}>„{en ? b.flavorEn : b.flavorDe}"</div>}
+            {/* ── v1.25.9 (Besitzer): DIESELBE BUEHNE WIE BEIM FIGURENBLATT ────
+                "Ich wollte doch bei allen Monstern genau das gleiche Design wie
+                 bei meinen Figuren." Kulisse, Eckverzierungen, Figur mit
+                 Sockelband, Name darunter, rechts das Zugbild und die
+                 Faehigkeitszeichen, Stufenanzeige mit Emblem, die Wertkaesten.
+                 Es ist DASSELBE Bauteil (BlattBuehne), nichts nachgebaut. */}
+            {(() => {
+              const pidB = bandBekannt("boss-" + b.id) ? "boss-" + b.id : "boss-" + b.art;
+              const tonB = figurFarbe(pidB) || b.accent || "#5b3fa6";
+              const lvlB = bossLevelOf(profile, b.id) || 1;
+              const budgetB = b.hp + b.atk;
+              const bandB = rohrAnteile({ hp: b.hp, maxHp: b.hp, atk: b.atk, level: BOSS_MAX_LEVEL, maxLevel: BOSS_MAX_LEVEL, budget: budgetB });
+              let kulB = null; try { kulB = KULISSE_URL[kulisseFuer({ bossId: b.id })]; } catch { kulB = null; }
+              return <BlattBuehne kennung={"boss-" + b.id} name={en ? b.nameEn : b.nameDe} haus={fam}
+                satz={en ? b.flavorEn : b.flavorDe} portraet={img} pid={pidB} ton={tonB} kul={kulB}
+                form={formFuer({ bossId: b.id })} stufe={lvlB} maxStufe={BOSS_MAX_LEVEL}
+                zugKind={null} moveSpec={b.moveSpec} talente={[]}
+                zeichen={(b.abilities || []).map((id) => ({ id, gelernt: true }))}
+                band={{ leben: bandB.leben, kraft: bandB.kraft }}
+                atk={b.atk} maxHp={b.hp} plusAtk={0} plusHp={0} werteAn={hpUnlocked(profile)} maxed={lvlB >= BOSS_MAX_LEVEL} en={en} />;
+            })()}
             {(() => {
               const lvl = bossLevelOf(profile, b.id);
               const spec = bossSpecLeveled(b, lvl);
@@ -2597,27 +2617,6 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
                 </div>}
               </>;
             })()}
-            <div style={{ marginTop: 14 }}>
-              <div className="gg-serif" style={{ fontSize: 10.5, letterSpacing: ".12em", color: T.riftBright, marginBottom: 4 }}>{t("chron.moves").toUpperCase()}</div>
-              <MoveDiagram kind={null} moveSpec={b.moveSpec} />
-            </div>
-            {/* Was das Wesen KANN: seine Gaben mit denselben Medaillons wie
-                der Hof - heute tragen fuenf der 25 welche; der Rest folgt,
-                wenn die Bestien ihr volles Regelwerk bekommen. */}
-            {(b.abilities || []).length > 0 && <div style={{ marginTop: 13 }}>
-              <div className="gg-serif" style={{ fontSize: 10.5, letterSpacing: ".12em", color: T.riftBright, marginBottom: 5 }}>{en ? "ABILITIES" : "FÄHIGKEITEN"}</div>
-              {(b.abilities || []).map((aid) => ABILITIES[aid] ? (
-                <div key={aid} style={{ display: "flex", alignItems: "center", gap: 9, padding: "6px 8px", marginBottom: 5,
-                  borderRadius: 10, border: "1px solid rgba(124,58,237,.4)", background: "rgba(20,12,36,.55)" }}>
-                  <AbilityIcon id={aid} size={26} />
-                  <div style={{ minWidth: 0 }}>
-                    <div className="gg-quill" style={{ fontSize: 13.5, color: "#e9def2" }}>{en ? ABILITIES[aid].nameEn : ABILITIES[aid].nameDe}</div>
-                    <div style={{ fontSize: 11, color: "#a898b4", lineHeight: 1.4 }}>{en ? ABILITIES[aid].descEn : ABILITIES[aid].descDe}</div>
-                  </div>
-                </div>) : null)}
-            </div>}
-            {(en ? b.hintEn : b.hintDe) && <div className="gg-serif" style={{ marginTop: 12, fontSize: 12.5, fontStyle: "italic",
-              color: "#c5b4c9", lineHeight: 1.55 }}>„{en ? b.hintEn : b.hintDe}"</div>}
           </div>
         </div>
       </div>;

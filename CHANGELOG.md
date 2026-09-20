@@ -1,5 +1,26 @@
 # Changelog - Grand Gambit
 
+## 1.25.9
+- DAS MONSTERFENSTER TRAEGT DIESELBE BUEHNE WIE DAS FIGURENBLATT (Besitzer:
+  "Ich wollte doch bei allen Monstern genau das gleiche Design wie bei meinen
+  Figuren"). Kulisse, Eckverzierungen, Figur mit Sockelband, Name und Haus
+  darunter, rechts das Zugbild und die Faehigkeitszeichen, Stufenanzeige mit
+  Emblem, der Satz mittig, die Wertkaesten. Es ist DASSELBE Bauteil, nichts
+  nachgebaut.
+- DAFUER IST DIE BUEHNE EIN EIGENES BAUTEIL GEWORDEN (BlattBuehne). Bisher war
+  sie in das Figurenblatt eingebacken und las dessen lokale Groessen; jetzt
+  hat sie Eigenschaften, und Figurenblatt und Monsterfenster rufen sie beide
+  auf. Was ein Monster nicht hat - Bund, Leiter zum Waehlen - laesst es weg.
+- Das alte Monsterfenster (Bild links, Text rechts, Zugbild und
+  Faehigkeitenliste weiter unten) ist damit ersetzt. Die Range- und
+  Verbessern-Zeile darunter bleibt vorerst, bis die Bedienung ueber den
+  Aufstiegsplan eins zu eins nachgezogen ist.
+- Eine Probe, die die Bundtafel im Monsterfenster verlangte, prueft jetzt das
+  Gegenteil: Monster haben keinen Bund (Besitzerentscheid), dafuer dieselbe
+  Buehne.
+- GEFUNDEN: die package-lock stand seit v1.25.6 auf einer alten Versionsnummer
+  und liess eine Probe fallen - nachgezogen.
+
 ## 1.25.8
 - HARTE KANTE AM LILA-FELD (Besitzer: "bitte Lila noch mit einem Verlauf
   ausstatten mit harter Kante ins Schwarze am Rand von dem Feld"): innen ein
