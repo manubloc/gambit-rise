@@ -1,5 +1,25 @@
 # Changelog - Grand Gambit
 
+## 1.25.6
+- DIE SCHILDE SIND RAUS (Besitzer: "Schild ist also immer Leben. Aber das gibt
+  es doch mit jeder Stufe. Ich glaub Schild ist unnoetig und doppelt").
+  62 Schildsprossen aus allen Aufstiegsplaenen entfernt. GEMESSEN danach:
+  alle 25 normalen Figuren haben dieselbe Punktsumme - 24. Die Grundwerte aus
+  den Stufen ergeben sie von sich aus; die frueheren 28 kamen nur daher, dass
+  fast jede Figur zwei Schildsprossen hatte, die je +2 Leben oben drauflegten.
+- WEIL `shield` damit ueberall 0 IST, verschwinden die Schilde von selbst aus
+  Anzeige, Lehrtexten, Bannern und aus der KI-Bewertung (evaluate.js wichtete
+  sie beim Zugsuchen) - ohne dass an vierzehn Stellen einzeln gerechnet werden
+  musste.
+- DER KOENIG IST KEIN SONDERFALL MEHR. Er war die EINZIGE Figur ohne Schilde
+  und landete deshalb bei 24 statt 28 - daher sein unsichtbarer blauer Balken
+  aus v1.25.3. Jetzt stimmt er mit allen ueberein.
+- DER DRACHE STEHT BEI 48, genau da, wo der Besitzer ihn haben wollte.
+- NOCH OFFEN: der Gambit. Sein Vorsprung steckte in NEUN Schildsprossen
+  (35 Leben statt 17); ohne sie faellt er auf 24 wie jede andere Figur. Sein
+  Budget 36 muss als ZAHL gesetzt werden, nicht ueber versteckte Sprossen.
+- Vier Proben nachgezogen, keine abgeschwaecht.
+
 ## 1.25.5
 - DIE NORM IST 24, NICHT 28 (Besitzerentscheid "alle 24, Gambit 36, Drache
   48" - nach seiner Beobachtung, die Schilde seien doppelt). GEMESSEN, dass er

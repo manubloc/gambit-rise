@@ -321,6 +321,10 @@ if (failed) process.exit(1);
   const s = norm.map(summe);
   ok(`alle ${norm.length} normalen Figuren haben dieselbe Punktsumme (${Math.min(...s)})`,
     norm.length >= 25 && Math.min(...s) === Math.max(...s));
+  /* v1.25.6: KEINE Schilde mehr. Sie waren der zweite Weg zur selben Summe -
+     die Grundwerte aus den Stufen ergeben 24 von sich aus, zwei Schildsprossen
+     legten +4 obendrauf. Ohne sie stimmt die Summe ohne Zutun, und der Koenig
+     ist kein Sonderfall mehr (er war die einzige Figur ohne Schilde). */
   const schilde = norm.map((ch) => resolveCharacter(ch, maxLevelFor(ch.id), null).shield);
-  ok(`und alle genau zwei Schilde (${[...new Set(schilde)].join(",")})`, schilde.every((x) => x === 2));
+  ok(`und keine Schilde mehr (${[...new Set(schilde)].join(",")})`, schilde.every((x) => x === 0));
 }

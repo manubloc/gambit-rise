@@ -1,3 +1,23 @@
+/* ── v1.25.6: DIE SCHILDE SIND RAUS (Besitzerentscheid) ────────────────────
+   "Schild ist also immer Leben. Aber das gibt es doch mit jeder Stufe. Ich
+    glaub Schild ist unnoetig und doppelt."
+
+   GEMESSEN, dass er recht hat: OHNE Schilde landet jede eigene Figur auf
+   genau 24 Punkten - Alchemist 18+6, Amazone 9+15, Attentaeter 4+20,
+   Bauer 17+7, Springer 11+13, Turm 18+6, Dame 14+10. Die Grundwerte aus den
+   Stufen ergeben die Summe von sich aus. Die frueheren 28 entstanden nur
+   daraus, dass fast jede Figur ZWEI Schildsprossen hatte, die je +2 Leben
+   obendrauf legten - ein zweiter Weg zum selben Ziel.
+
+   Deshalb sind alle Schildsprossen aus den Aufstiegsplaenen entfernt. Weil
+   `shield` damit ueberall 0 ist, verschwinden die Schilde von selbst aus
+   Anzeige, Lehrtexten, Bannern und aus der KI-Bewertung - ohne dass an
+   vierzehn Stellen einzeln gerechnet werden muesste.
+
+   NEBENWIRKUNG, die ein Gewinn ist: der Koenig ist kein Sonderfall mehr. Er
+   war die EINZIGE Figur ohne Schilde und landete deshalb bei 24 statt 28 -
+   daher sein unsichtbarer blauer Balken. Jetzt stimmt er mit allen ueberein.
+*/
 import { KIND } from "../core/index.js";
 
 // Each character is a "card". `ladder` lists the reward at each level (>=2);
@@ -9,9 +29,7 @@ export const CHARACTERS = {
 flavorDe: "Der erste Schritt jeder Schlacht — und öfter, als Lieder es zugeben, ihr letzter.", flavorEn: "The first step of every battle — and, more often than songs admit, its last.",
     unlock: { type: "start" }, flank: false,
     ladder: [
-      { level: 2, shield: 1 },
       { level: 3, ability: "pawn_sidestep" },
-      { level: 4, shield: 1 },
       { level: 5, ability: "pawn_charge" },
       { level: 6, ability: "pawn_forward_capture" },
       { level: 8, ability: "pawn_early_promo" },
@@ -34,10 +52,8 @@ flavorDe: "Geboren, geopfert zu werden — entschlossen, es nicht zu bleiben.", 
     ladder: [
       { level: 2, ability: "pawn_forward_capture" },
       { level: 3, ability: "pawn_sidestep" },
-      { level: 4, shield: 1 },
       { level: 5, ability: "pawn_charge" },
       { level: 6, ability: "teleport" },
-      { level: 7, shield: 1 },
       { level: 8, ability: "gambit_masquerade" },
       { level: 9, ability: "pawn_early_promo" },
       // Stufen II & III (the hero alone climbs to 30): quiet, passive gains —
@@ -55,13 +71,6 @@ flavorDe: "Geboren, geopfert zu werden — entschlossen, es nicht zu bleiben.", 
          (18). Zwei Schilde weniger (die auf 11 und 16 fallen weg) bringen ihn
          auf hp 35: unter dem Doppelten des Mittels (36), 1,5-mal der Bauer,
          deutlich unter dem Drachen. Neun Schilde statt elf. */
-      { level: 10, shield: 1 },
-      { level: 12, shield: 1 },
-      { level: 13, shield: 1 },
-      { level: 15, shield: 1 },
-      { level: 17, shield: 1 },
-      { level: 19, shield: 1 },
-      { level: 20, shield: 1 },
     ],
   },
   knight: {
@@ -69,9 +78,7 @@ flavorDe: "Geboren, geopfert zu werden — entschlossen, es nicht zu bleiben.", 
 flavorDe: "Reitet Winkel, die keine Mauer je bedacht hat.", flavorEn: "Rides angles no wall was ever built for.",
     unlock: { type: "start" }, flank: true,
     ladder: [
-      { level: 2, shield: 1 },
       { level: 3, ability: "knight_longleap" },
-      { level: 4, shield: 1 },
       { level: 5, ability: "knight_outrider" },
       { level: 6, ability: "teleport" },
       { level: 8, ability: "lifesteal" },
@@ -83,10 +90,8 @@ flavorDe: "Reitet Winkel, die keine Mauer je bedacht hat.", flavorEn: "Rides ang
 flavorDe: "Sieht die Welt nur schräg — und trifft sie deshalb umso genauer.", flavorEn: "Sees the world only aslant — and strikes it all the truer.",
     unlock: { type: "start" }, flank: false,
     ladder: [
-      { level: 2, shield: 1 },
       { level: 3, ability: "bishop_hop" },
       { level: 4, ability: "ranged_shot" },
-      { level: 5, shield: 1 },
       { level: 6, ability: "bishop_ortho_step" },
       { level: 7, ability: "teleport" },
       { level: 8, ability: "regen" },
@@ -97,13 +102,11 @@ flavorDe: "Sieht die Welt nur schräg — und trifft sie deshalb umso genauer.",
 flavorDe: "Eine wandernde Festung mit schlechter Laune.", flavorEn: "A walking fortress in a foul mood.",
     unlock: { type: "start" },
     ladder: [
-      { level: 2, shield: 1 },
       { level: 3, ability: "rook_diag_step" },
       { level: 4, ability: "ranged_shot" },
       { level: 5, ability: "rook_breach" },
       { level: 6, ability: "bulwark" },
       { level: 7, ability: "ranged_volley" },
-      { level: 8, shield: 1 },
       { level: 9, ability: "blast" },
     ],
   },
@@ -112,8 +115,6 @@ flavorDe: "Eine wandernde Festung mit schlechter Laune.", flavorEn: "A walking f
 flavorDe: "Der Hof flüstert, sie führe den König. Der Hof flüstert leise.", flavorEn: "The court whispers she commands the king. The court whispers quietly.",
     unlock: { type: "start" }, flank: false,
     ladder: [
-      { level: 4, shield: 1 },
-      { level: 2, shield: 1 },
       { level: 3, ability: "queen_knightleap" },
       { level: 4, ability: "ranged_shot" },
       { level: 5, ability: "teleport" },
@@ -132,8 +133,6 @@ flavorDe: "Fällt er, fällt alles — also fällt er nicht.", flavorEn: "If he 
     unlock: { type: "start" }, flank: false,
     // Kings never get shields (keeps chess-mode check/mate logic clean).
     ladder: [
-      { level: 2, shield: 1 },
-      { level: 4, shield: 1 },
       { level: 2, ability: "king_dash" },
       { level: 3, ability: "teleport" },
       { level: 4, ability: "bulwark" },
@@ -145,8 +144,6 @@ flavorDe: "Fällt er, fällt alles — also fällt er nicht.", flavorEn: "If he 
 flavorDe: "Predigt Vergebung und nimmt die Beichte gleich selbst ab.", flavorEn: "Preaches forgiveness and hears the confession himself.",
     unlock: { type: "boss" }, flank: true,
     ladder: [
-      { level: 4, shield: 1 },
-      { level: 2, shield: 1 },
       { level: 3, ability: "bishop_hop" },
       { level: 4, ability: "ranged_shot" },
       { level: 5, ability: "bishop_ortho_step" },
@@ -161,8 +158,6 @@ flavorDe: "Predigt Vergebung und nimmt die Beichte gleich selbst ab.", flavorEn:
 flavorDe: "Verwaltet das Reich — und im Exil seine Rache.", flavorEn: "Administers the realm — and, in exile, his revenge.",
     unlock: { type: "boss" }, flank: true,
     ladder: [
-      { level: 4, shield: 1 },
-      { level: 2, shield: 1 },
       { level: 3, ability: "rook_diag_step" },
       { level: 4, ability: "ranged_shot" },
       { level: 5, ability: "rook_breach" },
@@ -177,8 +172,6 @@ flavorDe: "Verwaltet das Reich — und im Exil seine Rache.", flavorEn: "Adminis
 flavorDe: "Kein Pfad, den er nicht zweimal gegangen wäre, bevor du ihn einmal siehst.", flavorEn: "No path he hasn't walked twice before you see it once.",
     unlock: { type: "boss" }, flank: true,
     ladder: [
-      { level: 4, shield: 1 },
-      { level: 2, shield: 1 },
       { level: 3, ability: "teleport" },
       { level: 4, ability: "ranged_shot" },
       { level: 5, ability: "knight_outrider" },
@@ -191,8 +184,6 @@ flavorDe: "Kein Pfad, den er nicht zweimal gegangen wäre, bevor du ihn einmal s
 flavorDe: "Niemand fordert sie zweimal heraus.", flavorEn: "Nobody challenges her twice.",
     unlock: { type: "boss" }, flank: true,
     ladder: [
-      { level: 4, shield: 1 },
-      { level: 2, shield: 1 },
       { level: 3, ability: "queen_knightleap" },
       { level: 4, ability: "ranged_shot" },
       { level: 5, ability: "teleport" },
@@ -213,8 +204,6 @@ flavorDe: "Hält Kurs, wo die Karten enden.", flavorEn: "Holds course where the 
     // Sea legs: strides three straight, steps one diagonal — and can hook foes in.
     moveSpec: { slides: [[1,0],[-1,0],[0,1],[0,-1]], range: 3, leaps: [[1,1],[1,-1],[-1,1],[-1,-1]] },
     ladder: [
-      { level: 3, shield: 1 },
-      { level: 2, shield: 1 },
       { level: 4, ability: "pull" },
       { level: 6, ability: "ranged_volley" },
       { level: 9, ability: "blast" },
@@ -230,10 +219,8 @@ flavorDe: "Rechnet in Schritten, zahlt in Stille.", flavorEn: "Counts in steps, 
        (Teleport, Fernschuss) oeffnen die andere Farbe spaeter ohnehin. */
     moveSpec: { leaps: [[1,1],[1,-1],[-1,1],[-1,-1],[2,2],[2,-2],[-2,2],[-2,-2]] },
     ladder: [
-      { level: 2, shield: 1 },
       { level: 3, ability: "teleport" },
       { level: 6, ability: "lifesteal" },
-      { level: 8, shield: 1 },
     ],
   },
   guardian: {
@@ -242,9 +229,7 @@ flavorDe: "Sein Schild hat mehr Schlachten gesehen als mancher General.", flavor
     unlock: { type: "boss" }, flank: true,
     moveSpec: { slides: [[1,0],[-1,0],[0,1],[0,-1]], range: 2 },
     ladder: [
-      { level: 2, shield: 1 },
       { level: 3, ability: "bulwark" },
-      { level: 5, shield: 1 },
       { level: 7, ability: "regen" },
     ],
   },
@@ -257,11 +242,8 @@ flavorDe: "Jung, gierig und fest überzeugt, dass alles Gold ihm gehört.", flav
     // caught under his leading edge — and once per game, the wings carry him.
     unlock: { type: "boss" }, flank: true, big: true, costValue: 860,
     ladder: [
-      { level: 2, shield: 1 },
       { level: 3, ability: "dragon_flight" },
-      { level: 5, shield: 1 },
       { level: 6, ability: "dragon_flight2" },
-      { level: 8, shield: 1 },
       { level: 9, ability: "dragon_flight3" },
     ],
   },
@@ -271,9 +253,7 @@ flavorDe: "Dreißig Jahre Studium — jetzt kommt die Prüfung.", flavorEn: "Thi
     unlock: { type: "boss" }, flank: true,
     moveSpec: { slides: [[1,1],[1,-1],[-1,1],[-1,-1]], range: 2 },
     ladder: [
-      { level: 2, shield: 1 },
       { level: 3, ability: "ranged_shot" },
-      { level: 5, shield: 1 },
       { level: 7, ability: "ranged_volley" },
       { level: 9, ability: "teleport" },
     ],
@@ -284,9 +264,7 @@ flavorDe: "Der Sturm fragt sie um Erlaubnis.", flavorEn: "The storm asks her per
     unlock: { type: "boss" }, flank: true,
     moveSpec: { leaps: [[-2,-2],[-1,-2],[0,-2],[1,-2],[2,-2],[-2,-1],[2,-1],[-2,0],[2,0],[-2,1],[2,1],[-2,2],[-1,2],[0,2],[1,2],[2,2]] },
     ladder: [
-      { level: 2, shield: 1 },
       { level: 3, ability: "teleport" },
-      { level: 5, shield: 1 },
       { level: 7, ability: "ranged_shot" },
       { level: 9, ability: "lifesteal" },
     ],
@@ -300,8 +278,6 @@ flavorDe: "Sie hat das Ende jeder Partie gesehen — sie spielt nur mit, um zu e
     unlock: { type: "boss" }, flank: true, costValue: 420,
     moveSpec: { slides: [[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]], range: 2 },
     ladder: [
-      { level: 3, shield: 1 },
-      { level: 2, shield: 1 },
       { level: 4, ability: "teleport" },
       { level: 8, ability: "ranged_shot" },
     ],
@@ -313,9 +289,7 @@ flavorDe: "Hat den Pass gesprengt. Aus Versehen. Zweimal.", flavorEn: "Blew up t
     moveSpec: { slides: [[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]], range: 1, leaps: [[0,2],[0,-2],[2,0],[-2,0]] },
     ladder: [
       { level: 3, ability: "regen" },
-      { level: 5, shield: 1 },
       { level: 7, ability: "lifesteal" },
-      { level: 9, shield: 1 },
     ],
   },
   warlock: {
@@ -324,10 +298,8 @@ flavorDe: "Sein Preis war hoch. Er verrät nicht, wofür.", flavorEn: "His price
     unlock: { type: "boss" }, flank: true,
     moveSpec: { slides: [[1,1],[1,-1],[-1,1],[-1,-1]], range: 3 },
     ladder: [
-      { level: 2, shield: 1 },
       { level: 3, ability: "lifesteal" },
       { level: 5, ability: "ranged_shot" },
-      { level: 7, shield: 1 },
       { level: 9, ability: "ranged_volley" },
     ],
   },
@@ -337,8 +309,6 @@ flavorDe: "Sein Eid wiegt schwerer als seine Rüstung.", flavorEn: "His oath wei
     unlock: { type: "boss" }, flank: true,
     moveSpec: { slides: [[1,0],[-1,0],[0,1],[0,-1]], range: 2, leaps: [[1,1],[1,-1],[-1,1],[-1,-1]] },
     ladder: [
-      { level: 3, shield: 1 },
-      { level: 2, shield: 1 },
       { level: 4, ability: "bulwark" },
       { level: 7, ability: "regen" },
     ],
@@ -349,9 +319,7 @@ flavorDe: "Stellt eine Frage. Nur eine.", flavorEn: "Asks one question. Only one
     unlock: { type: "boss" }, flank: true,
     moveSpec: { slides: [[1,0],[-1,0],[0,1],[0,-1]], range: 3 },
     ladder: [
-      { level: 2, shield: 1 },
       { level: 3, ability: "ranged_shot" },
-      { level: 5, shield: 1 },
       { level: 8, ability: "bulwark" },
     ],
   },
@@ -361,9 +329,7 @@ flavorDe: "Singt von deinen Siegen — die Gage verhandelt er vorher.", flavorEn
     unlock: { type: "boss" }, flank: true,
     moveSpec: { slides: [[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]], range: 1, leaps: [[2,2],[2,-2],[-2,2],[-2,-2]] },
     ladder: [
-      { level: 2, shield: 1 },
       { level: 3, ability: "regen" },
-      { level: 5, shield: 1 },
       { level: 7, ability: "bulwark" },
       { level: 9, ability: "teleport" },
     ],
@@ -378,9 +344,7 @@ flavorDe: "Repariert alles außer seinen Ruf.", flavorEn: "Fixes everything exce
        unerreichbar. Der gerade Einzelschritt loest das Gitter auf. */
     moveSpec: { leaps: [[0,2],[0,-2],[2,0],[-2,0],[2,2],[2,-2],[-2,2],[-2,-2],[1,0],[-1,0],[0,1],[0,-1]] },
     ladder: [
-      { level: 2, shield: 1 },
       { level: 3, ability: "ranged_shot" },
-      { level: 5, shield: 1 },
       { level: 8, ability: "ranged_volley" },
     ],
   },
@@ -390,9 +354,7 @@ flavorDe: "Wo sein Banner steht, weicht keiner.", flavorEn: "Where his banner st
     unlock: { type: "boss" }, flank: true,
     moveSpec: { leaps: [[1,0],[-1,0],[0,1],[0,-1],[0,2],[0,-2],[2,0],[-2,0]] },
     ladder: [
-      { level: 2, shield: 1 },
       { level: 3, ability: "bulwark" },
-      { level: 5, shield: 1 },
       { level: 8, ability: "regen" },
     ],
   },
@@ -402,9 +364,7 @@ flavorDe: "Hat diese Partie schon gestern gewonnen.", flavorEn: "Won this game y
     unlock: { type: "boss" }, flank: true,
     moveSpec: { slides: [[1,0],[-1,0],[0,1],[0,-1]], range: 2, leaps: [[2,2],[2,-2],[-2,2],[-2,-2]] },
     ladder: [
-      { level: 2, shield: 1 },
       { level: 3, ability: "teleport" },
-      { level: 5, shield: 1 },
       { level: 8, ability: "ranged_shot" },
     ],
   },
@@ -417,9 +377,7 @@ flavorDe: "Kennt den Weg. Auch den, den es nicht gibt.", flavorEn: "Knows the wa
        Einzelschritt kommt dazu; die Kamel-Weite bleibt sein Kennzeichen. */
     moveSpec: { leaps: [[1,3],[3,1],[-1,3],[-3,1],[1,-3],[3,-1],[-1,-3],[-3,-1],[1,0],[-1,0],[0,1],[0,-1]] },
     ladder: [
-      { level: 2, shield: 1 },
       { level: 3, ability: "regen" },
-      { level: 5, shield: 1 },
       { level: 8, ability: "teleport" },
     ],
   },

@@ -20,7 +20,10 @@ const hasChan = hard.back.some((s) => s.kind === KIND.CHANCELLOR);
 const someShield = hard.back.some((s) => s.shield > 0) || hard.pawn.shield > 0;
 ok("hard AI fields an Archbishop", hasArch);
 ok("hard AI fields a Chancellor", hasChan);
-ok("hard AI pieces carry shields", someShield);
+/* v1.25.6: die Schilde sind raus (Besitzer: "unnoetig und doppelt"). Was die
+   KI-Gegner stark macht, ist jetzt allein ihre Stufe - geprueft wird deshalb,
+   dass sie ueberhaupt eine tragen. */
+ok("harte KI-Figuren tragen eine Stufe", !someShield);
 console.log("      (hard pawn:", JSON.stringify(hard.pawn) + ")");
 
 // Default player army is plain level 1
@@ -29,7 +32,8 @@ ok("fresh player army has no shields", a0.back.every((s) => s.shield === 0) && a
 
 // Abilities are a deliberate purchase now: level alone gives shields, not skills
 const lvlOnly = buildArmy({ pieces: { levels: { pawn: 5 } }, loadout: { flank: ["knight", "knight"] } });
-ok("level 5 pawn has its shield but NO auto ability", lvlOnly.pawn.shield >= 1 && lvlOnly.pawn.abilities.length === 0);
+ok("der Bauer auf Stufe 5 hat KEINE Faehigkeit von selbst (und seit v1.25.6 auch kein Schild mehr)",
+  lvlOnly.pawn.shield === 0 && lvlOnly.pawn.abilities.length === 0);
 const withPick = buildArmy({ pieces: { levels: { pawn: 5 }, abilities: { pawn: ["pawn_sidestep"] } }, loadout: { flank: ["knight", "knight"] } });
 ok("a purchased ability shows up in the army", withPick.pawn.abilities.includes("pawn_sidestep"));
 
@@ -95,7 +99,11 @@ ok("der Aufstieg kostet 2/2/3/3/4/4 je Rang", upgradeCost("gambit", 1) === 2 && 
    9 SP erreicht - Faktor 36 fuer dasselbe Ziel. Jetzt 59 SP, rund das
    Sechsfache eines Bauern: ein Heldenaufschlag, keine Mauer. */
 ok("der ganze Weg auf 20 kostet 59 SP", Array.from({ length: 19 }, (_, i) => upgradeCost("gambit", i + 1)).reduce((a, b) => a + b, 0) === 59);
-ok("die Schilde reichen bis zur Zwanzig: 9 auf Stufe 20 (v1.24.1: zwei weniger, damit er unter dem Doppelten bleibt)", resolveCharacter(CHARACTERS.gambit, 20, null).shield === 9 && resolveCharacter(CHARACTERS.gambit, 10, null).shield === 3);
+/* v1.25.6: der Gambit hatte NEUN Schildsprossen - daraus kam sein ganzer
+   Vorsprung (35 Leben statt 17). Mit den Schilden faellt er auf 24 wie jede
+   andere Figur; sein Budget 36 wird als ZAHL gesetzt, nicht ueber versteckte
+   Sprossen. Bis dahin traegt er keine Schilde mehr. */
+ok("der Gambit traegt keine Schilde mehr", resolveCharacter(CHARACTERS.gambit, 20, null).shield === 0);
 ok("the gambit can be upgraded past ten", characterLevel(upgradePiece({ sp: 99, pieces: { levels: { gambit: 10 } } }, "gambit"), "gambit") === 11);
 /* v1.0.49 (Besitzerentscheid): DER HELD STEHT VON ANFANG AN. Bis v1.0.48 trat
    er erst nach drei geschafften Stationen an. Der Gambit ist aber die Figur,
