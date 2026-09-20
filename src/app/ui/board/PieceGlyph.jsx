@@ -178,8 +178,23 @@ export function rohrAnteile(piece) {
 
      Das frueher hier stehende KRAFT_GEWICHT (Blau zaehlte 1,6-fach) faellt
      weg: ein Punkt ist ein Punkt, sonst stimmt die Subtraktion nicht. */
+  /* ── v1.25.3 (Besitzer): AUF DER HOECHSTSTUFE BERUEHREN SICH DIE BALKEN ───
+     "In der letzten Stufe sollten sich der blaue und der rote Balken immer
+      beruehren - bei jeder Figur, nur mit anderen Verhaeltnissen."
+
+     GEMESSEN, warum das mit dem festen 28 nicht ging: nicht jede Figur kommt
+     auf 28. Der Koenig bekommt als einziger KEINE Schilde und landet bei
+     21 + 3 = 24; sein Ring fuellte damit nur 86 %, und Blau blieb ein
+     Splitter von 10,7 %. Der Gambit kommt auf 42, der Drache auf 54.
+
+     Also ist das Budget nicht mehr eine feste Zahl, sondern das EIGENE
+     Gesamtmass der Figur auf ihrer Hoechststufe - der Aufrufer kennt es und
+     reicht es als `budget` herein. Dann ist der Ring auf der Hoechststufe
+     immer genau voll, egal ob die Figur 24, 28, 42 oder 54 Punkte hat, und
+     die Verteilung bleibt ihre eigene. Ohne `budget` bleibt der Normwert als
+     Rueckfall fuer Aufrufer, die die Figur nicht kennen. */
   const maxHp = Math.max(hp, piece.maxHp || hp);
-  const budget = Math.max(NORM_PUNKTE, maxHp + atk);
+  const budget = Math.max(1, piece.budget || Math.max(NORM_PUNKTE, maxHp + atk));
   return { leben: Math.max(0, Math.min(1, hp / budget)), kraft: Math.max(0, Math.min(1, atk / budget)) };
 }
 

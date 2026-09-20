@@ -100,7 +100,11 @@ function segment(m, h, tA, tB, fuss = 0) {
 /* Besitzer: "Schatzkammer, Haendler brauchen natuerlich kein Band - das sind
    ja keine Figuren." Dasselbe gilt fuer die Standarte: ein Banner steht auf
    keinem Teller. */
-const OHNE_BAND = new Set(["schatzkammer", "haendler", "standard"]);
+/* v1.25.3: "standard" ist der FLAGGENTRAEGER - eine Figur wie jede andere und
+   kein Moebel. Er stand hier nur, weil der Name nach Kulisse klingt (Besitzer:
+   "Beim Flaggentraeger fehlt noch das Band"). Ohne Band bleiben nur die
+   beiden, die wirklich keine Figuren sind. */
+const OHNE_BAND = new Set(["schatzkammer", "haendler"]);
 
 /* `hell`: die helle Graufassung fuer die EIGENEN Figuren (Besitzer: "meine
    eigenen Figuren brauchen natuerlich die helle Variante"). Ohne sie wirken

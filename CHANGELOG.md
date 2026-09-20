@@ -1,5 +1,22 @@
 # Changelog - Grand Gambit
 
+## 1.25.3
+- AUF DER HOECHSTSTUFE BERUEHREN SICH ROT UND BLAU (Besitzer: "In der letzten
+  Stufe sollten sich der blaue und der rote Balken immer beruehren, bei jeder
+  Figur"). GEMESSEN, warum das mit dem festen Budget 28 nicht ging: nicht jede
+  Figur kommt auf 28. Der Koenig bekommt als einziger KEINE Schilde und landet
+  bei 21+3 = 24 - sein Ring fuellte nur 86 %, Blau blieb ein Splitter von
+  10,7 %, praktisch unsichtbar. Der Gambit kommt auf 42, der Drache auf 54.
+  Das Budget ist deshalb keine feste Zahl mehr, sondern das EIGENE Gesamtmass
+  der Figur auf ihrer Hoechststufe; der Aufrufer kennt es und reicht es
+  herein. Gemessen danach: Koenig 88/13, Springer 54/46, Drache 87/13 - alle
+  genau 100 %.
+- DER FLAGGENTRAEGER BEKOMMT SEIN BAND. Er stand unter "ohne Band", weil seine
+  Kennung "standard" nach Kulisse klingt - er ist aber eine Figur wie jede
+  andere. Ohne Band bleiben nur Schatzkammer und Haendler, die wirklich keine
+  Figuren sind.
+- Vier Proben sichern die Beruehrung bei 21/3, 15/13, 47/7 und 35/7.
+
 ## 1.25.2
 - DIE NEUN MONSTERFAEHIGKEITEN SIND ANGELEGT (Besitzer: "Die Faehigkeiten,
   die die Monster haben, sollte grundsaetzlich keine der anderen Figuren

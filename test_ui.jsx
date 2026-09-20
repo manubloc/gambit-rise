@@ -1598,7 +1598,7 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
         eig.every((x) => x === "opacity" || x === "transform"));
     }
     ok("das Rohr rechnet in Punkten gegen das Budget der Figur",
-      pg3.includes("const budget = Math.max(NORM_PUNKTE, maxHp + atk)")
+      pg3.includes("const budget = Math.max(1, piece.budget || Math.max(NORM_PUNKTE, maxHp + atk))")
       && pg3.includes("leben: Math.max(0, Math.min(1, hp / budget))"));
     ok("der Stufenkreis traegt Lila auf Schwarz", as3.includes('border: "1px solid rgba(167,139,250,.75)"'));
     ok("der Erfahrungsbalken ist fort", !as3.includes("xpAnteil.hat}/{xpAnteil.kosten}"));
@@ -1621,6 +1621,15 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
     ok(`Blau ruehrt sich dabei nicht (${Math.round(voll.kraft * 28)} Punkte)`, Math.abs(nach6.kraft - voll.kraft) < 0.0005);
     const tot = rohrAnteile({ hp: 0, maxHp: 22, atk: 6, level: 10, maxLevel: 10 });
     ok("bei 0 Leben ist das Rot weg, das Blau bleibt", tot.leben === 0 && Math.abs(tot.kraft - voll.kraft) < 0.0005);
+    /* v1.25.3 (Besitzer): "In der letzten Stufe sollten sich der blaue und der
+       rote Balken immer beruehren." Mit dem eigenen Gesamtmass der Figur als
+       Budget ist der Ring dort genau voll - beim Koenig (24 Punkte, keine
+       Schilde) ebenso wie beim Drachen (54). */
+    for (const [hp, atk] of [[21, 3], [15, 13], [47, 7], [35, 7]]) {
+      const r = rohrAnteile({ hp, maxHp: hp, atk, level: 10, maxLevel: 10, budget: hp + atk });
+      ok(`Rot und Blau beruehren sich bei ${hp}/${atk} (${Math.round((r.leben + r.kraft) * 100)} %)`,
+        Math.abs((r.leben + r.kraft) - 1) < 0.005 && r.kraft > 0.02);
+    }
     const halbeStufe = rohrAnteile({ hp: 9, maxHp: 9, atk: 4, level: 5, maxLevel: 10 });
     ok(`auf halbem Weg ist der Ring halb voll (${Math.round((halbeStufe.leben + halbeStufe.kraft) * 100)} %)`,
       (halbeStufe.leben + halbeStufe.kraft) > 0.35 && (halbeStufe.leben + halbeStufe.kraft) < 0.6);

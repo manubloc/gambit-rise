@@ -744,7 +744,12 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
                      leben=1 und kraft=atk/12 - eine zweite Rechnung neben
                      rohrAnteile(), das die Kachel und das Gefecht benutzen.
                      Jetzt liest das Blatt dieselbe Quelle wie die Kachel. */
-                  {...(() => { const w = rohrAnteile({ hp: maxHp, atk, level, maxLevel: maxLevelFor(char.id) });
+                  {...(() => {
+                    const mx = maxLevelFor(char.id);
+                    const wMax = werteBeiStufe(char.kind, mx, { maxLevel: mx });
+                    const sMax = resolveCharacter(char, mx, chosen).shield;
+                    const budget = wMax.hp + (isKing ? 0 : sMax * SHIELD_HP) + wMax.atk;
+                    const w = rohrAnteile({ hp: maxHp, maxHp, atk, level, maxLevel: mx, budget });
                     return { leben: w ? w.leben : 0, kraft: w ? w.kraft : 0 }; })()}
                   grau={!hpUnlocked(profile)} ausrichtung="mitte" />}
               </div>
@@ -2049,7 +2054,14 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
     const { hp, atk } = werteBeiStufe(ch.kind, lv, { maxLevel: maxLevelFor(cid) });
     const { shield } = resolveCharacter(ch, lv, chosenAbilities(profile, cid));
     const hpGanz = hp + (ch.kind === "K" ? 0 : shield * SHIELD_HP);
-    return rohrAnteile({ hp: hpGanz, maxHp: hpGanz, atk, level: lv, maxLevel: maxLevelFor(cid) });
+    /* v1.25.3: das eigene Gesamtmass der Figur auf IHRER Hoechststufe - damit
+       sich Rot und Blau dort immer beruehren (der Koenig kommt auf 24, der
+       Gambit auf 42, der Drache auf 54). */
+    const mx = maxLevelFor(cid);
+    const wMax = werteBeiStufe(ch.kind, mx, { maxLevel: mx });
+    const sMax = resolveCharacter(ch, mx, chosenAbilities(profile, cid)).shield;
+    const budget = wMax.hp + (ch.kind === "K" ? 0 : sMax * SHIELD_HP) + wMax.atk;
+    return rohrAnteile({ hp: hpGanz, maxHp: hpGanz, atk, level: lv, maxLevel: mx, budget });
   };
   /* Wie weit bis zur naechsten Stufe? Aus den Skillpunkten, die sie kostet. */
   /* Es gibt keine Erfahrungspunkte JE FIGUR - Stufen kosten Skillpunkte aus
