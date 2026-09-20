@@ -10,7 +10,7 @@ import { CHARACTER_LIST, CHARACTERS, ABILITIES, TAGS, SPERRGRUND, faehigkeitZust
 import LebensRohr from "../board/LebensRohr.jsx";
 import { rohrAnteile } from "../board/PieceGlyph.jsx";
 import { talentFarbe } from "../../../content/abilities.js";
-import { BASE_HP, BASE_ATK, SHIELD_HP, werteBeiStufe, createGame, familyOf, crownHp, crownWallSoak, shadowRifts, shadowAtk } from "../../../core/index.js";
+import { BASE_HP, BASE_ATK, SHIELD_HP, NORM_PUNKTE, HELD_PUNKTE, werteBeiStufe, createGame, familyOf, crownHp, crownWallSoak, shadowRifts, shadowAtk } from "../../../core/index.js";
 import {
   characterLevel, resolveCharacter, isUnlocked, upgradeCost, canUpgrade, maxLevelFor, gambitTier, clearedCount,
   formationKey, formationLegalOn, formationCounts, buildArmyFromFormation, buildArmyFrom, defaultFormation, buildAiArmyForMap, hpUnlocked, ownedLeagueBosses, isBossEntry, bossEntryId, crownSlots,
@@ -661,8 +661,13 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
   /* v1.22.0: das Blatt rechnet wie der Kern (werteBeiStufe) - vorher stand
      hier eine DRITTE Staffelung (+1 Angriff alle zwei Stufen). */
   const _w = werteBeiStufe(char.kind, level, { maxLevel: maxLevelFor(char.id) });
-  const maxHp = _w.hp + (isKing ? 0 : shield * SHIELD_HP);
-  const atk = _w.atk;
+  /* v1.25.6: keine Schilde im Leben mehr - dieselbe Rechnung wie im Kern
+     (setup.js), samt Heldenbudget fuer den Gambit. */
+  /* v1.25.6: dieselbe Rechnung wie im Kern, Angriff als Rest - sonst 37. */
+  const _heldFig = char.id === "gambit";
+  const _ganz = _w.hp + _w.atk;
+  const maxHp = _heldFig ? Math.round(_w.hp * HELD_PUNKTE / Math.max(1, _ganz)) : _w.hp;
+  const atk = _heldFig ? HELD_PUNKTE - maxHp : _w.atk;
   /* ── v1.25.0 (Besitzer): WAS DIE NAECHSTE STUFE WIRKLICH BRINGT ───────────
      "Da steht naechste +1, aber das stimmt teilweise gar nicht. Bei der einen
       geht es bei der naechsten Stufe plus 3 Angriff, bei der anderen plus 2
@@ -674,11 +679,9 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
      statt Annahme. Auf der Hoechststufe steht nichts mehr da. */
   const _wNext = level < maxLevelFor(char.id)
     ? werteBeiStufe(char.kind, level + 1, { maxLevel: maxLevelFor(char.id) }) : null;
-  const _schildNext = level < maxLevelFor(char.id)
-    ? resolveCharacter(char, level + 1, chosen).shield : shield;
-  const plusAtk = _wNext ? Math.max(0, _wNext.atk - _w.atk) : 0;
-  const plusHp = _wNext
-    ? Math.max(0, (_wNext.hp + (isKing ? 0 : _schildNext * SHIELD_HP)) - maxHp) : 0;
+
+  const plusAtk = _wNext ? Math.max(0, (_heldFig ? HELD_PUNKTE - Math.round(_wNext.hp * HELD_PUNKTE / Math.max(1, _wNext.hp + _wNext.atk)) : _wNext.atk) - atk) : 0;
+  const plusHp = _wNext ? Math.max(0, (_heldFig ? Math.round(_wNext.hp * HELD_PUNKTE / Math.max(1, _wNext.hp + _wNext.atk)) : _wNext.hp) - maxHp) : 0;
   const rungs = char.ladder.filter((r) => r.ability).map((r) => ({ level: r.level, id: r.ability }));
   const maxed = level >= maxLevelFor(char.id);
   const cost = upgradeCost(char.id, level);
@@ -748,7 +751,7 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
                     const mx = maxLevelFor(char.id);
                     const wMax = werteBeiStufe(char.kind, mx, { maxLevel: mx });
                     const sMax = resolveCharacter(char, mx, chosen).shield;
-                    const budget = wMax.hp + (isKing ? 0 : sMax * SHIELD_HP) + wMax.atk;
+                    const budget = _heldFig ? HELD_PUNKTE : wMax.hp + wMax.atk;
                     const w = rohrAnteile({ hp: maxHp, maxHp, atk, level, maxLevel: mx, budget });
                     return { leben: w ? w.leben : 0, kraft: w ? w.kraft : 0 }; })()}
                   grau={!hpUnlocked(profile)} ausrichtung="mitte" />}
@@ -2074,15 +2077,18 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
        Der Koenig hat keine Schildsprossen, bei ihm aendert sich nichts. */
     const { hp, atk } = werteBeiStufe(ch.kind, lv, { maxLevel: maxLevelFor(cid) });
     const { shield } = resolveCharacter(ch, lv, chosenAbilities(profile, cid));
-    const hpGanz = hp + (ch.kind === "K" ? 0 : shield * SHIELD_HP);
+    /* v1.25.6: keine Schilde im Leben mehr */
+    const heldK = cid === "gambit";
+    const hpGanz = heldK ? Math.round(hp * HELD_PUNKTE / Math.max(1, hp + atk)) : hp;
+    const atkGanz = heldK ? HELD_PUNKTE - hpGanz : atk;
     /* v1.25.3: das eigene Gesamtmass der Figur auf IHRER Hoechststufe - damit
        sich Rot und Blau dort immer beruehren (der Koenig kommt auf 24, der
        Gambit auf 42, der Drache auf 54). */
     const mx = maxLevelFor(cid);
     const wMax = werteBeiStufe(ch.kind, mx, { maxLevel: mx });
     const sMax = resolveCharacter(ch, mx, chosenAbilities(profile, cid)).shield;
-    const budget = wMax.hp + (ch.kind === "K" ? 0 : sMax * SHIELD_HP) + wMax.atk;
-    return rohrAnteile({ hp: hpGanz, maxHp: hpGanz, atk, level: lv, maxLevel: mx, budget });
+    const budget = heldK ? HELD_PUNKTE : wMax.hp + wMax.atk;
+    return rohrAnteile({ hp: hpGanz, maxHp: hpGanz, atk: atkGanz, level: lv, maxLevel: mx, budget });
   };
   /* Wie weit bis zur naechsten Stufe? Aus den Skillpunkten, die sie kostet. */
   /* Es gibt keine Erfahrungspunkte JE FIGUR - Stufen kosten Skillpunkte aus

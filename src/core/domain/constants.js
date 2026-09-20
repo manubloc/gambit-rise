@@ -93,6 +93,14 @@ export function werteBeiStufe(kind, lvl, { baseHp = null, baseAtk = null, maxLev
    unentschieden. 120 Halbzuege = 60 Zuege je Seite. Zaehler springt auf 0,
    sobald Schaden faellt, jemand stirbt oder ein Boss nachschafft. */
 export const HP_REMIS_HALBZUEGE = 120;
+/* ── v1.25.6: DIE PUNKTENORM (Besitzerentscheid "alle 24, Gambit 36,
+   Drache 48") ──────────────────────────────────────────────────────────────
+   Jede Figur erreicht auf ihrer Hoechststufe dieselbe Summe aus Leben und
+   Angriff - nur anders verteilt. Der Held darf mehr, weil er der Held ist;
+   der Drache, weil er vier Felder einnimmt und sein Grundprofil ihn ohnehin
+   dorthin bringt. */
+export const NORM_PUNKTE = 24;
+export const HELD_PUNKTE = 36;
 export const SHIELD_HP = 2; // in HP mode a progression "shield" charge becomes +2 max HP
 
 // Index <-> coordinate helpers. Width/height default to the 10×10 board, but a

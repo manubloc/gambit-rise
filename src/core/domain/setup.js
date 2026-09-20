@@ -1,4 +1,4 @@
-import { FILES, RANKS, WHITE, BLACK, KIND, idx, BASE_HP, BASE_ATK, SHIELD_HP, werteBeiStufe } from "./constants.js";
+import { FILES, RANKS, WHITE, BLACK, KIND, idx, BASE_HP, BASE_ATK, SHIELD_HP, NORM_PUNKTE, HELD_PUNKTE, werteBeiStufe } from "./constants.js";
 import { familyOf, crownHp, shadowAtk, shadowRifts } from "../rules/families.js";
 import { emptyBoard, makePiece } from "./board.js";
 
@@ -128,9 +128,34 @@ export function createInitialState(whiteArmy = defaultArmy(), blackArmy = defaul
          constants.js). Eine Rechnung fuer Kern und Hofstaat: werteBeiStufe. */
       void koenigsBonus;
       const w = werteBeiStufe(p.kind, lvl, { baseHp: basisHp, baseAtk: basisAtk, maxLevel: p.maxLevel || undefined });
-      p.maxHp = w.hp + (p.shield || 0) * SHIELD_HP;
+      /* ── v1.25.6: KEINE SCHILDE MEHR IM LEBEN (Besitzerentscheid) ─────────
+         "Schild ist also immer Leben. Aber das gibt es doch mit jeder Stufe.
+          Ich glaub Schild ist unnoetig und doppelt." - Und danach: "Alle 24.
+          Gambit 36. Drache 48."
+
+         GEMESSEN, dass er recht hatte: ohne Schilde landet JEDE eigene Figur
+         auf genau 24 Punkten (Bauer 17+7, Springer 11+13, Laeufer 14+10,
+         Turm 18+6, Dame 14+10). Die 28 entstanden nur daraus, dass fast jede
+         Figur ZWEI Schildsprossen hat, die je +2 Leben obendrauf legten - ein
+         zweiter Weg zum selben Ziel. Der Koenig war der Beweis: als einzige
+         Figur OHNE Schilde lag er bei 24 und sein blauer Balken war
+         unsichtbar.
+
+         Die Schildsprossen bleiben im Aufstiegsplan stehen (sie sind der Ort,
+         an dem spaeter etwas anderes stehen kann), geben aber kein Leben mehr.
+         SHIELD_HP bleibt als Konstante, damit ein spaeteres Anheben eine Zahl
+         ist und keine Regel. */
+      /* Rundung: erst das Leben, dann den Angriff als REST - sonst ergeben
+         zwei Aufrundungen 37 statt der beschlossenen 36. */
+      if (p.hero) {
+        const ganz = w.hp + w.atk;
+        p.maxHp = Math.round(w.hp * HELD_PUNKTE / Math.max(1, ganz));
+        p.atk = HELD_PUNKTE - p.maxHp;
+      } else {
+        p.maxHp = w.hp;
+        p.atk = w.atk;
+      }
       p.hp = p.maxHp;
-      p.atk = w.atk;
       p.shield = 0;
 
     }

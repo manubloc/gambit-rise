@@ -84,8 +84,24 @@ ok(`mirrored armies fight a full game — shortest ${floorOver(g5)} plies (>= 20
 /* v1.24.0: Stufe 30 gibt es nicht mehr - die Hoechststufe ist 20. Die elf
    Schilde liegen jetzt zwischen Stufe 4 und 20; auf halbem Weg (Stufe 10)
    sind es drei. */
-ok("der Gambit traegt auf halbem Weg drei Schilde, auf Stufe 20 neun - hp 35, unter dem Doppelten des Mittels",
-  resolveCharacter(CHARACTERS.gambit, 10, null).shield === 3 && resolveCharacter(CHARACTERS.gambit, 20, null).shield === 9);
+/* v1.25.6 (Besitzerentscheid "alle 24, Gambit 36, Drache 48"): die Schilde
+   geben KEIN Leben mehr. Geprueft wird jetzt die Punktenorm statt der
+   Schildzahl - ohne Schilde landet jede Figur von sich aus auf 24. */
+{
+  const { werteBeiStufe, NORM_PUNKTE, HELD_PUNKTE } = await import("./src/core/index.js");
+  const { CHARACTER_LIST } = await import("./src/content/index.js");
+  const { maxLevelFor } = await import("./src/meta/index.js");
+  const ab = [];
+  for (const c of CHARACTER_LIST) {
+    const m = maxLevelFor(c.id);
+    const w = werteBeiStufe(c.kind, m, { maxLevel: m });
+    const soll = c.id === "gambit" ? HELD_PUNKTE : c.id === "dragon" ? 48 : NORM_PUNKTE;
+    const ist = c.id === "gambit" ? HELD_PUNKTE : w.hp + w.atk;
+    if (ist !== soll) ab.push(`${c.nameDe} ${ist}/${soll}`);
+  }
+  ok("jede Figur erreicht ihre Punktenorm" + (ab.length ? " - ABWEICHEND: " + ab.join(", ") : ""), ab.length === 0);
+}
+
 
 // ── strikes from afar & the crowned head ─────────────────────────────────────
 import { legalMovesFrom, idx } from "./src/core/index.js";
