@@ -10,7 +10,7 @@ import { CHARACTER_LIST, CHARACTERS, ABILITIES, TAGS, SPERRGRUND, faehigkeitZust
 import LebensRohr from "../board/LebensRohr.jsx";
 import { rohrAnteile } from "../board/PieceGlyph.jsx";
 import { talentFarbe } from "../../../content/abilities.js";
-import { BASE_HP, BASE_ATK, SHIELD_HP, NORM_PUNKTE, HELD_PUNKTE, werteBeiStufe, createGame, familyOf, crownHp, crownWallSoak, shadowRifts, shadowAtk } from "../../../core/index.js";
+import { BASE_HP, BASE_ATK, SHIELD_HP, HELD_PUNKTE, NORM_PUNKTE, werteBeiStufe, createGame, familyOf, crownHp, crownWallSoak, shadowRifts, shadowAtk } from "../../../core/index.js";
 import {
   characterLevel, resolveCharacter, isUnlocked, upgradeCost, canUpgrade, maxLevelFor, gambitTier, clearedCount,
   formationKey, formationLegalOn, formationCounts, buildArmyFromFormation, buildArmyFrom, defaultFormation, buildAiArmyForMap, hpUnlocked, ownedLeagueBosses, isBossEntry, bossEntryId, crownSlots,
@@ -48,6 +48,12 @@ const aName = (id, en) => ABILITIES[id][en ? "nameEn" : "nameDe"];
 /* v1.0.83: EIN Weg zum Bildnis - und er kennt den Rang. Bis hierher rief
    jede Stelle paintedById(id) einzeln auf und bekam beim Gambit immer sein
    erstes Gesicht; das hat den Besitzer durch drei Fassungen begleitet. */
+/* v1.25.7: das Budget einer Figur an EINER Stelle. Der Held bekommt
+   HELD_PUNKTE, alle anderen ihr Grundprofil (das seit dem Wegfall der Schilde
+   von selbst NORM_PUNKTE ergibt). So steht sein Vorsprung als Zahl da, statt
+   in neun Schildsprossen versteckt zu sein. */
+export const punkteVon = (charId) => (charId === "gambit" ? HELD_PUNKTE : null);
+
 export function bildnisVon(id, level = 1) {
   if (id === "gambit") return paintedById("gambit-t" + gambitTier(level)) || paintedById("gambit");
   return paintedById(id);
@@ -660,7 +666,7 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
   const isKing = char.kind === "K";
   /* v1.22.0: das Blatt rechnet wie der Kern (werteBeiStufe) - vorher stand
      hier eine DRITTE Staffelung (+1 Angriff alle zwei Stufen). */
-  const _w = werteBeiStufe(char.kind, level, { maxLevel: maxLevelFor(char.id) });
+  const _w = werteBeiStufe(char.kind, level, { maxLevel: maxLevelFor(char.id), punkte: punkteVon(char.id) });
   /* v1.25.6: keine Schilde im Leben mehr - dieselbe Rechnung wie im Kern
      (setup.js), samt Heldenbudget fuer den Gambit. */
   /* v1.25.6: dieselbe Rechnung wie im Kern, Angriff als Rest - sonst 37. */
@@ -678,7 +684,7 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
      naechste Stufe durch dieselbe Kernrechnung geschickt wird - Differenz
      statt Annahme. Auf der Hoechststufe steht nichts mehr da. */
   const _wNext = level < maxLevelFor(char.id)
-    ? werteBeiStufe(char.kind, level + 1, { maxLevel: maxLevelFor(char.id) }) : null;
+    ? werteBeiStufe(char.kind, level + 1, { maxLevel: maxLevelFor(char.id), punkte: punkteVon(char.id) }) : null;
 
   const plusAtk = _wNext ? Math.max(0, (_heldFig ? HELD_PUNKTE - Math.round(_wNext.hp * HELD_PUNKTE / Math.max(1, _wNext.hp + _wNext.atk)) : _wNext.atk) - atk) : 0;
   const plusHp = _wNext ? Math.max(0, (_heldFig ? Math.round(_wNext.hp * HELD_PUNKTE / Math.max(1, _wNext.hp + _wNext.atk)) : _wNext.hp) - maxHp) : 0;
@@ -749,7 +755,7 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
                      Jetzt liest das Blatt dieselbe Quelle wie die Kachel. */
                   {...(() => {
                     const mx = maxLevelFor(char.id);
-                    const wMax = werteBeiStufe(char.kind, mx, { maxLevel: mx });
+                    const wMax = werteBeiStufe(char.kind, mx, { maxLevel: mx, punkte: punkteVon(char.id) });
                     const sMax = resolveCharacter(char, mx, chosen).shield;
                     const budget = _heldFig ? HELD_PUNKTE : wMax.hp + wMax.atk;
                     const w = rohrAnteile({ hp: maxHp, maxHp, atk, level, maxLevel: mx, budget });
@@ -2075,7 +2081,7 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
        Richtig ist die Fassung MIT Schilden: sie sind dauerhaftes Leben und
        zaehlen im Gefecht mit. Die Kachel zieht also nach, nicht das Blatt.
        Der Koenig hat keine Schildsprossen, bei ihm aendert sich nichts. */
-    const { hp, atk } = werteBeiStufe(ch.kind, lv, { maxLevel: maxLevelFor(cid) });
+    const { hp, atk } = werteBeiStufe(ch.kind, lv, { maxLevel: maxLevelFor(cid), punkte: punkteVon(cid) });
     const { shield } = resolveCharacter(ch, lv, chosenAbilities(profile, cid));
     /* v1.25.6: keine Schilde im Leben mehr */
     const heldK = cid === "gambit";
@@ -2085,7 +2091,7 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
        sich Rot und Blau dort immer beruehren (der Koenig kommt auf 24, der
        Gambit auf 42, der Drache auf 54). */
     const mx = maxLevelFor(cid);
-    const wMax = werteBeiStufe(ch.kind, mx, { maxLevel: mx });
+    const wMax = werteBeiStufe(ch.kind, mx, { maxLevel: mx, punkte: punkteVon(cid) });
     const sMax = resolveCharacter(ch, mx, chosenAbilities(profile, cid)).shield;
     const budget = heldK ? HELD_PUNKTE : wMax.hp + wMax.atk;
     return rohrAnteile({ hp: hpGanz, maxHp: hpGanz, atk: atkGanz, level: lv, maxLevel: mx, budget });

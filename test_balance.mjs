@@ -325,6 +325,21 @@ if (failed) process.exit(1);
      die Grundwerte aus den Stufen ergeben 24 von sich aus, zwei Schildsprossen
      legten +4 obendrauf. Ohne sie stimmt die Summe ohne Zutun, und der Koenig
      ist kein Sonderfall mehr (er war die einzige Figur ohne Schilde). */
+  /* ── v1.25.7: DIE DREI ZAHLEN (Besitzerentscheid "Alle 24. Gambit 36.
+     Drache 48.") ──────────────────────────────────────────────────────────
+     Der Vorsprung des Helden steckte frueher in NEUN Schildsprossen. Jetzt
+     ist er eine Zahl an einer Stelle - HELD_PUNKTE -, und diese Probe haelt
+     alle drei zusammen. */
+  {
+    const { werteBeiStufe } = await import("./src/core/index.js");
+    const { HELD_PUNKTE } = await import("./src/core/domain/constants.js");
+    const summeVon = (id) => { const ch = CHARACTERS[id]; const m = maxLevelFor(id);
+      const w = werteBeiStufe(ch.kind, m, { maxLevel: m, punkte: id === "gambit" ? HELD_PUNKTE : null });
+      return w.hp + w.atk; };
+    ok(`der Gambit steht auf 36 (${summeVon("gambit")})`, summeVon("gambit") === 36);
+    ok(`der Drache steht auf 48 (${summeVon("dragon")})`, summeVon("dragon") === 48);
+    ok(`der Koenig steht auf 24 wie alle (${summeVon("king")})`, summeVon("king") === 24);
+  }
   const schilde = norm.map((ch) => resolveCharacter(ch, maxLevelFor(ch.id), null).shield);
   ok(`und keine Schilde mehr (${[...new Set(schilde)].join(",")})`, schilde.every((x) => x === 0));
 }

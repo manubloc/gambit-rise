@@ -80,13 +80,30 @@ export const HOECHSTSTUFE = 10;
 
 /* Leben und Angriff einer Art auf einer Stufe - EINE Rechnung fuer Kern,
    Hofstaat und Blatt. Extra-Grundwerte (Dupes) verschieben das Ziel mit. */
-export function werteBeiStufe(kind, lvl, { baseHp = null, baseAtk = null, maxLevel = HOECHSTSTUFE } = {}) {
+/* `punkte`: das Gesamtmass, das die Figur auf ihrer Hoechststufe erreichen
+   soll (v1.25.7). Ohne Angabe bleibt es beim Grundprofil - das ergibt seit dem
+   Wegfall der Schilde bei jeder normalen Figur genau NORM_PUNKTE. Der Held
+   bekommt HELD_PUNKTE hereingereicht: sein Vorsprung ist damit EINE ZAHL an
+   EINER Stelle, statt wie frueher in neun Schildsprossen versteckt zu sein.
+   Skaliert wird das ZIEL, nicht der Startwert - die Kurve bleibt also ihre,
+   nur das Ende liegt hoeher, und die Verteilung zwischen Leben und Angriff
+   bleibt unveraendert. */
+export function werteBeiStufe(kind, lvl, { baseHp = null, baseAtk = null, maxLevel = HOECHSTSTUFE, punkte = null } = {}) {
   const b0 = BASE_HP[kind] || 1, a0 = BASE_ATK[kind] || 1;
   const basisHp = baseHp ?? b0, basisAtk = baseAtk ?? a0;
   const ziel = ZIEL_PROFIL[kind];
   const t = (Math.max(1, lvl) - 1) / Math.max(1, maxLevel - 1);
   if (!ziel) return { hp: Math.round(basisHp + (lvl - 1) * 0.22 * basisHp), atk: Math.round(basisAtk + (lvl - 1) * 0.20 * basisAtk) };
-  const zielHp = ziel[0] + (basisHp - b0), zielAtk = ziel[1] + (basisAtk - a0);
+  let zielHp = ziel[0] + (basisHp - b0), zielAtk = ziel[1] + (basisAtk - a0);
+  if (punkte && zielHp + zielAtk > 0) {
+    /* GEMESSEN: beim Helden ergibt 17/7 mal 1,5 genau 25,5 und 10,5 - beide
+       runden auf und die Summe waere 37 statt 36. Deshalb wird das Leben
+       gerundet und der Angriff als REST gebildet: so trifft das Ziel immer
+       auf den Punkt, und Rot und Blau beruehren sich auf der Hoechststufe. */
+    const f = punkte / (zielHp + zielAtk);
+    zielHp = Math.round(zielHp * f);
+    zielAtk = punkte - zielHp;
+  }
   return { hp: Math.max(1, Math.round(basisHp + t * (zielHp - basisHp))), atk: Math.max(1, Math.round(basisAtk + t * (zielAtk - basisAtk))) };
 }
 /* HP-Remis: bleiben so viele HALBZUEGE ohne jeden Schaden, endet die Partie

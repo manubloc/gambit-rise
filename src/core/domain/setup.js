@@ -127,7 +127,11 @@ export function createInitialState(whiteArmy = defaultArmy(), blackArmy = defaul
          laeuft linear von ihrem Grundwert auf ihr Ziel (ZIEL_PROFIL in
          constants.js). Eine Rechnung fuer Kern und Hofstaat: werteBeiStufe. */
       void koenigsBonus;
-      const w = werteBeiStufe(p.kind, lvl, { baseHp: basisHp, baseAtk: basisAtk, maxLevel: p.maxLevel || undefined });
+      /* v1.25.7: der HELD traegt sein eigenes Budget (HELD_PUNKTE) - er ist
+         die einzige Figur, deren Vorsprung nicht aus dem Grundprofil kommt.
+         Frueher steckte er in neun Schildsprossen; jetzt ist es eine Zahl. */
+      const w = werteBeiStufe(p.kind, lvl, { baseHp: basisHp, baseAtk: basisAtk,
+        maxLevel: p.maxLevel || undefined, punkte: p.hero ? HELD_PUNKTE : null });
       /* ── v1.25.6: KEINE SCHILDE MEHR IM LEBEN (Besitzerentscheid) ─────────
          "Schild ist also immer Leben. Aber das gibt es doch mit jeder Stufe.
           Ich glaub Schild ist unnoetig und doppelt." - Und danach: "Alle 24.
