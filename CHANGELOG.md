@@ -1,5 +1,19 @@
 # Changelog - Grand Gambit
 
+## 1.26.1
+- DAS MONSTER WAECHST IN SEINE WERTE HINEIN (Besitzer: "Warum haben die
+  Monster schon von Beginn an so viel Leben? Das macht keinen Sinn").
+  GEFUNDEN: bossSpecLeveled ADDIERTE auf die Werte aus bosses.js - die sind
+  aber seit v1.25.5 die Werte der HOECHSTSTUFE (24 Punkte wie jede eigene
+  Figur). Ein Monster stand auf Stufe 1 also schon voll da und wuchs darueber
+  hinaus. Bei einer eigenen Figur ist es umgekehrt: werteBeiStufe rechnet vom
+  Verhaeltnis Stufe zu Hoechststufe herunter.
+  JETZT GENAUSO: Stufe 1 traegt 40 % des Budgets, Stufe 5 die vollen 24.
+  Gemessen, Waechter: 8/2 · 10/3 · 13/4 · 16/4 · 19/5. Der Geist, gleich
+  stark aber anders verteilt: 2/8 · 2/11 · 3/14 · 3/17 · 4/20.
+- Gerundet wird erst das Leben, dann der Angriff als Rest - sonst ergeben zwei
+  Aufrundungen 25 statt der beschlossenen 24.
+
 ## 1.26.0
 - JEDES MONSTER HAT EINEN AUFSTIEGSPLAN (Besitzer: "Ich moechte die Bedienung
   des Monsterfensters genau gleich - dementsprechend musst du diese zwei

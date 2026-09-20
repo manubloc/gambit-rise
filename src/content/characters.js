@@ -56,21 +56,6 @@ flavorDe: "Geboren, geopfert zu werden — entschlossen, es nicht zu bleiben.", 
       { level: 6, ability: "teleport" },
       { level: 8, ability: "gambit_masquerade" },
       { level: 9, ability: "pawn_early_promo" },
-      // Stufen II & III (the hero alone climbs to 30): quiet, passive gains —
-      // the splendor is the point, the shields are the nod to it
-      /* v1.24.0: die Schilde lagen auf 12 bis 58 - mit der Kuerzung auf
-         zwanzig Stufen waren neun davon unerreichbar. Sie sind auf den
-         Bereich 10 bis 20 umgerechnet (12->10, 16->11, 21->12, 26->13,
-         34->15, 40->16, 46->17, 52->19, 58->20), im gleichen Abstand
-         zueinander wie vorher. Der Held bekommt damit dieselben elf Schilde
-         wie bisher, nur in zwanzig statt in achtundfuenfzig Stufen. */
-      /* v1.24.1 (Besitzer): "Er darf nicht doppelt so viel haben" und "ein
-         bisschen weniger als der Drache". GEMESSEN auf Hoechststufe: Drache
-         hp 47, Gambit mit elf Schilden hp 39 - unter dem Drachen, aber mehr
-         als das Doppelte der Dame (16) und des Mittelwerts aller Figuren
-         (18). Zwei Schilde weniger (die auf 11 und 16 fallen weg) bringen ihn
-         auf hp 35: unter dem Doppelten des Mittels (36), 1,5-mal der Bauer,
-         deutlich unter dem Drachen. Neun Schilde statt elf. */
     ],
   },
   knight: {
@@ -82,7 +67,6 @@ flavorDe: "Reitet Winkel, die keine Mauer je bedacht hat.", flavorEn: "Rides ang
       { level: 5, ability: "knight_outrider" },
       { level: 6, ability: "teleport" },
       { level: 8, ability: "lifesteal" },
-      { level: 9, ability: "bulwark" },
     ],
   },
   bishop: {
@@ -94,7 +78,6 @@ flavorDe: "Sieht die Welt nur schräg — und trifft sie deshalb umso genauer.",
       { level: 4, ability: "ranged_shot" },
       { level: 6, ability: "bishop_ortho_step" },
       { level: 7, ability: "teleport" },
-      { level: 8, ability: "regen" },
     ],
   },
   rook: {
@@ -106,8 +89,6 @@ flavorDe: "Eine wandernde Festung mit schlechter Laune.", flavorEn: "A walking f
       { level: 4, ability: "ranged_shot" },
       { level: 5, ability: "rook_breach" },
       { level: 6, ability: "bulwark" },
-      { level: 7, ability: "ranged_volley" },
-      { level: 9, ability: "blast" },
     ],
   },
   queen: {
@@ -118,13 +99,6 @@ flavorDe: "Der Hof flüstert, sie führe den König. Der Hof flüstert leise.", 
       { level: 3, ability: "queen_knightleap" },
       { level: 4, ability: "ranged_shot" },
       { level: 5, ability: "teleport" },
-      { level: 6, ability: "lifesteal" },
-      { level: 7, ability: "ranged_volley" },
-      { level: 8, ability: "bulwark" },
-      { level: 9, ability: "regen" },
-      { level: 10, ability: "blast" },
-      { level: 11, ability: "pull" },
-      { level: 12, ability: "chain" },
     ],
   },
   king: {
@@ -147,10 +121,6 @@ flavorDe: "Predigt Vergebung und nimmt die Beichte gleich selbst ab.", flavorEn:
       { level: 3, ability: "bishop_hop" },
       { level: 4, ability: "ranged_shot" },
       { level: 5, ability: "bishop_ortho_step" },
-      { level: 6, ability: "teleport" },
-      { level: 7, ability: "lifesteal" },
-      { level: 8, ability: "regen" },
-      { level: 9, ability: "blast" },
     ],
   },
   chancellor: {
@@ -161,10 +131,6 @@ flavorDe: "Verwaltet das Reich — und im Exil seine Rache.", flavorEn: "Adminis
       { level: 3, ability: "rook_diag_step" },
       { level: 4, ability: "ranged_shot" },
       { level: 5, ability: "rook_breach" },
-      { level: 6, ability: "ranged_volley" },
-      { level: 7, ability: "bulwark" },
-      { level: 8, ability: "pull" },
-      { level: 9, ability: "blast" },
     ],
   },
   hawk: {
@@ -175,8 +141,6 @@ flavorDe: "Kein Pfad, den er nicht zweimal gegangen wäre, bevor du ihn einmal s
       { level: 3, ability: "teleport" },
       { level: 4, ability: "ranged_shot" },
       { level: 5, ability: "knight_outrider" },
-      { level: 6, ability: "lifesteal" },
-      { level: 7, ability: "bulwark" },
     ],
   },
   amazon: {
@@ -187,12 +151,6 @@ flavorDe: "Niemand fordert sie zweimal heraus.", flavorEn: "Nobody challenges he
       { level: 3, ability: "queen_knightleap" },
       { level: 4, ability: "ranged_shot" },
       { level: 5, ability: "teleport" },
-      { level: 6, ability: "lifesteal" },
-      { level: 7, ability: "ranged_volley" },
-      { level: 8, ability: "bulwark" },
-      { level: 9, ability: "regen" },
-      { level: 10, ability: "blast" },
-      { level: 11, ability: "pull" },
     ],
   },
 
@@ -204,7 +162,6 @@ flavorDe: "Hält Kurs, wo die Karten enden.", flavorEn: "Holds course where the 
     // Sea legs: strides three straight, steps one diagonal — and can hook foes in.
     moveSpec: { slides: [[1,0],[-1,0],[0,1],[0,-1]], range: 3, leaps: [[1,1],[1,-1],[-1,1],[-1,-1]] },
     ladder: [
-      { level: 4, ability: "pull" },
       { level: 6, ability: "ranged_volley" },
       { level: 9, ability: "blast" },
     ],

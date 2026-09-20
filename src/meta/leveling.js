@@ -330,19 +330,35 @@ export const ZIEL_PROFIL_BOSS = {
   b10: [13, 11], b18: [12, 12], b23: [12, 12], b21: [13, 11], b16: [11, 13], b08: [10, 14],
   b11: [8, 16], b04: [8, 16], b05: [9, 15], b02: [7, 17], b19: [7, 17], b09: [6, 18], b15: [6, 18], b22: [5, 19], b13: [5, 19], b07: [4, 20],
 };
+/* ── v1.26.1: DAS MONSTER WAECHST IN SEINE WERTE HINEIN ────────────────────
+   Besitzer: "Warum haben die Monster schon von Beginn an so viel Leben? Das
+   macht keinen Sinn."
+
+   GEFUNDEN: diese Funktion ADDIERTE auf die Werte aus bosses.js - die sind
+   aber seit v1.25.5 die Werte der HOECHSTSTUFE (24 Punkte, wie bei jeder
+   eigenen Figur). Ein Monster stand damit auf Stufe 1 schon voll da und wuchs
+   darueber hinaus. Bei einer eigenen Figur ist es umgekehrt: werteBeiStufe
+   rechnet vom Verhaeltnis Stufe zu Hoechststufe herunter.
+
+   JETZT GENAUSO: die Datenwerte sind das Ziel, und das Monster waechst von
+   START_ANTEIL auf 100 % ueber seine fuenf Stufen. Gerundet wird erst das
+   Leben, dann der Angriff als Rest - sonst ergeben zwei Aufrundungen 25
+   statt der beschlossenen 24. */
+const START_ANTEIL = 0.4;   // Stufe 1 traegt 40 % des Punktebudgets
 export function bossSpecLeveled(b, level) {
   const spec = bossSpec(b);
   const l = Math.max(1, Math.min(BOSS_MAX_LEVEL, level || 1));
   const ziel = ZIEL_PROFIL_BOSS[b.id];
-  if (!ziel) {
-    const atkPlus = (l >= 3 ? 1 : 0) + (l >= 5 ? 1 : 0);
-    return { ...spec, level: l, hp: spec.hp + (l - 1), maxHp: spec.hp + (l - 1), atk: spec.atk + atkPlus };
-  }
+  const vollHp = ziel ? ziel[0] : spec.hp;
+  const vollAtk = ziel ? ziel[1] : spec.atk;
   const t = (l - 1) / Math.max(1, BOSS_MAX_LEVEL - 1);
-  const hp = Math.max(1, Math.round(spec.hp + t * (ziel[0] - spec.hp)));
-  const atk = Math.max(1, Math.round(spec.atk + t * (ziel[1] - spec.atk)));
+  const anteil = START_ANTEIL + (1 - START_ANTEIL) * t;
+  const ganz = Math.max(1, Math.round((vollHp + vollAtk) * anteil));
+  const hp = Math.max(1, Math.round(ganz * vollHp / Math.max(1, vollHp + vollAtk)));
+  const atk = Math.max(1, ganz - hp);
   return { ...spec, level: l, hp, maxHp: hp, atk };
 }
+
 export function upgradeBoss(profile, bossId) {
   const owned = new Set([...ownedLeagueBosses(profile), ...(profile.campaign?.bribedBosses || [])]);
   if (!owned.has(bossId)) return profile;
