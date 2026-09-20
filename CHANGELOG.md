@@ -1,5 +1,19 @@
 # Changelog - Grand Gambit
 
+## 1.26.0
+- JEDES MONSTER HAT EINEN AUFSTIEGSPLAN (Besitzer: "Ich moechte die Bedienung
+  des Monsterfensters genau gleich - dementsprechend musst du diese zwei
+  Faehigkeiten auf die fuenf Stufen verteilen"). Bisher standen die
+  Faehigkeiten eines Monsters fest und waren von Anfang an da. Jetzt traegt
+  jedes Monster denselben Plan wie eine eigene Figur, nur kuerzer: fuenf
+  Stufen, die erste Faehigkeit auf Stufe 2, die zweite auf Stufe 4. 24 von 25
+  haben eine Sprosse (b14 hat heute keine Faehigkeit); die zweite Sprosse
+  steht leer, bis die neun Monstertalente im Kern wirken.
+- NOCH OFFEN, und der eigentliche Rest der "gleichen Bedienung": das
+  Monsterfenster muss diesen Plan auch ZEIGEN und BEDIENEN - Trainingsleiter
+  und Freischalten wie im Figurenblatt statt der alten Range- und
+  Verbessern-Zeile. Die Daten dafuer stehen jetzt.
+
 ## 1.25.9
 - DAS MONSTERFENSTER TRAEGT DIESELBE BUEHNE WIE DAS FIGURENBLATT (Besitzer:
   "Ich wollte doch bei allen Monstern genau das gleiche Design wie bei meinen

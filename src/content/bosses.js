@@ -44,8 +44,26 @@ const CAMEL = sym(1, 3);
 const ZEBRA = sym(2, 3);
 const RING2 = (() => { const o = []; for (let f = -2; f <= 2; f++) for (let r = -2; r <= 2; r++) if (Math.max(Math.abs(f), Math.abs(r)) === 2) o.push([f, r]); return o; })();
 
+/* ── v1.26.0: JEDES MONSTER HAT EINEN AUFSTIEGSPLAN (Besitzerentscheid) ────
+   "Ich moechte die Bedienung des Monsterfensters genau gleich - und
+    dementsprechend musst du diese zwei Faehigkeiten auf die fuenf Stufen
+    verteilen."
+   Bisher standen die Faehigkeiten eines Monsters fest und waren von Anfang an
+   da; eine Leiter gab es nicht. Jetzt traegt jedes Monster denselben Plan wie
+   eine eigene Figur, nur kuerzer: fuenf Stufen, die erste Faehigkeit auf
+   Stufe 2, die zweite auf Stufe 4. Hat ein Monster heute nur eine (das ist
+   bei allen so, bis die neun Monstertalente im Kern wirken), bekommt die
+   zweite Sprosse vorerst nichts - der Platz steht schon, damit das Fenster
+   und die Bedienung sich nicht mehr aendern muessen, wenn die Talente kommen.
+   Das Feld `abilities` bleibt bestehen: es ist das, was das Monster auf
+   Hoechststufe kann, und daraus wird der Plan abgeleitet. */
+const MONSTER_SPROSSEN = [2, 4];
+const bossLadder = (abilities) => MONSTER_SPROSSEN.map((level, i) =>
+  abilities[i] ? { level, ability: abilities[i] } : null).filter(Boolean);
 const B = (id, nameDe, nameEn, art, accent, hp, atk, moveSpec, extra = {}) =>
-  ({ id, nameDe, nameEn, art, accent, hp, atk, moveSpec, abilities: extra.abilities || [], aura: extra.aura || null, hintDe: extra.hintDe, hintEn: extra.hintEn, flavorDe: extra.flavorDe, flavorEn: extra.flavorEn });
+  ({ id, nameDe, nameEn, art, accent, hp, atk, moveSpec, abilities: extra.abilities || [],
+     ladder: bossLadder(extra.abilities || []),
+     aura: extra.aura || null, hintDe: extra.hintDe, hintEn: extra.hintEn, flavorDe: extra.flavorDe, flavorEn: extra.flavorEn });
 
 /* ── DIE GABEN DER BESTIEN (v0.38) ────────────────────────────────────────
  * Jedes Wesen traegt seit v0.38 die Gabe seiner FAMILIE - dieselben Regeln,
