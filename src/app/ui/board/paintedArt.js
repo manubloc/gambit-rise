@@ -561,7 +561,14 @@ export const paintedFitById = (id) => PAINTED_FIT[id] || { h: 1, y: 0, x: 0 };
 export const FIT_GEMESSEN = true;   /* false = zurueck zur Handtabelle */
 const HANDTABELLE = !FIT_GEMESSEN;                 // true = die alte PAINTED_FIT-Tabelle
 const ZIEL_RX = 136, ZIEL_HOEHE = 561, BODEN_LINIE = 555;
-const HEBUNG_PCT = 4;    // Prozent der Figurenhoehe, gemeinsame Hebung aller Brettfiguren
+/* v1.25.8 (Besitzer): "Turm, Pferd, Laeufer, Dame, Koenig sind immer noch zu
+   tief - bitte gleicher Abstand wie Gambit und Bauer." GEMESSEN am Brett:
+   Luft zur Feldkante bei den Offizieren 4,7 bis 6,1 px, bei Bauer und Gambit
+   8,7 bis 9,9. Die Differenz ist der Bandueberhang - das Band haengt um
+   (Hoehe - Standflaeche) unter die Bodenkante, beim Turm (Standflaeche 19)
+   viel tiefer als beim Bauern (49). Die Hebung geht deshalb von 4 auf 5,2 %;
+   das schliesst die gemessenen rund 4 px. */
+const HEBUNG_PCT = 5.2;  // Prozent der Figurenhoehe, gemeinsame Hebung aller Brettfiguren
 /* das Verhaeltnis, um das die Dame durch die Messung kleiner wurde -
    dieselbe Schrumpfung gilt fuer die handgesetzten Meistermasse */
 const BOSS_ANPASSUNG = 1.0237 / 1.1329;
@@ -600,9 +607,14 @@ function gemessenerFit(id) {
      (Standflaeche 19) viel tiefer als beim Bauern (49). Ausgerichtet wird
      deshalb die Unterkante des BANDES. In PROZENT der Elementhoehe, nicht in
      em - das war der Einheitenfehler von vorhin. */
+  /* v1.25.8: der Bandueberhang wird JETZT wirklich herausgerechnet - in
+     Prozent der Figurenhoehe (rund 1,3 em), nicht der Bildhoehe. Der frueher
+     hier stehende Teiler m.H war der Einheitenfehler, der die Offiziere um
+     70 px verschob statt um 4. GEMESSEN vorher: Offiziere 4,7-6,1 px Luft,
+     Bauer und Gambit 8,7-9,9. */
   const bandHoch = Math.max(8, Math.round(46 / Math.max(0.2, ges)));
   const haengt = Math.max(0, bandHoch - (m.teller || 0));       // Bildpixel unter der Bodenkante
-  const yPct = aus - HEBUNG_PCT - (haengt * ges / m.H) * 100;    // alles in Prozent der Hoehe
+  const yPct = aus - HEBUNG_PCT - (haengt * ges / m.H) * 100;
   return { h: Number(ges.toFixed(4)), y: Number(yPct.toFixed(3)), yProzent: true, x: Number((-((m.cx - m.W / 2) / m.W)).toFixed(4)) };
 }
 

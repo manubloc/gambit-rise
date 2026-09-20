@@ -529,7 +529,12 @@ export function BoardView({ state, onMove, interactive, lastMove, mattSeite = nu
             /* v1.24.5b (Besitzer): "etwas zu stark, aber gerne mit minimalem Verlauf
                zum Schachbrettfeld" - also schwaecher und zu den Raendern hin
                auslaufend, damit das Feld darunter noch durchkommt. */
-            background: "radial-gradient(112% 112% at 50% 44%, rgba(139,92,246,.46) 0%, rgba(116,58,220,.34) 52%, rgba(90,44,170,.10) 88%, rgba(90,44,170,0) 100%)" }} />}
+            /* v1.25.8 (Besitzer): "bitte Lila noch mit einem Verlauf ausstatten
+               mit harter Kante ins Schwarze am Rand von dem Feld." Also innen
+               ein weicher Verlauf, aussen ein klarer Schnitt an der Feldkante
+               statt des Auslaufens ins Nichts. */
+            background: "radial-gradient(104% 104% at 50% 44%, rgba(150,104,250,.50) 0%, rgba(116,58,220,.38) 58%, rgba(74,34,146,.30) 92%, rgba(28,12,58,.34) 100%)",
+            boxShadow: "inset 0 0 0 1px rgba(16,6,34,.55)" }} />}
           {(feld || !ground) && (() => {
             // DIE FELDER DES BESITZERS (v0.66) SIEGEN AUCH UEBER DEM BODEN:
             // seine Kacheln SIND die Felder - der gemalte Grund weicht. liegt ein Kapitel-Streifen an,

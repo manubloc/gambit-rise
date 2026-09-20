@@ -1,5 +1,23 @@
 # Changelog - Grand Gambit
 
+## 1.25.8
+- HARTE KANTE AM LILA-FELD (Besitzer: "bitte Lila noch mit einem Verlauf
+  ausstatten mit harter Kante ins Schwarze am Rand von dem Feld"): innen ein
+  weicher Verlauf, aussen ein klarer Schnitt an der Feldkante statt des
+  Auslaufens ins Nichts.
+- MEHR LUFT UNTER ALLEN BRETTFIGUREN: die gemeinsame Hebung von 4 auf 5,2 %.
+  Gemessen danach: Bauer 9,7 px zur Feldkante (vorher 8,7), Gambit 10,9.
+- DIE OFFIZIERSREIHE BLEIBT rund 3,5 px tiefer als Bauer und Gambit - und die
+  URSACHE IST JETZT GEMESSEN statt vermutet: das Band haengt um
+  (Bandhoehe - Standflaeche) unter die Bodenkante, und dieser Ueberhang ist
+  bei jeder Figur anders. Bauer 0 px (Band 44, Standflaeche 49), Springer
+  10 px (44 gegen 34), Koenig 7, Laeufer 6, Turm 3, Dame 3. Zwei Versuche, das
+  herauszurechnen, haben NICHTS bewegt: der Versatz wird als Prozent der
+  Elementhoehe gesetzt, und die Umrechnung von Bildpixeln dorthin stimmt noch
+  nicht - die Figur wird groesser gezeichnet als ihre Zelle (121 bis 143 %),
+  der Teiler ist also nicht die Bildhoehe. Das gehoert an EINER Figur sauber
+  ausgemessen, nicht mit einer dritten Formel geraten.
+
 ## 1.25.6
 - DIE SCHILDE SIND RAUS (Besitzer: "Schild ist also immer Leben. Aber das gibt
   es doch mit jeder Stufe. Ich glaub Schild ist unnoetig und doppelt").
