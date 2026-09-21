@@ -1,5 +1,18 @@
 # Changelog - Grand Gambit
 
+## 1.26.3
+- DER VERBESSERN-KNOPF STEHT IN DER BUEHNE (Besitzer: "nicht unterhalb von dem
+  Bund, sondern ganz oben im oberen Fenster, unterhalb von Angriff und Leben -
+  dort sieht man ja, was man bekommt"). Die Zeile "Stufe 1 -> 2 / Verbessern"
+  wird jetzt als Eigenschaft an die Buehne gereicht und unter den
+  Wertkaesten gezeichnet; unten steht sie nur noch in der kleinen Fassung.
+  Weil Figurenblatt und Monsterfenster dasselbe Bauteil benutzen, gilt das
+  fuer beide.
+- DIE BUEHNE TRAEGT DEN FARBTON DER FIGUR (Besitzer: "die Farbgebung, die du
+  auf der Uebersicht jeder Figur gibst, tust du im Fenster nicht auf den
+  Hintergrund beziehen"). Dieselbe Schicht wie auf der Kachel: der Ton der
+  Figur im Mischmodus color, Figuren 30 %, Monster 45 %.
+
 ## 1.26.2
 - DIE LAUTSTAERKE BLEIBT (Besitzer: "Merk dir endlich mal pro Profil die
   Sound- und Musiklautstaerke"). GEMESSEN, warum sie verloren ging: der

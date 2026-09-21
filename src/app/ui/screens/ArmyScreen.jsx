@@ -215,7 +215,8 @@ const BlattEcken = () => <>{[["top:2px;left:2px", 0], ["top:2px;right:2px", 90],
    und Monsterfenster rufen DASSELBE auf. Was ein Monster nicht hat (Bund,
    Leiter zum Waehlen), laesst es einfach weg. */
 function BlattBuehne({ kennung, name, haus, satz, portraet, pid, ton, kul, form, stufe, maxStufe,
-  zugKind, moveSpec, talente, zeichen, band, atk, maxHp, plusAtk, plusHp, werteAn, maxed, en }) {
+  zugKind, moveSpec, talente, zeichen, band, atk, maxHp, plusAtk, plusHp, werteAn, maxed, en,
+  knopf = null, tonStaerke = 0.30 }) {
   const gezeigt = zeichen.slice(0, 10);
   const reihen = []; for (let r = 0; r * 5 < Math.max(5, gezeigt.length); r++) reihen.push(gezeigt.slice(r * 5, r * 5 + 5));
   return <div style={{ position: "relative", isolation: "isolate", borderRadius: 15, overflow: "hidden",
@@ -223,6 +224,13 @@ function BlattBuehne({ kennung, name, haus, satz, portraet, pid, ton, kul, form,
         background: "linear-gradient(180deg, rgba(20,13,36,.9), rgba(10,7,19,.96))" }}>
         {kul && <img src={kul} alt="" data-gg-still="" draggable={false} style={{ position: "absolute", inset: 0,
           width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 38%", opacity: .66, zIndex: -2 }} />}
+        {/* v1.26.3 (Besitzer): "die Farbgebung, die du auf der Uebersicht jeder
+            Figur gibst, tust du im Fenster nicht auf den Hintergrund beziehen -
+            da bitte auch so soft einfaerben." Dieselbe Schicht wie auf der
+            Kachel (KulisseHinterGrund): der Ton der Figur im Mischmodus color,
+            Figuren 30 %, Monster 45 %. */}
+        {ton && <div aria-hidden style={{ position: "absolute", inset: 0, zIndex: -2,
+          background: ton, mixBlendMode: "color", opacity: tonStaerke, pointerEvents: "none" }} />}
         <div aria-hidden style={{ position: "absolute", inset: 0, zIndex: -1,
           background: "linear-gradient(180deg, rgba(8,5,14,.6) 0%, rgba(8,5,14,.22) 38%, rgba(8,5,14,.72) 100%)" }} />
         <BlattEcken />
@@ -322,6 +330,8 @@ function BlattBuehne({ kennung, name, haus, satz, portraet, pid, ton, kul, form,
               </div>
             </div>)}
         </div>}
+        {/* v1.26.3: der Verbessern-Knopf unter Angriff und Leben */}
+        {knopf && <div style={{ marginTop: 10 }}>{knopf}</div>}
       </div>;
 }
 
@@ -835,7 +845,69 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
         zugKind={char.kind} moveSpec={char.moveSpec} talente={chosen}
         zeichen={rungs.map((r) => ({ id: r.id, gelernt: chosen.includes(r.id) }))}
         band={{ leben: band.leben, kraft: band.kraft }}
-        atk={atk} maxHp={maxHp} plusAtk={plusAtk} plusHp={plusHp} werteAn={hpUnlocked(profile)} maxed={maxed} en={en} />;
+        atk={atk} maxHp={maxHp} plusAtk={plusAtk} plusHp={plusHp} werteAn={hpUnlocked(profile)} maxed={maxed} en={en}
+        tonStaerke={0.30}
+        knopf={open && unlocked ? (<div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 11, padding: "8px 10px",
+        background: T.panel2, borderRadius: T.radiusSm, border: `1px solid ${T.line}` }}>
+        <div style={{ flex: 1, fontSize: 12.5, color: maxed ? T.faint : T.text, display: "flex", alignItems: "center", flexWrap: "wrap", gap: 4 }}>
+          {char.id === "gambit" && <span className="gg-serif" style={{ color: T.goldBright, marginRight: 8, letterSpacing: ".05em" }}>
+            {"✦".repeat(gambitTier(level))} {t("army.stufe", { r: ["I", "II", "III", "IV", "V", "VI"][gambitTier(level) - 1] })}</span>}
+          {(() => { // mirror of core/setup: the SAME formulas, so what you read is what you field
+            const k = char.kind, kingly = k === "K" ? 2 : 1;
+            const hpAt = (l) => (BASE_HP[k] || 1) + (l - 1) * kingly;
+            const atkAt = (l) => (BASE_ATK[k] || 1) + Math.floor((l - 1) / 2);
+            return maxed
+              ? <span className="gg-serif" style={{ letterSpacing: ".03em" }}>{t("army.maxed")}</span>
+              : <span style={{ color: "#b9b295", display: "inline-flex", alignItems: "center", gap: 6, lineHeight: 1 }}>
+                <span>{en ? "Level" : "Stufe"} {level} → {level + 1}</span>
+                {/* the gains live INSIDE the spheres - one flex line centres
+                    text, spheres and the button on the SAME axis */}
+                {/* v1.25.4: ohne Perlen - und der Angriffszuwachs ist jetzt
+                    die echte Differenz statt des festen "+1" (v1.25.0). */}
+                {hpAt(level + 1) > hpAt(level) && <b style={{ font: "800 12px/1 Georgia, serif", color: "#ffb3aa" }}>+{hpAt(level + 1) - hpAt(level)}</b>}
+                {atkAt(level + 1) > atkAt(level) && <b style={{ font: "800 12px/1 Georgia, serif", color: "#b6cdff" }}>+{atkAt(level + 1) - atkAt(level)}</b>}
+              </span>;
+          })()}
+        </div>
+        {feier && <AufstiegsFeier art={feier.art} gambitTier={feier.tier || 1} bild={feier.bild}
+          charId={feier.charId} kind={feier.kind} abId={feier.abId}
+          chName={en ? char.nameEn : char.nameDe} ab={feier.ab} t={t} onClose={() => setFeier(null)} />}
+        {!maxed && <button disabled={!affordable}
+          onClick={() => { klang("stufe");
+            if (animAn()) {
+              const sprosse = rungs.find((r) => r.level === level + 1);
+              setFaehig(sprosse ? sprosse.id : null);
+              setFrisch(sprosse ? sprosse.level : 0);
+              setGlanz((n) => n + 1);
+              /* v1.0.73: der Glanz klingt - und eine FAEHIGKEIT klingt
+                 anders als eine blosse Stufe (violetter Kristallschimmer
+                 statt goldenem Wusch), genau wie im Bild. */
+              setTimeout(() => { try { klang(sprosse ? "faehigkeit" : "glanz"); } catch {} }, 140);
+            }
+            /* v1.0.75: WECHSELT DER GAMBIT SEINE STUFE, wird das gefeiert -
+               mit seinem neuen Antlitz und der Zeile dazu. Der Vergleich
+               laeuft ueber gambitTier VOR und NACH dem Schritt; nur der
+               Sprung zaehlt, nicht jedes Level. */
+            if (char.id === "gambit" && gambitTier(level + 1) > gambitTier(level)) {
+              const neuerRang = gambitTier(level + 1);
+              setTimeout(() => setFeier({ art: "rang", tier: neuerRang,
+                bild: paintedForPiece({ kind: "P", color: "w", hero: true, level: level + 1, tier: neuerRang }) }), 620);
+            }
+            dispatch({ type: "UPGRADE_PIECE", id: char.id }); }}
+          className={affordable ? "gg-funkenkontur" : undefined}
+          style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "9px 15px", borderRadius: 10,
+            fontFamily: "inherit", fontWeight: 800, fontSize: 13, letterSpacing: ".02em",
+            cursor: affordable ? "pointer" : "default",
+            // das Riss-Gewand: sehr dunkler Grund, leuchtend violette Schrift
+            // und Kontur mit weichem Schimmer
+            background: affordable ? "linear-gradient(172deg, rgba(40,24,72,.97) 0%, rgba(14,9,28,.99) 100%)" : "#151827",
+            color: affordable ? T.riftBright : "#8d94ad",
+            border: `1px solid ${affordable ? T.riftLine : "#3d4666"}`,
+            boxShadow: affordable ? `0 0 12px ${T.riftGlow}, 0 0 26px rgba(124,58,237,.25), inset 0 0 10px rgba(124,58,237,.14)` : "none",
+            animation: affordable ? "ggUpPulse 2.2s ease-in-out infinite" : "none",
+            textShadow: affordable ? "0 0 8px rgba(196,181,253,.8), 0 1px 2px rgba(0,0,0,.6)" : "none" }}>
+          {t("army.upgrade")} · {cost} <SkillStar size={12} /></button>}
+      </div>) : null} />;
     })() : (
     <div style={{ display: "flex", gap: 13, alignItems: "stretch", cursor: onToggle ? "pointer" : "default" }}
       onClick={onToggle ? (e) => { e.stopPropagation(); onToggle(); } : undefined}>
@@ -980,7 +1052,11 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
         <JewelIc kind="power" size={13} /> {t("army.lockedBoss", { place: bossNode.place })}
       </div>
     )}
-    {open && unlocked && (
+    {/* v1.26.3 (Besitzer): im grossen Blatt steht der Verbessern-Knopf jetzt
+        OBEN in der Buehne, unter Angriff und Leben - dort, wo man sieht, was
+        die naechste Stufe bringt. Hier unten nur noch in der kleinen
+        Fassung. */}
+    {open && unlocked && !bigArt && (
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 11, padding: "8px 10px",
         background: T.panel2, borderRadius: T.radiusSm, border: `1px solid ${T.line}` }}>
         <div style={{ flex: 1, fontSize: 12.5, color: maxed ? T.faint : T.text, display: "flex", alignItems: "center", flexWrap: "wrap", gap: 4 }}>
@@ -2567,7 +2643,8 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
                 zugKind={null} moveSpec={b.moveSpec} talente={[]}
                 zeichen={(b.abilities || []).map((id) => ({ id, gelernt: true }))}
                 band={{ leben: bandB.leben, kraft: bandB.kraft }}
-                atk={b.atk} maxHp={b.hp} plusAtk={0} plusHp={0} werteAn={hpUnlocked(profile)} maxed={lvlB >= BOSS_MAX_LEVEL} en={en} />;
+                atk={b.atk} maxHp={b.hp} plusAtk={0} plusHp={0} werteAn={hpUnlocked(profile)} maxed={lvlB >= BOSS_MAX_LEVEL} en={en}
+                tonStaerke={0.45} />;
             })()}
             {(() => {
               const lvl = bossLevelOf(profile, b.id);
