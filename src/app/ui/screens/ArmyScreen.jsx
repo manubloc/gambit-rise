@@ -9,13 +9,13 @@ import { SP_SHARD_GOLD, SP_VAULT_MIN_CLEARED, spShardCap, bossLevelOf, bossUpgra
 import { CHARACTER_LIST, CHARACTERS, ABILITIES, TAGS, SPERRGRUND, faehigkeitZustand, MAPS, mapById, ITEM_LIST, bossById, BOSSES, ITEMS, itemPrice } from "../../../content/index.js";
 import LebensRohr from "../board/LebensRohr.jsx";
 import { rohrAnteile } from "../board/PieceGlyph.jsx";
-import { talentFarbe } from "../../../content/abilities.js";
+import { talentFarbe, maxStufe } from "../../../content/abilities.js";
 import { iconFarbe } from "../AbilityIcons.jsx";   /* v1.26.6 */
 import { BASE_HP, BASE_ATK, SHIELD_HP, HELD_PUNKTE, NORM_PUNKTE, werteBeiStufe, createGame, familyOf, crownHp, crownWallSoak, shadowRifts, shadowAtk } from "../../../core/index.js";
 import {
   characterLevel, resolveCharacter, isUnlocked, upgradeCost, canUpgrade, maxLevelFor, gambitTier, clearedCount,
   formationKey, formationLegalOn, formationCounts, buildArmyFromFormation, buildArmyFrom, defaultFormation, buildAiArmyForMap, hpUnlocked, ownedLeagueBosses, isBossEntry, bossEntryId, crownSlots,
-  chosenAbilities, abilityCost, canUnlockAbility, dupeCount, RESPEC_GOLD, heroColFor, mapUnlocked,
+  chosenAbilities, abilityCost, canUnlockAbility, faehigkeitsStufe, stufeBenoetigt, canUpgradeAbility, dupeCount, RESPEC_GOLD, heroColFor, mapUnlocked,
   itemRevealed, bossWinsFor, effectiveNodeBoss, nodeStatus, hpWach } from "../../../meta/index.js";
 import { CAMPAIGN } from "../../../content/index.js";
 import { klang } from "../klang.js";   /* v0.77: Stufe, Freischalten, Gold bekommen ihren Klang */
@@ -382,6 +382,29 @@ function Aufstiegsplan({ schluessel, kind, rungs, level, chosen, profile, en, t,
       /* v1.0.70: die eben erwachte Sprosse pulst dreimal - key=glanz
          startet den Puls je Stufenkauf genau einmal neu. */
       const eben = rg.level === frisch;
+      /* ── v1.28.0: DIE STUFEN EINER FAEHIGKEIT. Unter einer gelernten steht,
+         auf welcher Stufe sie ist und - wenn moeglich - der Knopf fuer die
+         naechste. Figur und Monster teilen diese Leiter, also beide. */
+      const stNow = owned ? faehigkeitsStufe(profile, schluessel, rg.id) : 0;
+      const stMax = maxStufe(rg.id);
+      const stNext = owned && stNow < stMax ? stNow + 1 : null;
+      const stBrauch = stNext ? stufeBenoetigt(schluessel, { level: rg.level }, stNext) : null;
+      const stKann = stNext ? canUpgradeAbility(profile, schluessel, rg.id) : false;
+      const ROEM = ["", "I", "II", "III"];
+      const stufenZeile = owned && stMax > 1 ? <div style={{ display: "flex", alignItems: "center", gap: 8, margin: "5px 2px 0",
+          fontSize: 11.5, color: "#b9b295" }}>
+        <span className="gg-serif" style={{ letterSpacing: ".06em", color: "#e9cf8a" }}>
+          {en ? "Tier" : "Stufe"} {ROEM[stNow]} {en ? "of" : "von"} {ROEM[stMax]}
+          <span style={{ color: "#8a856f" }}> · {stNow}× {en ? "per battle" : "je Partie"}</span></span>
+        <span style={{ flex: 1 }} />
+        {stNext && (stKann
+          ? <button onClick={() => { klang("stufe"); dispatch({ type: "UPGRADE_ABILITY", id: schluessel, ability: rg.id }); }}
+              className="gg-funkenkontur" style={{ padding: "5px 10px", borderRadius: 8, fontFamily: "inherit", fontWeight: 800,
+                fontSize: 11.5, cursor: "pointer", color: T.riftBright, border: `1px solid ${T.riftLine}`,
+                background: "linear-gradient(172deg, rgba(40,24,72,.97) 0%, rgba(14,9,28,.99) 100%)" }}>
+              {en ? "To tier" : "Auf Stufe"} {ROEM[stNext]} · {abilityCost(stBrauch)} <SkillStar size={10} /></button>
+          : <span style={{ color: "#8a856f" }}>{en ? "Tier" : "Stufe"} {ROEM[stNext]} {en ? "from level" : "ab Stufe"} {stBrauch}</span>)}
+      </div> : null;
       return <div key={rg.id + (eben ? ":" + glanz : "")}
         style={eben ? { animation: "ggSprossePuls 1.5s ease-in-out" } : undefined}>
         <AbilityAccordion ab={{ ...ab, _lvl: rg.level }} charId={schluessel} tg={tg} price={price} cost={cost}
@@ -396,7 +419,7 @@ function Aufstiegsplan({ schluessel, kind, rungs, level, chosen, profile, en, t,
           setFeier && setFeier({ art: "faehigkeit", bild: bild, charId: schluessel, kind: kind, abId: rg.id, ab: {
             icon: ab.icon, name: en ? ab.nameEn : ab.nameDe,
             desc: faehigkeitsText(ab, schluessel, en), once: ab.once } });
-        }} /></div>;
+        }} />{stufenZeile}</div>;
     })}
     {chosen.length > 0 && (() => {
       /* v1.0.11 (Besitzer): Vergessen kostet einen VERGESSENSTRANK aus

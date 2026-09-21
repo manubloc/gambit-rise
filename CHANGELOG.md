@@ -1,5 +1,37 @@
 # Changelog - Grand Gambit
 
+## 1.28.0
+- ZAUBER HABEN STUFEN (Besitzerentscheid, design/FAEHIGKEITEN-STUFEN.md).
+  Stufe I: einmal je Partie, II: zweimal, III: dreimal. KEIN Zauber wird
+  dauerhaft - bei keiner Figur. Maechtige Zauber (Blinzeln, Hofsprung,
+  Schockwelle, Durchbruch) enden bei II; bauern- und koenigshafte Zuege und
+  der Fernschuss gehen bis III.
+- DAS BUCH BLEIBT EIN BUCH: sobald eine Figur einen ANDEREN Zauber gewirkt
+  hat, ist es fuer alle uebrigen zu - wie bisher. Neu ist nur, dass derselbe
+  Zauber so oft wirkt, wie seine Stufe erlaubt. Das Buch zaehlt dafuer jetzt
+  Einsaetze statt "benutzt"; alte Staende (true) zaehlen als einer.
+- DER GANZE WEG IST GEBAUT: Profil (pieces.stufen) -> Heer (buildArmy fuer
+  Figuren, Bauern, Gambit und eigene Monster) -> Figur (makePiece) -> Zuege
+  (hasAbility) -> Verbuchen (transitions). Nachweis in einer ECHTEN Partie im
+  Kern: derselbe Bauer weicht mit Ausweichen I einmal aus, mit Ausweichen II
+  zweimal.
+- IN DER TRAININGSLEITER steht unter jeder gelernten Faehigkeit ihre Stufe
+  ("Stufe II von III - 2x je Partie") und der Knopf fuer die naechste. Die
+  naechste Stufe verlangt eine hoehere Figurenstufe (Figur: zwei weiter,
+  Monster: eine) und kostet Skillpunkte. Weil Figur und Monster dieselbe Leiter
+  benutzen, gilt es fuer beide.
+- AM BRETT ist ein Zauberzeichen erst verbraucht, wenn ALLE seine Einsaetze
+  weg sind.
+- NOCH NICHT GEBAUT: die Staerke-Stufen der Dauerfaehigkeiten (Lebensraub,
+  Regeneration, Bollwerk, Sturmlauf ...), das Zusammenlegen (Phase ->
+  Durchbruch, Fliegen I-III, Scharfschuss I-III), die Monsterfaehigkeiten und
+  der Balance-Durchlauf.
+- GEFUNDEN BEIM BAUEN: zwei gleichlautende Zeilen in leveling.js; die erste
+  Ersetzung traf die in buildArmyFrom, wo stufenOf gar nicht existiert - ein
+  Absturz beim Aufruf. Bemerkt, weil die Stufe im Heer fehlte; korrigiert.
+- Zwoelf neue Proben in test_zauber, zwei alte in test_combat nachgezogen
+  (sie erwarteten true im Buch, jetzt steht dort die Zahl der Einsaetze).
+
 ## 1.27.3
 - KEIN ZAUBER WIRD DAUERHAFT - BEI KEINER FIGUR (Besitzer: "Keine Figur, auch
   Gambit und Koenig, darf starke Faehigkeiten dauerhaft haben - das ist zu

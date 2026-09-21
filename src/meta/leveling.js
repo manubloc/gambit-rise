@@ -4,6 +4,7 @@ import { bossById, bossSpec, LEAGUE_BOSSES } from "../content/bosses.js";
 import { CHARACTERS, CHARACTER_LIST, KIND_TO_CHAR } from "../content/index.js";
 import { difficultyById, mapById, MAPS } from "../content/index.js";
 import { ABILITIES, CAMPAIGN } from "../content/index.js";
+import { maxStufe } from "../content/abilities.js";
 
 /* IST DIE ALTE MAGIE ERWACHT? Kapitel I laeuft bis zur Mitte nach reinen
    Schachregeln; Lebenspunkte gibt es erst ab dem Erwachen. Bewusst OHNE
@@ -185,6 +186,34 @@ export function canUnlockAbility(profile, charId, abilityId) {
   if (stufeVon(profile, charId) < rung.level) return false;
   return skillPoints(profile) >= abilityCost(rung.level);
 }
+/* ── v1.28.0: FAEHIGKEITEN HABEN STUFEN ──────────────────────────────────────
+   Gespeichert unter profile.pieces.stufen[Figur oder "X:<Monster>"][Faehigkeit].
+   Freischalten ist Stufe I. Jede weitere Stufe braucht eine hoehere Stufe der
+   Figur (Figur: zwei Stufen weiter, Monster mit nur fuenf Stufen: eine) und
+   kostet Skillpunkte wie eine Sprosse dieser Hoehe. */
+export const stufenVon = (profile, id) => (profile?.pieces?.stufen?.[id]) || {};
+export const faehigkeitsStufe = (profile, id, ab) => Math.max(1, stufenVon(profile, id)[ab] || 1);
+export const stufeBenoetigt = (id, rung, naechste) => rung.level + (istMonster(id) ? 1 : 2) * (naechste - 1);
+export function canUpgradeAbility(profile, id, ab) {
+  if (!chosenAbilities(profile, id).includes(ab)) return false;
+  const rung = leiterVon(id).find((e) => e.ability === ab);
+  if (!rung) return false;
+  const jetzt = faehigkeitsStufe(profile, id, ab);
+  if (jetzt >= maxStufe(ab)) return false;
+  const brauch = stufeBenoetigt(id, rung, jetzt + 1);
+  if (stufeVon(profile, id) < brauch) return false;
+  return skillPoints(profile) >= abilityCost(brauch);
+}
+export function upgradeAbility(profile, id, ab) {
+  if (!canUpgradeAbility(profile, id, ab)) return profile;
+  const rung = leiterVon(id).find((e) => e.ability === ab);
+  const jetzt = faehigkeitsStufe(profile, id, ab);
+  const kosten = abilityCost(stufeBenoetigt(id, rung, jetzt + 1));
+  const pieces = profile.pieces || {};
+  const stufen = { ...(pieces.stufen || {}), [id]: { ...stufenVon(profile, id), [ab]: jetzt + 1 } };
+  return { ...profile, sp: profile.sp - kosten, pieces: { ...pieces, stufen } };
+}
+
 export function unlockAbility(profile, charId, abilityId) {
   if (!canUnlockAbility(profile, charId, abilityId)) return profile;
   const rung = leiterVon(charId).find((e) => e.ability === abilityId);
@@ -386,7 +415,7 @@ export function upgradeBoss(profile, bossId) {
    1-2 -> Stufe 1, 3-4 -> Stufe 2, ab 5 -> Stufe 3. */
 export const pawnTier = (level) => (level >= 5 ? 3 : level >= 3 ? 2 : 1);
 
-export function buildArmyFromFormation(levelOf, formation, chosenOf = null, boostOf = null) {
+export function buildArmyFromFormation(levelOf, formation, chosenOf = null, boostOf = null, stufenOf = null) {
   // (null slots — the dragon's wing — become empty back-rank squares)
   const back = formation.map((id) => {
     if (id == null) return null;                   // the dragon's wing: an open square
@@ -396,18 +425,18 @@ export function buildArmyFromFormation(levelOf, formation, chosenOf = null, boos
         const spec = bossSpecLeveled(b, levelOf("X:" + b.id));  // der Boss marschiert mit seinem RANG
         /* v1.26.7: ein EIGENES Monster traegt nur, was es gelernt hat - wie
            jede Figur. Ohne Lernliste (etwa in Proben) bleibt alles. */
-        if (chosenOf) { const gelernt = chosenOf("X:" + b.id) || []; return { ...spec, abilities: (spec.abilities || []).filter((a) => gelernt.includes(a)) }; }
+        if (chosenOf) { const gelernt = chosenOf("X:" + b.id) || []; return { ...spec, abilities: (spec.abilities || []).filter((a) => gelernt.includes(a)), ...(stufenOf ? { stufen: stufenOf("X:" + b.id) } : {}) }; }
         return spec;
       }
     }
     const ch = CHARACTERS[id];
     const level = Math.max(1, levelOf(id) || 1);
     const { abilities, shield } = resolveCharacter(ch, level, chosenOf ? chosenOf(id) : null);
-    return { kind: ch.kind, level, abilities, shield, ...boostSpec(ch, boostOf && boostOf(id)), ...(ch.moveSpec ? { moveSpec: ch.moveSpec } : {}), ...(ch.big ? { big: true } : {}) };
+    return { kind: ch.kind, level, abilities, shield, ...boostSpec(ch, boostOf && boostOf(id)), ...(ch.moveSpec ? { moveSpec: ch.moveSpec } : {}), ...(ch.big ? { big: true } : {}), ...(stufenOf ? { stufen: stufenOf(id) } : {}) };
   });
   const pl = Math.max(1, levelOf("pawn") || 1);
   const pr = resolveCharacter(CHARACTERS.pawn, pl, chosenOf ? chosenOf("pawn") : null);
-  return { back, pawn: { kind: KIND.PAWN, level: pl, tier: pawnTier(pl), abilities: pr.abilities, shield: pr.shield, ...boostSpec(CHARACTERS.pawn, boostOf && boostOf("pawn")) } };
+  return { back, pawn: { kind: KIND.PAWN, level: pl, tier: pawnTier(pl), abilities: pr.abilities, shield: pr.shield, ...boostSpec(CHARACTERS.pawn, boostOf && boostOf("pawn")), ...(stufenOf ? { stufen: stufenOf("pawn") } : {}) } };
 }
 
 // ── Map-aware formation & army ────────────────────────────────────────────────
@@ -548,7 +577,7 @@ function heroSpec(profile, chess = false) {
 
      Sichtbar bleibt der Bruch trotzdem: gruener Bauer neben goldenem Ritter
      ist deutlicher als jedes Farbfilterchen. */
-  return { kind: ch.kind, level, abilities, shield, tier: gambitTier(level), ...(ch.big ? { big: true } : {}) };
+  return { kind: ch.kind, level, abilities, shield, tier: gambitTier(level), ...(ch.big ? { big: true } : {}), ...(chess ? {} : { stufen: stufenVon(profile, "gambit") }) };
 }
 
 /** Foresight: if the army that will take the field carries a SEER — the
@@ -588,6 +617,7 @@ export function buildArmyForMap(profile, map, excludeId = null, rules = null, st
   const levelOf = chess ? () => 1 : (id) => id && id.startsWith("X:") ? bossLevelOf(profile, id.slice(2)) : characterLevel(profile, id);
   const chosenOf = chess ? null : (id) => chosenAbilities(profile, id);
   const boostOf = chess ? null : (id) => dupeCount(profile, id);
+  const stufenOf = chess ? null : (id) => stufenVon(profile, id);   /* v1.28.0 */
   // The FIELD is arrangeable on every board — honour a saved legal formation.
   // A battle may be re-routed to a DIFFERENT board of the same size (early
   // leagues bend everything onto the 8x8 classic field), so if this exact map
@@ -612,7 +642,7 @@ export function buildArmyForMap(profile, map, excludeId = null, rules = null, st
   // copy sits the match out, its slot falls back to the map's default rank.
   if (excludeId) formation = formation.map((cid, i) =>
     cid === excludeId ? (map.defaultFormation[i] !== excludeId ? map.defaultFormation[i] : "knight") : cid);
-  const army = buildArmyFromFormation(levelOf, formation, chosenOf, boostOf);
+  const army = buildArmyFromFormation(levelOf, formation, chosenOf, boostOf, stufenOf);
   /* v0.81: DER HELD TRITT SPAETER AUF. Vor dem Erwachen (drei geschaffte
      Stationen) fuehrt niemand die Armee an - die Bauernreihe ist eine
      Bauernreihe, und das Spiel ist schlicht Schach. Danach haelt der Gambit

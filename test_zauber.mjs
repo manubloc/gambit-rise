@@ -92,6 +92,70 @@ console.log("\n== Passive Talente ueberleben den Zauber ==");
 }
 
 console.log("\n== Kern und Chronik sind sich einig, was passiv ist ==");
+/* ── v1.28.0: ZAUBER HABEN STUFEN (design/FAEHIGKEITEN-STUFEN.md) ─────────
+   Stufe I einmal, II zweimal, III dreimal je Partie. Das Buch bleibt ein Buch:
+   ein ANDERER Zauber schliesst es. Kein Zauber wird dauerhaft. */
+{
+  const m = await import("./src/core/rules/moves.js");
+  const f = (stufen) => ({ abilities: ["blast", "teleport", "pawn_sidestep"], used: {}, stufen });
+  const p1 = f({});
+  m.verbuche(p1, "pawn_sidestep");
+  ok("Stufe I: nach einem Einsatz ist Schluss", !m.hasAbility(p1, "pawn_sidestep"));
+  const p2 = f({ pawn_sidestep: 2 });
+  m.verbuche(p2, "pawn_sidestep");
+  ok("Stufe II: nach einem Einsatz geht es noch einmal", m.hasAbility(p2, "pawn_sidestep") && m.zauberRest(p2, "pawn_sidestep") === 1);
+  m.verbuche(p2, "pawn_sidestep");
+  ok("Stufe II: nach zwei Einsaetzen ist Schluss", !m.hasAbility(p2, "pawn_sidestep"));
+  ok("ein anderer Zauber schliesst das Buch - auch bei hoher Stufe", !m.hasAbility(p2, "teleport"));
+  const p3 = f({ pawn_sidestep: 3 }); p3.used = { pawn_sidestep: true };
+  ok("alte Staende (true) zaehlen als ein Einsatz", m.einsaetze(p3, "pawn_sidestep") === 1 && m.hasAbility(p3, "pawn_sidestep"));
+  ok("mehr als Stufe III gibt es nicht", m.stufeVon({ stufen: { x: 9 } }, "x") === 3);
+  const { ZAUBER_STUFEN, ABILITIES } = await import("./src/content/abilities.js");
+  ok("keine Faehigkeit mit Stufen ist dauerhaft (once: false)",
+    Object.keys(ZAUBER_STUFEN).every((id) => ABILITIES[id] && ABILITIES[id].once !== false));
+  const lv = await import("./src/meta/index.js");
+  const pr = { sp: 50, pieces: { levels: { pawn: 7 }, abilities: { pawn: ["pawn_sidestep"] }, stufen: {} }, campaign: { cleared: [] } };
+  const leiter = lv.leiterVon ? lv.leiterVon("pawn") : null;
+  ok("die naechste Stufe verlangt eine hoehere Figurenstufe",
+    lv.stufeBenoetigt("pawn", { level: 3 }, 2) === 5 && lv.stufeBenoetigt("X:b01", { level: 2 }, 2) === 3);
+  const p4 = lv.upgradeAbility(pr, "pawn", "pawn_sidestep");
+  ok("Aufwerten kostet Skillpunkte und hebt die Stufe", lv.faehigkeitsStufe(p4, "pawn", "pawn_sidestep") === 2 && p4.sp < pr.sp);
+  const arm = lv.buildArmy(p4, undefined, null, "hp");
+  ok("die Stufe geht mit ins Gefecht", arm.pawn.stufen && arm.pawn.stufen.pawn_sidestep === 2);
+  const armSchach = lv.buildArmy(p4, undefined, null, "chess");
+  ok("im reinen Schach nicht", !armSchach.pawn.stufen);
+}
+/* v1.28.0: DER NACHWEIS IN EINER ECHTEN PARTIE - derselbe Bauer weicht mit
+   Ausweichen I einmal aus, mit Ausweichen II zweimal. Durch den ganzen Kern:
+   Profil -> Heer -> Figur -> Zuege -> Verbuchen. */
+{
+  const { createGame, legalMoves, applyMove } = await import("./src/core/index.js");
+  const { buildArmy, upgradeAbility } = await import("./src/meta/index.js");
+  const pr = { sp: 99, pieces: { levels: { pawn: 7 }, abilities: { pawn: ["pawn_sidestep"] }, stufen: {} }, campaign: { cleared: [] } };
+  const mitII = upgradeAbility(pr, "pawn", "pawn_sidestep");
+  const lauf = async (profil) => {
+    const arm = buildArmy(profil, undefined, null, "hp");
+    const { mapById } = await import("./src/content/index.js");
+    let g = createGame(arm, buildArmy({ pieces: {} }, undefined, null, "hp"), { rules: "hp", map: mapById("classic") });
+    /* EIN bestimmter Bauer: der erste, der ausweichen kann - nur ER weicht aus */
+    let wer = null, seit = 0;
+    for (let n = 0; n < 60; n++) {
+      const ms = legalMoves(g);
+      let m = null;
+      if (g.turn === "w") {
+        const seiten = ms.filter((x) => x.special === "side");
+        const meine = wer ? seiten.filter((x) => g.board[x.from] && g.board[x.from].id === wer) : seiten;
+        if (meine.length) { m = meine[0]; if (!wer) wer = g.board[m.from].id; seit++; }
+        else m = ms.find((x) => !x.consumes && !(g.board[x.from] && g.board[x.from].id === wer)) || null;
+      } else m = ms[0];
+      if (!m) break;
+      g = applyMove(g, m);
+    }
+    return seit;
+  };
+  ok("echte Partie: Ausweichen I - derselbe Bauer weicht einmal aus", (await lauf(pr)) === 1);
+  ok("echte Partie: Ausweichen II - derselbe Bauer weicht zweimal aus", (await lauf(mitII)) === 2);
+}
 /* v1.27.3 (Besitzer): "Keine Figur - auch Gambit und Koenig - darf starke
    Faehigkeiten dauerhaft haben." Die Heldenausnahme aus v1.26.5 ist zurueck-
    genommen: nach dem ersten Einsatz ist das Buch auch beim Gambit zu. */

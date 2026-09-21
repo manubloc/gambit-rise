@@ -224,7 +224,8 @@ import { bossSpec, bossById } from "./src/content/index.js";
   const side = offers.find((m) => m.consumes === "pawn_sidestep");
   const r1 = applyMove(g, side); const s1 = r1.state ?? r1;
   const cast = s1.board[idx(0, 1, 8)];
-  ok("the cast is written into the book", cast && cast.used && cast.used.pawn_sidestep === true);
+  /* v1.28.0: das Buch zaehlt jetzt Einsaetze (Stufen), statt nur "benutzt" zu vermerken */
+  ok("the cast is written into the book", cast && cast.used && cast.used.pawn_sidestep === 1);
   const r2 = applyMove(s1, legalMoves(s1)[0]); const s2 = r2.state ?? r2; // black replies
   const after = legalMovesFrom(s2, idx(0, 1, 8));
   ok("after ONE cast every further talent is sealed", after.every((m) => !m.consumes));
@@ -344,7 +345,7 @@ import { bossSpec, bossById } from "./src/content/index.js";
   ok("die Welle verwundet auch diagonal", nb[idx(2, 2, 8)].hp === 1);
   ok("der eigene Mann bleibt heil", nb[idx(0, 0, 8)] && nb[idx(0, 0, 8)].hp === 2);
   ok("der Wellentote steht im Beutebuch", r.state.captured.w.includes("P"));
-  ok("die Welle ist verbraucht", nb[idx(1, 0, 8)].used.blast === true);
+  ok("die Welle ist verbraucht", nb[idx(1, 0, 8)].used.blast === 1);   /* v1.28.0: gezaehlt */
   ok("der Zug meldet die Welle", Array.isArray(r.state.welle) && r.state.welle.length === 2);
   // zweiter Schlag: keine Welle mehr
   const zwei = r.state;

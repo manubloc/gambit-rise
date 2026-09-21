@@ -105,6 +105,18 @@ export const ABILITIES = {
   geistwandel:          { id: "geistwandel",          icon: "☁", tag: "sustain", hpOnly: true, sperre: "verborgen", once: true,  live: false, monsterOnly: true, nameDe: "Geistwandel",   nameEn: "Wraithing",      descDe: "Faellt das Monster, kehrt es als Geist zurueck: bleich und durchscheinend, mit 3 Leben und doppeltem Angriff.", descEn: "When the monster falls it returns as a wraith: pale and translucent, with 3 life and double attack." },
 };
 
+/* ── v1.28.0: WIE VIELE STUFEN EIN ZAUBER HAT (design/FAEHIGKEITEN-STUFEN.md)
+   Stufe I: einmal je Partie, II: zweimal, III: dreimal. KEIN Zauber wird
+   dauerhaft (Besitzer: "keine Figur, auch Gambit und Koenig, darf starke
+   Faehigkeiten dauerhaft haben"). Maechtige Zauber enden bei II. Was nicht
+   hier steht, hat eine Stufe; die Staerke-Stufen der Dauerfaehigkeiten
+   (Lebensraub, Bollwerk ...) folgen gesondert. */
+export const ZAUBER_STUFEN = {
+  pawn_sidestep: 3, pawn_forward_capture: 3, pawn_backstep: 3, bishop_ortho_step: 3, king_dash: 3, ranged_shot: 3,
+  bishop_hop: 2, rook_breach: 2, queen_knightleap: 2, teleport: 2, blast: 2,
+};
+export const maxStufe = (id) => ZAUBER_STUFEN[id] || 1;
+
 /* WARUM eine Faehigkeit verriegelt ist - der Spieler soll es lesen koennen,
    nicht raten. Steht hier bei den Daten, damit Karte, Akademie und Blatt
    denselben Satz zeigen. */

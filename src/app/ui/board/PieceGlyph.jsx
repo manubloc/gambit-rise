@@ -463,7 +463,10 @@ export function PieceGlyph({ piece, showLevel = true, pov = "w", artStyle = "pai
     .map((id) => ABILITIES[id]).filter(Boolean)
     .sort((x, y) => TAG_ORDER.indexOf(x.tag) - TAG_ORDER.indexOf(y.tag))
     .slice(0, 6)
-    .map((ab) => ({ id: ab.id, color: (TAGS[ab.tag] || { color: T.gold }).color, spent: !!(ab.once && piece.used?.[ab.id]) }));
+    /* v1.28.0: ein Zauber auf Stufe II oder III ist erst verbraucht, wenn ALLE
+       seine Einsaetze weg sind - nicht schon nach dem ersten. */
+    .map((ab) => { const u = piece.used?.[ab.id]; const n = u === true ? 1 : (typeof u === "number" ? u : 0);
+      return { id: ab.id, color: (TAGS[ab.tag] || { color: T.gold }).color, spent: !!(ab.once && n >= Math.max(1, piece.stufen?.[ab.id] || 1)) }; });
 
   // Crisp, modern: a short drop shadow for depth — no neon bloom. The risen
   /* v1.0.62: die Rang-Aura ist Geschichte - der Rang zeigt sich im BILD

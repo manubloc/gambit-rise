@@ -24,6 +24,8 @@ export function makePiece(spec) {
        Groessenstaffel (paintedFitFor) gleichermassen speist. */
     ...(spec.tier ? { tier: spec.tier } : {}),
     ...(spec.big ? { big: true } : {}),   // the 2x2 dragon
+    /* v1.28.0: die Stufen der Zauber (Faehigkeit -> 1..3), aus dem Profil */
+    ...(spec.stufen && Object.keys(spec.stufen).length ? { stufen: { ...spec.stufen } } : {}),
     used: {},
     hasMoved: false,
     // Optional extensions (bosses & special units) — copied verbatim when given.

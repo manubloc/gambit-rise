@@ -3,7 +3,7 @@ import { klang, klangEinstellen, klangVorwaermen, klangUeberall } from "./ui/kla
 import { lautVon } from "./ui/lautstaerke.js";   /* v1.26.2 */
 import { musikBereich } from "./ui/musik.js";
 import { setSchlicht } from "./ui/board/paintedArt.js";
-import { characterLevel, maxLevelFor, formationKey, loadProfile, saveProfile, defaultProfile, buildStageMatch, advanceCampaign, upgradePiece, buySpShard, clearedCount, campaignLength, currentNodeId , unlockAbility, respecPiece, claimAchievement, payToll, takeRestorePoint, serializeSave, isUnlocked } from "../meta/index.js";
+import { upgradeAbility, characterLevel, maxLevelFor, formationKey, loadProfile, saveProfile, defaultProfile, buildStageMatch, advanceCampaign, upgradePiece, buySpShard, clearedCount, campaignLength, currentNodeId , unlockAbility, respecPiece, claimAchievement, payToll, takeRestorePoint, serializeSave, isUnlocked } from "../meta/index.js";
 import { nodeById, chapterForRow, buyItem, CHARACTER_LIST, clockFor } from "../content/index.js";
 import { verifyPin } from "../platform/index.js";
 import { makeT } from "./i18n/strings.js";
@@ -117,6 +117,7 @@ function reducer(state, a) {
     case "UPGRADE_BOSS": return upgradeBoss(state, a.id);
     case "BUY_SP_SHARD": return buySpShard(state);
     case "UNLOCK_ABILITY": return unlockAbility(state, a.id, a.ability);
+    case "UPGRADE_ABILITY": return upgradeAbility(state, a.id, a.ability);   /* v1.28.0 */
     case "RESPEC": return respecPiece(state, a.id);
     case "CLAIM_ACH": return claimAchievement(state, a.id);
     case "PAY_TOLL": return payToll(state, a.id);

@@ -11,6 +11,7 @@ export {
   buildArmyFrom, buildArmy, buildAiArmy, buildAiArmyScaled, buildArmyForMap, buildAiArmyForMap, hasForesight,
   formationKey, defaultFormation, formationLegal, formationLegalOn, formationSpec, crownSlots, formationCounts, buildArmyFromFormation, ownedLeagueBosses, isBossEntry, bossEntryId,
   FORMATION_REQUIRED, FORMATION_FLEX, FORMATION_FLEX_COUNT,
+  stufenVon, faehigkeitsStufe, stufeBenoetigt, canUpgradeAbility, upgradeAbility,
 } from "./leveling.js";
 export { ACHIEVEMENTS, evaluate, completedSet, claimedTiers, claimReward, claimableCount, claimAchievement } from "./achievements.js";
 export { placeFor } from "./campaign.js";

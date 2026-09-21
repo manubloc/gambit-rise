@@ -1,6 +1,6 @@
 import { other, WHITE, BLACK, BASE_HP, BASE_ATK, HP_REMIS_HALBZUEGE } from "../domain/constants.js";
 import { cloneBoard, findKing } from "../domain/board.js";
-import { pseudoMoves, pieceMoves, talentWirkt } from "../rules/moves.js";
+import { pseudoMoves, pieceMoves, talentWirkt, verbuche, zauberRest } from "../rules/moves.js";
 import { kroneFaengtAb, schildwachtDeckt, nachtwacheHeilt, faehrteFolgt, konzilLehntAb, sturmRuftZurueck, hinterstenBauern } from "../rules/buende.js";
 import { inCheck } from "../rules/attacks.js";
 import { schlageSperre, loeseFalleAus, zerfalleSperren } from "../rules/sperren.js";
@@ -302,7 +302,7 @@ export function applyMove(state, move, opts) {
         bundKrone = retter;
         if (pal.hp <= 0) b[retter] = null;
       } else target.hp -= dmg;
-      if (move.consumes) piece.used[move.consumes] = true; // one spell per game: the book closes
+      if (move.consumes) verbuche(piece, move.consumes); // v1.28.0: ein Einsatz mehr - die Stufe entscheidet, wie viele
       if (has("lifesteal") && talentWirkt("lifesteal", state.rules, state, move.from, piece.color)) piece.hp = Math.min(piece.maxHp, piece.hp + Math.ceil(dmg / 2));
       /* ── SCHOCKWELLE (v0.79, blast): EINMAL pro Partie trifft der erste
          Nahkampfschlag auch alle GEGNER rings um das Ziel - mit HALBEM
@@ -311,8 +311,8 @@ export function applyMove(state, move, opts) {
          Getroffene zaehlt nur einmal. Nur Nahkampf: ein Schuss aus der
          Ferne traegt keine Welle. ─────────────────────────────────────── */
       const welle = [];
-      if (has("blast") && !piece.used.blast && !afar) {
-        piece.used.blast = true;
+      if (has("blast") && zauberRest(piece, "blast") > 0 && !afar) {   /* v1.28.0: Schockwelle II trifft zweimal */
+        verbuche(piece, "blast");
         const wDmg = Math.max(1, Math.ceil(dmg / 2));
         const rund = [ti - W - 1, ti - W, ti - W + 1, ti - 1, ti + 1, ti + W - 1, ti + W, ti + W + 1];
         const getroffen = new Set();
@@ -387,14 +387,14 @@ export function applyMove(state, move, opts) {
       if (welle.length) ns.welle = welle;          // fuer Klang und Anzeige
     } else {                                       // quiet move
       b[move.to] = piece; b[move.from] = null; piece.hasMoved = true;
-      if (move.consumes) piece.used[move.consumes] = true; // one spell per game: the book closes
+      if (move.consumes) verbuche(piece, move.consumes); // v1.28.0: ein Einsatz mehr - die Stufe entscheidet, wie viele
       if (move.promotion) repromote(piece, move.promotion);
     }
     if (has("regen") && talentWirkt("regen", state.rules, state, move.to, piece.color)) piece.hp = Math.min(piece.maxHp, (piece.hp || 0) + 1);
   } else {
     if (target && target.shield > 0) {            // chess: shield absorbs the hit
       target.shield -= 1; bounced = true;
-      if (move.consumes) piece.used[move.consumes] = true; // one spell per game: the book closes
+      if (move.consumes) verbuche(piece, move.consumes); // v1.28.0: ein Einsatz mehr - die Stufe entscheidet, wie viele
     } else {
       if (target) ns.captured[piece.color].push(target.kind);
       if (dragonAnchor >= 0) clearDragon(dragonAnchor);
@@ -403,7 +403,7 @@ export function applyMove(state, move, opts) {
          Feld (und damit vier Felder weit in jede Richtung). */
       if (move.noAdvance) { b[move.to] = null; }
       else { b[move.to] = piece; b[move.from] = null; piece.hasMoved = true; }
-      if (move.consumes) piece.used[move.consumes] = true; // one spell per game: the book closes
+      if (move.consumes) verbuche(piece, move.consumes); // v1.28.0: ein Einsatz mehr - die Stufe entscheidet, wie viele
       if (move.promotion) piece.kind = move.promotion;
     }
   }

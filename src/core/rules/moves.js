@@ -62,12 +62,29 @@ export function hasAbility(piece, id) {
      Zauber den Sturmlauf, den die Chronik als "jederzeit" verspricht. Ein
      passives Talent ist kein Zauber; es bleibt, egal was das Buch sagt. */
   if (PASSIVE_TALENTE.has(id)) return true;
-  /* v1.27.3 (Besitzer): "Keine Figur - auch Gambit und Koenig - darf starke
-     Faehigkeiten dauerhaft haben, das ist zu stark." Die Heldenausnahme aus
-     v1.26.5 (Stossschlag und Ausweichen jederzeit) ist deshalb wieder weg: auch
-     fuer den Gambit ist jeder Zauber einer je Partie. */
-  return Object.keys(piece.used || {}).length === 0;
+  /* v1.27.3 (Besitzer): keine Figur - auch Gambit und Koenig - darf starke
+     Faehigkeiten dauerhaft haben. */
+  /* ── v1.28.0: ZAUBER HABEN STUFEN (Besitzerentscheid, design/FAEHIGKEITEN-
+     STUFEN.md). Stufe I: einmal je Partie, II: zweimal, III: dreimal. Das Buch
+     bleibt EIN Buch: sobald eine Figur einen ANDEREN Zauber gewirkt hat, ist es
+     fuer alle uebrigen zu - wie bisher. Neu ist nur, dass derselbe Zauber so
+     oft wirken darf, wie seine Stufe erlaubt. */
+  const andererGewirkt = Object.keys(piece.used || {}).some((k) => k !== id && einsaetze(piece, k) > 0);
+  if (andererGewirkt) return false;
+  return einsaetze(piece, id) < stufeVon(piece, id);
 }
+/* Wie oft ein Zauber schon gewirkt wurde. Alte Staende buchten `true` - das
+   zaehlt als einmal. */
+export const einsaetze = (piece, id) => {
+  const u = piece && piece.used ? piece.used[id] : undefined;
+  return u === true ? 1 : (typeof u === "number" ? u : 0);
+};
+/* Die Stufe eines Zaubers an dieser Figur (1 bis 3), aus dem Heerplan. */
+export const stufeVon = (piece, id) => Math.max(1, Math.min(3, (piece && piece.stufen && piece.stufen[id]) || 1));
+/* Wie oft er noch darf. */
+export const zauberRest = (piece, id) => Math.max(0, stufeVon(piece, id) - einsaetze(piece, id));
+/* Einen Einsatz verbuchen. */
+export const verbuche = (piece, id) => { piece.used = piece.used || {}; piece.used[id] = einsaetze(piece, id) + 1; };
 // ── Board-shape context ──────────────────────────────────────────────────────
 // D carries the dimensions + hole mask for the current match. A hole behaves
 // like a wall: nothing lands on it and sliders are blocked by it.
