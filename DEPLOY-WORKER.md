@@ -1,3 +1,10 @@
+> **Stand v1.27.3 — so wird heute ausgerollt:** der Worker `gg-hall` ist in
+> Cloudflare mit dem GitHub-Repository verbunden (Workers Builds). **Jeder Push
+> auf `main` rollt ihn automatisch aus** — die Handschritte unten braucht es
+> nur noch fuer eine Neueinrichtung. (Im Changelog zu v1.27.2 stand faelschlich,
+> er muesse von Hand ausgerollt werden; nachgesehen im Dashboard: die Fassung
+> v1.27.2 war 25 Minuten nach dem Push live, und /name-frei antwortete.)
+
 # Multiplayer live schalten — Cloudflare Durable Objects (0 € Fixkosten)
 
 Der Spielserver ist als Cloudflare Worker mit einem SQLite-Durable-Object

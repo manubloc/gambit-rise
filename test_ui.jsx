@@ -1669,8 +1669,9 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
       ok("jede Faehigkeit hat eine Symbolfarbe", ["pawn_charge", "pawn_sidestep", "knight_longleap", "bulwark"].every((i) => /^#|^rgb/.test(iconFarbe(i))));
       const { faehigkeitsText } = await import("./src/app/ui/screens/ArmyScreen.jsx");
       const stoss = { id: "pawn_forward_capture", descDe: "Darf 1× gerade nach vorn schlagen.", descEn: "May capture straight ahead once." };
-      ok("beim Gambit heisst Stossschlag 'jederzeit'", faehigkeitsText(stoss, "gambit", false) === "Darf jederzeit gerade nach vorn schlagen.");
-      ok("beim Bauern bleibt es '1x'", faehigkeitsText(stoss, "pawn", false) === "Darf 1× gerade nach vorn schlagen.");
+      /* v1.27.3: keine Heldenausnahme mehr - derselbe Text fuer jede Figur */
+      ok("auch beim Gambit heisst Stossschlag '1x'", faehigkeitsText(stoss, "gambit", false) === "Darf 1× gerade nach vorn schlagen.");
+      ok("beim Bauern ebenso", faehigkeitsText(stoss, "pawn", false) === "Darf 1× gerade nach vorn schlagen.");
     }
     /* v1.26.7 (Besitzer): "wirklich ein und dasselbe Design" - Figurenblatt und
        Monsterfenster bauen sich aus DENSELBEN Bauteilen. Geprueft wird, dass

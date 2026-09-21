@@ -395,7 +395,7 @@ function Aufstiegsplan({ schluessel, kind, rungs, level, chosen, profile, en, t,
              Klartext aus ABILITIES.descDe/descEn. Kein Nachschlagen. */
           setFeier && setFeier({ art: "faehigkeit", bild: bild, charId: schluessel, kind: kind, abId: rg.id, ab: {
             icon: ab.icon, name: en ? ab.nameEn : ab.nameDe,
-            desc: faehigkeitsText(ab, schluessel, en), once: ab.once && !(schluessel === "gambit" && HELD_JEDERZEIT.has(rg.id)) } });
+            desc: faehigkeitsText(ab, schluessel, en), once: ab.once } });
         }} /></div>;
     })}
     {chosen.length > 0 && (() => {
@@ -442,18 +442,11 @@ function SheetRow({ label, children }) {
 // one talent as an ACCORDION row: the header always shows the icon, name,
 // TYPE badge (movement/attack/passive…) and cost; tapping it unfolds the full
 // description (and move diagram, when the talent changes how the piece strides).
-/* ── v1.26.6: DER TEXT SAGT, WAS BEIM HELDEN GILT ──────────────────────────
-   Seit v1.26.5 darf der Gambit Stossschlag und Ausweichen JEDERZEIT - fuer
-   jede andere Figur bleiben sie ein Zauber je Partie. Der gemeinsame Text
-   lautet aber "Darf 1x ...". Beim Helden stuende damit auf dem Blatt etwas
-   anderes, als der Kern tut. Hier wird es fuer ihn umgeschrieben. */
-const HELD_JEDERZEIT = new Set(["pawn_forward_capture", "pawn_sidestep"]);
-export function faehigkeitsText(ab, charId, en) {
-  const roh = en ? ab.descEn : ab.descDe;
-  if (charId !== "gambit" || !HELD_JEDERZEIT.has(ab.id) || !roh) return roh;
-  return en ? roh.replace(/\b(may|can)\s+once\b/i, "$1 at any time").replace(/\s*once\b/i, " at any time")
-            : roh.replace(/1×/g, "jederzeit").replace(/einmal/gi, "jederzeit");
-}
+/* v1.27.3: faehigkeitsText liefert wieder fuer jede Figur denselben Text - die
+   Heldenausnahme ("jederzeit") ist zurueckgenommen (Besitzer: keine Figur darf
+   starke Faehigkeiten dauerhaft haben). Die Funktion bleibt als EINE Stelle,
+   an der kuenftig die Stufen I-III ihren Text bekommen. */
+export function faehigkeitsText(ab, charId, en) { return en ? ab.descEn : ab.descDe; }
 function AbilityAccordion({ ab, tg, price, cost, owned, reach, can, kind, en, open, onToggle, onBuy, sperre, charId = null }) {
   const typeName = en ? tg.nameEn : tg.nameDe;
   return <div style={{ borderRadius: 11, overflow: "hidden",

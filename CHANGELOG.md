@@ -1,5 +1,22 @@
 # Changelog - Grand Gambit
 
+## 1.27.3
+- KEIN ZAUBER WIRD DAUERHAFT - BEI KEINER FIGUR (Besitzer: "Keine Figur, auch
+  Gambit und Koenig, darf starke Faehigkeiten dauerhaft haben - das ist zu
+  stark"). Die Heldenausnahme aus v1.26.5 ist zurueckgenommen: auch der
+  Gambit darf Stossschlag und Ausweichen nur einmal je Partie, und der Text
+  sagt fuer ihn wieder "1x". Im Kern ist die Ausnahme vollstaendig entfernt
+  (hasAbility, das Verbuchen beim Einsatz); die Proben pruefen jetzt das
+  Gegenteil.
+- DER ENTWURF "FAEHIGKEITEN MIT STUFEN" liegt jetzt im Repo
+  (design/FAEHIGKEITEN-STUFEN.md), mit der Regel des Besitzers eingearbeitet:
+  Zauber wachsen auf 1x, 2x, 3x je Partie; was von Natur aus immer wirkt,
+  waechst in seiner Staerke. Gebaut ist daraus noch nichts.
+- RICHTIGGESTELLT: der Spielserver gg-hall wird NICHT von Hand ausgerollt,
+  wie der Changelog zu v1.27.2 behauptete. Er ist in Cloudflare mit dem Repo
+  verbunden, jeder Push rollt ihn aus (im Dashboard nachgesehen, /name-frei
+  antwortete live). DEPLOY-WORKER.md ist entsprechend ergaenzt.
+
 ## 1.27.2
 - DER NAME IST ONLINE EINDEUTIG - DER SERVER PRUEFT (Besitzer: "Auf jeden
   Fall muss der Server pruefen, denn er muss online eindeutig sein").
