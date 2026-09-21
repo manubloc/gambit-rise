@@ -51,6 +51,13 @@ export const chapterTitle = (league, n, en = false) => {
 };
 
 export const nodeById = (id) => CAMPAIGN.find((n) => n.id === id) || null;
+/* v1.28.4 (Besitzer): DIE KAPITELMEISTER SIND DIE GROSSMEISTER. Jede Liga endet
+   mit einem Monster; wer es besiegt, erhaelt es als Damenersatz - eine neue je
+   Kapitel. Nur diese zwoelf sind "Grossmeister": nur auf dem Damenplatz, 3-5
+   Faehigkeiten, duerfen verschieden stark sein. Die 13 anderen Monster sind
+   gewoehnliche Monster und folgen der Beweglichkeitsregel wie die Figuren. */
+export const KAPITELMEISTER = CAMPAIGN.filter((n) => n.final && n.boss?.pure).map((n) => n.boss.pure);
+export const istKapitelmeister = (bossId) => KAPITELMEISTER.includes(bossId);
 
 export const BRANCHES = {
   blades: { nameDe: "Pfad der Klingen",  nameEn: "Path of Blades",  icon: "fire" },

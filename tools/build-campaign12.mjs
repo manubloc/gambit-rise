@@ -35,10 +35,14 @@ const SLOTS = [
 ];
 
 // Liga-Endbosse: I-XI wie gehabt, XII ist der Grossmeister in seiner Blitzfeste.
-const ENDBOSS = ["b12","b10","b02","b19","b20","b16","b17","b18","b08","b14","b23","b25"]; // v0.38.1: Osric ans Ende (war faelschlich Kapitel-I-Finale)
+/* v1.28.4 (Besitzer): der SEUCHENKOENIG ist "vom Begriff her" ein Grossmeister
+   und tauscht mit dem Hetzer - er ist jetzt der Meister von Kapitel III, der
+   Hetzer steht dort und in Kapitel X unterwegs. Asra war schon Meisterin von
+   Kapitel XI. Die zwoelf Kapitelmeister sind die Grossmeister des Spiels. */
+const ENDBOSS = ["b12","b10","b24","b19","b20","b16","b17","b18","b08","b14","b23","b25"]; // v0.38.1: Osric ans Ende (war faelschlich Kapitel-I-Finale)
 // Zwischen-Monster fuer die Mitte des Hauptastes, je Liga eine kleine Rotation.
-const MITTE = [["b01","b03"],["b02","b11"],["b24","b05"],["b09","b13"],["b22","b04"],
-  ["b21","b07"],["b15","b06"],["b01","b09"],["b13","b22"],["b05","b24"],["b07","b21"],["b15","b04"]];
+const MITTE = [["b01","b03"],["b02","b11"],["b02","b05"],["b09","b13"],["b22","b04"],
+  ["b21","b07"],["b15","b06"],["b01","b09"],["b13","b22"],["b05","b02"],["b07","b21"],["b15","b04"]];
 // Schluesselfiguren: [liga, anteilImHauptast 0..1] bzw. Nebenast-Pool je Liga.
 const HAUPTFIGUR = {
   1:[["mage",.62],["paladin",.86]],   /* v0.77: beide Werbungen liegen HINTER dem Erwachen - die Schachhaelfte kommt ohne neue Figuren aus */ 2:[["hawk",.55]], 3:[["alchemist",.55]],

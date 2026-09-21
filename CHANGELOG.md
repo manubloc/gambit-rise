@@ -1,5 +1,21 @@
 # Changelog - Grand Gambit
 
+## 1.28.4
+- DIE ZWOELF KAPITELMEISTER SIND DIE GROSSMEISTER (Besitzer): jede Liga endet
+  mit einem Monster, und wer es besiegt, erhaelt es als Damenersatz - eine
+  neue je Kapitel. Nur diese zwoelf gelten als Grossmeister (nur auf dem
+  Damenplatz, 3-5 Faehigkeiten, duerfen verschieden stark sein); die 13
+  Monster unterwegs sind gewoehnliche Monster. Im Inhalt: KAPITELMEISTER und
+  istKapitelmeister (campaign.js), abgeleitet aus den Finalstationen.
+- SEUCHENKOENIG STATT HETZER als Meister von Kapitel III (Besitzer: "vom
+  Begriff her passend"). Der Hetzer steht jetzt in Kapitel III und X
+  unterwegs. Asra war schon Meisterin von Kapitel XI - meine Auflistung in
+  v1.28.3 hatte das falsch wiedergegeben, weil sie nach der hoechsten Reihe
+  statt nach der Finalstation gesucht hatte.
+- Die Kampagne ist neu erzeugt (tools/build-campaign12.mjs); nur die zwei
+  Monster haben gewechselt, 529 Stationen wie zuvor. Fuenf Proben in
+  test_campaign_smoke.
+
 ## 1.28.3
 - BALANCE-DURCHLAUF IN ZWEI GRUPPEN (Besitzer: "der 1:1-Vergleich hinkt, es
   darf alles geben - wichtig ist nur, dass man mit einer Figur den Koenig

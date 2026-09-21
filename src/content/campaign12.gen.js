@@ -2117,9 +2117,9 @@ export const CAMPAIGN12 = [
   "storyDe": "Der Pfad führt weiter über Der Rehpfad.",
   "storyEn": "The path leads on across Der Rehpfad.",
   "boss": {
-   "pure": "b24",
+   "pure": "b02",
    "rotation": [
-    "b24",
+    "b02",
     "b05"
    ]
   },
@@ -2726,7 +2726,7 @@ export const CAMPAIGN12 = [
   "storyEn": "Der Rostige Riegel: here waits the master of chapter III.",
   "final": true,
   "boss": {
-   "pure": "b02"
+   "pure": "b24"
   },
   "tier": 4
  },
@@ -9612,7 +9612,7 @@ export const CAMPAIGN12 = [
    "pure": "b05",
    "rotation": [
     "b05",
-    "b24"
+    "b02"
    ]
   },
   "tier": 3

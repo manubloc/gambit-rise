@@ -195,5 +195,17 @@ console.log("\n== DIE KARTEN KOMMEN NACH UND NACH (v1.13.0) ==");
   }
 }
 
+/* v1.28.4 (Besitzer): die zwoelf Kapitelmeister sind die Grossmeister; der
+   Seuchenkoenig ist einer davon (Kapitel III), Asra bleibt es (Kapitel XI). */
+{
+  const { KAPITELMEISTER, istKapitelmeister, CAMPAIGN } = await import("./src/content/campaign.js");
+  ok("zwoelf Kapitelmeister, je Liga einer", KAPITELMEISTER.length === 12 && new Set(KAPITELMEISTER).size === 12);
+  ok("Seuchenkoenig und Asra sind Kapitelmeister", istKapitelmeister("b24") && istKapitelmeister("b23"));
+  ok("der Hetzer nicht mehr", !istKapitelmeister("b02"));
+  ok("Osric schliesst Kapitel XII", KAPITELMEISTER[11] === "b25");
+  ok("ein Kapitelmeister steht nie zugleich unterwegs",
+    CAMPAIGN.every((n) => !n.boss?.pure || n.final || !istKapitelmeister(n.boss.pure)));
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
