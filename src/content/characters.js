@@ -166,7 +166,7 @@ flavorDe: "Hält Kurs, wo die Karten enden.", flavorEn: "Holds course where the 
     // Sea legs: strides three straight, steps one diagonal — and can hook foes in.
     moveSpec: { slides: [[1,0],[-1,0],[0,1],[0,-1]], range: 3, leaps: [[1,1],[1,-1],[-1,1],[-1,-1]] },
     ladder: [
-      { level: 6, ability: "ranged_volley" },
+      { level: 6, ability: "ranged_shot" },
       { level: 9, ability: "blast" },
     ],
   },
@@ -215,7 +215,6 @@ flavorDe: "Dreißig Jahre Studium — jetzt kommt die Prüfung.", flavorEn: "Thi
     moveSpec: { slides: [[1,1],[1,-1],[-1,1],[-1,-1]], range: 2 },
     ladder: [
       { level: 3, ability: "ranged_shot" },
-      { level: 7, ability: "ranged_volley" },
       { level: 9, ability: "teleport" },
     ],
   },
@@ -261,8 +260,7 @@ flavorDe: "Sein Preis war hoch. Er verrät nicht, wofür.", flavorEn: "His price
     ladder: [
       { level: 3, ability: "lifesteal" },
       { level: 5, ability: "ranged_shot" },
-      { level: 9, ability: "ranged_volley" },
-    ],
+      ],
   },
   paladin: {
     id: "paladin", kind: KIND.PALADIN, glyph: "⚔", nameDe: "Paladin", nameEn: "Paladin",
@@ -306,8 +304,7 @@ flavorDe: "Repariert alles außer seinen Ruf.", flavorEn: "Fixes everything exce
     moveSpec: { leaps: [[0,2],[0,-2],[2,0],[-2,0],[2,2],[2,-2],[-2,2],[-2,-2],[1,0],[-1,0],[0,1],[0,-1]] },
     ladder: [
       { level: 3, ability: "ranged_shot" },
-      { level: 8, ability: "ranged_volley" },
-    ],
+      ],
   },
   standard: {
     id: "standard", kind: KIND.STANDARD, glyph: "🚩", nameDe: "Flaggenträger", nameEn: "Standard Bearer",

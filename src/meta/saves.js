@@ -10,6 +10,7 @@
 // visible and flushed here; progress numbers are derived on every write so
 // the save screen never has to load full profiles to render the list.
 import { storage } from "../platform/index.js";
+import { ohneDauerfeuer } from "./profile.js";   /* v1.28.1 */
 import { defaultProfile } from "./profile.js";
 import { clearedCount, campaignLength, nodeInLeague, effectiveNodeBoss } from "./campaign.js";
 import { CAMPAIGN, CHARACTERS, BOSSES, bossById, ITEMS } from "../content/index.js";
@@ -141,7 +142,10 @@ export async function createSave(acc, name, profile = null) {
 }
 
 export async function loadSave(acc, slotId) {
-  try { const r = await storage.get(SKEY(acc, slotId), false); if (r?.value) return JSON.parse(r.value); } catch {}
+  /* v1.28.1: auch das NORMALE Laden bringt einen Stand auf den heutigen Plan
+     (Dauerfeuer -> Scharfschuss bzw. Erstattung). Es lief bisher an der
+     Migration vorbei, die nur Sicherungen sahen. */
+  try { const r = await storage.get(SKEY(acc, slotId), false); if (r?.value) return ohneDauerfeuer(JSON.parse(r.value)); } catch {}
   return null;
 }
 

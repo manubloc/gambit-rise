@@ -1,5 +1,26 @@
 # Changelog - Grand Gambit
 
+## 1.28.1
+- DAUERFEUER IST AUS ALLEN AUFSTIEGSPLAENEN (Besitzer: "keine Figur darf
+  starke Faehigkeiten dauerhaft haben"). Es war ein dauerhafter Fernschuss
+  und steckte bei Kapitaen, Magier, Warlock und Techniker. Der Kapitaen, der
+  keinen anderen Fernschuss hatte, bekommt an derselben Stelle Scharfschuss;
+  die drei anderen haben ihn ohnehin. Ueber die Stufen II und III des
+  Scharfschusses schiessen sie jetzt zwei- oder dreimal je Partie.
+- WER DAUERFEUER GELERNT HATTE, VERLIERT NICHTS: der Kapitaen bekommt den
+  Scharfschuss dafuer, Magier, Warlock und Techniker ihre Skillpunkte zurueck.
+  Das gilt beim normalen Laden ebenso wie beim Wiederherstellen.
+- DATENVERLUST BEIM WIEDERHERSTELLEN BEHOBEN - gefunden beim Pruefen der
+  Umstellung: seit v0.2.0 baute die Migration das Figurenfach nur aus den
+  Stufen neu. Wer eine Sicherung aus einer Datei oder aus dem Online-Tresor
+  zurueckspielte, bekam seine Figuren OHNE ihre gelernten Faehigkeiten zurueck
+  - und ohne Monster- und Faehigkeitsstufen. Das normale Laden war nicht
+  betroffen. Jetzt bleibt das Figurenfach ganz.
+- PHASE UND DURCHBRUCH bleiben getrennt: im Code sind sie nicht dieselbe
+  Regel - Phase springt diagonal (Laeufer, Erzbischof), Durchbruch gerade
+  (Turm, Kanzler). Gleiche Idee, andere Richtung.
+- Sechs Proben in test_saves.
+
 ## 1.28.0
 - ZAUBER HABEN STUFEN (Besitzerentscheid, design/FAEHIGKEITEN-STUFEN.md).
   Stufe I: einmal je Partie, II: zweimal, III: dreimal. KEIN Zauber wird

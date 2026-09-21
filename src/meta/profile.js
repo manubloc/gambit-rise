@@ -1,5 +1,5 @@
 import { storage } from "../platform/index.js";
-import { formationLegalOn } from "./leveling.js";
+import { formationLegalOn, abilityCost } from "./leveling.js";
 import { mapById } from "../content/maps.js";
 
 const KEY = "profile";
@@ -53,7 +53,31 @@ export function formationAufAcht(formation, unlockedIds = null, map = null) {
   return acht;
 }
 
+/* ── v1.28.1: DAUERFEUER IST AUS ALLEN AUFSTIEGSPLAENEN (Besitzer: "keine
+   Figur darf starke Faehigkeiten dauerhaft haben"). Es war ein dauerhafter
+   Fernschuss. Wer es schon gelernt hatte, verliert nichts:
+     - der Kapitaen hatte keinen anderen Fernschuss - er bekommt Scharfschuss
+       an dieselbe Stelle (Stufe 6);
+     - Magier, Warlock und Techniker haben Scharfschuss ohnehin - bei ihnen
+       faellt Dauerfeuer weg, und die Skillpunkte kommen zurueck (so viel,
+       wie die Sprosse gekostet hatte: Stufe 7, 9, 8). */
+const DAUERFEUER_ERSTATTUNG = { mage: 7, warlock: 9, engineer: 8 };
+export function ohneDauerfeuer(p) {
+  const ab = p?.pieces?.abilities;
+  if (!ab) return p;
+  let sp = p.sp || 0, geaendert = false;
+  const neu = { ...ab };
+  for (const [cid, liste] of Object.entries(ab)) {
+    if (!Array.isArray(liste) || !liste.includes("ranged_volley")) continue;
+    geaendert = true;
+    const ohne = liste.filter((a) => a !== "ranged_volley");
+    if (cid === "captain") neu[cid] = ohne.includes("ranged_shot") ? ohne : [...ohne, "ranged_shot"];
+    else { neu[cid] = ohne; if (DAUERFEUER_ERSTATTUNG[cid]) sp += abilityCost(DAUERFEUER_ERSTATTUNG[cid]); }
+  }
+  return geaendert ? { ...p, sp, pieces: { ...p.pieces, abilities: neu } } : p;
+}
 function migrate(p) {
+  p = ohneDauerfeuer(p);
   const d = defaultProfile();
   const lo = p.loadout || {};
   const formations = {};
@@ -72,7 +96,15 @@ function migrate(p) {
   // v1 → v2: charXp auto-levels become purchased levels; any piece the player
   // had progressed counts as unlocked; linear campaign progress maps onto the
   // intro nodes of the new branching map.
-  const pieces = { levels: { ...((p.pieces && p.pieces.levels) || {}) } };
+  /* v1.28.1: DAS FIGURENFACH BLEIBT GANZ. Seit v0.2.0 baute diese Zeile es nur
+     aus den Stufen neu - gelernte Faehigkeiten (abilities), Monsterstufen
+     (bossLevels), Faehigkeitsstufen (stufen) und alles andere darin gingen
+     verloren. Das normale Laden lief nie hier durch, wohl aber das
+     Wiederherstellen aus einer Sicherungsdatei und aus dem Online-Tresor:
+     wer eine Sicherung zurueckspielte, bekam seine Figuren ohne ihre
+     Faehigkeiten zurueck. Jetzt werden nur die Stufen ergaenzt, der Rest
+     bleibt. */
+  const pieces = { ...((p.pieces && typeof p.pieces === "object") ? p.pieces : {}), levels: { ...((p.pieces && p.pieces.levels) || {}) } };
   const unlocked = new Set((p.campaign && p.campaign.unlocked) || []);
   if (p.charXp) {
     for (const [id, xp] of Object.entries(p.charXp)) {
