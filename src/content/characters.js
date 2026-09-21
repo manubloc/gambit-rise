@@ -1,3 +1,11 @@
+/* ── v1.29.0: FAEHIGKEITEN NACH BEWEGLICHKEIT (Besitzer, design/KAMPAGNE-
+   AUFSTELLUNG.md). Wer stark zieht, traegt wenig: sehr bewegliche Figuren
+   2 Faehigkeiten, mittlere 3, traege 4. Dame und Kapitelmeister sind
+   ausgenommen. Die Bewegungsfaehigkeiten sind an die Art gebunden (moves.js),
+   deshalb tragen Sonderfiguren nur die sechs allgemeinen: Scharfschuss,
+   Blinzeln, Schockwelle, Lebensraub, Regeneration, Bollwerk. Zwei TOTE
+   Faehigkeiten dabei gefunden und entfernt: Vorreiter beim Spaeher (wirkt nur
+   bei Springern) und Hofsprung bei der Amazone (wirkt nur bei der Dame). */
 /* ── v1.25.6: DIE SCHILDE SIND RAUS (Besitzerentscheid) ────────────────────
    "Schild ist also immer Leben. Aber das gibt es doch mit jeder Stufe. Ich
     glaub Schild ist unnoetig und doppelt."
@@ -66,34 +74,19 @@ flavorDe: "Geboren, geopfert zu werden — entschlossen, es nicht zu bleiben.", 
     id: "knight", kind: KIND.KNIGHT, glyph: "♞", nameDe: "Springer", nameEn: "Knight",
 flavorDe: "Reitet Winkel, die keine Mauer je bedacht hat.", flavorEn: "Rides angles no wall was ever built for.",
     unlock: { type: "start" }, flank: true,
-    ladder: [
-      { level: 3, ability: "knight_longleap" },
-      { level: 5, ability: "knight_outrider" },
-      { level: 6, ability: "teleport" },
-      { level: 8, ability: "lifesteal" },
-    ],
+    ladder: [{ level: 3, ability: "knight_longleap" }, { level: 6, ability: "knight_outrider" }],
   },
   bishop: {
     id: "bishop", kind: KIND.BISHOP, glyph: "♝", nameDe: "Läufer", nameEn: "Bishop",
 flavorDe: "Sieht die Welt nur schräg — und trifft sie deshalb umso genauer.", flavorEn: "Sees the world only aslant — and strikes it all the truer.",
     unlock: { type: "start" }, flank: false,
-    ladder: [
-      { level: 3, ability: "bishop_hop" },
-      { level: 4, ability: "ranged_shot" },
-      { level: 6, ability: "bishop_ortho_step" },
-      { level: 7, ability: "teleport" },
-    ],
+    ladder: [{ level: 3, ability: "bishop_hop" }, { level: 6, ability: "bishop_ortho_step" }],
   },
   rook: {
     id: "rook", kind: KIND.ROOK, glyph: "♜", nameDe: "Turm", nameEn: "Rook", flank: true,
 flavorDe: "Eine wandernde Festung mit schlechter Laune.", flavorEn: "A walking fortress in a foul mood.",
     unlock: { type: "start" },
-    ladder: [
-      { level: 3, ability: "rook_diag_step" },
-      { level: 4, ability: "ranged_shot" },
-      { level: 5, ability: "rook_breach" },
-      { level: 6, ability: "bulwark" },
-    ],
+    ladder: [{ level: 3, ability: "rook_diag_step" }, { level: 6, ability: "rook_breach" }],
   },
   queen: {
     id: "queen", kind: KIND.QUEEN, glyph: "♛", nameDe: "Dame", nameEn: "Queen",
@@ -121,41 +114,25 @@ flavorDe: "Fällt er, fällt alles — also fällt er nicht.", flavorEn: "If he 
     id: "archbishop", kind: KIND.ARCHBISHOP, glyph: null, nameDe: "Erzbischof", nameEn: "Archbishop",
 flavorDe: "Predigt Vergebung und nimmt die Beichte gleich selbst ab.", flavorEn: "Preaches forgiveness and hears the confession himself.",
     unlock: { type: "boss" }, flank: true,
-    ladder: [
-      { level: 3, ability: "bishop_hop" },
-      { level: 4, ability: "ranged_shot" },
-      { level: 5, ability: "bishop_ortho_step" },
-    ],
+    ladder: [{ level: 3, ability: "bishop_hop" }, { level: 6, ability: "bishop_ortho_step" }],
   },
   chancellor: {
     id: "chancellor", kind: KIND.CHANCELLOR, glyph: null, nameDe: "Kanzler", nameEn: "Chancellor",
 flavorDe: "Verwaltet das Reich — und im Exil seine Rache.", flavorEn: "Administers the realm — and, in exile, his revenge.",
     unlock: { type: "boss" }, flank: true,
-    ladder: [
-      { level: 3, ability: "rook_diag_step" },
-      { level: 4, ability: "ranged_shot" },
-      { level: 5, ability: "rook_breach" },
-    ],
+    ladder: [{ level: 3, ability: "rook_diag_step" }, { level: 6, ability: "rook_breach" }],
   },
   hawk: {
     id: "hawk", kind: KIND.HAWK, glyph: null, nameDe: "Späher", nameEn: "Hawk",
 flavorDe: "Kein Pfad, den er nicht zweimal gegangen wäre, bevor du ihn einmal siehst.", flavorEn: "No path he hasn't walked twice before you see it once.",
     unlock: { type: "boss" }, flank: true,
-    ladder: [
-      { level: 3, ability: "teleport" },
-      { level: 4, ability: "ranged_shot" },
-      { level: 5, ability: "knight_outrider" },
-    ],
+    ladder: [{ level: 3, ability: "teleport" }, { level: 6, ability: "ranged_shot" }],
   },
   amazon: {
     id: "amazon", kind: KIND.AMAZON, glyph: null, nameDe: "Amazone", nameEn: "Amazon",
 flavorDe: "Niemand fordert sie zweimal heraus.", flavorEn: "Nobody challenges her twice.",
     unlock: { type: "boss" }, flank: true,
-    ladder: [
-      { level: 3, ability: "queen_knightleap" },
-      { level: 4, ability: "ranged_shot" },
-      { level: 5, ability: "teleport" },
-    ],
+    ladder: [{ level: 3, ability: "ranged_shot" }, { level: 6, ability: "teleport" }],
   },
 
   // ── Boss-unlocked specialists (movement is data-driven via moveSpec) ────────
@@ -165,10 +142,7 @@ flavorDe: "Hält Kurs, wo die Karten enden.", flavorEn: "Holds course where the 
     unlock: { type: "boss" }, flank: true,
     // Sea legs: strides three straight, steps one diagonal — and can hook foes in.
     moveSpec: { slides: [[1,0],[-1,0],[0,1],[0,-1]], range: 3, leaps: [[1,1],[1,-1],[-1,1],[-1,-1]] },
-    ladder: [
-      { level: 6, ability: "ranged_shot" },
-      { level: 9, ability: "blast" },
-    ],
+    ladder: [{ level: 3, ability: "ranged_shot" }, { level: 6, ability: "blast" }, { level: 9, ability: "bulwark" }],
   },
   assassin: {
     id: "assassin", kind: KIND.ASSASSIN, glyph: "🗡", nameDe: "Attentäter", nameEn: "Assassin",
@@ -179,20 +153,14 @@ flavorDe: "Rechnet in Schritten, zahlt in Stille.", flavorEn: "Counts in steps, 
        Feldfarbe ist deren aeltestes, lesbarstes Merkmal. Ihre Kuenste
        (Teleport, Fernschuss) oeffnen die andere Farbe spaeter ohnehin. */
     moveSpec: { leaps: [[1,1],[1,-1],[-1,1],[-1,-1],[2,2],[2,-2],[-2,2],[-2,-2]] },
-    ladder: [
-      { level: 3, ability: "teleport" },
-      { level: 6, ability: "lifesteal" },
-    ],
+    ladder: [{ level: 3, ability: "teleport" }, { level: 5, ability: "lifesteal" }, { level: 7, ability: "ranged_shot" }, { level: 9, ability: "blast" }],
   },
   guardian: {
     id: "guardian", kind: KIND.GUARDIAN, glyph: "🛡", nameDe: "Schildträger", nameEn: "Guardian",
 flavorDe: "Sein Schild hat mehr Schlachten gesehen als mancher General.", flavorEn: "His shield has seen more battles than most generals.",
     unlock: { type: "boss" }, flank: true,
     moveSpec: { slides: [[1,0],[-1,0],[0,1],[0,-1]], range: 2 },
-    ladder: [
-      { level: 3, ability: "bulwark" },
-      { level: 7, ability: "regen" },
-    ],
+    ladder: [{ level: 3, ability: "bulwark" }, { level: 5, ability: "regen" }, { level: 7, ability: "lifesteal" }, { level: 9, ability: "teleport" }],
   },
   dragon: {
     id: "dragon", kind: KIND.DRAGON, glyph: "🐉", nameDe: "Drache", nameEn: "Dragon",
@@ -213,21 +181,14 @@ flavorDe: "Jung, gierig und fest überzeugt, dass alles Gold ihm gehört.", flav
 flavorDe: "Dreißig Jahre Studium — jetzt kommt die Prüfung.", flavorEn: "Thirty years of study — now comes the exam.",
     unlock: { type: "boss" }, flank: true,
     moveSpec: { slides: [[1,1],[1,-1],[-1,1],[-1,-1]], range: 2 },
-    ladder: [
-      { level: 3, ability: "ranged_shot" },
-      { level: 9, ability: "teleport" },
-    ],
+    ladder: [{ level: 3, ability: "ranged_shot" }, { level: 5, ability: "teleport" }, { level: 7, ability: "blast" }, { level: 9, ability: "lifesteal" }],
   },
   sorceress: {
     id: "sorceress", kind: KIND.SORCERESS, glyph: "🔮", nameDe: "Hexerin", nameEn: "Sorceress",
 flavorDe: "Der Sturm fragt sie um Erlaubnis.", flavorEn: "The storm asks her permission.",
     unlock: { type: "boss" }, flank: true,
     moveSpec: { leaps: [[-2,-2],[-1,-2],[0,-2],[1,-2],[2,-2],[-2,-1],[2,-1],[-2,0],[2,0],[-2,1],[2,1],[-2,2],[-1,2],[0,2],[1,2],[2,2]] },
-    ladder: [
-      { level: 3, ability: "teleport" },
-      { level: 7, ability: "ranged_shot" },
-      { level: 9, ability: "lifesteal" },
-    ],
+    ladder: [{ level: 3, ability: "teleport" }, { level: 6, ability: "ranged_shot" }, { level: 9, ability: "lifesteal" }],
   },
   seeress: {
     id: "seeress", kind: KIND.SEERESS, glyph: null, nameDe: "Vesna, die Seherin", nameEn: "Vesna the Seeress",
@@ -237,61 +198,42 @@ flavorDe: "Sie hat das Ende jeder Partie gesehen — sie spielt nur mit, um zu e
     // mystic: queen-lines, two squares of reach.
     unlock: { type: "boss" }, flank: true, costValue: 420,
     moveSpec: { slides: [[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]], range: 2 },
-    ladder: [
-      { level: 4, ability: "teleport" },
-      { level: 8, ability: "ranged_shot" },
-    ],
+    ladder: [{ level: 3, ability: "teleport" }, { level: 6, ability: "ranged_shot" }],
   },
   alchemist: {
     id: "alchemist", kind: KIND.ALCHEMIST, glyph: "⚗", nameDe: "Alchemist", nameEn: "Alchemist",
 flavorDe: "Hat den Pass gesprengt. Aus Versehen. Zweimal.", flavorEn: "Blew up the pass. By accident. Twice.",
     unlock: { type: "boss" }, flank: true,
     moveSpec: { slides: [[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]], range: 1, leaps: [[0,2],[0,-2],[2,0],[-2,0]] },
-    ladder: [
-      { level: 3, ability: "regen" },
-      { level: 7, ability: "lifesteal" },
-    ],
+    ladder: [{ level: 3, ability: "regen" }, { level: 5, ability: "lifesteal" }, { level: 7, ability: "bulwark" }, { level: 9, ability: "ranged_shot" }],
   },
   warlock: {
     id: "warlock", kind: KIND.WARLOCK, glyph: "🜏", nameDe: "Warlock", nameEn: "Warlock",
 flavorDe: "Sein Preis war hoch. Er verrät nicht, wofür.", flavorEn: "His price was steep. He won't say for what.",
     unlock: { type: "boss" }, flank: true,
     moveSpec: { slides: [[1,1],[1,-1],[-1,1],[-1,-1]], range: 3 },
-    ladder: [
-      { level: 3, ability: "lifesteal" },
-      { level: 5, ability: "ranged_shot" },
-      ],
+    ladder: [{ level: 3, ability: "lifesteal" }, { level: 5, ability: "ranged_shot" }, { level: 7, ability: "teleport" }, { level: 9, ability: "blast" }],
   },
   paladin: {
     id: "paladin", kind: KIND.PALADIN, glyph: "⚔", nameDe: "Paladin", nameEn: "Paladin",
 flavorDe: "Sein Eid wiegt schwerer als seine Rüstung.", flavorEn: "His oath weighs more than his armor.",
     unlock: { type: "boss" }, flank: true,
     moveSpec: { slides: [[1,0],[-1,0],[0,1],[0,-1]], range: 2, leaps: [[1,1],[1,-1],[-1,1],[-1,-1]] },
-    ladder: [
-      { level: 4, ability: "bulwark" },
-      { level: 7, ability: "regen" },
-    ],
+    ladder: [{ level: 3, ability: "bulwark" }, { level: 5, ability: "regen" }, { level: 7, ability: "lifesteal" }, { level: 9, ability: "teleport" }],
   },
   inquisitor: {
     id: "inquisitor", kind: KIND.INQUISITOR, glyph: "✠", nameDe: "Inquisitor", nameEn: "Inquisitor",
 flavorDe: "Stellt eine Frage. Nur eine.", flavorEn: "Asks one question. Only one.",
     unlock: { type: "boss" }, flank: true,
     moveSpec: { slides: [[1,0],[-1,0],[0,1],[0,-1]], range: 3 },
-    ladder: [
-      { level: 3, ability: "ranged_shot" },
-      { level: 8, ability: "bulwark" },
-    ],
+    ladder: [{ level: 3, ability: "ranged_shot" }, { level: 5, ability: "bulwark" }, { level: 7, ability: "lifesteal" }, { level: 9, ability: "blast" }],
   },
   bard: {
     id: "bard", kind: KIND.BARD, glyph: "🎵", nameDe: "Barde", nameEn: "Bard",
 flavorDe: "Singt von deinen Siegen — die Gage verhandelt er vorher.", flavorEn: "Sings of your victories — the fee is agreed beforehand.",
     unlock: { type: "boss" }, flank: true,
     moveSpec: { slides: [[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]], range: 1, leaps: [[2,2],[2,-2],[-2,2],[-2,-2]] },
-    ladder: [
-      { level: 3, ability: "regen" },
-      { level: 7, ability: "bulwark" },
-      { level: 9, ability: "teleport" },
-    ],
+    ladder: [{ level: 3, ability: "regen" }, { level: 6, ability: "bulwark" }, { level: 9, ability: "teleport" }],
   },
   engineer: {
     id: "engineer", kind: KIND.ENGINEER, glyph: "⚙", nameDe: "Techniker", nameEn: "Engineer",
@@ -302,29 +244,21 @@ flavorDe: "Repariert alles außer seinen Ruf.", flavorEn: "Fixes everything exce
        fest: 25 von 100 Feldern, drei Viertel des Bretts fuer immer
        unerreichbar. Der gerade Einzelschritt loest das Gitter auf. */
     moveSpec: { leaps: [[0,2],[0,-2],[2,0],[-2,0],[2,2],[2,-2],[-2,2],[-2,-2],[1,0],[-1,0],[0,1],[0,-1]] },
-    ladder: [
-      { level: 3, ability: "ranged_shot" },
-      ],
+    ladder: [{ level: 3, ability: "ranged_shot" }, { level: 5, ability: "bulwark" }, { level: 7, ability: "blast" }, { level: 9, ability: "teleport" }],
   },
   standard: {
     id: "standard", kind: KIND.STANDARD, glyph: "🚩", nameDe: "Flaggenträger", nameEn: "Standard Bearer",
 flavorDe: "Wo sein Banner steht, weicht keiner.", flavorEn: "Where his banner stands, nobody yields.",
     unlock: { type: "boss" }, flank: true,
     moveSpec: { leaps: [[1,0],[-1,0],[0,1],[0,-1],[0,2],[0,-2],[2,0],[-2,0]] },
-    ladder: [
-      { level: 3, ability: "bulwark" },
-      { level: 8, ability: "regen" },
-    ],
+    ladder: [{ level: 3, ability: "bulwark" }, { level: 5, ability: "regen" }, { level: 7, ability: "teleport" }, { level: 9, ability: "lifesteal" }],
   },
   strategist: {
     id: "strategist", kind: KIND.STRATEGIST, glyph: "🧭", nameDe: "Stratege", nameEn: "Strategist",
 flavorDe: "Hat diese Partie schon gestern gewonnen.", flavorEn: "Won this game yesterday.",
     unlock: { type: "boss" }, flank: true,
     moveSpec: { slides: [[1,0],[-1,0],[0,1],[0,-1]], range: 2, leaps: [[2,2],[2,-2],[-2,2],[-2,-2]] },
-    ladder: [
-      { level: 3, ability: "teleport" },
-      { level: 8, ability: "ranged_shot" },
-    ],
+    ladder: [{ level: 3, ability: "teleport" }, { level: 6, ability: "ranged_shot" }, { level: 9, ability: "bulwark" }],
   },
   pathfinder: {
     id: "pathfinder", kind: KIND.PATHFINDER, glyph: "🧿", nameDe: "Kundschafter", nameEn: "Pathfinder",
@@ -334,10 +268,7 @@ flavorDe: "Kennt den Weg. Auch den, den es nicht gibt.", flavorEn: "Knows the wa
        Nahzugriff. Fuer eine SPIELERfigur doppelt aergerlich. Der gerade
        Einzelschritt kommt dazu; die Kamel-Weite bleibt sein Kennzeichen. */
     moveSpec: { leaps: [[1,3],[3,1],[-1,3],[-3,1],[1,-3],[3,-1],[-1,-3],[-3,-1],[1,0],[-1,0],[0,1],[0,-1]] },
-    ladder: [
-      { level: 3, ability: "regen" },
-      { level: 8, ability: "teleport" },
-    ],
+    ladder: [{ level: 3, ability: "regen" }, { level: 6, ability: "teleport" }, { level: 9, ability: "bulwark" }],
   },
 };
 

@@ -16,6 +16,8 @@ const KARTE = mapById("classic");
 const PLATZ = KARTE.defaultFormation.indexOf("queen");   // der Platz, um den es geht
 
 export let STUFEN_AM_ANSCHLAG = true;
+/* v1.29.0: Stufe des RESTS beider Heere - 1 = Anfaengerheer, 10 = alle auf Hoechststufe (echtes Spaetspiel) */
+export let REST_STUFE = 1;
 /* v1.28.3: auch ein MONSTER ("X:b01") steht auf dem Damenplatz - so, wie es
    der Spieler einsetzen darf: Hoechststufe 5, beide Faehigkeiten gelernt. */
 /* In der Aufstellung heisst ein Monster "boss:b01", im Profil "X:b01" - beide
@@ -27,7 +29,7 @@ const leiterAb = (id) => istMonster(id)
 export function heer(figur) {
   const form = [...KARTE.defaultFormation]; form[PLATZ] = figur;
   return buildArmyFromFormation(
-    (id) => (id === figur || (istMonster(figur) && id === "X:" + figur.slice(5)) ? (istMonster(figur) ? BOSS_MAX_LEVEL : maxLevelFor(id)) : 1), form,
+    (id) => (id === figur || (istMonster(figur) && id === "X:" + figur.slice(5)) ? (istMonster(figur) ? BOSS_MAX_LEVEL : maxLevelFor(id)) : (id === "pawn" ? Math.min(REST_STUFE, 5) : REST_STUFE)), form,
     (id) => (id === figur || (istMonster(figur) && id === "X:" + figur.slice(5)) ? leiterAb(figur) : []), null,
     (id) => ((id === figur || (istMonster(figur) && id === "X:" + figur.slice(5))) && STUFEN_AM_ANSCHLAG ? Object.fromEntries(leiterAb(figur).map((a) => [a, maxStufe(a)])) : {}));
 }
@@ -150,4 +152,11 @@ if (process.argv[2] === "allein") {
   erg.sort((a, b) => a.z - b.z);
   console.log("\nEINE FIGUR auf Hoechststufe gegen die DAME auf Hoechststufe, Rest Stufe 1 (12 Partien):");
   for (const e of erg) console.log(`${nameVon(e.f).padEnd(20)} gewinnt ${String(e.s).padStart(2)}/12   nach ${String(e.z).padStart(3)} Halbzuegen`);
+}
+
+if (process.argv[2] === "reif") {
+  REST_STUFE = 10;
+  const AUS = new Set(["pawn", "gambit", "king", "dragon", "queen"]);
+  console.log("== ALLE ANDEREN FIGUREN - der Rest beider Heere auf Hoechststufe ==");
+  zeige(durchlauf({ proPaar: 8, figuren: CHARACTER_LIST.map((c) => c.id).filter((id) => !AUS.has(id)) }));
 }

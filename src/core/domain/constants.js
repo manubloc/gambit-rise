@@ -73,8 +73,12 @@ export const BASE_ATK = { P: 1, N: 2, B: 2, H: 2, R: 3, A: 3, C: 4, Q: 4, M: 5, 
    (Bauer) bis 46 (Koenig). */
 export const BUDGET_HOECHSTSTUFE = 24;
 export const BUDGET_DRACHE = 48;
+/* v1.29.0 (Besitzer): "bei Figuren, die springen koennen, ist eine sehr hohe
+   Angriffsstaerke zu gefaehrlich." Springer 11/13 -> 16/8, Kanzler 12/12 ->
+   15/9, Spaeher 9/15 -> 15/9, Amazone 9/15 -> 18/6. Nachgemessen mit reifen Heeren (tools/balance.mjs
+   reif): Vesna 15/9 -> 17/7, Erzbischof 15/9 -> 17/7. Die Summe bleibt 24. */
 export const ZIEL_PROFIL = {
-  K: [21, 3], D: [41, 7], G: [20, 4], F: [19, 5], U: [18, 6], L: [18, 6], R: [18, 6], P: [17, 7], J: [16, 8], T: [16, 8], SE: [15, 9], A: [15, 9], V: [14, 10], Y: [14, 10], B: [14, 10], Q: [14, 10], C: [12, 12], I: [13, 11], N: [11, 13], O: [10, 14], Z: [9, 15], H: [9, 15], M: [9, 15], E: [8, 16], W: [5, 19], S: [4, 20],
+  K: [21, 3], D: [41, 7], G: [20, 4], F: [19, 5], U: [18, 6], L: [18, 6], R: [18, 6], P: [17, 7], J: [16, 8], T: [16, 8], SE: [17, 7], A: [17, 7], V: [14, 10], Y: [14, 10], B: [14, 10], Q: [14, 10], C: [15, 9], I: [13, 11], N: [16, 8], O: [10, 14], Z: [9, 15], H: [15, 9], M: [18, 6], E: [8, 16], W: [5, 19], S: [4, 20],
 };
 export const HOECHSTSTUFE = 10;
 

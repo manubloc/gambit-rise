@@ -1,5 +1,29 @@
 # Changelog - Grand Gambit
 
+## 1.29.0
+- FAEHIGKEITEN UND ANGRIFF NACH BEWEGLICHKEIT (Besitzer, freigegeben nach
+  Tabelle: design/FIGUREN-BEWEGLICHKEIT-2026-09-21.md). Wer springt, schlaegt
+  schwach: Springer 11/13 -> 16/8, Kanzler 12/12 -> 15/9, Spaeher 9/15 ->
+  15/9, Amazone 9/15 -> 18/6, Erzbischof und Vesna 15/9 -> 17/7 - die Summe
+  bleibt 24. Wer stark zieht, traegt wenig: sehr bewegliche Figuren 2
+  Faehigkeiten, mittlere 3, traege 4 (Techniker hatte eine, Magier, Warlock,
+  Paladin ... zwei). Dame und Kapitelmeister sind ausgenommen.
+- ZWEI TOTE FAEHIGKEITEN ENTFERNT: Vorreiter beim Spaeher wirkte nur bei
+  Springern, Hofsprung bei der Amazone nur bei der Dame (moves.js bindet die
+  Bewegungsfaehigkeiten an die Art). Beide waren gelernt worden, ohne je
+  etwas zu tun.
+- SPIELSTAND: gestrichene Faehigkeiten verschwinden samt Stufe, die
+  Skillpunkte kommen ueber den geprueften Dauerfeuer-Weg zurueck (eine
+  Tabelle GESTRICHEN in profile.js). Zwei neue Proben in test_saves.
+- DER MASSGEBLICHE TEST SIND REIFE HEERE: npm run balance misst jetzt mit dem
+  Rest beider Heere auf Hoechststufe (das echte Spaetspiel). Ergebnis: 21 von
+  22 Figuren zwischen 36 und 60 %, jede Partie 49-67 Halbzuege bei einer
+  Grundlinie von 56 - ein Spiel wie beim Schach. Der Stufe-1-Lauf misst das
+  Fruehspiel und bleibt als "gruppen"/"lauf" erhalten.
+- VESNA BLEIBT BEI 75 % (Besitzer: so lassen). Ihre Staerke ist der Zug - acht
+  Richtungen, zwei Felder, nie blockiert; Partielaenge 53, kein Ueberrennen.
+  Sie ist die letzte Belohnung des Spiels.
+
 ## 1.28.5
 - KOENIG UND DAME STEHEN IMMER FEST - UND MAN SIEHT ES (Besitzer). In der
   Aufstellung traegt der Koenig keine Kontur und einen gedaempften Grund: er

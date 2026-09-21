@@ -62,19 +62,32 @@ export function formationAufAcht(formation, unlockedIds = null, map = null) {
        faellt Dauerfeuer weg, und die Skillpunkte kommen zurueck (so viel,
        wie die Sprosse gekostet hatte: Stufe 7, 9, 8). */
 const DAUERFEUER_ERSTATTUNG = { mage: 7, warlock: 9, engineer: 8 };
+/* v1.29.0: gestrichene Faehigkeiten (Beweglichkeitsregel) - Figur -> Faehigkeit
+   -> Stufe der alten Sprosse, damit dieselbe Erstattung greift. */
+const GESTRICHEN = { knight: { teleport: 6, lifesteal: 8 }, bishop: { ranged_shot: 4, teleport: 7 }, rook: { ranged_shot: 4, bulwark: 6 },
+  archbishop: { ranged_shot: 4 }, chancellor: { ranged_shot: 4 }, hawk: { knight_outrider: 5 }, amazon: { queen_knightleap: 3 } };
 export function ohneDauerfeuer(p) {
   const ab = p?.pieces?.abilities;
   if (!ab) return p;
   let sp = p.sp || 0, geaendert = false;
   const neu = { ...ab };
+  const stufen = { ...(p.pieces.stufen || {}) };
   for (const [cid, liste] of Object.entries(ab)) {
-    if (!Array.isArray(liste) || !liste.includes("ranged_volley")) continue;
+    if (!Array.isArray(liste)) continue;
+    const weg = GESTRICHEN[cid] || {};
+    if (!liste.includes("ranged_volley") && !liste.some((a) => weg[a])) continue;
     geaendert = true;
-    const ohne = liste.filter((a) => a !== "ranged_volley");
-    if (cid === "captain") neu[cid] = ohne.includes("ranged_shot") ? ohne : [...ohne, "ranged_shot"];
-    else { neu[cid] = ohne; if (DAUERFEUER_ERSTATTUNG[cid]) sp += abilityCost(DAUERFEUER_ERSTATTUNG[cid]); }
+    let ohne = liste.filter((a) => a !== "ranged_volley");
+    if (liste.includes("ranged_volley")) {
+      if (cid === "captain") ohne = ohne.includes("ranged_shot") ? ohne : [...ohne, "ranged_shot"];
+      else if (DAUERFEUER_ERSTATTUNG[cid]) sp += abilityCost(DAUERFEUER_ERSTATTUNG[cid]);
+    }
+    for (const a of ohne) if (weg[a]) sp += abilityCost(weg[a]);
+    ohne = ohne.filter((a) => !weg[a]);
+    neu[cid] = ohne;
+    if (stufen[cid]) { const st = { ...stufen[cid] }; for (const a of Object.keys(st)) if (weg[a]) delete st[a]; stufen[cid] = st; }
   }
-  return geaendert ? { ...p, sp, pieces: { ...p.pieces, abilities: neu } } : p;
+  return geaendert ? { ...p, sp, pieces: { ...p.pieces, abilities: neu, stufen } } : p;
 }
 function migrate(p) {
   p = ohneDauerfeuer(p);

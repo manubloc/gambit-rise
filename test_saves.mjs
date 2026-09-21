@@ -342,11 +342,13 @@ ok("full build counts ten league crowns", fullB.stats.leaguesWon === 10);
   const pm = await import("./src/meta/profile.js");
   const p = pm.defaultProfile(); p.sp = 10;
   p.pieces = { ...p.pieces, levels: { ...(p.pieces.levels || {}), captain: 9, mage: 9, knight: 6 },
-    abilities: { captain: ["ranged_volley"], mage: ["ranged_shot", "ranged_volley"], knight: ["teleport"] },
-    stufen: { knight: { teleport: 2 } }, bossLevels: { b01: 3 } };
+    /* v1.29.0: Blinzeln ist beim Springer gestrichen - die Probe nimmt Weitsprung
+       (Springer) und Blinzeln beim Magier, der es behaelt */
+    abilities: { captain: ["ranged_volley"], mage: ["ranged_shot", "ranged_volley"], knight: ["knight_longleap"] },
+    stufen: { mage: { teleport: 2 } }, bossLevels: { b01: 3 } };
   const neu = pm.parseSave(pm.serializeSave(p));
-  ok("Wiederherstellen behaelt gelernte Faehigkeiten", JSON.stringify(neu.pieces.abilities.knight) === '["teleport"]');
-  ok("... und ihre Stufen und die Monsterstufen", neu.pieces.stufen?.knight?.teleport === 2 && neu.pieces.bossLevels?.b01 === 3);
+  ok("Wiederherstellen behaelt gelernte Faehigkeiten", JSON.stringify(neu.pieces.abilities.knight) === '["knight_longleap"]');
+  ok("... und ihre Stufen und die Monsterstufen", neu.pieces.stufen?.mage?.teleport === 2 && neu.pieces.bossLevels?.b01 === 3);
   ok("der Kapitaen bekommt fuer Dauerfeuer den Scharfschuss", JSON.stringify(neu.pieces.abilities.captain) === '["ranged_shot"]');
   ok("der Magier verliert Dauerfeuer und bekommt die Skillpunkte zurueck",
     JSON.stringify(neu.pieces.abilities.mage) === '["ranged_shot"]' && neu.sp === 14);
@@ -355,6 +357,13 @@ ok("full build counts ten league crowns", fullB.stats.leaguesWon === 10);
     CHARACTER_LIST.every((c) => !c.ladder.some((r) => r.ability === "ranged_volley")));
   const { readFileSync } = await import("node:fs");
   ok("auch das normale Laden stellt Dauerfeuer um", readFileSync("src/meta/saves.js", "utf8").includes("return ohneDauerfeuer(JSON.parse(r.value))"));
+  /* v1.29.0: eine gestrichene Faehigkeit (Blinzeln beim Springer) verschwindet
+     samt Stufe, die Punkte kommen ueber denselben Weg zurueck */
+  const q = pm.defaultProfile(); q.sp = 10;
+  q.pieces = { ...q.pieces, levels: { ...(q.pieces.levels || {}), knight: 9 }, abilities: { knight: ["knight_longleap", "teleport"] }, stufen: { knight: { teleport: 2 } } };
+  const q2 = pm.parseSave(pm.serializeSave(q));
+  ok("gestrichenes Blinzeln verschwindet beim Springer, Weitsprung bleibt", JSON.stringify(q2.pieces.abilities.knight) === '["knight_longleap"]');
+  ok("... samt seiner Stufe, und die Skillpunkte kommen zurueck", !q2.pieces.stufen?.knight?.teleport && q2.sp === 13);
 }
 
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
