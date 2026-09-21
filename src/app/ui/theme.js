@@ -323,6 +323,17 @@ export const GLOBAL_CSS = `
     background-size: 200% 100%; animation: ggFunkenlauf 2.4s linear infinite;
     -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
     -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; }
+  /* v1.27.1 (Besitzer): "die Grossmeister-Karten duerfen in der Uebersicht
+     auch eine leuchtende, animierte Kontur haben wie der Verbessern-Knopf".
+     Dieselbe laufende Kontur - aber INNEN: die Kachel schneidet mit
+     overflow hidden alles ab, was ueber ihren Rand ragt, und die
+     Knopffassung sitzt mit inset -1px genau dort. Sie waere unsichtbar. */
+  .gg-funkenkontur-innen::after { content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1.5px;
+    background: linear-gradient(90deg, transparent 0%, rgba(196,181,253,.15) 30%, rgba(230,220,255,.95) 46%,
+      rgba(196,181,253,.6) 54%, rgba(139,92,246,.2) 70%, transparent 100%);
+    background-size: 200% 100%; animation: ggFunkenlauf 2.4s linear infinite;
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; z-index: 6; }
   /* das Siegel am verschlossenen Weg atmet leise */
   /* box-shadow ist eine MAL-Eigenschaft: ihr Puls strich die ganze
      Weltschicht der Karte neu (gemessen). Jetzt fester Schein, Puls per

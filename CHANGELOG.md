@@ -1,5 +1,20 @@
 # Changelog - Grand Gambit
 
+## 1.27.1
+- DER GAMBIT SITZT IM BOOT (Besitzer: "das Schiff im letzten Kapitel - der
+  Gambit sitzt nicht im Schiff, sondern daneben. Er muss in jeder Stufe drin
+  sitzen"). GEFUNDEN: das Boot wurde mit transform: translateX(-50%) mittig
+  gesetzt - dieselbe Falle wie bei den Brettfiguren in v1.24.5c. Eine laufende
+  Animation auf transform ueberschreibt die Inline-Verschiebung; dann steht die
+  LINKE Kante des Boots in der Mitte, es rutscht um seine halbe Breite nach
+  rechts, und der Gambit steht an seinem Ende. Das Bild selbst ist mittig
+  (Versatz 0,1 %). Jetzt wird ueber left gerechnet, ohne transform. Weil die
+  Bootsbreite am selben Tiefenfaktor haengt wie der Gambit, gilt das fuer
+  jede Stufe gleich.
+- GROSSMEISTER-KACHELN TRAGEN DIE LAUFENDE KONTUR des Verbessern-Knopfs
+  (Besitzer). Innen gezeichnet: die Kachel schneidet mit overflow hidden
+  alles ab, was ueber ihren Rand ragt, und die Knopffassung sitzt genau dort.
+
 ## 1.27.0
 - DER SPIELERNAME IST AENDERBAR (Besitzer: "Ich faende es gut und wichtig,
   dass ich meinen Spielernamen anpassen kann"). In v1.0.8 war er FEST, weil

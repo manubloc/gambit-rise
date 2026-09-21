@@ -255,5 +255,21 @@ console.log("\n== KEIN GROESSENSPRUNG BEIM ZIEHEN (v1.4.9) ==");
     pg2.includes('"pop .18s ease"'));
 }
 
+/* v1.27.1: das Boot wird OHNE transform mittig gesetzt - eine laufende
+   Animation auf transform hatte es um die halbe Breite verschoben, der Gambit
+   stand neben statt in ihm. Und die Grossmeister-Kachel traegt die laufende
+   Kontur des Verbessern-Knopfs, innen gezeichnet. */
+{
+  const cs2 = readFileSync("src/app/ui/screens/CampaignScreen.jsx", "utf8");
+  const i2 = cs2.indexOf("return <img src={bootUrl}");
+  const bootZeile = cs2.slice(i2, i2 + 400);
+  ok("das Boot sitzt ueber left mittig, nicht ueber transform",
+    bootZeile.includes("left: `calc(50% - ${Math.round(bw / 2)}px)`") && !bootZeile.includes('translateX(-50%)'));
+  const th2 = readFileSync("src/app/ui/theme.js", "utf8");
+  const ar2 = readFileSync("src/app/ui/screens/ArmyScreen.jsx", "utf8");
+  ok("Grossmeister-Kacheln tragen die laufende Kontur (innen)",
+    th2.includes(".gg-funkenkontur-innen::after") && ar2.includes('className={meister ? "gg-funkenkontur-innen" : undefined}'));
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

@@ -812,9 +812,20 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
                   dem Gambit und bleibt unter ihm. */}
               {th.sea && hasItem(profile, "boat") && (() => {
                 const bw = Math.round(96 * tiefeWanderer(ny(tn), HM) * 1.55);
+                /* v1.27.1 (Besitzer: "das Schiff im letzten Kapitel - der Gambit
+                   sitzt nicht im Schiff, sondern daneben. Er muss in jeder Stufe
+                   drin sitzen.") GEFUNDEN: das Boot wurde mit
+                   transform: translateX(-50%) mittig gesetzt. Dieselbe Falle wie
+                   bei den Brettfiguren in v1.24.5c: eine laufende Animation auf
+                   transform ueberschreibt die Inline-Verschiebung, dann steht die
+                   LINKE Kante des Boots in der Mitte - es rutscht um seine halbe
+                   Breite nach rechts, und der Gambit steht an seinem Ende. Das
+                   Bild selbst ist mittig (Versatz 0,1 %). Jetzt wird ueber left
+                   gerechnet, ohne transform - keine Animation kann das
+                   ueberschreiben, und es gilt fuer jede Stufe gleich, weil die
+                   Breite am selben Tiefenfaktor haengt wie der Gambit. */
                 return <img src={bootUrl} alt="" draggable={false}
-                  style={{ position: "absolute", left: "50%", bottom: -Math.round(bw * 0.07),
-                    transform: "translateX(-50%)",
+                  style={{ position: "absolute", left: `calc(50% - ${Math.round(bw / 2)}px)`, bottom: -Math.round(bw * 0.07),
                     width: bw, height: "auto", zIndex: 3, pointerEvents: "none", userSelect: "none",
                     filter: "drop-shadow(0 2px 3px rgba(14,26,38,.45))" }} />;
               })()}

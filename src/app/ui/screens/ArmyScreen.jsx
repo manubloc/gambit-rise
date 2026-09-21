@@ -2236,7 +2236,9 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
        eigenen Stapel, damit das Bild mit z -1 ueber dem Kachelgrund, aber
        unter Figur und Schrift liegt. overflow: hidden beschneidet es auf die
        runden Ecken. */
-    <div onClick={onOpen ? () => { klang("menue"); onOpen(); } : undefined} style={{ position: "relative",
+    <div onClick={onOpen ? () => { klang("menue"); onOpen(); } : undefined}
+      className={meister ? "gg-funkenkontur-innen" : undefined}   /* v1.27.1: laufende Kontur der Grossmeister */
+      style={{ position: "relative",
       isolation: "isolate", overflow: "hidden",
       // der leichte Riss-Verlauf der Menueleisten, eine Stufe stiller
       background: "radial-gradient(130% 120% at 50% -12%, rgba(124,58,237,.20) 0%, rgba(34,22,60,.55) 46%, rgba(12,8,22,.7) 100%)",
