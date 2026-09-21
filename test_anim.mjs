@@ -166,9 +166,14 @@ console.log("\n== test_anim: die Aufstiegsfeier (v1.0.75) ==");
      Stationsfenster; das schlichte fuer den Rueckblick kannte nur Ort, Karte
      und Startknopf - wer ueber die Weltkarte navigierte, sah nie, was an der
      Station wartet. */
+  /* v1.26.4: die Perlen sind seit v1.25.4 ueberall weg (Besitzer: "die Bubbles
+     will ich nicht sehen, egal wo"). Diese Probe verlangte sie weiter und fiel
+     seit v1.25.4 - unbemerkt, weil sie "not ok" schreibt und die Pruefung nur
+     nach "FAIL" suchte. Geprueft wird jetzt, dass die Werte noch da sind: als
+     Zahlen in den Bandfarben, Blau fuer Staerke, Rot fuer Leben. */
   ok("das Rueckblickfenster zeigt Bild, Namen und Werte des Gegners",
     cs.includes("const bossHier = node?.boss ? nodeBossSpec(node, viewLeague) : null") &&
-    cs.includes('<StatOrbBadge kind="power" v={bossHier.atk}'));
+    cs.includes('color: "#b6cdff" }}>{bossHier.atk}</span>') && cs.includes('color: "#ffb3aa" }}>{bossHier.hp}</span>'));
   ok("Stationsfenster: dritte Lage MITTE bei zu wenig Platz",
     cs.includes("const mittig = platz < MINDEST") && cs.includes('transform: "translateY(-50%)"'));
   ok("Stationsfenster: das Bossbild wird nicht mehr beschnitten", !cs.includes('transform: "scale(1.42)"') && cs.includes('overflow: "visible"'));

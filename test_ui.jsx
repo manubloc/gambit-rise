@@ -1629,6 +1629,32 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
       for (let l = 1; l <= 20; l++) if (gambitTier(l) !== ausPainted(l)) abw.push(l);
       ok("Kachel und Blatt rechnen denselben Gambit-Rang" + (abw.length ? " - ABWEICHEND: " + abw.join(",") : ""), abw.length === 0);
     }
+    /* v1.26.4 (Besitzer): "Leben und Angriff darf von Stufe zu Stufe nur
+       steigen und nicht teilweise wieder sinken" und "nur in der letzten
+       Stufe duerfen Rot und Blau sich beruehren". Geprueft an ALLEN Figuren,
+       mit der Rechnung, die Blatt und Kachel jetzt benutzen: werteBeiStufe mit
+       dem Heldenbudget, ohne zweites Hochskalieren. */
+    {
+      const { werteBeiStufe, HELD_PUNKTE } = await import("./src/core/index.js");
+      const { CHARACTER_LIST } = await import("./src/content/index.js");
+      const { maxLevelFor } = await import("./src/meta/index.js");
+      const { rohrAnteile: anteileVon } = await import("./src/app/ui/board/PieceGlyph.jsx");
+      const rueck = [], vorzeitig = [];
+      for (const c of CHARACTER_LIST) {
+        const m = maxLevelFor(c.id), pk = c.id === "gambit" ? HELD_PUNKTE : null;
+        const wM = werteBeiStufe(c.kind, m, { maxLevel: m, punkte: pk });
+        let vor = null;
+        for (let l = 1; l <= m; l++) {
+          const w = werteBeiStufe(c.kind, l, { maxLevel: m, punkte: pk });
+          if (vor && (w.hp < vor.hp || w.atk < vor.atk)) rueck.push(c.id + " " + (l - 1) + "->" + l);
+          const r = anteileVon({ hp: w.hp, maxHp: w.hp, atk: w.atk, level: l, maxLevel: m, budget: wM.hp + wM.atk });
+          if (l < m && r.leben + r.kraft > 0.999) vorzeitig.push(c.id + " St." + l);
+          vor = w;
+        }
+      }
+      ok("Leben und Angriff steigen nur, sie sinken nie" + (rueck.length ? " - RUECKSCHRITT: " + rueck.slice(0, 4).join(", ") : ""), rueck.length === 0);
+      ok("Rot und Blau beruehren sich erst auf der Hoechststufe" + (vorzeitig.length ? " - VORZEITIG: " + vorzeitig.slice(0, 4).join(", ") : ""), vorzeitig.length === 0);
+    }
     ok("das Rohr rechnet in Punkten gegen das Budget der Figur",
       pg3.includes("const budget = Math.max(1, piece.budget || Math.max(NORM_PUNKTE, maxHp + atk))")
       && pg3.includes("leben: Math.max(0, Math.min(1, hp / budget))"));

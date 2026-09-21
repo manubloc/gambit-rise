@@ -799,10 +799,18 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
   /* v1.25.6: keine Schilde im Leben mehr - dieselbe Rechnung wie im Kern
      (setup.js), samt Heldenbudget fuer den Gambit. */
   /* v1.25.6: dieselbe Rechnung wie im Kern, Angriff als Rest - sonst 37. */
-  const _heldFig = char.id === "gambit";
-  const _ganz = _w.hp + _w.atk;
-  const maxHp = _heldFig ? Math.round(_w.hp * HELD_PUNKTE / Math.max(1, _ganz)) : _w.hp;
-  const atk = _heldFig ? HELD_PUNKTE - maxHp : _w.atk;
+  /* ── v1.26.4 (Besitzer): "das Angriff und Leben springt zurueck und
+     verhaelt sich gar nicht wie es sollte - und nur in der letzten Stufe
+     duerfen Rot und Blau sich beruehren."
+     GEMESSEN, beim Gambit: der Kern rechnet das Heldenbudget schon ein
+     (punkte: HELD_PUNKTE) und liefert 2/1 auf Stufe 1 bis 26/10 auf Stufe 20.
+     Hier wurde AUF JEDER STUFE noch einmal auf 36 hochskaliert - von der
+     jeweiligen Stufe aus. Das Blatt zeigte deshalb 24/12 auf Stufe 1, 27/9 auf
+     Stufe 2 und 25/11 auf Stufe 5: immer volle 36, und dazwischen RUECKWAERTS.
+     Der Ring war dadurch immer voll, Rot beruehrte Blau schon auf Stufe 1.
+     Jetzt gilt der Kern unveraendert. */
+  const maxHp = _w.hp;
+  const atk = _w.atk;
   /* ── v1.25.0 (Besitzer): WAS DIE NAECHSTE STUFE WIRKLICH BRINGT ───────────
      "Da steht naechste +1, aber das stimmt teilweise gar nicht. Bei der einen
       geht es bei der naechsten Stufe plus 3 Angriff, bei der anderen plus 2
@@ -815,8 +823,10 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
   const _wNext = level < maxLevelFor(char.id)
     ? werteBeiStufe(char.kind, level + 1, { maxLevel: maxLevelFor(char.id), punkte: punkteVon(char.id) }) : null;
 
-  const plusAtk = _wNext ? Math.max(0, (_heldFig ? HELD_PUNKTE - Math.round(_wNext.hp * HELD_PUNKTE / Math.max(1, _wNext.hp + _wNext.atk)) : _wNext.atk) - atk) : 0;
-  const plusHp = _wNext ? Math.max(0, (_heldFig ? Math.round(_wNext.hp * HELD_PUNKTE / Math.max(1, _wNext.hp + _wNext.atk)) : _wNext.hp) - maxHp) : 0;
+  /* v1.26.4: der Zuwachs ist die reine Differenz zweier Kernstufen - ohne das
+     zweite Hochskalieren, das beim Gambit auch hier stand. */
+  const plusAtk = _wNext ? Math.max(0, _wNext.atk - atk) : 0;
+  const plusHp = _wNext ? Math.max(0, _wNext.hp - maxHp) : 0;
   const rungs = char.ladder.filter((r) => r.ability).map((r) => ({ level: r.level, id: r.ability }));
   const maxed = level >= maxLevelFor(char.id);
   const cost = upgradeCost(char.id, level);
@@ -835,8 +845,8 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
       const pid = paintedIdOf(portraet) || char.id;
       const ton = figurFarbe(pid) || "#5b3fa6";
       const mx = maxLevelFor(char.id);
-      const wMax = werteBeiStufe(char.kind, mx, { maxLevel: mx });
-      const budget = wMax.hp + wMax.atk;
+      const wMax = werteBeiStufe(char.kind, mx, { maxLevel: mx, punkte: punkteVon(char.id) });
+      const budget = wMax.hp + wMax.atk;   /* v1.26.4: mit Heldenbudget, wie die Kachel */
       const band = rohrAnteile({ hp: maxHp, maxHp, atk, level, maxLevel: mx, budget });
       return <BlattBuehne kennung={char.id} name={en ? char.nameEn : char.nameDe}
         haus={epic ? (en ? "The Grand Gambit" : "Der Grand Gambit") : fam ? (en ? FAMILIES[fam].en : FAMILIES[fam].de) : (en ? "Free piece" : "Freie Figur")}
@@ -849,29 +859,19 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
         tonStaerke={0.30}
         knopf={open && unlocked ? (<div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 11, padding: "8px 10px",
         background: T.panel2, borderRadius: T.radiusSm, border: `1px solid ${T.line}` }}>
-        <div style={{ flex: 1, fontSize: 12.5, color: maxed ? T.faint : T.text, display: "flex", alignItems: "center", flexWrap: "wrap", gap: 4 }}>
-          {char.id === "gambit" && <span className="gg-serif" style={{ color: T.goldBright, marginRight: 8, letterSpacing: ".05em" }}>
-            {"✦".repeat(gambitTier(level))} {t("army.stufe", { r: ["I", "II", "III", "IV", "V", "VI"][gambitTier(level) - 1] })}</span>}
-          {(() => { // mirror of core/setup: the SAME formulas, so what you read is what you field
-            const k = char.kind, kingly = k === "K" ? 2 : 1;
-            const hpAt = (l) => (BASE_HP[k] || 1) + (l - 1) * kingly;
-            const atkAt = (l) => (BASE_ATK[k] || 1) + Math.floor((l - 1) / 2);
-            return maxed
-              ? <span className="gg-serif" style={{ letterSpacing: ".03em" }}>{t("army.maxed")}</span>
-              : <span style={{ color: "#b9b295", display: "inline-flex", alignItems: "center", gap: 6, lineHeight: 1 }}>
-                <span>{en ? "Level" : "Stufe"} {level} → {level + 1}</span>
-                {/* the gains live INSIDE the spheres - one flex line centres
-                    text, spheres and the button on the SAME axis */}
-                {/* v1.25.4: ohne Perlen - und der Angriffszuwachs ist jetzt
-                    die echte Differenz statt des festen "+1" (v1.25.0). */}
-                {hpAt(level + 1) > hpAt(level) && <b style={{ font: "800 12px/1 Georgia, serif", color: "#ffb3aa" }}>+{hpAt(level + 1) - hpAt(level)}</b>}
-                {atkAt(level + 1) > atkAt(level) && <b style={{ font: "800 12px/1 Georgia, serif", color: "#b6cdff" }}>+{atkAt(level + 1) - atkAt(level)}</b>}
-              </span>;
-          })()}
-        </div>
-        {feier && <AufstiegsFeier art={feier.art} gambitTier={feier.tier || 1} bild={feier.bild}
-          charId={feier.charId} kind={feier.kind} abId={feier.abId}
-          chName={en ? char.nameEn : char.nameDe} ab={feier.ab} t={t} onClose={() => setFeier(null)} />}
+        {/* ── v1.26.4 (Besitzer): KEIN "Stufe 1 -> 2" MEHR, DER KNOPF UEBER DIE
+            GANZE BREITE. Und die alte Staffel ist weg: hier stand noch
+            hpAt = BASE_HP + (l-1) und atkAt = BASE_ATK + floor((l-1)/2) - das
+            "+1 Angriff alle zwei Stufen" von vor v1.22.0. Es rechnete neben
+            werteBeiStufe her; der Zuwachs, den diese Zeile nannte, war deshalb
+            ein anderer als der, den die Figur nach dem Klick wirklich bekam -
+            und die Werte schienen zurueckzuspringen. Was man bekommt, steht
+            jetzt nur noch EINMAL: in den Wertkaesten darueber, dort aus
+            derselben Kernrechnung wie das Gefecht. */}
+        {char.id === "gambit" && <div className="gg-serif" style={{ width: "100%", textAlign: "center", color: T.goldBright,
+          letterSpacing: ".05em", fontSize: 12.5, marginBottom: 6 }}>
+          {"✦".repeat(gambitTier(level))} {t("army.stufe", { r: ["I", "II", "III", "IV", "V", "VI"][gambitTier(level) - 1] })}</div>}
+        {maxed && <div className="gg-serif" style={{ width: "100%", textAlign: "center", color: T.faint, letterSpacing: ".03em" }}>{t("army.maxed")}</div>}
         {!maxed && <button disabled={!affordable}
           onClick={() => { klang("stufe");
             if (animAn()) {
@@ -895,7 +895,7 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
             }
             dispatch({ type: "UPGRADE_PIECE", id: char.id }); }}
           className={affordable ? "gg-funkenkontur" : undefined}
-          style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "9px 15px", borderRadius: 10,
+          style={{ display: "flex", width: "100%", justifyContent: "center", alignItems: "center", gap: 6, padding: "11px 15px", borderRadius: 10,
             fontFamily: "inherit", fontWeight: 800, fontSize: 13, letterSpacing: ".02em",
             cursor: affordable ? "pointer" : "default",
             // das Riss-Gewand: sehr dunkler Grund, leuchtend violette Schrift
@@ -1057,31 +1057,20 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
         die naechste Stufe bringt. Hier unten nur noch in der kleinen
         Fassung. */}
     {open && unlocked && !bigArt && (
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 11, padding: "8px 10px",
-        background: T.panel2, borderRadius: T.radiusSm, border: `1px solid ${T.line}` }}>
-        <div style={{ flex: 1, fontSize: 12.5, color: maxed ? T.faint : T.text, display: "flex", alignItems: "center", flexWrap: "wrap", gap: 4 }}>
-          {char.id === "gambit" && <span className="gg-serif" style={{ color: T.goldBright, marginRight: 8, letterSpacing: ".05em" }}>
-            {"✦".repeat(gambitTier(level))} {t("army.stufe", { r: ["I", "II", "III", "IV", "V", "VI"][gambitTier(level) - 1] })}</span>}
-          {(() => { // mirror of core/setup: the SAME formulas, so what you read is what you field
-            const k = char.kind, kingly = k === "K" ? 2 : 1;
-            const hpAt = (l) => (BASE_HP[k] || 1) + (l - 1) * kingly;
-            const atkAt = (l) => (BASE_ATK[k] || 1) + Math.floor((l - 1) / 2);
-            return maxed
-              ? <span className="gg-serif" style={{ letterSpacing: ".03em" }}>{t("army.maxed")}</span>
-              : <span style={{ color: "#b9b295", display: "inline-flex", alignItems: "center", gap: 6, lineHeight: 1 }}>
-                <span>{en ? "Level" : "Stufe"} {level} → {level + 1}</span>
-                {/* the gains live INSIDE the spheres - one flex line centres
-                    text, spheres and the button on the SAME axis */}
-                {/* v1.25.4: ohne Perlen - und der Angriffszuwachs ist jetzt
-                    die echte Differenz statt des festen "+1" (v1.25.0). */}
-                {hpAt(level + 1) > hpAt(level) && <b style={{ font: "800 12px/1 Georgia, serif", color: "#ffb3aa" }}>+{hpAt(level + 1) - hpAt(level)}</b>}
-                {atkAt(level + 1) > atkAt(level) && <b style={{ font: "800 12px/1 Georgia, serif", color: "#b6cdff" }}>+{atkAt(level + 1) - atkAt(level)}</b>}
-              </span>;
-          })()}
-        </div>
-        {feier && <AufstiegsFeier art={feier.art} gambitTier={feier.tier || 1} bild={feier.bild}
-          charId={feier.charId} kind={feier.kind} abId={feier.abId}
-          chName={en ? char.nameEn : char.nameDe} ab={feier.ab} t={t} onClose={() => setFeier(null)} />}
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "stretch", gap: 0, marginTop: 11 }}>
+        {/* ── v1.26.4 (Besitzer): KEIN "Stufe 1 -> 2" MEHR, DER KNOPF UEBER DIE
+            GANZE BREITE. Und die alte Staffel ist weg: hier stand noch
+            hpAt = BASE_HP + (l-1) und atkAt = BASE_ATK + floor((l-1)/2) - das
+            "+1 Angriff alle zwei Stufen" von vor v1.22.0. Es rechnete neben
+            werteBeiStufe her; der Zuwachs, den diese Zeile nannte, war deshalb
+            ein anderer als der, den die Figur nach dem Klick wirklich bekam -
+            und die Werte schienen zurueckzuspringen. Was man bekommt, steht
+            jetzt nur noch EINMAL: in den Wertkaesten darueber, dort aus
+            derselben Kernrechnung wie das Gefecht. */}
+        {char.id === "gambit" && <div className="gg-serif" style={{ width: "100%", textAlign: "center", color: T.goldBright,
+          letterSpacing: ".05em", fontSize: 12.5, marginBottom: 6 }}>
+          {"✦".repeat(gambitTier(level))} {t("army.stufe", { r: ["I", "II", "III", "IV", "V", "VI"][gambitTier(level) - 1] })}</div>}
+        {maxed && <div className="gg-serif" style={{ width: "100%", textAlign: "center", color: T.faint, letterSpacing: ".03em" }}>{t("army.maxed")}</div>}
         {!maxed && <button disabled={!affordable}
           onClick={() => { klang("stufe");
             if (animAn()) {
@@ -1105,7 +1094,7 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
             }
             dispatch({ type: "UPGRADE_PIECE", id: char.id }); }}
           className={affordable ? "gg-funkenkontur" : undefined}
-          style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "9px 15px", borderRadius: 10,
+          style={{ display: "flex", width: "100%", justifyContent: "center", alignItems: "center", gap: 6, padding: "11px 15px", borderRadius: 10,
             fontFamily: "inherit", fontWeight: 800, fontSize: 13, letterSpacing: ".02em",
             cursor: affordable ? "pointer" : "default",
             // das Riss-Gewand: sehr dunkler Grund, leuchtend violette Schrift
@@ -2178,8 +2167,10 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
     const { shield } = resolveCharacter(ch, lv, chosenAbilities(profile, cid));
     /* v1.25.6: keine Schilde im Leben mehr */
     const heldK = cid === "gambit";
-    const hpGanz = heldK ? Math.round(hp * HELD_PUNKTE / Math.max(1, hp + atk)) : hp;
-    const atkGanz = heldK ? HELD_PUNKTE - hpGanz : atk;
+    /* v1.26.4: KEIN zweites Hochskalieren - der Kern liefert das
+       Heldenbudget schon (siehe Figurenblatt). */
+    const hpGanz = hp;
+    const atkGanz = atk;
     /* v1.25.3: das eigene Gesamtmass der Figur auf IHRER Hoechststufe - damit
        sich Rot und Blau dort immer beruehren (der Koenig kommt auf 24, der
        Gambit auf 42, der Drache auf 54). */

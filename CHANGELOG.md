@@ -1,5 +1,32 @@
 # Changelog - Grand Gambit
 
+## 1.26.4
+- DER GAMBIT SPRANG ZURUECK (Besitzer: "das Angriff und Leben springt
+  teilweise zurueck und verhaelt sich gar nicht wie es sollte" - und "nur in
+  der letzten Stufe duerfen Rot und Blau sich beruehren"). GEMESSEN: der Kern
+  rechnet das Heldenbudget schon ein (2/1 auf Stufe 1 bis 26/10 auf Stufe 20).
+  Blatt, Kachel und Zuwachsanzeige skalierten AUF JEDER STUFE noch einmal auf
+  36 hoch, von der jeweiligen Stufe aus. Das Blatt zeigte 24/12 auf Stufe 1,
+  27/9 auf Stufe 2 und 25/11 auf Stufe 5 - immer volle 36, dazwischen
+  rueckwaerts, und der Ring war auf jeder Stufe voll. Jetzt gilt der Kern
+  unveraendert, an allen drei Stellen.
+- DIE ALTE STAFFEL IST WEG: an der Verbessern-Zeile stand noch hpAt = BASE_HP
+  + (l-1) und atkAt = BASE_ATK + floor((l-1)/2) - das "+1 Angriff alle zwei
+  Stufen" von vor v1.22.0. Was diese Zeile als Zuwachs nannte, war deshalb ein
+  anderer Wert als der, den die Figur beim Klick bekam.
+- DIE VERBESSERN-ZEILE (Besitzer: "Stufe 1 zu 2 weglassen und den Knopf
+  mittig ueber die gesamte Breite"): kein Stufentext mehr, der Knopf ueber die
+  volle Breite. Was man bekommt, steht nur noch einmal - in den Wertkaesten.
+- ZWEI PROBEN, AN ALLEN FIGUREN: Leben und Angriff steigen nur und sinken nie,
+  und Rot und Blau beruehren sich erst auf der Hoechststufe.
+- EIGENER FEHLER IN DER KETTE, und er muss hier stehen: eine Probe in
+  test_anim ("das Rueckblickfenster zeigt Bild, Namen und Werte") verlangte
+  noch die Perlen und FIEL SEIT v1.25.4. Sie schreibt "not ok" statt "FAIL",
+  und ich habe die Ergebnisse nach "FAIL" durchsucht statt den Rueckgabecode
+  von npm test zu pruefen. Die Meldungen "27 Suiten gruen" fuer v1.25.4 bis
+  v1.26.3 waren deshalb falsch. Die Probe prueft jetzt die Werte in den
+  Bandfarben; npm test endet mit Rueckgabecode 0.
+
 ## 1.26.3
 - DER VERBESSERN-KNOPF STEHT IN DER BUEHNE (Besitzer: "nicht unterhalb von dem
   Bund, sondern ganz oben im oberen Fenster, unterhalb von Angriff und Leben -
