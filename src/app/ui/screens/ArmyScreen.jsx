@@ -1537,6 +1537,12 @@ function FormationEditor({ profile, dispatch, t, en }) {
           // squares here stay empty of art (but keep their tap targets)
           const dragonSquare = isDragon || (isWing && dragonAt >= 0);
           const isKingSlot = i === crown.king;
+          /* v1.28.5 (Besitzer): KOENIG UND DAME STEHEN IMMER FEST - und man soll
+             es sehen. Der Koenig traegt KEINE Kontur und einen gedaempften Grund:
+             er ist nicht anklickbar. Der Damenplatz traegt die laufende lila
+             Kontur der Grossmeister: hier steht die Dame oder ihr Ersatz, der
+             Kapitelmeister - nirgends sonst. */
+          const isQueenSlot = i === crown.queen;
           /* v1.0.43: DIE HINTERE REIHE BLEIBT ZU, BIS DIE ERSTE FIGUR
              BEITRITT. Solange nur die sieben Grundfiguren im Heer stehen,
              gaebe es ohnehin nichts zu tauschen - die Reihe waere ein Regal
@@ -1545,13 +1551,15 @@ function FormationEditor({ profile, dispatch, t, en }) {
           const reiheZu = !reiheFrei;
           const zu = isKingSlot || reiheZu;
           return <button key={i} disabled={zu}
+            className={isQueenSlot && reiheFrei ? "gg-funkenkontur-innen" : undefined}
             title={reiheZu ? (en ? "Win your first figure to arrange the back rank" : "Gewinne deine erste Figur, um die hintere Reihe zu stellen")
-              : isKingSlot ? (en ? "The king holds this square" : "Der König hält diesen Platz") : undefined}
+              : isKingSlot ? (en ? "The king holds this square" : "Der König hält diesen Platz")
+              : isQueenSlot ? (en ? "The queen's square - or her stand-in, a chapter master" : "Der Damenplatz - hier steht die Dame oder ihr Ersatz, ein Kapitelmeister") : undefined}
             onClick={() => { if (zu) return; if (isWing) { setPick(dragonAt); scrollToPicker(); } else { setPick(open ? null : i); if (!open) scrollToPicker(); } }}
             style={{ width: "100%", aspectRatio: "5 / 6", minWidth: 0, borderRadius: 8, cursor: isKingSlot ? "default" : "pointer",
               display: "grid", placeItems: "center", fontFamily: "inherit", padding: 0, position: "relative",
-              background: open || (isWing && pick === dragonAt) ? T.lime : isWing ? "rgba(120,90,190,.16)" : T.bg2,
-              border: `1px solid ${open || (isWing && pick === dragonAt) ? T.lime : isDragon || isWing ? "#8a7ab8" : T.line}` }}>
+              background: open || (isWing && pick === dragonAt) ? T.lime : isWing ? "rgba(120,90,190,.16)" : isKingSlot ? "rgba(18,14,26,.6)" : T.bg2,
+              border: `1px solid ${open || (isWing && pick === dragonAt) ? T.lime : isDragon || isWing ? "#8a7ab8" : isKingSlot ? "transparent" : T.line}` }}>
             {isWing
               ? <span title={t("army.wing")} style={{ fontSize: "clamp(11px, 4vw, 18px)", opacity: 0.5, color: "#b9a6e6" }}>🜁</span>
               : isDragon

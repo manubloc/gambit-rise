@@ -1,5 +1,21 @@
 # Changelog - Grand Gambit
 
+## 1.28.5
+- KOENIG UND DAME STEHEN IMMER FEST - UND MAN SIEHT ES (Besitzer). In der
+  Aufstellung traegt der Koenig keine Kontur und einen gedaempften Grund: er
+  ist nicht anklickbar. Der Damenplatz traegt die laufende lila Kontur der
+  Grossmeister: hier steht die Dame oder ihr Ersatz, ein Kapitelmeister -
+  nirgends sonst. Beide Plaetze erklaeren sich beim Beruehren.
+- DIE ENTSCHEIDUNGEN ZUR KAMPAGNE liegen jetzt im Repo
+  (design/KAMPAGNE-AUFSTELLUNG.md): feste Krone; zwoelf Kapitelmeister als
+  Grossmeister, die 13 anderen Monster auf den freien Plaetzen; jede Figur
+  ausser Turm, Laeufer, Springer nur einmal je Aufstellung; Reihe 1 ohne
+  Gambit, Sturmlauf beim Erwachen (2/3/4 Felder ueber drei Stufen);
+  eigene Aufstellung ab Liga 1 Reihe 5; der Gegner wechselt seine
+  Aufstellung erst ab Kapitel 3 und nicht ueberall, mit Label; bei Verlust
+  oder Neustart nie neue Figuren, nur andere Plaetze. Gebaut ist davon nur
+  die Krone.
+
 ## 1.28.4
 - DIE ZWOELF KAPITELMEISTER SIND DIE GROSSMEISTER (Besitzer): jede Liga endet
   mit einem Monster, und wer es besiegt, erhaelt es als Damenersatz - eine
