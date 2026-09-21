@@ -10,7 +10,12 @@ export const HALL_HTTP = SERVER_URL.replace(/^wss:/, "https:").replace(/^ws:/, "
 export const APP_VERSION = "2.0";
 
 // Cloud accounts (Supabase) whose e-mail addresses get admin powers.
-export const ADMIN_EMAILS = [];             // e.g. ["you@example.com"]
+/* v1.26.9 (Besitzer: "wenn du mein Googlelogin frey.manu einfach als Admin
+   machst, passt das fuer mich"). Beide Schreibweisen gehoeren zu demselben
+   Google-Konto - in Deutschland hiessen Gmail-Adressen lange
+   @googlemail.com, und Google meldet mitunter noch diese. Wer sich mit Google
+   anmeldet und eine dieser Adressen traegt, ist Admin (cloudAuth.js). */
+export const ADMIN_EMAILS = ["frey.manu@gmail.com", "frey.manu@googlemail.com"];
 
 // ── The house design ────────────────────────────────────────────────────────
 // "classic" is the deep-navy night with the original paintings; "carved" is

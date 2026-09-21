@@ -296,6 +296,20 @@ ok("full build counts ten league crowns", fullB.stats.leaguesWon === 10);
   ok("ohne crypto.subtle (kein https) rechnet die Anmeldung trotzdem richtig", h === echt);
 }
 
+/* v1.26.9 (Besitzer): nur EIN Spielstand, Loeschen nur ueber Profil - und seine
+   Google-Adresse ist Admin. */
+{
+  const { readFileSync } = await import("node:fs");
+  const sv = readFileSync("src/app/ui/screens/SavesScreen.jsx", "utf8");
+  ok("ein neuer Spielstand laesst sich nur anlegen, solange es keinen gibt",
+    sv.includes("(saves || []).length === 0 && <button onClick={create}"));
+  ok("im Spielstandschirm gibt es keinen Loeschknopf mehr", !sv.includes("deleteSave(account.id, sv.id)"));
+  const cfg = readFileSync("src/app/config.js", "utf8");
+  ok("die Google-Adresse des Besitzers steht in der Admin-Liste", cfg.includes('"frey.manu@gmail.com"'));
+  const pf = readFileSync("src/app/ui/screens/ProfileScreen.jsx", "utf8");
+  ok("der Knopf, der das Loeschen oeffnet, traegt kein Violett mehr", !pf.includes('color: "#b9a4e8" }}>{t("profile.delOpen")}'));
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 if (fail) process.exit(1);
 

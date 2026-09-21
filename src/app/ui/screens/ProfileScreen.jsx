@@ -608,8 +608,16 @@ function KontoLoeschen({ t, account, onLogout }) {
   };
   if (!offen) return <>
     <div style={{ fontSize: 12.5, color: T.dim, lineHeight: 1.55, marginBottom: 10 }}>{t("profile.delHint")}</div>
-    <Button kind="ghost" onClick={() => setOffen(true)}
-      style={{ borderColor: "rgba(168,130,255,.45)", color: "#b9a4e8" }}>{t("profile.delOpen")}</Button>
+    {/* v1.26.9 (Besitzer: "der Button Konto loeschen ist immer noch komisch,
+        die Schrift hat so eine seltsame Farbe - zieh auch dort alles glatt").
+        v1.4.3 hatte nur den ZWEITEN Knopf (endgueltig loeschen) auf
+        gedaempftes Rot gebracht - dieser erste, der das Loeschen oeffnet, trug
+        weiter das Violett der Riss-Magie. Jetzt dieselbe Farbe wie sein
+        Nachfolger: man sieht an beiden, dass es ums Loeschen geht. */}
+    <button onClick={() => setOffen(true)}
+      style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: "1px solid rgba(214,92,104,.55)",
+        background: "linear-gradient(165deg, #52202a, #34141c)", color: "#f0b8bf",
+        fontFamily: "inherit", fontWeight: 800, fontSize: 13, cursor: "pointer" }}>{t("profile.delOpen")}</button>
   </>;
   return <div>
     <div style={{ fontSize: 12.5, color: T.text, lineHeight: 1.6, marginBottom: 10 }}>{t("profile.delWhat")}</div>

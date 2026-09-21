@@ -136,19 +136,20 @@ export function SavesScreen({ account, onOpen, onLogout, initialLang = "de", __t
               </button>
               <button onClick={() => { const n = prompt(s.rename, sv.name); if (n != null) renameSave(account.id, sv.id, n).then(refresh); }}
                 style={{ background: "none", border: `1px solid ${T.line}`, color: T.dim, borderRadius: 11, padding: "10px 11px", fontFamily: "inherit", fontSize: 13, cursor: "pointer" }}>✎</button>
-              <button onClick={() => (confirmDel === sv.id ? (deleteSave(account.id, sv.id).then(() => { setConfirmDel(null); refresh(); })) : setConfirmDel(sv.id))}
-                style={{ background: confirmDel === sv.id ? "#3d222a" : "none", border: `1px solid ${confirmDel === sv.id ? "#b4636c" : T.line}`,
-                  color: confirmDel === sv.id ? "#d9a7ae" : T.dim, borderRadius: 11, padding: "10px 11px", fontFamily: "inherit", fontSize: 13, cursor: "pointer" }}>
-                {confirmDel === sv.id ? s.delSure : <TrashIc size={15} />}
-              </button>
+              {/* v1.26.9: kein Loeschen mehr hier - das geschieht unter Profil,
+                  ueber "Konto loeschen" (Besitzerentscheid, nur EIN Spielstand). */}
             </div>
 
           </div>
         ))}
-        <button onClick={create} style={{ background: "none", border: `1.5px dashed ${T.gold}66`, color: T.gold,
+        {/* v1.26.9 (Besitzer: "Ich moechte nur einen Spielstand haben. Man
+            sollte nicht mehrere erschaffen koennen. Loeschen ist ok - aber
+            unter Profil, am besten ueber Konto loeschen.") Der Knopf fuer einen
+            neuen Stand erscheint nur noch, solange es KEINEN gibt. */}
+        {(saves || []).length === 0 && <button onClick={create} style={{ background: "none", border: `1.5px dashed ${T.gold}66`, color: T.gold,
           borderRadius: 16, padding: "14px", fontFamily: "inherit", fontWeight: 800, fontSize: 14.5, cursor: "pointer" }}>
           <LeagueShield league={1} size={26} dim style={{ verticalAlign: "-7px", marginRight: 8 }} />{s.new}
-        </button>
+        </button>}
       </div>
       </div>
       <div style={{ marginTop: "auto", paddingTop: 14, color: "rgba(240,233,216,.28)", fontSize: 10.5,

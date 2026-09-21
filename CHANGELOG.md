@@ -1,5 +1,22 @@
 # Changelog - Grand Gambit
 
+## 1.26.9
+- DIE GOOGLE-ANMELDUNG DES BESITZERS IST ADMIN (Besitzer: "wenn du mein
+  Googlelogin frey.manu einfach als Admin machst, passt das fuer mich"). Die
+  Mechanik gab es schon (ADMIN_EMAILS in config.js, ausgewertet in
+  cloudAuth.js) - die Liste war nur leer. Eingetragen sind beide Schreibweisen
+  desselben Kontos, @gmail.com und @googlemail.com.
+- NUR EIN SPIELSTAND (Besitzer: "Ich moechte nur einen Spielstand haben. Man
+  sollte nicht mehrere erschaffen koennen. Loeschen ist ok - aber unter Profil,
+  am besten ueber Konto loeschen"). Der Knopf fuer einen neuen Stand erscheint
+  nur noch, solange es keinen gibt; der Loeschknopf im Spielstandschirm ist
+  weg. Geloescht wird ueber "Konto loeschen" im Profil.
+- DER KNOPF "KONTO LOESCHEN" IST GLATTGEZOGEN (Besitzer: "die Schrift hat so
+  eine seltsame Farbe"). v1.4.3 hatte nur den zweiten, endgueltigen Knopf auf
+  gedaempftes Rot gebracht; der erste, der das Loeschen oeffnet, trug weiter
+  das Violett der Riss-Magie. Jetzt tragen beide dasselbe Rot.
+- Vier Proben in test_saves.
+
 ## 1.26.8
 - DIE ANMELDUNG RECHNET AUCH OHNE HTTPS (Besitzer: "Ich kann mich am Computer
   nicht als Admin anmelden und verstehe ueberhaupt nicht wieso"). Das Passwort
