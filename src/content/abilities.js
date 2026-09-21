@@ -98,10 +98,10 @@ export const ABILITIES = {
   blenden:              { id: "blenden",              icon: "◍", tag: "control", hpOnly: true, sperre: "verborgen", once: false, live: false, monsterOnly: true, nameDe: "Blenden",       nameEn: "Blind",          descDe: "Zieht das Monster, sind alle Gegner im Umkreis von zwei Feldern eine Runde lang blind — sie duerfen nicht ziehen.", descEn: "When the monster moves, every enemy within two squares is blinded for a round — they cannot move." },
   aderlass:             { id: "aderlass",             icon: "🜄", tag: "dot", hpOnly: true, sperre: "verborgen", once: false, live: false, monsterOnly: true, nameDe: "Aderlass",      nameEn: "Bloodletting",   descDe: "Jeder Treffer nimmt der Figur 1 Hoechstleben — bis zum Ende der Partie.", descEn: "Every hit takes 1 maximum life from the piece — until the battle ends." },
   schrecken:            { id: "schrecken",            icon: "◬", tag: "control", hpOnly: true, sperre: "verborgen", once: false, live: false, monsterOnly: true, nameDe: "Schrecken",     nameEn: "Dread",          descDe: "Das Feld, das das Monster verlaesst, bleibt eine Runde unbetretbar.", descEn: "The square the monster leaves stays impassable for a round." },
-  wegelagerei:          { id: "wegelagerei",          icon: "⛃", tag: "gold", hpOnly: true, sperre: "verborgen", once: false, live: false, monsterOnly: true, nameDe: "Wegelagerei",   nameEn: "Highway Robbery", descDe: "Jeder Treffer stiehlt dem Gegner Gold — mehr, je hoeher die Stufe.", descEn: "Every hit steals gold from the enemy — more at higher levels." },
-  steinhaut:            { id: "steinhaut",            icon: "⬢", tag: "sustain", hpOnly: true, sperre: "verborgen", once: true,  live: false, monsterOnly: true, nameDe: "Steinhaut",     nameEn: "Stoneskin",      descDe: "Die ersten zwei Treffer einer Partie richten keinen Schaden an.", descEn: "The first two hits of a battle deal no damage." },
-  widerhall:            { id: "widerhall",            icon: "↺", tag: "sustain", hpOnly: true, sperre: "verborgen", once: false, live: false, monsterOnly: true, nameDe: "Widerhall",     nameEn: "Echo",           descDe: "Wer das Monster trifft, bekommt die Haelfte des Schadens sofort zurueck.", descEn: "Whoever hits the monster takes half the damage straight back." },
-  unsterblich:          { id: "unsterblich",          icon: "✦", tag: "sustain", hpOnly: true, sperre: "verborgen", once: true,  live: false, monsterOnly: true, nameDe: "Unsterblich",   nameEn: "Undying",        descDe: "Einmal je Partie steht das Monster wieder auf — mit der Haelfte seiner Lebenspunkte.", descEn: "Once per battle the monster rises again — with half its life." },
+  wegelagerei:          { id: "wegelagerei",          icon: "⛃", tag: "gold", hpOnly: true, sperre: "verborgen", once: false, live: true, monsterOnly: true, nameDe: "Wegelagerei",   nameEn: "Highway Robbery", descDe: "Jeder Treffer raubt dem Gegner Gold — 2, 4 oder 6 je nach Stufe. Abgerechnet wird nach der Partie.", descEn: "Every hit robs the opponent of gold — 2, 4 or 6 by tier. Settled after the battle." },
+  steinhaut:            { id: "steinhaut",            icon: "⬢", tag: "sustain", hpOnly: true, sperre: "verborgen", once: false,  live: true, monsterOnly: true, nameDe: "Steinhaut",     nameEn: "Stoneskin",      descDe: "Die ersten Treffer einer Partie prallen ab — einer auf Stufe I, zwei auf Stufe II.", descEn: "The first hits of a battle glance off — one at tier I, two at tier II." },
+  widerhall:            { id: "widerhall",            icon: "↺", tag: "sustain", hpOnly: true, sperre: "verborgen", once: false, live: true, monsterOnly: true, nameDe: "Widerhall",     nameEn: "Echo",           descDe: "Wer das Monster trifft, bekommt einen Teil des Schadens sofort zurück — ein Viertel, auf Stufe II die Hälfte. Das kann den Angreifer fällen.", descEn: "Whoever hits the monster takes part of the damage straight back — a quarter, half at tier II. It can fell the attacker." },
+  unsterblich:          { id: "unsterblich",          icon: "✦", tag: "sustain", hpOnly: true, sperre: "verborgen", once: false,  live: true, monsterOnly: true, nameDe: "Unsterblich",   nameEn: "Undying",        descDe: "Einmal je Partie steht das Monster wieder auf — mit einem Viertel seiner Lebenspunkte, auf Stufe II mit der Hälfte.", descEn: "Once per battle the monster rises again — with a quarter of its life, half at tier II." },
   geistwandel:          { id: "geistwandel",          icon: "☁", tag: "sustain", hpOnly: true, sperre: "verborgen", once: true,  live: false, monsterOnly: true, nameDe: "Geistwandel",   nameEn: "Wraithing",      descDe: "Faellt das Monster, kehrt es als Geist zurueck: bleich und durchscheinend, mit 3 Leben und doppeltem Angriff.", descEn: "When the monster falls it returns as a wraith: pale and translucent, with 3 life and double attack." },
 };
 
@@ -115,7 +115,23 @@ export const ZAUBER_STUFEN = {
   pawn_sidestep: 3, pawn_forward_capture: 3, pawn_backstep: 3, bishop_ortho_step: 3, king_dash: 3, ranged_shot: 3,
   bishop_hop: 2, rook_breach: 2, queen_knightleap: 2, teleport: 2, blast: 2,
 };
-export const maxStufe = (id) => ZAUBER_STUFEN[id] || 1;
+/* ── v1.30.0: STAERKE-STUFEN. Was von selbst wirkt, waechst in seiner Staerke,
+   nicht in der Haeufigkeit. Je Stufe ein kurzer Text - die Leiter zeigt ihn
+   statt "N x je Partie". Die Zahl der Eintraege IST die Zahl der Stufen. */
+export const STAERKE_STUFEN = {
+  steinhaut:   { de: ["der erste Treffer prallt ab", "die ersten zwei Treffer prallen ab"],
+                 en: ["the first hit glances off", "the first two hits glance off"] },
+  widerhall:   { de: ["ein Viertel kommt zurück", "die Hälfte kommt zurück"],
+                 en: ["a quarter comes back", "half comes back"] },
+  unsterblich: { de: ["steht auf mit einem Viertel Leben", "steht auf mit der Hälfte"],
+                 en: ["rises with a quarter of its life", "rises with half its life"] },
+  wegelagerei: { de: ["2 Gold je Treffer", "4 Gold je Treffer", "6 Gold je Treffer"],
+                 en: ["2 gold per hit", "4 gold per hit", "6 gold per hit"] },
+};
+export const maxStufe = (id) => ZAUBER_STUFEN[id] || (STAERKE_STUFEN[id] ? STAERKE_STUFEN[id].de.length : 1);
+export const stufenText = (id, n, en = false) => (STAERKE_STUFEN[id]
+  ? STAERKE_STUFEN[id][en ? "en" : "de"][Math.max(1, n) - 1]
+  : (en ? `${n}× per battle` : `${n}× je Partie`));
 
 /* WARUM eine Faehigkeit verriegelt ist - der Spieler soll es lesen koennen,
    nicht raten. Steht hier bei den Daten, damit Karte, Akademie und Blatt

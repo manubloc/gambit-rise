@@ -13,6 +13,8 @@ export const PASSIVE_TALENTE = new Set([
   "pawn_charge", "pawn_early_promo", "knight_longleap", "knight_outrider",
   "rook_diag_step", "ranged_volley", "dragon_flight2", "dragon_flight3", "gambit_masquerade",
   "lifesteal", "regen", "bulwark",
+  /* v1.30.0: die Monsterfaehigkeiten am Treffer - sie wirken von selbst */
+  "steinhaut", "widerhall", "unsterblich", "wegelagerei",
 ]);
 
 /* ── TALENTE, DIE OHNE LEBENSPUNKTE KEINEN SINN ERGEBEN (v1.2.0) ───────────
@@ -29,7 +31,7 @@ export const PASSIVE_TALENTE = new Set([
    entweder nichts tun oder, schlimmer, auf undefinierten Werten rechnen.
    Zugtalente bleiben ausdruecklich erlaubt: ein Sonderzug funktioniert auch
    ohne Lebenspunkte, und der Besitzer will ihn behalten. */
-export const NUR_MIT_LEBEN = new Set(["lifesteal", "regen", "bulwark"]);
+export const NUR_MIT_LEBEN = new Set(["lifesteal", "regen", "bulwark", "steinhaut", "widerhall", "unsterblich", "wegelagerei"]);
 
 /** Wirkt dieses Talent unter diesen Regeln? In Klassik schweigen die drei
  *  Lebenstalente - unabhaengig davon, ob die Figur sie traegt. */

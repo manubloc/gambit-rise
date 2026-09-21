@@ -44,7 +44,12 @@ export function applyResult(profile, summary) {
   p.sp = (p.sp || 0) + spGain;
   p.xp = p.xpEarned; // legacy mirror: XP is no longer spendable
   const goldGain = summary.resigned ? 0 : (GOLD[summary.result] || 0) + (summary.result === "win" ? (summary.gold || 0) : 0);
-  p.gold = (p.gold || 0) + goldGain;
+  /* v1.30.0: WEGELAGEREI - Geraubtes wechselt den Besitzer. Wer aufgibt,
+     verliert die EIGENE Beute, das ihm Geraubte bleibt aber fort. Nie unter 0. */
+  const raub = Number(summary.beute) || 0;
+  const vorGold = (p.gold || 0) + goldGain;
+  p.gold = Math.max(0, vorGold + (summary.resigned ? Math.min(0, raub) : raub));
+  const beuteEcht = p.gold - vorGold;
   const sperrenGesetzt = summary.sperrenGesetzt || null;
   if (summary.potionsUsed || summary.hourglassUsed || sperrenGesetzt) {
     const items = { ...(p.items || {}) };
@@ -61,5 +66,5 @@ export function applyResult(profile, summary) {
   const before = completedSet(profile.stats), after = completedSet(st);
   const newAchievements = [...after].filter((k) => !before.has(k));
 
-  return { profile: p, gained: { gold: goldGain, sp: spGain, xp: p.xp - profile.xp, levelBefore, levelAfter: playerLevelForXp(p.xpEarned), newAchievements } };
+  return { profile: p, gained: { gold: goldGain, beute: beuteEcht, sp: spGain, xp: p.xp - profile.xp, levelBefore, levelAfter: playerLevelForXp(p.xpEarned), newAchievements } };
 }

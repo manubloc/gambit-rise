@@ -495,8 +495,11 @@ console.log("\n== KLASSIK LAENGER TRAGBAR: Koenig immun, Lebenstalente schweigen
 
   /* 2. DIE LEBENSTALENTE SCHWEIGEN IN KLASSIK. */
   const { NUR_MIT_LEBEN, talentWirkt } = await import("./src/core/rules/moves.js");
-  ok("genau drei Talente haengen an Lebenspunkten",
-    NUR_MIT_LEBEN.size === 3 && ["lifesteal", "regen", "bulwark"].every((id) => NUR_MIT_LEBEN.has(id)));
+  /* v1.30.0: dazu die vier Monsterfaehigkeiten am Treffer - der Waechter bleibt:
+     GENAU diese sieben, nichts rutscht unbemerkt hinein */
+  const LEBEN7 = ["lifesteal", "regen", "bulwark", "steinhaut", "widerhall", "unsterblich", "wegelagerei"];
+  ok("genau sieben Talente haengen an Lebenspunkten",
+    NUR_MIT_LEBEN.size === 7 && LEBEN7.every((id) => NUR_MIT_LEBEN.has(id)));
   ok("sie wirken im HP-Gefecht", ["lifesteal", "regen", "bulwark"].every((id) => talentWirkt(id, "hp")));
   ok("und schweigen in Klassik", ["lifesteal", "regen", "bulwark"].every((id) => !talentWirkt(id, "chess")));
   ok("Zugtalente bleiben in Klassik erlaubt",

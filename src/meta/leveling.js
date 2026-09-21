@@ -383,6 +383,14 @@ export const ZIEL_PROFIL_BOSS = {
    Leben, dann der Angriff als Rest - sonst ergeben zwei Aufrundungen 25
    statt der beschlossenen 24. */
 const START_ANTEIL = 0.4;   // Stufe 1 traegt 40 % des Punktebudgets
+/* ── v1.30.0: MONSTER WACHSEN IN IHRE EIGENEN FAEHIGKEITEN HINEIN (Besitzer:
+   "Faehigkeiten sollen ueber die fuenf Stufen wachsen"). Nur die
+   monstereigenen (Steinhaut, Widerhall ...) - die allgemeinen (Blinzeln,
+   Bollwerk ...) behalten ihre Stufe I, damit sich bestehende Gegner nicht
+   still veraendern. Der eigene Hof ueberschreibt das mit dem Gelernten. */
+export const monsterStufen = (abilities, stufe) => Object.fromEntries((abilities || [])
+  .filter((a) => ABILITIES[a] && ABILITIES[a].monsterOnly)
+  .map((a) => [a, Math.max(1, Math.min(maxStufe(a), stufe))]));
 export function bossSpecLeveled(b, level) {
   const spec = bossSpec(b);
   const l = Math.max(1, Math.min(BOSS_MAX_LEVEL, level || 1));
@@ -394,7 +402,7 @@ export function bossSpecLeveled(b, level) {
   const ganz = Math.max(1, Math.round((vollHp + vollAtk) * anteil));
   const hp = Math.max(1, Math.round(ganz * vollHp / Math.max(1, vollHp + vollAtk)));
   const atk = Math.max(1, ganz - hp);
-  return { ...spec, level: l, hp, maxHp: hp, atk };
+  return { ...spec, level: l, hp, maxHp: hp, atk, stufen: monsterStufen(spec.abilities, l >= 5 ? 3 : l >= 3 ? 2 : 1) };
 }
 
 export function upgradeBoss(profile, bossId) {

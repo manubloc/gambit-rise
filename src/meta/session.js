@@ -1,4 +1,4 @@
-import { WHITE, replay, createGame } from "../core/index.js";
+import { WHITE, replay, createGame, other } from "../core/index.js";
 import { KIND_TO_CHAR } from "../content/index.js";
 
 // XP a player character earns from a match (event-sourced, see below).
@@ -76,7 +76,10 @@ export function summarize(session, result) {
  * of how the UI re-rendered during play.
  */
 export function summarizeMatch(playerArmy, aiArmy, seed, log, result, playerColor = WHITE, opts = {}) {
-  const { events } = replay(createGame(playerArmy, aiArmy, { seed, map: opts.map, rules: opts.rules }), log);
+  const { events, state: ende } = replay(createGame(playerArmy, aiArmy, { seed, map: opts.map, rules: opts.rules }), log);
   const session = applyEvents(newSession(playerColor, playerArmy), events);
-  return summarize(session, result);
+  /* v1.30.0: WEGELAGEREI - was jede Seite geraubt hat, steht im Endzustand;
+     die Zusammenfassung traegt den Saldo aus Sicht des Spielers. */
+  const beute = (ende && ende.beute) || {};
+  return { ...summarize(session, result), beute: (beute[playerColor] || 0) - (beute[other(playerColor)] || 0) };
 }

@@ -1184,7 +1184,7 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
           transformOrigin: "50% 50%", transition: zPtrs.current.size ? "none" : "transform .18s ease",
           animation: flyGo && !flyDone && !zoomMode ? "ggBoardZoomIn 1.9s cubic-bezier(.2,.85,.25,1) both" : "none", // the STATION rushes up: a clean zoom from map-height to the board, no more flyover
           opacity: flyGo ? 1 : 0.985 }}>
-        <BoardView state={state} onMove={play} interactive={myTurn} showCoords={klassikOptik} lastMove={state.lastMove} animateFor={null} hotseat={hotseat} feld={feld} feldDunkel={feldDunkel} ruhig={armResign || !!banner} mattSeite={banner && (banner.reason === "checkmate" || banner.reason === "regicide") ? (banner.result === "win" ? (myColor === "w" ? "b" : "w") : myColor) : null} effekt={brettEffekt}
+        <BoardView lang={profile.lang} state={state} onMove={play} interactive={myTurn} showCoords={klassikOptik} lastMove={state.lastMove} animateFor={null} hotseat={hotseat} feld={feld} feldDunkel={feldDunkel} ruhig={armResign || !!banner} mattSeite={banner && (banner.reason === "checkmate" || banner.reason === "regicide") ? (banner.result === "win" ? (myColor === "w" ? "b" : "w") : myColor) : null} effekt={brettEffekt}
           flip={viewColor === BLACK} theme={{ ...(map.theme || {}), ...boardPalette(profile, match) }} fitBox pick={scout && pvp ? myColor : potionArm ? WHITE : null}
           onPick={scout && pvp ? scoutTap : usePotion} pov={viewColor}
           /* v1.12.1: im Geleit-Modus dienen dieselben Regler der Figurenwahl.
@@ -1740,6 +1740,9 @@ function ResultBanner({ banner, t, onNew, campaign = false, onExit = null, onSet
                 <GoldCoin size={11} /></span>)}
             </span>}
           </span>}
+          {/* v1.30.0: WEGELAGEREI - Beute oder Raub, nach der Partie verrechnet */}
+          {g.beute ? <Chip color={g.beute > 0 ? "#17110a" : "#ffe3de"} bg={g.beute > 0 ? "#e8c96a" : "#7a2a22"}>
+            <GoldCoin size={12} /> {g.beute > 0 ? "+" + g.beute : g.beute} {t("banner.beute." + (g.beute > 0 ? "plus" : "minus"))}</Chip> : null}
           {g.newAchievements.length > 0 && <Chip color={T.gold} bg={T.panel2}>★ {g.newAchievements.length}</Chip>}
         </div>}
         {leveled && <div style={{ color: T.lime, fontWeight: 800, marginBottom: 12, ...tritt(3) }}>

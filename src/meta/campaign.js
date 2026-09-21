@@ -6,7 +6,7 @@
 import { PLACE_NAMES } from "../content/placeNames.js";
 import { placeEn } from "../content/placeNamesEn.js";
 import { CAMPAIGN, nodeById, difficultyById, mapById, bossById, bossSpec, CHARACTERS, leagueBossId } from "../content/index.js";
-import { buildArmyFromFormation, resolveCharacter, spForXpJump, isUnlocked } from "./leveling.js";
+import { buildArmyFromFormation, resolveCharacter, spForXpJump, isUnlocked, monsterStufen } from "./leveling.js";
 import { hasItem } from "../content/items.js";
 import { BASE_HP, BASE_ATK } from "../core/index.js";
 
@@ -218,7 +218,10 @@ export function buildStageMatch(id, profile = null, leagueOverride = null) {
   const aiArmy = buildArmyFromFormation((cid) => chess ? 1 : base(cid) + (node.bump || 0) + leagueBump(lgMap), formation);
   const lg = lgMap;
   const boss0 = nodeBossSpec(node, lgBestie);   // v1.1.2: Bestien nach Weltrunde, Karte nach Station
-  const boss = boss0 && lg > 1 ? { ...boss0, hp: boss0.hp + 2 * (lg - 1), atk: boss0.atk + (lg - 1) } : boss0;
+  const boss1 = boss0 && lg > 1 ? { ...boss0, hp: boss0.hp + 2 * (lg - 1), atk: boss0.atk + (lg - 1) } : boss0;
+  /* v1.30.0: die eigenen Faehigkeiten des Monsters wachsen mit der Liga:
+     Stufe I in Liga 1-4, II in 5-8, III ab Liga 9 */
+  const boss = boss1 && { ...boss1, stufen: monsterStufen(boss1.abilities, lg >= 9 ? 3 : lg >= 5 ? 2 : 1) };
   let bossInfo = null;
   if (boss) {
     let qi = formation.indexOf("queen");

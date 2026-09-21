@@ -703,5 +703,100 @@ console.log("\n== STURM UND GELEIT (v1.11.2) ==");
   }
 }
 
+
+// ── v1.30.0: DIE MONSTERFAEHIGKEITEN AM TREFFER - in echten Schlaegen ───────
+{
+  const { cloneState } = await import("./src/core/sim/transitions.js");
+  const brettMit = (ziel, angreifer = { hp: 7, maxHp: 7, atk: 4 }, nachbar = null) => {
+    const brett = new Array(64).fill(null);
+    brett[idx(1, 0, 8)] = W("Q", angreifer);
+    brett[idx(1, 1, 8)] = B("R", ziel);
+    if (nachbar) brett[idx(0, 1, 8)] = B("R", nachbar);
+    brett[idx(7, 7, 8)] = B("K", { hp: 10, maxHp: 10, atk: 3 });
+    brett[idx(7, 0, 8)] = W("K", { hp: 10, maxHp: 10, atk: 3 });
+    return hpState(brett);
+  };
+  const schlag = (st) => reduce(st, moveCommand(legalMoves(st).find((m) => m.from === idx(1, 0, 8) && m.to === idx(1, 1, 8)))).state;
+  /* nach dem Schlag zieht Schwarz seinen Koenig, damit Weiss erneut schlagen kann */
+  const warte = (st) => reduce(st, moveCommand(legalMoves(st).find((m) => m.from === idx(7, 7, 8)))).state;
+
+  // Steinhaut
+  let st = schlag(brettMit({ hp: 10, maxHp: 10, atk: 1, abilities: ["steinhaut"], stufen: { steinhaut: 1 } }));
+  ok("Steinhaut I: der erste Treffer prallt ab", st.board[idx(1, 1, 8)].hp === 10);
+  st = schlag(warte(st));
+  ok("Steinhaut I: der zweite trifft", st.board[idx(1, 1, 8)].hp === 6);
+  st = schlag(warte(schlag(brettMit({ hp: 10, maxHp: 10, atk: 1, abilities: ["steinhaut"], stufen: { steinhaut: 2 } }))));
+  ok("Steinhaut II: zwei Treffer prallen ab", st.board[idx(1, 1, 8)].hp === 10);
+  /* in Klassik gibt es keinen Schaden - dort schweigen alle vier (NUR_MIT_LEBEN) */
+  const { NUR_MIT_LEBEN, talentWirkt } = await import("./src/core/rules/moves.js");
+  ok("in Klassik schweigen alle vier",
+    ["steinhaut", "widerhall", "unsterblich", "wegelagerei"].every((a) => NUR_MIT_LEBEN.has(a) && !talentWirkt(a, "chess") && talentWirkt(a, "hp")));
+
+  // Widerhall
+  st = schlag(brettMit({ hp: 10, maxHp: 10, atk: 1, abilities: ["widerhall"], stufen: { widerhall: 1 } }));
+  ok("Widerhall I: ein Viertel kommt zurueck (4 -> 1)", st.board[idx(1, 0, 8)].hp === 6 && st.board[idx(1, 1, 8)].hp === 6);
+  st = schlag(brettMit({ hp: 10, maxHp: 10, atk: 1, abilities: ["widerhall"], stufen: { widerhall: 2 } }));
+  ok("Widerhall II: die Haelfte kommt zurueck (4 -> 2)", st.board[idx(1, 0, 8)].hp === 5);
+  st = schlag(brettMit({ hp: 10, maxHp: 10, atk: 1, abilities: ["widerhall"], stufen: { widerhall: 2 } }, { hp: 2, maxHp: 7, atk: 4 }));
+  ok("Widerhall kann den Angreifer faellen", st.board[idx(1, 0, 8)] === null && st.captured.b.includes("Q"));
+  st = schlag(brettMit({ hp: 3, maxHp: 10, atk: 1, abilities: ["widerhall"], stufen: { widerhall: 2 } }, { hp: 1, maxHp: 7, atk: 4 }));
+  ok("... auch mit dem Todesstoss: beide fallen", st.board[idx(1, 1, 8)] === null && st.board[idx(1, 0, 8)] === null);
+
+  // Unsterblich
+  st = schlag(brettMit({ hp: 3, maxHp: 12, atk: 1, abilities: ["unsterblich"], stufen: { unsterblich: 1 } }));
+  ok("Unsterblich I: faellt und steht mit einem Viertel wieder auf (12 -> 3)",
+    st.board[idx(1, 1, 8)] && st.board[idx(1, 1, 8)].hp === 3 && st.board[idx(1, 0, 8)] && !st.captured.w.includes("R"));
+  st = schlag(warte(st));
+  ok("... einmal je Partie: beim zweiten Mal faellt es", st.board[idx(1, 1, 8)] && st.board[idx(1, 1, 8)].kind === "Q");
+  st = schlag(brettMit({ hp: 3, maxHp: 12, atk: 1, abilities: ["unsterblich"], stufen: { unsterblich: 2 } }));
+  ok("Unsterblich II: mit der Haelfte (12 -> 6)", st.board[idx(1, 1, 8)].hp === 6);
+
+  // Wegelagerei
+  const raeuber = (stufe) => brettMit({ hp: 20, maxHp: 20, atk: 1 }, { hp: 7, maxHp: 7, atk: 4, abilities: ["wegelagerei"], stufen: { wegelagerei: stufe } });
+  st = schlag(raeuber(2));
+  ok("Wegelagerei II: 4 Gold je Treffer", st.beute && st.beute.w === 4);
+  st = schlag(warte(st));
+  ok("die Beute ueberlebt die folgenden Zuege und waechst (cloneState)", st.beute.w === 8);
+  ok("... und eine Kopie des Zustands traegt sie mit", cloneState(st).beute.w === 8);
+  ok("Wegelagerei III: 6 Gold", schlag(raeuber(3)).beute.w === 6);
+
+  // Schockwelle trifft auf Steinhaut und Widerhall
+  const wq = { hp: 7, maxHp: 7, atk: 4, abilities: ["blast"] };
+  st = schlag(brettMit({ hp: 20, maxHp: 20, atk: 1 }, wq, { hp: 5, maxHp: 5, atk: 1, abilities: ["steinhaut"], stufen: { steinhaut: 1 } }));
+  ok("die Welle prallt an Steinhaut ab", st.board[idx(0, 1, 8)].hp === 5);
+  st = schlag(brettMit({ hp: 20, maxHp: 20, atk: 1 }, wq, { hp: 5, maxHp: 5, atk: 1, abilities: ["widerhall"], stufen: { widerhall: 2 } }));
+  ok("die Welle loest Widerhall aus (Welle 2 -> 1 zurueck)", st.board[idx(1, 0, 8)].hp === 6);
+
+  // Monster wachsen in ihre Faehigkeiten hinein
+  const { monsterStufen } = await import("./src/meta/leveling.js");
+  ok("Monsterstufen nur fuer monstereigene Faehigkeiten",
+    JSON.stringify(monsterStufen(["steinhaut", "bulwark", "wegelagerei"], 3)) === '{"steinhaut":2,"wegelagerei":3}');
+
+  // Gold nach der Partie
+  const { applyResult } = await import("./src/meta/rewards.js");
+  const { defaultProfile } = await import("./src/meta/profile.js");
+  const pr = { ...defaultProfile(), gold: 10 };
+  const basis = { result: "loss", captures: [], promotions: 0, charXpGains: {}, moveCount: 30 };
+  const verlust = applyResult(pr, { ...basis, beute: -6 });
+  const ohne = applyResult(pr, basis);
+  ok("geraubtes Gold ist nach der Partie fort", verlust.profile.gold === ohne.profile.gold - 6 && verlust.gained.beute === -6);
+  ok("nie unter null", applyResult({ ...pr, gold: 2 }, { ...basis, beute: -50 }).profile.gold >= 0);
+  const aufg = applyResult(pr, { ...basis, beute: 8, resigned: true });
+  ok("wer aufgibt, verliert die eigene Beute", aufg.gained.beute === 0);
+}
+/* v1.30.0: die Monsterfaehigkeiten sind am Brett SICHTBAR - der Kern setzt die
+   Merker nur fuer den einen Zug (sonst stuende das Zeichen bei jedem weiteren
+   Zug wieder da), und das Brett liest alle drei. */
+{
+  const { readFileSync } = await import("node:fs");
+  const bv = readFileSync("src/app/ui/board/BoardView.jsx", "utf8");
+  ok("das Brett zeigt Steinhaut, Aufstehen und Widerhall an",
+    bv.includes("state.steinhaut != null") && bv.includes("state.aufstand != null") && bv.includes("state.widerhall && state.widerhall.at >= 0"));
+  ok("die Animation dazu existiert", readFileSync("src/app/main.jsx", "utf8").includes("@keyframes ggZeichenSteigt"));
+  const { cloneState: klon } = await import("./src/core/sim/transitions.js");
+  const kopie = klon({ board: [], steinhaut: 3, aufstand: 4, widerhall: { at: 1, dmg: 2, tot: false }, captured: { w: [], b: [] } });
+  ok("die Merker gelten nur fuer den einen Zug", kopie.steinhaut == null && kopie.aufstand == null && kopie.widerhall == null);
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

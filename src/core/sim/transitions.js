@@ -1,6 +1,6 @@
 import { other, WHITE, BLACK, BASE_HP, BASE_ATK, HP_REMIS_HALBZUEGE } from "../domain/constants.js";
 import { cloneBoard, findKing } from "../domain/board.js";
-import { pseudoMoves, pieceMoves, talentWirkt, verbuche, zauberRest } from "../rules/moves.js";
+import { pseudoMoves, pieceMoves, talentWirkt, verbuche, zauberRest, stufeVon } from "../rules/moves.js";
 import { kroneFaengtAb, schildwachtDeckt, nachtwacheHeilt, faehrteFolgt, konzilLehntAb, sturmRuftZurueck, hinterstenBauern } from "../rules/buende.js";
 import { inCheck } from "../rules/attacks.js";
 import { schlageSperre, loeseFalleAus, zerfalleSperren } from "../rules/sperren.js";
@@ -29,6 +29,10 @@ export function cloneState(state) {
     ...(state.buende ? { buende: state.buende } : {}),
     sturmVerbraucht: { ...(state.sturmVerbraucht || {}) },
     konzilVerbraucht: { ...(state.konzilVerbraucht || {}) },
+    /* v1.30.0: die Beute der Wegelagerei - einzeln kopiert, wie alles hier
+       (die Falle aus v1.10.3: ein neues Feld ohne diese Zeile verschwindet
+       mit dem naechsten Zug). */
+    ...(state.beute ? { beute: { ...state.beute } } : {}),
     geleitVerbraucht: { ...(state.geleitVerbraucht || {}) },
     rules: state.rules,
     turn: state.turn,
@@ -169,6 +173,7 @@ export function applyMove(state, move, opts) {
   };
 
   let bounced = false, damaged = false, lethal = false, dmg = 0;
+  let angreiferFiel = false;   /* v1.30.0: Widerhall kann den Angreifer faellen */
 
   // ── spawn: the piece stays put and creates a pawn on an empty adjacent
   // square (bosses with a spawn budget). Costs the turn like any move. ──
@@ -268,6 +273,33 @@ export function applyMove(state, move, opts) {
          Techniker und Schildtraeger geben allen eigenen Figuren auf ihrer
          gemeinsamen Reihe oder Linie einen Schild - er zaehlt wie ein
          Bollwerk, also einen Punkt weniger Schaden. */
+      /* ── v1.30.0: DIE MONSTERFAEHIGKEITEN AM TREFFER ────────────────────
+         Steinhaut, Widerhall, Unsterblich, Wegelagerei. Jede wirkt an JEDEM
+         Treffer - am Hauptziel wie an der Schockwelle -, damit eine Regel nie
+         vom Weg des Schadens abhaengt. Die Staerke kommt aus der Stufe der
+         Faehigkeit (stufeVon; gegnerische Monster: aus ihrer Monsterstufe). */
+      const traegt = (q, id, sq) => !!(q && q.abilities && q.abilities.includes(id) && talentWirkt(id, state.rules, state, sq, q.color));
+      const steinhautFaengt = (q, sq) => {
+        if (!traegt(q, "steinhaut", sq)) return false;
+        const n = q.steinhaut || 0;
+        if (n >= stufeVon(q, "steinhaut")) return false;   // Stufe I: ein Treffer, II: zwei
+        q.steinhaut = n + 1;
+        return true;
+      };
+      const stehtAuf = (q, sq) => {
+        if (!q || q.hp > 0 || q.auferstanden || !traegt(q, "unsterblich", sq)) return false;
+        q.hp = Math.max(1, Math.ceil((q.maxHp || 1) * (stufeVon(q, "unsterblich") >= 2 ? 1 / 2 : 1 / 4)));
+        q.auferstanden = true;                             // einmal je Partie
+        return true;
+      };
+      const hallZurueck = (q, sq, d) => (d > 0 && traegt(q, "widerhall", sq)
+        ? Math.ceil(d * (stufeVon(q, "widerhall") >= 2 ? 1 / 2 : 1 / 4)) : 0);
+      let widerhall = 0;
+      const raubt = (d) => {
+        if (d <= 0 || !traegt(piece, "wegelagerei", move.from)) return;
+        const gold = [0, 2, 4, 6][stufeVon(piece, "wegelagerei")] || 2;
+        ns.beute = { ...(ns.beute || {}), [piece.color]: ((ns.beute && ns.beute[piece.color]) || 0) + gold };
+      };
       const wacht = schildwachtDeckt(state, ti) ? 1 : 0;
       const soak = (target.abilities.includes("bulwark") && talentWirkt("bulwark", state.rules, state, ti, target.color) ? 1 : 0) + wall + (warded ? 1 : 0) + wacht;
       // BALANCE: strikes from afar carry less weight — a leap or a ranged
@@ -292,6 +324,7 @@ export function applyMove(state, move, opts) {
         bundKonzil = true;
         dmg = 0;
       }
+      if (dmg > 0 && steinhautFaengt(target, ti)) { dmg = 0; ns.steinhaut = ti; }   /* v1.30.0 */
       const retter = dmg > 0 ? kroneFaengtAb(state, ti) : null;
       if (retter != null) {
         const pal = b[retter];
@@ -302,6 +335,10 @@ export function applyMove(state, move, opts) {
         bundKrone = retter;
         if (pal.hp <= 0) b[retter] = null;
       } else target.hp -= dmg;
+      /* v1.30.0: wer getroffen wurde (Ziel oder Paladin), wirft zurueck; wer
+         traf, raubt */
+      widerhall += retter != null ? hallZurueck(b[retter], retter, dmg) : hallZurueck(target, ti, dmg);
+      raubt(dmg);
       if (move.consumes) verbuche(piece, move.consumes); // v1.28.0: ein Einsatz mehr - die Stufe entscheidet, wie viele
       if (has("lifesteal") && talentWirkt("lifesteal", state.rules, state, move.from, piece.color)) piece.hp = Math.min(piece.maxHp, piece.hp + Math.ceil(dmg / 2));
       /* ── SCHOCKWELLE (v0.79, blast): EINMAL pro Partie trifft der erste
@@ -326,9 +363,14 @@ export function applyMove(state, move, opts) {
           else if (oc.big && oc.kind === "D") ocAnker = n;
           if (!oc || oc === target || getroffen.has(oc)) continue;
           getroffen.add(oc);
+          const ocFeld = ocAnker >= 0 ? ocAnker : n;
+          if (steinhautFaengt(oc, ocFeld)) { welle.push({ at: n, kind: oc.kind, dmg: 0, tot: false }); continue; }   /* v1.30.0 */
           oc.hp -= wDmg;
-          welle.push({ at: n, kind: oc.kind, dmg: wDmg, tot: oc.hp <= 0 });
-          if (oc.hp <= 0) {
+          widerhall += hallZurueck(oc, ocFeld, wDmg);
+          raubt(wDmg);
+          const faellt = oc.hp <= 0 && !stehtAuf(oc, ocFeld);
+          welle.push({ at: n, kind: oc.kind, dmg: wDmg, tot: faellt });
+          if (faellt) {
             ns.captured[piece.color].push(oc.kind);
             if (ocAnker >= 0) clearDragon(ocAnker); else b[n] = null;
           }
@@ -371,6 +413,11 @@ export function applyMove(state, move, opts) {
           if (move.noAdvance) b[move.to] = null;
           else { b[move.to] = piece; b[move.from] = null; piece.hasMoved = true; }
         }
+      } else if (target.hp <= 0 && stehtAuf(target, ti)) {
+        /* v1.30.0: UNSTERBLICH - es steht wieder auf; der Angreifer bleibt, wo
+           er war, wie nach einem Treffer, der nicht toetet */
+        damaged = true;
+        ns.aufstand = ti;
       } else if (target.hp <= 0) {                 // kill
         lethal = true;
         ns.captured[piece.color].push(target.kind);
@@ -384,13 +431,28 @@ export function applyMove(state, move, opts) {
       } else {
         damaged = true;                            // bump / ranged hit: attacker stays, target wounded
       }
+      /* v1.30.0: WIDERHALL - der Angreifer bekommt zurueck, was er austeilte,
+         anteilig. Er steht jetzt dort, wohin der Schlag ihn gefuehrt hat. Faellt
+         er, faellt er wie jede Figur (ein Koenig: Koenigsmord); steht er selbst
+         unsterblich wieder auf, bleibt er. */
+      if (widerhall > 0) {
+        const wo = b.indexOf(piece);
+        piece.hp -= widerhall;
+        const tot = piece.hp <= 0 && !stehtAuf(piece, wo);
+        ns.widerhall = { at: wo, dmg: widerhall, tot };
+        if (tot && wo >= 0) {
+          angreiferFiel = true;
+          ns.captured[other(piece.color)].push(piece.kind);
+          if (piece.big) clearDragon(wo); else b[wo] = null;
+        }
+      }
       if (welle.length) ns.welle = welle;          // fuer Klang und Anzeige
     } else {                                       // quiet move
       b[move.to] = piece; b[move.from] = null; piece.hasMoved = true;
       if (move.consumes) verbuche(piece, move.consumes); // v1.28.0: ein Einsatz mehr - die Stufe entscheidet, wie viele
       if (move.promotion) repromote(piece, move.promotion);
     }
-    if (has("regen") && talentWirkt("regen", state.rules, state, move.to, piece.color)) piece.hp = Math.min(piece.maxHp, (piece.hp || 0) + 1);
+    if (!angreiferFiel && has("regen") && talentWirkt("regen", state.rules, state, move.to, piece.color)) piece.hp = Math.min(piece.maxHp, (piece.hp || 0) + 1);
   } else {
     if (target && target.shield > 0) {            // chess: shield absorbs the hit
       target.shield -= 1; bounced = true;

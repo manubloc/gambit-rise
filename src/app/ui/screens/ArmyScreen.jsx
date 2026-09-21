@@ -9,7 +9,7 @@ import { SP_SHARD_GOLD, SP_VAULT_MIN_CLEARED, spShardCap, bossLevelOf, bossUpgra
 import { CHARACTER_LIST, CHARACTERS, ABILITIES, TAGS, SPERRGRUND, faehigkeitZustand, MAPS, mapById, ITEM_LIST, bossById, BOSSES, ITEMS, itemPrice } from "../../../content/index.js";
 import LebensRohr from "../board/LebensRohr.jsx";
 import { rohrAnteile } from "../board/PieceGlyph.jsx";
-import { talentFarbe, maxStufe } from "../../../content/abilities.js";
+import { talentFarbe, maxStufe, stufenText } from "../../../content/abilities.js";
 import { iconFarbe } from "../AbilityIcons.jsx";   /* v1.26.6 */
 import { BASE_HP, BASE_ATK, SHIELD_HP, HELD_PUNKTE, NORM_PUNKTE, werteBeiStufe, createGame, familyOf, crownHp, crownWallSoak, shadowRifts, shadowAtk } from "../../../core/index.js";
 import {
@@ -395,7 +395,7 @@ function Aufstiegsplan({ schluessel, kind, rungs, level, chosen, profile, en, t,
           fontSize: 11.5, color: "#b9b295" }}>
         <span className="gg-serif" style={{ letterSpacing: ".06em", color: "#e9cf8a" }}>
           {en ? "Tier" : "Stufe"} {ROEM[stNow]} {en ? "of" : "von"} {ROEM[stMax]}
-          <span style={{ color: "#8a856f" }}> · {stNow}× {en ? "per battle" : "je Partie"}</span></span>
+          <span style={{ color: "#8a856f" }}> · {stufenText(rg.id, stNow, en)}</span></span>
         <span style={{ flex: 1 }} />
         {stNext && (stKann
           ? <button onClick={() => { klang("stufe"); dispatch({ type: "UPGRADE_ABILITY", id: schluessel, ability: rg.id }); }}

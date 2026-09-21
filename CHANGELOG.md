@@ -1,5 +1,33 @@
 # Changelog - Grand Gambit
 
+## 1.30.0
+- VIER MONSTERFAEHIGKEITEN WIRKEN IM SPIEL (bisher angekuendigt, ohne Wirkung):
+    * STEINHAUT: die ersten Treffer einer Partie prallen ab - einer auf Stufe
+      I, zwei auf Stufe II.
+    * WIDERHALL: wer das Monster trifft, bekommt ein Viertel (II: die Haelfte)
+      des Schadens sofort zurueck - das kann den Angreifer faellen, auch den
+      Koenig.
+    * UNSTERBLICH: einmal je Partie steht das Monster wieder auf, mit einem
+      Viertel (II: der Haelfte) seines Lebens.
+    * WEGELAGEREI: jeder Treffer raubt 2, 4 oder 6 Gold; nach der Partie
+      verrechnet, nie unter 0. Wer aufgibt, verliert die eigene Beute; das ihm
+      Geraubte bleibt fort. Das Ergebnisbanner zeigt Beute oder Raub.
+  Alle vier wirken an JEDEM Treffer - am Hauptziel, an der Schockwelle, am
+  Paladin, der einspringt -, damit eine Regel nie vom Weg des Schadens abhaengt.
+- STAERKE-STUFEN: was von selbst wirkt, waechst in seiner Staerke, nicht in
+  der Haeufigkeit. Die Leiter zeigt je Stufe ihren Text ("die ersten zwei
+  Treffer prallen ab") statt "2x je Partie" (STAERKE_STUFEN, stufenText).
+- GEGNERISCHE MONSTER WACHSEN MIT: ihre eigenen Faehigkeiten stehen in Liga
+  1-4 auf Stufe I, in 5-8 auf II, ab 9 auf III (soweit es sie gibt); eigene
+  Monster je nach ihrer Stufe. Allgemeine Faehigkeiten (Blinzeln, Bollwerk)
+  bleiben bei gegnerischen Monstern auf I, damit bestehende Gegner sich nicht
+  still veraendern.
+- AM BRETT SICHTBAR: ueber dem Feld steigt kurz auf, was geschah - "prallt
+  ab", "steht wieder auf", der Rueckschlag des Widerhalls als Zahl. Ohne das
+  saehe ein abgeprallter Treffer aus wie ein Fehler. Die Merker gelten nur fuer
+  den einen Zug.
+- Neunzehn Proben in test_combat, zwei in test_zauber.
+
 ## 1.29.1
 - NACH DER ANMELDUNG IST MAN IM SPIEL (Besitzer: "In dem Moment, wo ich mich
   eingeloggt habe, bin ich einfach im Spiel"). Es gibt nur einen Spielstand,

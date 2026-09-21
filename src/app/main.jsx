@@ -158,6 +158,12 @@ style.textContent = GLOBAL_CSS + `
     @keyframes ggKenBurns { from,to { transform: scale(1.06); } }
     @keyframes ggKenBurnsFahrt { from,to { transform: translate3d(calc((var(--kbVon,0px) + var(--kbBis,0px)) / 2), 0, 0) scale(1.03); } }
   }
+  /* v1.30.0: das Zeichen einer Monsterfaehigkeit steigt ueber dem Feld auf und
+     verblasst - nur opacity und transform, keine Layoutarbeit */
+  @keyframes ggZeichenSteigt { 0% { opacity: 0; transform: translate(-50%, -30%) scale(.85); }
+    18% { opacity: 1; transform: translate(-50%, -60%) scale(1.05); }
+    70% { opacity: 1; transform: translate(-50%, -95%) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -125%) scale(1); } }
   @keyframes ggRissStern {
     0%   { opacity: 0; transform: scale(.22) rotate(-14deg); }
     7%   { opacity: 1; transform: scale(1.22) rotate(0deg); }

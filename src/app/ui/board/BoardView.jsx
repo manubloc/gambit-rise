@@ -151,7 +151,7 @@ export function zugDauerMs(lastMove, pov, hotseat, w) {
   return Math.round((leaps ? (foe ? 1.25 : 0.95) : (foe ? 0.9 : 0.52)) * 1000);
 }
 
-export function BoardView({ state, onMove, interactive, lastMove, mattSeite = null, effekt = null, theme = null, maxPx = 520, animateFor = null, flip = false, fitBox = false, feld = null, feldDunkel = null, ruhig = false, pick = null, onPick = null, pov = "w", texture = null, ground = null, artStyle = "painted", showLevel = true, showCoords = false, pulse = 0.4, friendly = false, knownKinds = null, seerVision = false, onEnemyTap = null, introSpot = null, onInspect = null, hotseat = false, setzFelder = null, onSetz = null }) {
+export function BoardView({ lang = "de", state, onMove, interactive, lastMove, mattSeite = null, effekt = null, theme = null, maxPx = 520, animateFor = null, flip = false, fitBox = false, feld = null, feldDunkel = null, ruhig = false, pick = null, onPick = null, pov = "w", texture = null, ground = null, artStyle = "painted", showLevel = true, showCoords = false, pulse = 0.4, friendly = false, knownKinds = null, seerVision = false, onEnemyTap = null, introSpot = null, onInspect = null, hotseat = false, setzFelder = null, onSetz = null }) {
   const sqL0 = theme?.sqLight || T.sqLight, sqD0 = theme?.sqDark || T.sqDark;
   // a GROUND painting beneath the field: the squares open further so meadow,
   // stream and path shimmer through — the land itself hosts the battle
@@ -345,6 +345,28 @@ export function BoardView({ state, onMove, interactive, lastMove, mattSeite = nu
     setSterne({ id: Date.now(), list: treffer });
     const t = setTimeout(() => setSterne(null),
       Math.max(...treffer.map((e) => e.delay)) + 2600);
+    return () => clearTimeout(t);
+  }, [lastMove]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  /* ── v1.30.0: DIE MONSTERFAEHIGKEITEN SICHTBAR MACHEN. Der Kern merkt sich
+     am Zug, wo Steinhaut einen Treffer abprallen liess (state.steinhaut), wo
+     ein Unsterblicher wieder aufstand (state.aufstand) und was der Widerhall
+     dem Angreifer zurueckgab (state.widerhall). Ohne Zeichen saehe ein
+     abgeprallter Treffer aus wie ein Fehler - also steht ueber dem Feld kurz,
+     was geschah, im Zeichen der Faehigkeit. */
+  const [zeichen, setZeichen] = useState(null);
+  useEffect(() => {
+    const lm = lastMove;
+    if (!lm) { setZeichen(null); return; }
+    const en = lang === "en";
+    const basis = zugDauerMs(lm, pov, hotseat, state.w || FILES) + 40;
+    const list = [];
+    if (state.steinhaut != null) list.push({ at: state.steinhaut, text: "⬢ " + (en ? "glances off" : "prallt ab"), farbe: "#c9d4e2", delay: basis });
+    if (state.aufstand != null) list.push({ at: state.aufstand, text: "✦ " + (en ? "rises again" : "steht wieder auf"), farbe: "#f3dd8e", delay: basis + 180 });
+    if (state.widerhall && state.widerhall.at >= 0) list.push({ at: state.widerhall.at, text: "↺ −" + state.widerhall.dmg, farbe: "#ffb3aa", delay: basis + 240 });
+    if (!list.length) { setZeichen(null); return; }
+    setZeichen({ id: Date.now(), list });
+    const t = setTimeout(() => setZeichen(null), Math.max(...list.map((e) => e.delay)) + 1900);
     return () => clearTimeout(t);
   }, [lastMove]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -1318,6 +1340,17 @@ export function BoardView({ state, onMove, interactive, lastMove, mattSeite = nu
               </svg>
             </span>
           </span>
+        );
+      })}
+      {zeichen && zeichen.list.map((e, i) => {
+        const d = disp(e.at);
+        return (
+          <span key={zeichen.id + "-z" + i} aria-hidden className="gg-serif" style={{ position: "absolute",
+            left: d.x + "%", top: d.y + "%", transform: "translate(-50%,-50%)", pointerEvents: "none", zIndex: 7,
+            whiteSpace: "nowrap", fontSize: "clamp(10px, 2.9vw, 15px)", fontWeight: 800, letterSpacing: ".04em",
+            color: e.farbe, textShadow: "0 1px 2px #000, 0 0 8px rgba(0,0,0,.85)", opacity: 0,
+            animation: "ggZeichenSteigt 1.8s cubic-bezier(.2,.7,.3,1) both", animationDelay: e.delay + "ms" }}>
+            {e.text}</span>
         );
       })}
     </div>
