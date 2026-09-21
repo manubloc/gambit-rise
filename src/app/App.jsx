@@ -1,5 +1,6 @@
 import { useEffect, useReducer, useRef, useState } from "react";
 import { klang, klangEinstellen, klangVorwaermen, klangUeberall } from "./ui/klang.js";
+import { lautVon } from "./ui/lautstaerke.js";   /* v1.26.2 */
 import { musikBereich } from "./ui/musik.js";
 import { setSchlicht } from "./ui/board/paintedArt.js";
 import { characterLevel, maxLevelFor, formationKey, loadProfile, saveProfile, defaultProfile, buildStageMatch, advanceCampaign, upgradePiece, buySpShard, clearedCount, campaignLength, currentNodeId , unlockAbility, respecPiece, claimAchievement, payToll, takeRestorePoint, serializeSave, isUnlocked } from "../meta/index.js";
@@ -649,8 +650,8 @@ export default function App() {
       padding: immersive ? "14px 16px 14px" : "16px 18px 0", rowGap: immersive ? 10 : 22 }}>
       {/* v0.80: der breite Zweig hatte NIE Musik oder Effekt-Regie - die
           Zwei-Zweige-Falle. Jetzt spielt der Schreibtisch dasselbe Haus. */}
-      <Soundtrack an={profile.sound !== false} laut={profile.musikLaut ?? 1} />
-      <KlangRegie an={profile.sfx !== false} laut={profile.klangLaut ?? 1} />
+      <Soundtrack an={profile.sound !== false && lautVon(profile, "musik") > 0} laut={lautVon(profile, "musik")} />
+      <KlangRegie an={profile.sfx !== false && lautVon(profile, "klang") > 0} laut={lautVon(profile, "klang")} />
       {/* v1.0.25 (Besitzer: "das Spiel ruckelt"): DIE UNSICHTBARE EBENE.
           Hier fehlte das inMatch-Gate, das der zweite Zweig laengst hat - im
           Kampf lief die Halle WEITER, obwohl das Kapitelgemaelde sie
@@ -841,8 +842,8 @@ export default function App() {
           ? { display: "flex", flexDirection: "column", justifyContent: "flex-start" } : {}),
         ...(immersive ? { display: "flex", flexDirection: "column" } : {}) }}>{screen}</main>
       {/* die Melodie des Hauses - abschaltbar unter Profil */}
-      <Soundtrack an={profile.sound !== false} laut={profile.musikLaut ?? 1} />
-      <KlangRegie an={profile.sfx !== false} laut={profile.klangLaut ?? 1} />
+      <Soundtrack an={profile.sound !== false && lautVon(profile, "musik") > 0} laut={lautVon(profile, "musik")} />
+      <KlangRegie an={profile.sfx !== false && lautVon(profile, "klang") > 0} laut={lautVon(profile, "klang")} />
       {/* v1.0.6 (Besitzer, auf dem Weg in den Play Store): das automatische
           Installations-Banner ist FORT. Wer die App will, holt sie aus dem
           Store; Web-Spieler finden den stillen Weg weiter unter Profil ->

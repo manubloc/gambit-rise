@@ -11,6 +11,7 @@ import { Panel, Button, Segmented, Stat, PanelTitle, Toggle } from "../primitive
 import { GildedFrame, goldText, GoldRule } from "../Gilded.jsx";
 import { FeedbackPanel, rubrikWort } from "./FeedbackPanel.jsx";
 import { ZeitBalken } from "../ZeitBalken.jsx";
+import { lautVon, merkeLaut } from "../lautstaerke.js";   /* v1.26.2 */
 
 export function ProfileScreen({ profile, dispatch, t, account, onSwitchSave, onLogout }) {
   const en = profile.lang === "en";
@@ -109,7 +110,7 @@ export function ProfileScreen({ profile, dispatch, t, account, onSwitchSave, onL
           Handlung an derselben Stelle statt zweier Bedienelemente, die
           dasselbe meinen. */}
       {[["musikLaut", "sound", "Musik"], ["klangLaut", "sfx", "Soundeffekte"]].map(([schl, schalter, wort]) => {
-        const wert = profile[schl] ?? 1;
+        const wert = lautVon(profile, schl === "musikLaut" ? "musik" : "klang");   /* v1.26.2 */
         return (
         <div key={schl} style={{ margin: "12px 0 0" }}>
           <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: T.faint, marginBottom: 4 }}>
@@ -119,6 +120,7 @@ export function ProfileScreen({ profile, dispatch, t, account, onSwitchSave, onL
           <input type="range" min="0" max="100" step="5"
             value={Math.round(wert * 100)}
             onChange={(e) => { const v = Number(e.target.value) / 100;
+              merkeLaut(schl === "musikLaut" ? "musik" : "klang", v);   /* v1.26.2: ueberlebt jeden Spielstandwechsel */
               dispatch({ type: "REPLACE", profile: { ...profile, [schl]: v, [schalter]: v > 0 } }); }}
             className="gg-regler" style={{ width: "100%", "--gg-fuell": Math.round(wert * 100) + "%" }} />
         </div>);

@@ -1,5 +1,21 @@
 # Changelog - Grand Gambit
 
+## 1.26.2
+- DIE LAUTSTAERKE BLEIBT (Besitzer: "Merk dir endlich mal pro Profil die
+  Sound- und Musiklautstaerke"). GEMESSEN, warum sie verloren ging: der
+  Regler schrieb musikLaut und klangLaut korrekt ins Profil, Musik und Klang
+  lasen sie korrekt. Aber ein Profil liegt an ZWEI Orten - als `profile` und
+  im Spielstand unter `save:<Konto>:<Stand>`. Beim Laden und Wechseln schreibt
+  der Spielstand sein eigenes Profil zurueck, und dort standen die
+  Lautstaerken nie. Gesetzt 35 % Musik und 60 % Klang, neu geladen: beide weg.
+- Die Lautstaerke gehoert nicht zum Spielstand - man will sie einmal fuer
+  sich, nicht je Stand. Sie liegt jetzt in einem eigenen Eintrag
+  (gambit:laut:v1), den kein Spielstandwechsel ueberschreibt. Gegenprobe:
+  gesetzt, neu geladen, Spielstand gewechselt - 35 % und 60 % stehen noch.
+  Das Profilfeld bleibt als Rueckfall fuer alte Staende.
+- Steht ein Regler auf 0, ist die Klangart jetzt auch wirklich aus - vorher
+  hing das an einem zweiten Schalterfeld, das beim Laden ebenso verloren ging.
+
 ## 1.26.1
 - DAS MONSTER WAECHST IN SEINE WERTE HINEIN (Besitzer: "Warum haben die
   Monster schon von Beginn an so viel Leben? Das macht keinen Sinn").
