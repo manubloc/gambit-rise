@@ -142,6 +142,15 @@ const pill = (extra) => ({ display: "inline-flex", alignItems: "center", gap: 6,
   backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)", ...extra });
 
 export function GameScreen({ profile, dispatch, t, match = null, onExit = null, pvp = null, quick = null, onArmy = null, daily = null }) {
+  /* ── v1.31.0: DIE ERSTE BEGEGNUNG MIT EINER MONSTERFAEHIGKEIT (Besitzer: "was
+     passiert und darstellbar ist, gerne grundsaetzlich mehr andeuten"). Wirkt
+     eine der neun Monsterfaehigkeiten zum ALLERERSTEN Mal im Spiel - an wem
+     auch immer -, erklaert ein Hinweis ueber dem Brett in einem Satz, was
+     geschah. Nicht blockierend: die Partie laeuft weiter; einmal gesehen, nie
+     wieder (profile.notices "faeh:<id>"). Die Merker setzt der Kern je Zug. */
+  const [erstHinweis, setErstHinweis] = useState(null);
+  const erstGesehen = (id) => !!(profile.notices && profile.notices["faeh:" + id]);
+
   const campaign = !!match;
   const en = profile.lang === "en";
   const hotseat = !pvp && !match && !!quick?.hotseat;   // two players, one device
@@ -213,6 +222,29 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
     }
     return createGame(playerArmy, ai, { map, rules, seed, potions: rules === "hp" ? { w: profile.items?.potion || 0, b: 0 } : undefined });
   });
+  /* v1.31.0: welche Monsterfaehigkeit hat in DIESEM Zug gewirkt? */
+  useEffect(() => {
+    if (!state || state.rules !== "hp") return;
+    const funde = [];
+    if (state.steinhaut != null) funde.push("steinhaut");
+    if (state.aufstand != null) funde.push("unsterblich");
+    if (state.widerhall) funde.push("widerhall");
+    if (state.beute && Object.values(state.beute).some((v) => v > 0)) funde.push("wegelagerei");
+    if ((state.vergiftet && state.vergiftet.length) || (state.giftWirkt && state.giftWirkt.length)) funde.push("gift");
+    if (state.aderlass && state.aderlass.length) funde.push("aderlass");
+    if (state.blenden) funde.push("blenden");
+    if (state.geistFeld != null) funde.push("geistwandel");
+    if (state.schreckFelder && Object.keys(state.schreckFelder).length) funde.push("schrecken");
+    const neu = funde.find((id) => ABILITIES[id] && !erstGesehen(id));
+    if (!neu) return;
+    setErstHinweis(neu);
+    dispatch({ type: "SET_NOTICE", key: "faeh:" + neu });
+  }, [state]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (!erstHinweis) return;
+    const t = setTimeout(() => setErstHinweis(null), 9000);
+    return () => clearTimeout(t);
+  }, [erstHinweis]);
   const [desync, setDesync] = useState(false);
   const [potionArm, setPotionArm] = useState(false);
   /* v1.0.70: der Brett-Effekt des Augenblicks (Trank-Heilglanz). Transient:
@@ -1184,6 +1216,17 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
           transformOrigin: "50% 50%", transition: zPtrs.current.size ? "none" : "transform .18s ease",
           animation: flyGo && !flyDone && !zoomMode ? "ggBoardZoomIn 1.9s cubic-bezier(.2,.85,.25,1) both" : "none", // the STATION rushes up: a clean zoom from map-height to the board, no more flyover
           opacity: flyGo ? 1 : 0.985 }}>
+        {erstHinweis && ABILITIES[erstHinweis] && (() => { const ab = ABILITIES[erstHinweis]; const en = profile.lang === "en";
+          return <div role="status" onClick={() => setErstHinweis(null)} style={{ position: "absolute", left: "50%", top: 8,
+            transform: "translateX(-50%)", zIndex: 30, width: "min(92%, 440px)", padding: "10px 13px", borderRadius: 13, cursor: "pointer",
+            background: "radial-gradient(130% 120% at 50% -12%, rgba(124,58,237,.22) 0%, rgba(22,16,34,.95) 50%, rgba(10,8,16,.97) 100%)",
+            border: "1px solid rgba(167,139,250,.6)", boxShadow: "0 6px 22px rgba(0,0,0,.55), 0 0 14px rgba(124,58,237,.25)",
+            animation: "ggZeichenEin .35s ease-out both" }}>
+            <div className="gg-serif" style={{ fontSize: 14.5, color: "#e9dcff", fontWeight: 800, letterSpacing: ".03em", marginBottom: 3 }}>
+              <span style={{ marginRight: 7 }}>{ab.icon}</span>{en ? ab.nameEn : ab.nameDe}
+              <span style={{ fontWeight: 400, fontSize: 11.5, color: "#a99bc6", marginLeft: 8 }}>{en ? "new" : "neu"}</span></div>
+            <div className="gg-serif" style={{ fontSize: 12.5, lineHeight: 1.5, color: "#cfc4e2" }}>{en ? ab.descEn : ab.descDe}</div>
+          </div>; })()}
         <BoardView lang={profile.lang} state={state} onMove={play} interactive={myTurn} showCoords={klassikOptik} lastMove={state.lastMove} animateFor={null} hotseat={hotseat} feld={feld} feldDunkel={feldDunkel} ruhig={armResign || !!banner} mattSeite={banner && (banner.reason === "checkmate" || banner.reason === "regicide") ? (banner.result === "win" ? (myColor === "w" ? "b" : "w") : myColor) : null} effekt={brettEffekt}
           flip={viewColor === BLACK} theme={{ ...(map.theme || {}), ...boardPalette(profile, match) }} fitBox pick={scout && pvp ? myColor : potionArm ? WHITE : null}
           onPick={scout && pvp ? scoutTap : usePotion} pov={viewColor}

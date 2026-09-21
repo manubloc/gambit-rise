@@ -1,5 +1,33 @@
 # Changelog - Grand Gambit
 
+## 1.31.0
+- DIE FUENF UEBRIGEN MONSTERFAEHIGKEITEN WIRKEN - damit alle neun:
+    * GIFT: ein Treffer vergiftet; die Figur verliert nach jedem eigenen Zug
+      1, 2 oder 3 Leben, drei Runden lang. Gift toetet nie, es laesst
+      mindestens ein Leben.
+    * ADERLASS: jeder Treffer nimmt 1 (II: 2) Hoechstleben bis zum Ende der
+      Partie.
+    * SCHRECKEN: das Feld, das das Monster verlaesst, darf kein Gegner betreten
+      - eine Runde, auf Stufe II zwei. Vorbeiziehen geht.
+    * BLENDEN: zieht das Monster so, dass Gegner im Umkreis von zwei Feldern
+      stehen, duerfen sie ihren naechsten Zug nicht ziehen - einmal je Partie,
+      auf II zweimal. Den Koenig blendet es nie. Bliebe durch Blindheit oder
+      Schreckfeld GAR kein Zug, gilt die Sperre nicht - keine Faehigkeit darf
+      ein Remis durch Zugnot erzwingen. Brett und KI teilen denselben Filter.
+    * GEISTWANDEL: faellt das Monster, kehrt es einmal je Partie als Geist
+      zurueck - 3 Leben, doppelter Angriff, bleich und durchscheinend im Bild,
+      das Band behaelt seine Farben. Unsterblich greift vor dem Geist.
+- AM BRETT SICHTBAR, solange es anhaelt: Gift, Blindheit und das Schreckfeld
+  tragen ein Zeichen; jede Wirkung steigt im Moment ueber dem Feld auf.
+- DIE ERSTE BEGEGNUNG ERKLAERT SICH (Besitzer: "was passiert und darstellbar
+  ist, gerne grundsaetzlich mehr andeuten"): wirkt eine der neun Monster-
+  faehigkeiten zum allerersten Mal im Spiel, erklaert ein Hinweis ueber dem
+  Brett in einem Satz, was geschah - nicht blockierend, verschwindet nach neun
+  Sekunden oder auf Tippen, danach nie wieder.
+- Proben: die Wirkung jeder Faehigkeit (nicht nur ihr Merker - der Geblendete
+  zieht nicht, das Schreckfeld ist zu, nach einer Runde frei), die Anzeige,
+  die Erstbegegnung.
+
 ## 1.30.0
 - VIER MONSTERFAEHIGKEITEN WIRKEN IM SPIEL (bisher angekuendigt, ohne Wirkung):
     * STEINHAUT: die ersten Treffer einer Partie prallen ab - einer auf Stufe

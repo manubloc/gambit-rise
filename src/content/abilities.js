@@ -94,15 +94,15 @@ export const ABILITIES = {
      zeigen. Die Zuordnung zu den 25 Monstern folgt, sobald die Wirkung
      steht - vorher wuerde man ihnen ihre heutigen, funktionierenden
      Faehigkeiten nehmen und tote eintauschen. */
-  gift:                 { id: "gift",                 icon: "☣", tag: "dot", hpOnly: true, sperre: "verborgen", once: false, live: false, monsterOnly: true, nameDe: "Gift",          nameEn: "Venom",          descDe: "Ein Treffer vergiftet: die Figur verliert jede Runde Leben, so viel wie die Stufe des Monsters.", descEn: "A hit poisons: the piece loses life every round, as much as the monster's level." },
-  blenden:              { id: "blenden",              icon: "◍", tag: "control", hpOnly: true, sperre: "verborgen", once: false, live: false, monsterOnly: true, nameDe: "Blenden",       nameEn: "Blind",          descDe: "Zieht das Monster, sind alle Gegner im Umkreis von zwei Feldern eine Runde lang blind — sie duerfen nicht ziehen.", descEn: "When the monster moves, every enemy within two squares is blinded for a round — they cannot move." },
-  aderlass:             { id: "aderlass",             icon: "🜄", tag: "dot", hpOnly: true, sperre: "verborgen", once: false, live: false, monsterOnly: true, nameDe: "Aderlass",      nameEn: "Bloodletting",   descDe: "Jeder Treffer nimmt der Figur 1 Hoechstleben — bis zum Ende der Partie.", descEn: "Every hit takes 1 maximum life from the piece — until the battle ends." },
-  schrecken:            { id: "schrecken",            icon: "◬", tag: "control", hpOnly: true, sperre: "verborgen", once: false, live: false, monsterOnly: true, nameDe: "Schrecken",     nameEn: "Dread",          descDe: "Das Feld, das das Monster verlaesst, bleibt eine Runde unbetretbar.", descEn: "The square the monster leaves stays impassable for a round." },
+  gift:                 { id: "gift",                 icon: "☣", tag: "dot", hpOnly: true, sperre: "verborgen", once: false, live: true, monsterOnly: true, nameDe: "Gift",          nameEn: "Venom",          descDe: "Ein Treffer vergiftet: die Figur verliert nach jedem eigenen Zug Leben — 1, 2 oder 3 je nach Stufe —, drei Runden lang. Gift tötet nie, es lässt mindestens ein Leben.", descEn: "A hit poisons: the piece loses life after each of its own moves — 1, 2 or 3 by tier — for three rounds. Poison never kills; it leaves at least one life." },
+  blenden:              { id: "blenden",              icon: "◍", tag: "control", hpOnly: true, sperre: "verborgen", once: true, live: true, monsterOnly: true, nameDe: "Blenden",       nameEn: "Blind",          descDe: "Zieht das Monster so, dass Gegner im Umkreis von zwei Feldern stehen, sind sie ihren nächsten Zug lang blind und dürfen nicht ziehen — einmal je Partie, auf Stufe II zweimal. Den König blendet es nie.", descEn: "When the monster moves with foes within two squares, they are blind for their next move and may not move — once per battle, twice on tier II. It never blinds the king." },
+  aderlass:             { id: "aderlass",             icon: "🜄", tag: "dot", hpOnly: true, sperre: "verborgen", once: false, live: true, monsterOnly: true, nameDe: "Aderlass",      nameEn: "Bloodletting",   descDe: "Jeder Treffer nimmt der Figur Höchstleben — 1, auf Stufe II 2 — bis zum Ende der Partie.", descEn: "Every hit takes maximum life from the piece — 1, on tier II 2 — until the battle ends." },
+  schrecken:            { id: "schrecken",            icon: "◬", tag: "control", hpOnly: true, sperre: "verborgen", once: false, live: true, monsterOnly: true, nameDe: "Schrecken",     nameEn: "Dread",          descDe: "Das Feld, das das Monster verlässt, darf kein Gegner betreten — eine Runde lang, auf Stufe II zwei.", descEn: "No foe may enter the square the monster leaves — for one round, two on tier II." },
   wegelagerei:          { id: "wegelagerei",          icon: "⛃", tag: "gold", hpOnly: true, sperre: "verborgen", once: false, live: true, monsterOnly: true, nameDe: "Wegelagerei",   nameEn: "Highway Robbery", descDe: "Jeder Treffer raubt dem Gegner Gold — 2, 4 oder 6 je nach Stufe. Abgerechnet wird nach der Partie.", descEn: "Every hit robs the opponent of gold — 2, 4 or 6 by tier. Settled after the battle." },
   steinhaut:            { id: "steinhaut",            icon: "⬢", tag: "sustain", hpOnly: true, sperre: "verborgen", once: false,  live: true, monsterOnly: true, nameDe: "Steinhaut",     nameEn: "Stoneskin",      descDe: "Die ersten Treffer einer Partie prallen ab — einer auf Stufe I, zwei auf Stufe II.", descEn: "The first hits of a battle glance off — one at tier I, two at tier II." },
   widerhall:            { id: "widerhall",            icon: "↺", tag: "sustain", hpOnly: true, sperre: "verborgen", once: false, live: true, monsterOnly: true, nameDe: "Widerhall",     nameEn: "Echo",           descDe: "Wer das Monster trifft, bekommt einen Teil des Schadens sofort zurück — ein Viertel, auf Stufe II die Hälfte. Das kann den Angreifer fällen.", descEn: "Whoever hits the monster takes part of the damage straight back — a quarter, half at tier II. It can fell the attacker." },
   unsterblich:          { id: "unsterblich",          icon: "✦", tag: "sustain", hpOnly: true, sperre: "verborgen", once: false,  live: true, monsterOnly: true, nameDe: "Unsterblich",   nameEn: "Undying",        descDe: "Einmal je Partie steht das Monster wieder auf — mit einem Viertel seiner Lebenspunkte, auf Stufe II mit der Hälfte.", descEn: "Once per battle the monster rises again — with a quarter of its life, half at tier II." },
-  geistwandel:          { id: "geistwandel",          icon: "☁", tag: "sustain", hpOnly: true, sperre: "verborgen", once: true,  live: false, monsterOnly: true, nameDe: "Geistwandel",   nameEn: "Wraithing",      descDe: "Faellt das Monster, kehrt es als Geist zurueck: bleich und durchscheinend, mit 3 Leben und doppeltem Angriff.", descEn: "When the monster falls it returns as a wraith: pale and translucent, with 3 life and double attack." },
+  geistwandel:          { id: "geistwandel",          icon: "☁", tag: "sustain", hpOnly: true, sperre: "verborgen", once: true,  live: true, monsterOnly: true, nameDe: "Geistwandel",   nameEn: "Wraithing",      descDe: "Fällt das Monster, kehrt es einmal je Partie als Geist zurück: bleich und durchscheinend, mit 3 Leben und doppeltem Angriff.", descEn: "When the monster falls, it returns once per battle as a ghost: pale and translucent, with 3 life and double attack." },
 };
 
 /* ── v1.28.0: WIE VIELE STUFEN EIN ZAUBER HAT (design/FAEHIGKEITEN-STUFEN.md)
@@ -114,6 +114,7 @@ export const ABILITIES = {
 export const ZAUBER_STUFEN = {
   pawn_sidestep: 3, pawn_forward_capture: 3, pawn_backstep: 3, bishop_ortho_step: 3, king_dash: 3, ranged_shot: 3,
   bishop_hop: 2, rook_breach: 2, queen_knightleap: 2, teleport: 2, blast: 2,
+  blenden: 2,   /* v1.31.0: ein Zauber wie die Schockwelle - loest von selbst aus */
 };
 /* ── v1.30.0: STAERKE-STUFEN. Was von selbst wirkt, waechst in seiner Staerke,
    nicht in der Haeufigkeit. Je Stufe ein kurzer Text - die Leiter zeigt ihn
@@ -127,6 +128,13 @@ export const STAERKE_STUFEN = {
                  en: ["rises with a quarter of its life", "rises with half its life"] },
   wegelagerei: { de: ["2 Gold je Treffer", "4 Gold je Treffer", "6 Gold je Treffer"],
                  en: ["2 gold per hit", "4 gold per hit", "6 gold per hit"] },
+  /* v1.31.0 */
+  gift:        { de: ["1 Leben je Zug, drei Runden", "2 Leben je Zug, drei Runden", "3 Leben je Zug, drei Runden"],
+                 en: ["1 life per move, three rounds", "2 life per move, three rounds", "3 life per move, three rounds"] },
+  aderlass:    { de: ["1 Höchstleben je Treffer", "2 Höchstleben je Treffer"],
+                 en: ["1 max life per hit", "2 max life per hit"] },
+  schrecken:   { de: ["das Feld bleibt eine Runde zu", "das Feld bleibt zwei Runden zu"],
+                 en: ["the square stays shut one round", "the square stays shut two rounds"] },
 };
 export const maxStufe = (id) => ZAUBER_STUFEN[id] || (STAERKE_STUFEN[id] ? STAERKE_STUFEN[id].de.length : 1);
 export const stufenText = (id, n, en = false) => (STAERKE_STUFEN[id]

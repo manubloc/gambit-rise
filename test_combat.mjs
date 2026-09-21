@@ -798,5 +798,119 @@ console.log("\n== STURM UND GELEIT (v1.11.2) ==");
   ok("die Merker gelten nur fuer den einen Zug", kopie.steinhaut == null && kopie.aufstand == null && kopie.widerhall == null);
 }
 
+// ── v1.31.0: DIE FUENF UEBRIGEN MONSTERFAEHIGKEITEN - in echten Zuegen ───────
+{
+  const { legalMovesFrom } = await import("./src/core/sim/transitions.js");
+  /* Weiss: Monster auf b1 greift den schwarzen Turm auf b2 an; Koenige in den Ecken */
+  const brett = (angreifer, ziel = { hp: 10, maxHp: 10, atk: 1 }, extra = {}) => {
+    const b = new Array(64).fill(null);
+    b[idx(1, 0, 8)] = W("Q", { hp: 12, maxHp: 12, atk: 2, ...angreifer });
+    b[idx(1, 1, 8)] = B("R", ziel);
+    b[idx(7, 7, 8)] = B("K", { hp: 10, maxHp: 10, atk: 3 });
+    b[idx(7, 0, 8)] = W("K", { hp: 10, maxHp: 10, atk: 3 });
+    for (const [k, v] of Object.entries(extra)) b[Number(k)] = v;
+    return hpState(b);
+  };
+  const zug = (st, von, nach) => reduce(st, moveCommand(legalMoves(st).find((m) => m.from === von && m.to === nach))).state;
+  const schwarzWartet = (st) => reduce(st, moveCommand(legalMoves(st).find((m) => m.from === idx(7, 7, 8)))).state;
+  const T = idx(1, 1, 8), Q = idx(1, 0, 8);
+
+  // GIFT
+  let st = zug(brett({ abilities: ["gift"], stufen: { gift: 2 } }), Q, T);
+  const tHp = st.board[T].hp;
+  ok("Gift: der Treffer vergiftet (2 je Zug, drei Runden)", st.board[T].giftN === 2 && st.board[T].giftRunden === 3 && (st.vergiftet || []).includes(T));
+  /* Schwarz zieht - nach SEINEM Zug wirkt das Gift am Turm */
+  st = zug(st, T, idx(1, 3, 8));
+  ok("Gift wirkt nach dem eigenen Zug des Vergifteten", st.board[idx(1, 3, 8)].hp === tHp - 2 && (st.giftWirkt || []).includes(idx(1, 3, 8)));
+  const fast = brett({ abilities: ["gift"], stufen: { gift: 3 } }, { hp: 5, maxHp: 10, atk: 1 });
+  st = zug(fast, Q, T);   // 5 - 2 = 3, vergiftet mit 3
+  st = zug(st, T, idx(1, 3, 8));
+  ok("Gift toetet nie - mindestens ein Leben bleibt", st.board[idx(1, 3, 8)] && st.board[idx(1, 3, 8)].hp === 1);
+  {
+    let x = zug(brett({ abilities: ["gift"], stufen: { gift: 1 } }, { hp: 20, maxHp: 20, atk: 1 }), Q, T);   // 20 - 2 = 18
+    let wo = T, kw = idx(7, 0, 8);
+    for (const nach of [idx(1, 3, 8), idx(1, 4, 8), idx(1, 5, 8)]) {
+      x = zug(x, wo, nach); wo = nach;
+      const kNach = kw === idx(7, 0, 8) ? idx(6, 0, 8) : idx(7, 0, 8); x = zug(x, kw, kNach); kw = kNach;
+    }
+    ok("Gift endet nach drei Runden (18 -> 15, dann kein Gift mehr)", x.board[wo] && x.board[wo].hp === 15 && !(x.board[wo].giftRunden > 0));
+  }
+
+  // ADERLASS
+  st = zug(brett({ abilities: ["aderlass"], stufen: { aderlass: 2 } }), Q, T);
+  ok("Aderlass II: der Treffer nimmt 2 Hoechstleben", st.board[T].maxHp === 8 && st.board[T].hp <= 8);
+
+  // SCHRECKEN - das verlassene Feld ist fuer Schwarz zu, fuer Weiss nicht
+  const schreck = brett({ abilities: ["schrecken"], stufen: { schrecken: 1 } });
+  schreck.board[T] = null; schreck.board[idx(0, 0, 8)] = B("R", { hp: 10, maxHp: 10, atk: 1 });   // schwarzer Turm auf a1
+  st = zug(schreck, Q, idx(1, 2, 8));   // Monster b1 -> b3, b1 wird Schreckfeld
+  ok("Schrecken: das verlassene Feld ist markiert", st.schreckFelder && st.schreckFelder[Q] && st.schreckFelder[Q].farbe === "w");
+  ok("... ein Gegner darf es nicht betreten", !legalMoves(st).some((m) => m.from === idx(0, 0, 8) && m.to === Q));
+  ok("... aber an ihm vorbeiziehen", legalMoves(st).some((m) => m.from === idx(0, 0, 8) && m.to === idx(2, 0, 8)));
+  st = schwarzWartet(st);
+  st = zug(st, idx(7, 0, 8), idx(7, 1, 8));
+  ok("... nach einer Runde ist es wieder frei", legalMoves(st).some((m) => m.from === idx(0, 0, 8) && m.to === Q));
+
+  // BLENDEN - Gegner im Umkreis 2 duerfen ihren naechsten Zug nicht ziehen; der Koenig nie
+  const bl = brett({ abilities: ["blenden"], stufen: { blenden: 1 } }, { hp: 10, maxHp: 10, atk: 1 });
+  bl.board[T] = null; bl.board[idx(3, 3, 8)] = B("R", { hp: 10, maxHp: 10, atk: 1 });
+  st = zug(bl, Q, idx(2, 1, 8));   // Monster nach c2: Turm auf d4 ist 2 Felder entfernt
+  ok("Blenden: der Turm im Umkreis ist geblendet", st.blenden && st.blenden.felder.includes(idx(3, 3, 8)));
+  ok("... er darf nicht ziehen, der Koenig schon", !legalMoves(st).some((m) => m.from === idx(3, 3, 8)) && legalMoves(st).some((m) => m.from === idx(7, 7, 8)));
+  st = schwarzWartet(st);
+  st = zug(st, idx(2, 1, 8), idx(2, 2, 8));   // Monster zieht weiter - Blenden I ist verbraucht
+  ok("Blenden I: einmal je Partie", !st.blenden && legalMoves(st).some((m) => m.from === idx(3, 3, 8)));
+  /* Blenden darf nie ein Remis durch Zugnot erzwingen */
+  const allein = new Array(64).fill(null);
+  allein[idx(0, 0, 8)] = W("Q", { hp: 12, maxHp: 12, atk: 2, abilities: ["blenden"], stufen: { blenden: 1 } });
+  allein[idx(2, 2, 8)] = B("R", { hp: 10, maxHp: 10, atk: 1 });
+  allein[idx(7, 7, 8)] = B("K", { hp: 10, maxHp: 10, atk: 3, blindBis: 99 });   // kuenstlich: auch der Koenig gesperrt
+  allein[idx(7, 0, 8)] = W("K", { hp: 10, maxHp: 10, atk: 3 });
+  let az = hpState(allein); az = zug(az, idx(0, 0, 8), idx(0, 1, 8));
+  ok("bliebe kein Zug, gilt die Sperre nicht", legalMoves(az).length > 0);
+
+  // GEISTWANDEL - faellt, kehrt als Geist zurueck: 3 Leben, doppelter Angriff
+  const gw = brett({ atk: 12 }, { hp: 5, maxHp: 10, atk: 2, abilities: ["geistwandel"] });
+  st = zug(gw, Q, T);
+  ok("Geistwandel: faellt und kehrt als Geist zurueck (3 Leben, Angriff 2 -> 4)",
+    st.board[T] && st.board[T].geist === true && st.board[T].hp === 3 && st.board[T].atk === 4 && st.geistFeld === T);
+  st = schwarzWartet(st); st = zug(st, Q, T);
+  ok("... einmal je Partie: faellt der Geist, ist er fort", !st.board[T] || st.board[T].color === "w");
+  const gwU = brett({ atk: 12 }, { hp: 5, maxHp: 12, atk: 2, abilities: ["unsterblich", "geistwandel"], stufen: { unsterblich: 1 } });
+  st = zug(gwU, Q, T);
+  ok("Unsterblich kommt vor dem Geist", st.board[T] && !st.board[T].geist && st.board[T].auferstanden === true);
+
+  // Klassik: keine der fuenf wirkt
+  const { NUR_MIT_LEBEN: NML } = await import("./src/core/rules/moves.js");
+  ok("in Klassik schweigen alle fuenf", ["gift", "blenden", "aderlass", "schrecken", "geistwandel"].every((id) => NML.has(id)));
+}
+
+/* v1.31.0: was anhaelt, bleibt am Brett sichtbar; der Geist ist nur im BILD bleich */
+{
+  const { readFileSync } = await import("node:fs");
+  const bv = readFileSync("src/app/ui/board/BoardView.jsx", "utf8");
+  ok("das Brett zeigt Gift, Blindheit und Schreckfeld, solange sie anhalten",
+    bv.includes("function Zustaende(") && bv.includes("piece.giftRunden > 0") && bv.includes("piece.blindBis >= mc") && bv.includes("sf.bis >= mc"));
+  ok("... und jede Wirkung im Moment (vergiftet, Gift, Aderlass, geblendet, Geist, Schrecken)",
+    ["state.vergiftet", "state.giftWirkt", "state.aderlass", "state.blenden", "state.geistFeld", "state.schreckFelder && lm.from"].every((x) => bv.includes(x)));
+  const pg = readFileSync("src/app/ui/board/PieceGlyph.jsx", "utf8");
+  const bild = pg.indexOf('? <img src={painting} alt="" draggable={false} decoding="async"');
+  const geist = pg.indexOf("...(piece.geist ? { filter:", bild);
+  ok("der Geist ist bleich im Bild - das Band behaelt seine Farbe", bild > 0 && geist > bild && pg.slice(bild, geist).indexOf("}} />") === -1);
+}
+
+/* v1.31.0: die ERSTE Begegnung mit jeder der neun Monsterfaehigkeiten erklaert
+   sich einmal, ueber dem Brett, ohne die Partie anzuhalten. */
+{
+  const { readFileSync } = await import("node:fs");
+  const gs = readFileSync("src/app/ui/screens/GameScreen.jsx", "utf8");
+  const NEUN = ["steinhaut", "unsterblich", "widerhall", "wegelagerei", "gift", "aderlass", "blenden", "geistwandel", "schrecken"];
+  ok("jede der neun Monsterfaehigkeiten hat ihre Erstbegegnung", NEUN.every((id) => gs.includes('funde.push("' + id + '")')));
+  ok("... einmal gesehen, nie wieder (notices faeh:<id>)", gs.includes('dispatch({ type: "SET_NOTICE", key: "faeh:" + neu })'));
+  ok("... und der Hinweis haelt die Partie nicht an (kein Modal, verschwindet von selbst)", gs.includes("setTimeout(() => setErstHinweis(null), 9000)") && gs.includes('role="status"'));
+  const { ABILITIES } = await import("./src/content/abilities.js");
+  ok("alle neun sind live und erklaeren sich mit einem Satz", NEUN.every((id) => ABILITIES[id] && ABILITIES[id].live && ABILITIES[id].descDe && ABILITIES[id].descEn));
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

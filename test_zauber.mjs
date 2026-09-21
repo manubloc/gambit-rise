@@ -497,9 +497,15 @@ console.log("\n== KLASSIK LAENGER TRAGBAR: Koenig immun, Lebenstalente schweigen
   const { NUR_MIT_LEBEN, talentWirkt } = await import("./src/core/rules/moves.js");
   /* v1.30.0: dazu die vier Monsterfaehigkeiten am Treffer - der Waechter bleibt:
      GENAU diese sieben, nichts rutscht unbemerkt hinein */
-  const LEBEN7 = ["lifesteal", "regen", "bulwark", "steinhaut", "widerhall", "unsterblich", "wegelagerei"];
-  ok("genau sieben Talente haengen an Lebenspunkten",
-    NUR_MIT_LEBEN.size === 7 && LEBEN7.every((id) => NUR_MIT_LEBEN.has(id)));
+  /* v1.31.0: dazu die fuenf uebrigen Monsterfaehigkeiten - GENAU diese zwoelf */
+  const LEBEN12 = ["lifesteal", "regen", "bulwark", "steinhaut", "widerhall", "unsterblich", "wegelagerei",
+    "gift", "aderlass", "schrecken", "blenden", "geistwandel"];
+  ok("genau zwoelf Talente haengen an Lebenspunkten",
+    NUR_MIT_LEBEN.size === 12 && LEBEN12.every((id) => NUR_MIT_LEBEN.has(id)));
+  /* v1.31.0: KEINE Monsterfaehigkeit ist mehr nur angekuendigt */
+  const { ABILITIES: AB } = await import("./src/content/abilities.js");
+  ok("alle neun Monsterfaehigkeiten wirken (live)",
+    ["gift", "blenden", "aderlass", "schrecken", "wegelagerei", "steinhaut", "widerhall", "unsterblich", "geistwandel"].every((id) => AB[id].live === true));
   ok("sie wirken im HP-Gefecht", ["lifesteal", "regen", "bulwark"].every((id) => talentWirkt(id, "hp")));
   ok("und schweigen in Klassik", ["lifesteal", "regen", "bulwark"].every((id) => !talentWirkt(id, "chess")));
   ok("Zugtalente bleiben in Klassik erlaubt",

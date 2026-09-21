@@ -33,6 +33,9 @@ export function cloneState(state) {
        (die Falle aus v1.10.3: ein neues Feld ohne diese Zeile verschwindet
        mit dem naechsten Zug). */
     ...(state.beute ? { beute: { ...state.beute } } : {}),
+    /* v1.31.0: die Felder des Schreckens - einzeln kopiert; abgelaufene fallen weg */
+    ...(state.schreckFelder ? { schreckFelder: Object.fromEntries(Object.entries(state.schreckFelder)
+      .filter(([, v]) => v && v.bis >= (state.moveCount || 0))) } : {}),
     geleitVerbraucht: { ...(state.geleitVerbraucht || {}) },
     rules: state.rules,
     turn: state.turn,
@@ -287,6 +290,14 @@ export function applyMove(state, move, opts) {
         return true;
       };
       const stehtAuf = (q, sq) => {
+        /* v1.31.0: GEISTWANDEL - einmal je Partie kehrt es als Geist zurueck:
+           3 Leben, doppelter Angriff, bleich (das Brett liest q.geist) */
+        if (q && q.hp <= 0 && !q.geist && traegt(q, "geistwandel", sq)
+            && !(traegt(q, "unsterblich", sq) && !q.auferstanden)) {   // Unsterblich zuerst, dann der Geist
+          q.geist = true; q.hp = 3; q.maxHp = 3; q.atk = (q.atk || 1) * 2;
+          ns.geistFeld = sq;
+          return true;
+        }
         if (!q || q.hp > 0 || q.auferstanden || !traegt(q, "unsterblich", sq)) return false;
         q.hp = Math.max(1, Math.ceil((q.maxHp || 1) * (stufeVon(q, "unsterblich") >= 2 ? 1 / 2 : 1 / 4)));
         q.auferstanden = true;                             // einmal je Partie
@@ -295,6 +306,22 @@ export function applyMove(state, move, opts) {
       const hallZurueck = (q, sq, d) => (d > 0 && traegt(q, "widerhall", sq)
         ? Math.ceil(d * (stufeVon(q, "widerhall") >= 2 ? 1 / 2 : 1 / 4)) : 0);
       let widerhall = 0;
+      /* ── v1.31.0: GIFT und ADERLASS - was ein Treffer an der getroffenen Figur
+         hinterlaesst. Gift: 1/2/3 Leben nach jedem eigenen Zug, drei Runden
+         lang, NIE toedlich (sonst stuerbe ein Koenig mitten im Zug des
+         Gegners). Aderlass: 1/2 Hoechstleben weniger, bis zum Partieende. */
+      const zehrt = (q, sq, d) => {
+        if (!q || d <= 0 || q.hp <= 0) return;
+        if (traegt(piece, "gift", move.from)) {
+          q.giftN = Math.max(q.giftN || 0, stufeVon(piece, "gift")); q.giftRunden = 3;
+          ns.vergiftet = [...(ns.vergiftet || []), sq];
+        }
+        if (traegt(piece, "aderlass", move.from)) {
+          const weg = stufeVon(piece, "aderlass");
+          q.maxHp = Math.max(1, (q.maxHp || q.hp) - weg); q.hp = Math.min(q.hp, q.maxHp);
+          ns.aderlass = [...(ns.aderlass || []), { at: sq, weg }];
+        }
+      };
       const raubt = (d) => {
         if (d <= 0 || !traegt(piece, "wegelagerei", move.from)) return;
         const gold = [0, 2, 4, 6][stufeVon(piece, "wegelagerei")] || 2;
@@ -339,6 +366,7 @@ export function applyMove(state, move, opts) {
          traf, raubt */
       widerhall += retter != null ? hallZurueck(b[retter], retter, dmg) : hallZurueck(target, ti, dmg);
       raubt(dmg);
+      zehrt(retter != null ? b[retter] : target, retter != null ? retter : ti, dmg);   /* v1.31.0 */
       if (move.consumes) verbuche(piece, move.consumes); // v1.28.0: ein Einsatz mehr - die Stufe entscheidet, wie viele
       if (has("lifesteal") && talentWirkt("lifesteal", state.rules, state, move.from, piece.color)) piece.hp = Math.min(piece.maxHp, piece.hp + Math.ceil(dmg / 2));
       /* ── SCHOCKWELLE (v0.79, blast): EINMAL pro Partie trifft der erste
@@ -368,6 +396,7 @@ export function applyMove(state, move, opts) {
           oc.hp -= wDmg;
           widerhall += hallZurueck(oc, ocFeld, wDmg);
           raubt(wDmg);
+          zehrt(oc, ocFeld, wDmg);   /* v1.31.0 */
           const faellt = oc.hp <= 0 && !stehtAuf(oc, ocFeld);
           welle.push({ at: n, kind: oc.kind, dmg: wDmg, tot: faellt });
           if (faellt) {
@@ -453,6 +482,39 @@ export function applyMove(state, move, opts) {
       if (move.promotion) repromote(piece, move.promotion);
     }
     if (!angreiferFiel && has("regen") && talentWirkt("regen", state.rules, state, move.to, piece.color)) piece.hp = Math.min(piece.maxHp, (piece.hp || 0) + 1);
+    /* ── v1.31.0: WAS NACH DEM ZUG WIRKT ────────────────────────────────────
+       BLENDEN (Zauber, I: einmal, II: zweimal je Partie): loest von selbst aus,
+       wenn das Monster so zieht, dass Gegner im Umkreis von zwei Feldern
+       stehen - sie duerfen ihren naechsten Zug nicht ziehen. Der KOENIG wird
+       nie geblendet. */
+    const stehtNoch = !angreiferFiel && b[move.to] === piece;
+    const mt = (id) => talentWirkt(id, state.rules, state, move.to, piece.color);
+    if (stehtNoch && has("blenden") && mt("blenden") && zauberRest(piece, "blenden") > 0) {
+      const W0 = state.w || 8, tf = move.to % W0, tr = Math.floor(move.to / W0), blind = [];
+      for (let i = 0; i < b.length; i++) {
+        const q = b[i];
+        if (!q || q.color === piece.color || q.kind === "K") continue;
+        if (Math.max(Math.abs((i % W0) - tf), Math.abs(Math.floor(i / W0) - tr)) > 2) continue;
+        q.blindBis = state.moveCount + 1; blind.push(i);
+      }
+      if (blind.length) { verbuche(piece, "blenden"); ns.blenden = { at: move.to, felder: blind }; }
+    }
+    /* SCHRECKEN (I: eine Runde, II: zwei): das verlassene Feld ist fuer Gegner
+       unbetretbar. Gilt fuer den Zug des Gegners, der gleich folgt (und bei II
+       auch fuer den danach). */
+    if (has("schrecken") && mt("schrecken") && move.from !== move.to && b[move.from] == null) {
+      ns.schreckFelder = { ...(ns.schreckFelder || {}),
+        [move.from]: { farbe: piece.color, bis: state.moveCount + 1 + 2 * (stufeVon(piece, "schrecken") - 1) } };
+    }
+    /* GIFT WIRKT nach jedem eigenen Zug des Vergifteten: 1/2/3 Leben, nie unter
+       1, drei Runden lang. */
+    for (let i = 0; i < b.length; i++) {
+      const q = b[i];
+      if (!q || q.color !== piece.color || !(q.giftRunden > 0)) continue;
+      q.hp = Math.max(1, q.hp - (q.giftN || 1));
+      q.giftRunden -= 1; if (q.giftRunden <= 0) { q.giftRunden = 0; q.giftN = 0; }
+      ns.giftWirkt = [...(ns.giftWirkt || []), i];
+    }
   } else {
     if (target && target.shield > 0) {            // chess: shield absorbs the hit
       target.shield -= 1; bounced = true;
@@ -510,9 +572,24 @@ export function applyMove(state, move, opts) {
 
 /** Legal moves. Chess: pseudo moves that don't leave your king in check.
  *  HP: every pseudo move is legal (no check rule — you win by regicide). */
+/* ── v1.31.0: BLENDEN und SCHRECKEN beschraenken die Zuege. Eine geblendete
+   Figur zieht in ihrem naechsten Zug nicht; ein Schreckfeld des Gegners ist
+   nicht betretbar. Bliebe dadurch GAR kein Zug, gilt die Beschraenkung nicht -
+   eine Faehigkeit darf nie ein Remis durch Zugnot erzwingen. */
+function hpSperren(state, moves) {
+  const sf = state.schreckFelder, mc = state.moveCount || 0;
+  const gefiltert = moves.filter((m) => {
+    const p = state.board[m.from];
+    if (p && p.blindBis != null && p.blindBis >= mc) return false;
+    const f = sf && sf[m.to];
+    if (f && f.bis >= mc && p && f.farbe !== p.color) return false;
+    return true;
+  });
+  return gefiltert.length ? gefiltert : moves;
+}
 export function legalMoves(state, color = state.turn) {
   const pseudo = pseudoMoves(state, color);
-  if (state.rules === "hp") return pseudo;
+  if (state.rules === "hp") return hpSperren(state, pseudo);
   const out = [];
   const imSchach = inCheck(state, color);
   for (let i = 0; i < pseudo.length; i++) {
@@ -539,7 +616,12 @@ export function legalMovesFrom(state, sqIndex) {
   const piece = state.board[sqIndex];
   if (!piece || piece.color !== state.turn) return [];
   const pseudo = pieceMoves(state, sqIndex);
-  if (state.rules === "hp") return pseudo;
+  if (state.rules === "hp") {
+    /* dieselbe Sperre wie legalMoves - aber gemessen am GANZEN Zugvorrat, damit
+       Brett und KI dasselbe erlauben */
+    const alle = hpSperren(state, pseudoMoves(state, piece.color));
+    return pseudo.filter((m) => alle.some((a) => a.from === m.from && a.to === m.to && (a.special || null) === (m.special || null)));
+  }
   return pseudo.filter((m) => !inCheck(applyMove(state, m), piece.color));
 }
 

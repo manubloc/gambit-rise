@@ -160,6 +160,9 @@ style.textContent = GLOBAL_CSS + `
   }
   /* v1.30.0: das Zeichen einer Monsterfaehigkeit steigt ueber dem Feld auf und
      verblasst - nur opacity und transform, keine Layoutarbeit */
+  /* v1.31.0: das Schreckfeld atmet - nur opacity */
+  @keyframes ggSchreckAtmet { 0%, 100% { opacity: .75; } 50% { opacity: 1; } }
+  @keyframes ggZeichenEin { from { opacity: 0; transform: translate(-50%, -8px); } to { opacity: 1; transform: translate(-50%, 0); } }
   @keyframes ggZeichenSteigt { 0% { opacity: 0; transform: translate(-50%, -30%) scale(.85); }
     18% { opacity: 1; transform: translate(-50%, -60%) scale(1.05); }
     70% { opacity: 1; transform: translate(-50%, -95%) scale(1); }

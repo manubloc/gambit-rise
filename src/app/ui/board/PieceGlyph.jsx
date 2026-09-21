@@ -777,7 +777,10 @@ export function PieceGlyph({ piece, showLevel = true, pov = "w", artStyle = "pai
          139/139/138 statt 157/119/47 - die Standardmaske deckte nur 12 %, der
          Sockel reicht aber 22,4 % hoch). Hier stehen die beiden anderen
          Punkte: 1,48 -> 1,42 em (minimal kleiner) und ein Stueck nach oben. */}
-      <div style={{ position: "relative", zIndex: 1, width: big ? "1.42em" : pieceSize, height: big ? "1.42em" : "calc(" + pieceSize + " * 1.16)", filter: glow, flex: "0 0 auto",
+      <div style={{ position: "relative", zIndex: 1, width: big ? "1.42em" : pieceSize, height: big ? "1.42em" : "calc(" + pieceSize + " * 1.16)",
+        /* v1.31.0: GEISTWANDEL - der Geist ist bleich und durchscheinend; nur das
+           BILD, das Band darunter behaelt seine Farben (Besitzer). */
+        filter: glow, flex: "0 0 auto",
         /* v1.0.76: HIER atmet die Figur - eine Ebene unter Landung und Pop,
            damit sich zwei transform-Animationen nie mehr ueberschreiben.
            Waehrend des Fluges und im Zug danach ruht es zusaetzlich
@@ -905,7 +908,10 @@ export function PieceGlyph({ piece, showLevel = true, pov = "w", artStyle = "pai
                    Grau und kaum dunkler. Die Trennung tragen Sockelband und
                    Riss-Violett. */
                 : "grayscale(0.22) saturate(0.9) brightness(0.92)",
-              userSelect: "none", pointerEvents: "none" }} />
+              userSelect: "none", pointerEvents: "none" ,
+              /* v1.31.0: GEISTWANDEL - bleich und durchscheinend, NUR das Bild;
+                 das Band behaelt seine Farben (Besitzer) */
+              ...(piece.geist ? { filter: "grayscale(1) brightness(1.55) drop-shadow(0 0 6px rgba(200,225,255,.75))", opacity: 0.58 } : null)}} />
           : <PieceArt kind={piece.kind} fill={fill} rim={rim} rimW={rimW} detail={detail} accent={accent} size="100%" level={showLevel ? lvl : 1} art={piece.art} bossId={piece.bossId} hero={showHero} />}
         {/* v1.0.50: DIE GRUNDFARBE STEIGT AUF. Nur im getoenten Stil: eine
             zweite, deckungsgleiche Kopie des Bildes, per sepia+hue auf die

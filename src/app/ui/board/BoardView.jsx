@@ -151,6 +151,45 @@ export function zugDauerMs(lastMove, pov, hotseat, w) {
   return Math.round((leaps ? (foe ? 1.25 : 0.95) : (foe ? 0.9 : 0.52)) * 1000);
 }
 
+/* ── v1.31.0: WAS ANHAELT, BLEIBT SICHTBAR (Besitzer: "Dinge, die passieren und
+   darstellbar sind, gerne grundsaetzlich mehr andeuten"). Am Feld:
+     - ein SCHRECKFELD traegt einen violetten Dunst mit Kreuz, solange es zu ist;
+     - eine VERGIFTETE Figur traegt links am Band einen gruenen Tropfen mit der
+       Zahl, die sie je Zug verliert;
+     - eine GEBLENDETE Figur traegt ein geschlossenes Auge.
+   Der Geist ist bleich (PieceGlyph). Alles nur im HP-Gefecht. */
+function Zustaende({ piece, feld, state, ruhig, en }) {
+  const mc = state.moveCount || 0;
+  const sf = state.schreckFelder && state.schreckFelder[feld];
+  const schreck = sf && sf.bis >= mc;
+  const gift = piece && piece.giftRunden > 0;
+  const blind = piece && piece.blindBis != null && piece.blindBis >= mc;
+  if (!schreck && !gift && !blind) return null;
+  return <>
+    {schreck && <span aria-label={en ? "Dread: foes may not enter" : "Schrecken: kein Gegner darf hierher"} style={{ position: "absolute", inset: "6%",
+      borderRadius: "22%", pointerEvents: "none", zIndex: 1,
+      background: "radial-gradient(circle, rgba(88,40,150,.55) 0%, rgba(40,16,70,.35) 60%, rgba(0,0,0,0) 100%)",
+      display: "grid", placeItems: "center", color: "rgba(214,190,255,.75)", fontSize: "clamp(12px, 4vw, 26px)", fontWeight: 800,
+      animation: ruhig ? undefined : "ggSchreckAtmet 1.8s ease-in-out infinite" }}>✕</span>}
+    {gift && <span aria-label={en ? "Poisoned" : "Vergiftet"} style={{ position: "absolute", left: "3%", bottom: "5%", zIndex: 6, pointerEvents: "none",
+      display: "grid", placeItems: "center", width: "clamp(12px, 3.4vw, 20px)", height: "clamp(15px, 4.2vw, 25px)" }}>
+      <svg viewBox="0 0 20 25" width="100%" height="100%" style={{ position: "absolute", inset: 0 }}>
+        <path d="M10 1 C10 1 2 11 2 16 A8 8 0 0 0 18 16 C18 11 10 1 10 1 Z" fill="#3fae4a" stroke="#0e2b12" strokeWidth="1.4" />
+        <path d="M6.5 15.5 A4 4 0 0 0 9 19.5" fill="none" stroke="rgba(220,255,210,.8)" strokeWidth="1.3" strokeLinecap="round" />
+      </svg>
+      <span style={{ position: "relative", marginTop: "30%", fontSize: "clamp(7px, 2vw, 11px)", fontWeight: 900, color: "#f2ffe9",
+        textShadow: "0 1px 1px #000" }}>{piece.giftN}</span></span>}
+    {blind && <span aria-label={en ? "Blinded: may not move" : "Geblendet: darf nicht ziehen"} style={{ position: "absolute", right: "1%", bottom: "3%",
+      zIndex: 6, pointerEvents: "none", width: "clamp(18px, 5vw, 30px)", height: "clamp(18px, 5vw, 30px)", borderRadius: "50%",
+      background: "radial-gradient(circle, rgba(34,22,58,.95) 55%, rgba(34,22,58,.6) 100%)", border: "1.5px solid rgba(241,231,255,.8)",
+      display: "grid", placeItems: "center" }}>
+      <svg viewBox="0 0 24 16" width="72%" height="72%">
+        <path d="M2 6 Q12 15 22 6" fill="none" stroke="#f1e7ff" strokeWidth="2" strokeLinecap="round" />
+        <path d="M5 9.5 L3.5 12.5 M9 11.3 L8.3 14.6 M15 11.3 L15.7 14.6 M19 9.5 L20.5 12.5" stroke="#f1e7ff" strokeWidth="1.5" strokeLinecap="round" />
+      </svg></span>}
+  </>;
+}
+
 export function BoardView({ lang = "de", state, onMove, interactive, lastMove, mattSeite = null, effekt = null, theme = null, maxPx = 520, animateFor = null, flip = false, fitBox = false, feld = null, feldDunkel = null, ruhig = false, pick = null, onPick = null, pov = "w", texture = null, ground = null, artStyle = "painted", showLevel = true, showCoords = false, pulse = 0.4, friendly = false, knownKinds = null, seerVision = false, onEnemyTap = null, introSpot = null, onInspect = null, hotseat = false, setzFelder = null, onSetz = null }) {
   const sqL0 = theme?.sqLight || T.sqLight, sqD0 = theme?.sqDark || T.sqDark;
   // a GROUND painting beneath the field: the squares open further so meadow,
@@ -364,6 +403,19 @@ export function BoardView({ lang = "de", state, onMove, interactive, lastMove, m
     if (state.steinhaut != null) list.push({ at: state.steinhaut, text: "⬢ " + (en ? "glances off" : "prallt ab"), farbe: "#c9d4e2", delay: basis });
     if (state.aufstand != null) list.push({ at: state.aufstand, text: "✦ " + (en ? "rises again" : "steht wieder auf"), farbe: "#f3dd8e", delay: basis + 180 });
     if (state.widerhall && state.widerhall.at >= 0) list.push({ at: state.widerhall.at, text: "↺ −" + state.widerhall.dmg, farbe: "#ffb3aa", delay: basis + 240 });
+    /* v1.31.0: die fuenf uebrigen */
+    for (const at of state.vergiftet || []) list.push({ at, text: "☠ " + (en ? "poisoned" : "vergiftet"), farbe: "#9be08a", delay: basis + 120 });
+    for (const at of state.giftWirkt || []) {
+      const q = state.board[at];
+      /* der Tick hat schon gewirkt - giftN kann danach 0 sein (letzte Runde);
+         die Zahl steht dann aus dem Unterschied im Leben nicht fest, also nur das Zeichen */
+      list.push({ at, text: q && q.giftN ? "☠ −" + q.giftN : "☠", farbe: "#9be08a", delay: 260 });
+    }
+    for (const a of state.aderlass || []) list.push({ at: a.at, text: "−" + a.weg + (en ? " max" : " Höchstleben"), farbe: "#e58a8a", delay: basis + 200 });
+    if (state.blenden) for (const at of state.blenden.felder) list.push({ at, text: "◉ " + (en ? "blinded" : "geblendet"), farbe: "#f1e7ff", delay: basis + 80 });
+    if (state.geistFeld != null) list.push({ at: state.geistFeld, text: "☾ " + (en ? "returns as a ghost" : "kehrt als Geist zurück"), farbe: "#dbe7ff", delay: basis + 180 });
+    const sf = state.schreckFelder && lm.from != null ? state.schreckFelder[lm.from] : null;
+    if (sf && sf.farbe === lm.color && sf.bis >= (state.moveCount || 0)) list.push({ at: lm.from, text: "✕ " + (en ? "dread" : "Schrecken"), farbe: "#c9a6ff", delay: 120 });
     if (!list.length) { setZeichen(null); return; }
     setZeichen({ id: Date.now(), list });
     const t = setTimeout(() => setZeichen(null), Math.max(...list.map((e) => e.delay)) + 1900);
@@ -731,6 +783,7 @@ export function BoardView({ lang = "de", state, onMove, interactive, lastMove, m
               ihr liegen; eine heile Mauer und eine Figur teilen sich ohnehin
               nie ein Feld, weil die Mauer den Zug aufhaelt. */}
           {sperreHier && <SperrGlyph art={sperreHier.art} zustand={stadium(sperreHier)} ruhig={ruhig} />}
+          {hpMode && <Zustaende piece={piece} feld={i} state={state} ruhig={ruhig} en={lang === "en"} />}
           {/* v1.0.14 (Besitzer): DER SPRINGER LANDET HOERBAR SICHTBAR - ein
               heller Ring faehrt aus dem Feld, auf dem er aufsetzt. Nur fuer
               den Sprung, sonst wird jedes Ziehen zum Ereignis. */}
