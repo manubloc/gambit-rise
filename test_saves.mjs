@@ -279,6 +279,23 @@ ok("full build counts ten league crowns", fullB.stats.leaguesWon === 10);
   ok("das eingebaute admin-Konto ist unloeschbar", admin === "admin-locked" && !!findAccount(await ensureAccounts(), ADMIN_EMAIL));
 }
 
+/* v1.26.8 (Besitzer: "Ich kann mich am Computer nicht als Admin anmelden"):
+   ohne https fehlt crypto.subtle, und die Anmeldung scheiterte stumm. Die
+   eigene Rechnung muss bitgenau denselben Pruefwert liefern wie der Browser -
+   sonst passte kein gespeichertes Passwort mehr. */
+{
+  const acc = await import("./src/meta/accounts.js");
+  const d = new TextEncoder().encode("5fa05adb9883ad2177fdf8b6d3c7cb1a\u0000irgendein-wort");
+  const buf = await crypto.subtle.digest("SHA-256", d);
+  const echt = Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+  ok("die eigene SHA-256-Rechnung stimmt bitgenau mit der des Browsers", acc._sha256Hex(d) === echt);
+  const merk = globalThis.crypto.subtle;
+  Object.defineProperty(globalThis.crypto, "subtle", { value: undefined, configurable: true });
+  let h = null; try { h = await acc.hashPass("irgendein-wort", "5fa05adb9883ad2177fdf8b6d3c7cb1a"); } catch { h = "FEHLER"; }
+  Object.defineProperty(globalThis.crypto, "subtle", { value: merk, configurable: true });
+  ok("ohne crypto.subtle (kein https) rechnet die Anmeldung trotzdem richtig", h === echt);
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 if (fail) process.exit(1);
 

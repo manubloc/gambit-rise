@@ -1,5 +1,23 @@
 # Changelog - Grand Gambit
 
+## 1.26.8
+- DIE ANMELDUNG RECHNET AUCH OHNE HTTPS (Besitzer: "Ich kann mich am Computer
+  nicht als Admin anmelden und verstehe ueberhaupt nicht wieso"). Das Passwort
+  wird mit crypto.subtle zu einem Pruefwert gerechnet - und crypto.subtle gibt
+  es im Browser NUR in einem sicheren Kontext: https:// oder localhost. Ueber
+  http://, eine Adresse im Heimnetz oder als Datei geoeffnet, ist es
+  undefiniert; hashPass warf, und die Anmeldung meldete nur "Das hat nicht
+  geklappt". Jetzt rechnet eine eigene SHA-256-Umsetzung, wenn der Browser
+  keine liefert - bitgenau derselbe Pruefwert (Probe gegen die Rechnung des
+  Browsers, bei kurzen und langen Eingaben).
+- EIN UNERWARTETER FEHLER NENNT SEINEN GRUND. Alles ausser "falsches
+  Passwort" und "kein Konto" kam bisher als "Das hat nicht geklappt" ohne
+  Hinweis an. Jetzt steht die Ursache in Klammern dahinter.
+- OFFEN: ob das wirklich die Ursache am Computer des Besitzers war, ist nicht
+  bewiesen - moeglich ist auch ein altes, im Browser gespeichertes Passwort,
+  das die Passwortverwaltung beim Anmelden einsetzt. Die neue Fehlermeldung
+  zeigt beim naechsten Versuch, welches von beiden es ist.
+
 ## 1.26.7
 - FIGURENBLATT UND MONSTERFENSTER SIND EIN UND DASSELBE DESIGN (Besitzer:
   "Mach es wirklich so, dass es global der gleiche Designblock ist. Wenn ich in

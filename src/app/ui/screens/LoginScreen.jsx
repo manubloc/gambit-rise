@@ -66,7 +66,10 @@ export function LoginScreen({ onSignedIn, initialLang = "de" }) {
   const run = async (fn) => {
     setBusy(true); setErr("");
     try { const acc = await fn(); if (acc) onSignedIn(acc); }
-    catch (e) { setErr(s.err[e?.message] || s.err.generic); }
+    /* v1.26.8: ein UNERWARTETER Fehler nennt jetzt seinen Grund. Bisher kam
+       alles, was nicht "falsches Passwort" oder "kein Konto" war, als "Das
+       hat nicht geklappt" an - wer am Computer scheiterte, erfuhr nie wieso. */
+    catch (e) { setErr(s.err[e?.message] || (s.err.generic + (e?.message ? " (" + String(e.message).slice(0, 80) + ")" : ""))); }
     finally { setBusy(false); }
   };
   const submit = () => run(async () => {
