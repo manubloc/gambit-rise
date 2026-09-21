@@ -128,9 +128,9 @@ const sammle = async (name) => { await page.waitForTimeout(800); const l = await
     const g = a.slice(a.indexOf("export async function loginGuest"), a.indexOf("export async function loginGuest") + 900);
     if (!/storage\.delete/.test(g))
       seiten.push(["GAST", [{ tag: "fehler", text: "Gast-Einstieg raeumt alte Spielstaende nicht weg", bw: 99, ow: 0, shadow: "" }]]);
-    const sv = readFileSync("src/app/ui/screens/SavesScreen.jsx", "utf8");
+    const sv = readFileSync("src/app/ui/screens/ProfileScreen.jsx", "utf8");   /* v1.29.1: Hinweis wohnt im Profil */
     if (!/provider === "guest"/.test(sv))
-      seiten.push(["GAST", [{ tag: "fehler", text: "kein Gast-Hinweis im Spielstandsschirm", bw: 99, ow: 0, shadow: "" }]]);
+      seiten.push(["GAST", [{ tag: "fehler", text: "kein Gast-Hinweis im Profil", bw: 99, ow: 0, shadow: "" }]]);
   }
 
   if (process.argv.includes("--halle")) {

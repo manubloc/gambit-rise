@@ -300,10 +300,15 @@ ok("full build counts ten league crowns", fullB.stats.leaguesWon === 10);
    Google-Adresse ist Admin. */
 {
   const { readFileSync } = await import("node:fs");
-  const sv = readFileSync("src/app/ui/screens/SavesScreen.jsx", "utf8");
-  ok("ein neuer Spielstand laesst sich nur anlegen, solange es keinen gibt",
-    sv.includes("(saves || []).length === 0 && <button onClick={create}"));
-  ok("im Spielstandschirm gibt es keinen Loeschknopf mehr", !sv.includes("deleteSave(account.id, sv.id)"));
+  /* v1.29.1 (Besitzer): es gibt keinen Spielstandschirm mehr - nach der
+     Anmeldung ist man im Spiel, der eine Stand wird geoeffnet oder angelegt. */
+  const { existsSync } = await import("node:fs");
+  ok("den Spielstandschirm gibt es nicht mehr", !existsSync("src/app/ui/screens/SavesScreen.jsx"));
+  const app = readFileSync("src/app/App.jsx", "utf8");
+  ok("nach der Anmeldung wird der eine Spielstand geoeffnet oder angelegt",
+    app.includes("if (!eintrag) eintrag = await createSave(account.id, null);") && app.includes('dispatch({ type: "HYDRATE", profile: prof })'));
+  ok("im Profil gibt es keinen Knopf zum Spielstandwechsel", !app.includes("onSwitchSave="));
+  ok("der Gast-Hinweis steht jetzt im Profil", readFileSync("src/app/ui/screens/ProfileScreen.jsx", "utf8").includes('account?.provider === "guest"'));
   const cfg = readFileSync("src/app/config.js", "utf8");
   ok("die Google-Adresse des Besitzers steht in der Admin-Liste", cfg.includes('"frey.manu@gmail.com"'));
   const pf = readFileSync("src/app/ui/screens/ProfileScreen.jsx", "utf8");

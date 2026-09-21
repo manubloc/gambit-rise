@@ -1,5 +1,19 @@
 # Changelog - Grand Gambit
 
+## 1.29.1
+- NACH DER ANMELDUNG IST MAN IM SPIEL (Besitzer: "In dem Moment, wo ich mich
+  eingeloggt habe, bin ich einfach im Spiel"). Es gibt nur einen Spielstand,
+  also keinen Schirm mehr, der ihn zeigt oder wechseln laesst: der eine Stand
+  wird nach der Anmeldung geoeffnet oder, beim allerersten Mal, angelegt.
+  Gesichert wird immer von selbst. Unter Profil kann man sich nur noch
+  abmelden; "Spielstand wechseln" ist fort, ebenso der Rueckweg aus der
+  PIN-Sperre in die Spielstandliste (er meldet jetzt ab).
+- Der Gast-Hinweis ("Es wird nichts gesichert") stand in diesem Schirm und
+  wohnt jetzt im Profil.
+- SavesScreen.jsx und ein altes Layout-Gestell dafuer sind geloescht; die
+  Rauchprobe und drei Pruefwerkzeuge, die den Schirm lasen, sind umgestellt.
+  Vier Proben in test_saves.
+
 ## 1.29.0
 - FAEHIGKEITEN UND ANGRIFF NACH BEWEGLICHKEIT (Besitzer, freigegeben nach
   Tabelle: design/FIGUREN-BEWEGLICHKEIT-2026-09-21.md). Wer springt, schlaegt

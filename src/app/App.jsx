@@ -8,7 +8,7 @@ import { nodeById, chapterForRow, buyItem, CHARACTER_LIST, clockFor } from "../c
 import { verifyPin } from "../platform/index.js";
 import { makeT } from "./i18n/strings.js";
 import { SERVER_URL } from "./config.js";
-import { claimableCount, retinueScore, upgradeBoss } from "../meta/index.js";
+import { claimableCount, retinueScore, upgradeBoss, listSaves, createSave, loadSave, migrateLegacyInto } from "../meta/index.js";
 import { mitAktivemDeck, mitDeckName, mitAufstellung } from "../meta/index.js";   /* v1.15.0: Decks */
 import { naechsteErklaerung, merkschluessel } from "../meta/index.js";
 import { setLivery, fetchHouseDesign, crestArt, emblemArt, logoMenuArt } from "./ui/livery.js";
@@ -22,7 +22,6 @@ import { useShineDelay, GoldShineButton } from "./ui/Gilded.jsx";
 import { rollTag } from "./ui/namen.js";
 import { Wordmark } from "./ui/Brand.jsx";
 import { LoginScreen } from "./ui/screens/LoginScreen.jsx";
-import { SavesScreen } from "./ui/screens/SavesScreen.jsx";
 import { GalerieScreen } from "./ui/screens/GalerieScreen.jsx";
 import { currentAccount, clearSession, signOutCloud, resumeCloudSession, writeSave, recordStage } from "../meta/index.js";
 import { OnlineScreen, buildStats } from "./ui/screens/OnlineScreen.jsx";
@@ -291,6 +290,23 @@ export default function App() {
   // the login instantly, clear the local session, give the cloud sign-out a
   // short window (so a resume after reload cannot revive the account), then
   // restart the app cold — no React state, cache or listener can undo that.
+  /* v1.29.1: den einen Spielstand oeffnen, sobald ein Konto da ist */
+  useEffect(() => {
+    if (!account || slot) return;
+    let lebt = true;
+    (async () => {
+      try {
+        await migrateLegacyInto(account.id);
+        let liste = await listSaves(account.id);
+        let eintrag = liste && liste[0];
+        if (!eintrag) eintrag = await createSave(account.id, null);
+        const prof = await loadSave(account.id, eintrag.id);
+        if (!lebt || !prof) return;
+        dispatch({ type: "HYDRATE", profile: prof }); setLocked(!!prof.pin); setSlot(eintrag); setReady(true);
+      } catch (e) { console.error("Spielstand konnte nicht geoeffnet werden", e); }
+    })();
+    return () => { lebt = false; };
+  }, [account, slot]);
   const hardLogout = async () => {
     setSlot(null); setAccount(null);
     try { await clearSession(); } catch {}
@@ -493,9 +509,12 @@ export default function App() {
   if (adminPortal) return <AdminPortal />;
   if (!authReady) return null;
   if (!account) return <LoginScreen onSignedIn={(acc) => setAccount(acc)} />;
-  if (!slot) return <SavesScreen account={account} initialLang={profile?.lang || "de"}
-    onLogout={hardLogout}
-    onOpen={(sl, prof) => { dispatch({ type: "HYDRATE", profile: prof }); setLocked(!!prof.pin); setSlot(sl); setReady(true); }} />;
+  /* v1.29.1 (Besitzer): "In dem Moment, wo ich mich eingeloggt habe, bin ich
+     einfach im Spiel." Es gibt nur EINEN Spielstand - also keinen Schirm mehr,
+     der ihn zeigt oder wechseln laesst. Nach der Anmeldung wird er geoeffnet
+     oder, beim allerersten Mal, angelegt; gesichert wird immer von selbst.
+     Unter Profil kann man sich nur noch abmelden. */
+  if (!slot) return null;   // wird von oeffneSpielstand geoeffnet
   if (!ready || !profile) return null;
   // The chosen piece style is announced to the gallery ONCE, here. Every screen
   // that looks a figure up by id — the court, the chronicle, the unlock pop-ups
@@ -523,7 +542,7 @@ export default function App() {
     ? naechsteErklaerung(profile) : null;
   const t = makeT(profile.lang);
   if (locked) return <Lock t={t} profile={profile} onUnlock={() => setLocked(false)}
-    onBack={() => { setLocked(false); setSlot(null); setReady(false); }} />;
+    onBack={hardLogout} />;   /* v1.29.1: zurueck heisst abmelden - einen Spielstandschirm gibt es nicht mehr */
 
   const sub = (title, node) => <div><SubHeader title={title} onBack={() => setView("hub")} t={t} />{node}</div>;
   const screen = pvp
@@ -564,7 +583,6 @@ export default function App() {
       : tab === "army" ? <ArmyScreen key={armyTab.n} profile={profile} dispatch={dispatch} t={t} initialTab={armyTab.tab} account={account} />
         : tab === "ach" ? <AchievementsScreen profile={profile} dispatch={dispatch} t={t} en={profile.lang === "en"} />
           : <ProfileScreen profile={profile} dispatch={dispatch} t={t} account={account}
-              onSwitchSave={() => setSlot(null)}
               onLogout={hardLogout} />;
 
   const inMatch = !!match || !!pvp || !!quick || !!dailyGame;

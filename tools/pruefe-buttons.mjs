@@ -63,9 +63,9 @@ for (const f of dateien) {
 // Schriften - das darf nie wieder auseinanderlaufen.
 {
   const L = readFileSync("src/app/ui/screens/LoginScreen.jsx", "utf8");
-  const S = readFileSync("src/app/ui/screens/SavesScreen.jsx", "utf8");
+  /* v1.29.1: der Spielstandschirm ist fort - die Wortmarke steht nur noch im Login */
   const marke = (t) => (t.match(/fontFamily: "Georgia, serif", fontWeight: 700, letterSpacing: "([^"]+)"/) || [])[1];
-  if (!marke(L) || marke(L) !== marke(S)) funde.push(`Wortmarke laeuft auseinander: Login ${marke(L)} vs Spielstaende ${marke(S)}`);
+  if (!marke(L)) funde.push("Wortmarke im Login nicht gefunden");
 }
 
 

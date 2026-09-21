@@ -9,7 +9,6 @@ import { ProfileScreen } from "./src/app/ui/screens/ProfileScreen.jsx";
 import { Splash, Wordmark } from "./src/app/ui/Brand.jsx";
 import { OnlineScreen } from "./src/app/ui/screens/OnlineScreen.jsx";
 import { LoginScreen } from "./src/app/ui/screens/LoginScreen.jsx";
-import { SavesScreen } from "./src/app/ui/screens/SavesScreen.jsx";
 import { LeaderboardSection } from "./src/app/ui/screens/LeaderboardScreen.jsx";
 import { createNet } from "./src/platform/net.web.js";
 import { defaultProfile, buildStageMatch, advanceCampaign, withProgressPct } from "./src/meta/index.js";
@@ -33,7 +32,7 @@ step("Splash renders", () => renderToStaticMarkup(<Splash onDone={() => {}} />))
 step("Wordmark renders", () => renderToStaticMarkup(<Wordmark />));
 step("App initial render", () => renderToStaticMarkup(<App />));
 step("LoginScreen renders", () => renderToStaticMarkup(<LoginScreen onSignedIn={() => {}} />));
-step("SavesScreen renders", () => renderToStaticMarkup(<SavesScreen account={{ id: "t1", name: "Tester", isAdmin: true }} onOpen={() => {}} onLogout={() => {}} />));
+/* v1.29.1: der Spielstandschirm ist fort - nach der Anmeldung ist man im Spiel */
 step("LeaderboardSection renders", () => renderToStaticMarkup(<LeaderboardSection profile={prof} playtimeSec={4200} />));
 step("PlayHub", () => renderToStaticMarkup(<PlayHub profile={prof} t={t} onQuick={() => {}} onCamp={() => {}} />));
 step("CampaignScreen (fresh)", () => renderToStaticMarkup(<CampaignScreen profile={prof} t={t} onStart={() => {}} />));

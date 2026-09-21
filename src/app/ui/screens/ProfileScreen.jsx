@@ -144,6 +144,20 @@ export function ProfileScreen({ profile, dispatch, t, account, onSwitchSave, onL
       <div className="gg-serif" style={{ fontSize: 22, letterSpacing: ".04em", color: T.goldBright }}>
         {profile.name || t("profile.namePh")}</div>
       {account?.isAdmin && <div style={{ fontSize: 12, color: T.gold, marginTop: 3, letterSpacing: ".08em" }}>Admin</div>}
+      {/* v1.29.1: ALS GAST SPIELT MAN AUF SAND - der Hinweis stand im
+          Spielstandschirm, den es nicht mehr gibt; jetzt steht er hier. */}
+      {account?.provider === "guest" && (
+        <div style={{ margin: "10px 0 4px", padding: "12px 14px", borderRadius: 14, textAlign: "left",
+          background: "radial-gradient(130% 120% at 50% -12%, rgba(124,58,237,.2) 0%, rgba(22,16,34,.92) 46%, rgba(10,8,16,.96) 100%)",
+          border: "1px solid rgba(167,139,250,.55)", boxShadow: "0 0 16px rgba(124,58,237,.22)" }}>
+          <div className="gg-quill" style={{ fontSize: 16.5, color: "#e6dcff", marginBottom: 5 }}>
+            {en ? "You are playing as a guest" : "Du spielst als Gast"}</div>
+          <div className="gg-serif" style={{ fontSize: 12.5, lineHeight: 1.55, color: "#c3b8d4" }}>
+            {en
+              ? "Nothing is saved: close the app and your progress is gone — every start begins anew. Online duels stay closed as well; they need an account."
+              : "Es wird nichts gesichert: Schließt du die App, ist dein Fortschritt fort — jeder Start beginnt von vorn. Auch die Online-Duelle bleiben zu, dafür braucht es ein Konto."}
+          </div>
+        </div>)}
       {/* v0.82 (Besitzer): SPIELSTAND WECHSELN und ABMELDEN gehoeren nach OBEN,
           zum Namen - dorthin, wo jeder sie erwartet. Vorher standen sie weit
           unten hinter Schwierigkeit und Figurenstil; man musste scrollen, um
