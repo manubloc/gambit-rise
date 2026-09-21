@@ -62,8 +62,22 @@ export function hasAbility(piece, id) {
      Zauber den Sturmlauf, den die Chronik als "jederzeit" verspricht. Ein
      passives Talent ist kein Zauber; es bleibt, egal was das Buch sagt. */
   if (PASSIVE_TALENTE.has(id)) return true;
+  /* v1.26.5 (Besitzer): "beim Gambit, aber nur beim Gambit, faende ich es
+     cool, wenn er Faehigkeiten hat, die ihm dauerhaft andere Zuege erlauben -
+     nicht zu krass, aber dass er sie mehr als einmal einsetzen kann."
+     Fuer jede andere Figur bleiben Stossschlag und Ausweichen ein Zauber je
+     Partie. Beim Helden sind sie jederzeit da - und ihr Einsatz schliesst das
+     Buch NICHT (siehe verbraucht() unten). */
+  if (piece.hero && GAMBIT_DAUERHAFT.has(id)) return true;
   return Object.keys(piece.used || {}).length === 0;
 }
+/* Die Bauernzuege, die der Held jederzeit darf: gerade vorwaerts schlagen und
+   ein Feld seitlich ausweichen. Beides bleibt bauernhaft - er gewinnt
+   Beweglichkeit, keine neue Reichweite. */
+export const GAMBIT_DAUERHAFT = new Set(["pawn_forward_capture", "pawn_sidestep"]);
+/* Ein Zug, der ein Talent nutzt, verbucht es als verbraucht - ausser der Held
+   nutzt eines seiner dauerhaften: dann bleibt das Buch offen. */
+const verbraucht = (piece, id) => (piece.hero && GAMBIT_DAUERHAFT.has(id) ? undefined : id);
 
 // ── Board-shape context ──────────────────────────────────────────────────────
 // D carries the dimensions + hole mask for the current match. A hole behaves
@@ -188,14 +202,14 @@ function pawnMoves(moves, from, f, r, piece, board, D, state) {
   if (hasAbility(piece, "pawn_forward_capture") && onBoard(f, fwd, D)) {
     const t = board[ix(f, fwd, D)];
     if (t && t.color !== piece.color)
-      push(moves, from, ix(f, fwd, D), piece, true, t.kind, { special: "fcap", consumes: "pawn_forward_capture", ...(isPromo(fwd) ? { promotion: KIND.QUEEN } : {}) });
+      push(moves, from, ix(f, fwd, D), piece, true, t.kind, { special: "fcap", consumes: verbraucht(piece, "pawn_forward_capture"), ...(isPromo(fwd) ? { promotion: KIND.QUEEN } : {}) });
   }
   // ABILITY: sidestep (once, non-capturing)
   if (hasAbility(piece, "pawn_sidestep")) {
     for (const df of [-1, 1]) {
       const sf = f + df;
       if (onBoard(sf, r, D) && !board[ix(sf, r, D)])
-        push(moves, from, ix(sf, r, D), piece, false, null, { special: "side", consumes: "pawn_sidestep" });
+        push(moves, from, ix(sf, r, D), piece, false, null, { special: "side", consumes: verbraucht(piece, "pawn_sidestep") });
     }
   }
   // ABILITY: charge (passive) — advance two squares forward from anywhere

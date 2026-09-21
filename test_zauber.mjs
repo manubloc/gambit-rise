@@ -92,6 +92,20 @@ console.log("\n== Passive Talente ueberleben den Zauber ==");
 }
 
 console.log("\n== Kern und Chronik sind sich einig, was passiv ist ==");
+/* v1.26.5 (Besitzer): der Gambit - und NUR er - darf Stossschlag und
+   Ausweichen jederzeit nutzen; fuer jede andere Figur bleiben sie ein Zauber
+   je Partie. Und ihr Einsatz schliesst beim Helden das Buch nicht. */
+{
+  const { hasAbility, GAMBIT_DAUERHAFT } = await import("./src/core/rules/moves.js");
+  const nachEinsatz = (hero) => ({ hero, abilities: ["pawn_forward_capture", "pawn_sidestep"], used: { pawn_forward_capture: true } });
+  ok("der Held darf Stossschlag und Ausweichen nach dem ersten Einsatz wieder",
+    hasAbility(nachEinsatz(true), "pawn_forward_capture") && hasAbility(nachEinsatz(true), "pawn_sidestep"));
+  ok("jede andere Figur nicht - fuer sie bleibt es ein Zauber je Partie",
+    !hasAbility(nachEinsatz(false), "pawn_forward_capture") && !hasAbility(nachEinsatz(false), "pawn_sidestep"));
+  ok("es sind genau diese zwei, nicht mehr", GAMBIT_DAUERHAFT.size === 2);
+  const { CHARACTERS } = await import("./src/content/index.js");
+  ok("der Gambit traegt hoechstens fuenf Faehigkeiten", CHARACTERS.gambit.ladder.filter((r) => r.ability).length <= 5);
+}
 {
   const { PASSIVE_TALENTE } = await import("./src/core/rules/moves.js");
   const { ABILITIES } = await import("./src/content/abilities.js");

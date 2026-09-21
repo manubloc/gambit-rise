@@ -53,7 +53,11 @@ flavorDe: "Geboren, geopfert zu werden — entschlossen, es nicht zu bleiben.", 
       { level: 2, ability: "pawn_forward_capture" },
       { level: 3, ability: "pawn_sidestep" },
       { level: 5, ability: "pawn_charge" },
-      { level: 6, ability: "teleport" },
+      /* v1.26.5 (Besitzer): "mach beim Gambit auch nur 5 Faehigkeiten, grundsaetzlich
+         nicht mehr als 5." Blinzeln faellt - es ist die staerkste der sechs
+         und steckt ohnehin bei 15 anderen Figuren; der Held wird dadurch
+         unverwechselbarer statt schwaecher, weil Stossschlag und Ausweichen
+         bei ihm jetzt dauerhaft wirken. */
       { level: 8, ability: "gambit_masquerade" },
       { level: 9, ability: "pawn_early_promo" },
     ],

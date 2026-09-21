@@ -1,5 +1,21 @@
 # Changelog - Grand Gambit
 
+## 1.26.5
+- DER GAMBIT HAT FUENF FAEHIGKEITEN, NICHT SECHS (Besitzer: "mach beim Gambit
+  auch nur 5, grundsaetzlich nicht mehr als 5"). Blinzeln faellt: es ist die
+  staerkste der sechs und steckt ohnehin bei 15 anderen Figuren.
+- ZWEI SEINER ZUEGE WIRKEN BEI IHM DAUERHAFT (Besitzer: "beim Gambit, aber nur
+  beim Gambit, Faehigkeiten, die ihm dauerhaft andere Zuege erlauben - nicht
+  zu krass, aber mehr als einmal einsetzbar"). Stossschlag (gerade vorwaerts
+  schlagen) und Ausweichen (ein Feld seitlich) darf er jederzeit, und ihr
+  Einsatz schliesst sein Buch nicht. Fuer jede andere Figur bleiben beide ein
+  Zauber je Partie. Beides bleibt bauernhaft - er gewinnt Beweglichkeit,
+  keine neue Reichweite.
+- Damit hat der Held vier dauerhafte Faehigkeiten (Stossschlag, Ausweichen,
+  Sturmlauf, Maskerade, dazu Fruehe Kroenung) und keinen Zauber je Partie
+  mehr. Vier Proben in test_zauber sichern es, darunter die Gegenprobe, dass
+  jede andere Figur weiterhin nur einmal darf.
+
 ## 1.26.4
 - DER GAMBIT SPRANG ZURUECK (Besitzer: "das Angriff und Leben springt
   teilweise zurueck und verhaelt sich gar nicht wie es sollte" - und "nur in
