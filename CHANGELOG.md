@@ -1,5 +1,26 @@
 # Changelog - Grand Gambit
 
+## 1.26.7
+- FIGURENBLATT UND MONSTERFENSTER SIND EIN UND DASSELBE DESIGN (Besitzer:
+  "Mach es wirklich so, dass es global der gleiche Designblock ist. Wenn ich in
+  Zukunft etwas aendere, will ich nicht pruefen muessen, ob du es bei den
+  Monstern und bei den Figuren gemacht hast"). Beide Fenster bauen sich jetzt
+  aus DENSELBEN drei Bauteilen:
+    BlattBuehne     - Kulisse, Figur, Band, Zugbild, Zeichen, Werte (v1.25.9)
+    Aufstiegsplan   - die Trainingsleiter mit Freischalten (neu)
+    VerbessernKnopf - der Knopf ueber die ganze Breite (neu)
+  Es gibt jedes Bauteil genau einmal; eine Probe prueft das und dass beide
+  Fenster sie aufrufen. Wer eines davon aendert, aendert beide Fenster.
+- MONSTER LERNEN IHRE FAEHIGKEITEN WIE FIGUREN (Besitzer: "auch die Monster
+  muessen Faehigkeiten freischalten und erlernen"). Im Kern teilen sich
+  Figuren und Monster jetzt dieselbe Freischaltlogik (leiterVon,
+  canUnlockAbility, unlockAbility); ein Monster wird unter "X:<id>" gefuehrt,
+  wie sein Rang. Stufe, Kosten, Skillpunkte und die Sperre bis zum Erwachen
+  der alten Magie gelten wie bei jeder Figur.
+- IM GEFECHT TRAEGT EIN EIGENES MONSTER NUR, WAS ES GELERNT HAT. Wichtig fuer
+  bestehende Spielstaende: wer schon Monster besitzt, sieht deren Faehigkeiten
+  jetzt erst nach dem Lernen - bisher hatten sie alle von Anfang an.
+- Das alte Raenge-Verzeichnis im Monsterfenster ist durch die Leiter ersetzt.
 ## 1.26.6
 - DIE FELDER IM ZUGBILD TRAGEN DIE FARBE IHRES SYMBOLS (Besitzer: "wenn ich
   Faehigkeiten erlerne, werden die oben in der Felduebersicht angezeigt - da

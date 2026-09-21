@@ -336,6 +336,100 @@ function BlattBuehne({ kennung, name, haus, satz, portraet, pid, ton, kul, form,
       </div>;
 }
 
+
+/* ═══ DER AUFSTIEGSPLAN ALS BAUTEIL (v1.26.7) ═══════════════════════════════
+   Besitzer: "Mach es wirklich so, dass es global der gleiche Designblock ist.
+   Wenn ich in Zukunft dort etwas aendere, will ich nicht pruefen muessen, ob
+   du es bei den Monstern und bei den Figuren gemacht hast."
+   Bis hierher lebte die Trainingsleiter nur im Figurenblatt, mit dessen
+   lokalen Groessen. Jetzt ist sie ein Bauteil: Figurenblatt und Monsterfenster
+   rufen DASSELBE auf. `schluessel` ist die Figur (etwa "knight") oder das
+   Monster ("X:b01" - dieselbe Schreibweise, unter der das Spiel seinen Rang
+   fuehrt). Zusammen mit BlattBuehne sind damit beide Fenster aus denselben
+   zwei Teilen gebaut. */
+function Aufstiegsplan({ schluessel, kind, rungs, level, chosen, profile, en, t, dispatch, setFeier, bild,
+  frisch = null, glanz = 0 }) {
+  const [openAb, setOpenAb] = useState(null);
+      const future = rungs.filter((rg) => level < rg.level);
+  return <div style={{ display: "flex", flexDirection: "column", gap: 7, marginTop: 12 }}>
+    <div className="gg-serif" style={{ fontSize: 10, letterSpacing: ".14em", color: "#c9b26a", marginBottom: 1 }}>
+      {(en ? "Abilities" : "Fähigkeiten").toUpperCase()}</div>
+    {rungs.map((rg) => {
+      const owned = chosen.includes(rg.id);
+      const reach = level >= rg.level;
+      if (!reach && future.indexOf(rg) >= 2) return (
+        <div key={rg.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "9px 11px",
+          borderRadius: 11, border: `1px dashed ${T.line}`, background: "rgba(10, 14, 26, .4)", color: "#a9a28a", fontSize: 12 }}>
+          <LockIc size={12} />
+          <span className="gg-serif" style={{ letterSpacing: ".06em" }}>
+            {en ? "Level" : "Stufe"} {rg.level} · {en ? "still veiled" : "noch verhüllt"}</span>
+        </div>
+      );
+      const ab = ABILITIES[rg.id];
+      if (!ab) return null;
+      /* v1.0.44: WAS ES NOCH NICHT GIBT, STEHT AUCH NICHT DA. Vor dem
+         Erwachen fielen die HP-Talente durch dieselbe Anzeige wie alles
+         andere und trugen nur einen Hinweis - man sah also eine Leiter
+         voller Dinge, die es in Kapitel I gar nicht gibt. Verborgene
+         Sprossen fallen jetzt ganz weg; verriegelte bleiben stehen und
+         sagen, warum. */
+      const zustand = faehigkeitZustand(rg.id, hpWach(profile));
+      if (zustand === "verborgen") return null;
+      const tg = TAGS[ab.tag] || { color: T.gold, nameDe: "Talent", nameEn: "Talent" };
+      const price = abilityCost(rg.level);
+      const cost = 0; // energy is gone — talents are once-per-game now
+      const can = reach && !owned && canUnlockAbility(profile, schluessel, rg.id);
+      /* v1.0.70: die eben erwachte Sprosse pulst dreimal - key=glanz
+         startet den Puls je Stufenkauf genau einmal neu. */
+      const eben = rg.level === frisch;
+      return <div key={rg.id + (eben ? ":" + glanz : "")}
+        style={eben ? { animation: "ggSprossePuls 1.5s ease-in-out" } : undefined}>
+        <AbilityAccordion ab={{ ...ab, _lvl: rg.level }} charId={schluessel} tg={tg} price={price} cost={cost}
+        owned={owned} reach={reach} can={can} kind={kind} en={en} sperre={zustand === "wirkt" ? null : zustand}
+        open={openAb === rg.id} onToggle={() => setOpenAb(openAb === rg.id ? null : rg.id)}
+        onBuy={() => { klang("frei");
+          dispatch({ type: "UNLOCK_ABILITY", id: schluessel, ability: rg.id });
+          /* v1.0.75 (Besitzer: "megawichtig, dass Du mir zeigst, was die
+             Faehigkeit dann ist"): die frisch gekaufte Faehigkeit erklaert
+             sich sofort selbst - Zeichen, Name und ihre WIRKUNG im
+             Klartext aus ABILITIES.descDe/descEn. Kein Nachschlagen. */
+          setFeier && setFeier({ art: "faehigkeit", bild: bild, charId: schluessel, kind: kind, abId: rg.id, ab: {
+            icon: ab.icon, name: en ? ab.nameEn : ab.nameDe,
+            desc: faehigkeitsText(ab, schluessel, en), once: ab.once && !(schluessel === "gambit" && HELD_JEDERZEIT.has(rg.id)) } });
+        }} /></div>;
+    })}
+    {chosen.length > 0 && (() => {
+      /* v1.0.11 (Besitzer): Vergessen kostet einen VERGESSENSTRANK aus
+         dem Lager (steigender Preis beim Händler), keine Goldgebühr mehr. */
+      const trank = profile.items?.vergessenstrank || 0;
+      return <button onClick={() => trank > 0 && dispatch({ type: "RESPEC", id: schluessel })} disabled={trank < 1}
+        style={{ justifySelf: "start", background: "none", border: "none", fontFamily: "inherit",
+          cursor: trank > 0 ? "pointer" : "default", fontSize: 11.5, color: trank > 0 ? T.dim : T.faint,
+          padding: "2px 2px 0", textDecoration: trank > 0 ? "underline" : "none", textAlign: "left" }}>
+        ↺ {trank > 0 ? t("army.respec", { n: trank }) : t("army.respecNeed")}
+      </button>;
+    })()}
+  </div>;
+}
+
+
+/* ═══ DER VERBESSERN-KNOPF ALS BAUTEIL (v1.26.7) ════════════════════════════
+   Derselbe Knopf fuer Figur und Monster - ueber die ganze Breite, im
+   Riss-Gewand, mit Funkenkontur, wenn er bezahlbar ist. */
+function VerbessernKnopf({ kann, kosten, onClick, t }) {
+  return <button disabled={!kann} onClick={kann ? onClick : undefined}
+    className={kann ? "gg-funkenkontur" : undefined}
+    style={{ display: "flex", width: "100%", justifyContent: "center", alignItems: "center", gap: 6, padding: "11px 15px",
+      borderRadius: 10, fontFamily: "inherit", fontWeight: 800, fontSize: 13, letterSpacing: ".02em",
+      cursor: kann ? "pointer" : "default",
+      background: kann ? "linear-gradient(172deg, rgba(40,24,72,.97) 0%, rgba(14,9,28,.99) 100%)" : "#151827",
+      color: kann ? T.riftBright : "#8d94ad", border: `1px solid ${kann ? T.riftLine : "#3d4666"}`,
+      boxShadow: kann ? `0 0 12px ${T.riftGlow}, 0 0 26px rgba(124,58,237,.25), inset 0 0 10px rgba(124,58,237,.14)` : "none",
+      animation: kann ? "ggUpPulse 2.2s ease-in-out infinite" : "none",
+      textShadow: kann ? "0 0 8px rgba(196,181,253,.8), 0 1px 2px rgba(0,0,0,.6)" : "none" }}>
+    {t("army.upgrade")} · {kosten} <SkillStar size={12} /></button>;
+}
+
 function SheetRow({ label, children }) {
   return <div style={{ display: "flex", alignItems: "baseline", gap: 8, padding: "3px 0" }}>
     <span className="gg-serif" style={{ fontSize: 11.5, letterSpacing: ".14em", color: "#9a8f6f",
@@ -780,7 +874,7 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
   const unlocked = isUnlocked(char, profile);
   const bossNode = CAMPAIGN.find((n) => n.boss?.piece === char.id);
   const abWide = useMedia("(min-width: 680px)");
-  const [openAb, setOpenAb] = useState(null); // which ability row is unfolded
+  /* v1.26.7: der Aufklappzustand der Leiter lebt jetzt im Bauteil Aufstiegsplan */
 
   // Locked pieces stay a MYSTERY: a grayed silhouette, the name, and only the
   // place where their boss awaits — no stats, no abilities, pure temptation.
@@ -899,8 +993,8 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
           letterSpacing: ".05em", fontSize: 12.5, marginBottom: 6 }}>
           {"✦".repeat(gambitTier(level))} {t("army.stufe", { r: ["I", "II", "III", "IV", "V", "VI"][gambitTier(level) - 1] })}</div>}
         {maxed && <div className="gg-serif" style={{ width: "100%", textAlign: "center", color: T.faint, letterSpacing: ".03em" }}>{t("army.maxed")}</div>}
-        {!maxed && <button disabled={!affordable}
-          onClick={() => { klang("stufe");
+        {/* v1.26.7: derselbe Knopf wie beim Monster (VerbessernKnopf) */}
+        {!maxed && <VerbessernKnopf kann={affordable} kosten={cost} t={t} onClick={() => { klang("stufe");
             if (animAn()) {
               const sprosse = rungs.find((r) => r.level === level + 1);
               setFaehig(sprosse ? sprosse.id : null);
@@ -920,20 +1014,7 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
               setTimeout(() => setFeier({ art: "rang", tier: neuerRang,
                 bild: paintedForPiece({ kind: "P", color: "w", hero: true, level: level + 1, tier: neuerRang }) }), 620);
             }
-            dispatch({ type: "UPGRADE_PIECE", id: char.id }); }}
-          className={affordable ? "gg-funkenkontur" : undefined}
-          style={{ display: "flex", width: "100%", justifyContent: "center", alignItems: "center", gap: 6, padding: "11px 15px", borderRadius: 10,
-            fontFamily: "inherit", fontWeight: 800, fontSize: 13, letterSpacing: ".02em",
-            cursor: affordable ? "pointer" : "default",
-            // das Riss-Gewand: sehr dunkler Grund, leuchtend violette Schrift
-            // und Kontur mit weichem Schimmer
-            background: affordable ? "linear-gradient(172deg, rgba(40,24,72,.97) 0%, rgba(14,9,28,.99) 100%)" : "#151827",
-            color: affordable ? T.riftBright : "#8d94ad",
-            border: `1px solid ${affordable ? T.riftLine : "#3d4666"}`,
-            boxShadow: affordable ? `0 0 12px ${T.riftGlow}, 0 0 26px rgba(124,58,237,.25), inset 0 0 10px rgba(124,58,237,.14)` : "none",
-            animation: affordable ? "ggUpPulse 2.2s ease-in-out infinite" : "none",
-            textShadow: affordable ? "0 0 8px rgba(196,181,253,.8), 0 1px 2px rgba(0,0,0,.6)" : "none" }}>
-          {t("army.upgrade")} · {cost} <SkillStar size={12} /></button>}
+            dispatch({ type: "UPGRADE_PIECE", id: char.id }); }} />}
       </div>) : null} />;
     })() : (
     <div style={{ display: "flex", gap: 13, alignItems: "stretch", cursor: onToggle ? "pointer" : "default" }}
@@ -1098,8 +1179,8 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
           letterSpacing: ".05em", fontSize: 12.5, marginBottom: 6 }}>
           {"✦".repeat(gambitTier(level))} {t("army.stufe", { r: ["I", "II", "III", "IV", "V", "VI"][gambitTier(level) - 1] })}</div>}
         {maxed && <div className="gg-serif" style={{ width: "100%", textAlign: "center", color: T.faint, letterSpacing: ".03em" }}>{t("army.maxed")}</div>}
-        {!maxed && <button disabled={!affordable}
-          onClick={() => { klang("stufe");
+        {/* v1.26.7: derselbe Knopf wie beim Monster (VerbessernKnopf) */}
+        {!maxed && <VerbessernKnopf kann={affordable} kosten={cost} t={t} onClick={() => { klang("stufe");
             if (animAn()) {
               const sprosse = rungs.find((r) => r.level === level + 1);
               setFaehig(sprosse ? sprosse.id : null);
@@ -1119,20 +1200,7 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
               setTimeout(() => setFeier({ art: "rang", tier: neuerRang,
                 bild: paintedForPiece({ kind: "P", color: "w", hero: true, level: level + 1, tier: neuerRang }) }), 620);
             }
-            dispatch({ type: "UPGRADE_PIECE", id: char.id }); }}
-          className={affordable ? "gg-funkenkontur" : undefined}
-          style={{ display: "flex", width: "100%", justifyContent: "center", alignItems: "center", gap: 6, padding: "11px 15px", borderRadius: 10,
-            fontFamily: "inherit", fontWeight: 800, fontSize: 13, letterSpacing: ".02em",
-            cursor: affordable ? "pointer" : "default",
-            // das Riss-Gewand: sehr dunkler Grund, leuchtend violette Schrift
-            // und Kontur mit weichem Schimmer
-            background: affordable ? "linear-gradient(172deg, rgba(40,24,72,.97) 0%, rgba(14,9,28,.99) 100%)" : "#151827",
-            color: affordable ? T.riftBright : "#8d94ad",
-            border: `1px solid ${affordable ? T.riftLine : "#3d4666"}`,
-            boxShadow: affordable ? `0 0 12px ${T.riftGlow}, 0 0 26px rgba(124,58,237,.25), inset 0 0 10px rgba(124,58,237,.14)` : "none",
-            animation: affordable ? "ggUpPulse 2.2s ease-in-out infinite" : "none",
-            textShadow: affordable ? "0 0 8px rgba(196,181,253,.8), 0 1px 2px rgba(0,0,0,.6)" : "none" }}>
-          {t("army.upgrade")} · {cost} <SkillStar size={12} /></button>}
+            dispatch({ type: "UPGRADE_PIECE", id: char.id }); }} />}
       </div>
     )}
 
@@ -1161,71 +1229,9 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
         <div style={{ fontSize: 9.5, color: "#8a856f", marginTop: 3, fontStyle: "italic" }}>{en ? MOVE_LEGEND.en : MOVE_LEGEND.de}</div>
       </div>
     )}
-    {open && unlocked && (() => {
-      // THE TALENTS as an accordion: each row shows icon, name, TYPE and cost
-      // folded; tapping unfolds the description + move diagram + learn button.
-      // Talents more than two levels out stay veiled — pure temptation.
-      const future = rungs.filter((rg) => level < rg.level);
-      return <div style={{ display: "flex", flexDirection: "column", gap: 7, marginTop: 12 }}>
-        <div className="gg-serif" style={{ fontSize: 10, letterSpacing: ".14em", color: "#c9b26a", marginBottom: 1 }}>
-          {(en ? "Abilities" : "Fähigkeiten").toUpperCase()}</div>
-        {rungs.map((rg) => {
-          const owned = chosen.includes(rg.id);
-          const reach = level >= rg.level;
-          if (!reach && future.indexOf(rg) >= 2) return (
-            <div key={rg.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "9px 11px",
-              borderRadius: 11, border: `1px dashed ${T.line}`, background: "rgba(10, 14, 26, .4)", color: "#a9a28a", fontSize: 12 }}>
-              <LockIc size={12} />
-              <span className="gg-serif" style={{ letterSpacing: ".06em" }}>
-                {en ? "Level" : "Stufe"} {rg.level} · {en ? "still veiled" : "noch verhüllt"}</span>
-            </div>
-          );
-          const ab = ABILITIES[rg.id];
-          if (!ab) return null;
-          /* v1.0.44: WAS ES NOCH NICHT GIBT, STEHT AUCH NICHT DA. Vor dem
-             Erwachen fielen die HP-Talente durch dieselbe Anzeige wie alles
-             andere und trugen nur einen Hinweis - man sah also eine Leiter
-             voller Dinge, die es in Kapitel I gar nicht gibt. Verborgene
-             Sprossen fallen jetzt ganz weg; verriegelte bleiben stehen und
-             sagen, warum. */
-          const zustand = faehigkeitZustand(rg.id, hpWach(profile));
-          if (zustand === "verborgen") return null;
-          const tg = TAGS[ab.tag] || { color: T.gold, nameDe: "Talent", nameEn: "Talent" };
-          const price = abilityCost(rg.level);
-          const cost = 0; // energy is gone — talents are once-per-game now
-          const can = reach && !owned && canUnlockAbility(profile, char.id, rg.id);
-          /* v1.0.70: die eben erwachte Sprosse pulst dreimal - key=glanz
-             startet den Puls je Stufenkauf genau einmal neu. */
-          const eben = rg.level === frisch;
-          return <div key={rg.id + (eben ? ":" + glanz : "")}
-            style={eben ? { animation: "ggSprossePuls 1.5s ease-in-out" } : undefined}>
-            <AbilityAccordion ab={{ ...ab, _lvl: rg.level }} charId={char.id} tg={tg} price={price} cost={cost}
-            owned={owned} reach={reach} can={can} kind={char.kind} en={en} sperre={zustand === "wirkt" ? null : zustand}
-            open={openAb === rg.id} onToggle={() => setOpenAb(openAb === rg.id ? null : rg.id)}
-            onBuy={() => { klang("frei");
-              dispatch({ type: "UNLOCK_ABILITY", id: char.id, ability: rg.id });
-              /* v1.0.75 (Besitzer: "megawichtig, dass Du mir zeigst, was die
-                 Faehigkeit dann ist"): die frisch gekaufte Faehigkeit erklaert
-                 sich sofort selbst - Zeichen, Name und ihre WIRKUNG im
-                 Klartext aus ABILITIES.descDe/descEn. Kein Nachschlagen. */
-              setFeier({ art: "faehigkeit", bild: paintedById(char.id), charId: char.id, kind: char.kind, abId: rg.id, ab: {
-                icon: ab.icon, name: en ? ab.nameEn : ab.nameDe,
-                desc: faehigkeitsText(ab, char.id, en), once: ab.once && !(char.id === "gambit" && HELD_JEDERZEIT.has(rg.id)) } });
-            }} /></div>;
-        })}
-        {chosen.length > 0 && (() => {
-          /* v1.0.11 (Besitzer): Vergessen kostet einen VERGESSENSTRANK aus
-             dem Lager (steigender Preis beim Händler), keine Goldgebühr mehr. */
-          const trank = profile.items?.vergessenstrank || 0;
-          return <button onClick={() => trank > 0 && dispatch({ type: "RESPEC", id: char.id })} disabled={trank < 1}
-            style={{ justifySelf: "start", background: "none", border: "none", fontFamily: "inherit",
-              cursor: trank > 0 ? "pointer" : "default", fontSize: 11.5, color: trank > 0 ? T.dim : T.faint,
-              padding: "2px 2px 0", textDecoration: trank > 0 ? "underline" : "none", textAlign: "left" }}>
-            ↺ {trank > 0 ? t("army.respec", { n: trank }) : t("army.respecNeed")}
-          </button>;
-        })()}
-      </div>;
-    })()}
+    {open && unlocked && <Aufstiegsplan schluessel={char.id} kind={char.kind} rungs={rungs} level={level}
+      chosen={chosen} profile={profile} en={en} t={t} dispatch={dispatch} setFeier={setFeier}
+      bild={paintedById(char.id)} frisch={frisch} glanz={glanz} />}
   </Panel>;
 }
 
@@ -2661,57 +2667,29 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
                 zugKind={null} moveSpec={b.moveSpec} talente={[]}
                 zeichen={(b.abilities || []).map((id) => ({ id, gelernt: true }))}
                 band={{ leben: bandB.leben, kraft: bandB.kraft }}
-                atk={b.atk} maxHp={b.hp} plusAtk={0} plusHp={0} werteAn={hpUnlocked(profile)} maxed={lvlB >= BOSS_MAX_LEVEL} en={en}
-                tonStaerke={0.45} />;
+                atk={bossSpecLeveled(b, lvlB).atk} maxHp={bossSpecLeveled(b, lvlB).hp}
+                plusAtk={lvlB < BOSS_MAX_LEVEL ? Math.max(0, bossSpecLeveled(b, lvlB + 1).atk - bossSpecLeveled(b, lvlB).atk) : 0}
+                plusHp={lvlB < BOSS_MAX_LEVEL ? Math.max(0, bossSpecLeveled(b, lvlB + 1).hp - bossSpecLeveled(b, lvlB).hp) : 0}
+                werteAn={hpUnlocked(profile)} maxed={lvlB >= BOSS_MAX_LEVEL} en={en}
+                tonStaerke={0.45}
+                knopf={((profile.campaign?.bribedBosses || []).includes(b.id) || ownedBossSet.has(b.id)) && lvlB < BOSS_MAX_LEVEL
+                  ? <VerbessernKnopf kann={(profile.sp || 0) >= bossUpgradeCost(lvlB + 1)} kosten={bossUpgradeCost(lvlB + 1)}
+                      onClick={() => { klang("stufe"); dispatch({ type: "UPGRADE_BOSS", id: b.id }); }} t={t} />
+                  : null} />;
             })()}
-            {(() => {
-              const lvl = bossLevelOf(profile, b.id);
-              const spec = bossSpecLeveled(b, lvl);
-              const mein = (profile.campaign?.bribedBosses || []).includes(b.id) || ownedBossSet.has(b.id);
-              const cost = bossUpgradeCost(lvl + 1);
-              const kann = mein && lvl < BOSS_MAX_LEVEL && (profile.sp || 0) >= cost;
-              return <>
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 6, margin: "12px 0 2px" }}>
-                  <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><b style={{ font: "800 12px/1 Georgia, serif", color: "#b6cdff" }}>{spec.atk}</b><span style={{ fontSize: 10.5, color: "#a898b4", letterSpacing: ".04em" }}>{en ? "Attack" : "Angriffsstärke"}</span></span>
-                  <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><b style={{ font: "800 12px/1 Georgia, serif", color: "#ffb3aa" }}>{spec.hp}</b><span style={{ fontSize: 10.5, color: "#a898b4", letterSpacing: ".04em" }}>{en ? "Life" : "Lebenspunkte"}</span></span>
-                </div>
-                {/* DIE STUFENLEITER DER BESTIE: was jeder Rang bringt, offen
-                    einsehbar wie die Fähigkeitsleiter des Hofes. */}
-                {mein && <div style={{ marginTop: 12 }}>
-                  <div className="gg-serif" style={{ fontSize: 10.5, letterSpacing: ".12em", color: T.riftBright, marginBottom: 5 }}>{en ? "RANKS" : "RÄNGE"}</div>
-                  {[2, 3, 4, 5].map((r) => {
-                    const da = lvl >= r, sp2 = bossSpecLeveled(b, r);
-                    return <div key={r} style={{ display: "flex", alignItems: "center", gap: 8, padding: "5px 8px", marginBottom: 4,
-                      borderRadius: 9, border: `1px solid ${da ? "rgba(124,58,237,.5)" : "rgba(255,255,255,.09)"}`,
-                      background: da ? "rgba(30,18,54,.6)" : "rgba(12,10,18,.5)", opacity: da ? 1 : 0.62 }}>
-                      <span className="gg-serif" style={{ fontSize: 11, color: da ? T.riftBright : "#8d84a0", minWidth: 52 }}>
-                        {(en ? "Rank " : "Rang ") + r}</span>
-                      <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
-                        <b style={{ font: "800 11px/1 Georgia, serif", color: "#ffb3aa" }}>{sp2.hp}</b>
-                        {(r === 3 || r === 5) && <b style={{ font: "800 11px/1 Georgia, serif", color: "#b6cdff" }}>{sp2.atk}</b>}
-                      </span>
-                      <span style={{ flex: 1 }} />
-                      <span style={{ fontSize: 10.5, color: da ? "#a898b4" : "#7b7290" }}>
-                        {da ? (en ? "reached" : "erreicht") : bossUpgradeCost(r) + " ✦"}</span>
-                    </div>;
-                  })}
-                </div>}
-                {mein && <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
-                  <span className="gg-serif" style={{ fontSize: 11.5, color: "#c9bcd6" }}>
-                    {(en ? "Rank " : "Rang ") + lvl + " / " + BOSS_MAX_LEVEL}</span>
-                  <span style={{ flex: 1 }} />
-                  {lvl < BOSS_MAX_LEVEL && <button onClick={() => dispatch({ type: "UPGRADE_BOSS", id: b.id })}
-                    disabled={!kann} className={kann ? "gg-funkenkontur" : undefined}
-                    style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 10,
-                      fontFamily: "inherit", fontWeight: 800, fontSize: 12.5, cursor: kann ? "pointer" : "default",
-                      background: kann ? "linear-gradient(172deg, rgba(40,24,72,.97) 0%, rgba(14,9,28,.99) 100%)" : "#151827",
-                      color: kann ? T.riftBright : "#8d94ad", border: `1px solid ${kann ? T.riftLine : "#3d4666"}`,
-                      boxShadow: kann ? `0 0 12px ${T.riftGlow}` : "none",
-                      textShadow: kann ? "0 0 8px rgba(196,181,253,.8)" : "none" }}>
-                    {t("army.upgrade")} · {cost} <SkillStar size={12} /></button>}
-                </div>}
-              </>;
-            })()}
+            {/* ── v1.26.7 (Besitzer): DIESELBE TRAININGSLEITER WIE BEI DEN FIGUREN.
+                "Mach es wirklich so, dass es global der gleiche Designblock
+                 ist." Kein eigener Raenge-Block mehr: das Monster ruft
+                 dasselbe Bauteil Aufstiegsplan wie das Figurenblatt. Seine
+                 Leiter traegt zwei Faehigkeiten auf Stufe 2 und 4 (v1.26.0),
+                 und es lernt sie wie jede Figur - mit Skillpunkten. */}
+            {(profile.campaign?.bribedBosses || []).includes(b.id) || ownedBossSet.has(b.id)
+              ? <Aufstiegsplan schluessel={"X:" + b.id} kind={null}
+                  rungs={(b.ladder || []).map((r) => ({ level: r.level, id: r.ability }))}
+                  level={bossLevelOf(profile, b.id)} chosen={chosenAbilities(profile, "X:" + b.id)}
+                  profile={profile} en={en} t={t} dispatch={dispatch} setFeier={null}
+                  bild={img} />
+              : null}
           </div>
         </div>
       </div>;

@@ -196,7 +196,7 @@ console.log("\n== test_anim: die Aufstiegsfeier (v1.0.75) ==");
   /* v1.26.6: die Wirkung kommt jetzt aus faehigkeitsText(), damit beim Gambit
      "jederzeit" steht, wo der Kern es erlaubt - sonst derselbe Text. */
   ok("die gekaufte Faehigkeit erklaert ihre Wirkung",
-    as.includes("desc: faehigkeitsText(ab, char.id, en)"));
+    as.includes("desc: faehigkeitsText(ab, schluessel, en)"));   /* v1.26.7: im gemeinsamen Bauteil Aufstiegsplan */
   const th = readFileSync("src/app/ui/theme.js", "utf8");
   for (const kf of ["ggFeierKranz", "ggFeierKarte", "ggFeierBild"])
     ok(`Keyframe ${kf} existiert`, th.includes(`@keyframes ${kf}`));

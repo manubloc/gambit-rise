@@ -1672,6 +1672,29 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
       ok("beim Gambit heisst Stossschlag 'jederzeit'", faehigkeitsText(stoss, "gambit", false) === "Darf jederzeit gerade nach vorn schlagen.");
       ok("beim Bauern bleibt es '1x'", faehigkeitsText(stoss, "pawn", false) === "Darf 1× gerade nach vorn schlagen.");
     }
+    /* v1.26.7 (Besitzer): "wirklich ein und dasselbe Design" - Figurenblatt und
+       Monsterfenster bauen sich aus DENSELBEN Bauteilen. Geprueft wird, dass
+       es jedes Bauteil genau einmal gibt und beide Fenster es aufrufen. */
+    {
+      const a7 = readFileSync("src/app/ui/screens/ArmyScreen.jsx", "utf8");
+      const einmal = (name) => (a7.match(new RegExp("function " + name + "\\(", "g")) || []).length === 1;
+      ok("Buehne, Leiter und Knopf gibt es je genau einmal",
+        einmal("BlattBuehne") && einmal("Aufstiegsplan") && einmal("VerbessernKnopf"));
+      ok("das Figurenblatt ruft die Leiter auf", a7.includes('<Aufstiegsplan schluessel={char.id}'));
+      ok("das Monsterfenster ruft DIESELBE Leiter auf", a7.includes('<Aufstiegsplan schluessel={"X:" + b.id}'));
+      ok("kein zweiter, eigener Verbessern-Knopf mehr", !a7.includes('{!maxed && <button disabled={!affordable}'));
+      const { canUnlockAbility, leiterVon } = await import("./src/meta/leveling.js");
+      ok("ein Monster hat eine Leiter im Kern", leiterVon("X:b01").length > 0);
+      /* Bollwerk wirkt nur an Lebenspunkten - dieselbe Sperre wie bei jeder
+         Figur. Das Probenprofil muss deshalb die alte Magie erweckt haben. */
+      const { CAMPAIGN: C7 } = await import("./src/content/index.js");
+      const bisHp = C7.slice(0, C7.findIndex((n) => n.rules === "hp") + 1).map((n) => n.id);
+      const pr = (st) => ({ sp: 99, pieces: { bossLevels: { b01: st }, abilities: {} }, campaign: { cleared: bisHp } });
+      const erste = leiterVon("X:b01")[0];
+      ok("ein Monster lernt seine erste Faehigkeit auf ihrer Stufe - nicht vorher",
+        canUnlockAbility(pr(erste.level), "X:b01", erste.ability) === true
+        && canUnlockAbility(pr(erste.level - 1), "X:b01", erste.ability) === false);
+    }
     ok("das Rohr rechnet in Punkten gegen das Budget der Figur",
       pg3.includes("const budget = Math.max(1, piece.budget || Math.max(NORM_PUNKTE, maxHp + atk))")
       && pg3.includes("leben: Math.max(0, Math.min(1, hp / budget))"));

@@ -164,21 +164,30 @@ export function upgradePiece(profile, charId) {
 
 // ── Abilities are bought deliberately: save up, then choose ──────────────────
 export const abilityCost = (reqLevel) => Math.ceil(reqLevel / 2); // L3→2 · L5→3 · L7→4 · L9→5 SP
+/* ── v1.26.7: DIESELBE LEITER FUER FIGUR UND MONSTER ────────────────────────
+   Besitzer: "Auch die Monster muessen doch Faehigkeiten freischalten und
+   erlernen." Ein Monster wird unter "X:<id>" gefuehrt - dieselbe Schreibweise,
+   unter der das Spiel seinen Rang fuehrt. Seine Leiter kommt aus bosses.js
+   (v1.26.0: zwei Faehigkeiten auf Stufe 2 und 4), seine Stufe aus
+   bossLevelOf. Freischalten, Kosten und Vorrat sind dieselben wie bei einer
+   Figur. */
+const istMonster = (id) => typeof id === "string" && id.startsWith("X:");
+export const leiterVon = (id) => (istMonster(id) ? bossById(id.slice(2))?.ladder : CHARACTERS[id]?.ladder) || [];
+const stufeVon = (profile, id) => (istMonster(id) ? bossLevelOf(profile, id.slice(2)) : characterLevel(profile, id));
 export function canUnlockAbility(profile, charId, abilityId) {
-  const ch = CHARACTERS[charId];
-  const rung = ch?.ladder.find((e) => e.ability === abilityId);
+  const rung = leiterVon(charId).find((e) => e.ability === abilityId);
   if (!rung) return false;
   // Talente, die nur an Lebenspunkten wirken, schlafen bis zum Erwachen der
   // alten Magie - sonst verbrennt ein Spieler in der Schachhaelfte von
   // Kapitel I Sternenstaub fuer eine Wirkung, die es noch nicht gibt.
   if (ABILITIES[abilityId]?.hpOnly && !hpWach(profile)) return false;
   if (chosenAbilities(profile, charId).includes(abilityId)) return false;
-  if (characterLevel(profile, charId) < rung.level) return false;
+  if (stufeVon(profile, charId) < rung.level) return false;
   return skillPoints(profile) >= abilityCost(rung.level);
 }
 export function unlockAbility(profile, charId, abilityId) {
   if (!canUnlockAbility(profile, charId, abilityId)) return profile;
-  const rung = CHARACTERS[charId].ladder.find((e) => e.ability === abilityId);
+  const rung = leiterVon(charId).find((e) => e.ability === abilityId);
   const pieces = profile.pieces || {};
   const abilities = { ...(pieces.abilities || {}) };
   abilities[charId] = [...(abilities[charId] || []), abilityId];
@@ -383,7 +392,13 @@ export function buildArmyFromFormation(levelOf, formation, chosenOf = null, boos
     if (id == null) return null;                   // the dragon's wing: an open square
     if (isBossEntry(id)) {
       const b = bossById(bossEntryId(id));
-      if (b) return bossSpecLeveled(b, levelOf("X:" + b.id));  // der Boss marschiert mit seinem RANG
+      if (b) {
+        const spec = bossSpecLeveled(b, levelOf("X:" + b.id));  // der Boss marschiert mit seinem RANG
+        /* v1.26.7: ein EIGENES Monster traegt nur, was es gelernt hat - wie
+           jede Figur. Ohne Lernliste (etwa in Proben) bleibt alles. */
+        if (chosenOf) { const gelernt = chosenOf("X:" + b.id) || []; return { ...spec, abilities: (spec.abilities || []).filter((a) => gelernt.includes(a)) }; }
+        return spec;
+      }
     }
     const ch = CHARACTERS[id];
     const level = Math.max(1, levelOf(id) || 1);
