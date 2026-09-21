@@ -322,6 +322,19 @@ ok("full build counts ten league crowns", fullB.stats.leaguesWon === 10);
   ok("ein freier Name geht durch", acc.nameFehler(liste, "Der Graue", "a1") === null);
 }
 
+/* v1.27.2: das Profil fragt den SERVER, bevor es einen Namen speichert - und
+   speichert nicht, wenn er nicht antwortet (Besitzer: "der Server muss
+   pruefen"). */
+{
+  const { readFileSync } = await import("node:fs");
+  const pf2 = readFileSync("src/app/ui/screens/ProfileScreen.jsx", "utf8");
+  const a = pf2.indexOf("/name-frei?n="), b = pf2.indexOf("renameAccount(account.id");
+  ok("das Profil fragt den Server VOR dem Speichern", a > 0 && b > a);
+  ok("ohne Antwort des Servers wird nicht gespeichert", pf2.includes('if (!antwort) throw new Error("server-unreachable")'));
+  const on = readFileSync("src/app/ui/screens/OnlineScreen.jsx", "utf8");
+  ok("einen vom Server angepassten Namen uebernimmt das Geraet", on.includes("m.you?.nameAngepasst"));
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 if (fail) process.exit(1);
 

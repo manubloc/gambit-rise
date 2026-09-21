@@ -159,6 +159,11 @@ export function OnlineScreen({ profile, dispatch, t, net, account, onDaily = nul
   useEffect(() => {
     const subs = [
       net.on("welcome", (m) => { setConn("on"); setOnlineN(m.online || 0); net.send({ t: "daily:list" });
+        /* v1.27.2: hat der Server den Namen angepasst, weil ein anderer Spieler
+           ihn schon traegt, gilt SEIN Name - sonst zeigte das Geraet einen
+           Namen, den online jemand anderes fuehrt. */
+        if (m.you?.nameAngepasst && m.you?.name && m.you.name !== profile.name)
+          dispatch({ type: "REPLACE", profile: { ...profile, name: m.you.name } });
         // aus dem Hauptmenue gewaehlte Partie sofort oeffnen
         if (oeffneDaily?.current) { const g = oeffneDaily.current; oeffneDaily.current = null; net.send({ t: "daily:open", gameId: g }); }
         if (m.push) { setPushKey(m.push); syncPush(); } }),

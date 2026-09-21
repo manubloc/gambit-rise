@@ -1,5 +1,27 @@
 # Changelog - Grand Gambit
 
+## 1.27.2
+- DER NAME IST ONLINE EINDEUTIG - DER SERVER PRUEFT (Besitzer: "Auf jeden
+  Fall muss der Server pruefen, denn er muss online eindeutig sein").
+  GEFUNDEN: der Spielserver nahm bei hello und set jeden Namen ungeprueft
+  an - zwei Spieler konnten gleich heissen. Jetzt prueft er gegen ALLE
+  Spieler, die er kennt, mit derselben Regel wie das Geraet (Gross-/
+  Kleinschreibung und doppelte Leerzeichen zaehlen nicht).
+    * set mit vergebenem Namen: abgelehnt, der Spieler bekommt nameVergeben.
+    * hello mit vergebenem Namen: der Server kann ihn nicht abweisen (er
+      saesse ausgesperrt) und gibt ihm eine freie Abwandlung ("Name 2");
+      das welcome meldet es, und das Geraet uebernimmt den Servernamen.
+    * GET /name-frei: das Profil fragt hier VOR dem Speichern. Verraten
+      wird nur frei oder nicht, nie wem ein Name gehoert.
+- DAS PROFIL SPEICHERT NICHT OHNE DEN SERVER: ist er nicht erreichbar oder
+  kennt er die Abfrage noch nicht, bleibt der alte Name und die Meldung sagt
+  warum. Sonst waere die Eindeutigkeit wieder nur eine Hoffnung.
+- WICHTIG: der Spielserver (Cloudflare Worker gg-hall) wird NICHT ueber
+  GitHub ausgerollt, sondern von Hand: cd worker && npx wrangler deploy.
+  Bis das geschieht, meldet das Profil beim Umbenennen "Der Server prueft
+  Namen noch nicht - er muss neu ausgerollt werden".
+- Sieben Proben in test_worker (Server), drei in test_saves (Profil).
+
 ## 1.27.1
 - DER GAMBIT SITZT IM BOOT (Besitzer: "das Schiff im letzten Kapitel - der
   Gambit sitzt nicht im Schiff, sondern daneben. Er muss in jeder Stufe drin

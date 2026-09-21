@@ -28,7 +28,7 @@ export default {
       return env.HALL.get(id).fetch(request);
     }
     // health + the error-report endpoints all live in the one Hall
-    if (url.pathname === "/health" || url.pathname === "/report" || url.pathname === "/reports" || url.pathname === "/design" || url.pathname === "/spielerbuch" || url.pathname === "/vergiss") {
+    if (url.pathname === "/health" || url.pathname === "/name-frei" || url.pathname === "/report" || url.pathname === "/reports" || url.pathname === "/design" || url.pathname === "/spielerbuch" || url.pathname === "/vergiss") {
       const id = env.HALL.idFromName("hall");
       return env.HALL.get(id).fetch(request);
     }
@@ -191,6 +191,17 @@ export class Hall extends DurableObject {
     };
     if (request.method === "OPTIONS" && (url.pathname === "/report" || url.pathname === "/reports" || url.pathname === "/design" || url.pathname === "/vergiss")) {
       return new Response(null, { status: 204, headers: cors });
+    }
+    /* ── v1.27.2: IST DER NAME FREI? (Besitzer: "der Server muss pruefen, der
+       Name muss online eindeutig sein"). Das Profil fragt hier VOR dem
+       Speichern. Offen lesbar wie /design - verraten wird nur frei oder
+       nicht, nie, wem ein Name gehoert. */
+    if (url.pathname === "/name-frei") {
+      if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
+      const n = url.searchParams.get("n") || "";
+      const id = url.searchParams.get("id") || null;
+      return new Response(JSON.stringify({ frei: !this.core.nameVergeben(n, id) }),
+        { headers: { ...cors, "content-type": "application/json" } });
     }
     // ── THE HOUSE DESIGN: which livery every player gets. Reading is open
     //    (the app asks on boot, pre-login); writing needs the admin token.

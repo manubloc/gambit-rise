@@ -615,5 +615,24 @@ const hmac2 = async (key, data) => { const k = await subtle.importKey("raw", key
   ok("auch offene Anfragen verschwinden mit", !(hall.player("w2").pending || []).includes("w3"));
 }
 
+// ── v1.27.2: DER NAME IST ONLINE EINDEUTIG (Besitzer: "der Server muss pruefen")
+{
+  const { hall, last } = mkHall();
+  hall.handle(null, { t: "hello", id: "p1", secret: "s1", name: "Corvin", score: 100 });
+  ok("ein freier Name wird uebernommen", hall.player("p1").name === "Corvin");
+  hall.handle(null, { t: "hello", id: "p2", secret: "s2", name: "  corvin ", score: 100 });
+  ok("ein vergebener Name - auch anders geschrieben - bekommt eine freie Abwandlung",
+    hall.player("p2").name === "corvin 2" || /^corvin \d+$/i.test(hall.player("p2").name));
+  ok("und das welcome sagt, dass angepasst wurde", last("welcome", "p2").you.nameAngepasst === true);
+  hall.handle(null, { t: "hello", id: "p1", secret: "s1", name: "Corvin", score: 100 });
+  ok("der eigene Name bleibt beim erneuten Verbinden", hall.player("p1").name === "Corvin");
+  hall.handle("p2", { t: "set", name: "Corvin" });
+  ok("umbenennen auf einen vergebenen Namen wird abgelehnt",
+    hall.player("p2").name !== "Corvin" && last("nameVergeben", "p2")?.name === "Corvin");
+  hall.handle("p2", { t: "set", name: "Der Graue" });
+  ok("umbenennen auf einen freien Namen geht", hall.player("p2").name === "Der Graue");
+  ok("nameVergeben kennt die eigene Kennung", hall.nameVergeben("Der Graue", "p2") === false && hall.nameVergeben("Der Graue", "p1") === true);
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 if (fail) process.exit(1);

@@ -23,14 +23,32 @@ function NamenFeld({ profile, dispatch, account, en }) {
   const [laeuft, setLaeuft] = useState(false);
   const TEXTE = en
     ? { save: "Save", ok: "Saved.", "name-short": "At least 2 characters.", "name-long": "At most 24 characters.",
-        "name-taken": "That name is already taken.", "not-found": "Account not found.", hint: "Unique - no other account may carry it." }
+        "name-taken": "That name is already taken.", "not-found": "Account not found.", hint: "Unique online - the server checks it.",
+        "server-unreachable": "The server can't be reached - the name can't be checked right now.",
+        "server-old": "The server doesn't check names yet - it needs to be redeployed." }
     : { save: "Speichern", ok: "Gespeichert.", "name-short": "Mindestens 2 Zeichen.", "name-long": "Höchstens 24 Zeichen.",
-        "name-taken": "Diesen Namen trägt schon jemand.", "not-found": "Konto nicht gefunden.", hint: "Einzigartig - kein anderes Konto darf ihn tragen." };
+        "name-taken": "Diesen Namen trägt schon jemand.", "not-found": "Konto nicht gefunden.", hint: "Online einzigartig - der Server prüft ihn.",
+        "server-unreachable": "Der Server ist nicht erreichbar - der Name kann gerade nicht geprüft werden.",
+        "server-old": "Der Server prüft Namen noch nicht - er muss neu ausgerollt werden." };
   const geaendert = entwurf.trim().replace(/\s+/g, " ") !== (profile.name || "");
   const speichern = async () => {
     if (!geaendert || laeuft) return;
     setLaeuft(true); setMeldung(null);
     try {
+      /* v1.27.2 (Besitzer: "auf jeden Fall muss der Server pruefen, denn er
+         muss online eindeutig sein"). ERST der Server, dann das Geraet. Ist
+         der Server nicht erreichbar, wird NICHT gespeichert - sonst waere die
+         Eindeutigkeit wieder nur eine Hoffnung. */
+      const { HALL_HTTP } = await import("../../config.js");
+      const kennung = profile.online?.id || "";
+      let antwort = null;
+      try {
+        const r = await fetch(`${HALL_HTTP}/name-frei?n=${encodeURIComponent(entwurf.trim())}&id=${encodeURIComponent(kennung)}`);
+        antwort = r.ok ? await r.json() : { fehlt: r.status };
+      } catch { antwort = null; }
+      if (!antwort) throw new Error("server-unreachable");
+      if (antwort.fehlt) throw new Error("server-old");
+      if (antwort.frei === false) throw new Error("name-taken");
       const { renameAccount } = await import("../../../meta/accounts.js");
       const neu = account && account.id ? await renameAccount(account.id, entwurf) : entwurf.trim().replace(/\s+/g, " ");
       dispatch({ type: "REPLACE", profile: { ...profile, name: neu } });

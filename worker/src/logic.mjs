@@ -40,6 +40,8 @@ const DAILY_MS = 3 * 24 * 60 * 60 * 1000;
 // shoulder — enough to save a game over a busy weekend.
 const REMIND_MS = 24 * 60 * 60 * 1000;
 
+const normName = (n) => String(n || "").trim().toLowerCase().replace(/\s+/g, " ");
+
 export class HallCore {
   constructor({ store, send, now = () => Date.now(), adminToken = "", notify = () => {}, pushKey = null }) {
     this.store = store; this.send = send; this.now = now;
@@ -78,6 +80,24 @@ export class HallCore {
   nextId(prefix) { const n = (Number(this.store.kvGet("seq")) || 0) + 1; this.store.kvSet("seq", String(n)); return prefix + n; }
 
   player(id) { return this.store.getPlayer(id); }
+  /* ── v1.27.2 (Besitzer): DER NAME IST ONLINE EINDEUTIG ─────────────────────
+     "Auf jeden Fall muss der Server pruefen, denn er muss online eindeutig
+      sein." Bisher uebernahmen hello und set jeden Namen ungeprueft - zwei
+     Spieler konnten gleich heissen. Jetzt prueft der Server gegen ALLE
+     Spieler, die er kennt; Gross-/Kleinschreibung und doppelte Leerzeichen
+     zaehlen nicht (dieselbe Regel wie auf dem Geraet, accounts.js normName). */
+  nameVergeben(name, ausserId = null) {
+    const n = normName(name);
+    if (!n) return false;
+    const alle = this.store.dumpPlayers ? this.store.dumpPlayers() : {};
+    return Object.values(alle).some((q) => q && q.id !== ausserId && normName(q.name) === n);
+  }
+  freierName(name, ausserId = null) {
+    const basis = String(name || "").trim().slice(0, 17) || "Spieler";
+    if (!this.nameVergeben(basis, ausserId)) return basis;
+    for (let i = 2; i < 999; i++) { const k = `${basis} ${i}`; if (!this.nameVergeben(k, ausserId)) return k; }
+    return `${basis} ${this.now() % 1000}`;
+  }
   savePlayer(p) { this.store.putPlayer(p); }
   isOnline(id) { return this.online.has(id); }
 
@@ -338,8 +358,14 @@ export class HallCore {
       if (!id || !secret || !name) throw new Error("bad hello");
       const ex = this.player(id);
       if (ex && ex.secret !== secret) throw new Error("identity taken");
+      /* Traegt ein ANDERER Spieler den Namen schon, bekommt dieser Spieler eine
+         freie Abwandlung ("Name 2") - abweisen kann der Server ihn beim
+         Verbinden nicht, sonst saesse er ausgesperrt. Das welcome meldet es. */
+      const gewuenscht = String(name).slice(0, 20);
+      const vergeben = this.nameVergeben(gewuenscht, id);
+      const endName = vergeben ? (ex && !this.nameVergeben(ex.name, id) ? ex.name : this.freierName(gewuenscht, id)) : gewuenscht;
       this.savePlayer({ ...(ex || { friends: [], pending: [] }), id, secret,
-        name: String(name).slice(0, 20), score: score | 0,
+        name: endName, score: score | 0,
         privacy: privacy === "friends" ? "friends" : "public",
         lang: msg.lang === "en" ? "en" : (ex?.lang || "de"),
         seen: this.now(), stats: cleanStats(msg.stats) || ex?.stats || null,
@@ -358,7 +384,7 @@ export class HallCore {
       me = id;
       this.connect(me);
       const p = this.player(me);
-      this.send(me, { t: "welcome", you: { id, name: p.name, score: p.score, privacy: p.privacy },
+      this.send(me, { t: "welcome", you: { id, name: p.name, score: p.score, privacy: p.privacy, nameAngepasst: vergeben },
         online: this.online.size, push: this.pushKey || null });
       this.pushFriends(me); this.notifyFriends(me);
       return me;
@@ -369,7 +395,11 @@ export class HallCore {
     if (msg.t === "set") {
       if (msg.privacy) p.privacy = msg.privacy === "friends" ? "friends" : "public";
       if (msg.score != null) p.score = msg.score | 0;
-      if (msg.name) p.name = String(msg.name).slice(0, 20);
+      if (msg.name) {
+        const n = String(msg.name).slice(0, 20);
+        if (this.nameVergeben(n, me)) this.send(me, { t: "nameVergeben", name: n });
+        else p.name = n;
+      }
       if (msg.stats) p.stats = cleanStats(msg.stats) || p.stats;
       p.seen = this.now();
       this.savePlayer(p); return me;
