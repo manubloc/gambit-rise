@@ -310,6 +310,18 @@ ok("full build counts ten league crowns", fullB.stats.leaguesWon === 10);
   ok("der Knopf, der das Loeschen oeffnet, traegt kein Violett mehr", !pf.includes('color: "#b9a4e8" }}>{t("profile.delOpen")}'));
 }
 
+/* v1.27.0 (Besitzer): "dass ich meinen Spielernamen anpassen kann". Aenderbar,
+   aber eindeutig - kein anderes Konto darf denselben Namen tragen. */
+{
+  const acc = await import("./src/meta/accounts.js");
+  const liste = [{ id: "a1", name: "Manu" }, { id: "a2", name: "Corvin" }];
+  ok("zu kurz wird abgelehnt", acc.nameFehler(liste, "x", "a1") === "name-short");
+  ok("zu lang wird abgelehnt", acc.nameFehler(liste, "x".repeat(25), "a1") === "name-long");
+  ok("ein vergebener Name wird abgelehnt - auch in anderer Schreibweise", acc.nameFehler(liste, "  corVIN ", "a1") === "name-taken");
+  ok("der eigene Name darf bleiben", acc.nameFehler(liste, "Manu", "a1") === null);
+  ok("ein freier Name geht durch", acc.nameFehler(liste, "Der Graue", "a1") === null);
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 if (fail) process.exit(1);
 

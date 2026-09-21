@@ -13,6 +13,50 @@ import { FeedbackPanel, rubrikWort } from "./FeedbackPanel.jsx";
 import { ZeitBalken } from "../ZeitBalken.jsx";
 import { lautVon, merkeLaut } from "../lautstaerke.js";   /* v1.26.2 */
 
+
+/* Das Namensfeld: bearbeiten, pruefen, speichern. Der Name steht an zwei
+   Stellen - im Profil (Anzeige, Spielstand) und am Konto (Eindeutigkeit).
+   Gespeichert wird erst am Konto, und nur wenn das gelingt, im Profil. */
+function NamenFeld({ profile, dispatch, account, en }) {
+  const [entwurf, setEntwurf] = useState(profile.name || "");
+  const [meldung, setMeldung] = useState(null);
+  const [laeuft, setLaeuft] = useState(false);
+  const TEXTE = en
+    ? { save: "Save", ok: "Saved.", "name-short": "At least 2 characters.", "name-long": "At most 24 characters.",
+        "name-taken": "That name is already taken.", "not-found": "Account not found.", hint: "Unique - no other account may carry it." }
+    : { save: "Speichern", ok: "Gespeichert.", "name-short": "Mindestens 2 Zeichen.", "name-long": "Höchstens 24 Zeichen.",
+        "name-taken": "Diesen Namen trägt schon jemand.", "not-found": "Konto nicht gefunden.", hint: "Einzigartig - kein anderes Konto darf ihn tragen." };
+  const geaendert = entwurf.trim().replace(/\s+/g, " ") !== (profile.name || "");
+  const speichern = async () => {
+    if (!geaendert || laeuft) return;
+    setLaeuft(true); setMeldung(null);
+    try {
+      const { renameAccount } = await import("../../../meta/accounts.js");
+      const neu = account && account.id ? await renameAccount(account.id, entwurf) : entwurf.trim().replace(/\s+/g, " ");
+      dispatch({ type: "REPLACE", profile: { ...profile, name: neu } });
+      setEntwurf(neu); setMeldung({ ok: true, text: TEXTE.ok });
+    } catch (e) {
+      setMeldung({ ok: false, text: TEXTE[e?.message] || String(e?.message || e) });
+    } finally { setLaeuft(false); }
+  };
+  return <div>
+    <div style={{ display: "flex", gap: 8 }}>
+      <input value={entwurf} maxLength={24} onChange={(e) => { setEntwurf(e.target.value); setMeldung(null); }}
+        onKeyDown={(e) => e.key === "Enter" && speichern()} autoComplete="nickname"
+        style={{ flex: 1, minWidth: 0, padding: "11px 12px", background: T.bg2, border: `1px solid ${T.line}`, borderRadius: 10,
+          color: T.text, fontSize: 15, fontWeight: 800, fontFamily: "inherit", outline: "none" }} />
+      <button onClick={speichern} disabled={!geaendert || laeuft}
+        style={{ padding: "0 14px", borderRadius: 10, fontFamily: "inherit", fontWeight: 800, fontSize: 13,
+          cursor: geaendert && !laeuft ? "pointer" : "default",
+          background: geaendert ? "linear-gradient(172deg, rgba(40,24,72,.97) 0%, rgba(14,9,28,.99) 100%)" : "#151827",
+          color: geaendert ? T.riftBright : "#8d94ad", border: `1px solid ${geaendert ? T.riftLine : "#3d4666"}`,
+          opacity: laeuft ? 0.6 : 1 }}>{TEXTE.save}</button>
+    </div>
+    <div style={{ fontSize: 11, marginTop: 5, lineHeight: 1.4,
+      color: meldung ? (meldung.ok ? "#9fd6a8" : "#e0a0a8") : T.faint }}>{meldung ? meldung.text : TEXTE.hint}</div>
+  </div>;
+}
+
 export function ProfileScreen({ profile, dispatch, t, account, onSwitchSave, onLogout }) {
   const en = profile.lang === "en";
   const [devPct, setDevPct] = useState(0); // workbench: journey progress slider
@@ -96,11 +140,11 @@ export function ProfileScreen({ profile, dispatch, t, account, onSwitchSave, onL
     </GildedFrame>
     <Panel>
       <div style={{ fontSize: 12, color: T.faint, marginBottom: 6 }}>{t("profile.name")}</div>
-      {/* v1.0.8 (Besitzer): der Name ist FEST. Er ist einzigartig und soll
-          spaeter als Anmeldename dienen - ein aenderbarer Anker traegt nicht. */}
-      <div style={{ padding: "11px 12px", background: T.bg2, border: `1px solid ${T.line}`, borderRadius: 10,
-        color: T.text, fontSize: 15, fontWeight: 800 }}>{profile.name || t("profile.namePh")}</div>
-      <div style={{ fontSize: 11, color: T.faint, marginTop: 4, lineHeight: 1.4 }}>{t("profile.nameFixedHint")}</div>
+      {/* v1.27.0 (Besitzer): der Name ist AENDERBAR. v1.0.8 hatte ihn
+          festgeschrieben, weil er Anmeldename werden sollte - das ist nie
+          geschehen, angemeldet wird mit E-Mail oder Google. Eindeutig bleibt
+          er: das Konto prueft vor dem Speichern, dass kein anderes ihn traegt. */}
+      <NamenFeld profile={profile} dispatch={dispatch} account={account} en={profile.lang === "en"} />
       {/* v0.99 (Besitzerwunsch): LAUTSTAERKE EINSTELLBAR - bisher gab es nur
           an und aus. Zwei getrennte Regler, weil Musik und Spielklaenge
           verschieden empfunden werden: viele wollen die Musik leise im

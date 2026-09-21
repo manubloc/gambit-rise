@@ -28,6 +28,7 @@ export {
   ensureAccounts, register, login, loginGuest, upsertCloudAccount, changePassword, deleteAccount,
   adminHasDefaultPass, currentAccount, setSession, clearSession, findAccount,
   normEmail, validEmail, hashPass, mkAccount, ADMIN_EMAIL, ADMIN_SALT, ADMIN_HASH,
+  renameAccount, nameFehler, NAME_MIN, NAME_MAX,
 } from "./accounts.js";
 export {
   listSaves, createSave, loadSave, writeSave, deleteSave, renameSave,

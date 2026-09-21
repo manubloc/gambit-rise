@@ -201,6 +201,32 @@ export function freierName(list, vorschlag, ausserId = null) {
   return `${basis} ${Date.now() % 10000}`;
 }
 
+/* ── v1.27.0 (Besitzer): DER SPIELERNAME IST AENDERBAR ─────────────────────
+   "Ich faende es gut und wichtig, dass ich meinen Spielernamen anpassen kann."
+   In v1.0.8 war er FEST, weil er "kuenftig auch der Anmeldename" werden
+   sollte. Das ist nie geschehen: angemeldet wird mit E-Mail oder Google, der
+   Name ist nur Anzeige. Der Grund fuer das Festschreiben ist damit weg - die
+   EINDEUTIGKEIT bleibt: kein anderes Konto darf denselben Namen tragen
+   (Gross- und Kleinschreibung und doppelte Leerzeichen zaehlen nicht). */
+export const NAME_MIN = 2, NAME_MAX = 24;
+export function nameFehler(list, name, eigeneId) {
+  const n = String(name || "").trim().replace(/\s+/g, " ");
+  if (n.length < NAME_MIN) return "name-short";
+  if (n.length > NAME_MAX) return "name-long";
+  if (nameVergeben(list, n, eigeneId)) return "name-taken";
+  return null;
+}
+export async function renameAccount(accId, name) {
+  const list = await ensureAccounts();
+  const acc = list.find((a) => a && a.id === accId);
+  if (!acc) throw new Error("not-found");
+  const f = nameFehler(list, name, accId);
+  if (f) throw new Error(f);
+  acc.name = String(name).trim().replace(/\s+/g, " ");
+  await writeList(list);
+  return acc.name;
+}
+
 export async function register(email, pass, name) {
   const e = normEmail(email);
   if (!validEmail(e)) throw new Error("invalid-email");

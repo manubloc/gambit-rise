@@ -1,5 +1,21 @@
 # Changelog - Grand Gambit
 
+## 1.27.0
+- DER SPIELERNAME IST AENDERBAR (Besitzer: "Ich faende es gut und wichtig,
+  dass ich meinen Spielernamen anpassen kann"). In v1.0.8 war er FEST, weil
+  er "kuenftig auch der Anmeldename" werden sollte. Das ist nie geschehen:
+  angemeldet wird mit E-Mail oder Google, der Name ist nur Anzeige. Der Grund
+  fuer das Festschreiben ist damit weg.
+- EINDEUTIG BLEIBT ER: vor dem Speichern prueft das Konto, dass kein anderes
+  denselben Namen traegt - Gross- und Kleinschreibung und doppelte
+  Leerzeichen zaehlen nicht. 2 bis 24 Zeichen. Gespeichert wird erst am Konto
+  und nur wenn das gelingt im Profil, damit beide nie auseinanderlaufen.
+- Im Profil steht jetzt ein Feld mit Speichern-Knopf statt des festen Namens;
+  der Hinweis "Dein Name ist fest ... kuenftig Anmeldename" ist weg.
+- Gegenprobe im Browser: "Eherner Leuchtturm" -> "Der Graue Probant",
+  gespeichert. Fuenf Proben fuer die Regeln (zu kurz, zu lang, vergeben auch
+  in anderer Schreibweise, eigener Name darf bleiben, freier Name geht).
+
 ## 1.26.9
 - DIE GOOGLE-ANMELDUNG DES BESITZERS IST ADMIN (Besitzer: "wenn du mein
   Googlelogin frey.manu einfach als Admin machst, passt das fuer mich"). Die
