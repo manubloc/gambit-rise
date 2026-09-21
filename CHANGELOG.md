@@ -1,5 +1,27 @@
 # Changelog - Grand Gambit
 
+## 1.28.3
+- BALANCE-DURCHLAUF IN ZWEI GRUPPEN (Besitzer: "der 1:1-Vergleich hinkt, es
+  darf alles geben - wichtig ist nur, dass man mit einer Figur den Koenig
+  nicht ohne weiteres plattmacht; die 24 Punkte bleiben"). Grossmeister (Dame
+  und die 25 Monster auf dem Damenplatz) und alle anderen Figuren unter sich,
+  dazu die PARTIELAENGE als Mass fuer "ein Spiel wie beim Schach".
+- GRUNDLINIE: zwei Heere auf Stufe 1 spielen 56 Halbzuege. Grossmeister-
+  Duelle dauern 31-67 - im Bereich der Grundlinie, kein Grossmeister macht
+  den Koenig ohne Spiel platt; ihre Staerken streuen von 17 % (Bollwerk) bis
+  81 % (Osric), wie gewuenscht verschieden.
+- DAS PROBLEM LIEGT BEI DEN ANDEREN: Springer (86 %), Amazone (70 %) und Turm
+  (74 %) entscheiden Partien nach 18-23 Halbzuegen - weniger als die Haelfte
+  der Grundlinie. Die schwachen Figuren spielen 40er-Partien.
+- VORGELEGT, NICHT UMGESETZT (design/BALANCE-2026-09-21.md): der Hebel des
+  Besitzers - Beweglichkeit gegen Faehigkeiten. Sehr bewegliche Figuren 2
+  Faehigkeiten, mittlere 3, traege 4-5; Grossmeister ausgenommen. Die Punkte
+  bleiben ueberall 24.
+- BERICHTIGT: der Lauf "eine Figur allein" misst gegen die Dame auf
+  Hoechststufe, nicht gegen Stufe 1 - heer() hebt die Figur auf dem
+  Damenplatz immer an. Beschriftung im Werkzeug berichtigt.
+- Am Spiel nichts geaendert.
+
 ## 1.28.2
 - DER BALANCE-DURCHLAUF GIBT ES JETZT (Besitzer: "keine Figur darf mehr als
   60 % ihrer Duelle gewinnen"). tools/balance.mjs, npm run balance: jede Figur
