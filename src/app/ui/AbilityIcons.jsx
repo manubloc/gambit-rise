@@ -88,6 +88,21 @@ const Z = {
 
 /** Das runde Zeichen einer Fähigkeit. Unbekannte Kennungen tragen das Zeichen
  *  des Risses — besser ein ehrliches Fragezeichen in Violett als ein Loch. */
+/* ── v1.26.6 (Besitzer): DIE FELDFARBE IST DIE SYMBOLFARBE ──────────────────
+   "Wenn ich Faehigkeiten erlerne, werden die oben in der Felduebersicht
+    angezeigt - da bitte die Felder gemaess dem Icon faerben, wie du die
+    Faehigkeit eingefaerbt hast."
+   GEFUNDEN, warum sie nicht passten: das Symbol nahm seine Farbe aus der
+   Familienpalette hier (FAMILIE[...]), das Zugbild aber talentFarbe() aus
+   abilities.js - zwei Quellen, zwei Farben fuer dieselbe Faehigkeit. Jetzt
+   fragt das Zugbild HIER nach, und zwar nach dem Ring des Symbols: das ist
+   die leuchtende Kante, die man am Zeichen als seine Farbe liest. */
+export function iconFarbe(id) {
+  const [famName] = Z[id] || BUND_Z[id] || ["riss"];
+  const f = FAMILIE[famName] || FAMILIE.riss;
+  return (f && f.ring) || "#a78bfa";
+}
+
 export function AbilityIcon({ id, size = 30 }) {
   const [famName, glyph] = Z[id] || BUND_Z[id] || ["riss", <text key="t" x="12" y="16" textAnchor="middle" fontSize="11" fill="currentColor" stroke="none">?</text>];
   const f = FAMILIE[famName];

@@ -193,8 +193,10 @@ console.log("\n== test_anim: die Aufstiegsfeier (v1.0.75) ==");
     [1,2,3,4,5,6].every((t) => _ex(`src/app/ui/assets/karte-gambit-t${t}.webp`)));
   ok("die Feier schneidet ihr Bild ab, statt in den Text zu wachsen",
     as.includes("height: 150, overflow: \"hidden\"") && as.includes('transformOrigin: "50% 100%"'));
+  /* v1.26.6: die Wirkung kommt jetzt aus faehigkeitsText(), damit beim Gambit
+     "jederzeit" steht, wo der Kern es erlaubt - sonst derselbe Text. */
   ok("die gekaufte Faehigkeit erklaert ihre Wirkung",
-    as.includes("desc: en ? ab.descEn : ab.descDe"));
+    as.includes("desc: faehigkeitsText(ab, char.id, en)"));
   const th = readFileSync("src/app/ui/theme.js", "utf8");
   for (const kf of ["ggFeierKranz", "ggFeierKarte", "ggFeierBild"])
     ok(`Keyframe ${kf} existiert`, th.includes(`@keyframes ${kf}`));

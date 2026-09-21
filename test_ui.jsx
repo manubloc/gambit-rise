@@ -1557,8 +1557,11 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
     ok("das Diagramm nimmt eine Talentliste entgegen", as2.includes("talente = null }) {"));
     ok("und merkt sich je Feld, von welchem Talent es stammt",
       as2.includes('reach.set(`${df},${dr}`, "t:" + t)'));
-    ok("die Faerbung holt die Farbe des Talents",
-      as2.includes('talentFarbe(c.mark.slice(2))'));
+    /* v1.26.6: die Faerbung holt die Farbe des SYMBOLS - talentFarbe war eine
+       zweite Quelle und passte nicht zum Zeichen unter der Karte (Besitzer:
+       "die Felder gemaess dem Icon faerben"). */
+    ok("die Faerbung holt die Farbe des Talents (aus seinem Symbol)",
+      as2.includes('iconFarbe(c.mark.slice(2))'));
     ok("die Figurenkarte reicht ihre Stufenleiter durch",
       as2.includes("talente={(ch.ladder || []).map((x) => x.ability).filter(Boolean)}"));
     /* und die Quelle muss liefern: jedes Talent eine unterscheidbare Farbe */
@@ -1654,6 +1657,20 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
       }
       ok("Leben und Angriff steigen nur, sie sinken nie" + (rueck.length ? " - RUECKSCHRITT: " + rueck.slice(0, 4).join(", ") : ""), rueck.length === 0);
       ok("Rot und Blau beruehren sich erst auf der Hoechststufe" + (vorzeitig.length ? " - VORZEITIG: " + vorzeitig.slice(0, 4).join(", ") : ""), vorzeitig.length === 0);
+    }
+    /* v1.26.6: das Zugbild faerbt die Felder einer Faehigkeit in der Farbe
+       IHRES SYMBOLS - vorher kamen beide aus verschiedenen Quellen. Und beim
+       Helden sagt der Text "jederzeit", wo der Kern es erlaubt. */
+    {
+      const { iconFarbe } = await import("./src/app/ui/AbilityIcons.jsx");
+      const arm6 = readFileSync("src/app/ui/screens/ArmyScreen.jsx", "utf8");
+      ok("das Zugbild nimmt die Symbolfarbe, nicht talentFarbe",
+        arm6.includes("farbeMitDeckung(iconFarbe(c.mark.slice(2))") && !arm6.includes('talentFarbe(c.mark.slice(2)) + "d0"'));
+      ok("jede Faehigkeit hat eine Symbolfarbe", ["pawn_charge", "pawn_sidestep", "knight_longleap", "bulwark"].every((i) => /^#|^rgb/.test(iconFarbe(i))));
+      const { faehigkeitsText } = await import("./src/app/ui/screens/ArmyScreen.jsx");
+      const stoss = { id: "pawn_forward_capture", descDe: "Darf 1× gerade nach vorn schlagen.", descEn: "May capture straight ahead once." };
+      ok("beim Gambit heisst Stossschlag 'jederzeit'", faehigkeitsText(stoss, "gambit", false) === "Darf jederzeit gerade nach vorn schlagen.");
+      ok("beim Bauern bleibt es '1x'", faehigkeitsText(stoss, "pawn", false) === "Darf 1× gerade nach vorn schlagen.");
     }
     ok("das Rohr rechnet in Punkten gegen das Budget der Figur",
       pg3.includes("const budget = Math.max(1, piece.budget || Math.max(NORM_PUNKTE, maxHp + atk))")

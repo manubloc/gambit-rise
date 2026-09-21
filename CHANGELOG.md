@@ -1,5 +1,20 @@
 # Changelog - Grand Gambit
 
+## 1.26.6
+- DIE FELDER IM ZUGBILD TRAGEN DIE FARBE IHRES SYMBOLS (Besitzer: "wenn ich
+  Faehigkeiten erlerne, werden die oben in der Felduebersicht angezeigt - da
+  bitte die Felder gemaess dem Icon faerben"). GEFUNDEN, warum sie nicht
+  passten: das Symbol nahm seine Farbe aus der Familienpalette in
+  AbilityIcons.jsx, das Zugbild aber talentFarbe() aus abilities.js - zwei
+  Quellen, zwei Farben fuer dieselbe Faehigkeit. Jetzt fragt das Zugbild beim
+  Symbol nach (iconFarbe: die leuchtende Ringkante des Zeichens).
+- BEIM GAMBIT SAGT DER TEXT "JEDERZEIT": seit v1.26.5 darf er Stossschlag und
+  Ausweichen beliebig oft, der gemeinsame Text lautete aber "Darf 1x ...".
+  Im Blatt und in der Freischalt-Feier steht fuer ihn jetzt "jederzeit"; fuer
+  jede andere Figur bleibt es "1x".
+- Vier neue Proben, zwei aeltere nachgezogen (sie verlangten die alte
+  Farbquelle und den alten Textausdruck).
+
 ## 1.26.5
 - DER GAMBIT HAT FUENF FAEHIGKEITEN, NICHT SECHS (Besitzer: "mach beim Gambit
   auch nur 5, grundsaetzlich nicht mehr als 5"). Blinzeln faellt: es ist die

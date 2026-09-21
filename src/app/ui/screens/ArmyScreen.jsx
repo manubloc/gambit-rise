@@ -10,6 +10,7 @@ import { CHARACTER_LIST, CHARACTERS, ABILITIES, TAGS, SPERRGRUND, faehigkeitZust
 import LebensRohr from "../board/LebensRohr.jsx";
 import { rohrAnteile } from "../board/PieceGlyph.jsx";
 import { talentFarbe } from "../../../content/abilities.js";
+import { iconFarbe } from "../AbilityIcons.jsx";   /* v1.26.6 */
 import { BASE_HP, BASE_ATK, SHIELD_HP, HELD_PUNKTE, NORM_PUNKTE, werteBeiStufe, createGame, familyOf, crownHp, crownWallSoak, shadowRifts, shadowAtk } from "../../../core/index.js";
 import {
   characterLevel, resolveCharacter, isUnlocked, upgradeCost, canUpgrade, maxLevelFor, gambitTier, clearedCount,
@@ -347,7 +348,19 @@ function SheetRow({ label, children }) {
 // one talent as an ACCORDION row: the header always shows the icon, name,
 // TYPE badge (movement/attack/passive…) and cost; tapping it unfolds the full
 // description (and move diagram, when the talent changes how the piece strides).
-function AbilityAccordion({ ab, tg, price, cost, owned, reach, can, kind, en, open, onToggle, onBuy, sperre }) {
+/* ── v1.26.6: DER TEXT SAGT, WAS BEIM HELDEN GILT ──────────────────────────
+   Seit v1.26.5 darf der Gambit Stossschlag und Ausweichen JEDERZEIT - fuer
+   jede andere Figur bleiben sie ein Zauber je Partie. Der gemeinsame Text
+   lautet aber "Darf 1x ...". Beim Helden stuende damit auf dem Blatt etwas
+   anderes, als der Kern tut. Hier wird es fuer ihn umgeschrieben. */
+const HELD_JEDERZEIT = new Set(["pawn_forward_capture", "pawn_sidestep"]);
+export function faehigkeitsText(ab, charId, en) {
+  const roh = en ? ab.descEn : ab.descDe;
+  if (charId !== "gambit" || !HELD_JEDERZEIT.has(ab.id) || !roh) return roh;
+  return en ? roh.replace(/\b(may|can)\s+once\b/i, "$1 at any time").replace(/\s*once\b/i, " at any time")
+            : roh.replace(/1×/g, "jederzeit").replace(/einmal/gi, "jederzeit");
+}
+function AbilityAccordion({ ab, tg, price, cost, owned, reach, can, kind, en, open, onToggle, onBuy, sperre, charId = null }) {
   const typeName = en ? tg.nameEn : tg.nameDe;
   return <div style={{ borderRadius: 11, overflow: "hidden",
     border: `1px solid ${owned ? tg.color + "77" : can ? "#e3c07acc" : reach ? "#6f5a30" : "#3a4360"}`,
@@ -374,7 +387,7 @@ function AbilityAccordion({ ab, tg, price, cost, owned, reach, can, kind, en, op
         transform: open ? "rotate(90deg)" : "none", transition: "transform .15s" }}>▸</span>
     </button>
     {open && <div style={{ padding: "0 11px 11px", fontSize: 12.5, lineHeight: 1.5, color: "#c6c0a8" }}>
-      <div style={{ borderTop: `1px solid ${tg.color}22`, paddingTop: 8 }}>{en ? ab.descEn : ab.descDe}</div>
+      <div style={{ borderTop: `1px solid ${tg.color}22`, paddingTop: 8 }}>{faehigkeitsText(ab, charId, en)}</div>
       {ABILITY_MOVE[ab.id] && <div style={{ marginTop: 9 }}>
         <MoveDiagram kind={kind} moveSpec={null} extra={ABILITY_MOVE[ab.id]} />
         <div style={{ fontSize: 9.5, color: "#8a856f", marginTop: 3, fontStyle: "italic" }}>{en ? MOVE_LEGEND_ABILITY.en : MOVE_LEGEND_ABILITY.de}</div>
@@ -516,6 +529,20 @@ export function schimmer(hex) {
   return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},.55)`;
 }
 
+/* Eine Farbe mit Deckung versehen - die Ringfarben der Symbole kommen als
+   #rrggbb, #rgb oder rgb()/rgba(). */
+function farbeMitDeckung(farbe, a) {
+  if (!farbe) return `rgba(167,139,250,${a})`;
+  if (farbe.startsWith("#")) {
+    let h = farbe.slice(1);
+    if (h.length === 3) h = h.split("").map((x) => x + x).join("");
+    const n = parseInt(h.slice(0, 6), 16);
+    return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
+  }
+  const m = farbe.match(/rgba?\(([^)]+)\)/);
+  if (m) { const t = m[1].split(",").slice(0, 3).map((x) => x.trim()); return `rgba(${t.join(",")},${a})`; }
+  return farbe;
+}
 export function MoveDiagram({ kind, moveSpec, extra = null, breite = null, talente = null }) {
   const sp = specForKind(kind, moveSpec);
   // DER GROSSE DRACHE (Besitzer, v0.72.3): er ist KEIN einzelnes Feld - er
@@ -591,7 +618,7 @@ export function MoveDiagram({ kind, moveSpec, extra = null, breite = null, talen
       background: c.here ? "linear-gradient(160deg,#e7c877,#b1863c)"
         : c.mark === "slide" ? "rgba(74,163,232,.42)"
         : c.mark === "leap" ? "rgba(233,197,63,.5)"
-        : c.mark && c.mark.startsWith("t:") ? talentFarbe(c.mark.slice(2)) + "d0"
+        : c.mark && c.mark.startsWith("t:") ? farbeMitDeckung(iconFarbe(c.mark.slice(2)), 0.82)   /* v1.26.6: Farbe des Symbols */
         : c.mark === "extra" ? "rgba(62,224,137,.62)"
         : c.light ? "rgba(255,255,255,.05)" : "rgba(255,255,255,.02)",
       boxShadow: c.here ? "0 0 5px rgba(231,200,119,.7)" : c.mark === "extra" ? "inset 0 0 0 1px rgba(120,255,180,.5)" : c.mark ? "inset 0 0 0 1px rgba(255,255,255,.18)" : "none" }}>
@@ -1172,7 +1199,7 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
           const eben = rg.level === frisch;
           return <div key={rg.id + (eben ? ":" + glanz : "")}
             style={eben ? { animation: "ggSprossePuls 1.5s ease-in-out" } : undefined}>
-            <AbilityAccordion ab={{ ...ab, _lvl: rg.level }} tg={tg} price={price} cost={cost}
+            <AbilityAccordion ab={{ ...ab, _lvl: rg.level }} charId={char.id} tg={tg} price={price} cost={cost}
             owned={owned} reach={reach} can={can} kind={char.kind} en={en} sperre={zustand === "wirkt" ? null : zustand}
             open={openAb === rg.id} onToggle={() => setOpenAb(openAb === rg.id ? null : rg.id)}
             onBuy={() => { klang("frei");
@@ -1183,7 +1210,7 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
                  Klartext aus ABILITIES.descDe/descEn. Kein Nachschlagen. */
               setFeier({ art: "faehigkeit", bild: paintedById(char.id), charId: char.id, kind: char.kind, abId: rg.id, ab: {
                 icon: ab.icon, name: en ? ab.nameEn : ab.nameDe,
-                desc: en ? ab.descEn : ab.descDe, once: ab.once } });
+                desc: faehigkeitsText(ab, char.id, en), once: ab.once && !(char.id === "gambit" && HELD_JEDERZEIT.has(rg.id)) } });
             }} /></div>;
         })}
         {chosen.length > 0 && (() => {
