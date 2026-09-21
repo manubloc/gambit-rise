@@ -1,5 +1,24 @@
 # Changelog - Grand Gambit
 
+## 1.28.2
+- DER BALANCE-DURCHLAUF GIBT ES JETZT (Besitzer: "keine Figur darf mehr als
+  60 % ihrer Duelle gewinnen"). tools/balance.mjs, npm run balance: jede Figur
+  auf Hoechststufe gegen jede andere, in sonst gleichen Heeren, KI gegen KI,
+  Farben abwechselnd, feste Keime - 2024 Partien in 13 Sekunden.
+- ERGEBNIS (design/BALANCE-2026-09-21.md): acht Figuren liegen ueber 60 % -
+  Springer 84, Laeufer 83, Amazone 76, Kanzler 76, Turm 71, Dame 71,
+  Erzbischof 70, Vesna 64. Unten die Sonderfiguren: Schildtraeger 18,
+  Attentaeter 25, Flaggentraeger 27. Gegenprobe mit doppelter Rechentiefe:
+  dieselbe Richtung.
+- DIE ZAUBERSTUFEN AUS v1.28.0 SIND NICHT DIE URSACHE: derselbe Lauf mit allen
+  Zaubern auf Stufe I verschiebt die Quoten nur um -7 bis +10, meist im
+  Rauschen. Die starken Figuren waren es auf Stufe I schon.
+- DIE URSACHE: alle Figuren tragen dieselben 24 Punkte, aber ihre Zuege sind
+  verschieden stark - mit gleichen Punkten gewinnt die Beweglichkeit. Der
+  Ausgleich (Punkte je Figur nach Beweglichkeit) aendert den Entscheid "alle
+  24" und ist deshalb nicht umgesetzt, sondern dem Besitzer vorgelegt.
+- Nichts am Spiel geaendert.
+
 ## 1.28.1
 - DAUERFEUER IST AUS ALLEN AUFSTIEGSPLAENEN (Besitzer: "keine Figur darf
   starke Faehigkeiten dauerhaft haben"). Es war ein dauerhafter Fernschuss
