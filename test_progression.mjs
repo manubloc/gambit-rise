@@ -117,8 +117,11 @@ ok("the gambit can be upgraded past ten", characterLevel(upgradePiece({ sp: 99, 
    Proben, die den Prunkritter (Rang II) meinen, steht das Profil deshalb auf
    Stufe 5. */
 const wach = { pieces: { levels: { gambit: 5 } }, campaign: { cleared: ["L01s01", "L01s02", "L01s03"] } };
-ok("der Held fuehrt die Armee von der ERSTEN Partie an",
-  !!buildArmyForMap({ pieces: { levels: { gambit: 15 } }, campaign: { cleared: [] } }, mapById("arena")).hero);
+/* v1.34.0 (Besitzer): Reihe 1 ohne Gambit - er erwacht nach dem ersten Sieg */
+ok("in der allerersten Partie fuehrt noch kein Held die Armee",
+  !buildArmyForMap({ pieces: { levels: { gambit: 15 } }, campaign: { cleared: [] } }, mapById("arena")).hero);
+ok("nach dem ersten Sieg fuehrt er sie",
+  !!buildArmyForMap({ pieces: { levels: { gambit: 15 } }, campaign: { cleared: ["L01s00"] } }, mapById("arena")).hero);
 ok("und bleibt es natuerlich auch spaeter", !!buildArmyForMap(wach, mapById("arena")).hero);
 ok("the hero spec carries his tier onto the board", buildArmyForMap(wach, mapById("arena")).hero.spec.tier === 2);
 /* v1.0.45 (Besitzerentscheid): DAS ERZWUNGENE STUFE-II-BILD IST FORT. Es

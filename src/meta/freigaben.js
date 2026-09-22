@@ -23,16 +23,22 @@
 // profile.gesehen; erklaertWas() liefert die Freigaben, die aufgegangen sind,
 // aber noch nichts gesagt haben.
 import { CHARACTER_LIST } from "../content/index.js";
-import { gambitWach, hpWach, unlockedCharacterIds } from "./leveling.js";
+import { gambitWach, hpWach } from "./leveling.js";
+import { CAMPAIGN12 } from "../content/campaign12.gen.js";
 
 /* Die sieben Grundfiguren stehen von Anfang an im Heer - sie "treten" nicht
    "bei". Beitreten heisst: eine Figur, die man sich verdient hat. */
-const GRUNDFIGUREN = new Set(
-  CHARACTER_LIST.filter((c) => (c.unlock?.type || "start") === "start").map((c) => c.id));
-
 /** Ist schon eine fremde Figur beigetreten? */
-export function ersteFigurDa(profile) {
-  return unlockedCharacterIds(profile).some((id) => !GRUNDFIGUREN.has(id));
+/* v1.34.0 (Besitzer, 21./22.9.): "Liga 1, Reihe 5 des Hauptstrangs: einmalige
+   Belohnung - ab jetzt darf der Spieler seine Startaufstellung aendern."
+   Reihe 5 hat drei Hauptstrang-Stationen; der Sieg an IRGENDEINER genuegt
+   (Besitzerentscheid 22.9.). Vorher oeffnete die erste beigetretene Figur
+   die Reihe. Die Stationen kommen aus den Kampagnendaten, nicht aus einer
+   zweiten Liste. */
+export const REIHE_FUENF = CAMPAIGN12.filter((s) => s.league === 1 && s.haupt && s.row === 5).map((s) => s.id);
+function reiheFuenfGeschafft(profile) {
+  const erledigt = profile?.campaign?.cleared || [];
+  return REIHE_FUENF.some((id) => erledigt.includes(id));
 }
 
 /* Die Ordnung selbst. Reihenfolge ist Absicht: so tauchen sie auch im
@@ -46,22 +52,23 @@ export const FREIGABEN = [
     /* v1.0.50: "Kapuze, Stab und Klinge" beschrieb das ALTE Erwachten-Bild.
        Seit v1.0.49 tritt er in Gold an - der Text folgt dem Bild. */
     textDe: "Einer deiner Bauern will ein anderer sein. Von nun an tritt er "
-      + "in Gold an — und er schlägt geradeaus, was kein Bauer kann. "
+      + "in Gold an — er stürmt zwei Felder vor, wann immer der Weg frei ist, "
+      + "und er schlägt geradeaus, was kein Bauer kann. "
       + "Vor jeder Partie darfst du entscheiden, in welcher Spalte er antritt.",
     textEn: "One of your pawns wants to be someone else. From now on he "
-      + "stands in gold — and he strikes straight ahead, which no pawn can "
-      + "do. Before each match you may choose the file he stands in.",
+      + "stands in gold — he charges two squares whenever the path is clear, "
+      + "and he strikes straight ahead, which no pawn can do. Before each match you may choose the file he stands in.",
   },
   {
     id: "hinterereihe",
-    wenn: ersteFigurDa,
+    wenn: reiheFuenfGeschafft,
     titelDe: "Die hintere Reihe öffnet sich",
     titelEn: "The back rank opens",
-    textDe: "Eine Figur ist deinem Hof beigetreten. Damit darfst du die hintere "
-      + "Reihe frei aufstellen — jede Figur auf jede Position, für jedes Brett "
-      + "getrennt.",
-    textEn: "A figure has joined your court. You may now arrange the back rank "
-      + "freely — any figure in any position, saved per board.",
+    textDe: "Du hast die fünfte Reihe bezwungen. Zum Lohn darfst du ab jetzt die "
+      + "hintere Reihe frei aufstellen — jede Figur auf jede Position, für jedes "
+      + "Brett getrennt.",
+    textEn: "You have conquered the fifth row. As your reward you may now arrange "
+      + "the back rank freely — any figure in any position, saved per board.",
   },
   {
     /* v1.0.50 (Besitzerentscheid): BESTECHEN WILL VERDIENT SEIN. Der Knopf

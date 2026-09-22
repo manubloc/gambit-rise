@@ -94,6 +94,9 @@ await page.evaluate(({ chars, kinds, bosse }) => {
       queen: ["queen_knightleap", "ranged_shot", "teleport", "lifesteal", "ranged_volley", "bulwark", "regen", "blast", "pull", "chain"] };
     p.codex = p.codex || {}; p.codex.met = [...kinds, ...bosse.map((b) => "X:" + b)];
     p.campaign = p.campaign || {}; p.campaign.bribedBosses = bosse.slice(0, 12);   /* die Haelfte bleibt "begegnet" - fuer die Graustufen-Messung */
+    /* v1.34.0: der Gambit erwacht erst nach dem ersten Sieg - der Probestand
+       braucht ihn, sonst fehlt seine Kachel */
+    p.campaign.cleared = [...new Set([...(p.campaign.cleared || []), "L01s00"])];
     return JSON.stringify(p);
   };
   for (const k of Object.keys(localStorage)) {

@@ -17,7 +17,7 @@ import { ABILITIES, faehigkeitZustand, faehigkeitSichtbar, SPERRGRUND } from "./
 import { defaultProfile, gambitStufe, gambitWach, GAMBIT_ERWACHT_AB,
   GAMBIT_ERWACHT_AUF_STUFE, characterLevel, resolveCharacter,
   FREIGABEN, darfHeldSetzen, darfReiheStellen, erklaertWas, naechsteErklaerung,
-  merkeErklaert, merkschluessel, ersteFigurDa, freigegeben } from "./src/meta/index.js";
+  merkeErklaert, merkschluessel, REIHE_FUENF, freigegeben } from "./src/meta/index.js";
 import { CHARACTERS } from "./src/content/index.js";
 
 let pass = 0, fail = 0;
@@ -91,15 +91,12 @@ const erwacht = defaultProfile();
 erwacht.campaign = { ...(erwacht.campaign || {}), cleared:
   Array.from({ length: GAMBIT_ERWACHT_AB }, (_, i) => "st" + i) };
 
-/* v1.0.49: DIE SCHWELLE STEHT AUF 0 - der Held ist von der ersten Partie an
-   da, weil er die Figur ist, die auf der Karte ohnehin die ganze Zeit zu
-   sehen ist. Geprueft wird darum nicht mehr sein Fehlen davor, sondern dass
-   er SOFORT dasteht und seine Stufe traegt. */
-ok("der Held ist von Anfang an da", gambitWach(frisch));
-ok("und bleibt es", gambitWach(erwacht));
-ok("er steht sofort auf Stufe " + GAMBIT_ERWACHT_AUF_STUFE,
-  gambitStufe(frisch) === GAMBIT_ERWACHT_AUF_STUFE
-  && gambitStufe(erwacht) === GAMBIT_ERWACHT_AUF_STUFE);
+/* v1.34.0 (Besitzer, loest v1.0.49 ab): "Reihe 1 gewoehnliches Schach ohne
+   Gambit; nach der ersten Partie erwacht ein Bauer zum Gambit." */
+ok("die Schwelle ist der erste Sieg", GAMBIT_ERWACHT_AB === 1);
+ok("in der ersten Partie ist der Held noch nicht da", !gambitWach(frisch));
+ok("nach dem ersten Sieg ist er da", gambitWach(erwacht));
+ok("er steht beim Erwachen auf Stufe " + GAMBIT_ERWACHT_AUF_STUFE, gambitStufe(erwacht) === GAMBIT_ERWACHT_AUF_STUFE);
 
 // DER SPRUNG IST EINE UNTERGRENZE, KEINE FESTSETZUNG: wer sich schon
 // hochgearbeitet hat, faellt nicht auf 2 zurueck.
@@ -125,21 +122,22 @@ ok("der Erwachte traegt sie auch wirklich im Heer",
 console.log("\n── DIE FREISCHALT-ORDNUNG ──");
 const zu = defaultProfile();
 zu.campaign = { ...(zu.campaign || {}), cleared: [] };
-/* Die Heldenspalte geht mit dem Helden auf - also sofort. Die HINTERE REIHE
-   bleibt unberuehrt: sie haengt weiter an der ersten fremden Figur. */
-ok("die Heldenspalte steht von Anfang an offen", darfHeldSetzen(zu));
+/* Die Heldenspalte geht mit dem Helden auf - nach dem ersten Sieg. Die HINTERE
+   REIHE haengt seit v1.34.0 an Liga 1, Reihe 5 des Hauptstrangs. */
+ok("vor dem ersten Sieg ist die Heldenspalte zu", !darfHeldSetzen(zu));
 ok("in Kapitel I ist die hintere Reihe zu", !darfReiheStellen(zu));
-ok("und noch ist keine Figur beigetreten", !ersteFigurDa(zu));
 
 ok("mit dem Erwachen geht die Heldenspalte auf", darfHeldSetzen(erwacht));
 ok("die hintere Reihe bleibt trotzdem zu", !darfReiheStellen(erwacht));
 
-// DIE REIHE HAENGT AN DER ERSTEN FREMDEN FIGUR, nicht am Erwachen. Die
-// sieben Grundfiguren zaehlen nicht - sie stehen von Anfang an da.
-const mitFigur = { ...erwacht,
-  campaign: { ...erwacht.campaign, unlocked: ["archbishop"] } };
-ok("die erste gewonnene Figur oeffnet die hintere Reihe",
-  ersteFigurDa(mitFigur) ? darfReiheStellen(mitFigur) : false);
+// v1.34.0: DIE REIHE IST DIE BELOHNUNG VON LIGA 1, REIHE 5 DES HAUPTSTRANGS -
+// irgendeine der drei Stationen genuegt (Besitzer 22.9.). Eine Figur allein
+// oeffnet sie nicht mehr.
+ok("Reihe 5 hat drei Hauptstrang-Stationen", REIHE_FUENF.length === 3);
+const mitFigur = { ...erwacht, campaign: { ...erwacht.campaign, unlocked: ["archbishop"] } };
+ok("eine beigetretene Figur allein oeffnet die Reihe nicht", !darfReiheStellen(mitFigur));
+ok("jede der drei Stationen oeffnet sie", REIHE_FUENF.every((id) =>
+  darfReiheStellen({ ...erwacht, campaign: { ...erwacht.campaign, cleared: [...erwacht.campaign.cleared, id] } })));
 
 // JEDE FREIGABE ERKLAERT SICH EINMAL - und dann nie wieder.
 const offen = erklaertWas(erwacht);
@@ -160,7 +158,8 @@ ok("und traegt sein eigenes Praefix, damit nichts kollidiert",
 
 // GEHEN ZWEI ZUGLEICH AUF, KOMMT DIE FRUEHERE ZUERST - sonst stuenden zwei
 // Fenster uebereinander oder eines ginge stumm verloren.
-const zweiZugleich = { ...mitFigur };
+/* v1.34.0: die hintere Reihe oeffnet jetzt Reihe 5, nicht mehr eine Figur */
+const zweiZugleich = { ...erwacht, campaign: { ...erwacht.campaign, cleared: [...erwacht.campaign.cleared, REIHE_FUENF[0]] } };
 const reihenfolge = erklaertWas(zweiZugleich).map((f) => f.id);
 ok("mehrere offene Freigaben kommen in der Ordnung der Liste",
   reihenfolge.length >= 2 && reihenfolge[0] === "held");
@@ -185,6 +184,53 @@ ok("ist nichts mehr offen, meldet sie null",
     !!f && !!f.titelDe && !!f.titelEn && f.textDe.length > 60 && f.textEn.length > 60);
   ok("die Ordnung selbst: held, hinterereihe, bestechen, leben",
     FREIGABEN.map((x) => x.id).join(",") === "held,hinterereihe,bestechen,leben");
+}
+
+console.log("\n── STURMLAUF: DAS GESCHENK DES ERWACHENS (v1.34.0) ──");
+{
+  const { ABILITIES, maxStufe, stufenText } = await import("./src/content/abilities.js");
+  const { pieceMoves } = await import("./src/core/rules/moves.js");
+  const { canUnlockAbility, canUpgradeAbility, upgradeAbility } = await import("./src/meta/leveling.js");
+  const { parseSave, serializeSave } = await import("./src/meta/profile.js");
+  const sprosse = CHARACTERS.gambit.ladder.find((e) => e.ability === "pawn_charge");
+  ok("Sturmlauf steht beim Gambit als GESCHENKTE Sprosse auf Stufe 1", sprosse && sprosse.level === 1 && sprosse.geschenkt === true);
+  ok("... der Gambit traegt hoechstens fuenf Faehigkeiten", CHARACTERS.gambit.ladder.filter((e) => e.ability).length <= 5);
+  const wachProfil = { ...erwacht, sp: 50, pieces: { levels: { gambit: 2 } } };
+  ok("... er traegt ihn beim Erwachen, ohne ihn gelernt zu haben",
+    resolveCharacter(CHARACTERS.gambit, 2, []).abilities.includes("pawn_charge"));
+  ok("... lernen laesst er sich nicht (er ist schon da, kostet nichts)", !canUnlockAbility(wachProfil, "gambit", "pawn_charge"));
+  ok("... aufstufen schon: Stufe II ab Stufe 3", !canUpgradeAbility(wachProfil, "gambit", "pawn_charge")
+    && canUpgradeAbility({ ...wachProfil, pieces: { levels: { gambit: 3 } } }, "gambit", "pawn_charge"));
+  const st2 = upgradeAbility({ ...wachProfil, pieces: { levels: { gambit: 3 } } }, "gambit", "pawn_charge");
+  ok("... und die Stufe wird gespeichert", st2.pieces.stufen.gambit.pawn_charge === 2 && st2.sp < 50);
+  ok("Sturmlauf hat drei Stufen mit Text", maxStufe("pawn_charge") === 3 && /zwei/.test(stufenText("pawn_charge", 1)) && /vier/.test(stufenText("pawn_charge", 3)));
+  // Reichweite im Kern: weisser Bauer auf e3 (Feld 20 bei 8x8), Weg frei
+  const brett = (stufe, belegt = null) => {
+    const board = Array(64).fill(null);
+    board[20] = { id: "g", kind: "P", color: "w", abilities: ["pawn_charge"], stufen: { pawn_charge: stufe }, used: {} };
+    if (belegt != null) board[belegt] = { id: "x", kind: "P", color: "b", abilities: [], used: {} };
+    return { board, w: 8, h: 8, turn: "w", rules: "chess" };
+  };
+  const ziele = (st) => pieceMoves(st, 20).filter((m) => m.special === "rush").map((m) => m.to).sort((a, b) => a - b);
+  ok("Stufe I: bis zu zwei Felder (e5)", JSON.stringify(ziele(brett(1))) === "[36]");
+  ok("Stufe II: bis zu drei Felder (e5, e6)", JSON.stringify(ziele(brett(2))) === "[36,44]");
+  ok("Stufe III: bis zu vier Felder (e5, e6, e7)", JSON.stringify(ziele(brett(3))) === "[36,44,52]");
+  ok("der Weg muss frei sein: eine Figur auf e5 haelt ihn vor ihr an", ziele(brett(3, 36)).length === 0 && JSON.stringify(ziele(brett(3, 44))) === "[36]");
+  const promo = brett(3); promo.board[20] = null; promo.board[36] = { id: "g", kind: "P", color: "w", abilities: ["pawn_charge"], stufen: { pawn_charge: 3 }, used: {} };
+  const lauf = pieceMoves(promo, 36).filter((m) => m.special === "rush");
+  ok("BEHOBEN: ein Lauf auf die letzte Reihe wandelt sich um", lauf.some((m) => m.to === 60 && m.promotion) && !lauf.some((m) => m.to > 63));
+  // alte Staende: gelernt fuer Punkte -> Preis zurueck, Stufe bleibt
+  const alt = { ...defaultProfile(), sp: 4, pieces: { levels: { gambit: 6 }, abilities: { gambit: ["pawn_forward_capture", "pawn_charge"] }, stufen: { gambit: { pawn_charge: 2 } } } };
+  const neu = parseSave(serializeSave(alt));
+  const { abilityCost } = await import("./src/meta/leveling.js");
+  ok("Altstand: der frueher bezahlte Sturmlauf wird erstattet (Lernpreis der alten Sprosse 5)", neu.sp === 4 + abilityCost(5));
+  ok("... er verlaesst die Lernliste, die anderen bleiben, die Aufstufung bleibt",
+    JSON.stringify(neu.pieces.abilities.gambit) === '["pawn_forward_capture"]' && neu.pieces.stufen.gambit.pawn_charge === 2);
+  ok("... und ein zweites Laden erstattet nichts mehr", parseSave(serializeSave(neu)).sp === neu.sp);
+  const { buildArmyForMap } = await import("./src/meta/leveling.js");
+  const { mapById } = await import("./src/content/maps.js");
+  const imSchach = buildArmyForMap({ pieces: { levels: { gambit: 5 }, stufen: { gambit: { pawn_charge: 3 } } }, campaign: { cleared: ["L01s00"] } }, mapById("classic"), null, "chess");
+  ok("auch im reinen Schach traegt der Gambit seine Stufen (vorher bezahlt und ohne Wirkung)", imSchach.hero && imSchach.hero.spec.stufen && imSchach.hero.spec.stufen.pawn_charge === 3);
 }
 
 console.log("\nRESULT: " + pass + " passed, " + fail + " failed");

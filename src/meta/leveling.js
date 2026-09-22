@@ -51,7 +51,11 @@ export function hpWach(profile) {
 
    Die Schwelle bleibt als KONSTANTE stehen und wird weiter geprueft - wer
    sie je wieder anheben will, aendert eine Zahl, nicht eine Regel. */
-export const GAMBIT_ERWACHT_AB = 0;
+/* v1.34.0 (Besitzer, 21.9.): "Reihe 1 gewoehnliches Schach OHNE Gambit; nach
+   der ersten Partie erwacht ein Bauer zum Gambit." Das loest v1.0.49 ab (Held
+   von Anfang an): die erste Station spielt mit einem gewoehnlichen Bauern an
+   seiner Stelle, der erste Sieg weckt ihn - und er bringt Sturmlauf mit. */
+export const GAMBIT_ERWACHT_AB = 1;
 export function gambitWach(profile) {
   const erledigt = profile?.campaign?.cleared || [];
   return erledigt.length >= GAMBIT_ERWACHT_AB;
@@ -84,7 +88,8 @@ export function resolveCharacter(char, level, chosen = null) {
   let shield = 0; const abilities = [];
   for (const e of char.ladder) if (e.level <= level) {
     if (e.shield) shield += e.shield;
-    if (e.ability && (chosen === null || chosen.includes(e.ability))) abilities.push(e.ability);
+    /* v1.34.0: eine GESCHENKTE Sprosse gilt, ohne gelernt zu sein */
+    if (e.ability && (chosen === null || e.geschenkt || chosen.includes(e.ability))) abilities.push(e.ability);
   }
   return { abilities, shield };
 }
@@ -178,6 +183,7 @@ const stufeVon = (profile, id) => (istMonster(id) ? bossLevelOf(profile, id.slic
 export function canUnlockAbility(profile, charId, abilityId) {
   const rung = leiterVon(charId).find((e) => e.ability === abilityId);
   if (!rung) return false;
+  if (rung.geschenkt) return false;   // v1.34.0: geschenkt, nicht gelernt
   // Talente, die nur an Lebenspunkten wirken, schlafen bis zum Erwachen der
   // alten Magie - sonst verbrennt ein Spieler in der Schachhaelfte von
   // Kapitel I Sternenstaub fuer eine Wirkung, die es noch nicht gibt.
@@ -195,9 +201,10 @@ export const stufenVon = (profile, id) => (profile?.pieces?.stufen?.[id]) || {};
 export const faehigkeitsStufe = (profile, id, ab) => Math.max(1, stufenVon(profile, id)[ab] || 1);
 export const stufeBenoetigt = (id, rung, naechste) => rung.level + (istMonster(id) ? 1 : 2) * (naechste - 1);
 export function canUpgradeAbility(profile, id, ab) {
-  if (!chosenAbilities(profile, id).includes(ab)) return false;
   const rung = leiterVon(id).find((e) => e.ability === ab);
   if (!rung) return false;
+  /* v1.34.0: eine geschenkte Sprosse laesst sich aufstufen wie eine gelernte */
+  if (!rung.geschenkt && !chosenAbilities(profile, id).includes(ab)) return false;
   const jetzt = faehigkeitsStufe(profile, id, ab);
   if (jetzt >= maxStufe(ab)) return false;
   const brauch = stufeBenoetigt(id, rung, jetzt + 1);
@@ -605,7 +612,8 @@ function heroSpec(profile, chess = false) {
 
      Sichtbar bleibt der Bruch trotzdem: gruener Bauer neben goldenem Ritter
      ist deutlicher als jedes Farbfilterchen. */
-  return { kind: ch.kind, level, abilities, shield, tier: gambitTier(level), ...(ch.big ? { big: true } : {}), ...(chess ? {} : { stufen: stufenVon(profile, "gambit") }) };
+  return { kind: ch.kind, level, abilities, shield, tier: gambitTier(level), ...(ch.big ? { big: true } : {}), stufen: stufenVon(profile, "gambit")   /* v1.34.0: auch im Schach - der Gambit ist dort die einzige Figur mit Faehigkeiten, ein
+       aufgestufter Sturmlauf muss auch in Liga 1-4 weiter laufen (vorher bezahlt und ohne Wirkung) */ };
 }
 
 /** Foresight: if the army that will take the field carries a SEER — the

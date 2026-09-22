@@ -58,9 +58,15 @@ flavorDe: "Geboren, geopfert zu werden — entschlossen, es nicht zu bleiben.", 
        wo vorher der Vorwaertsschlag stand - die Leiter behaelt also ihre
        Summe, nur die Reihenfolge dreht sich. */
     ladder: [
+      /* v1.34.0 (Besitzer): "nach der ersten Partie erwacht ein Bauer zum
+         Gambit und bekommt SOFORT Sturmlauf (Stufe I 2 Felder, II 3, III 4)".
+         Die Sprosse ist GESCHENKT: sie kostet nichts, wird nicht gelernt und
+         ist nicht vergessbar - aufstufen laesst sie sich wie jede andere.
+         Vorher stand sie auf Stufe 5 und kostete Punkte; wer sie so gelernt
+         hat, bekommt den Preis zurueck (profile.js, geschenkteErstattet). */
+      { level: 1, ability: "pawn_charge", geschenkt: true },
       { level: 2, ability: "pawn_forward_capture" },
       { level: 3, ability: "pawn_sidestep" },
-      { level: 5, ability: "pawn_charge" },
       /* v1.26.5 (Besitzer): "mach beim Gambit auch nur 5 Faehigkeiten, grundsaetzlich
          nicht mehr als 5." Blinzeln faellt - es ist die staerkste der sechs
          und steckt ohnehin bei 15 anderen Figuren; der Held wird dadurch

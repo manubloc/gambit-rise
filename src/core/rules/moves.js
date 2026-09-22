@@ -226,11 +226,21 @@ function pawnMoves(moves, from, f, r, piece, board, D, state) {
         push(moves, from, ix(sf, r, D), piece, false, null, { special: "side", consumes: "pawn_sidestep" });
     }
   }
-  // ABILITY: charge (passive) — advance two squares forward from anywhere
-  if (hasAbility(piece, "pawn_charge") && r !== startR) {
-    const r2 = r + 2 * dir;
-    if (onBoard(f, fwd, D) && onBoard(f, r2, D) && !board[ix(f, fwd, D)] && !board[ix(f, r2, D)])
-      push(moves, from, ix(f, r2, D), piece, false, null, { special: "rush" });
+  /* ABILITY: charge (passive) — v1.34.0: STAERKESTUFEN (Besitzer): Stufe I
+     bis zu zwei Felder jederzeit, II bis zu drei, III bis zu vier; der Weg
+     muss frei sein, geschlagen wird nicht. Zwei Felder von der Startreihe
+     gibt es ohnehin - die entfallen hier. BEHOBEN: landet der Lauf auf der
+     letzten Reihe, wandelt er sich um wie jeder Bauernzug (vorher blieb ein
+     Bauer auf der gegnerischen Grundreihe stehen). */
+  if (hasAbility(piece, "pawn_charge")) {
+    const weit = 1 + Math.max(1, Math.min(3, stufeVon(piece, "pawn_charge")));
+    for (let d = 1; d <= weit; d++) {
+      const rr = r + d * dir;
+      if (!onBoard(f, rr, D) || board[ix(f, rr, D)]) break;
+      if (d < 2 || (d === 2 && r === startR)) continue;
+      push(moves, from, ix(f, rr, D), piece, false, null, { special: "rush", ...(isPromo(rr) ? { promotion: KIND.QUEEN } : {}) });
+      if (isPromo(rr)) break;
+    }
   }
   // ABILITY: backstep (once, non-capturing) — retreat one square
   if (hasAbility(piece, "pawn_backstep")) {

@@ -46,5 +46,5 @@ export { BOSS_MAX_LEVEL, bossLevelOf, bossUpgradeCost, bossSpecLeveled, ZIEL_PRO
 /* v1.0.43: die Freischalt-Ordnung - was wann aufgeht und welcher Satz es
    erklaert. Siehe freigaben.js. */
 export { FREIGABEN, freigegeben, darfHeldSetzen, darfReiheStellen,
-  erklaertWas, naechsteErklaerung, merkeErklaert, merkschluessel, ersteFigurDa } from "./freigaben.js";
+  erklaertWas, naechsteErklaerung, merkeErklaert, merkschluessel, REIHE_FUENF } from "./freigaben.js";
 export { DECK_ANZAHL, deckStand, deckName, mitAktivemDeck, mitDeckName, mitAufstellung } from "./decks.js";   /* v1.15.0 */

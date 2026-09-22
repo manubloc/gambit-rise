@@ -1,5 +1,30 @@
 # Changelog - Grand Gambit
 
+## 1.34.0 - Kampagnenumbau, Schritt A: der Anfang
+- REIHE 1 OHNE GAMBIT (Besitzer): die erste Station spielt mit einem
+  gewoehnlichen Bauern an seiner Stelle; nach dem ersten Sieg erwacht er
+  (GAMBIT_ERWACHT_AB = 1, loest v1.0.49 ab). Vor dem Erwachen fehlt er auch
+  im Hofstaat und in der Chronik (ausser fuer den Admin).
+- STURMLAUF IST DAS GESCHENK DES ERWACHENS: er bekommt ihn sofort, ohne
+  Punkte - Stufe I bis zu zwei Felder vor, II drei, III vier (Staerkestufe im
+  Kern, Weg frei, kein Schlag). Die Sprosse ist GESCHENKT: gilt ohne Lernen,
+  laesst sich nicht lernen oder vergessen, aber aufstufen (II ab Stufe 3,
+  III ab 5). Die Leiter zeigt "Geschenk des Erwachens". Wer Sturmlauf frueher
+  auf Stufe 5 fuer Punkte gelernt hat, bekommt den Lernpreis zurueck -
+  einmal, die Aufstufung bleibt. Der Erwachenstext nennt ihn.
+- BEHOBEN: ein Sturmlauf auf die letzte Reihe wandelte sich nicht um - ein
+  Bauer blieb auf der gegnerischen Grundreihe stehen.
+- Der Gambit traegt seine FAEHIGKEITSSTUFEN jetzt auch im reinen Schach
+  (Liga 1-4) - vorher war eine bezahlte Aufstufung dort ohne Wirkung.
+- DIE FREIE AUFSTELLUNG IST DIE BELOHNUNG VON LIGA 1, REIHE 5 DES
+  HAUPTSTRANGS: der Sieg an irgendeiner der drei Stationen (L01s17, L01s20,
+  L01s22) oeffnet die hintere Reihe fuer den Rest des Spiels (vorher: die
+  erste beigetretene Figur). Die Stationen kommen aus den Kampagnendaten.
+- Bauplan fuer den ganzen Umbau: design/KAMPAGNE-BAUPLAN-2026-09-22.md
+  (Schritt B Gegnerbesetzung ab Kapitel III, Schritt C Lebenspunkte halb/halb).
+- Im Browser nachgesehen: vor dem ersten Sieg ohne Gambit, das Erwachen,
+  seine Leiter.
+
 ## 1.33.2
 - DIE KAPITELMEISTER IM HOFSTAAT IN KAPITELFOLGE: jeder gewonnene Meister
   steht hinter den Figuren - Richter, Doppelritter, Seuchenkoenig ... -,

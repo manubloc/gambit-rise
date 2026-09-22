@@ -42,7 +42,7 @@ export const ABILITIES = {
   // ── movement (live) ──
   pawn_sidestep:        { id: "pawn_sidestep",        icon: "↔", tag: "move", once: true,  live: true,  nameDe: "Ausweichen",   nameEn: "Sidestep",       descDe: "Darf 1× ein Feld zur Seite ziehen (ohne zu schlagen).", descEn: "Step one square sideways once (no capture)." },
   pawn_forward_capture: { id: "pawn_forward_capture", icon: "⤒", tag: "move", once: true,  live: true,  nameDe: "Stoßschlag",   nameEn: "Forward strike", descDe: "Darf 1× gerade nach vorn schlagen.",                  descEn: "Capture straight forward once." },
-  pawn_charge:          { id: "pawn_charge",          icon: "⇈", tag: "move", once: false, live: true,  nameDe: "Sturmlauf",    nameEn: "Charge",         descDe: "Darf jederzeit zwei Felder vorrücken (Weg frei).",    descEn: "Advance two squares anytime (path clear)." },
+  pawn_charge:          { id: "pawn_charge",          icon: "⇈", tag: "move", once: false, live: true,  nameDe: "Sturmlauf",    nameEn: "Charge",         descDe: "Darf jederzeit mehrere Felder geradeaus vorrücken, der Weg muss frei sein — zwei, auf Stufe II drei, auf III vier.",    descEn: "May advance several squares straight ahead anytime, path clear — two, three at tier II, four at tier III." },
   pawn_backstep:        { id: "pawn_backstep",        icon: "⇩", tag: "move", once: true,  live: true,  nameDe: "Rückzug",      nameEn: "Backstep",       descDe: "Darf 1× ein Feld zurückziehen.",                      descEn: "Retreat one square once." },
   dragon_flight:        { id: "dragon_flight",        icon: "🜁", tag: "wing",  once: true,  live: true, nameDe: "Fliegen", nameEn: "Flight",
     descDe: "EINMAL pro Partie springt der Drache als ganzer 2×2-Block bis zu 2 Felder weit. Landet er auf Gegnern, trifft er JEDES bedeckte Feld direkt — überleben nicht alle Getroffenen, fällt er auf sein Ursprungsfeld zurück (der Schlag zählt trotzdem).",
@@ -120,6 +120,9 @@ export const ZAUBER_STUFEN = {
    nicht in der Haeufigkeit. Je Stufe ein kurzer Text - die Leiter zeigt ihn
    statt "N x je Partie". Die Zahl der Eintraege IST die Zahl der Stufen. */
 export const STAERKE_STUFEN = {
+  /* v1.34.0 (Besitzer): Sturmlauf waechst mit der Stufe */
+  pawn_charge: { de: ["bis zu zwei Felder vor", "bis zu drei Felder vor", "bis zu vier Felder vor"],
+                 en: ["up to two squares ahead", "up to three squares ahead", "up to four squares ahead"] },
   steinhaut:   { de: ["der erste Treffer prallt ab", "die ersten zwei Treffer prallen ab"],
                  en: ["the first hit glances off", "the first two hits glance off"] },
   widerhall:   { de: ["ein Viertel kommt zurück", "die Hälfte kommt zurück"],

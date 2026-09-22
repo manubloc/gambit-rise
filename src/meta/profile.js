@@ -104,8 +104,30 @@ export function stufenGekappt(p) {
   return geaendert ? { ...p, pieces: { ...p.pieces, levels: neu } } : p;
 }
 
+/* v1.34.0: SPROSSEN, DIE JETZT GESCHENKT SIND. Der Gambit lernte Sturmlauf
+   bisher auf Stufe 5 fuer Punkte; seit dem Erwachen bekommt er ihn umsonst.
+   Wer ihn gelernt hat, bekommt den damaligen Lernpreis zurueck - einmal: der
+   Eintrag verlaesst die Lernliste, danach greift nichts mehr. Die AUFSTUFUNG
+   bleibt, die Faehigkeit ist ja weiter da. Die Zahl ist die ALTE Sprosse (5),
+   weil der Preis an ihr hing. */
+const JETZT_GESCHENKT = { gambit: { pawn_charge: 5 } };
+export function geschenkteErstattet(p) {
+  const ab = p?.pieces?.abilities;
+  if (!ab) return p;
+  let sp = p.sp || 0, geaendert = false; const neu = { ...ab };
+  for (const [cid, alt] of Object.entries(JETZT_GESCHENKT)) {
+    const liste = ab[cid];
+    if (!Array.isArray(liste)) continue;
+    for (const [a, sprosse] of Object.entries(alt)) if (liste.includes(a)) {
+      neu[cid] = (neu[cid] || liste).filter((x) => x !== a); sp += abilityCost(sprosse); geaendert = true;
+    }
+  }
+  return geaendert ? { ...p, sp, pieces: { ...p.pieces, abilities: neu } } : p;
+}
+
 export function ohneDauerfeuer(p) {
   p = stufenGekappt(p);   /* v1.33.2: beide Ladewege laufen hier durch */
+  p = geschenkteErstattet(p);   /* v1.34.0 */
   const ab = p?.pieces?.abilities;
   if (!ab) return p;
   let sp = p.sp || 0, geaendert = false;

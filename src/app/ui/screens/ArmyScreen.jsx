@@ -395,7 +395,9 @@ function Aufstiegsplan({ schluessel, kind, rungs, level, chosen, profile, en, t,
           fontSize: 11.5, color: "#b9b295" }}>
         <span className="gg-serif" style={{ letterSpacing: ".06em", color: "#e9cf8a" }}>
           {en ? "Tier" : "Stufe"} {ROEM[stNow]} {en ? "of" : "von"} {ROEM[stMax]}
-          <span style={{ color: "#8a856f" }}> · {stufenText(rg.id, stNow, en)}</span></span>
+          <span style={{ color: "#8a856f" }}> · {stufenText(rg.id, stNow, en)}</span>
+          {(CHARACTERS[schluessel]?.ladder || []).some((e) => e.ability === rg.id && e.geschenkt)
+            && <span style={{ color: "#8a856f" }}> · {en ? "gift of the awakening" : "Geschenk des Erwachens"}</span>}</span>
         <span style={{ flex: 1 }} />
         {stNext && (stKann
           ? <button onClick={() => { klang("stufe"); dispatch({ type: "UPGRADE_ABILITY", id: schluessel, ability: rg.id }); }}
@@ -754,7 +756,9 @@ export function ChroniclePanel({ profile, t, en, account = null }) {
     || ownedLeagueBosses(profile).includes(b.id);
   /* v1.0.50: auch die Chronik schweigt ueber den Gambit, bis er erwacht ist
      (sein kind "P" waere durch jeden Bauern sofort "begegnet"). */
-  const figures = CHARACTER_LIST.filter((c) => c.id !== "gambit" || gambitWach(profile));
+  /* v1.34.0: vor dem ersten Sieg ist der Gambit noch nicht erwacht und fehlt in
+     der Chronik - ausser fuer den Admin, der alles sieht */
+  const figures = CHARACTER_LIST.filter((c) => c.id !== "gambit" || isAdmin || gambitWach(profile));
   const FAM = { golem: ["Golems", "Golems"], beast: ["Bestien", "Beasts"], serpent: ["Schlangen", "Serpents"], wraith: ["Schemen", "Wraiths"], tyrant: ["Tyrannen", "Tyrants"] };
   return <div style={{ display: "grid", gap: 8 }}>
     <div className="gg-serif" style={{ fontSize: 12.5, color: "#a9a28a", fontStyle: "italic", lineHeight: 1.5, padding: "2px 4px" }}>
@@ -926,7 +930,10 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
      haengt das Gemaelde an der Stufe (gambit-t1..t6); zeigte das Blatt eine
      andere Stufe als die Kachel, standen zwei verschiedene Figuren da. */
   const portraet = bildnisVon(char.id, level);
-  const chosen = chosenAbilities(profile, char.id);
+  /* v1.34.0: geschenkte Sprossen (Sturmlauf des Gambits) stehen als gelernt
+     auf der Leiter - ohne Lernknopf, mit Aufstufen wie jede andere */
+  const chosen = [...chosenAbilities(profile, char.id),
+    ...(char.ladder || []).filter((e) => e.geschenkt && e.ability).map((e) => e.ability)];
   const { abilities, shield } = resolveCharacter(char, level, chosen);
   const stars = dupeCount(profile, char.id);
   const isKing = char.kind === "K";
