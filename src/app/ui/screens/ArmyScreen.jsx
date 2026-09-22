@@ -843,8 +843,8 @@ export function ChroniclePanel({ profile, t, en, account = null }) {
         <button onClick={() => seen && setOpenId(open ? null : "X:" + b.id)} style={{ display: "flex", alignItems: "center", gap: 10,
           width: "100%", padding: "8px 10px", background: "none", border: "none", cursor: seen ? "pointer" : "default", textAlign: "left" }}>
           <span style={{ width: 40, height: 50, flex: "0 0 auto", display: "grid", placeItems: "center" }}>
-            {(paintedById("boss-" + b.id) || paintedById("boss-" + b.art))
-              ? <img src={paintedById("boss-" + b.id) || paintedById("boss-" + b.art)} alt="" style={{ width: 40, height: 50, objectFit: "contain", objectPosition: "bottom",
+            {(paintedById("boss-" + b.id))
+              ? <img src={paintedById("boss-" + b.id)} alt="" style={{ width: 40, height: 50, objectFit: "contain", objectPosition: "bottom",
                   filter: seen ? "none" : "grayscale(1) brightness(.35)" }} />
               : <span style={{ fontSize: 24, filter: seen ? "none" : "grayscale(1) brightness(.4)" }}>👁</span>}
           </span>
@@ -2037,7 +2037,7 @@ export function GearPanel({ profile, dispatch, t, en, initialGearInfo = null }) 
    zur Karte", "Zum Hofstaat"). Ohne beides ist es die Ansicht von heute. */
 export function CharLightbox({ char, en, onClose, titel = null, aktionen = null }) {
   if (!char) return null;
-  const src = char.boss ? (paintedById("boss-" + char.bid) || paintedById("boss-" + char.art)) : bildnisVon(char.id, char.level || 1);
+  const src = char.boss ? (paintedById("boss-" + char.bid)) : bildnisVon(char.id, char.level || 1);
   const kul = char.boss ? kulisseFuer({ bossId: char.bid }) : kulisseFuer({ charId: char.id });
   const kulUrl = kul ? KULISSE_URL[kul] : null;
   const name = en ? char.nameEn : char.nameDe;
@@ -2134,7 +2134,7 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
       if (ch) { if (cid === 'gambit') for (let t = 1; t <= 6; t++) push(paintedForPiece({ kind: ch.kind, color: "w", hero: true, tier: t }));
         else push(paintedForPiece({ kind: ch.kind, color: "w", hero: false, level: 1 })); }
     }
-    for (const b of BOSSES) push(paintedById("boss-" + b.id) || paintedById("boss-" + b.art));
+    for (const b of BOSSES) push(paintedById("boss-" + b.id));
     const list = [...urls];
     if (!list.length) { codexArtReady = true; setArtReady(true); return; }
     let done = 0, cancelled = false;
@@ -2560,7 +2560,7 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
     // paintedById is a FUNCTION — reading it with brackets returned undefined
     // every single time, which is why every master stood as a question mark
     // while its painting sat right there in the gallery.
-    const img = paintedById("boss-" + b.id) || paintedById("boss-" + b.art);
+    const img = paintedById("boss-" + b.id);
     const k = "X:" + b.id;
     // Rueckmeldung des Besitzers (v0.44): Monster und Figuren trugen im
     // Verzeichnis ZWEI Handschriften - die Meister ein rosa Siegel, der Hof
@@ -2618,7 +2618,17 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
   /* v1.33.1: auch die GEWONNENEN Kapitelmeister stehen hier. Die Halle der
      Meister unten nimmt sie heraus (!ownedBossSet) - hier standen aber nur die
      gekauften. Ein besiegter Meister war damit nirgends in der Uebersicht. */
-  const alliedIn = BOSSES.filter((b) => bribedSet.has(b.id) || ownedBossSet.has(b.id));
+  /* v1.33.2: die gewonnenen Meister in KAPITELFOLGE (Richter, Doppelritter,
+     Seuchenkoenig ...), danach die gekauften Monster. */
+  /* ACHTUNG: ownedBossSet enthaelt auch die GEKAUFTEN (ownedLeagueBosses
+     fuehrt beide) - getrennt wird darum nach "Meister oder nicht", nicht nach
+     "gewonnen oder gekauft". Die Kulissenprobe hat den ersten Anlauf gefangen:
+     er liess die gekauften gewoehnlichen Monster aus dem Hofstaat fallen. */
+  const imHof = (id) => ownedBossSet.has(id) || bribedSet.has(id);
+  const alliedIn = [
+    ...LEAGUE_BOSSES.filter(imHof).map((id) => BOSSES.find((b) => b.id === id)).filter(Boolean),
+    ...BOSSES.filter((b) => !LEAGUE_BOSSES.includes(b.id) && imHof(b.id)),
+  ];
   /* v1.33.1: DIE FOLGE ZUM BLAETTERN - dieselben Abschnitte in derselben
      Reihenfolge wie die Uebersicht, nur Karten, die sich auch per Tippen
      oeffnen (eigene, begegnete, gekaufte). */
@@ -2698,7 +2708,7 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
     {detail && detail.startsWith("X:") && (() => {
       const b = BOSSES.find((x) => "X:" + x.id === detail);
       if (!b) return null;
-      const img = paintedById("boss-" + b.id) || paintedById("boss-" + b.art);
+      const img = paintedById("boss-" + b.id);
       const fam = FAM_LABEL[b.art] ? (en ? FAM_LABEL[b.art][1] : FAM_LABEL[b.art][0]) : b.art;
       return <div onClick={() => setDetail(null)} style={{ position: "fixed", inset: 0, zIndex: 55, background: "rgba(4,6,10,.72)",
         display: "block", overflow: "hidden",
@@ -2726,7 +2736,7 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
                  Faehigkeitszeichen, Stufenanzeige mit Emblem, die Wertkaesten.
                  Es ist DASSELBE Bauteil (BlattBuehne), nichts nachgebaut. */}
             {(() => {
-              const pidB = bandBekannt("boss-" + b.id) ? "boss-" + b.id : "boss-" + b.art;
+              const pidB = "boss-" + b.id;   /* v1.33.2: jedes Monster hat seine eigene Sockelmessung */
               const tonB = figurFarbe(pidB) || b.accent || "#5b3fa6";
               const lvlB = bossLevelOf(profile, b.id) || 1;
               const budgetB = b.hp + b.atk;

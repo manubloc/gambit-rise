@@ -1144,7 +1144,7 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
           {(() => {
             const bossHier = node?.boss ? nodeBossSpec(node, viewLeague) : null;
             if (!bossHier) return null;
-            const bild = paintedById("boss-" + bossHier.bossId) || paintedById("boss-" + bossHier.art);
+            const bild = paintedById("boss-" + bossHier.bossId);
             const S = 74;
             return <div style={{ display: "flex", gap: 10, alignItems: "center", marginTop: 9,
               padding: "8px 10px", borderRadius: 10, background: "rgba(255,250,235,.42)",

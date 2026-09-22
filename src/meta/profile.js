@@ -1,5 +1,5 @@
 import { storage } from "../platform/index.js";
-import { formationLegalOn, abilityCost } from "./leveling.js";
+import { formationLegalOn, abilityCost, maxLevelFor } from "./leveling.js";
 import { mapById } from "../content/maps.js";
 
 const KEY = "profile";
@@ -84,7 +84,28 @@ const aufstufungsPreis = (cid, sprosse, stufe) => {
   for (let n = 2; n <= (stufe || 1); n++) sp += abilityCost(sprosse + (cid.startsWith("X:") ? 1 : 2) * (n - 1));
   return sp;
 };
+/* v1.33.2: KEINE FIGUR UEBER IHRER HOECHSTSTUFE (Besitzer: "Gambit-Stufe
+   ueber 20 in Altstaenden kappen"). Fruehere Fassungen liessen den Gambit in
+   drei Rangstufen zu je zehn bis 30 steigen; seit GAMBIT_MAX_LEVEL = 20
+   standen alte Staende darueber - Siegelstufe, Leiter und Knopf rechneten mit
+   einer Stufe, die es nicht mehr gibt. Gilt fuer jede Figur (maxLevelFor);
+   Monster ("X:...") haben ihre eigene Grenze und bleiben unberuehrt.
+   OHNE Erstattung: die Stufen darueber wurden zu anderen Preisen gekauft, und
+   ein neuer Erstattungsweg waere ungeprueft (Besitzer: im Zweifel weglassen). */
+export function stufenGekappt(p) {
+  const lv = p?.pieces?.levels;
+  if (!lv || typeof lv !== "object") return p;
+  let geaendert = false; const neu = { ...lv };
+  for (const [id, l] of Object.entries(lv)) {
+    if (id.startsWith("X:") || typeof l !== "number") continue;
+    const max = maxLevelFor(id);
+    if (l > max) { neu[id] = max; geaendert = true; }
+  }
+  return geaendert ? { ...p, pieces: { ...p.pieces, levels: neu } } : p;
+}
+
 export function ohneDauerfeuer(p) {
+  p = stufenGekappt(p);   /* v1.33.2: beide Ladewege laufen hier durch */
   const ab = p?.pieces?.abilities;
   if (!ab) return p;
   let sp = p.sp || 0, geaendert = false;

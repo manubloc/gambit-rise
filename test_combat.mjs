@@ -944,7 +944,7 @@ console.log("\n== STURM UND GELEIT (v1.11.2) ==");
     (ar.match(/onTouchStart={wischStart} onTouchEnd={wischEnde}/g) || []).length === 2
     && ar.includes("const blattFolge = [") && ar.includes("blaettern(dx < 0 ? 1 : -1)"));
   ok("... nur ein klarer waagrechter Wisch - Scrollen bleibt Scrollen", ar.includes("Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.6"));
-  ok("gewonnene Kapitelmeister stehen bei den Verbuendeten (vorher nirgends)", ar.includes("const alliedIn = BOSSES.filter((b) => bribedSet.has(b.id) || ownedBossSet.has(b.id));"));
+  ok("gewonnene Kapitelmeister stehen im Hofstaat, in Kapitelfolge, danach die gekauften (vorher nirgends)", ar.includes("...LEAGUE_BOSSES.filter(imHof)") && ar.includes("...BOSSES.filter((b) => !LEAGUE_BOSSES.includes(b.id) && imHof(b.id))"));
 }
 
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);

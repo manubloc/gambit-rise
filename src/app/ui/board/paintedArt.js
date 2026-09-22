@@ -50,13 +50,7 @@ import pBard from "../assets/painted/painted-bard.webp";
 import pEngineer from "../assets/painted/painted-engineer.webp";
 import pStandard from "../assets/painted/painted-standard.webp";
 import pStrategist from "../assets/painted/painted-strategist.webp";
-import bGolem from "../assets/painted/painted-boss-golem.webp";
-import bBeast from "../assets/painted/painted-boss-beast.webp";
-import bSerpent from "../assets/painted/painted-boss-serpent.webp";
-import bWraith from "../assets/painted/painted-boss-wraith.webp";
-import bTyrant from "../assets/painted/painted-boss-tyrant.webp";
 import bArchenemy from "../assets/painted/painted-boss-archenemy.webp";
-import bLeaguemaster from "../assets/painted/painted-boss-leaguemaster.webp";
 // every named monster of the road now sits for his own portrait (b01–b22, b24)
 import pbb01 from "../assets/painted/painted-boss-b01.webp";
 import pbb02 from "../assets/painted/painted-boss-b02.webp";
@@ -168,13 +162,7 @@ import k_pBard from "../assets/painted/klein/painted-bard.webp";
 import k_pEngineer from "../assets/painted/klein/painted-engineer.webp";
 import k_pStandard from "../assets/painted/klein/painted-standard.webp";
 import k_pStrategist from "../assets/painted/klein/painted-strategist.webp";
-import k_bGolem from "../assets/painted/klein/painted-boss-golem.webp";
-import k_bBeast from "../assets/painted/klein/painted-boss-beast.webp";
-import k_bSerpent from "../assets/painted/klein/painted-boss-serpent.webp";
-import k_bWraith from "../assets/painted/klein/painted-boss-wraith.webp";
-import k_bTyrant from "../assets/painted/klein/painted-boss-tyrant.webp";
 import k_bArchenemy from "../assets/painted/klein/painted-boss-archenemy.webp";
-import k_bLeaguemaster from "../assets/painted/klein/painted-boss-leaguemaster.webp";
 import k_pbb01 from "../assets/painted/klein/painted-boss-b01.webp";
 import k_pbb02 from "../assets/painted/klein/painted-boss-b02.webp";
 import k_pbb03 from "../assets/painted/klein/painted-boss-b03.webp";
@@ -207,7 +195,7 @@ const KLASSIK_DUNKEL = { P: kPawnD, N: kKnightD, B: kBishopD, R: kRookD, Q: kQue
 export const klassikFor = (piece) =>
   (piece?.color === "w" ? KLASSIK_HELL : KLASSIK_DUNKEL)[piece?.kind] || null;
 
-export const PAINTED_KLEIN = { "pawn": k_pPawn, "pawn-t2": k_pPawnT2, "pawn-t3": k_pPawnT3, "haendler": k_pHaendler, "schatzkammer": k_pSchatzkammer, "gambit": k_pGambit, "gambit-t2": k_pGambitT2, "gambit-t3": k_pGambitT3, "gambit-t4": k_pGambitT4, "gambit-t5": k_pGambitT5, "gambit-t6": k_pGambitT6, "seeress": k_pSeeress, "knight": k_pKnight, "bishop": k_pBishop, "queen": k_pQueen, "archbishop": k_pArchbishop, "hawk": k_pHawk, "amazon": k_pAmazon, "assassin": k_pAssassin, "guardian": k_pGuardian, "captain": k_pCaptain, "sorceress": k_pSorceress, "pathfinder": k_pPathfinder, "rook": k_pRook, "king": k_pKing, "chancellor": k_pChancellor, "dragon": k_pDragon, "mage": k_pMage, "alchemist": k_pAlchemist, "warlock": k_pWarlock, "paladin": k_pPaladin, "inquisitor": k_pInquisitor, "bard": k_pBard, "engineer": k_pEngineer, "standard": k_pStandard, "strategist": k_pStrategist, "boss-golem": k_bGolem, "boss-beast": k_bBeast, "boss-serpent": k_bSerpent, "boss-wraith": k_bWraith, "boss-tyrant": k_bTyrant, "boss-archenemy": k_bArchenemy, "boss-leaguemaster": k_bLeaguemaster, "boss-b01": k_pbb01, "boss-b02": k_pbb02, "boss-b03": k_pbb03, "boss-b04": k_pbb04, "boss-b05": k_pbb05, "boss-b06": k_pbb06, "boss-b07": k_pbb07, "boss-b08": k_pbb08, "boss-b09": k_pbb09, "boss-b10": k_pbb10, "boss-b11": k_pbb11, "boss-b12": k_pbb12, "boss-b13": k_pbb13, "boss-b14": k_pbb14, "boss-b15": k_pbb15, "boss-b16": k_pbb16, "boss-b17": k_pbb17, "boss-b18": k_pbb18, "boss-b19": k_pbb19, "boss-b20": k_pbb20, "boss-b21": k_pbb21, "boss-b22": k_pbb22, "boss-b23": k_pbb23, "boss-b24": k_pbb24, "boss-b25": k_pbb25 };
+export const PAINTED_KLEIN = { "pawn": k_pPawn, "pawn-t2": k_pPawnT2, "pawn-t3": k_pPawnT3, "haendler": k_pHaendler, "schatzkammer": k_pSchatzkammer, "gambit": k_pGambit, "gambit-t2": k_pGambitT2, "gambit-t3": k_pGambitT3, "gambit-t4": k_pGambitT4, "gambit-t5": k_pGambitT5, "gambit-t6": k_pGambitT6, "seeress": k_pSeeress, "knight": k_pKnight, "bishop": k_pBishop, "queen": k_pQueen, "archbishop": k_pArchbishop, "hawk": k_pHawk, "amazon": k_pAmazon, "assassin": k_pAssassin, "guardian": k_pGuardian, "captain": k_pCaptain, "sorceress": k_pSorceress, "pathfinder": k_pPathfinder, "rook": k_pRook, "king": k_pKing, "chancellor": k_pChancellor, "dragon": k_pDragon, "mage": k_pMage, "alchemist": k_pAlchemist, "warlock": k_pWarlock, "paladin": k_pPaladin, "inquisitor": k_pInquisitor, "bard": k_pBard, "engineer": k_pEngineer, "standard": k_pStandard, "strategist": k_pStrategist, "boss-archenemy": k_bArchenemy, "boss-b01": k_pbb01, "boss-b02": k_pbb02, "boss-b03": k_pbb03, "boss-b04": k_pbb04, "boss-b05": k_pbb05, "boss-b06": k_pbb06, "boss-b07": k_pbb07, "boss-b08": k_pbb08, "boss-b09": k_pbb09, "boss-b10": k_pbb10, "boss-b11": k_pbb11, "boss-b12": k_pbb12, "boss-b13": k_pbb13, "boss-b14": k_pbb14, "boss-b15": k_pbb15, "boss-b16": k_pbb16, "boss-b17": k_pbb17, "boss-b18": k_pbb18, "boss-b19": k_pbb19, "boss-b20": k_pbb20, "boss-b21": k_pbb21, "boss-b22": k_pbb22, "boss-b23": k_pbb23, "boss-b24": k_pbb24, "boss-b25": k_pbb25 };
 
 export const PAINTED = {
   haendler: pHaendler, schatzkammer: pSchatzkammer, pawn: pPawn, "pawn-t2": pPawnT2, "pawn-t3": pPawnT3, gambit: pGambit, "gambit-t2": pGambitT2, "gambit-t3": pGambitT3, "gambit-t4": pGambitT4, "gambit-t5": pGambitT5, "gambit-t6": pGambitT6, seeress: pSeeress, knight: pKnight, bishop: pBishop, queen: pQueen,
@@ -215,9 +203,7 @@ export const PAINTED = {
   captain: pCaptain, pathfinder: pPathfinder, sorceress: pSorceress,
   rook: pRook, king: pKing, chancellor: pChancellor, dragon: pDragon, mage: pMage,
   alchemist: pAlchemist, warlock: pWarlock, paladin: pPaladin, inquisitor: pInquisitor,
-  bard: pBard, engineer: pEngineer, standard: pStandard, strategist: pStrategist,
-  "boss-golem": bGolem, "boss-beast": bBeast, "boss-serpent": bSerpent, "boss-wraith": bWraith,
-  "boss-tyrant": bTyrant, "boss-archenemy": bArchenemy, "boss-leaguemaster": bLeaguemaster,
+  bard: pBard, engineer: pEngineer, standard: pStandard, strategist: pStrategist, "boss-archenemy": bArchenemy,
   "boss-b01": pbb01, "boss-b02": pbb02, "boss-b03": pbb03, "boss-b04": pbb04, "boss-b05": pbb05, "boss-b06": pbb06, "boss-b07": pbb07, "boss-b08": pbb08,
   "boss-b09": pbb09, "boss-b10": pbb10, "boss-b11": pbb11, "boss-b12": pbb12, "boss-b13": pbb13, "boss-b14": pbb14, "boss-b15": pbb15, "boss-b16": pbb16,
   "boss-b17": pbb17, "boss-b18": pbb18, "boss-b19": pbb19, "boss-b20": pbb20, "boss-b21": pbb21, "boss-b22": pbb22, "boss-b23": pbb23, "boss-b24": pbb24, "boss-b25": pbb25,
@@ -289,10 +275,11 @@ function paintedRoh(piece) {
     if (piece.bossId.startsWith("pb_")) return PAINTED[piece.bossId.slice(3)] || null;
     // dedicated portrait first (painted-boss-<id>.webp), then the two named
     // finals, then the boss's art family (golem/beast/serpent/wraith/tyrant)
+    /* v1.33.2 (Besitzer: alte Bossbilder loeschen): jedes der 25 Monster hat
+       sein eigenes Gemaelde - die Familienbilder (golem, beast, serpent,
+       wraith, tyrant) und der alte Ligameister als Rueckfall sind fort. */
     return PAINTED["boss-" + piece.bossId]
-      || (piece.bossId === "b23" ? PAINTED["boss-archenemy"] : null)
-      || (piece.bossId === "b25" ? PAINTED["boss-leaguemaster"] : null)
-      || PAINTED["boss-" + (piece.art || "")] || null;
+      || (piece.bossId === "b23" ? PAINTED["boss-archenemy"] : null) || null;
   }
   if (piece.hero) {
     /* v1.0.49: DER HELD TRAEGT VORERST IMMER SEIN ERSTES GESICHT.

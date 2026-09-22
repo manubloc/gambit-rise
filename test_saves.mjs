@@ -388,6 +388,22 @@ ok("full build counts ten league crowns", fullB.stats.leaguesWon === 10);
   ok("... und nur einmal - ein zweites Laden erstattet nichts mehr", m3.sp === m2.sp);
 }
 
+/* v1.33.2: keine Figur ueber ihrer Hoechststufe - beide Ladewege kappen. */
+{
+  const pm = await import("./src/meta/profile.js");
+  const { GAMBIT_MAX_LEVEL, MAX_PIECE_LEVEL } = await import("./src/meta/leveling.js");
+  const a = pm.defaultProfile(); a.sp = 7;
+  a.pieces = { ...a.pieces, levels: { ...(a.pieces.levels || {}), gambit: 27, knight: 14, rook: 4, "X:b01": 5 } };
+  const b = pm.parseSave(pm.serializeSave(a));
+  ok("Altstand: Gambit 27 wird auf " + GAMBIT_MAX_LEVEL + " gekappt, Springer 14 auf " + MAX_PIECE_LEVEL,
+    b.pieces.levels.gambit === GAMBIT_MAX_LEVEL && b.pieces.levels.knight === MAX_PIECE_LEVEL);
+  ok("... der Rest bleibt, wie er war (Turm 4, Monster 5), und es wird nichts erstattet",
+    b.pieces.levels.rook === 4 && b.pieces.levels["X:b01"] === 5 && b.sp === 7);
+  const c = pm.ohneDauerfeuer({ pieces: { levels: { gambit: 23 } } });
+  ok("... auch der Weg aus dem Speicher (ohneDauerfeuer), selbst ohne gespeicherte Faehigkeiten", c.pieces.levels.gambit === GAMBIT_MAX_LEVEL);
+  ok("... und ein zweites Laden aendert nichts mehr", JSON.stringify(pm.parseSave(pm.serializeSave(b)).pieces.levels) === JSON.stringify(b.pieces.levels));
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 if (fail) process.exit(1);
 

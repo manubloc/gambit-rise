@@ -1,5 +1,23 @@
 # Changelog - Grand Gambit
 
+## 1.33.2
+- DIE KAPITELMEISTER IM HOFSTAAT IN KAPITELFOLGE: jeder gewonnene Meister
+  steht hinter den Figuren - Richter, Doppelritter, Seuchenkoenig ... -,
+  danach die gekauften Monster. (ownedBossSet fuehrt auch die gekauften;
+  ein erster Anlauf trennte falsch und liess sie fallen - die Kulissenprobe
+  hat ihn gefangen.)
+- ALTE BOSSBILDER GELOESCHT (Besitzer): die fuenf Familienbilder (Golem,
+  Bestie, Schlange, Schemen, Tyrann) und der alte Ligameister, je gross und
+  klein, samt Farb- und Sockeleintraegen und jedem Rueckfallweg - jedes der
+  25 Monster hat sein eigenes Gemaelde und seine eigene Sockelmessung.
+  Der Messeintrag "gambit-t1" BLEIBT: die Hoehe des Gambits der ersten
+  Rangstufe wird daraus gerechnet (eine Probe hat das gezeigt).
+- KEINE FIGUR UEBER IHRER HOECHSTSTUFE: alte Spielstaende mit einem Gambit
+  ueber 20 (frueher gab es drei Rangstufen zu je zehn) werden beim Laden
+  gekappt - auf beiden Ladewegen, ohne Erstattung.
+- Kettenblitz und Enterhaken (tot) stehen auf keiner Leiter mehr - das hatte
+  der Umbau nach Beweglichkeit (v1.29.0) schon erledigt.
+
 ## 1.33.1
 - DIE LEISTE UNTER DEM BRETT IST LESBAR (Besitzer: "kann man fast nicht
   lesen"). Gemessen: nicht die Farbe war schuld - der BRETTSCHATTEN fiel
