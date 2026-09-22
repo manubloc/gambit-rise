@@ -162,6 +162,11 @@ style.textContent = GLOBAL_CSS + `
      verblasst - nur opacity und transform, keine Layoutarbeit */
   /* v1.31.0: das Schreckfeld atmet - nur opacity */
   @keyframes ggSchreckAtmet { 0%, 100% { opacity: .75; } 50% { opacity: 1; } }
+  /* v1.33.1: im Pop-up blaettern - die neue Karte gleitet aus der Wischrichtung herein */
+  @keyframes ggBlattVonRechts { from { opacity: 0; transform: translateX(34px); } to { opacity: 1; transform: none; } }
+  @keyframes ggBlattVonLinks { from { opacity: 0; transform: translateX(-34px); } to { opacity: 1; transform: none; } }
+  .gg-blatt-rechts { animation: ggBlattVonRechts .24s ease-out both; }
+  .gg-blatt-links { animation: ggBlattVonLinks .24s ease-out both; }
   @keyframes ggZeichenEin { from { opacity: 0; transform: translate(-50%, -8px); } to { opacity: 1; transform: translate(-50%, 0); } }
   @keyframes ggZeichenSteigt { 0% { opacity: 0; transform: translate(-50%, -30%) scale(.85); }
     18% { opacity: 1; transform: translate(-50%, -60%) scale(1.05); }

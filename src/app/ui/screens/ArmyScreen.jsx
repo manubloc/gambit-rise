@@ -272,8 +272,8 @@ function BlattBuehne({ kennung, name, haus, satz, portraet, pid, ton, kul, form,
                      leben=1 und kraft=atk/12 - eine zweite Rechnung neben
                      rohrAnteile(), das die Kachel und das Gefecht benutzen.
                      Jetzt liest das Blatt dieselbe Quelle wie die Kachel. */
-                  {...band}
-                  grau={!werteAn} ausrichtung="mitte" />}
+                  {...(werteAn ? band : { leben: 0, kraft: 0 })}
+                  grau={!werteAn} hell={!werteAn} ausrichtung="mitte" />}
               </div>
             </div>
             <div style={{ textAlign: "center", marginTop: 4 }}>
@@ -987,7 +987,7 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
       const band = rohrAnteile({ hp: maxHp, maxHp, atk, level, maxLevel: mx, budget });
       return <BlattBuehne kennung={char.id} name={en ? char.nameEn : char.nameDe}
         haus={epic ? (en ? "The Grand Gambit" : "Der Grand Gambit") : fam ? (en ? FAMILIES[fam].en : FAMILIES[fam].de) : (en ? "Free piece" : "Freie Figur")}
-        satz={!epic ? (en ? char.flavorEn : char.flavorDe) : ""} portraet={portraet} pid={pid} ton={ton} kul={kul}
+        satz={en ? char.flavorEn : char.flavorDe}   /* v1.33.1: auch der Gambit - ein Satz, wie jede Figur */ portraet={portraet} pid={pid} ton={ton} kul={kul}
         form={formFuer({ charId: char.id })} stufe={level} maxStufe={mx}
         zugKind={char.kind} moveSpec={char.moveSpec} talente={chosen}
         zeichen={rungs.map((r) => ({ id: r.id, gelernt: chosen.includes(r.id) }))}
@@ -1005,9 +1005,9 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
             und die Werte schienen zurueckzuspringen. Was man bekommt, steht
             jetzt nur noch EINMAL: in den Wertkaesten darueber, dort aus
             derselben Kernrechnung wie das Gefecht. */}
-        {char.id === "gambit" && <div className="gg-serif" style={{ width: "100%", textAlign: "center", color: T.goldBright,
-          letterSpacing: ".05em", fontSize: 12.5, marginBottom: 6 }}>
-          {"✦".repeat(gambitTier(level))} {t("army.stufe", { r: ["I", "II", "III", "IV", "V", "VI"][gambitTier(level) - 1] })}</div>}
+        {/* v1.33.1 (Besitzer): der Gambit trug hier als einziger noch "Stufe I"
+            (seine Siegelstufe) - und der Knopf stand darum nur halb breit. Weg:
+            der Knopf geht ueber die volle Breite wie bei jeder Figur. */}
         {maxed && <div className="gg-serif" style={{ width: "100%", textAlign: "center", color: T.faint, letterSpacing: ".03em" }}>{t("army.maxed")}</div>}
         {/* v1.26.7: derselbe Knopf wie beim Monster (VerbessernKnopf) */}
         {!maxed && <VerbessernKnopf kann={affordable} kosten={cost} t={t} onClick={() => { klang("stufe");
@@ -1165,12 +1165,8 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
     {/* v1.16.0: DIE BUNDTAFEL - was die Kachel nicht mehr traegt, steht hier,
         in voller Breite unter dem Kopf, nicht in der schmalen Spalte neben dem Bild */}
     {open && <BundTafel profile={profile} charId={char.id} en={en} status={unlocked ? "eigen" : null} />}
-    {open && epic && (
-      <div style={{ marginTop: 7, fontSize: 11.5, lineHeight: 1.5 }}>
-        <span style={{ color: T.gold, fontWeight: 700 }}>{t("army.gambitTag")}</span>{" "}
-        <span style={{ color: INK }}>{t("army.gambitExplain")}</span>
-      </div>
-    )}
+    {/* v1.33.1 (Besitzer): der lange Erklaertext des Gambits ist fort - wie bei
+        jeder Figur steht EIN Satz unter seinem Namen, auf der Buehne. */}
     {!unlocked && bossNode && (
       <div style={{ marginTop: 9, fontSize: 12, color: T.dim, display: "flex", alignItems: "center", gap: 6 }}>
         <JewelIc kind="power" size={13} /> {t("army.lockedBoss", { place: bossNode.place })}
@@ -1191,9 +1187,7 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
             und die Werte schienen zurueckzuspringen. Was man bekommt, steht
             jetzt nur noch EINMAL: in den Wertkaesten darueber, dort aus
             derselben Kernrechnung wie das Gefecht. */}
-        {char.id === "gambit" && <div className="gg-serif" style={{ width: "100%", textAlign: "center", color: T.goldBright,
-          letterSpacing: ".05em", fontSize: 12.5, marginBottom: 6 }}>
-          {"✦".repeat(gambitTier(level))} {t("army.stufe", { r: ["I", "II", "III", "IV", "V", "VI"][gambitTier(level) - 1] })}</div>}
+        {/* v1.33.1: auch in dieser Fassung des Blatts kein Stufen-Chip mehr beim Gambit */}
         {maxed && <div className="gg-serif" style={{ width: "100%", textAlign: "center", color: T.faint, letterSpacing: ".03em" }}>{t("army.maxed")}</div>}
         {/* v1.26.7: derselbe Knopf wie beim Monster (VerbessernKnopf) */}
         {!maxed && <VerbessernKnopf kann={affordable} kosten={cost} t={t} onClick={() => { klang("stufe");
@@ -1220,20 +1214,9 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
       </div>
     )}
 
-    {open && (() => {
-      // the Gambit climbs three tiers of ten — the pip row shows the CURRENT
-      // tier's ten steps; every other piece keeps its plain ten.
-      const tier = char.id === "gambit" ? gambitTier(level) : 1;
-      const base = (tier - 1) * 10;
-      return <div style={{ display: "flex", gap: 4, marginTop: 13, marginBottom: 2 }} aria-label={t("army.lvl") + " " + level}>
-        {Array.from({ length: 10 }).map((_, i) => (
-          <span key={i} style={{ flex: 1, height: 5, borderRadius: 3,
-            background: i < level - base ? `linear-gradient(90deg, ${T.lime}, ${T.gold})` : T.panel2,
-            boxShadow: i < level - base ? `0 0 6px ${T.gold}66` : "none",
-            border: i < level - base ? "none" : `1px solid ${T.line}` }} />
-        ))}
-      </div>;
-    })()}
+    {/* v1.33.1 (Besitzer): "unter Verbessern nochmal eine Anzeige, welche
+        Stufe - unnoetig, steht ja schon oben". Die Punkteleiste ist fort; die
+        Stufe zeigen die Punkte oben auf der Buehne. */}
     {/* v1.24.0: im grossen Blatt steht das Zugbild jetzt OBEN auf der Buehne,
         neben der Figur - der eigene Abschnitt weiter unten zeigte es ein
         zweites Mal. Die Legende zieht mit nach oben, sobald der (i) dort
@@ -2217,6 +2200,12 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
     const lv = characterLevel(profile, cid) || 1;
     const hp0 = BASE_HP[ch.kind], atk0 = BASE_ATK[ch.kind];
     if (!hp0 || !atk0) return null;
+    /* v1.33.1 (Besitzer: "in den ersten Leveln, wenn man noch kein HP-Gefecht
+       hat, auch den grauen Sockel wie im Spiel - ohne HP-Anzeige"): vor dem
+       Erwachen der Lebenspunkte traegt die Kachel denselben weissgrauen
+       Sockel ohne Werte wie die eigene Figur auf dem Brett im reinen Schach
+       (PieceGlyph: leben 0, kraft 0, grau, hell). */
+    if (!hpUnlocked(profile)) return { leben: 0, kraft: 0, ohne: true };
     /* v1.22.0: DIESELBE Rechnung wie im Kern (werteBeiStufe). Vorher stand
        hier eine eigene Staffelung (+1 Leben je Stufe, +1 Angriff alle drei),
        die dem Kern seit dem relativen Wachstum nicht mehr entsprach - die
@@ -2483,7 +2472,7 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
            jetzt nachgeholt (test_ui rendert die Kachel). */
         filter: dark ? "brightness(0) opacity(.55)" : dim ? "grayscale(1) brightness(.8)" : "brightness(1.14) saturate(1.05)",
         userSelect: "none" }} />
-        {werte && <SockelBand paintedId={paintedIdOf(img)} leben={werte.leben} kraft={werte.kraft} grau={!!(dim || dark)} id={`sb-${artId || bossId || "x"}`} />}
+        {werte && <SockelBand paintedId={paintedIdOf(img)} leben={werte.leben} kraft={werte.kraft} grau={!!(dim || dark || werte.ohne)} hell={!!werte.ohne && !dim && !dark} id={`sb-${artId || bossId || "x"}`} />}
         </div>
         : <div style={{ width: "100%", aspectRatio: "1 / 1", display: "grid", placeItems: "center", margin: "0 auto" }}>
             {/* NEVER A QUESTION MARK WHERE A FIGURE BELONGS. If no painting is
@@ -2525,6 +2514,12 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
     </div>
   );
   const [detail, setDetail] = useState(null); // a tapped figure opens its FULL card (level, ladder, upgrades)
+  /* v1.33.1 (Besitzer): IM POP-UP WISCHEN - nach links die naechste Karte,
+     nach rechts die vorige, in der Reihenfolge der Uebersicht. Die Hooks
+     stehen hier oben, vor jeder fruehen Rueckgabe dieser Komponente. */
+  const wisch = useRef(null);
+  const wischRichtung = useRef(0);
+  useEffect(() => { wischRichtung.current = 0; }, [detail]);
   useEffect(() => {   // dieselbe Marke fuer das Figuren- und Monsterblatt
     if (!detail) return;
     document.documentElement.dataset.ggPopup = "1";
@@ -2580,7 +2575,8 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
        Bosswerten der aktuellen Stufe, Stufe rechts, Farbschleier im Ton. */
     const mLv = characterLevel(profile, k) || 1;
     const mSpec = bossSpecLeveled(b, mLv);
-    const mWerte = rohrAnteile({ hp: mSpec.hp, atk: mSpec.atk, level: mLv, maxLevel: BOSS_MAX_LEVEL });
+    const mWerte = hpUnlocked(profile) ? rohrAnteile({ hp: mSpec.hp, atk: mSpec.atk, level: mLv, maxLevel: BOSS_MAX_LEVEL })
+      : { leben: 0, kraft: 0, ohne: true };   /* v1.33.1: vor dem Erwachen ohne Werte, wie die Figuren */
     const ton = b.accent || null;
     const meister = LEAGUE_BOSSES.includes(b.id);
     if (bribedSet.has(b.id) || ownedBossSet.has(b.id)) return <Tile key={b.id} img={img} bossId={b.id} glow meister={meister} sigil={sig} sigilBig={sigBig} werte={mWerte} ton={ton}
@@ -2619,7 +2615,39 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
   // recruits RISE into the court — each keeps a small note of where it came from
   const crownIn = CROWN_IDS.filter((c) => unlocked.has(c));
   const shadowIn = SHADOW_IDS.filter((c) => unlocked.has(c));
-  const alliedIn = BOSSES.filter((b) => bribedSet.has(b.id));
+  /* v1.33.1: auch die GEWONNENEN Kapitelmeister stehen hier. Die Halle der
+     Meister unten nimmt sie heraus (!ownedBossSet) - hier standen aber nur die
+     gekauften. Ein besiegter Meister war damit nirgends in der Uebersicht. */
+  const alliedIn = BOSSES.filter((b) => bribedSet.has(b.id) || ownedBossSet.has(b.id));
+  /* v1.33.1: DIE FOLGE ZUM BLAETTERN - dieselben Abschnitte in derselben
+     Reihenfolge wie die Uebersicht, nur Karten, die sich auch per Tippen
+     oeffnen (eigene, begegnete, gekaufte). */
+  const oeffnetBlatt = (k) => {
+    if (k.startsWith("X:")) { const id = k.slice(2); return bribedSet.has(id) || ownedBossSet.has(id) || met.has(k); }
+    const ch = CHARACTERS[k]; if (!ch) return false;
+    if (k === "gambit" && !gambitWach(profile)) return false;
+    return unlocked.has(k) || COURT_IDS.includes(k) || met.has(ch.kind) || (bossWinsFor(profile, k) || 0) > 0;
+  };
+  const blattFolge = [
+    ...COURT_IDS, ...crownIn, ...shadowIn, ...alliedIn.map((b) => "X:" + b.id),
+    ...CROWN_IDS.filter((c) => !unlocked.has(c)), ...SHADOW_IDS.filter((c) => !unlocked.has(c)),
+    ...BOSSES.filter((b) => !bribedSet.has(b.id) && !ownedBossSet.has(b.id)).map((b) => "X:" + b.id),
+  ].filter((k, i, a) => a.indexOf(k) === i && oeffnetBlatt(k));
+  const blaettern = (r) => {
+    const i = blattFolge.indexOf(detail); if (i < 0) return;
+    const n = blattFolge[i + r]; if (!n) return;
+    wischRichtung.current = r; setDetail(n);
+  };
+  const wischStart = (e) => { const p = e.touches && e.touches[0]; wisch.current = p ? { x: p.clientX, y: p.clientY, t: Date.now() } : null; };
+  const wischEnde = (e) => {
+    const a = wisch.current; wisch.current = null;
+    const p = e.changedTouches && e.changedTouches[0]; if (!a || !p) return;
+    const dx = p.clientX - a.x, dy = p.clientY - a.y;
+    /* nur ein klarer, waagrechter, zuegiger Wisch - Scrollen bleibt Scrollen */
+    if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.6 || Date.now() - a.t > 800) return;
+    blaettern(dx < 0 ? 1 : -1);
+  };
+  const blattKlasse = () => (wischRichtung.current > 0 ? " gg-blatt-rechts" : wischRichtung.current < 0 ? " gg-blatt-links" : "");
   // DS1 Phase 8: Vesnas Vorrede stand dauerhaft vierzeilig ueber dem
   // Verzeichnis. Jetzt zwei Zeilen (-webkit-line-clamp), ein Tipp klappt den
   // Rest auf - die Chronikstimme bleibt, die Figuren ruecken nach oben.
@@ -2679,7 +2707,7 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
              unter die Leiste. Jetzt beginnt jedes Popup auf DERSELBEN Hoehe,
              gleich wie gross sein Inhalt ist, und scrollt in sich. */
         }}>
-        <div onClick={(e) => e.stopPropagation()} style={{ position: "absolute", left: "50%", transform: "translateX(-50%)",
+        <div key={detail} onClick={(e) => e.stopPropagation()} onTouchStart={wischStart} onTouchEnd={wischEnde} style={{ position: "absolute", left: "50%", transform: "translateX(-50%)",
           top: "calc(14px + var(--gg-popfrei-oben, 0px))",
           maxHeight: "calc(100dvh / var(--vhz, 1) - 30px - var(--gg-popfrei-oben, 0px) - var(--gg-popfrei-unten, 0px))",
           display: "flex", flexDirection: "column", width: "min(100vw - 20px, 420px)",
@@ -2690,7 +2718,7 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
             width: 30, height: 30, borderRadius: "50%", display: "grid", placeItems: "center", cursor: "pointer",
             background: "rgba(10,13,20,.72)", border: `1px solid ${T.riftLine}`, color: T.riftBright,
             fontFamily: "inherit", fontSize: 13, lineHeight: 1 }}>✕</button>
-          <div className="gg-thinbar" style={{ flex: "1 1 auto", minHeight: 0, overflowY: "auto", padding: "18px 16px 16px" }}>
+          <div className={"gg-thinbar" + blattKlasse()} style={{ flex: "1 1 auto", minHeight: 0, overflowY: "auto", padding: "18px 16px 16px" }}>
             {/* ── v1.25.9 (Besitzer): DIESELBE BUEHNE WIE BEIM FIGURENBLATT ────
                 "Ich wollte doch bei allen Monstern genau das gleiche Design wie
                  bei meinen Figuren." Kulisse, Eckverzierungen, Figur mit
@@ -2745,7 +2773,7 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
              unter die Leiste. Jetzt beginnt jedes Popup auf DERSELBEN Hoehe,
              gleich wie gross sein Inhalt ist, und scrollt in sich. */
         }}>
-        <div onClick={(e) => e.stopPropagation()} style={{ position: "absolute", left: "50%", transform: "translateX(-50%)",
+        <div key={detail} onClick={(e) => e.stopPropagation()} onTouchStart={wischStart} onTouchEnd={wischEnde} style={{ position: "absolute", left: "50%", transform: "translateX(-50%)",
           top: "calc(14px + var(--gg-popfrei-oben, 0px))",
           maxHeight: "calc(100dvh / var(--vhz, 1) - 30px - var(--gg-popfrei-oben, 0px) - var(--gg-popfrei-unten, 0px))",
           display: "flex", flexDirection: "column", width: "min(100vw - 20px, 440px)",
@@ -2759,7 +2787,7 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
             width: 30, height: 30, borderRadius: "50%", display: "grid", placeItems: "center", cursor: "pointer",
             background: "rgba(10,13,20,.72)", border: `1px solid ${T.riftLine}`, color: T.riftBright,
             fontFamily: "inherit", fontSize: 13, lineHeight: 1 }}>✕</button>
-          <div className="gg-thinbar" style={{ flex: "1 1 auto", minHeight: 0, overflowY: "auto" }}>
+          <div className={"gg-thinbar" + blattKlasse()} style={{ flex: "1 1 auto", minHeight: 0, overflowY: "auto" }}>
             <CharCard char={CHARACTERS[detail]} profile={profile} dispatch={dispatch} t={t} en={en}
               onZoom={onZoom} open bigArt />
           </div>

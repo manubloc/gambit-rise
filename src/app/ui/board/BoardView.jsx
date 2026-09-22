@@ -957,10 +957,21 @@ export function BoardView({ lang = "de", state, onMove, interactive, lastMove, m
          duenner als das gefuellte Band, und das Auge las sie als Fehler statt
          als Auskunft. */
       return (
-        <div className="gg-talentband" style={{ padding: "10px 12px", marginTop: 8, borderRadius: 12,
-          fontSize: 12, lineHeight: 1.4, textAlign: "center", color: "#c3b6e6",
-          background: "linear-gradient(180deg, rgba(32,25,54,.94), rgba(17,14,30,.96))",
-          border: "1px solid rgba(167,139,250,.38)",
+        /* v1.33.1 (Besitzer: "kann man fast nicht lesen"): GEMESSEN - die 12-px-
+           Schrift war so duenn, dass kein Strich ein Pixel voll deckte; selbst
+           reines Weiss kam nur auf 192 von 255. Kraeftiger (600), etwas groesser
+           (13,5 px), fast weiss, mit einem Hauch Schatten - und der Grund eine
+           Spur heller, damit die Kante sich abhebt. */
+        /* v1.33.1: DIE EIGENTLICHE URSACHE - der Brettschatten (bis 60 px
+           Unschaerfe, 22 px tief) fiel UEBER die Leiste: das Brett ist
+           positioniert und wird deshalb nach ihr gemalt. Gemessen: die erste
+           Zeile war dunkler als die zweite. position + zIndex heben die Leiste
+           darueber. */
+        <div className="gg-talentband" style={{ position: "relative", zIndex: 2, padding: "11px 14px", marginTop: 8, borderRadius: 12,
+          fontSize: 13.5, fontWeight: 600, lineHeight: 1.45, textAlign: "center", color: "#f1ecff",
+          textShadow: "0 1px 2px rgba(0,0,0,.55)", letterSpacing: ".005em",
+          background: "linear-gradient(180deg, rgba(46,36,78,.96), rgba(26,20,46,.97))",
+          border: "1px solid rgba(167,139,250,.5)",
           boxShadow: "0 2px 10px rgba(0,0,0,.45), inset 0 1px 0 rgba(196,181,253,.10)" }}>
           {state.rules === "chess" && (selPiece.level || 1) <= 1
             ? "Klassisch — hier zählt nur Schach. Talente lernen die Figuren im Gambit-Modus."
@@ -973,7 +984,8 @@ export function BoardView({ lang = "de", state, onMove, interactive, lastMove, m
        eine sichtbare Kontur und ein Schatten, der es vom Grund hebt - es ist
        die Schaltflaeche fuer jeden Zauber, nicht eine Fussnote. */
     return (
-      <div className="gg-talentband" style={{ display: "flex", flexWrap: "wrap", gap: 7, alignItems: "center",
+      <div className="gg-talentband" style={{ position: "relative", zIndex: 2,   /* v1.33.1: ueber dem Brettschatten, wie die leere Leiste */
+        display: "flex", flexWrap: "wrap", gap: 7, alignItems: "center",
         justifyContent: "center", padding: "10px 10px 9px", fontSize: 12.5, lineHeight: 1.35,
         color: "#e4dcff", background: "linear-gradient(180deg, rgba(34,26,58,.96), rgba(18,15,32,.97))",
         border: "1px solid rgba(167,139,250,.5)", borderRadius: 12, marginTop: 8,

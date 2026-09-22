@@ -232,7 +232,7 @@ console.log("\n== BRETTRAND: Sperren mittig, Band praesent, Summen nah (v1.2.3) 
   ok("das Talentband ist praesenter (groessere Schrift, Kontur, Schatten)",
     bv2.includes("fontSize: 12.5") && bv2.includes("0 3px 14px rgba(0,0,0,.5)"));
   ok("auch die leere Zeile traegt das volle Band",
-    bv2.includes("padding: \"10px 12px\", marginTop: 8, borderRadius: 12"));
+    bv2.includes("padding: \"11px 14px\", marginTop: 8, borderRadius: 12"));   /* v1.33.1: etwas mehr Luft (war 10px 12px) */
   ok("die Chips sind groesser und antippbar", bv2.includes('gap: 5, padding: "5px 11px"'));
   const gs2 = readFileSync("src/app/ui/screens/GameScreen.jsx", "utf8");
   ok("die Summenleisten ruecken ans Brett",

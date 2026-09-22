@@ -140,6 +140,14 @@ const pill = (extra) => ({ display: "inline-flex", alignItems: "center", gap: 6,
   background: "linear-gradient(165deg, rgba(46,31,80,.94), rgba(22,14,42,.96))", borderRadius: 999, padding: "8px 13px", fontFamily: "inherit", fontWeight: 800,
   fontSize: 13, boxShadow: "0 3px 10px rgba(0,0,0,.4)", whiteSpace: "nowrap", flex: "0 0 auto",
   backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)", ...extra });
+/* v1.33.1 (Besitzer: "Aufgeben und Zurueck etwas weniger praesent"): die
+   beiden trugen das volle Gefechtskleid - Verlauf, Leuchtkontur, Gluehen,
+   fette Schrift - und wogen damit so viel wie das Brett. Jetzt LEISE: fast
+   durchsichtiger Grund, zarte Kontur, gedaempfte Schrift, kein Gluehen.
+   Man findet sie, sie ziehen den Blick aber nicht mehr vom Brett. Beim
+   Aufgeben ist das zugleich ein Schutz; der Bestaetigungsdialog bleibt. */
+const leiserKnopf = (extra) => pill({ border: "1px solid rgba(167,139,250,.24)", color: "rgba(226,218,246,.66)",
+  background: "rgba(14,10,26,.34)", boxShadow: "none", fontWeight: 600, fontSize: 12, padding: "6px 11px", ...extra });
 
 export function GameScreen({ profile, dispatch, t, match = null, onExit = null, pvp = null, quick = null, onArmy = null, daily = null }) {
   /* ── v1.31.0: DIE ERSTE BEGEGNUNG MIT EINER MONSTERFAEHIGKEIT (Besitzer: "was
@@ -1063,8 +1071,7 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
             einzige Ausgang aus einer laufenden Schnellpartie ist Aufgeben -
             wer die Uhr angenommen hat, laeuft nicht einfach vom Tisch. */}
         {onExit && !(pvp && timer) && (
-          <button onClick={leaveAsk} style={pill({ border: `1px solid ${T.selLine}`, color: T.selInk,
-            background: `linear-gradient(165deg, ${T.sel}, #1a1030)`, boxShadow: `0 0 10px ${T.selGlow}` })}>
+          <button onClick={leaveAsk} style={leiserKnopf()}>
             <span style={{ fontSize: 15, lineHeight: 1 }}>‹</span> {t("common.back")}
           </button>
         )}
@@ -1103,9 +1110,7 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
             <HourglassIc size={13} color={T.magenta} /> {foeLbl}</span>
         )}
         <button onClick={() => setArmResign(true)} disabled={!!banner || !!intro || scout}
-          style={pill({ border: `1px solid ${T.selLine}`, color: T.selInk,
-            background: `linear-gradient(165deg, ${T.sel}, #1a1030)`, boxShadow: `0 0 10px ${T.selGlow}`,
-            opacity: banner || intro || scout ? 0.5 : 1,
+          style={leiserKnopf({ opacity: banner || intro || scout ? 0.4 : 1,
             cursor: banner || intro || scout ? "default" : "pointer" })}>
           <FlagIc size={13} /> {t("game.resign")}
         </button>

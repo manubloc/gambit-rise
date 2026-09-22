@@ -1,5 +1,31 @@
 # Changelog - Grand Gambit
 
+## 1.33.1
+- DIE LEISTE UNTER DEM BRETT IST LESBAR (Besitzer: "kann man fast nicht
+  lesen"). Gemessen: nicht die Farbe war schuld - der BRETTSCHATTEN fiel
+  ueber die Leiste (das Brett ist positioniert und wird nach ihr gemalt); die
+  erste Zeile war dunkler als die zweite, selbst reines Weiss kam auf 192.
+  Beide Fassungen der Leiste liegen jetzt darueber; die Schrift ist
+  kraeftiger, etwas groesser, fast weiss.
+- ZURUECK UND AUFGEBEN SIND LEISE: fast durchsichtiger Grund, zarte Kontur,
+  gedaempfte Schrift, kein Gluehen. Der Bestaetigungsdialog bleibt.
+- VOR DEM ERWACHEN DER LEBENSPUNKTE tragen Hofstaat-Kacheln, Monsterkacheln
+  und das Figurenblatt den weissgrauen Sockel ohne Werte - wie die eigene
+  Figur auf dem Brett im reinen Schach.
+- DAS FIGURENBLATT: der Gambit wie jede Figur - EIN Satz unter dem Namen,
+  Verbessern ueber die volle Breite, kein "Stufe I" daneben (in beiden
+  Fassungen des Blatts), kein langer Erklaertext. Die Stufenleiste unter der
+  Bundtafel ist fort - die Stufe steht oben auf der Buehne.
+- IM POP-UP WISCHEN: nach links die naechste Karte, nach rechts die vorige,
+  in der Reihenfolge der Uebersicht; nur Karten, die sich auch per Tippen
+  oeffnen. Nur ein klarer waagrechter Wisch blaettert, Scrollen bleibt
+  Scrollen. Die neue Karte gleitet aus der Wischrichtung herein.
+- BEHOBEN: ein GEWONNENER Kapitelmeister stand nirgends in der Uebersicht -
+  die Halle der Meister nahm ihn heraus, die Verbuendeten zeigten nur
+  gekaufte Monster. Jetzt steht er bei den Verbuendeten.
+- Im Browser nachgesehen: Leiste, leise Knoepfe, grauer Sockel, Gambit-Blatt;
+  Wischen Gambit -> Bauer -> Springer und zurueck.
+
 ## 1.33.0
 - MONSTER AUF FREIEN PLAETZEN (Besitzer): die gewoehnlichen Monster stehen
   anstelle von Turm, Laeufer oder Springer - nie auf dem Platz von Koenig

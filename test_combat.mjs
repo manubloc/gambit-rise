@@ -912,5 +912,40 @@ console.log("\n== STURM UND GELEIT (v1.11.2) ==");
   ok("alle neun sind live und erklaeren sich mit einem Satz", NEUN.every((id) => ABILITIES[id] && ABILITIES[id].live && ABILITIES[id].descDe && ABILITIES[id].descEn));
 }
 
+/* v1.33.1 (Besitzer, mit Screenshots): die Leiste unter dem Brett war kaum
+   lesbar, Zurueck/Aufgeben zu praesent, die Hofstaat-Kacheln zeigten vor dem
+   Erwachen der Lebenspunkte schon das rote/blaue Band. */
+{
+  const { readFileSync } = await import("node:fs");
+  const bv = readFileSync("src/app/ui/board/BoardView.jsx", "utf8");
+  const baender = bv.split('className="gg-talentband" style={{').slice(1).map((x) => x.slice(0, 60));
+  ok("beide Fassungen der Leiste liegen UEBER dem Brettschatten (position + zIndex)",
+    baender.length === 2 && baender.every((x) => x.includes('position: "relative", zIndex: 2')));
+  ok("... und die leere Leiste schreibt kraeftig und fast weiss", bv.includes('fontSize: 13.5, fontWeight: 600, lineHeight: 1.45, textAlign: "center", color: "#f1ecff"'));
+  const gs = readFileSync("src/app/ui/screens/GameScreen.jsx", "utf8");
+  ok("Zurueck und Aufgeben sind leise Knoepfe (kein Gluehen, gedaempfte Schrift)",
+    (gs.match(/leiserKnopf\(/g) || []).length === 2 && gs.includes('const leiserKnopf = (extra) => pill({') && !gs.includes("boxShadow: `0 0 10px ${T.selGlow}` })}>\n            <span style={{ fontSize: 15"));
+  const ar = readFileSync("src/app/ui/screens/ArmyScreen.jsx", "utf8");
+  ok("vor dem Erwachen der Lebenspunkte: Kachel und Blatt ohne Werte, grau und hell - wie das Brett",
+    ar.includes("if (!hpUnlocked(profile)) return { leben: 0, kraft: 0, ohne: true };")
+    && ar.includes("grau={!!(dim || dark || werte.ohne)} hell={!!werte.ohne && !dim && !dark}")
+    && ar.includes("{...(werteAn ? band : { leben: 0, kraft: 0 })}"));
+}
+
+/* v1.33.1 (Besitzer, mit Screenshots): das Figurenblatt - der Gambit wie jede
+   Figur, keine doppelte Stufenanzeige, im Pop-up wischen. */
+{
+  const { readFileSync } = await import("node:fs");
+  const ar = readFileSync("src/app/ui/screens/ArmyScreen.jsx", "utf8");
+  ok("der Gambit traegt EINEN Satz unter dem Namen wie jede Figur", ar.includes("satz={en ? char.flavorEn : char.flavorDe}") && !ar.includes('satz={!epic ?'));
+  ok("... kein Stufen-Chip mehr neben Verbessern, kein langer Erklaertext", !ar.includes("repeat(gambitTier(level))") && !ar.includes("army.gambitExplain"));
+  ok("die Stufenleiste unter der Bundtafel ist fort (die Stufe steht oben)", !ar.includes("the Gambit climbs three tiers of ten"));
+  ok("im Pop-up wischen: beide Blaetter hoeren auf die Geste und blaettern durch die Folge der Uebersicht",
+    (ar.match(/onTouchStart={wischStart} onTouchEnd={wischEnde}/g) || []).length === 2
+    && ar.includes("const blattFolge = [") && ar.includes("blaettern(dx < 0 ? 1 : -1)"));
+  ok("... nur ein klarer waagrechter Wisch - Scrollen bleibt Scrollen", ar.includes("Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.6"));
+  ok("gewonnene Kapitelmeister stehen bei den Verbuendeten (vorher nirgends)", ar.includes("const alliedIn = BOSSES.filter((b) => bribedSet.has(b.id) || ownedBossSet.has(b.id));"));
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
