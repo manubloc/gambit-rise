@@ -291,7 +291,12 @@ if (failed > 0) process.exit(1);
   const falsch = w.filter((x) => x.hp + x.atk !== BOSS_BUDGET).map((x) => x.id);
   ok(`jedes Monster hat auf der Hoechststufe ${BOSS_BUDGET} Punkte${falsch.length ? " (falsch: " + falsch.join(", ") + ")" : ""}`, falsch.length === 0);
   const q = w.map((x) => x.q);
-  ok(`die Monster spannen von ${Math.round(Math.min(...q) * 100)} % bis ${Math.round(Math.max(...q) * 100)} % Blau (vorher 19 bis 39)`, Math.min(...q) <= 0.15 && Math.max(...q) >= 0.8);
+  ok(`die Monster spannen von ${Math.round(Math.min(...q) * 100)} % bis ${Math.round(Math.max(...q) * 100)} % Blau (vorher 19 bis 39)`, Math.min(...q) <= 0.15 && Math.max(...q) >= 0.75);
+  /* v1.32.0: die Schwelle oben war 0.8 - das erreichte NUR der Geist (4/20).
+     Seit "wer springt, schlaegt schwach" auch fuer Monster gilt, traegt er
+     16/8; die schaerfste Klinge ist jetzt ein GLEITER (Brandstifter 5/19 =
+     79 %). Die Spanne Bollwerk bis Klinge bleibt - sie gehoert nur nicht mehr
+     einem Monster, das 16 Felder weit springt. */
 }
 console.log(`\nRESULT (Budget): ${passed} passed, ${failed} failed`);
 if (failed) process.exit(1);

@@ -18,6 +18,7 @@ const PLATZ = KARTE.defaultFormation.indexOf("queen");   // der Platz, um den es
 export let STUFEN_AM_ANSCHLAG = true;
 /* v1.29.0: Stufe des RESTS beider Heere - 1 = Anfaengerheer, 10 = alle auf Hoechststufe (echtes Spaetspiel) */
 export let REST_STUFE = 1;
+export const setzeRestStufe = (n) => { REST_STUFE = n; };   /* v1.32.0: fuer Versuche von aussen */
 /* v1.28.3: auch ein MONSTER ("X:b01") steht auf dem Damenplatz - so, wie es
    der Spieler einsetzen darf: Hoechststufe 5, beide Faehigkeiten gelernt. */
 /* In der Aufstellung heisst ein Monster "boss:b01", im Profil "X:b01" - beide
@@ -64,6 +65,24 @@ if (process.argv[2] === "probe") {
    Ohne Bauer, Gambit (steht in der Bauernreihe) und Koenig (ist der Koenig);
    der Drache belegt vier Felder und passt nicht auf den einen Platz - er wird
    gesondert geprueft. Je Paar 8 Partien, 4 je Farbe, feste Keime. */
+/* v1.32.0: GEZIELT - nur einige Figuren/Monster gegen den ganzen Vorrat (statt
+   jeder gegen jeden). Fuer Versuche: ~30 s statt zwei Minuten. */
+export function gegenAlle(ziele, vorrat, proPaar = 8, tiefe = 1) {
+  return ziele.map((a, i) => {
+    const b0 = { f: a, s: 0, n: 0, u: 0, z: 0 };
+    vorrat.filter((b) => b !== a).forEach((b, j) => {
+      for (let k = 0; k < proPaar; k++) {
+        const aWeiss = k % 2 === 0;
+        const r = partie(aWeiss ? a : b, aWeiss ? b : a, 1000 + i * 97 + j * 13 + k, tiefe);
+        b0.z += partie.zuege;
+        const sieger = r === "w" ? (aWeiss ? a : b) : r === "b" ? (aWeiss ? b : a) : null;
+        if (!sieger) { b0.u++; continue; }
+        b0.n++; if (sieger === a) b0.s++;
+      }
+    });
+    return { ...b0, quote: b0.n ? b0.s / b0.n : 0.5, zuege: Math.round(b0.z / Math.max(1, b0.n + b0.u)) };
+  });
+}
 export function durchlauf({ proPaar = 8, tiefe = 1, figuren = null } = {}) {
   const AUS = new Set(["pawn", "gambit", "king", "dragon"]);
   figuren = figuren || CHARACTER_LIST.map((c) => c.id).filter((id) => !AUS.has(id));
@@ -157,6 +176,11 @@ if (process.argv[2] === "allein") {
 if (process.argv[2] === "reif") {
   REST_STUFE = 10;
   const AUS = new Set(["pawn", "gambit", "king", "dragon", "queen"]);
-  console.log("== ALLE ANDEREN FIGUREN - der Rest beider Heere auf Hoechststufe ==");
-  zeige(durchlauf({ proPaar: 8, figuren: CHARACTER_LIST.map((c) => c.id).filter((id) => !AUS.has(id)) }));
+  /* v1.32.0: die 13 GEWOEHNLICHEN MONSTER laufen mit - sie stehen kuenftig
+     auf freien Plaetzen wie die Figuren und fallen unter dieselbe 60-%-Grenze.
+     Die zwoelf Kapitelmeister sind Grossmeister und bleiben ausgenommen. */
+  const { KAPITELMEISTER } = await import("../src/content/campaign.js");
+  const gewoehnlich = BOSSES.filter((b) => !KAPITELMEISTER.includes(b.id)).map((b) => "boss:" + b.id);
+  console.log("== ALLE ANDEREN FIGUREN UND DIE GEWOEHNLICHEN MONSTER - der Rest beider Heere auf Hoechststufe ==");
+  zeige(durchlauf({ proPaar: 8, figuren: [...CHARACTER_LIST.map((c) => c.id).filter((id) => !AUS.has(id)), ...gewoehnlich] }));
 }

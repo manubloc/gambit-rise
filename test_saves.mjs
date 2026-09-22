@@ -368,7 +368,24 @@ ok("full build counts ten league crowns", fullB.stats.leaguesWon === 10);
   q.pieces = { ...q.pieces, levels: { ...(q.pieces.levels || {}), knight: 9 }, abilities: { knight: ["knight_longleap", "teleport"] }, stufen: { knight: { teleport: 2 } } };
   const q2 = pm.parseSave(pm.serializeSave(q));
   ok("gestrichenes Blinzeln verschwindet beim Springer, Weitsprung bleibt", JSON.stringify(q2.pieces.abilities.knight) === '["knight_longleap"]');
-  ok("... samt seiner Stufe, und die Skillpunkte kommen zurueck", !q2.pieces.stufen?.knight?.teleport && q2.sp === 13);
+  /* v1.32.0: die Probe erwartete frueher 13 - nur den Lernpreis (Sprosse 6).
+     Die Aufstufung auf II (Sprosse 6 + 2 = 8) ging verloren. Jetzt kommt beides. */
+  const { abilityCost } = await import("./src/meta/leveling.js");
+  ok("... samt seiner Stufe, und die Skillpunkte kommen zurueck - Lernpreis UND Aufstufung",
+    !q2.pieces.stufen?.knight?.teleport && q2.sp === 10 + abilityCost(6) + abilityCost(8));
+
+  /* v1.32.0: die MONSTER geben ihre Familiengabe ab. Wer sie gelernt und
+     aufgestuft hat, bekommt beides zurueck (Monster: Sprosse 2, Stufe II
+     braucht 2 + 1 = 3). Die neuen Faehigkeiten sind danach lernbar. */
+  const m = pm.defaultProfile(); m.sp = 5;
+  m.pieces = { ...m.pieces, abilities: { "X:b01": ["bulwark"], "X:b07": ["teleport"] }, stufen: { "X:b07": { teleport: 2 } } };
+  const m2 = pm.parseSave(pm.serializeSave(m));
+  ok("Monster: die alte Familiengabe verschwindet (Waechter: Bollwerk, Geist: Blinzeln)",
+    JSON.stringify(m2.pieces.abilities["X:b01"]) === "[]" && JSON.stringify(m2.pieces.abilities["X:b07"]) === "[]");
+  ok("... und die Punkte kommen zurueck - Lernpreis, beim Geist auch die Aufstufung",
+    m2.sp === 5 + abilityCost(2) + abilityCost(2) + abilityCost(3) && !m2.pieces.stufen?.["X:b07"]?.teleport);
+  const m3 = pm.parseSave(pm.serializeSave(m2));
+  ok("... und nur einmal - ein zweites Laden erstattet nichts mehr", m3.sp === m2.sp);
 }
 
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);

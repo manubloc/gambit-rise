@@ -23,7 +23,11 @@ export function evaluate(state, color) {
        ist keine Unverwundbarkeit. */
     if (schattenVerbirgt(state, p)) continue;
     let v = (VALUE[p.kind] || 0) + (p.hero ? 140 : 0);
-    if (hp) v *= p.maxHp ? p.hp / p.maxHp : 1;
+    /* v1.32.0: ein GEIST (Geistwandel) zaehlt nach seinem Leben VOR dem Fall -
+       3 von einst 8 ist eine schwere Wunde, keine Heilung. Mit 3 von 3 hielt
+       die KI den Schlag auf ein Monster mit Geistwandel fuer wertlos und liess
+       es stehen (Geist gewann 84 % seiner Partien, ohne je zurueckzukehren). */
+    if (hp) v *= p.maxHp ? p.hp / (p.geist && p.geistVon ? p.geistVon : p.maxHp) : 1;
     else if (p.kind !== "K") v += p.shield * SHIELD_VALUE;
     const f = fileOf(i, W), r = rankOf(i, W);
     v += 10 - (Math.abs(f - (W - 1) / 2) + Math.abs(r - (H - 1) / 2)); // mild center pull

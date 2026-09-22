@@ -361,12 +361,18 @@ export const bossUpgradeCost = (level) => 1 + 2 * level;   // 2->3, 3->5, 4->7, 
      Klinge    - Fluesterin, Schleicher, Streuner, Hetzer, Schattenfuerst,
                  Skorpion, Sturmklaue, Zerreisser, Brandstifter, Geist
    Das Wachstum laeuft linear vom Grundwert zum Ziel. */
+/* v1.32.0: WER SPRINGT, SCHLAEGT SCHWACH - auch bei den Monstern (Besitzer-
+   regel aus v1.29.0: die gewoehnlichen Monster folgen der Beweglichkeitsregel
+   wie die Figuren). Wie dort nur, wo es noetig war: drei Springer mit 17-20
+   Angriff lagen im reifen Heer ueber 60 % und bekommen das Springerprofil -
+   Hetzer 7/17 -> 18/6 (wie die Amazone), Sturmklaue 6/18 -> 17/7, Geist
+   4/20 -> 16/8 (wie der Springer). Die 24 Punkte bleiben. */
 export const BOSS_BUDGET = 24;
 export const ZIEL_PROFIL_BOSS = {
   b14: [21, 3], b20: [20, 4], b06: [20, 4], b01: [19, 5],
   b03: [17, 7], b17: [17, 7], b25: [16, 8], b12: [16, 8], b24: [16, 8],
   b10: [13, 11], b18: [12, 12], b23: [12, 12], b21: [13, 11], b16: [11, 13], b08: [10, 14],
-  b11: [8, 16], b04: [8, 16], b05: [9, 15], b02: [7, 17], b19: [7, 17], b09: [6, 18], b15: [6, 18], b22: [5, 19], b13: [5, 19], b07: [4, 20],
+  b11: [8, 16], b04: [8, 16], b05: [9, 15], b02: [18, 6], b19: [7, 17], b09: [6, 18], b15: [17, 7], b22: [5, 19], b13: [5, 19], b07: [16, 8],
 };
 /* ── v1.26.1: DAS MONSTER WAECHST IN SEINE WERTE HINEIN ────────────────────
    Besitzer: "Warum haben die Monster schon von Beginn an so viel Leben? Das

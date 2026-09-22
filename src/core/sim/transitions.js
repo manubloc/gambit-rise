@@ -6,6 +6,10 @@ import { inCheck } from "../rules/attacks.js";
 import { schlageSperre, loeseFalleAus, zerfalleSperren } from "../rules/sperren.js";
 import { familyOf, familyCount, crownWallSoak } from "../rules/families.js";
 
+/* v1.32.0: DER GEIST (Geistwandel) - EINE Stelle fuer seine Zahlen. Kern,
+   Anzeige und Balance lesen hier. */
+export const GEIST = { leben: 3, angriff: 2 };
+
 export function cloneState(state) {
   return {
     board: cloneBoard(state.board),
@@ -294,7 +298,10 @@ export function applyMove(state, move, opts) {
            3 Leben, doppelter Angriff, bleich (das Brett liest q.geist) */
         if (q && q.hp <= 0 && !q.geist && traegt(q, "geistwandel", sq)
             && !(traegt(q, "unsterblich", sq) && !q.auferstanden)) {   // Unsterblich zuerst, dann der Geist
-          q.geist = true; q.hp = 3; q.maxHp = 3; q.atk = (q.atk || 1) * 2;
+          q.geist = true; q.geistVon = q.maxHp; q.hp = GEIST.leben; q.maxHp = GEIST.leben; q.atk = Math.max(1, Math.round((q.atk || 1) * GEIST.angriff));
+          /* v1.32.0: geistVon = das Hoechstleben VOR dem Fall. Die KI misst den
+             Geist daran (evaluate.js) - sonst galt er mit 3 von 3 als heil, und
+             ihn zu schlagen sah wertlos aus (Balance: Geist 84 % statt 50 %). */
           ns.geistFeld = sq;
           return true;
         }

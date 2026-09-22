@@ -2707,7 +2707,7 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
                 "Mach es wirklich so, dass es global der gleiche Designblock
                  ist." Kein eigener Raenge-Block mehr: das Monster ruft
                  dasselbe Bauteil Aufstiegsplan wie das Figurenblatt. Seine
-                 Leiter traegt zwei Faehigkeiten auf Stufe 2 und 4 (v1.26.0),
+                 Leiter traegt 1 bis 5 Faehigkeiten ueber die fuenf Stufen (v1.32.0),
                  und es lernt sie wie jede Figur - mit Skillpunkten. */}
             {(profile.campaign?.bribedBosses || []).includes(b.id) || ownedBossSet.has(b.id)
               ? <Aufstiegsplan schluessel={"X:" + b.id} kind={null}

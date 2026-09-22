@@ -69,7 +69,7 @@ function loneBoss(boss) {
   const ns = out.state;
   const pawn = ns.board[spawns[0].to];
   ok("spawn creates an enemy pawn with HP stats", pawn && pawn.kind === "P" && pawn.color === "b" && pawn.hp === 2);
-  ok("spawner stays put and spends a charge", ns.board[from].kind === "X" && ns.board[from].spawnLeft === 3);
+  ok("spawner stays put and spends a charge", ns.board[from].kind === "X" && ns.board[from].spawnLeft === bossById("b03").moveSpec.spawn.max - 1);   /* v1.32.0: aus der Definition, nicht fest - die Brutmutter hat jetzt 2 */
   ok("spawn costs the turn", ns.turn === "w");
 }
 
@@ -176,6 +176,43 @@ const ERWACHEN = CAMPAIGN.find((st) => /erwacht|magic wakes/.test(st.storyDe || 
   ok("und unter 100 liegt nur die benannte Laeufer-Familie", alleOk);
   ok("der Hetzer erreicht jetzt jedes Feld", deckung(bossById("b02").moveSpec) === 100);
   ok("der Techniker haengt nicht mehr auf dem 2x2-Gitter", deckung(CHARACTERS.engineer.moveSpec) === 100);
+}
+
+/* v1.32.0: DIE MONSTER TRAGEN IHREN EIGENEN SATZ (Besitzer, nach Tabelle). */
+{
+  const { BOSSES, monsterSprossen } = await import("./src/content/bosses.js");
+  const { ABILITIES } = await import("./src/content/abilities.js");
+  const { KAPITELMEISTER } = await import("./src/content/campaign.js");
+  const GABEN = ["bulwark", "regen", "lifesteal", "teleport"];
+  ok("kein Monster traegt mehr eine Familiengabe - die bleiben den Figuren",
+    BOSSES.every((b) => !b.abilities.some((a) => GABEN.includes(a))));
+  ok("jedes Monster traegt nur Monsterfaehigkeiten, jede davon wirkt",
+    BOSSES.every((b) => b.abilities.length && b.abilities.every((a) => ABILITIES[a] && ABILITIES[a].monsterOnly && ABILITIES[a].live)));
+  const reihe = KAPITELMEISTER.map((id) => BOSSES.find((b) => b.id === id).abilities.length);
+  ok("Kapitelmeister: I-IV drei, V-VIII vier, IX-XII fuenf (" + reihe.join(",") + ")",
+    JSON.stringify(reihe) === JSON.stringify([3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5]));
+  const zahl = (id) => BOSSES.find((b) => b.id === id).abilities.length;
+  ok("gewoehnliche Monster nach Beweglichkeit: 16 Felder 1, 12-14 zwei, 8 drei, Bollwerk vier",
+    ["b07", "b21", "b22"].every((id) => zahl(id) === 1) && ["b02", "b04", "b15", "b13", "b03", "b11"].every((id) => zahl(id) === 2)
+    && ["b01", "b05", "b09"].every((id) => zahl(id) === 3) && zahl("b06") === 4);
+  ok("hoechstens fuenf Faehigkeiten, keine doppelt", BOSSES.every((b) => b.abilities.length <= 5 && new Set(b.abilities).size === b.abilities.length));
+  ok("die Leiter verteilt sie ueber die fuenf Stufen (1: 2 | 2: 2,4 | 3: 2,3,4 | 4: 2-5 | 5: 1-5)",
+    BOSSES.every((b) => JSON.stringify(b.ladder.map((r) => r.level)) === JSON.stringify(monsterSprossen(b.abilities.length))
+      && b.ladder.map((r) => r.ability).join() === b.abilities.join()));
+  /* v1.32.0: nach dem Balance-Lauf getauscht - Geistwandel war bei den
+     schnellsten Springern ein zweiter Koerper zu viel (72-73 %) */
+  ok("Geist traegt Blenden, Wandlerin Schrecken, Sturmklaue Blenden + Wegelagerei",
+    BOSSES.find((b) => b.id === "b07").abilities.join() === "blenden"
+    && BOSSES.find((b) => b.id === "b21").abilities.join() === "schrecken"
+    && BOSSES.find((b) => b.id === "b15").abilities.join() === "blenden,wegelagerei");
+  const { ZIEL_PROFIL_BOSS, BOSS_BUDGET } = await import("./src/meta/leveling.js");
+  ok("wer springt, schlaegt schwach: Hetzer 18/6, Sturmklaue 17/7, Geist 16/8",
+    ZIEL_PROFIL_BOSS.b02.join() === "18,6" && ZIEL_PROFIL_BOSS.b15.join() === "17,7" && ZIEL_PROFIL_BOSS.b07.join() === "16,8");
+  ok("jedes Monster traegt auf Hoechststufe dieselben 24 Punkte",
+    BOSSES.every((b) => ZIEL_PROFIL_BOSS[b.id] && ZIEL_PROFIL_BOSS[b.id][0] + ZIEL_PROFIL_BOSS[b.id][1] === BOSS_BUDGET));
+  ok("Brut hoechstens drei Bauern (Seuchenkoenig 3, Brutmutter 2, Fluesterin 1, Wandlerin 2)",
+    BOSSES.every((b) => !b.moveSpec.spawn || b.moveSpec.spawn.max <= 3)
+    && ["b24:3", "b03:2", "b11:1", "b21:2"].every((x) => { const [id, n] = x.split(":"); return BOSSES.find((b) => b.id === id).moveSpec.spawn.max === +n; }));
 }
 
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);

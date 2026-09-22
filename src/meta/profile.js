@@ -66,6 +66,24 @@ const DAUERFEUER_ERSTATTUNG = { mage: 7, warlock: 9, engineer: 8 };
    -> Stufe der alten Sprosse, damit dieselbe Erstattung greift. */
 const GESTRICHEN = { knight: { teleport: 6, lifesteal: 8 }, bishop: { ranged_shot: 4, teleport: 7 }, rook: { ranged_shot: 4, bulwark: 6 },
   archbishop: { ranged_shot: 4 }, chancellor: { ranged_shot: 4 }, hawk: { knight_outrider: 5 }, amazon: { queen_knightleap: 3 } };
+/* v1.32.0: die MONSTER geben ihre Familiengabe ab (sie stand auf Sprosse 2) -
+   sie tragen jetzt nur die neun Monsterfaehigkeiten. Gefuehrt unter "X:<id>",
+   derselben Schreibweise wie ihre Lernliste. Der Koloss (b14) hatte keine. */
+const MONSTER_GABE_ALT = { b01: "bulwark", b02: "regen", b03: "lifesteal", b04: "teleport", b05: "regen", b06: "bulwark",
+  b07: "teleport", b08: "bulwark", b09: "lifesteal", b10: "regen", b11: "teleport", b12: "bulwark", b13: "lifesteal",
+  b15: "regen", b16: "lifesteal", b17: "regen", b18: "bulwark", b19: "teleport", b20: "bulwark", b21: "teleport",
+  b22: "regen", b23: "regen", b24: "lifesteal", b25: "bulwark" };
+for (const [b, gabe] of Object.entries(MONSTER_GABE_ALT)) GESTRICHEN["X:" + b] = { [gabe]: 2 };
+/* v1.32.0: auch die AUFSTUFUNGEN einer gestrichenen Faehigkeit kommen zurueck.
+   Vorher gab der Weg nur den Lernpreis zurueck und loeschte die Stufen - wer
+   etwa Blinzeln beim Springer auf II gebracht hatte, verlor diese Punkte.
+   Gerechnet wie upgradeAbility (leveling.js, stufeBenoetigt): Stufe n braucht
+   Sprosse + 2*(n-1) bei einer Figur, + (n-1) bei einem Monster. */
+const aufstufungsPreis = (cid, sprosse, stufe) => {
+  let sp = 0;
+  for (let n = 2; n <= (stufe || 1); n++) sp += abilityCost(sprosse + (cid.startsWith("X:") ? 1 : 2) * (n - 1));
+  return sp;
+};
 export function ohneDauerfeuer(p) {
   const ab = p?.pieces?.abilities;
   if (!ab) return p;
@@ -82,7 +100,7 @@ export function ohneDauerfeuer(p) {
       if (cid === "captain") ohne = ohne.includes("ranged_shot") ? ohne : [...ohne, "ranged_shot"];
       else if (DAUERFEUER_ERSTATTUNG[cid]) sp += abilityCost(DAUERFEUER_ERSTATTUNG[cid]);
     }
-    for (const a of ohne) if (weg[a]) sp += abilityCost(weg[a]);
+    for (const a of ohne) if (weg[a]) sp += abilityCost(weg[a]) + aufstufungsPreis(cid, weg[a], stufen[cid]?.[a]);
     ohne = ohne.filter((a) => !weg[a]);
     neu[cid] = ohne;
     if (stufen[cid]) { const st = { ...stufen[cid] }; for (const a of Object.keys(st)) if (weg[a]) delete st[a]; stufen[cid] = st; }

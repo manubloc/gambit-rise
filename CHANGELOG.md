@@ -1,5 +1,35 @@
 # Changelog - Grand Gambit
 
+## 1.32.0
+- DIE MONSTER TRAGEN IHREN EIGENEN SATZ (Besitzer, nach Tabelle): nur noch
+  die neun Monsterfaehigkeiten; Bollwerk, Regeneration, Lebensraub und
+  Blinzeln bleiben den Figuren. Wie viele, folgt der Beweglichkeit:
+    * Kapitelmeister I-IV drei, V-VIII vier, IX-XII fuenf (Auren bleiben)
+    * gewoehnliche Monster: 16 Felder eine, 12-14 zwei, 8 drei, Bollwerk vier
+      (wer Brut legt, eine Stufe tiefer)
+  Die Leiter verteilt sie ueber die fuenf Monsterstufen (1: Stufe 2 |
+  2: 2, 4 | 3: 2, 3, 4 | 4: 2-5 | 5: 1-5).
+- BRUT (Besitzer: "5 Bauern ist zuviel"): Seuchenkoenig 3, Brutmutter 2,
+  Fluesterin 1, Wandlerin 2 - gestaffelt, damit jedes Monster seinen eigenen
+  Zug behaelt.
+- GEMESSEN UND NACHGESTELLT (npm run balance misst jetzt auch die 13
+  gewoehnlichen Monster): mit der Tabelle lagen Geist, Wandlerin, Sturmklaue
+  bei 72-73 %. Geistwandel war bei den schnellsten Springern ein zweiter
+  Koerper zu viel (ohne ihn ~50 %). Geist -> Blenden, Wandlerin -> Schrecken,
+  Sturmklaue Widerhall -> Wegelagerei. Danach noch drei Springer mit 17-20
+  Angriff ueber 60 % - WER SPRINGT, SCHLAEGT SCHWACH, wie bei den Figuren nur
+  wo noetig: Hetzer 18/6, Sturmklaue 17/7, Geist 16/8 (24 Punkte bleiben).
+  Endstand: alle 13 zwischen 36 und 59 %, Partien 55-70 Halbzuege.
+  Bericht: design/MONSTER-FAEHIGKEITEN-2026-09-21.md
+- BEHOBEN: wurde eine Faehigkeit gestrichen, kam nur ihr Lernpreis zurueck -
+  die Punkte fuer eine AUFSTUFUNG gingen verloren (etwa Blinzeln II beim
+  Springer). Jetzt kommt beides zurueck, bei Figuren und Monstern, und nur
+  einmal.
+- KI: ein Geist zaehlt nach seinem Leben VOR dem Fall - mit 3 von 3 galt er
+  als heil, und ihn zu schlagen sah wertlos aus.
+- Die Zahlen des Geistes (3 Leben, doppelter Angriff) stehen an EINER Stelle
+  (GEIST in transitions.js).
+
 ## 1.31.0
 - DIE FUENF UEBRIGEN MONSTERFAEHIGKEITEN WIRKEN - damit alle neun:
     * GIFT: ein Treffer vergiftet; die Figur verliert nach jedem eigenen Zug
