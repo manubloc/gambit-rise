@@ -9,6 +9,7 @@ import { CAMPAIGN, nodeById, difficultyById, mapById, bossById, bossSpec, CHARAC
 import { buildArmyFromFormation, resolveCharacter, spForXpJump, isUnlocked, monsterStufen } from "./leveling.js";
 import { hasItem } from "../content/items.js";
 import { BASE_HP, BASE_ATK } from "../core/index.js";
+import { besetzungsPlan, besetzungFuer, gegnerAufstellung } from "./besetzung.js";
 
 export const campaignLength = (profile = null) =>
   profile ? CAMPAIGN.filter((n) => nodeInLeague(n, profile.campaign?.league)).length : CAMPAIGN.length;
@@ -214,10 +215,30 @@ export function buildStageMatch(id, profile = null, leagueOverride = null) {
   // board at level 1 against a leveled player.
   const chess = node.rules === "chess";
   const base = chess ? () => 1 : (cid) => d.levels[cid] || 1;
-  const formation = node.formation || map.defaultFormation;
-  const aiArmy = buildArmyFromFormation((cid) => chess ? 1 : base(cid) + (node.bump || 0) + leagueBump(lgMap), formation);
   const lg = lgMap;
   const boss0 = nodeBossSpec(node, lgBestie);   // v1.1.2: Bestien nach Weltrunde, Karte nach Station
+  const recruitId = bossPieceFor(node, lg);
+  /* v1.35.0: DIE GEGNERBESETZUNG (Schritt B, besetzung.js). Ab Kapitel III
+     ruecken begegnete, nicht eigene Figuren und Monster auf freie Plaetze;
+     an Stationen mit wechselnder Aufstellung stehen sie bei jedem Versuch
+     anders. Nicht beim Rueckblick (looking) und nicht ohne Spielstand. Wer
+     schon auf dem Damenplatz steht (Stationsboss), rueckt nicht nach. */
+  const plan = besetzungsPlan(node);
+  const besetzung = profile && !looking
+    ? besetzungFuer(node, profile, node.formation || map.defaultFormation, [boss0?.bossId ? "boss:" + boss0.bossId : null, recruitId].filter(Boolean)) : null;
+  const formation = profile && !looking
+    ? gegnerAufstellung(node, node.formation || map.defaultFormation, besetzung, profile?.stats?.games || 0)
+    : (node.formation || map.defaultFormation);
+  /* wer einen freien Platz einnimmt, erbt dessen Stufe - die Schwierigkeit
+     kennt Stufen nur fuer die Grundfiguren, sonst stuende ein Fremder auf
+     Stufe 1 neben einem Springer auf 3 (gemessen: das besetzte Heer war so
+     SCHWAECHER als das klassische) */
+  const platzStufe = Math.max(base("rook"), base("bishop"), base("knight"));
+  const gesetzt = new Set((besetzung?.eintraege || []).filter((e) => e && !e.startsWith("boss:")));
+  const aiArmy = buildArmyFromFormation((cid) => chess ? 1 : (gesetzt.has(cid) ? platzStufe : base(cid)) + (node.bump || 0) + leagueBump(lgMap), formation);
+  /* ein Monster auf einem freien Platz waechst in seinen Faehigkeiten mit der
+     Liga wie der Stationsboss (I in 1-4, II in 5-8, III ab 9) */
+  aiArmy.back = aiArmy.back.map((sp) => (sp && sp.bossId ? { ...sp, stufen: monsterStufen(sp.abilities || [], lg >= 9 ? 3 : lg >= 5 ? 2 : 1) } : sp));
   const boss1 = boss0 && lg > 1 ? { ...boss0, hp: boss0.hp + 2 * (lg - 1), atk: boss0.atk + (lg - 1) } : boss0;
   /* v1.30.0: die eigenen Faehigkeiten des Monsters wachsen mit der Liga:
      Stufe I in Liga 1-4, II in 5-8, III ab Liga 9 */
@@ -241,10 +262,11 @@ export function buildStageMatch(id, profile = null, leagueOverride = null) {
     bossInfo = { name: boss.name, bossId: boss.bossId, unlocks: looking ? null : recruitOnWin(node, profile),
       art: boss.art || null, accent: boss.accent, kind: boss.kind };
   }
-  const recruitId = bossPieceFor(node, lg);
   const turncoat = !!(recruitId && profile && (profile.campaign?.unlocked || []).includes(recruitId));
   return {
     nodeId: id,
+    /* v1.35.0: was die Besetzung brauchte - App haelt sie beim Betreten fest */
+    besetzung, wechselnd: plan.wechselnd,
     map: mapId, rules: node.rules,
     /* v1.1.5 (Besitzerbefund, nach zwei Fehlversuchen endlich am richtigen
        Ort): DER KAMPF TRAEGT SEIN KAPITEL. "Ich wechsle es ueber die

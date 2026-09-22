@@ -758,5 +758,71 @@ console.log("\n== DIE WIRKUNG DER BUENDE (v1.10.0) ==");
   ok("der Platz der Dame nimmt keine gewoehnliche Figur - nur die Dame oder einen Meister", formationLegalOn(turmStattDame, alle, karte2) === false);
 }
 
+/* ── v1.35.0: DIE GEGNERBESETZUNG (Kampagnenumbau, Schritt B) ──────────── */
+{
+  const B = await import("./src/meta/besetzung.js");
+  const { CAMPAIGN12 } = await import("./src/content/campaign12.gen.js");
+  const { buildStageMatch } = await import("./src/meta/campaign.js");
+  const { CHARACTERS: CH } = await import("./src/content/index.js");
+  const { LEAGUE_BOSSES } = await import("./src/content/bosses.js");
+  ok("vor Kapitel III traegt keine Station eine Besetzung oder wechselnde Aufstellung",
+    CAMPAIGN12.filter((n) => n.league < 3).every((n) => { const p = B.besetzungsPlan(n); return !p.k && !p.wechselnd; }));
+  ok("... und nie eine Boss-, Final- oder Torstation", CAMPAIGN12.filter((n) => n.boss || n.final || n.gate).every((n) => !B.besetzungsPlan(n).k && !B.besetzungsPlan(n).wechselnd));
+  const besetzt = CAMPAIGN12.filter((n) => B.besetzungsPlan(n).k > 0);
+  ok("ab Kapitel III sind Stationen besetzt, mit ein bis drei Plaetzen", besetzt.length > 100 && besetzt.every((n) => n.league >= 3 && B.besetzungsPlan(n).k >= 1 && B.besetzungsPlan(n).k <= 3));
+  ok("... aber nicht jede (der Gegner wechselt nicht bei jedem Level)", besetzt.length < CAMPAIGN12.filter((n) => n.league >= 3).length * 0.6);
+  ok("wechselnde Aufstellungen gibt es in jedem Kapitel ab III", [3,4,5,6,7,8,9,10,11,12].every((l) => CAMPAIGN12.some((n) => n.league === l && B.besetzungsPlan(n).wechselnd)));
+  ok("kein Kapitelmeister steht im Vorrat", !B.BESETZUNGS_VORRAT.some((e) => LEAGUE_BOSSES.includes(e.replace("boss:", ""))));
+  // ein Stand, der drei Figuren und zwei Monster getroffen hat; einer davon gehoert ihm
+  const getroffen = ["amazon", "archbishop", "mage"];
+  const stand = (extra = {}) => ({ stats: { games: 7 }, codex: { met: [...getroffen.map((id) => CH[id].kind), "X:b05", "X:b01", "X:b12"] },
+    campaign: { unlocked: ["mage"], bribedBosses: [], ...extra } });
+  ok("Kandidat ist, wer begegnet ist und nicht gehoert", B.istKandidat(stand(), "amazon") && B.istKandidat(stand(), "boss:b05"));
+  ok("... nicht, wer gehoert (Magier) oder nie begegnet ist (Kanzler)", !B.istKandidat(stand(), "mage") && !B.istKandidat(stand(), "chancellor"));
+  ok("... und nie ein Kapitelmeister, auch begegnet (Richter)", !B.istKandidat(stand(), "boss:b12"));
+  const fest = besetzt.find((n) => !B.besetzungsPlan(n).wechselnd && n.league >= 9 && B.besetzungsPlan(n).k >= 2);
+  const GRUNDREIHE = ["rook","knight","bishop","queen","king","bishop","knight","rook"];
+  const b1 = B.besetzungFuer(fest, stand(), GRUNDREIHE);
+  const gesetzt1 = b1.eintraege.filter(Boolean);
+  ok("eine Station besetzt sich nur mit Kandidaten, jeden nur einmal", gesetzt1.length >= 1 && gesetzt1.every((e) => B.istKandidat(stand(), e)) && new Set(gesetzt1).size === gesetzt1.length);
+  ok("... jeder aus der Staerkeklasse der Figur, deren Platz er nimmt", b1.plaetze.every((i, n) => !b1.eintraege[n]
+    || Math.abs(B.STAERKE[b1.eintraege[n]] - B.STAERKE[GRUNDREIHE[i]]) <= B.KLASSEN_BREITE));
+  ok("jeder Eintrag des Vorrats hat einen Staerkewert (aus npm run balance)", B.BESETZUNGS_VORRAT.every((e) => typeof B.STAERKE[e] === "number"));
+  ok("... und meldet sich zum Festhalten", b1.neu === true);
+  const a1 = B.gegnerAufstellung(fest, GRUNDREIHE, b1, 3);
+  const a2 = B.gegnerAufstellung(fest, GRUNDREIHE, b1, 4);
+  ok("FEST: ohne wechselnde Aufstellung steht der Gegner bei jedem Versuch gleich", JSON.stringify(a1) === JSON.stringify(a2));
+  ok("... Koenig und Dame fest", a1[3] === "queen" && a1[4] === "king");
+  const gemerkt = stand({ besetzung: { [fest.id]: b1.eintraege } });
+  gemerkt.codex.met.push(CH.chancellor.kind, "X:b09");
+  const b2 = B.besetzungFuer(fest, gemerkt, GRUNDREIHE);
+  ok("festgehalten: neue Begegnungen anderswo aendern die Besetzung NICHT", JSON.stringify(b2.eintraege) === JSON.stringify(b1.eintraege) && b2.neu === false);
+  const erster = gesetzt1[0];
+  const besessen = stand({ besetzung: { [fest.id]: b1.eintraege }, ...(erster.startsWith("boss:") ? { bribedBosses: [erster.slice(5)] } : { unlocked: ["mage", erster] }) });
+  const b3 = B.besetzungFuer(fest, besessen, GRUNDREIHE);
+  ok("Besitz aendert sich: wer jetzt gehoert, geht, der Naechste derselben Klasse rueckt nach - dieselben Plaetze",
+    !b3.eintraege.includes(erster) && JSON.stringify(b3.plaetze) === JSON.stringify(b1.plaetze)
+    && b3.eintraege.filter(Boolean).every((e) => B.istKandidat(besessen, e)) && b3.neu === true);
+  const leer = stand({ besetzung: { [fest.id]: b1.plaetze.map(() => null) } });
+  ok("ein beim Betreten leerer Platz bleibt leer, auch wenn es inzwischen Kandidaten gibt", B.besetzungFuer(fest, leer, GRUNDREIHE).eintraege.every((e) => e === null));
+  const w = CAMPAIGN12.find((n) => B.besetzungsPlan(n).wechselnd && B.besetzungsPlan(n).k > 0);
+  const bw = B.besetzungFuer(w, stand(), GRUNDREIHE);
+  const grund = GRUNDREIHE;
+  const lagen = Array.from({ length: 10 }, (_, v) => B.gegnerAufstellung(w, grund, bw, v));
+  const sortiert = (f) => [...f].sort().join();
+  ok("WECHSELND: dieselben Figuren bei jedem Versuch", lagen.every((f) => sortiert(f) === sortiert(lagen[0])));
+  ok("... auf anderen Plaetzen", new Set(lagen.map((f) => f.join())).size > 1);
+  ok("... Koenig und Dame bleiben stehen", lagen.every((f) => f[3] === "queen" && f[4] === "king"));
+  // im echten Gegnerheer
+  const hp = besetzt.find((n) => n.rules === "hp" && B.besetzungsPlan(n).k >= 2 && !B.besetzungsPlan(n).wechselnd);
+  const vieleMonster = { stats: { games: 1 }, codex: { met: ["X:b05", "X:b01", "X:b03", "X:b09", "X:b13"] }, campaign: { unlocked: [], bribedBosses: [] } };
+  const m = buildStageMatch(hp.id, vieleMonster);
+  const monster = m.aiArmy.back.filter((sp) => sp && sp.bossId && !["b12","b10","b24","b19","b20","b16","b17","b18","b08","b14","b23","b25"].includes(sp.bossId));
+  const lg = hp.league;
+  ok("im Gegnerheer stehen die Monster wirklich auf freien Plaetzen (" + hp.id + ")", monster.length >= 1 && m.besetzung && m.besetzung.eintraege.filter(Boolean).length === monster.length);
+  ok("... mit Faehigkeitsstufen nach Liga wie der Stationsboss", monster.every((sp) => Object.values(sp.stufen || {}).every((st) => st === (lg >= 9 ? 3 : lg >= 5 ? 2 : 1))));
+  ok("ohne Spielstand (Vorschau, Proben) bleibt das klassische Heer", !buildStageMatch(hp.id, null).besetzung);
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

@@ -25,3 +25,5 @@ Heute 62 %. Vorschlag: ab Liga 6 bleibt der **Hauptstrang** Lebenspunkte, die **
 
 ## Stand
 - **Schritt A gebaut (v1.34.0).** Dabei: Sturmlauf ist eine *geschenkte* Sprosse (Stufe 1, `geschenkt: true`) — gilt ohne Lernen, nicht lern- und nicht vergessbar, aufstufbar (II ab Stufe 3, III ab 5). Der Gambit trägt seine Fähigkeitsstufen jetzt auch im reinen Schach. Behoben: ein Sturmlauf auf die letzte Reihe wandelt sich um.
+- **Schritt B gebaut (v1.35.0)**, `src/meta/besetzung.js`. Verteilung: besetzte Stationen von 19 % (Kapitel III) bis gut die Hälfte (ab IX), ein bis drei Plätze; wechselnde Aufstellung in jedem Kapitel ab III (etwa jede vierte Station). Die Besetzung wird beim Betreten je Platz festgehalten (`campaign.besetzung`), auch ein leerer Platz bleibt leer. Jeder Ersatz kommt aus der **Stärkeklasse** der Figur, deren Platz er nimmt (± 6 Punkte, Werte aus `npm run balance`). Gemessen mit `npm run besetzung` (besetztes gegen klassisches Heer derselben Station): 1 Platz 47 %, 2 Plätze 50 %, 3 Plätze 42 %, 45–58 Halbzüge. Ohne Stärkeklasse und ohne Stufenerbe waren es 25–43 % — der Ersatz stand dort auf Stufe 1 neben einem Springer auf 3.
+

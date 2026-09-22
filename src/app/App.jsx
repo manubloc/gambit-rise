@@ -563,8 +563,17 @@ export default function App() {
           // the first fight at a station lifts its veil: FACED is recorded at
           // battle start (win or lose), per league — empty posts until then
           const faced = profile.campaign?.faced || [];
-          if (!faced.includes(id)) dispatch({ type: "REPLACE", profile: { ...profile, campaign: { ...profile.campaign, faced: [...faced, id] } } });
-          setMatch(buildStageMatch(id, profile));
+          const m = buildStageMatch(id, profile);
+          /* v1.35.0: DIE BESETZUNG WIRD BEIM BETRETEN FESTGEHALTEN - im selben
+             Schritt wie "gekaempft", damit sich zwei Ersetzungen desselben
+             Stands nicht gegenseitig ueberschreiben. Danach aendert sie sich
+             nur noch, wenn sich der Besitz aendert (besetzung.js). */
+          let neu = profile;
+          if (!faced.includes(id)) neu = { ...neu, campaign: { ...neu.campaign, faced: [...faced, id] } };
+          if (m.besetzung && m.besetzung.neu)
+            neu = { ...neu, campaign: { ...neu.campaign, besetzung: { ...(neu.campaign?.besetzung || {}), [id]: m.besetzung.eintraege } } };
+          if (neu !== profile) dispatch({ type: "REPLACE", profile: neu });
+          setMatch(m);
         }} onOpenTree={() => { setArmyTab({ tab: "tree", n: Date.now() }); setTab("army"); }} />
         : view === "online" ? sub(t("online.title"), account?.provider === "guest"
           ? <Panel><div className="gg-quill" style={{ fontSize: 18, color: T.goldBright, marginBottom: 6 }}>

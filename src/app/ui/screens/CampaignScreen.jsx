@@ -46,6 +46,7 @@ import { useMedia } from "../../App.jsx";
 import { voiceFor } from "../../../content/index.js";
 import { placeFor } from "../../../meta/index.js";
 import { MP, GEO, buildCampaignScenery, themeForLeague, Pine, Leafy, Rock, RidgeCluster, Cloud, Keep, Cottage, Mill, Bridge, Field, Boat, Birds, Mist, Wisp, StoneCircle, Crystal, DeadTree, RuinArch, Cactus, Dune, Grass, SnowDrift, Palm, Wave, Isle, Lighthouse, SiteGlyph, siteTypeFor, WandererArt } from "../mapArt.jsx";
+import { besetzungsPlan } from "../../../meta/besetzung.js";   /* v1.35.0 */
 
 // ── geometry (pixels; shared with previews via mapArt.GEO) ───────────────────
 const { STEP, LANE, LEFT, TOPPAD, WMAP, HMAP, nx, ny } = GEO;
@@ -1221,6 +1222,10 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
             <Chip className="gg-serif" color={PP.chipInk} bg={PP.bg2}>{mapById(effectiveMap(node, league))[en ? "nameEn" : "nameDe"]}</Chip>
             <Chip className="gg-serif" color={PP.chipInk} bg={PP.bg2}>{t("mode." + node.rules)}</Chip>
             <Chip className="gg-serif" color={PP.chipInk} bg={PP.bg2}>{t("diff." + node.difficulty)}{node.bump ? ` +${node.bump}` : ""}</Chip>
+            {/* v1.35.0 (Besitzer): Stationen, an denen der Gegner bei jedem
+                Versuch anders steht, tragen ein Label mit gekreuzten Pfeilen */}
+            {besetzungsPlan(node).wechselnd && <Chip className="gg-serif" color={PP.chipInk} bg={PP.bg2}>
+              <span aria-hidden="true" style={{ marginRight: 4 }}>⤨</span>{en ? "Shifting line-up" : "Wechselnde Aufstellung"}</Chip>}
             <Chip className="gg-serif" color={"#3c4a22"} bg={"#d3deb2"}>+{Math.round((node.reward?.xp || 0) * mult * (friendly ? 0.25 : 1))} XP</Chip>
             <Chip className="gg-serif" color={"#17110a"} bg={"#e8c96a"}><GoldCoin size={12} /> +{Math.round((5 + 2 * node.row + (node.boss ? 6 : 0)) * mult / (friendly ? 2 : 1))}</Chip>
           </div>

@@ -1,5 +1,28 @@
 # Changelog - Grand Gambit
 
+## 1.35.0 - Kampagnenumbau, Schritt B: die Gegnerbesetzung
+- AB KAPITEL III rueckt auf die freien Plaetze des Gegners (Turm, Laeufer,
+  Springer), wer dir schon BEGEGNET ist und dir NICHT GEHOERT - Sonderfiguren
+  und gewoehnliche Monster, nie ein Kapitelmeister, jeder nur einmal. Nicht
+  an jeder Station: von 19 % der Stationen in Kapitel III bis gut die Haelfte
+  ab Kapitel IX, ein bis drei Plaetze. Boss-, Final- und Torstationen bleiben,
+  wie sie sind.
+- FEST: die Besetzung wird beim Betreten festgehalten, je Platz. Sie aendert
+  sich nur, wenn sich dein BESITZ aendert (wer dir jetzt gehoert, geht, der
+  Naechste derselben Klasse rueckt nach) - nie durch Verlust oder Neustart,
+  und auch nicht durch Begegnungen anderswo.
+- WECHSELNDE AUFSTELLUNG (Label mit gekreuzten Pfeilen im Stationsfenster):
+  an etwa jeder vierten Station ab Kapitel III stehen dieselben Figuren bei
+  jedem Versuch auf anderen freien Plaetzen. Koenig und Dame fest.
+- DIE STAERKEKLASSE: jeder Ersatz kommt aus der Klasse der Figur, deren Platz
+  er nimmt (hoechstens 6 Punkte daneben, Werte aus npm run balance), und erbt
+  ihre Stufe. Gemessen (npm run besetzung, besetztes gegen klassisches Heer
+  derselben Station): 1 Platz 47 %, 2 Plaetze 50 %, 3 Plaetze 42 %, Partien
+  45-58 Halbzuege. Ohne beides waren es 25-43 % - ein Ersatz stand auf Stufe
+  1 neben einem Springer auf Stufe 3.
+- Monster auf freien Plaetzen wachsen in ihren Faehigkeiten mit der Liga wie
+  der Stationsboss (I in 1-4, II in 5-8, III ab 9).
+
 ## 1.34.0 - Kampagnenumbau, Schritt A: der Anfang
 - REIHE 1 OHNE GAMBIT (Besitzer): die erste Station spielt mit einem
   gewoehnlichen Bauern an seiner Stelle; nach dem ersten Sieg erwacht er
