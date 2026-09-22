@@ -148,6 +148,29 @@ import { mapById as mapOf } from "./src/content/index.js";
   ok("one boss at most on the field", !fLegal(twoBosses, ids, karte, ["b12"]));
   const army = bFromForm(() => 1, withBoss);
   ok("the fielded boss brings his stats and aura", army.back[3].bossId === "b12" && army.back[3].aura.type === "noEnemyPotions");
+  /* v1.33.0 (Besitzer): die GEWOEHNLICHEN Monster stehen auf freien Plaetzen -
+     anstelle von Turm, Laeufer, Springer; die Kapitelmeister nur anstelle der
+     Dame. Jedes Monster hoechstens einmal. */
+  const mitStreuner = [...base]; mitStreuner[0] = "boss:b05";             // Streuner statt Turm
+  ok("ein gewoehnliches Monster steht anstelle des Turms - wenn es einem gehoert",
+    fLegal(mitStreuner, ids, karte, ["b05"]) && !fLegal(mitStreuner, ids, karte, []));
+  const aufLaeufer = [...base]; aufLaeufer[2] = "boss:b05";
+  const aufSpringer = [...base]; aufSpringer[1] = "boss:b05";
+  ok("... ebenso anstelle von Laeufer und Springer", fLegal(aufLaeufer, ids, karte, ["b05"]) && fLegal(aufSpringer, ids, karte, ["b05"]));
+  const zweiMonster = [...base]; zweiMonster[0] = "boss:b05"; zweiMonster[6] = "boss:b01";
+  ok("... auch zwei verschiedene zugleich", fLegal(zweiMonster, ids, karte, ["b05", "b01"]));
+  const zweimal = [...base]; zweimal[0] = "boss:b05"; zweimal[7] = "boss:b05";
+  ok("... aber jedes nur einmal", !fLegal(zweimal, ids, karte, ["b05"]));
+  const monsterAlsDame = [...base]; monsterAlsDame[3] = "boss:b05";
+  ok("ein gewoehnliches Monster steht NIE anstelle der Dame", !fLegal(monsterAlsDame, ids, karte, ["b05"]));
+  const meisterAufFlanke = [...base]; meisterAufFlanke[0] = "boss:b12";
+  ok("ein Kapitelmeister steht NUR anstelle der Dame, nie auf einem freien Platz", !fLegal(meisterAufFlanke, ids, karte, ["b12"]));
+  const beides = [...withBoss]; beides[7] = "boss:b05";
+  ok("Meister auf dem Damenplatz und Monster auf der Flanke zugleich", fLegal(beides, ids, karte, ["b12", "b05"]));
+  const heer = bFromForm(() => 1, beides);
+  ok("... und beide marschieren mit ihren Werten", heer.back[3].bossId === "b12" && heer.back[7].bossId === "b05" && heer.back[7].kind === "X");
+  ok("Kapitel III gewonnen: der Seuchenkoenig gehoert einem, nicht der Hetzer",
+    ownedLeagueBosses({ stats: { leaguesWon: 3 } }).join() === "b12,b10,b24");
 }
 ok("from chapter IV every station fields its own stage; the finale always does",
   ["L01s02","L01s16","L07s41","L01s22"].every((id) => effectiveMap(nbId(id), 4) === nbId(id).map)

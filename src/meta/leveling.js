@@ -479,12 +479,25 @@ export function formationLegalOn(formation, unlockedIds, map, ownedBosses = []) 
   if (dLeft && dRight) return false;
   if (wingIdx >= 0 && formation[wingIdx] != null) return false;
   const unlocked = new Set(unlockedIds); let flexN = 0, bossN = 0;
+  /* ── v1.33.0: MONSTER AUF FREIEN PLAETZEN (Besitzer) ──────────────────────
+     "Die 13 anderen Monster sind gewoehnliche Monster ... auf freien Plaetzen
+     einsetzbar - anstelle von Turm, Laeufer, Springer." Nur die zwoelf
+     KAPITELMEISTER stehen anstelle der Dame, und nur dort. Ein gewoehnliches
+     Monster zaehlt wie eine Flankenfigur (flex) und darf nie auf den Platz
+     von Koenig oder Dame. Jedes Monster hoechstens einmal. */
+  const cs0 = crownSlots(size);
+  const monsterGesehen = new Set();
   for (let i = 0; i < formation.length; i++) {
     const id = formation[i];
     if (id == null) { if (i !== wingIdx) return false; continue; } // only the wing may be empty
-    if (isBossEntry(id)) {                          // a league boss takes the queen's place
-      if (!ownedBosses.includes(bossEntryId(id))) return false;
-      bossN++; continue;
+    if (isBossEntry(id)) {
+      const bid = bossEntryId(id);
+      if (!ownedBosses.includes(bid)) return false;
+      if (monsterGesehen.has(bid)) return false;    // jedes Monster nur einmal
+      monsterGesehen.add(bid);
+      if (LEAGUE_BOSSES.includes(bid)) { bossN++; continue; }   // Kapitelmeister: der Damenplatz (unten)
+      if (i === cs0.queen || i === cs0.king) return false;      // gewoehnliches Monster: nie auf die Krone
+      flexN++; continue;
     }
     const ch = CHARACTERS[id];
     if (!ch || ch.kind === KIND.PAWN || !unlocked.has(id)) return false;
@@ -525,7 +538,7 @@ export function formationLegalOn(formation, unlockedIds, map, ownedBosses = []) 
     jeFigur.set(id, (jeFigur.get(id) || 0) + 1);
   }
   for (const [id, n] of jeFigur) if (n > (HOECHSTZAHL[id] || 1)) return false;
-  if (bossN > 1) return false;                      // one boss at most on the field
+  if (bossN > 1) return false;                      // hoechstens EIN Kapitelmeister - er ersetzt die Dame
   // THE CROWN KEEPS ITS SQUARES: not merely adjacent — fixed. The king may sit
   // nowhere else, and the queen's square holds either the queen or the one
   // league boss standing in for her.
@@ -533,8 +546,9 @@ export function formationLegalOn(formation, unlockedIds, map, ownedBosses = []) 
   if (formation[cs.king] !== "king") return false;
   if (formation.some((id, i) => id === "king" && i !== cs.king)) return false;
   const qHere = formation[cs.queen];
-  if (!(qHere === "queen" || (qHere != null && isBossEntry(qHere)))) return false;
-  if (formation.some((id, i) => i !== cs.queen && (id === "queen" || (id != null && isBossEntry(id))))) return false;
+  const istMeisterEintrag = (id) => id != null && isBossEntry(id) && LEAGUE_BOSSES.includes(bossEntryId(id));
+  if (!(qHere === "queen" || istMeisterEintrag(qHere))) return false;
+  if (formation.some((id, i) => i !== cs.queen && (id === "queen" || istMeisterEintrag(id)))) return false;
   const c = formationCounts(formation.filter((id) => id != null && !isBossEntry(id)));
   for (const [id, n] of Object.entries(required)) {
     const need = id === "queen" ? n - bossN : n;    // the boss stands in for the queen

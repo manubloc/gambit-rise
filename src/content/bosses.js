@@ -158,7 +158,13 @@ export const bossById = (id) => BOSSES.find((b) => b.id === id) || null;
 // Asra endete, die dort zusaetzlich als Station stand (Doppelung). Jetzt:
 // aufsteigend, die Erzfeindin als vorletztes Finale, Osric EINMAL - im
 // letzten Kapitel, in der letzten Festung.
-export const LEAGUE_BOSSES = ["b12", "b10", "b02", "b19", "b20", "b16", "b17", "b18", "b08", "b14", "b23", "b25"];
+/* v1.33.0: KAPITEL III GEHOERT DEM SEUCHENKOENIG (b24), nicht dem Hetzer (b02).
+   v1.28.4 hat das in der Kampagne umgestellt (KAPITELMEISTER, campaign.js) -
+   diese Liste blieb stehen. Sie entscheidet, wem ein Meister nach einem
+   gewonnenen Kapitel GEHOERT, den Grossmeister-Rahmen, die Bundtafel und die
+   Kulissen: wer Kapitel III gewann, bekam den Hetzer. Eine Probe (test_boss)
+   haelt beide Listen jetzt aneinander. */
+export const LEAGUE_BOSSES = ["b12", "b10", "b24", "b19", "b20", "b16", "b17", "b18", "b08", "b14", "b23", "b25"];
 export const leagueBossId = (league) => LEAGUE_BOSSES[(((league || 1) - 1) % 12)];
 export const bossName = (b, en) => (en ? b.nameEn : b.nameDe);
 

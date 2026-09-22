@@ -1322,9 +1322,19 @@ function FormationEditor({ profile, dispatch, t, en }) {
 
   const legal = formationLegalOn(draft, unlockedIds, map, ownedLeagueBosses(profile));
   const changed = JSON.stringify(draft) !== JSON.stringify(saved);
-  const counts = formationCounts(draft);
+  /* v1.33.0: dieselbe Zaehlung wie formationLegalOn - ein KAPITELMEISTER
+     zaehlt als Dame (er steht fuer sie), ein GEWOEHNLICHES Monster als freier
+     Platz. Vorher zaehlte der Meister als freier Platz und der Dame-Chip stand
+     bei 0 von 1, obwohl die Aufstellung gueltig war. */
+  const istMeisterE = (id) => id != null && isBossEntry(id) && LEAGUE_BOSSES.includes(bossEntryId(id));
+  const counts = (() => {
+    const c = { ...formationCounts(draft.filter((id) => id != null && !isBossEntry(id))) };
+    const m = draft.filter(istMeisterE).length;
+    if (m) c.queen = (c.queen || 0) + m;
+    return c;
+  })();
   const dragonFielded = draft[0] === "dragon" || draft[draft.length - 1] === "dragon";
-  const flexCount = draft.filter((id) => id != null && required[id] === undefined).length;
+  const flexCount = draft.filter((id) => id != null && required[id] === undefined && !istMeisterE(id)).length;
   // the wing eats one flex slot: show the reduced requirement so the chip stays honest
 
   // THE CROWN'S OWN SQUARES: the king never moves, and his consort's square
@@ -1711,19 +1721,26 @@ function FormationEditor({ profile, dispatch, t, en }) {
           })}
         </div>
         {(() => {
-          // league bosses — trophies of finished leagues; ONE may take the queen's place
+          /* v1.33.0 (Besitzer): die KAPITELMEISTER stehen anstelle der Dame - nur
+             dort; die GEWOEHNLICHEN Monster auf jedem freien Platz, anstelle von
+             Turm, Laeufer oder Springer. Jedes Monster hoechstens einmal: steht
+             es schon auf einem anderen Platz, ist sein Knopf gedaempft. Die
+             Regel selbst prueft formationLegalOn (leveling.js). */
           const owned = ownedLeagueBosses(profile);
-          if (!owned.length || pick !== crown.queen) return null;   // a boss stands in for the QUEEN, nowhere else
-          const usedElsewhere = draft.some((d, j) => j !== pick && isBossEntry(d));
+          if (pick === crown.king) return null;
+          const aufKrone = pick === crown.queen;
+          const liste = owned.filter((bid) => (aufKrone ? LEAGUE_BOSSES.includes(bid) : !LEAGUE_BOSSES.includes(bid)));
+          if (!liste.length) return null;
+          const anderswo = (eid) => draft.some((d, j) => j !== pick && d === eid);
           return <div style={{ marginTop: 8, paddingTop: 8, borderTop: `1px dashed ${T.gold}44` }}>
             <div className="gg-serif" style={{ fontSize: 11.5, letterSpacing: ".1em", color: T.gold, marginBottom: 6 }}>
-              {t("army.bossSection")}</div>
+              {t(aufKrone ? "army.bossSection" : "army.monsterSection")}</div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-              {owned.map((bid) => {
+              {liste.map((bid) => {
                 const b = bossById(bid);
                 const eid = "boss:" + bid;
                 const on = draft[pick] === eid;
-                const blocked = usedElsewhere && !on;
+                const blocked = anderswo(eid) && !on;
                 return <button key={bid} disabled={blocked} onClick={() => setSlot(pick, eid)}
                   title={en ? undefined : (b.aura ? t("army.bossAuraHint") : undefined)}
                   style={{ display: "flex", alignItems: "center", gap: 6, padding: "7px 10px", borderRadius: 9,
@@ -1734,7 +1751,7 @@ function FormationEditor({ profile, dispatch, t, en }) {
                 </button>;
               })}
             </div>
-            <div style={{ fontSize: 10.5, color: T.faint, marginTop: 6 }}>{t("army.bossHint")}</div>
+            <div style={{ fontSize: 10.5, color: T.faint, marginTop: 6 }}>{t(aufKrone ? "army.bossHint" : "army.monsterHint")}</div>
           </div>;
         })()}
       </div>

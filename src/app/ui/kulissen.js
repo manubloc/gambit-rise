@@ -14,7 +14,8 @@ import { LEAGUE_BOSSES } from "../../content/index.js";
 export const MEISTER_KULISSE = {
   b12: "meister-richter",       // I    Der Richter
   b10: "meister-doppelritter",  // II   Doppelritter
-  b02: "meister-hetzer",        // III  Der Hetzer
+  b24: "meister-hetzer",        // III  Seuchenkoenig (v1.33.0: der naechtliche Marktplatz mit Galgen - die Kulisse
+                                //      von Kapitel III; der Dateiname blieb, damit kein Bildpfad bricht)
   b19: "meister-schattenfuerst",// IV   Schattenfuerst
   b20: "meister-hueter",        // V    Der Hueter
   b16: "meister-blutmagd",      // VI   Die Blutmagd
@@ -30,8 +31,8 @@ export const MEISTER_KULISSE = {
    Brut - Getier, Nester, Chitin. Untot - Nebel, Graeber, fahles Licht.
    Gesindel - Gassen, Rauch, Diebesgut. Gemaeuer - Stein, Wehrgang, Fallgitter. */
 export const MONSTER_GRUPPE = {
-  b03: "brut", b09: "brut", b22: "brut", b15: "brut",           // Brutmutter, Skorpion, Zerreisser, Sturmklaue
-  b07: "untot", b11: "untot", b21: "untot", b24: "untot",       // Geist, Fluesterin, Wandlerin, Seuchenkoenig
+  b03: "brut", b09: "brut", b22: "brut", b15: "brut", b02: "brut", // Brutmutter, Skorpion, Zerreisser, Sturmklaue, Hetzer (v1.33.0)
+  b07: "untot", b11: "untot", b21: "untot",                    // Geist, Fluesterin, Wandlerin
   b04: "gesindel", b05: "gesindel", b13: "gesindel",            // Schleicher, Streuner, Brandstifter
   b01: "gemaeuer", b06: "gemaeuer",                             // Waechter, Bollwerk
 };

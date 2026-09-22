@@ -210,6 +210,9 @@ const ERWACHEN = CAMPAIGN.find((st) => /erwacht|magic wakes/.test(st.storyDe || 
     ZIEL_PROFIL_BOSS.b02.join() === "18,6" && ZIEL_PROFIL_BOSS.b15.join() === "17,7" && ZIEL_PROFIL_BOSS.b07.join() === "16,8");
   ok("jedes Monster traegt auf Hoechststufe dieselben 24 Punkte",
     BOSSES.every((b) => ZIEL_PROFIL_BOSS[b.id] && ZIEL_PROFIL_BOSS[b.id][0] + ZIEL_PROFIL_BOSS[b.id][1] === BOSS_BUDGET));
+  { const { LEAGUE_BOSSES } = await import("./src/content/bosses.js");
+    ok("die Meisterliste (Besitz, Rahmen, Bundtafel, Kulissen) ist die Liste der Kapitelmeister",
+      JSON.stringify(LEAGUE_BOSSES) === JSON.stringify(KAPITELMEISTER)); }
   ok("Brut hoechstens drei Bauern (Seuchenkoenig 3, Brutmutter 2, Fluesterin 1, Wandlerin 2)",
     BOSSES.every((b) => !b.moveSpec.spawn || b.moveSpec.spawn.max <= 3)
     && ["b24:3", "b03:2", "b11:1", "b21:2"].every((x) => { const [id, n] = x.split(":"); return BOSSES.find((b) => b.id === id).moveSpec.spawn.max === +n; }));

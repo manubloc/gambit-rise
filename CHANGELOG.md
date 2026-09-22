@@ -1,5 +1,24 @@
 # Changelog - Grand Gambit
 
+## 1.33.0
+- MONSTER AUF FREIEN PLAETZEN (Besitzer): die gewoehnlichen Monster stehen
+  anstelle von Turm, Laeufer oder Springer - nie auf dem Platz von Koenig
+  oder Dame. Die Kapitelmeister stehen weiter nur anstelle der Dame. Jedes
+  Monster hoechstens einmal im Heer; zwei verschiedene zugleich gehen.
+  Die Auswahl: am Damenplatz die eigenen Meister, an jedem freien Platz die
+  eigenen gewoehnlichen Monster ("Monster - auf freiem Platz").
+- Die Zaehler unter der Aufstellung zaehlen wie die Regel: ein Meister als
+  Dame, ein Monster als freier Platz. Vorher stand der Dame-Chip bei einem
+  Meister rot auf 0 von 1, obwohl die Aufstellung gueltig war.
+- BEHOBEN: Kapitel III gehoert dem SEUCHENKOENIG. Die Liste, die entscheidet,
+  wem ein Meister nach einem gewonnenen Kapitel gehoert (dazu Grossmeister-
+  Rahmen, Bundtafel, Kulisse), fuehrte noch den Hetzer - v1.28.4 hatte nur die
+  Kampagne umgestellt. Eine Probe haelt beide Listen jetzt aneinander. Die
+  Kulisse von Kapitel III (Marktplatz mit Galgen) geht an den Seuchenkoenig,
+  der Hetzer steht bei den Bestien.
+- Die Gegnerseite folgt mit dem Kampagnenumbau (Besetzung je Station);
+  Regel und Heeraufbau tragen Monster auf jedem Platz schon.
+
 ## 1.32.0
 - DIE MONSTER TRAGEN IHREN EIGENEN SATZ (Besitzer, nach Tabelle): nur noch
   die neun Monsterfaehigkeiten; Bollwerk, Regeneration, Lebensraub und
