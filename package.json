@@ -1,7 +1,7 @@
 {
   "name": "gambit",
   "private": true,
-  "version": "1.35.0",
+  "version": "1.36.0",
   "type": "module",
   "description": "GAMBIT — chess that levels up. Characters gain special moves and shields; new pieces unlock over time. Deterministic, UI-free core (command/event sim with replay) for cross-platform reuse.",
   "scripts": {

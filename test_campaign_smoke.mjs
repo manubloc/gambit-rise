@@ -104,25 +104,19 @@ ok("every dragon node unfolds its 2x2 block with valid wing refs", dragonNodes >
 
   ok("Kapitel I ist von Anfang bis Ende reines Schach", k1.every((n) => n.rules === "chess"));
   ok("Kapitel I traegt mindestens 20 Schachstationen", k1.length >= 20);
-  /* ── VIER KAPITEL SCHACH (v1.2.2, Besitzerentscheid "Ab 5") ──────────────
-     Bis hierher stand: Schach nur in Kapitel I und II, ab III blutet jede
-     Station. Der Besitzer hat das verschoben: "Ich moechte moeglichst lange
-     nur klassisches Schach - ich wuerde das vielleicht sogar erst im fuenften
-     Kapitel erlauben", auf Rueckfrage "Ab 5". Vier volle Kapitel bleiben
-     jetzt Schach; der Riss beisst in der Mitte von Kapitel V. */
-  const k5 = CAMPAIGN.filter((n) => n.league === 5);
-  const haupt5 = k5.filter((n) => n.haupt);
-  ok("Schach gibt es nur bis Kapitel V",
-    CAMPAIGN.every((n) => n.rules !== "chess" || n.league <= 5));
-  ok("die ersten VIER Kapitel sind ganz ohne Schaden",
-    CAMPAIGN.filter((n) => n.league <= 4).every((n) => n.rules === "chess"));
-  ok("ab Kapitel VI blutet jede Station", CAMPAIGN.filter((n) => n.league >= 6).every((n) => n.rules === "hp"));
-
-  const ersteHp = haupt5.findIndex((n) => n.rules === "hp");
-  ok("die Schachhaelfte reicht bis zur Mitte von Kapitel V",
-    ersteHp >= Math.floor(haupt5.length * 0.35) && ersteHp <= Math.ceil(haupt5.length * 0.65));
-  ok("ab dem Erwachen bleibt es bei HP", haupt5.slice(ersteHp).every((n) => n.rules === "hp"));
-  ok("das Erwachen traegt seine Geschichte", /erwacht/.test((haupt5[ersteHp] || {}).storyDe || ""));
+  /* ── DER SCHADEN ERWACHT IN KAPITEL II (v1.36.0, Besitzerentscheid 22.9.) ─
+     Loest v1.2.2 "Ab 5" ab: "Wir hatten mal gesagt, dass man auch in der
+     kostenlosen Version schon HP-Gefechte testen kann - sonst hat man gar
+     keinen Mehrwert, die Figuren zu leveln." Gratis ist bis Kapitel III.
+     Kapitel I Schach; in Kapitel II erwacht der Schaden frueh im Hauptast,
+     die Seitenwege bleiben Schach; ab III Hauptast HP, Seitenwege im Wechsel. */
+  const ersteHp = haupt2.findIndex((n) => n.rules === "hp");
+  ok("der Schaden erwacht frueh im Hauptast von Kapitel II",
+    ersteHp >= 1 && ersteHp <= Math.ceil(haupt2.length * 0.35));
+  ok("ab dem Erwachen bleibt der Hauptast bei HP", haupt2.slice(ersteHp).every((n) => n.rules === "hp"));
+  ok("das Erwachen traegt seine Geschichte", /erwacht/.test((haupt2[ersteHp] || {}).storyDe || ""));
+  ok("Schach bleibt bis zum Ende als Seitenweg", CAMPAIGN.some((n) => n.league >= 10 && !n.haupt && n.rules === "chess"));
+  ok("ab Kapitel III blutet jede Station des Hauptasts", CAMPAIGN.filter((n) => n.league >= 3 && n.haupt).every((n) => n.rules === "hp"));
   /* v1.13.0: DREI Karten, nicht mehr vier. Besitzerentscheid: die ersten
      Kapitel bleiben bei 8x8, damit dieselbe Aufstellung ueberall passt.
      Klassik, Hof und Schneise sind alle drei 8x8 - sie unterscheiden sich in

@@ -156,12 +156,11 @@ const ERWACHEN = CAMPX.find((st) => /erwacht|magic wakes/.test(st.storyDe || "")
 const SCHACHSTATION = CAMPX.find((n) => n.league === 1 && n.haupt && n.rules === "chess" && !n.boss).id;
 ok("chapter I is pure chess from end to end",
   CAMPX.filter((n) => n.league === 1).every((n) => n.rules === "chess"));
-/* v1.2.2 (Besitzerentscheid "Ab 5"): der Riss beisst nicht mehr in Kapitel
-   II, sondern in der Mitte von Kapitel V. Vier volle Kapitel bleiben reines
-   Schach, damit man Figuren und Gangarten lernt, bevor Trefferpunkte
-   dazukommen. */
-ok("and the rift bites in chapter V, not before",
-  CAMPX.find((n) => n.rules === "hp").league === 5);
+/* v1.36.0 (Besitzerentscheid 22.9., loest v1.2.2 "ab 5" ab): der Riss
+   beisst FRUEH IN KAPITEL II - wer gratis spielt (bis Kapitel III), soll
+   erleben, wofuer das Leveln da ist. */
+ok("and the rift bites early in chapter II, not before",
+  CAMPX.find((n) => n.rules === "hp").league === 2);
 /* v1.2.2: ERWACHEN liegt jetzt in Kapitel V und ist selbst eine
    Boss-Station mit Uhr - die alte Fassung prueft es mit Liga 1, wo es die Uhr
    zu Recht nicht gibt. Das bleibt richtig; geprueft wird weiter, dass vor
@@ -454,29 +453,36 @@ console.log("\n== FREIE FASSUNG ODER VOLLE: ein Wert, keine Verzweigung (v1.1.10
   ok(`istFreieFassung steht nur in der Konfiguration (${treffer} Datei)`, Number(treffer) <= 1);
 }
 
-console.log("\n== VIER KAPITEL REINES SCHACH (Besitzerentscheid v1.2.2) ==");
+console.log("\n== KAPITEL I SCHACH, DER SCHADEN ERWACHT IN KAPITEL II (Besitzerentscheid 22.9.) ==");
 {
   const { CAMPAIGN12 } = await import("./src/content/campaign12.gen.js");
   const { hpWach } = await import("./src/meta/leveling.js");
   const { faehigkeitZustand } = await import("./src/content/abilities.js");
 
-  const vor5 = CAMPAIGN12.filter((n) => n.league < 5 && n.rules === "hp");
-  ok(`kein HP-Gefecht vor Kapitel 5 (${vor5.length} gefunden)`, vor5.length === 0);
-  const inKap5 = CAMPAIGN12.filter((n) => n.league === 5 && n.rules === "hp");
-  ok(`Kapitel 5 traegt den ersten Schaden (${inKap5.length} HP-Stationen)`, inKap5.length > 0);
-  const schach = CAMPAIGN12.filter((n) => n.league <= 4).length;
-  ok(`vier volle Kapitel Schach (${schach} Stationen)`, schach > 150);
+  const kap1 = CAMPAIGN12.filter((n) => n.league === 1);
+  ok(`Kapitel I ist reines Schach (${kap1.length} Stationen) - Figuren kennenlernen`, kap1.every((n) => n.rules === "chess"));
+  const kap2 = CAMPAIGN12.filter((n) => n.league === 2);
+  const erwachen = CAMPAIGN12.find((n) => /alte Magie erwacht/.test(n.storyDe || ""));
+  ok(`das Erwachen liegt frueh im Hauptstrang von Kapitel II (${erwachen && erwachen.id}, Reihe ${erwachen && erwachen.row})`,
+    erwachen && erwachen.league === 2 && erwachen.haupt && erwachen.rules === "hp" && erwachen.row <= 4);
+  ok("... in Kapitel II spielen die Seitenwege weiter Schach", kap2.filter((n) => !n.haupt).every((n) => n.rules === "chess"));
+  ok("... und kein Gefecht vor dem Erwachen blutet", kap2.filter((n) => n.haupt && n.row < erwachen.row).every((n) => n.rules === "chess"));
+  const ab3 = CAMPAIGN12.filter((n) => n.league >= 3);
+  ok("ab Kapitel III kaempft der Hauptstrang mit Lebenspunkten", ab3.filter((n) => n.haupt).every((n) => n.rules === "hp"));
+  ok("... und Schach bleibt als Seitenweg - in jedem Kapitel ab III", [3,4,5,6,7,8,9,10,11,12].every((l) =>
+    ab3.some((n) => n.league === l && !n.haupt && n.rules === "chess") || ab3.filter((n) => n.league === l && !n.haupt).length < 2));
+  ok("die Gratisstrecke (bis Kapitel III) enthaelt Lebenspunkte-Gefechte", CAMPAIGN12.some((n) => n.league <= 3 && n.rules === "hp"));
 
   /* Die Lebenstalente folgen der Kampagne - sie erwachen mit dem ersten
      HP-Gefecht. Keine zweite Regel noetig, aber geprueft gehoert es: */
   const alle = (bis) => CAMPAIGN12.filter((n) => n.league <= bis).map((n) => n.id);
   const nach = (bis) => ({ campaign: { league: bis, cleared: alle(bis) } });
-  ok("nach Kapitel 4 schlafen die Lebenstalente",
-    !hpWach(nach(4)) && ["lifesteal", "regen", "bulwark"]
-      .every((id) => faehigkeitZustand(id, hpWach(nach(4))) === "verborgen"));
-  ok("nach Kapitel 5 wirken sie",
-    hpWach(nach(5)) && ["lifesteal", "regen", "bulwark"]
-      .every((id) => faehigkeitZustand(id, hpWach(nach(5))) === "wirkt"));
+  ok("nach Kapitel I schlafen die Lebenstalente",
+    !hpWach(nach(1)) && ["lifesteal", "regen", "bulwark"]
+      .every((id) => faehigkeitZustand(id, hpWach(nach(1))) === "verborgen"));
+  ok("nach Kapitel II wirken sie",
+    hpWach(nach(2)) && ["lifesteal", "regen", "bulwark"]
+      .every((id) => faehigkeitZustand(id, hpWach(nach(2))) === "wirkt"));
 }
 
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);

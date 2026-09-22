@@ -138,8 +138,19 @@ const BOSS_ZEIGT = { 1: "courtyard", 2: "gauntlet" };
 
    Die beiden Zahlen sind der ganze Schalter - die Kampagne wird daraus neu
    gebaut (node tools/build-campaign12.mjs). */
-const HP_AB_LIGA = 5;          // in diesem Kapitel faellt der erste Schaden
-const HP_AB_ANTEIL = 0.5;      // und zwar ab der Haelfte seines Hauptasts
+/* ── v1.36.0: DER SCHADEN KOMMT IN KAPITEL II (Besitzerentscheid 22.9.,
+   loest v1.2.2 "ab 5" ab) ──────────────────────────────────────────────────
+   "Wir hatten doch mal gesagt, dass man auch in der kostenlosen Version
+   schon HP-Gefechte testen kann - ansonsten hat man ja gar keinen Mehrwert,
+   die Figuren zu leveln. In Kapitel 1 den Fokus auf Figuren, in Kapitel 2
+   mehr und mehr auf Faehigkeiten und Leveln." Gratis ist bis Kapitel III.
+     Kapitel I   reines Schach - Figuren kennenlernen
+     Kapitel II  der Schaden erwacht frueh im Hauptast; ab da Hauptast HP,
+                 die Seitenwege bleiben Schach
+     ab III      Hauptast HP, die Seitenwege wechseln sich ab (ganze Wege,
+                 nicht Station fuer Station) - Schach bleibt als Abwechslung */
+const HP_AB_LIGA = 2;          // in diesem Kapitel faellt der erste Schaden
+const HP_AB_ANTEIL = 0.2;      // und zwar frueh in seinem Hauptast
 
 // Liga I hat keinen Block in placeNames - ihre Orte leben in der alten
 // 51-Knoten-Kampagne. Liga XII ist neu und bekommt hier ihren Meerespool.
@@ -255,6 +266,12 @@ SLOTS.forEach(([key, name, roman], si) => {
     ? (astNachLen.find(a => a[1] >= 4) || astNachLen[0])[0] : null;
   // Zoll: der laengste Nebenast jedes Kapitels beginnt mit einer Mautstation.
   const zollAst = astNachLen.length ? astNachLen[0][0] : null;
+  /* v1.36.0: die Seitenwege eines Kapitels in fester Folge (Abzweig, dann
+     Nummer) - jeder zweite spielt Schach */
+  const astFolge = [...new Set(Object.values(astVon))].sort((a, b) => {
+    const [a1, a2] = String(a).split(".").map(Number), [b1, b2] = String(b).split(".").map(Number);
+    return a1 - b1 || a2 - b2;
+  });
   let figurBlatt = -1;
   if (figurAst) {
     // Das echte Blatt ist der Punkt mit der GROESSTEN Wegdistanz im Ast -
@@ -302,7 +319,9 @@ SLOTS.forEach(([key, name, roman], si) => {
       haupt: imHaupt || undefined,
       /* Schach gilt in allen Kapiteln VOR dem Erwachen, und im Kapitel des
          Erwachens bis zu dessen Station. */
-      rules: (liga < HP_AB_LIGA || (liga === HP_AB_LIGA && ankerRang < hpAb)) ? "chess" : "hp",
+      rules: liga < HP_AB_LIGA ? "chess"
+        : liga === HP_AB_LIGA ? (imHaupt && ankerRang >= hpAb ? "hp" : "chess")
+        : (imHaupt ? "hp" : (astFolge.indexOf(g) % 2 === 0 ? "hp" : "chess")),
       difficulty: imHaupt
         ? (rang < H * 0.3 ? "easy" : rang < H * 0.7 ? "normal" : "hard")
         : (len >= 4 ? "hard" : "normal"),

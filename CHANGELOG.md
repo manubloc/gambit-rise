@@ -1,5 +1,25 @@
 # Changelog - Grand Gambit
 
+## 1.36.0 - Kampagnenumbau, Schritt C: die Lebenspunkte kommen frueh
+- Besitzerentscheid 22.9. (loest v1.2.2 "ab 5" ab): "Wir hatten doch mal
+  gesagt, dass man auch in der kostenlosen Version schon HP-Gefechte testen
+  kann - ansonsten hat man ja gar keinen Mehrwert, die Figuren zu leveln."
+  Gratis ist bis Kapitel III.
+    * KAPITEL I bleibt reines Schach - alles dreht sich um die Figuren.
+    * KAPITEL II: die alte Magie erwacht frueh im Hauptstrang (L02s07,
+      Reihe 3 - der erste Kampf mit Blut, gegen den Waechter); danach
+      kaempft der Hauptstrang mit Lebenspunkten, die Seitenwege bleiben
+      Schach. Faehigkeiten und Leveln ruecken Schritt fuer Schritt nach vorn.
+    * AB KAPITEL III: Hauptstrang Lebenspunkte, die Seitenwege wechseln sich
+      ab - ganze Wege, nicht Station fuer Station. Schach bleibt bis zum
+      Ende als Abwechslung.
+  Zusammen 370 von 529 Stationen mit Lebenspunkten (70 %; vorher 62 %, aber
+  erst ab Liga 5). Nur die Regeln, das Erwachen und sein Monster haben sich
+  verschoben - Stationen, Wege, Karten und Belohnungen sind dieselben.
+- Proben auf den neuen Entscheid umgezogen (Erwachen frueh in Kapitel II,
+  Seitenwege dort Schach, ab III Hauptstrang HP, Schach als Seitenweg bis zum
+  Ende, Lebenspunkte innerhalb der Gratisstrecke).
+
 ## 1.35.0 - Kampagnenumbau, Schritt B: die Gegnerbesetzung
 - AB KAPITEL III rueckt auf die freien Plaetze des Gegners (Turm, Laeufer,
   Springer), wer dir schon BEGEGNET ist und dir NICHT GEHOERT - Sonderfiguren

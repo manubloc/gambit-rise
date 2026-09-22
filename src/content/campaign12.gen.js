@@ -1104,7 +1104,7 @@ export const CAMPAIGN12 = [
   "map": "classic",
   "chapter": 1,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "easy",
   "bump": 1,
   "next": [
@@ -1113,8 +1113,17 @@ export const CAMPAIGN12 = [
   "reward": {
    "xp": 54
   },
-  "storyDe": "Der Weg beginnt bei Krähenschreck.",
-  "storyEn": "The road begins at Krähenschreck."
+  "storyDe": "Krähenschreck: die alte Magie erwacht - Figuren bluten, Figuren halten stand.",
+  "storyEn": "Krähenschreck: the old magic wakes - pieces bleed, pieces endure.",
+  "boss": {
+   "pure": "b01",
+   "rotation": [
+    "b01",
+    "b03",
+    "b02"
+   ]
+  },
+  "tier": 1
  },
  {
   "id": "L02s08",
@@ -1165,7 +1174,7 @@ export const CAMPAIGN12 = [
   "map": "courtyard",
   "chapter": 2,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "easy",
   "bump": 1,
   "next": [
@@ -1213,7 +1222,7 @@ export const CAMPAIGN12 = [
   "map": "classic",
   "chapter": 2,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "normal",
   "bump": 1,
   "next": [
@@ -1275,7 +1284,7 @@ export const CAMPAIGN12 = [
   "map": "courtyard",
   "chapter": 2,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "normal",
   "bump": 1,
   "next": [
@@ -1316,7 +1325,7 @@ export const CAMPAIGN12 = [
   "map": "classic",
   "chapter": 2,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "normal",
   "bump": 1,
   "next": [
@@ -1377,7 +1386,7 @@ export const CAMPAIGN12 = [
   "map": "classic",
   "chapter": 3,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "normal",
   "bump": 1,
   "next": [
@@ -1403,7 +1412,7 @@ export const CAMPAIGN12 = [
   "map": "courtyard",
   "chapter": 3,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "normal",
   "bump": 1,
   "next": [
@@ -1425,7 +1434,7 @@ export const CAMPAIGN12 = [
   "map": "courtyard",
   "chapter": 3,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "normal",
   "bump": 1,
   "next": [
@@ -1467,7 +1476,7 @@ export const CAMPAIGN12 = [
   "map": "classic",
   "chapter": 3,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "normal",
   "bump": 1,
   "next": [
@@ -1591,7 +1600,7 @@ export const CAMPAIGN12 = [
   "map": "courtyard",
   "chapter": 3,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "normal",
   "bump": 1,
   "next": [
@@ -1671,7 +1680,7 @@ export const CAMPAIGN12 = [
   "map": "classic",
   "chapter": 4,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 1,
   "next": [
@@ -1713,7 +1722,7 @@ export const CAMPAIGN12 = [
   "map": "courtyard",
   "chapter": 4,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 1,
   "next": [
@@ -1754,7 +1763,7 @@ export const CAMPAIGN12 = [
   "map": "classic",
   "chapter": 4,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 1,
   "next": [
@@ -1794,7 +1803,7 @@ export const CAMPAIGN12 = [
   "map": "courtyard",
   "chapter": 4,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 1,
   "next": [
@@ -1815,7 +1824,7 @@ export const CAMPAIGN12 = [
   "map": "gauntlet",
   "chapter": 4,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 1,
   "next": [],
@@ -1840,7 +1849,7 @@ export const CAMPAIGN12 = [
   "map": "classic",
   "chapter": 1,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "easy",
   "bump": 2,
   "next": [
@@ -1880,7 +1889,7 @@ export const CAMPAIGN12 = [
   "map": "courtyard",
   "chapter": 1,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "easy",
   "bump": 2,
   "next": [
@@ -1900,7 +1909,7 @@ export const CAMPAIGN12 = [
   "row": 2,
   "map": "classic",
   "chapter": 3,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 2,
   "next": [],
@@ -1919,7 +1928,7 @@ export const CAMPAIGN12 = [
   "row": 2,
   "map": "courtyard",
   "chapter": 1,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 2,
   "next": [
@@ -1961,7 +1970,7 @@ export const CAMPAIGN12 = [
   "map": "gauntlet",
   "chapter": 1,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "easy",
   "bump": 2,
   "next": [
@@ -1982,7 +1991,7 @@ export const CAMPAIGN12 = [
   "map": "classic",
   "chapter": 1,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "easy",
   "bump": 2,
   "next": [
@@ -2022,7 +2031,7 @@ export const CAMPAIGN12 = [
   "row": 3,
   "map": "classic",
   "chapter": 1,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 2,
   "next": [
@@ -2042,7 +2051,7 @@ export const CAMPAIGN12 = [
   "row": 4,
   "map": "courtyard",
   "chapter": 3,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 2,
   "next": [
@@ -2063,7 +2072,7 @@ export const CAMPAIGN12 = [
   "map": "courtyard",
   "chapter": 2,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "easy",
   "bump": 2,
   "next": [
@@ -2084,7 +2093,7 @@ export const CAMPAIGN12 = [
   "row": 4,
   "map": "classic",
   "chapter": 1,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 2,
   "next": [
@@ -2105,7 +2114,7 @@ export const CAMPAIGN12 = [
   "map": "gauntlet",
   "chapter": 2,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "easy",
   "bump": 2,
   "next": [
@@ -2133,7 +2142,7 @@ export const CAMPAIGN12 = [
   "row": 4,
   "map": "gauntlet",
   "chapter": 3,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 2,
   "next": [
@@ -2154,7 +2163,7 @@ export const CAMPAIGN12 = [
   "map": "classic",
   "chapter": 2,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "normal",
   "bump": 2,
   "next": [
@@ -2174,7 +2183,7 @@ export const CAMPAIGN12 = [
   "row": 5,
   "map": "courtyard",
   "chapter": 1,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 2,
   "next": [
@@ -2195,7 +2204,7 @@ export const CAMPAIGN12 = [
   "map": "courtyard",
   "chapter": 2,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "normal",
   "bump": 2,
   "next": [
@@ -2216,7 +2225,7 @@ export const CAMPAIGN12 = [
   "row": 5,
   "map": "classic",
   "chapter": 3,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 2,
   "next": [
@@ -2236,7 +2245,7 @@ export const CAMPAIGN12 = [
   "row": 6,
   "map": "courtyard",
   "chapter": 2,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 2,
   "next": [
@@ -2257,7 +2266,7 @@ export const CAMPAIGN12 = [
   "map": "gauntlet",
   "chapter": 3,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "normal",
   "bump": 2,
   "next": [
@@ -2277,7 +2286,7 @@ export const CAMPAIGN12 = [
   "row": 6,
   "map": "classic",
   "chapter": 1,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 2,
   "next": [],
@@ -2296,7 +2305,7 @@ export const CAMPAIGN12 = [
   "row": 6,
   "map": "courtyard",
   "chapter": 3,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 2,
   "next": [
@@ -2318,7 +2327,7 @@ export const CAMPAIGN12 = [
   "map": "classic",
   "chapter": 3,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "normal",
   "bump": 2,
   "next": [
@@ -2344,7 +2353,7 @@ export const CAMPAIGN12 = [
   "row": 6,
   "map": "classic",
   "chapter": 2,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 2,
   "next": [
@@ -2364,7 +2373,7 @@ export const CAMPAIGN12 = [
   "row": 6,
   "map": "courtyard",
   "chapter": 3,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 2,
   "next": [
@@ -2384,7 +2393,7 @@ export const CAMPAIGN12 = [
   "row": 6,
   "map": "gauntlet",
   "chapter": 3,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 2,
   "next": [
@@ -2410,7 +2419,7 @@ export const CAMPAIGN12 = [
   "map": "courtyard",
   "chapter": 3,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "normal",
   "bump": 2,
   "next": [
@@ -2450,7 +2459,7 @@ export const CAMPAIGN12 = [
   "row": 6,
   "map": "gauntlet",
   "chapter": 2,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 2,
   "next": [
@@ -2470,7 +2479,7 @@ export const CAMPAIGN12 = [
   "row": 6,
   "map": "classic",
   "chapter": 3,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 2,
   "next": [],
@@ -2490,7 +2499,7 @@ export const CAMPAIGN12 = [
   "map": "gauntlet",
   "chapter": 3,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "normal",
   "bump": 2,
   "next": [
@@ -2511,7 +2520,7 @@ export const CAMPAIGN12 = [
   "row": 7,
   "map": "gauntlet",
   "chapter": 2,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 2,
   "next": [
@@ -2552,7 +2561,7 @@ export const CAMPAIGN12 = [
   "map": "classic",
   "chapter": 4,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 2,
   "next": [
@@ -2592,7 +2601,7 @@ export const CAMPAIGN12 = [
   "row": 7,
   "map": "classic",
   "chapter": 2,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 2,
   "next": [],
@@ -2612,7 +2621,7 @@ export const CAMPAIGN12 = [
   "map": "courtyard",
   "chapter": 4,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 2,
   "next": [
@@ -2653,7 +2662,7 @@ export const CAMPAIGN12 = [
   "map": "gauntlet",
   "chapter": 4,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 2,
   "next": [
@@ -2693,7 +2702,7 @@ export const CAMPAIGN12 = [
   "map": "classic",
   "chapter": 4,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 2,
   "next": [
@@ -2714,7 +2723,7 @@ export const CAMPAIGN12 = [
   "map": "courtyard",
   "chapter": 4,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 2,
   "next": [],
@@ -2739,7 +2748,7 @@ export const CAMPAIGN12 = [
   "map": "classic",
   "chapter": 1,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "easy",
   "bump": 1,
   "next": [
@@ -2760,7 +2769,7 @@ export const CAMPAIGN12 = [
   "map": "courtyard",
   "chapter": 1,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "easy",
   "bump": 1,
   "next": [
@@ -2781,7 +2790,7 @@ export const CAMPAIGN12 = [
   "map": "gauntlet",
   "chapter": 1,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "easy",
   "bump": 1,
   "next": [
@@ -2801,7 +2810,7 @@ export const CAMPAIGN12 = [
   "row": 2,
   "map": "classic",
   "chapter": 3,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 1,
   "next": [
@@ -2822,7 +2831,7 @@ export const CAMPAIGN12 = [
   "map": "classic",
   "chapter": 1,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "easy",
   "bump": 1,
   "next": [
@@ -2842,7 +2851,7 @@ export const CAMPAIGN12 = [
   "row": 3,
   "map": "gauntlet",
   "chapter": 3,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 1,
   "next": [
@@ -2863,7 +2872,7 @@ export const CAMPAIGN12 = [
   "map": "courtyard",
   "chapter": 1,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "easy",
   "bump": 1,
   "next": [
@@ -2883,7 +2892,7 @@ export const CAMPAIGN12 = [
   "row": 4,
   "map": "courtyard",
   "chapter": 3,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 1,
   "next": [
@@ -2904,7 +2913,7 @@ export const CAMPAIGN12 = [
   "map": "gauntlet",
   "chapter": 2,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "easy",
   "bump": 1,
   "next": [
@@ -2924,7 +2933,7 @@ export const CAMPAIGN12 = [
   "row": 4,
   "map": "classic",
   "chapter": 3,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 1,
   "next": [
@@ -2945,7 +2954,7 @@ export const CAMPAIGN12 = [
   "map": "classic",
   "chapter": 2,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "easy",
   "bump": 1,
   "next": [
@@ -2975,7 +2984,7 @@ export const CAMPAIGN12 = [
   "map": "courtyard",
   "chapter": 2,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "normal",
   "bump": 1,
   "next": [
@@ -2996,7 +3005,7 @@ export const CAMPAIGN12 = [
   "map": "courtyard",
   "chapter": 3,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "normal",
   "bump": 1,
   "next": [
@@ -3018,7 +3027,7 @@ export const CAMPAIGN12 = [
   "map": "gauntlet",
   "chapter": 2,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "normal",
   "bump": 1,
   "next": [
@@ -3040,7 +3049,7 @@ export const CAMPAIGN12 = [
   "map": "classic",
   "chapter": 2,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "normal",
   "bump": 1,
   "next": [
@@ -3061,7 +3070,7 @@ export const CAMPAIGN12 = [
   "map": "gauntlet",
   "chapter": 3,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "normal",
   "bump": 1,
   "next": [
@@ -3087,7 +3096,7 @@ export const CAMPAIGN12 = [
   "map": "classic",
   "chapter": 3,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "normal",
   "bump": 1,
   "next": [
@@ -3126,7 +3135,7 @@ export const CAMPAIGN12 = [
   "row": 6,
   "map": "classic",
   "chapter": 2,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 1,
   "next": [
@@ -3186,7 +3195,7 @@ export const CAMPAIGN12 = [
   "map": "courtyard",
   "chapter": 3,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "normal",
   "bump": 1,
   "next": [
@@ -3228,7 +3237,7 @@ export const CAMPAIGN12 = [
   "row": 6,
   "map": "gauntlet",
   "chapter": 2,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 1,
   "next": [
@@ -3249,7 +3258,7 @@ export const CAMPAIGN12 = [
   "map": "gauntlet",
   "chapter": 3,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "normal",
   "bump": 1,
   "next": [
@@ -3270,7 +3279,7 @@ export const CAMPAIGN12 = [
   "row": 7,
   "map": "courtyard",
   "chapter": 2,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 1,
   "next": [],
@@ -3289,7 +3298,7 @@ export const CAMPAIGN12 = [
   "row": 7,
   "map": "gauntlet",
   "chapter": 3,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "normal",
   "bump": 1,
   "next": [
@@ -3309,7 +3318,7 @@ export const CAMPAIGN12 = [
   "row": 8,
   "map": "classic",
   "chapter": 3,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "normal",
   "bump": 1,
   "next": [
@@ -3329,7 +3338,7 @@ export const CAMPAIGN12 = [
   "row": 8,
   "map": "courtyard",
   "chapter": 3,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "normal",
   "bump": 1,
   "next": [],
@@ -3349,7 +3358,7 @@ export const CAMPAIGN12 = [
   "map": "courtyard",
   "chapter": 4,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 1,
   "next": [
@@ -3370,7 +3379,7 @@ export const CAMPAIGN12 = [
   "map": "gauntlet",
   "chapter": 4,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 1,
   "next": [],
@@ -3414,7 +3423,7 @@ export const CAMPAIGN12 = [
   "map": "classic",
   "chapter": 4,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 1,
   "next": [
@@ -3435,7 +3444,7 @@ export const CAMPAIGN12 = [
   "map": "courtyard",
   "chapter": 4,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 1,
   "next": [
@@ -3456,7 +3465,7 @@ export const CAMPAIGN12 = [
   "map": "gauntlet",
   "chapter": 4,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 1,
   "next": [
@@ -3477,7 +3486,7 @@ export const CAMPAIGN12 = [
   "map": "classic",
   "chapter": 4,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 1,
   "next": [
@@ -3517,7 +3526,7 @@ export const CAMPAIGN12 = [
   "row": 2,
   "map": "courtyard",
   "chapter": 3,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 1,
   "next": [
@@ -3537,7 +3546,7 @@ export const CAMPAIGN12 = [
   "row": 1,
   "map": "gauntlet",
   "chapter": 3,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 1,
   "next": [],
@@ -3560,7 +3569,7 @@ export const CAMPAIGN12 = [
   "row": 5,
   "map": "classic",
   "chapter": 2,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 1,
   "next": [
@@ -3580,7 +3589,7 @@ export const CAMPAIGN12 = [
   "row": 5,
   "map": "courtyard",
   "chapter": 2,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 1,
   "next": [
@@ -3620,7 +3629,7 @@ export const CAMPAIGN12 = [
   "row": 4,
   "map": "classic",
   "chapter": 3,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 1,
   "next": [
@@ -3646,7 +3655,7 @@ export const CAMPAIGN12 = [
   "map": "classic",
   "chapter": 1,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "easy",
   "bump": 2,
   "next": [
@@ -3686,7 +3695,7 @@ export const CAMPAIGN12 = [
   "map": "courtyard",
   "chapter": 1,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "easy",
   "bump": 2,
   "next": [
@@ -3707,7 +3716,7 @@ export const CAMPAIGN12 = [
   "map": "gauntlet",
   "chapter": 1,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "easy",
   "bump": 2,
   "next": [
@@ -3727,7 +3736,7 @@ export const CAMPAIGN12 = [
   "row": 3,
   "map": "courtyard",
   "chapter": 2,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 2,
   "next": [],
@@ -3767,7 +3776,7 @@ export const CAMPAIGN12 = [
   "map": "courtyard",
   "chapter": 1,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "easy",
   "bump": 2,
   "next": [
@@ -3788,7 +3797,7 @@ export const CAMPAIGN12 = [
   "row": 3,
   "map": "courtyard",
   "chapter": 2,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 2,
   "next": [
@@ -3809,7 +3818,7 @@ export const CAMPAIGN12 = [
   "map": "classic",
   "chapter": 1,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "easy",
   "bump": 2,
   "next": [
@@ -3831,7 +3840,7 @@ export const CAMPAIGN12 = [
   "map": "gauntlet",
   "chapter": 1,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "easy",
   "bump": 2,
   "next": [
@@ -3852,7 +3861,7 @@ export const CAMPAIGN12 = [
   "map": "classic",
   "chapter": 2,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "easy",
   "bump": 2,
   "next": [
@@ -3872,7 +3881,7 @@ export const CAMPAIGN12 = [
   "row": 4,
   "map": "gauntlet",
   "chapter": 2,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 2,
   "next": [
@@ -3892,7 +3901,7 @@ export const CAMPAIGN12 = [
   "row": 4,
   "map": "classic",
   "chapter": 2,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 2,
   "next": [
@@ -3912,7 +3921,7 @@ export const CAMPAIGN12 = [
   "row": 4,
   "map": "courtyard",
   "chapter": 2,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 2,
   "next": [
@@ -3933,7 +3942,7 @@ export const CAMPAIGN12 = [
   "row": 4,
   "map": "gauntlet",
   "chapter": 1,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 2,
   "next": [
@@ -3953,7 +3962,7 @@ export const CAMPAIGN12 = [
   "row": 5,
   "map": "classic",
   "chapter": 2,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 2,
   "next": [
@@ -3979,7 +3988,7 @@ export const CAMPAIGN12 = [
   "map": "courtyard",
   "chapter": 2,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "easy",
   "bump": 2,
   "next": [
@@ -4007,7 +4016,7 @@ export const CAMPAIGN12 = [
   "row": 5,
   "map": "gauntlet",
   "chapter": 2,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 2,
   "next": [
@@ -4028,7 +4037,7 @@ export const CAMPAIGN12 = [
   "map": "gauntlet",
   "chapter": 2,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "normal",
   "bump": 2,
   "next": [
@@ -4049,7 +4058,7 @@ export const CAMPAIGN12 = [
   "row": 5,
   "map": "courtyard",
   "chapter": 2,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 2,
   "next": [],
@@ -4068,7 +4077,7 @@ export const CAMPAIGN12 = [
   "row": 5,
   "map": "gauntlet",
   "chapter": 1,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 2,
   "next": [
@@ -4089,7 +4098,7 @@ export const CAMPAIGN12 = [
   "row": 5,
   "map": "classic",
   "chapter": 1,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 2,
   "next": [],
@@ -4109,7 +4118,7 @@ export const CAMPAIGN12 = [
   "map": "gauntlet",
   "chapter": 2,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "normal",
   "bump": 2,
   "next": [
@@ -4130,7 +4139,7 @@ export const CAMPAIGN12 = [
   "map": "courtyard",
   "chapter": 2,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "normal",
   "bump": 2,
   "next": [
@@ -4151,7 +4160,7 @@ export const CAMPAIGN12 = [
   "map": "classic",
   "chapter": 2,
   "haupt": true,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "normal",
   "bump": 2,
   "next": [
@@ -4171,7 +4180,7 @@ export const CAMPAIGN12 = [
   "row": 6,
   "map": "courtyard",
   "chapter": 1,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 2,
   "next": [
@@ -4201,17 +4210,8 @@ export const CAMPAIGN12 = [
   "reward": {
    "xp": 96
   },
-  "storyDe": "Wächtenwall: die alte Magie erwacht - Figuren bluten, Figuren halten stand.",
-  "storyEn": "Wächtenwall: the old magic wakes - pieces bleed, pieces endure.",
-  "boss": {
-   "pure": "b01",
-   "rotation": [
-    "b01",
-    "b03",
-    "b02"
-   ]
-  },
-  "tier": 1
+  "storyDe": "Die Prüfung wartet bei Wächtenwall.",
+  "storyEn": "The trial waits at Wächtenwall."
  },
  {
   "id": "L05s27",
@@ -4247,7 +4247,7 @@ export const CAMPAIGN12 = [
   "row": 6,
   "map": "courtyard",
   "chapter": 1,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 2,
   "next": [
@@ -4288,7 +4288,7 @@ export const CAMPAIGN12 = [
   "row": 6,
   "map": "classic",
   "chapter": 1,
-  "rules": "chess",
+  "rules": "hp",
   "difficulty": "hard",
   "bump": 2,
   "next": [],
@@ -4413,7 +4413,7 @@ export const CAMPAIGN12 = [
   "row": 7,
   "map": "classic",
   "chapter": 3,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "normal",
   "bump": 2,
   "next": [
@@ -4433,7 +4433,7 @@ export const CAMPAIGN12 = [
   "row": 8,
   "map": "courtyard",
   "chapter": 3,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "normal",
   "bump": 2,
   "next": [
@@ -4475,7 +4475,7 @@ export const CAMPAIGN12 = [
   "row": 8,
   "map": "classic",
   "chapter": 3,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "normal",
   "bump": 2,
   "next": [],
@@ -5151,7 +5151,7 @@ export const CAMPAIGN12 = [
   "row": 5,
   "map": "courtyard",
   "chapter": 2,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 1,
   "next": [
@@ -5197,7 +5197,7 @@ export const CAMPAIGN12 = [
   "row": 6,
   "map": "classic",
   "chapter": 2,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 1,
   "next": [
@@ -5300,7 +5300,7 @@ export const CAMPAIGN12 = [
   "row": 6,
   "map": "gauntlet",
   "chapter": 3,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "normal",
   "bump": 1,
   "next": [
@@ -5320,7 +5320,7 @@ export const CAMPAIGN12 = [
   "row": 6,
   "map": "classic",
   "chapter": 2,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 1,
   "next": [
@@ -5362,7 +5362,7 @@ export const CAMPAIGN12 = [
   "row": 7,
   "map": "gauntlet",
   "chapter": 3,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "normal",
   "bump": 1,
   "next": [
@@ -5382,7 +5382,7 @@ export const CAMPAIGN12 = [
   "row": 7,
   "map": "classic",
   "chapter": 2,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 1,
   "next": [
@@ -5424,7 +5424,7 @@ export const CAMPAIGN12 = [
   "row": 7,
   "map": "gauntlet",
   "chapter": 3,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "normal",
   "bump": 1,
   "next": [],
@@ -5443,7 +5443,7 @@ export const CAMPAIGN12 = [
   "row": 7,
   "map": "classic",
   "chapter": 2,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 1,
   "next": [
@@ -5463,7 +5463,7 @@ export const CAMPAIGN12 = [
   "row": 8,
   "map": "courtyard",
   "chapter": 4,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 1,
   "next": [
@@ -5504,7 +5504,7 @@ export const CAMPAIGN12 = [
   "row": 8,
   "map": "classic",
   "chapter": 2,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 1,
   "next": [
@@ -5524,7 +5524,7 @@ export const CAMPAIGN12 = [
   "row": 8,
   "map": "courtyard",
   "chapter": 4,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 1,
   "next": [
@@ -5544,7 +5544,7 @@ export const CAMPAIGN12 = [
   "row": 8,
   "map": "gauntlet",
   "chapter": 4,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 1,
   "next": [
@@ -5564,7 +5564,7 @@ export const CAMPAIGN12 = [
   "row": 8,
   "map": "classic",
   "chapter": 4,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 1,
   "next": [
@@ -5605,7 +5605,7 @@ export const CAMPAIGN12 = [
   "row": 9,
   "map": "gauntlet",
   "chapter": 4,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 1,
   "next": [
@@ -5625,7 +5625,7 @@ export const CAMPAIGN12 = [
   "row": 9,
   "map": "classic",
   "chapter": 2,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 1,
   "next": [
@@ -5666,7 +5666,7 @@ export const CAMPAIGN12 = [
   "row": 9,
   "map": "gauntlet",
   "chapter": 4,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 1,
   "next": [],
@@ -5685,7 +5685,7 @@ export const CAMPAIGN12 = [
   "row": 9,
   "map": "classic",
   "chapter": 2,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 1,
   "next": [],
@@ -5795,7 +5795,7 @@ export const CAMPAIGN12 = [
   "row": 1,
   "map": "courtyard",
   "chapter": 3,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 1,
   "next": [],
@@ -5836,7 +5836,7 @@ export const CAMPAIGN12 = [
   "row": 2,
   "map": "classic",
   "chapter": 3,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 1,
   "next": [],
@@ -5855,7 +5855,7 @@ export const CAMPAIGN12 = [
   "row": 2,
   "map": "courtyard",
   "chapter": 3,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 1,
   "next": [
@@ -5896,7 +5896,7 @@ export const CAMPAIGN12 = [
   "row": 2,
   "map": "classic",
   "chapter": 3,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 1,
   "next": [
@@ -5937,7 +5937,7 @@ export const CAMPAIGN12 = [
   "row": 3,
   "map": "gauntlet",
   "chapter": 3,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 1,
   "next": [
@@ -5978,7 +5978,7 @@ export const CAMPAIGN12 = [
   "row": 3,
   "map": "courtyard",
   "chapter": 3,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 1,
   "next": [
@@ -5998,7 +5998,7 @@ export const CAMPAIGN12 = [
   "row": 3,
   "map": "gauntlet",
   "chapter": 3,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 1,
   "next": [
@@ -6039,7 +6039,7 @@ export const CAMPAIGN12 = [
   "row": 4,
   "map": "courtyard",
   "chapter": 3,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 1,
   "next": [
@@ -6080,7 +6080,7 @@ export const CAMPAIGN12 = [
   "row": 4,
   "map": "classic",
   "chapter": 3,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 1,
   "next": [
@@ -6144,7 +6144,7 @@ export const CAMPAIGN12 = [
   "row": 5,
   "map": "classic",
   "chapter": 3,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 1,
   "next": [
@@ -6234,7 +6234,7 @@ export const CAMPAIGN12 = [
   "row": 6,
   "map": "courtyard",
   "chapter": 3,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 1,
   "next": [
@@ -6295,7 +6295,7 @@ export const CAMPAIGN12 = [
   "row": 6,
   "map": "courtyard",
   "chapter": 3,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 1,
   "next": [
@@ -6377,7 +6377,7 @@ export const CAMPAIGN12 = [
   "row": 7,
   "map": "gauntlet",
   "chapter": 3,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 1,
   "next": [
@@ -6459,7 +6459,7 @@ export const CAMPAIGN12 = [
   "row": 7,
   "map": "classic",
   "chapter": 3,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 1,
   "next": [
@@ -7072,7 +7072,7 @@ export const CAMPAIGN12 = [
   "row": 3,
   "map": "courtyard",
   "chapter": 3,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 2,
   "next": [],
@@ -7136,7 +7136,7 @@ export const CAMPAIGN12 = [
   "row": 3,
   "map": "courtyard",
   "chapter": 3,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 2,
   "next": [
@@ -7267,7 +7267,7 @@ export const CAMPAIGN12 = [
   "row": 4,
   "map": "courtyard",
   "chapter": 3,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 2,
   "next": [
@@ -7417,7 +7417,7 @@ export const CAMPAIGN12 = [
   "row": 5,
   "map": "gauntlet",
   "chapter": 3,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 2,
   "next": [
@@ -7480,7 +7480,7 @@ export const CAMPAIGN12 = [
   "row": 5,
   "map": "gauntlet",
   "chapter": 3,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 2,
   "next": [
@@ -7500,7 +7500,7 @@ export const CAMPAIGN12 = [
   "row": 6,
   "map": "classic",
   "chapter": 2,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 2,
   "next": [
@@ -7583,7 +7583,7 @@ export const CAMPAIGN12 = [
   "row": 6,
   "map": "courtyard",
   "chapter": 3,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 2,
   "next": [
@@ -7628,7 +7628,7 @@ export const CAMPAIGN12 = [
   "row": 6,
   "map": "classic",
   "chapter": 2,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 2,
   "next": [
@@ -7648,7 +7648,7 @@ export const CAMPAIGN12 = [
   "row": 7,
   "map": "courtyard",
   "chapter": 3,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 2,
   "next": [
@@ -7689,7 +7689,7 @@ export const CAMPAIGN12 = [
   "row": 7,
   "map": "classic",
   "chapter": 2,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 2,
   "next": [
@@ -7709,7 +7709,7 @@ export const CAMPAIGN12 = [
   "row": 7,
   "map": "courtyard",
   "chapter": 3,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 2,
   "next": [],
@@ -7728,7 +7728,7 @@ export const CAMPAIGN12 = [
   "row": 7,
   "map": "gauntlet",
   "chapter": 3,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 2,
   "next": [
@@ -7770,7 +7770,7 @@ export const CAMPAIGN12 = [
   "row": 8,
   "map": "courtyard",
   "chapter": 2,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 2,
   "next": [
@@ -7852,7 +7852,7 @@ export const CAMPAIGN12 = [
   "row": 9,
   "map": "gauntlet",
   "chapter": 2,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 2,
   "next": [
@@ -7872,7 +7872,7 @@ export const CAMPAIGN12 = [
   "row": 9,
   "map": "classic",
   "chapter": 2,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 2,
   "next": [
@@ -7892,7 +7892,7 @@ export const CAMPAIGN12 = [
   "row": 9,
   "map": "courtyard",
   "chapter": 4,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "normal",
   "bump": 2,
   "next": [
@@ -7912,7 +7912,7 @@ export const CAMPAIGN12 = [
   "row": 9,
   "map": "gauntlet",
   "chapter": 2,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 2,
   "next": [
@@ -7932,7 +7932,7 @@ export const CAMPAIGN12 = [
   "row": 9,
   "map": "classic",
   "chapter": 2,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 2,
   "next": [],
@@ -7972,7 +7972,7 @@ export const CAMPAIGN12 = [
   "row": 9,
   "map": "gauntlet",
   "chapter": 4,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "normal",
   "bump": 2,
   "next": [],
@@ -8380,7 +8380,7 @@ export const CAMPAIGN12 = [
   "row": 5,
   "map": "courtyard",
   "chapter": 2,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 3,
   "next": [
@@ -8441,7 +8441,7 @@ export const CAMPAIGN12 = [
   "row": 6,
   "map": "courtyard",
   "chapter": 2,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 3,
   "next": [
@@ -8461,7 +8461,7 @@ export const CAMPAIGN12 = [
   "row": 6,
   "map": "gauntlet",
   "chapter": 2,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 3,
   "next": [],
@@ -8548,7 +8548,7 @@ export const CAMPAIGN12 = [
   "row": 8,
   "map": "classic",
   "chapter": 2,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 3,
   "next": [],
@@ -8589,7 +8589,7 @@ export const CAMPAIGN12 = [
   "row": 8,
   "map": "gauntlet",
   "chapter": 4,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 3,
   "next": [
@@ -8631,7 +8631,7 @@ export const CAMPAIGN12 = [
   "row": 8,
   "map": "courtyard",
   "chapter": 4,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 3,
   "next": [
@@ -8672,7 +8672,7 @@ export const CAMPAIGN12 = [
   "row": 8,
   "map": "classic",
   "chapter": 4,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 3,
   "next": [
@@ -8732,7 +8732,7 @@ export const CAMPAIGN12 = [
   "row": 9,
   "map": "classic",
   "chapter": 4,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 3,
   "next": [],
@@ -9243,7 +9243,7 @@ export const CAMPAIGN12 = [
   "row": 6,
   "map": "courtyard",
   "chapter": 3,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "normal",
   "bump": 2,
   "next": [
@@ -9306,7 +9306,7 @@ export const CAMPAIGN12 = [
   "row": 6,
   "map": "courtyard",
   "chapter": 3,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "normal",
   "bump": 2,
   "next": [],
@@ -10163,7 +10163,7 @@ export const CAMPAIGN12 = [
   "row": 5,
   "map": "classic",
   "chapter": 2,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "normal",
   "bump": 3,
   "next": [],
@@ -10316,7 +10316,7 @@ export const CAMPAIGN12 = [
   "row": 6,
   "map": "courtyard",
   "chapter": 2,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 3,
   "next": [
@@ -10336,7 +10336,7 @@ export const CAMPAIGN12 = [
   "row": 6,
   "map": "gauntlet",
   "chapter": 2,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 3,
   "next": [
@@ -10356,7 +10356,7 @@ export const CAMPAIGN12 = [
   "row": 6,
   "map": "classic",
   "chapter": 2,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 3,
   "next": [],
@@ -10441,7 +10441,7 @@ export const CAMPAIGN12 = [
   "row": 7,
   "map": "courtyard",
   "chapter": 2,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "hard",
   "bump": 3,
   "next": [
@@ -10814,7 +10814,7 @@ export const CAMPAIGN12 = [
   "row": 5,
   "map": "classic",
   "chapter": 2,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "normal",
   "bump": 3,
   "next": [
@@ -10839,7 +10839,7 @@ export const CAMPAIGN12 = [
   "row": 8,
   "map": "courtyard",
   "chapter": 2,
-  "rules": "hp",
+  "rules": "chess",
   "difficulty": "normal",
   "bump": 3,
   "next": [],
