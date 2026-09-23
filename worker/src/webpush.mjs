@@ -60,7 +60,7 @@ export async function generateVapid() {
 // ── the door pass: a signed ES256 token for the push service ─────────────────
 /** Build the Authorization header (RFC 8292 "vapid" scheme) for one endpoint.
  *  WebCrypto's ECDSA emits the raw r||s form — exactly what JWS wants. */
-export async function vapidAuth(endpoint, vapid, { subject = "https://grandgambit.win", nowSec = Math.floor(Date.now() / 1000) } = {}) {
+export async function vapidAuth(endpoint, vapid, { subject = "https://gambitrise.com", nowSec = Math.floor(Date.now() / 1000) } = {}) {
   const aud = new URL(endpoint).origin;
   const header = b64u(te.encode(JSON.stringify({ typ: "JWT", alg: "ES256" })));
   const claims = b64u(te.encode(JSON.stringify({ aud, exp: nowSec + 12 * 3600, sub: subject })));

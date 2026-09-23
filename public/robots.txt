@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://grandgambit.win/sitemap.xml
+Sitemap: https://gambitrise.com/sitemap.xml

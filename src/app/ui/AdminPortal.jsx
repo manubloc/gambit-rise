@@ -12,7 +12,7 @@ const SEITEN = [
     was: "Die Designsystem-Galerie: Farben, Knöpfe, Karten, Kugeln und Bausteine des Spiels in einer Schau." },
   { ziel: "?spielerbuch", name: "Das Spielerbuch",
     was: "Alle angemeldeten Spieler mit Fortschritt (Kapitel, Gold, Partien, Siege), wer gerade online ist, grobe Herkunft und Zahlen über das Spiel im Ganzen. Braucht das Admin-Wort." },
-  { ziel: "https://grandgambit.win/landing.html", name: "Die Landingpage",
+  { ziel: "https://gambitrise.com/landing.html", name: "Die Landingpage",
     was: "Die öffentliche Seite, so wie Besucher sie sehen — in neuem Tab." },
   { ziel: "/", name: "Zurück ins Spiel",
     was: "Das Hauptmenü — der normale Weg für alle." },

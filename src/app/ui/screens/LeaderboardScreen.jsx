@@ -55,8 +55,8 @@ export function LeaderboardSection({ profile, playtimeSec = 0 }) {
   };
   const copyText = async () => {
     const txt = lang === "de"
-      ? `Gambit — ${name}: ${pct} % (Kapitel ${ROMAN[league - 1] || league}), Durchlauf ${fmtMs(runMs)}, ${bm.sum || "–"} Züge · grandgambit.win`
-      : `Gambit — ${name}: ${pct}% (League ${ROMAN[league - 1] || league}), run ${fmtMs(runMs)}, ${bm.sum || "–"} moves · grandgambit.win`;
+      ? `Gambit — ${name}: ${pct} % (Kapitel ${ROMAN[league - 1] || league}), Durchlauf ${fmtMs(runMs)}, ${bm.sum || "–"} Züge · gambitrise.com`
+      : `Gambit — ${name}: ${pct}% (League ${ROMAN[league - 1] || league}), run ${fmtMs(runMs)}, ${bm.sum || "–"} moves · gambitrise.com`;
     try { if (navigator.share) { await navigator.share({ text: txt }); } else { await navigator.clipboard.writeText(txt); } setNote(s.copied); }
     catch {}
     setTimeout(() => setNote(""), 2200);

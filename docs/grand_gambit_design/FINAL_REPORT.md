@@ -2,7 +2,7 @@
 Stand: 29. Juli 2026 · Branch `feature/design-system-v1` · **nicht deployt, `main` unberührt**
 
 ## 1 · Ausgangszustand
-`main` @ `1aaa021` (v0.41.2) = Produktion (grandgambit.win/version.json gegengeprüft). 761/0/18 Tests grün, Build grün, Working Tree sauber. Vollständige Baseline in BASELINE.md, 25 Vorher-Fotos (2 Viewports + Live).
+`main` @ `1aaa021` (v0.41.2) = Produktion (gambitrise.com/version.json gegengeprüft). 761/0/18 Tests grün, Build grün, Working Tree sauber. Vollständige Baseline in BASELINE.md, 25 Vorher-Fotos (2 Viewports + Live).
 
 ## 2 · Designstrategie
 „Premium Stylized Dark Fantasy Board Game" auf dem BESTAND aufgebaut: die vorhandene Sprache (Schwarz/Violett/Gold, Riss, Gilded, Glanzläufe) wurde nicht ersetzt, sondern semantisch geschärft — **Gold = Handlung, Violett = Auswahl, dunkle Flächen = Bühne, Lesbarkeit maschinell erzwungen.** Zwei Ebenen respektiert: Match maximal funktional (Intensität 0), Meta atmosphärisch. Figuren, Wappen, Karten, Login-Artwork: unantastbar behandelt, kein Asset ersetzt oder überschrieben.

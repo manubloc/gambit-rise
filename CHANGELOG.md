@@ -1,5 +1,17 @@
 # Changelog - Gambit
 
+## 1.41.0 - der Umzug auf gambitrise.com
+- In Cloudflare eingerichtet (ueber den Browser, mit Freigabe des Besitzers):
+    * gambitrise.com haengt als eigene Domain am Pages-Projekt - Status aktiv,
+      Zertifikat ausgestellt.
+    * Der Worker gg-hall hat die Adresse duell.gambitrise.com; die alte
+      duell.grandgambit.win bleibt vorerst DANEBEN bestehen.
+  Beide Domains zeigen also auf dieselbe Seite und denselben Spielserver -
+  der Umzug faellt fuer niemanden aus.
+- Im Code umgestellt: 42 Stellen in 22 Dateien (tools/domain-umstellen.mjs),
+  darunter canonical, Open Graph, Manifest, Landingpage, Rechtstexte, TWA,
+  der Worker und SERVER_URL (wss://duell.gambitrise.com/ws).
+
 ## 1.40.0
 - DIE FELDER TRAGEN WIEDER IHREN EIGENRAND (Besitzer: "die Schachfelder haben
   doch ganz sanfte Rundungen - hast du die weggeschnitten? das waere

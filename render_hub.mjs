@@ -2,7 +2,7 @@
 import { readFileSync } from "node:fs";
 import { JSDOM } from "jsdom";
 const dom = new JSDOM("<!doctype html><html><body><div id='w'></div></body></html>",
-  { url: "https://grandgambit.win/", pretendToBeVisual: true });
+  { url: "https://gambitrise.com/", pretendToBeVisual: true });
 Object.defineProperty(global, "navigator", { value: dom.window.navigator, configurable: true });
 global.window = dom.window; global.document = dom.window.document;
 global.HTMLElement = dom.window.HTMLElement; global.Element = dom.window.Element;

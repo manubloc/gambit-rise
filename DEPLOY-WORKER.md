@@ -28,7 +28,7 @@ Committen → Cloudflare Pages deployt → der Online-Tab verbindet sich.
 
 ## Optional
 * **Eigene Domain:** Worker → Settings → Domains & Routes →
-  `pvp.grandgambit.win` hinzufügen, dann `SERVER_URL` entsprechend.
+  `pvp.gambitrise.com` hinzufügen, dann `SERVER_URL` entsprechend.
 * **Admin-Kommandos** (stats/dump über die Online-Konsole):
       npx wrangler secret put ADMIN_TOKEN     # ≥ 24 Zeichen!
 * **Health-Check:** `https://…workers.dev/health` → `{"ok":true,"online":n}`

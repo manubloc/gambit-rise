@@ -23,14 +23,14 @@ await new Promise((r) => srv.listen(0, r));
 const port = srv.address().port;
 
 const errors = [];
-// The Hall (duell.grandgambit.win) is unreachable from this sandbox — the
+// The Hall (duell.gambitrise.com) is unreachable from this sandbox — the
 // boot-time GET /design is DESIGNED to fail silently offline (livery.js
 // catches and falls back to APP_DESIGN). Chromium still logs the CORS/network
 // line itself; that expected pair is the ONLY thing this gate tolerates.
 /* v1.0.63: In einer Sandbox mit vorgeschaltetem Netz-Vermittler meldet
    Chromium denselben Fehlschlag als ERR_TUNNEL_CONNECTION_FAILED statt
    ERR_FAILED - gemessen: die einzige fehlgeschlagene Anfrage ist weiterhin
-   GET https://duell.grandgambit.win/design. Ein Tunnelfehler kann ohnehin nur
+   GET https://duell.gambitrise.com/design. Ein Tunnelfehler kann ohnehin nur
    bei einer AUSWAERTIGEN Anfrage entstehen; alles Eigene liefert der lokale
    Server dieser Datei (und im Zweifel seine SPA-Rueckfallseite mit 200). */
 const EXPECTED_OFFLINE = (t) =>

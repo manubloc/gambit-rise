@@ -14,7 +14,7 @@ dem Gerät. Sobald du die zwei Umgebungsvariablen setzt, schalten sich
 2. Der Dialog zeigt dir die Redirect-URL. Lege in der Google Cloud Console
    (APIs & Services → Credentials → OAuth Client "Web") Client-ID + Secret an,
    trage die Redirect-URL ein und füge beides in Supabase ein.
-3. Authentication → URL Configuration → Site URL: `https://grandgambit.win`.
+3. Authentication → URL Configuration → Site URL: `https://gambitrise.com`.
 
 ## 3. Variablen setzen (Cloudflare Pages)
 Pages → grand-gambit → Settings → Environment variables (Production):

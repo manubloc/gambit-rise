@@ -1,6 +1,6 @@
 # CLAUDE.md — Gambit
 
-Fantasy-Schach-RPG als PWA. Live: https://grandgambit.win (Cloudflare Pages,
+Fantasy-Schach-RPG als PWA. Live: https://gambitrise.com (Cloudflare Pages,
 deployt AUTOMATISCH bei jedem Push auf main, ~2–5 min). Der Worker "gg-hall"
 (Online-Duelle) deployt ebenfalls automatisch. **Jeder Push auf main geht
 direkt zu echten Nutzern.**
@@ -51,7 +51,7 @@ starten, sonst reißen Werkzeug-Zeitlimits den Lauf ab.
 6. `git fetch` + Punktprüfung: liegt auf origin ein fremder Commit, Inhalt
    verifizieren (`git diff --stat HEAD FETCH_HEAD`). Es können PARALLELE
    Sessions arbeiten. NIEMALS force-pushen.
-7. Push, dann `curl -sL -H "Cache-Control: no-cache" https://grandgambit.win/version.json`
+7. Push, dann `curl -sL -H "Cache-Control: no-cache" https://gambitrise.com/version.json`
    pollen und Marker-Strings im Live-Bundle zählen:
    `grep -o "marker" bundle.js | wc -l` (`grep -c` zählt Zeilen — minifiziert
    ist alles EINE Zeile). Echtes Bundle via `ls -S dist/assets/index-*.js`

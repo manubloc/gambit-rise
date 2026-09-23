@@ -7,7 +7,7 @@ unter `/home/claude/repo`.
 
 ## 1. Das Wichtigste zuerst
 
-- **Repo:** `github.com/manubloc/grand-gambit` · **Live:** `grandgambit.win`
+- **Repo:** `github.com/manubloc/grand-gambit` · **Live:** `gambitrise.com`
 - **Aktuell live:** v0.75.2 · Kette **812 Prüfungen / 0 Fehler / 20 Suiten**
 - **Besitzer:** Manuel — spricht Deutsch, oft über Sprachaufnahmen, arbeitet
   mobil und am PC im **selben** Chat. Er will autonome Arbeitsblöcke ohne
@@ -36,7 +36,7 @@ unter `/home/claude/repo`.
 - **Cloudflare:** Konto `frey.manu@gmail.com`, Account-ID
   `73af6b7e9469b4f0ac2577e7c9e5ac18`. `ADMIN_TOKEN` liegt als Worker-Secret
   (Wert unbekannt — Manuel tippt ihn selbst ein, nie erfragen).
-  **Achtung:** `duell.grandgambit.win` steht **nicht** auf der Container-
+  **Achtung:** `duell.gambitrise.com` steht **nicht** auf der Container-
   Freigabeliste; curl von dort liefert einen Proxy-403 („Host not in
   allowlist") — das ist **nicht** Cloudflare. Prüfung nur im Browser.
 
@@ -64,9 +64,9 @@ Prüfungen summieren:
 **Zeitdeckel:** Kette + Reinraum in EINEM Aufruf sprengt oft das Limit — teilen.
 
 **Live-Verifikation:** `version.json` pollen (alle 26 s, meist 2–4 Runden), dann
-`curl -sL -o DATEI "https://grandgambit.win/?cb=$RANDOM$RANDOM"`, Bundle-Pfad
+`curl -sL -o DATEI "https://gambitrise.com/?cb=$RANDOM$RANDOM"`, Bundle-Pfad
 grepen, **Marker-Strings** suchen (nie Hash-Vergleich — Cloudflare-Hashes
-weichen ab). Bilder: Byte-Vergleich Quelle ↔ `grandgambit.win/assets/<hash>.webp`.
+weichen ab). Bilder: Byte-Vergleich Quelle ↔ `gambitrise.com/assets/<hash>.webp`.
 
 ---
 
