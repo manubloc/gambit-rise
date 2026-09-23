@@ -1,5 +1,25 @@
 # Changelog - Gambit
 
+## 1.43.0 - die Wortmarke GAMBIT Rise
+- Besitzer: "das Gambit die Buchstaben naeher zusammen, das Rise in dem
+  leuchtenden Lila, groesser, wie ein Logo, schon unter Gambit, darf minimal
+  von unten drueberlappen; das Gambit etwas mehr glaenzen und erhaben; das
+  Rise von sehr hell leuchtend lila bis fast dunkel - und beim Ladescreen
+  gezeichnet, als waere es Handschrift."
+  Ein SVG (src/app/ui/WortmarkeRise.jsx) traegt beides:
+    * GAMBIT in Cinzel, eng gesperrt (2 px statt .13em), Goldverlauf, darueber
+      ein Glanzstreifen und darunter eine dunkle Fusslinie - das gibt die
+      erhabene, gepraegte Wirkung.
+    * Rise in Cormorant kursiv, deutlich groesser, Verlauf von sehr hellem
+      Lila ueber Violett bis fast Schwarz, mit lila Schein DAHINTER (ein
+      erster Anlauf legte den Schein darueber und wusch den Verlauf aus).
+      Es sitzt unter dem Wort und ragt mit den Oberlaengen hinein.
+  ZEICHNEN auf beiden Ladeschirmen: eine Linie faehrt die Buchstaben ab,
+  danach laeuft die Fuellung nach.
+- Dieselbe Marke an drei Stellen: Anmeldeschirm, Vorlader und der feste
+  Ladeschirm in index.html (der laedt Cinzel und Cormorant jetzt selbst).
+  Eine Probe haelt die drei zusammen, damit keine ausschert.
+
 ## 1.42.0 - Gambit Rise, und die Seite bekommt ein Schaufenster
 - DER ERSTE SCHIRM SAGT "GAMBIT Rise" (Besitzer: "gerne das Rise in einer
   anderen Schrift, dass es mehr nach einem Logo aussieht"): GAMBIT in der

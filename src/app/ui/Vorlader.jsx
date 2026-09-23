@@ -145,6 +145,7 @@ import a181 from "./assets/stat/orb-steel-life.webp";
 import a182 from "./assets/stat/orb-steel-power.webp";
 import a183 from "./assets/stat/strip-gold.webp";
 import a184 from "./assets/stat/strip-steel.webp";
+import { WortmarkeRise } from "./WortmarkeRise.jsx";   /* v1.43.0 */
 const WEITERE = [a0, a2, a4, a6, a8, a10, a11, a13, a15, a17, a19, a21, a23, a25, a27, a29, a31, a33, a35, a37, a38, a39, a40, a41, a42, a43, a44, a45, a46, a47, a48, a50, a51, a53, a54, a55, a56, a57, a58, a59, a60, a61, a62, a63, a64, a65, a66, a67, a68, a69, a70, a71, a72, a74, a75, a76, a77, a78, a79, a80, a81, a82, a83, a84, a85, a86, a87, a88, a89, a90, a91, a92, a93, a94, a95, a96, a97, a98, a99, a100, a101, a102, a103, a104, a105, a106, a108, a110, a112, a114, a116, a118, a120, a122, a124, a126, a128, a129, a131, a133, a134, a135, a136, a137, a138, a139, a140, a141, a142, a143, a144, a145, a146, a147, a148, a149, a151, a153, a155, a157, a159, a161, a163, a165, a167, a169, a171, a173, a175, a177, a178, a179, a180, a181, a182, a183, a184];
 
 function alleQuellen() {
@@ -249,8 +250,9 @@ export default function Vorlader() {
               animation: "ggBootAtem 3.2s ease-in-out infinite",
               filter: "drop-shadow(0 0 24px rgba(139,92,246,.6))", willChange: "transform" }} />
         </div>
-        <div style={{ fontSize: "clamp(17px,4.6vw,23px)", letterSpacing: ".26em", animation: "ggBootWort 1.1s ease-out both" }}>
-          GAMBIT</div>
+        {/* v1.43.0: beim Laden wird das Rise gezeichnet */}
+        <div style={{ animation: "ggBootWort 1.1s ease-out both", display: "flex", justifyContent: "center" }}>
+          <WortmarkeRise breite="min(70vw, 320px)" zeichnen verzug={0.35} /></div>
         <div style={{ width: "min(60vw, 220px)", height: 3, margin: "18px auto 0", borderRadius: 99,
           background: "rgba(242,217,140,.14)", overflow: "hidden" }}>
           <div style={{ width: `${Math.round(anteil * 100)}%`, height: "100%", borderRadius: 99,

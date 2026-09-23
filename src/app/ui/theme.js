@@ -205,6 +205,10 @@ export const GLOBAL_CSS = `
   /* Die drei Stimmen des Hauses - selbst gebuendelt (OFL, public/fonts),
      91 KB gesamt, im Precache: sie sprechen auch offline. font-display swap
      laesst Georgia sofort stehen, bis die echte Stimme geladen ist. */
+  /* v1.43.0: das Rise wird gezeichnet wie mit der Feder, dann laeuft die
+     Fuellung nach */
+  @keyframes ggRiseZug { to { stroke-dashoffset: 0; } }
+  @keyframes ggRiseFuellung { from { fill-opacity: 0; } to { fill-opacity: 1; } }
   @font-face { font-family: 'Cinzel'; src: url('/fonts/cinzel-600.woff2') format('woff2');
     font-weight: 600; font-style: normal; font-display: swap; }
   @font-face { font-family: 'Cormorant Garamond'; src: url('/fonts/cormorant-600.woff2') format('woff2');

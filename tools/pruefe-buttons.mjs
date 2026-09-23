@@ -63,9 +63,16 @@ for (const f of dateien) {
 // Schriften - das darf nie wieder auseinanderlaufen.
 {
   const L = readFileSync("src/app/ui/screens/LoginScreen.jsx", "utf8");
-  /* v1.29.1: der Spielstandschirm ist fort - die Wortmarke steht nur noch im Login */
-  const marke = (t) => (t.match(/fontFamily: "Georgia, serif", fontWeight: 700, letterSpacing: "([^"]+)"/) || [])[1];
-  if (!marke(L)) funde.push("Wortmarke im Login nicht gefunden");
+  /* v1.43.0: die Wortmarke ist ein SVG (WortmarkeRise) und steht an DREI
+     Stellen gleich: Anmeldeschirm, Vorlader und der feste Ladeschirm in
+     index.html. Geprueft wird, dass keine der drei ausschert. */
+  const V = readFileSync("src/app/ui/Vorlader.jsx", "utf8");
+  const H = readFileSync("index.html", "utf8");
+  if (!L.includes("<WortmarkeRise")) funde.push("Wortmarke im Login nicht gefunden");
+  if (!V.includes("<WortmarkeRise")) funde.push("Wortmarke im Vorlader nicht gefunden");
+  if (!/aria-label="Gambit Rise"/.test(H)) funde.push("Wortmarke im festen Ladeschirm nicht gefunden");
+  if (!/ggRiseZug/.test(H) || !/ggRiseZug/.test(readFileSync("src/app/ui/theme.js", "utf8")))
+    funde.push("das gezeichnete Rise fehlt in einem der beiden Ladeschirme");
 }
 
 

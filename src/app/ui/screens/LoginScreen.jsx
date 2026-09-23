@@ -7,6 +7,7 @@ import { T } from "../theme.js";
 import { register, login, cloudConfigured, signInWithProvider, signInEmailCloud, signUpEmailCloud } from "../../../meta/index.js";
 import { logoArt } from "../livery.js";
 import { RissBoden } from "../RissBoden.jsx";
+import { WortmarkeRise } from "../WortmarkeRise.jsx";   /* v1.43.0 */
 
 const STR = {
   de: {
@@ -115,19 +116,8 @@ export function LoginScreen({ onSignedIn, initialLang = "de" }) {
         objectFit: "cover", display: "block", marginTop: 0, marginBottom: 42,
         WebkitMaskImage: "radial-gradient(ellipse 78% 74% at 50% 50%, #000 42%, rgba(0,0,0,.6) 70%, transparent 95%)",
         maskImage: "radial-gradient(ellipse 78% 74% at 50% 50%, #000 42%, rgba(0,0,0,.6) 70%, transparent 95%)" }} />
-      <div style={{ fontFamily: "Georgia, serif", fontWeight: 700, letterSpacing: ".13em",
-        fontSize: "clamp(19px, 5.2vw, 30px)", lineHeight: 1.15, textAlign: "center", marginTop: -22, marginBottom: 14,
-        background: `linear-gradient(180deg, ${T.goldBright} 0%, ${T.gold} 52%, ${T.lime} 100%)`,
-        WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent",
-        filter: "drop-shadow(0 2px 12px rgba(0,0,0,.9))" }}>
-        {/* v1.42.0 (Besitzer): "beim ersten Screen bitte schon GAMBIT RISE
-            schreiben, gerne das Rise in einer anderen Schrift, dass es mehr
-            nach einem Logo aussieht." GAMBIT steht in der Wortmarkenschrift
-            (Versalien, weit gesperrt), RISE daneben in der Erzaehlschrift,
-            kursiv und kleiner - derselbe Goldverlauf traegt beide, damit es
-            EIN Zeichen bleibt und nicht zwei Woerter. */}
-        GAMBIT<span className="gg-quill" style={{ fontStyle: "italic", fontWeight: 600,
-          letterSpacing: ".01em", fontSize: "0.86em", marginLeft: ".18em" }}>Rise</span></div>
+      {/* v1.43.0: die Wortmarke - dieselbe wie auf dem Ladeschirm */}
+      <div style={{ marginTop: -30, marginBottom: 6 }}><WortmarkeRise breite="min(82vw, 400px)" /></div>
       <div className="gg-quill" style={{ color: T.dim, fontSize: 16, lineHeight: 1.6, margin: "12px 0 34px" }}>{s.tag}</div>
 
       <div style={{ width: "100%", maxWidth: 380, display: "flex", flexDirection: "column", gap: 10 }}>
