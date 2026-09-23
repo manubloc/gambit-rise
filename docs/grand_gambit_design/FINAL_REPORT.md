@@ -1,4 +1,4 @@
-# Grand Gambit — Design System 1.0 · Abschlussbericht
+# Gambit — Design System 1.0 · Abschlussbericht
 Stand: 29. Juli 2026 · Branch `feature/design-system-v1` · **nicht deployt, `main` unberührt**
 
 ## 1 · Ausgangszustand

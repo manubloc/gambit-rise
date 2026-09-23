@@ -1,4 +1,4 @@
-// Illustrated-map art for the Grand Gambit campaign — shared by the screen and
+// Illustrated-map art for the Gambit campaign — shared by the screen and
 // by SSR previews, so what we test is what ships. Parchment palette, layered
 // pines with highlights and shadows, round leafy trees, rocks, ridge clusters
 // with snow caps, soft clouds and the two keeps.

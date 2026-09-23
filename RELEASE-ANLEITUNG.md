@@ -1,4 +1,4 @@
-# GRAND GAMBIT — Release-Anleitung
+# GAMBIT — Release-Anleitung
 
 Vom Repo zum öffentlichen Browsergame in ~30 Minuten, danach itch.io und
 Google Play mit minimalem Mehraufwand. Alles hier ist bereits vorbereitet —
@@ -31,7 +31,7 @@ Dein privates Repo + Node-.gitignore war der richtige Start. Zwei Dinge:
 cd gambit
 git init            # falls im Ordner noch nicht geschehen
 git add -A
-git commit -m "Grand Gambit 0.2.0 — erster öffentlicher Release-Stand"
+git commit -m "Gambit 0.2.0 — erster öffentlicher Release-Stand"
 git branch -M main
 git remote add origin git@github.com:DEINNAME/grand-gambit.git
 git push -u origin main

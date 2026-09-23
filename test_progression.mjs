@@ -260,7 +260,7 @@ ok("nine leagues of income cover the boat (" + income9 + " vs " + boat3.gold + "
 }
 {
   const fresh = { campaign: { league: 1, cleared: [] } };
-    // GRAND GAMBIT bonus XP: survives the battle → survival bonus in the summary
+    // GAMBIT bonus XP: survives the battle → survival bonus in the summary
   {
     const p = withProgressPct(defaultProfile(), 30, 1);
     const map = mapById("classic");
@@ -278,7 +278,7 @@ ok("nine leagues of income cover the boat (" + income9 + " vs " + boat3.gold + "
       if (g.status?.over) break;
     }
     const sum = summarizeMatch(wArmy, bArmy, 5, log, "win", "w", { map, rules: "hp" });
-    ok("Grand Gambit earns survival bonus XP when he lives", (sum.charXpGains.gambit || 0) > 12);
+    ok("Gambit earns survival bonus XP when he lives", (sum.charXpGains.gambit || 0) > 12);
     ok("summary reports heroSurvived", sum.heroSurvived === true);
   }
     // FORMATION carries into battle — even when the fight is re-routed to another

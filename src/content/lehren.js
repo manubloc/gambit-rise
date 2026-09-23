@@ -19,7 +19,7 @@ export const LEHREN = {
       { id: "umwandlung", titel: "Die Umwandlung", kurz: "Ein Bauer, der die letzte Reihe erreicht, wird zur Dame.",
         text: "Erreicht ein Bauer die LETZTE Reihe, wird er befördert: Er verwandelt sich in eine Dame. Im HP-Modus übernimmt er dabei auch ihre Werte — aus dem kleinsten Soldaten wird die stärkste Figur." },
       { id: "hausbrett", titel: "Das Hausbrett", kurz: "Gespielt wird auch auf 10×10 — und manche Karten haben Löcher.",
-        text: "Neben dem klassischen 8×8 spielt Grand Gambit auf dem 10×10-HAUSBRETT und auf Karten mit LÖCHERN: Ein Loch ist wie eine Mauer — nichts landet darauf, Läufer, Türme und Dame werden davon gestoppt. Die Grundregeln bleiben dieselben." },
+        text: "Neben dem klassischen 8×8 spielt Gambit auf dem 10×10-HAUSBRETT und auf Karten mit LÖCHERN: Ein Loch ist wie eine Mauer — nichts landet darauf, Läufer, Türme und Dame werden davon gestoppt. Die Grundregeln bleiben dieselben." },
     ],
     figuren: [
       { id: "koenig", sym: "♔", titel: "König", text: "Ein Feld in jede Richtung. Er ist die Partie: Fällt er, ist sie vorbei. Einmal pro Spiel beherrscht er die Rochade." },
@@ -28,7 +28,7 @@ export const LEHREN = {
       { id: "laeufer", sym: "♗", titel: "Läufer", text: "Beliebig weit schräg. Er bleibt sein Leben lang auf seiner Feldfarbe — zu zweit decken sie das ganze Brett." },
       { id: "springer", sym: "♘", titel: "Springer", text: "Im Winkel: zwei vor, eins zur Seite — und als Einziger ÜBER andere Figuren hinweg. In vollen Stellungen ist er Gold wert." },
       { id: "bauer", sym: "♙", titel: "Bauer", text: "Ein Feld vor, aus der Grundstellung zwei (Doppelschritt). Er schlägt nur SCHRÄG. Am Ende des Weges wartet die Umwandlung — und wer den Doppelschritt eines Nachbarn erlebt, kennt En passant." },
-      { id: "haus", sym: "✦", titel: "Die Hausfiguren", text: "Der Hof stellt eigene Gestalten: der KANZLER zieht wie Turm und Springer zugleich, der ERZBISCHOF wie Läufer und Springer, der FALKE springt und schleicht schräg, die AMAZONE vereint Dame und Springer. Der DRACHE füllt 2×2 Felder und fliegt einmal pro Partie. Und der GRAND GAMBIT ist dein Held in der Bauernreihe — er sammelt Erfahrung, lernt Fähigkeiten und wächst mit dir." },
+      { id: "haus", sym: "✦", titel: "Die Hausfiguren", text: "Der Hof stellt eigene Gestalten: der KANZLER zieht wie Turm und Springer zugleich, der ERZBISCHOF wie Läufer und Springer, der FALKE springt und schleicht schräg, die AMAZONE vereint Dame und Springer. Der DRACHE füllt 2×2 Felder und fliegt einmal pro Partie. Und der GAMBIT ist dein Held in der Bauernreihe — er sammelt Erfahrung, lernt Fähigkeiten und wächst mit dir." },
     ],
     spielweise: [
       { id: "hp", titel: "Der HP-Modus", kurz: "Figuren haben Lebenspunkte — geschlagen wird über Schaden.",
@@ -56,7 +56,7 @@ export const LEHREN = {
       { id: "umwandlung", titel: "Promotion", kurz: "A pawn reaching the last rank becomes a queen.",
         text: "A pawn reaching the LAST rank is promoted to a queen. In HP mode it adopts her stats too — the smallest soldier becomes the strongest piece." },
       { id: "hausbrett", titel: "The house board", kurz: "Matches also run on 10×10 — and some maps have holes.",
-        text: "Beyond classic 8×8, Grand Gambit plays on the 10×10 HOUSE BOARD and on maps with HOLES: a hole acts like a wall — nothing lands on it and sliders stop at it. The core rules stay the same." },
+        text: "Beyond classic 8×8, Gambit plays on the 10×10 HOUSE BOARD and on maps with HOLES: a hole acts like a wall — nothing lands on it and sliders stop at it. The core rules stay the same." },
     ],
     figuren: [
       { id: "koenig", sym: "♔", titel: "King", text: "One square any direction. He IS the game — and once per match he commands castling." },
@@ -65,7 +65,7 @@ export const LEHREN = {
       { id: "laeufer", sym: "♗", titel: "Bishop", text: "Any distance diagonally; forever bound to one square colour." },
       { id: "springer", sym: "♘", titel: "Knight", text: "Two forward, one aside — the only piece that jumps." },
       { id: "bauer", sym: "♙", titel: "Pawn", text: "One forward (two from the start), captures only diagonally. Promotion waits at the far end; en passant punishes careless double-steps." },
-      { id: "haus", sym: "✦", titel: "House pieces", text: "The CHANCELLOR moves as rook+knight, the ARCHBISHOP as bishop+knight, the HAWK jumps and sidles, the AMAZON unites queen and knight, the 2×2 DRAGON flies once per game — and the GRAND GAMBIT is your hero in the pawn row, levelling and learning as you play." },
+      { id: "haus", sym: "✦", titel: "House pieces", text: "The CHANCELLOR moves as rook+knight, the ARCHBISHOP as bishop+knight, the HAWK jumps and sidles, the AMAZON unites queen and knight, the 2×2 DRAGON flies once per game — and the GAMBIT is your hero in the pawn row, levelling and learning as you play." },
     ],
     spielweise: [
       { id: "hp", titel: "HP mode", kurz: "Pieces carry hit points — capturing is damage.",

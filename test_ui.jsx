@@ -1897,7 +1897,7 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
       ohne.length === 0);
   }
 
-  /* 2. Bauer und Grand Gambit tragen in der Aufstellung EIN Mass. */
+  /* 2. Bauer und Gambit tragen in der Aufstellung EIN Mass. */
   ok("kein getrenntes Mass mehr fuer Held und Bauer",
     !/isHero \? "clamp\(26px, 10\.5vw, 86px\)" : "clamp\(24px, 9\.4vw, 76px\)"/.test(q));
   ok("die Bauernreihe misst durchgehend 10,5vw", /height: "clamp\(26px, 10\.5vw, 86px\)"/.test(q));

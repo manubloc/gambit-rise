@@ -35,7 +35,7 @@ function placeBack(board, rank, color, specs, w, holes) {
   }
 }
 function placePawns(board, rank, color, spec, w, holes, hero = null) {
-  // hero: { col, spec } — ONE pawn of this side is the Grand Gambit: own spec
+  // hero: { col, spec } — ONE pawn of this side is the Gambit: own spec
   // (level/abilities/shield) and a `hero` flag the renderer and AI can read.
   // If his chosen file is a hole, he steps to the nearest open square.
   let heroCol = -1;

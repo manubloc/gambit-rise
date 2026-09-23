@@ -44,7 +44,7 @@ flavorDe: "Der erste Schritt jeder Schlacht — und öfter, als Lieder es zugebe
     ],
   },
   gambit: {
-    id: "gambit", kind: KIND.PAWN, glyph: "♟", nameDe: "Grand Gambit", nameEn: "Grand Gambit",
+    id: "gambit", kind: KIND.PAWN, glyph: "♟", nameDe: "Gambit", nameEn: "Gambit",
 flavorDe: "Geboren, geopfert zu werden — entschlossen, es nicht zu bleiben.", flavorEn: "Born to be sacrificed — determined not to stay that way.",
     unlock: { type: "start" }, flank: false, epic: true, costValue: 380,
     // The pawn the whole tale is named after: raised to be offered — and to

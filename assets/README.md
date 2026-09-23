@@ -1,4 +1,4 @@
-# GRAND GAMBIT — Grafik-Assets bearbeiten
+# GAMBIT — Grafik-Assets bearbeiten
 
 Alle Spielgrafiken liegen hier als normale SVG-Dateien und lassen sich mit
 Inkscape, Illustrator oder jedem Texteditor bearbeiten und austauschen.
@@ -19,7 +19,7 @@ Attribut am `<svg>`-Wurzelelement:
 <svg ... data-gg="piece:P">      ← der Bauer
 <svg ... data-gg="piece:V">      ← der Kapitän
 <svg ... data-gg="boss:beast">   ← Boss-Silhouette „Bestie"
-<svg ... data-gg="crest">        ← das Wappen des Grand Gambit
+<svg ... data-gg="crest">        ← das Wappen des Gambit
 <svg ... data-gg="scenery:pine"> ← Nadelbaum der Karte
 ```
 

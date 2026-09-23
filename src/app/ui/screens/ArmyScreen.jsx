@@ -174,7 +174,7 @@ function WertZeichen({ art, size = 26, id }) {
 }
 /* die Stufenanzeige: zehn Striche je Reihe, beim Gambit also mehrere Reihen */
 function StufenStriche({ stufe, maxStufe }) {
-  /* GEMESSEN beim ersten Bau: der Grand Gambit hat SECHZIG Stufen - das
+  /* GEMESSEN beim ersten Bau: der Gambit hat SECHZIG Stufen - das
      ergaben sechs Reihen Striche und sprengte den Kopf des Blattes. Der
      Besitzer will ihn ohnehin auf zwanzig kuerzen; bis das in der Staffelung
      entschieden ist, zeigt die Anzeige hoechstens ZWANZIG Striche in zwei
@@ -991,7 +991,7 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
       const budget = wMax.hp + wMax.atk;   /* v1.26.4: mit Heldenbudget, wie die Kachel */
       const band = rohrAnteile({ hp: maxHp, maxHp, atk, level, maxLevel: mx, budget });
       return <BlattBuehne kennung={char.id} name={en ? char.nameEn : char.nameDe}
-        haus={epic ? (en ? "The Grand Gambit" : "Der Grand Gambit") : fam ? (en ? FAMILIES[fam].en : FAMILIES[fam].de) : (en ? "Free piece" : "Freie Figur")}
+        haus={epic ? (en ? "The Gambit" : "Der Gambit") : fam ? (en ? FAMILIES[fam].en : FAMILIES[fam].de) : (en ? "Free piece" : "Freie Figur")}
         satz={en ? char.flavorEn : char.flavorDe}   /* v1.33.1: auch der Gambit - ein Satz, wie jede Figur */ portraet={portraet} pid={pid} ton={ton} kul={kul}
         form={formFuer({ charId: char.id })} stufe={level} maxStufe={mx}
         zugKind={char.kind} moveSpec={char.moveSpec} talente={chosen}
@@ -1119,7 +1119,7 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
             <div style={{ fontSize: 11, color: "#9a8f6f", letterSpacing: ".05em", marginTop: 2, display: "flex", alignItems: "center", gap: 6 }}>
               {fam && <span aria-hidden style={{ width: 8, height: 8, transform: "rotate(45deg)", borderRadius: 2, flex: "0 0 auto",
                 background: FAMILIES[fam].color, boxShadow: `0 0 4px ${FAMILIES[fam].color}88` }} />}
-              {epic ? (en ? "The Grand Gambit" : "Der Grand Gambit") : fam ? (en ? FAMILIES[fam].en : FAMILIES[fam].de) : (en ? "Free piece" : "Freie Figur")}
+              {epic ? (en ? "The Gambit" : "Der Gambit") : fam ? (en ? FAMILIES[fam].en : FAMILIES[fam].de) : (en ? "Free piece" : "Freie Figur")}
             </div>
           </div>
           {stars > 0 && <Chip color="#f6e9a4" bg="linear-gradient(168deg, #2c4f9e 0%, #1b3068 55%, #142450 100%)" style={{ border: "1px solid #e3c07a", flex: "0 0 auto", boxShadow: "0 0 8px rgba(64,110,220,.3)" }}>{"★".repeat(stars)}</Chip>}
@@ -1362,7 +1362,7 @@ function FormationEditor({ profile, dispatch, t, en }) {
       n[slot] = "dragon"; n[wing] = null;
       return n;
     });
-    // the Grand Gambit never falls to the wing: if his file lies under the
+    // the Gambit never falls to the wing: if his file lies under the
     // block, he steps one column aside (inward)
     const hc = heroColFor(profile, map);
     const covered = slot === 0 ? [0, 1] : [draft.length - 2, draft.length - 1];
@@ -1468,7 +1468,7 @@ function FormationEditor({ profile, dispatch, t, en }) {
       const gImg = schlicht ? null : (paintedById("gambit-t" + gambitTier(gLvl)) || paintedById("gambit"));
       const pawnImg = schlicht ? null : paintedById("pawn");
       return <div style={{ position: "relative" }}>
-      {/* ── THE PAWN RANK (front): ordinary pawns, save the Grand Gambit on his
+      {/* ── THE PAWN RANK (front): ordinary pawns, save the Gambit on his
           chosen file. Tap it to move him. Squares the dragon covers go dark. ── */}
       <div style={{ display: "grid", gridTemplateColumns: `repeat(${map.w}, 1fr)`, gap: 3, marginBottom: 3 }}>
         {Array.from({ length: map.w }).map((_, f) => {
@@ -1482,7 +1482,7 @@ function FormationEditor({ profile, dispatch, t, en }) {
              und es waere sinnlos, eine Spalte fuer niemanden zu waehlen. */
           const heldZu = !heldFrei;
           return <button key={f} disabled={eaten || heldZu} onClick={() => { if (!eaten && !heldZu) dispatch({ type: "SET_HERO_COL", mapId: map.id, col: f }); }}
-            title={heldZu ? (en ? "The Grand Gambit has not awakened yet" : "Der Grand Gambit ist noch nicht erwacht")
+            title={heldZu ? (en ? "The Gambit has not awakened yet" : "Der Gambit ist noch nicht erwacht")
               : isHero ? t("army.heroPos") : undefined}
             style={{ width: "100%", aspectRatio: "5 / 6", minWidth: 0, borderRadius: 8, cursor: eaten ? "default" : "pointer",
               display: "grid", placeItems: "center", fontFamily: "inherit", padding: 0, position: "relative",
@@ -1500,7 +1500,7 @@ function FormationEditor({ profile, dispatch, t, en }) {
                      der Unterkante (objectPosition bottom) und massen sich in
                      vw am Schirm - beides zusammen liess sie klein und nach
                      unten gerutscht wirken. Jetzt zentriert und eine Stufe
-                     hoeher; der Grand Gambit steht als Held noch groesser. */
+                     hoeher; der Gambit steht als Held noch groesser. */
                   /* v1.0.65 (Besitzer): DER BAUER IST SO GROSS WIE DER GAMBIT
                      UND STEHT GENAUSO HOCH. v1.0.14 gab dem Helden absichtlich
                      eine Stufe mehr (10,5vw gegen 9,4vw) - das machte die
@@ -1745,7 +1745,7 @@ function FormationEditor({ profile, dispatch, t, en }) {
       </div>
     )}
 
-    {/* the pawn rank above already carries the Grand Gambit's file — no
+    {/* the pawn rank above already carries the Gambit's file — no
         separate hero strip needed anymore */}
 
     <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12, alignItems: "center" }}>
@@ -2818,7 +2818,7 @@ export function ArmyScreen({ profile, dispatch, t, initialTab, account = null, i
   const en = profile.lang === "en";
   const wide = useMedia("(min-width: 900px)");
   const [tab, setTab] = useState(initialTab || "tree"); // tree (der Hof) | formation | gear (der Haendler) | chron
-  // Grand Gambit LEADS the roster — he is the piece the whole tale bends around.
+  // Gambit LEADS the roster — he is the piece the whole tale bends around.
   /* v1.0.50 (Besitzerentscheid): VOR DEM ERWACHEN GIBT ES IHN NICHT. Bis zu
      seinem Erwachen ist der Gambit ein blauer Bauer wie jeder andere - auf
      dem Brett (leveling.js setzt army.hero nur bei gambitWach) UND hier in

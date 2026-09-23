@@ -1,4 +1,4 @@
-// GRAND GAMBIT — Cloudflare Worker + Durable Object "Hall".
+// GAMBIT — Cloudflare Worker + Durable Object "Hall".
 //
 // One Hall coordinates everything: presence, friends, matchmaking, the move
 // relay, ratings and the save vault. Clients connect over hibernatable
@@ -32,7 +32,7 @@ export default {
       const id = env.HALL.idFromName("hall");
       return env.HALL.get(id).fetch(request);
     }
-    return new Response("Grand Gambit Hall — connect via WebSocket at /ws", {
+    return new Response("Gambit Hall — connect via WebSocket at /ws", {
       status: 200, headers: { "content-type": "text/plain; charset=utf-8" } });
   },
 };

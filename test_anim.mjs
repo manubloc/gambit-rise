@@ -133,7 +133,7 @@ console.log("\n== test_anim: die Aufstiegsfeier (v1.0.75) ==");
   ok("es gibt sechs Stufengeschichten", GAMBIT_STUFEN.length === 6);
   ok("jede traegt Ziffer, Namen und Text",
     GAMBIT_STUFEN.every((g) => g.r && g.name && g.text && g.text.length > 40));
-  ok("die sechste ist der Grand Gambit", GAMBIT_STUFEN[5].name.includes("Grand Gambit"));
+  ok("die sechste ist der Gambit", GAMBIT_STUFEN[5].name.includes("Gambit"));
   const { ABILITIES } = await import("./src/content/abilities.js");
   const alle = Object.values(ABILITIES).filter((a) => a.id);
   ok("jede Faehigkeit kann ihre Wirkung erklaeren (descDe)",

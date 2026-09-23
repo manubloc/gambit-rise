@@ -1,4 +1,4 @@
-// Grand Gambit multiplayer — Cloudflare Worker + SQLite Durable Object.
+// Gambit multiplayer — Cloudflare Worker + SQLite Durable Object.
 // Deploy from this directory:  npx wrangler deploy
 {
   "name": "gg-hall",

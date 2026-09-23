@@ -37,7 +37,7 @@ export function GalerieScreen() {
       </Reihe>
 
       <H>Schriftrollen</H>
-      <div className="gg-display" style={{ fontSize: 21, color: T.gold }}>Display · Cinzel — GRAND GAMBIT</div>
+      <div className="gg-display" style={{ fontSize: 21, color: T.gold }}>Display · Cinzel — GAMBIT</div>
       <div className="gg-serif" style={{ fontSize: 15.5, color: T.goldBright, letterSpacing: ".07em", marginTop: 6 }}>Serif · Georgia — Panel-Titel und Zierzeilen</div>
       <div className="gg-quill" style={{ fontSize: 17, marginTop: 6 }}>Erzählstimme · Cormorant — „Der Riss gibt nie zurück, was man ihm gab."</div>
       <div style={{ fontSize: 13.5, marginTop: 6 }}>Funktional · System-Sans — Zahlen 0123456789, Labels, {LANG}.</div>

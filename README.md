@@ -1,6 +1,6 @@
-# ♟ Grand Gambit
+# ♟ Gambit
 
-![Grand Gambit](public/og.png)
+![Gambit](public/og.png)
 
 **Schach, das Charaktere erhebt.** Ein Story-getriebenes Taktik-Schach-RPG im
 Browser: Figuren leveln, lernen Fähigkeiten und Schilde, besiegte Bosse werden

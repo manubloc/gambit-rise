@@ -1,4 +1,4 @@
-// GRAND GAMBIT — the knock on the closed door.
+// GAMBIT — the knock on the closed door.
 //
 // Loaded into the generated service worker via workbox `importScripts`
 // (see vite.config.js), so the update pipeline — precache manifest,
@@ -11,7 +11,7 @@
 self.addEventListener("push", (event) => {
   let d = {};
   try { d = event.data ? event.data.json() : {}; } catch { /* bare wake-up */ }
-  const title = d.title || "Grand Gambit";
+  const title = d.title || "Gambit";
   const body = d.body || "Du bist am Zug. / Your move.";
   event.waitUntil(self.registration.showNotification(title, {
     body,

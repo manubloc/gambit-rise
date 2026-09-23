@@ -1,5 +1,5 @@
 // ── EIN ZAUBER PRO PARTIE - HAELT DIE REGEL? (Besitzerbefund 4.9.2026) ──────
-// "Der Grand Gambit ist in meinem Spiel bestimmt dreimal ausgewichen."
+// "Der Gambit ist in meinem Spiel bestimmt dreimal ausgewichen."
 // Ausweichen (pawn_sidestep) ist als EINMAL je Partie angelegt, und die
 // Hausregel geht weiter: nach dem ERSTEN Zauber ist das ganze Buch zu. Diese
 // Probe stellt den Spielverlauf nach - Sidestep, dann noch einmal Sidestep -

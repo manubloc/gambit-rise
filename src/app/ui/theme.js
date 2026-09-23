@@ -1,4 +1,4 @@
-// Design tokens — GRAND GAMBIT. Deep royal navy, antique gold, ivory text.
+// Design tokens — GAMBIT. Deep royal navy, antique gold, ivory text.
 // The player is GOLD (gold plays the role of white); the enemy is the dark
 // navy side rimmed in steel. Elegance over flash: serif brandmarks, diamond
 // flourishes, crisp 1px lines. (Token keys kept stable: `lime` = player/primary

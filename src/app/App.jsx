@@ -665,7 +665,7 @@ export default function App() {
   );
   const headerBar = (
     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
-      <img src={emblemArt()} alt="Grand Gambit" onClick={() => setTab("play")}
+      <img src={emblemArt()} alt="Gambit" onClick={() => setTab("play")}
         style={{ cursor: "pointer", height: 34, display: "block", flex: "0 0 auto",
         filter: "drop-shadow(0 0 5px rgba(139,92,246,.4)) drop-shadow(0 0 11px rgba(124,58,237,.22))" }} />
       <div style={{ flex: 1 }} />
@@ -759,7 +759,7 @@ export default function App() {
           border: "1px solid rgba(167,139,250,.5)", borderRadius: 20, padding: "10px 16px",
           boxShadow: `${T.shadow}, 0 0 16px rgba(124,58,237,.34), 0 0 34px rgba(124,58,237,.16)`,
           display: "flex", alignItems: "center", gap: 10 }}>
-          <img src={emblemArt()} alt="Grand Gambit" onClick={() => setTab("play")}
+          <img src={emblemArt()} alt="Gambit" onClick={() => setTab("play")}
             style={{ cursor: "pointer", height: 40, display: "block", flex: "0 0 auto", paddingRight: 6,
             filter: "drop-shadow(0 0 5px rgba(139,92,246,.4)) drop-shadow(0 0 11px rgba(124,58,237,.22))" }} />
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 4, flex: "1 1 auto", minWidth: 0 }}>{railItems}</div>
@@ -1176,7 +1176,7 @@ function Lock({ t, profile, onUnlock, onBack }) {
 }
 
 
-// ── first-run game intro (once): what Grand Gambit IS and what makes it
+// ── first-run game intro (once): what Gambit IS and what makes it
 // special — a parchment card in the world's own voice. ───────────────────────
 export function GameIntro({ t, dispatch, onStart, en = false }) {
   const [style, setStyle] = useState("painted");    // v1.0.8 (Besitzer): die detailreichen Figuren sind der Standard

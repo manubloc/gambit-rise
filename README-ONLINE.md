@@ -1,4 +1,4 @@
-# Grand Gambit — Online-Duell einrichten
+# Gambit — Online-Duell einrichten
 
 Das Spiel bringt seinen eigenen Multiplayer-Server mit (`server/server.mjs`).
 

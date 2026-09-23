@@ -423,7 +423,7 @@ export function PieceGlyph({ piece, showLevel = true, pov = "w", artStyle = "pai
   if (!piece) return null;
   const white = piece.color === "w";
   const neon = white ? T.lime : T.magenta; // badge/frame color per faction
-  // Grand Gambit faction colors: the player is antique gold, the enemy deep navy.
+  // Gambit faction colors: the player is antique gold, the enemy deep navy.
   const fill = white ? "#c9a45c" : "#1a2233";
   // A CONTOUR ON BOTH SIDES. Gold pieces used to carry no edge at all, so on a
   // light square they melted into it; the enemy's hairline was too thin to help
@@ -453,7 +453,7 @@ export function PieceGlyph({ piece, showLevel = true, pov = "w", artStyle = "pai
   // meeting a champion is SEEING whom you face.
   const isBoss = !!piece.bossId;
   const paintPiece = piece;
-  // The Grand Gambit wears his crest openly — unless Masquerade is learned:
+  // The Gambit wears his crest openly — unless Masquerade is learned:
   // then only his OWN commander (pov) still sees who he is.
   const showHero = !!piece.hero && (piece.color === pov || !(piece.abilities || []).includes("gambit_masquerade"));
 
@@ -638,7 +638,7 @@ export function PieceGlyph({ piece, showLevel = true, pov = "w", artStyle = "pai
        Brett das Gambit-Bild, Bosse eingeschlossen. Die Bedingung muss den
        Helden ausdruecklich nennen. test_ui hat es gefangen. */
     /* v1.0.83 (Besitzer, zum wiederholten Mal: "in allen diesen Screens ist
-       nie der aktualisierte Grand Gambit drin"): HIER STAND DER RIEGEL. Der
+       nie der aktualisierte Gambit drin"): HIER STAND DER RIEGEL. Der
        Zweig griff paintedById("gambit") ab - das GRUNDBILD, Rang I - und kam
        damit paintedForPiece zuvor, das den Rang laengst richtig waehlt. Ein
        Rest aus v1.0.49, als die Rangbilder noch stilfremd waren und
@@ -1014,7 +1014,7 @@ export function PieceGlyph({ piece, showLevel = true, pov = "w", artStyle = "pai
       {/* v1.25.4: auch in der Grossansicht keine Perlen mehr - siehe BoardView. */}
 
 
-      {/* v1.0.77 (Besitzer: "unter dem Grand Gambit sind so blaue Punkte,
+      {/* v1.0.77 (Besitzer: "unter dem Gambit sind so blaue Punkte,
           ich weiss nicht, woher die kommen - bitte entfernen"). Es waren
           keine Stufenpunkte, sondern die SCHILD-Perlen des Schach-Modus:
           eine blaue Kugel je Schildpunkt, unten rechts an der Figur. Weil

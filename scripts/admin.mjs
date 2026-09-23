@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Grand Gambit — Admin-Konsole für den Spielserver.
+// Gambit — Admin-Konsole für den Spielserver.
 //
 //   ADMIN_TOKEN=… node scripts/admin.mjs <ws-url> <befehl> [arg]
 //

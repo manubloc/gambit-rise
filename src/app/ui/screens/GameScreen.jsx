@@ -528,7 +528,7 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
     if (lm.bounced && lm.hitKind) {
       const ziel = state.board[lm.to];   // beim Abprallen steht das Ziel noch auf seinem Feld
       const rest = ziel && typeof ziel.shield === "number" ? ziel.shield : null;
-      const name = ziel && ziel.hero ? "Grand Gambit" : wer(lm.hitKind);
+      const name = ziel && ziel.hero ? "Gambit" : wer(lm.hitKind);
       text = en ? `Shield! ${name} blocked the blow${rest != null ? ` — ${rest} left` : ""}`
                 : `Schild! ${name} fängt den Schlag ab${rest != null ? ` — noch ${rest}` : ""}`;
     }

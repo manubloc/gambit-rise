@@ -1,4 +1,4 @@
-// GRAND GAMBIT — multiplayer server.
+// GAMBIT — multiplayer server.
 // One small Node process: presence, friend lists, score-banded random
 // matchmaking, direct challenges (respecting each player's privacy setting)
 // and a deterministic move relay with hash checks. State is persisted to
@@ -349,4 +349,4 @@ wss.on("connection", (ws, req) => {
   }
 });
 
-console.log(`Grand Gambit server listening on :${PORT}`);
+console.log(`Gambit server listening on :${PORT}`);

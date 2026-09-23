@@ -1,6 +1,6 @@
 // ── The TWO houses ────────────────────────────────────────────────────────────
 // Every recruitable champion serves one of two sides; classic pieces and the
-// Grand Gambit stay unaligned. You may always mix freely — but the more you
+// Gambit stay unaligned. You may always mix freely — but the more you
 // commit to one side, the stronger its gift grows:
 //
 //   crown  — the CROWN: order, law and light.

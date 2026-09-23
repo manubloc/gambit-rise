@@ -1,4 +1,4 @@
-# GRAND GAMBIT — Konten-Anleitung (Schritt für Schritt)
+# GAMBIT — Konten-Anleitung (Schritt für Schritt)
 
 Welche Accounts du wann brauchst, was sie kosten, was du bereithalten musst
 und wo die Stolperfallen liegen. Reihenfolge = Launch-Reihenfolge.

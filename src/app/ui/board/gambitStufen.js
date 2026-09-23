@@ -12,5 +12,5 @@ export const GAMBIT_STUFEN = [
   { r: "III", name: "Der Getragene",    text: "Man kennt ihn an den Stationen. Wo er das Brett betritt, richten sich Reihen aus, die niemand befohlen hat." },
   { r: "IV",  name: "Der Standhafte",   text: "Er ist zu oft geschlagen worden, um noch zu erschrecken. Sein Gold ist kein Schmuck mehr, sondern Narbe." },
   { r: "V",   name: "Der Gezeichnete",  text: "Der Riss hat ihn geprägt, wie er alles prägt — aber er trägt es nach außen statt nach innen." },
-  { r: "VI",  name: "Der Grand Gambit", text: "Kein Bauer mehr, und doch nie etwas anderes gewesen. Die Krone weiß nicht, ob sie ihn ehren oder fürchten soll." },
+  { r: "VI",  name: "Der Gambit", text: "Kein Bauer mehr, und doch nie etwas anderes gewesen. Die Krone weiß nicht, ob sie ihn ehren oder fürchten soll." },
 ];

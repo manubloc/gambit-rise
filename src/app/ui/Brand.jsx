@@ -1,4 +1,4 @@
-// GRAND GAMBIT brand — the animated launch splash (golden king in a ring,
+// GAMBIT brand — the animated launch splash (golden king in a ring,
 // flanked by a warrior and a knight over a perspective board) and the serif
 // wordmark used in the app header, both vectorized after the official sheets.
 import { useEffect, useState } from "react";
@@ -90,7 +90,7 @@ export function Splash({ onDone }) {
         animation: "ggRiftOpen 2.6s ease-out both",
         WebkitMaskImage: "radial-gradient(ellipse 82% 76% at 50% 52%, #000 46%, rgba(0,0,0,.55) 72%, transparent 96%)",
         maskImage: "radial-gradient(ellipse 82% 76% at 50% 52%, #000 46%, rgba(0,0,0,.55) 72%, transparent 96%)" }} />
-      <img src={logoMenuArt()} alt="Grand Gambit" style={{ width: min(0.72), display: "block",
+      <img src={logoMenuArt()} alt="Gambit" style={{ width: min(0.72), display: "block",
         position: "relative", marginTop: "42vh", filter: "drop-shadow(0 4px 18px rgba(0,0,0,.9))" }} />
     </div>
   );

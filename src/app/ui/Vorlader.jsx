@@ -244,13 +244,13 @@ export default function Vorlader() {
                 animation: `ggBootTangente ${d} ease-out ${t} infinite` }} />
             ))}
           </div>
-          <img src="./icons/boot-riss.webp" alt="Grand Gambit" width={208} height={208}
+          <img src="./icons/boot-riss.webp" alt="Gambit" width={208} height={208}
             style={{ position: "relative", width: "100%", height: "100%", display: "block",
               animation: "ggBootAtem 3.2s ease-in-out infinite",
               filter: "drop-shadow(0 0 24px rgba(139,92,246,.6))", willChange: "transform" }} />
         </div>
         <div style={{ fontSize: "clamp(17px,4.6vw,23px)", letterSpacing: ".26em", animation: "ggBootWort 1.1s ease-out both" }}>
-          GRAND GAMBIT</div>
+          GAMBIT</div>
         <div style={{ width: "min(60vw, 220px)", height: 3, margin: "18px auto 0", borderRadius: 99,
           background: "rgba(242,217,140,.14)", overflow: "hidden" }}>
           <div style={{ width: `${Math.round(anteil * 100)}%`, height: "100%", borderRadius: 99,

@@ -478,7 +478,7 @@ export function ProfileScreen({ profile, dispatch, t, account, onSwitchSave, onL
     </Panel>}
 
     <div style={{ textAlign: "center", fontSize: 11.5, color: T.faint, padding: "4px 0 10px" }}>
-      Grand Gambit v{typeof __APP_VERSION__ !== "undefined" ? __APP_VERSION__ : "dev"}
+      Gambit v{typeof __APP_VERSION__ !== "undefined" ? __APP_VERSION__ : "dev"}
       {srvVer && (srvVer === (typeof __APP_VERSION__ !== "undefined" ? __APP_VERSION__ : "dev")
         ? <> · Server v{srvVer} ✓</>
         : <> · <span style={{ color: T.gold }}>Server v{srvVer}</span> —{" "}
@@ -499,7 +499,7 @@ export function ProfileScreen({ profile, dispatch, t, account, onSwitchSave, onL
 function reportText(r, t) {
   const fmt = (iso) => { try { return new Date(iso).toLocaleString(); } catch { return iso; } };
   const L = [
-    `[Grand Gambit — ${t("profile.reportsTitle")}]`,
+    `[Gambit — ${t("profile.reportsTitle")}]`,
     `${fmt(r.created_at)} · v${r.version || "?"} · ${r.kind || "?"}`,
   ];
   if (r.account) L.push(`Konto/Account: ${r.account}`);

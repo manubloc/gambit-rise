@@ -15,7 +15,7 @@ Autor festgelegte Spezifikation fest und staffelt die Umsetzung.
    daneben entfallen.
 3. **Bestätigung**: Beim Auswählen des Drachen in der Aufstellung fragt das
    Spiel nach: "Diese Figuren weichen dem Drachen: … — fortfahren?"
-4. **Gambit-Schutz**: Steht der Grand Gambit auf einem der betroffenen Slots,
+4. **Gambit-Schutz**: Steht der Gambit auf einem der betroffenen Slots,
    wird er automatisch einen Platz nach links verschoben (bzw. nach rechts,
    wenn links kein legaler Slot frei ist). Er geht NIE verloren.
 5. **Zu Fuß**: sehr langsam (1 Feld pro Zug, der ganze 2×2-Block verschiebt

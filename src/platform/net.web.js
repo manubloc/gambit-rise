@@ -1,4 +1,4 @@
-// Thin WebSocket client for the Grand Gambit multiplayer server.
+// Thin WebSocket client for the Gambit multiplayer server.
 // JSON messages in/out, tiny event bus, no auto-reconnect (the UI owns that).
 export function createNet() {
   let ws = null;

@@ -26,7 +26,7 @@ export function hpWach(profile) {
   return false;
 }
 
-/* IST DER GRAND GAMBIT ERWACHT? (v0.81, Besitzerentscheid)
+/* IST DER GAMBIT ERWACHT? (v0.81, Besitzerentscheid)
    Die Geschichte beginnt OHNE Helden. Die ersten Gefechte sind schlichtes
    Schach: ein Bauer wie jeder andere, kein eigener Name, kein eigenes
    Gesicht - er taucht auch im Hofstaat nicht auf. Erst wenn drei Stationen
@@ -567,7 +567,7 @@ export function formationLegalOn(formation, unlockedIds, map, ownedBosses = []) 
 /** Build a player army for a specific map. Classic maps use base-level pieces
  *  (no shields/abilities) → authentic chess; other maps honor a saved legal
  *  per-map formation, else the map's default. */
-/** The Grand Gambit's chosen file on this map (clamped; default: center). */
+/** The Gambit's chosen file on this map (clamped; default: center). */
 export const heroColFor = (profile, map) => {
   const saved = profile?.loadout?.heroCols?.[map.id];
   const mid = Math.floor(map.w / 2);

@@ -1,4 +1,4 @@
-// GRAND GAMBIT — Web Push, from first principles.
+// GAMBIT — Web Push, from first principles.
 //
 // A correspondence game only breathes if the absent player LEARNS that a move
 // fell. The browser's push channel needs two cryptographic courtesies, both
@@ -183,6 +183,6 @@ export function pushText(kind, d = {}, lang = "de") {
       : (de ? { title: "Fernpartie verloren", body: `Die Partie gegen ${opp} ging${why} verloren.` }
             : { title: "Correspondence game lost", body: `The game against ${opp} was lost${why}.` });
   }
-  return de ? { title: "Grand Gambit", body: "Es gibt Neuigkeiten in deiner Fernpartie." }
-            : { title: "Grand Gambit", body: "News in your correspondence game." };
+  return de ? { title: "Gambit", body: "Es gibt Neuigkeiten in deiner Fernpartie." }
+            : { title: "Gambit", body: "News in your correspondence game." };
 }

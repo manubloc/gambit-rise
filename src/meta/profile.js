@@ -254,6 +254,6 @@ export function parseSave(text) {
   let data;
   try { data = JSON.parse(text); } catch { throw new Error("no valid JSON"); }
   if (!data || data.gg !== "grand-gambit-save" || !data.profile || typeof data.profile !== "object")
-    throw new Error("not a Grand Gambit save file");
+    throw new Error("not a Gambit save file");
   return migrate(data.profile);
 }

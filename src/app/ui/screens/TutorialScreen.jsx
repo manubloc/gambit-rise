@@ -11,8 +11,8 @@ import { JewelIc } from "../board/PieceGlyph.jsx";
 
 const STEPS = [
   {
-    de: { title: "Das Spiel", text: "Grand Gambit ist Schach mit Herz: Jede Figur hat Lebenspunkte und Angriffsstärke. Wer eine Figur angreift, richtet Schaden an — erst wenn die Herzen fallen, verlässt sie das Brett. Der Grand Gambit selbst, der goldene Bauer, ist der Held der Geschichte." },
-    en: { title: "The game", text: "Grand Gambit is chess with a heartbeat: every piece carries life points and attack strength. Attacking deals damage — a piece only leaves the board once its hearts run out. The Grand Gambit himself, the golden pawn, is the hero of the tale." },
+    de: { title: "Das Spiel", text: "Gambit ist Schach mit Herz: Jede Figur hat Lebenspunkte und Angriffsstärke. Wer eine Figur angreift, richtet Schaden an — erst wenn die Herzen fallen, verlässt sie das Brett. Der Gambit selbst, der goldene Bauer, ist der Held der Geschichte." },
+    en: { title: "The game", text: "Gambit is chess with a heartbeat: every piece carries life points and attack strength. Attacking deals damage — a piece only leaves the board once its hearts run out. The Gambit himself, the golden pawn, is the hero of the tale." },
     art: <div style={{ width: 64, height: 64 }}><PieceArt kind="P" fill="#c9a45c" rim="#f0dfae" detail="#59421a" size="100%" level={1} hero /></div>,
   },
   {
@@ -50,8 +50,8 @@ const STEPS = [
     art: <div style={{ display: "flex", gap: 12, alignItems: "center" }}><JewelIc kind="power" size={26} /><GoldSkullIc size={26} /></div>,
   },
   {
-    de: { title: "Der Hofstaat", text: "Rekrutierte Figuren steigen mit Skillpunkten ✦ auf und lernen dabei Fähigkeiten. Eine Figur darf mehrere KÖNNEN — aber pro Partie nur EINE wirken; der goldene Stern über ihren Kugeln zeigt, dass sie ihren Zauber noch frei hat. In der Aufstellung wählst du deine Reihe und den Platz des Grand Gambit; König und Dame stehen dabei immer auf denselben Feldern, und nur ein Meister darf den Platz der Dame einnehmen. Besiegst du einen Herausforderer erneut, tritt er als Abtrünniger gegen dich an — der Doppelsieg schenkt einen Stern ★." },
-    en: { title: "The court", text: "Recruited pieces rise with skill points ✦ and learn abilities along the way. A piece may KNOW several — but casts only ONE per match; the golden star above its orbs means its spell is still unspent. In the formation you choose your rank and the Grand Gambit's file; king and queen always hold the same squares, and only a master may take the queen's place. Beat a challenger a second time and they face you as a turncoat — the double victory grants a star ★." },
+    de: { title: "Der Hofstaat", text: "Rekrutierte Figuren steigen mit Skillpunkten ✦ auf und lernen dabei Fähigkeiten. Eine Figur darf mehrere KÖNNEN — aber pro Partie nur EINE wirken; der goldene Stern über ihren Kugeln zeigt, dass sie ihren Zauber noch frei hat. In der Aufstellung wählst du deine Reihe und den Platz des Gambit; König und Dame stehen dabei immer auf denselben Feldern, und nur ein Meister darf den Platz der Dame einnehmen. Besiegst du einen Herausforderer erneut, tritt er als Abtrünniger gegen dich an — der Doppelsieg schenkt einen Stern ★." },
+    en: { title: "The court", text: "Recruited pieces rise with skill points ✦ and learn abilities along the way. A piece may KNOW several — but casts only ONE per match; the golden star above its orbs means its spell is still unspent. In the formation you choose your rank and the Gambit's file; king and queen always hold the same squares, and only a master may take the queen's place. Beat a challenger a second time and they face you as a turncoat — the double victory grants a star ★." },
     art: <div style={{ display: "flex", gap: 10, alignItems: "center" }}><SkillIc size={26} /><LevelIc size={26} /></div>,
   },
   {
@@ -92,8 +92,8 @@ function MoveDiagram({ kind, dots, hits = [] }) {
 const ray = (dx, dy) => Array.from({ length: 4 }, (_, k) => [2 + dx * (k + 1), 2 + dy * (k + 1)]).filter(([x, y]) => x >= 0 && x < 5 && y >= 0 && y < 5);
 const SCHOOL = [
   { kind: "P", dots: [[2, 1], [2, 0]], hits: [[1, 1], [3, 1]],
-    de: { title: "Der Bauer", text: "Zieht ein Feld geradeaus (aus der Grundstellung zwei) — angreifen kann er aber nur schräg vorwärts. Erreicht ein Bauer die letzte Reihe, wird er befördert. Der Grand Gambit ist ein Bauer mit einem großen Schicksal." },
-    en: { title: "The pawn", text: "Moves one square straight ahead (two from its home row) — but it only attacks diagonally forward. Reaching the last rank, a pawn is promoted. The Grand Gambit is a pawn with a great destiny." } },
+    de: { title: "Der Bauer", text: "Zieht ein Feld geradeaus (aus der Grundstellung zwei) — angreifen kann er aber nur schräg vorwärts. Erreicht ein Bauer die letzte Reihe, wird er befördert. Der Gambit ist ein Bauer mit einem großen Schicksal." },
+    en: { title: "The pawn", text: "Moves one square straight ahead (two from its home row) — but it only attacks diagonally forward. Reaching the last rank, a pawn is promoted. The Gambit is a pawn with a great destiny." } },
   { kind: "N", dots: [[1, 0], [3, 0], [0, 1], [4, 1], [0, 3], [4, 3], [1, 4], [3, 4]],
     de: { title: "Der Springer", text: "Springt im L: zwei Felder in eine Richtung, eines zur Seite — als einzige Figur über alles hinweg. Stark in vollen Stellungen, in denen Läufer und Türme feststecken." },
     en: { title: "The knight", text: "Leaps in an L: two squares one way, one to the side — the only piece that jumps over everything. Strong in crowded positions where bishops and rooks are stuck." } },
@@ -107,8 +107,8 @@ const SCHOOL = [
     de: { title: "Die Dame", text: "Turm und Läufer in einer Figur: beliebig weit in alle acht Richtungen. Die stärkste Figur — und gerade darum kein Werkzeug für leichtsinnige Ausflüge." },
     en: { title: "The queen", text: "Rook and bishop in one: any distance in all eight directions. The strongest piece — which is exactly why she is no tool for careless outings." } },
   { kind: "K", dots: [[1, 1], [2, 1], [3, 1], [1, 2], [3, 2], [1, 3], [2, 3], [3, 3]],
-    de: { title: "Der König", text: "Ein Feld in jede Richtung — langsam, aber unersetzlich: Fällt der König, ist die Partie verloren. In Grand Gambit gilt wie im Schach: Ihn zu schützen ist Auftrag Nummer eins." },
-    en: { title: "The king", text: "One square in any direction — slow but irreplaceable: lose the king, lose the game. In Grand Gambit as in chess, guarding him is task number one." } },
+    de: { title: "Der König", text: "Ein Feld in jede Richtung — langsam, aber unersetzlich: Fällt der König, ist die Partie verloren. In Gambit gilt wie im Schach: Ihn zu schützen ist Auftrag Nummer eins." },
+    en: { title: "The king", text: "One square in any direction — slow but irreplaceable: lose the king, lose the game. In Gambit as in chess, guarding him is task number one." } },
 ];
 
 export function TutorialScreen({ t, en, onDone, startAt = 0 }) {

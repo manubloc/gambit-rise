@@ -4,7 +4,7 @@
 //
 //   1. Kapitel I ist reines Schach. Kein Held, keine Aufstellung, keine
 //      Lebenspunkte. Man spielt Schach und lernt das Brett.
-//   2. Der Grand Gambit erwacht relativ zuegig (drei geschaffte Stationen).
+//   2. Der Gambit erwacht relativ zuegig (drei geschaffte Stationen).
 //      In diesem Moment: Stufe 2, ein sichtbar anderer Auftritt, seine erste
 //      Faehigkeit - und er darf frei gesetzt werden. Nur ER, sonst nichts.
 //   3. Die hintere Reihe bleibt vorerst, wie sie ist. Sie frei zu stellen
@@ -47,8 +47,8 @@ export const FREIGABEN = [
   {
     id: "held",
     wenn: gambitWach,
-    titelDe: "Der Grand Gambit erwacht",
-    titelEn: "The Grand Gambit awakens",
+    titelDe: "Der Gambit erwacht",
+    titelEn: "The Gambit awakens",
     /* v1.0.50: "Kapuze, Stab und Klinge" beschrieb das ALTE Erwachten-Bild.
        Seit v1.0.49 tritt er in Gold an - der Text folgt dem Bild. */
     textDe: "Einer deiner Bauern will ein anderer sein. Von nun an tritt er "

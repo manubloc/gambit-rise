@@ -1,4 +1,4 @@
-// Grand Gambit piece art v5 — silhouettes now live as EDITABLE SVG FILES in
+// Gambit piece art v5 — silhouettes now live as EDITABLE SVG FILES in
 // assets/pieces/*.svg (one per figure, linked via data-gg="piece:<KIND>").
 // This module only recolors them (CSS variables) and draws the level plinth.
 // Workflow: edit the SVG → `npm run art` (runs automatically on build/test).

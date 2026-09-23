@@ -7,7 +7,7 @@
    man irgendeinen Bonus."
 
    ZEHN BUENDE, 23 FIGUREN, JEDE GENAU EINMAL. Draussen bleiben nur Bauer,
-   Grand Gambit und der Drache - die Grundlage und das Monster. Der Drache
+   Gambit und der Drache - die Grundlage und das Monster. Der Drache
    bleibt ausdruecklich allein ("Der Drache muss aber allein bleiben").
 
    JEDER BUND WIRKT ERST, WENN ALLE SEINE FIGUREN AUF HOECHSTSTUFE STEHEN.

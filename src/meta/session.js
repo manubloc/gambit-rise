@@ -3,7 +3,7 @@ import { KIND_TO_CHAR } from "../content/index.js";
 
 // XP a player character earns from a match (event-sourced, see below).
 const PARTICIPATION = 12, CAP_XP = 10, PROMO_XP = 15;
-// The Grand Gambit is bold: he earns EXTRA when he strikes, and extra again for
+// The Gambit is bold: he earns EXTRA when he strikes, and extra again for
 // surviving the whole battle on the board. These teach an aggressive, present
 // commander — the heart of his risk/reward.
 const HERO_CAP_XP = 8, HERO_SURVIVE_XP = 14;
@@ -32,7 +32,7 @@ export function applyEvents(session, events) {
           session.captures++;
           const id = KIND_TO_CHAR[e.byKind];
           if (id) session.charXpGains[id] = (session.charXpGains[id] || 0) + CAP_XP;
-          // the Grand Gambit's own strikes pay a bold-commander bonus
+          // the Gambit's own strikes pay a bold-commander bonus
           if (e.byHero) { session.charXpGains.gambit = (session.charXpGains.gambit || 0) + HERO_CAP_XP; session.heroCaptures++; }
         } else {
           if (e.kind === "Q") session.lostQueen = true; // our queen was taken

@@ -61,7 +61,7 @@ export const ABILITIES = {
   ranged_shot:          { id: "ranged_shot",          icon: "➶", tag: "ranged", sperre: "riegel", once: true,  live: true, nameDe: "Scharfschuss", nameEn: "Snipe",        descDe: "Trifft 1× eine Figur in Sichtlinie aus der Ferne — du bleibst stehen.", descEn: "Hit a piece in line of sight from afar once — you stay put." },
 
   // ── blink (live) ──
-  gambit_masquerade:    { id: "gambit_masquerade",    icon: "🎭", tag: "trick", once: false, live: true, nameDe: "Maskerade",    nameEn: "Masquerade",    descDe: "Der Grand Gambit trägt kein Wappen mehr — für den Gegner ist er von jedem Bauern ununterscheidbar.", descEn: "The Grand Gambit sheds his crest — to the enemy he is indistinguishable from any pawn." },
+  gambit_masquerade:    { id: "gambit_masquerade",    icon: "🎭", tag: "trick", once: false, live: true, nameDe: "Maskerade",    nameEn: "Masquerade",    descDe: "Der Gambit trägt kein Wappen mehr — für den Gegner ist er von jedem Bauern ununterscheidbar.", descEn: "The Gambit sheds his crest — to the enemy he is indistinguishable from any pawn." },
   teleport:             { id: "teleport",             icon: "✸", tag: "blink", once: true,  live: true, nameDe: "Blinzeln",     nameEn: "Blink",         descDe: "Teleportiert 1× auf ein freies Feld in der Nähe.",     descEn: "Teleport to a nearby empty square once." },
 
   // ── sustain (live) ──

@@ -2,11 +2,6 @@
 
 Nach jeder Fassung hier nachführen: erledigte Punkte streichen, neue Besitzerwünsche eintragen.
 
-## Oberfläche im Gefecht
-1. **Brett auf gleicher Höhe in Kapitel I und II.** Dort wird reines Schach gespielt, es gibt keinen Hofwert — das Brett sitzt deshalb höher als in den übrigen Kapiteln. Es soll überall gleich hoch stehen.
-2. **„Du bist am Zug" mittig zwischen Zurück und Aufgeben** setzen (oben statt unten).
-3. **Hofwert ohne Knopf-Optik**, nur die Zahl mit Beschriftung, und minimal näher ans Brett.
-
 ## Spiel
 4. **Aufstellungskarte mit Slider**, dazu eine vierte Schwierigkeit „sehr schwer".
 5. **Fremde Monster:** ihre Leiter schreibgeschützt anzeigen statt nur der Bühne.
@@ -15,9 +10,13 @@ Nach jeder Fassung hier nachführen: erledigte Punkte streichen, neue Besitzerw�
 8. **Bezahlschranke:** gratis bis Kapitel III (Entscheid 22.9.), im Code noch nicht gebaut.
 
 ## Umbenennung und Domain (Auftrag 23.9.)
-9. Alles auf **gambitrise.com** umstellen, Spiel und Inhalte heißen nur noch **Gambit** (nicht mehr Grand Gambit). Plan steht: `design/UMBENENNUNG-GAMBIT.md`. Wartet auf drei Entscheidungen (Name der Heldenfigur, Weiterleitung der alten Domain, Umbenennung des Repos) und auf die Cloudflare-Schritte des Besitzers.
+9. **Umzug auf gambitrise.com — wartet auf Cloudflare.** Im Code ist alles vorbereitet: `tools/domain-umstellen.mjs` stellt 42 Stellen in 22 Dateien in einem Zug um. Erst laufen lassen, wenn Pages-Domain und Worker-Route `duell.gambitrise.com` stehen. Danach: Play-Store-Build mit neuem Host, `assetlinks.json` auf der neuen Domain, Search-Console-Eigenschaft. Die alte Domain läuft aus (Besitzerentscheid) — solange sie lebt, sollte sie weiterleiten, sonst brechen die installierte App und alle Verweise mit ihrem Ablauf.
+10. **GitHub-Repo umbenennen** auf `gambit-rise` — muss der Besitzer tun, mein Zugriffsschlüssel hat keine Verwaltungsrechte. Danach `git remote set-url` in der Arbeitskopie.
+11. (alt) Alles auf **gambitrise.com** umstellen, Spiel und Inhalte heißen nur noch **Gambit** (nicht mehr Grand Gambit). Plan steht: `design/UMBENENNUNG-GAMBIT.md`. Wartet auf drei Entscheidungen (Name der Heldenfigur, Weiterleitung der alten Domain, Umbenennung des Repos) und auf die Cloudflare-Schritte des Besitzers.
 
 ## Erledigt (zur Nachverfolgung)
+- Hofwert ohne Knopf-Optik und näher am Brett, Zugmeldung oben mittig zwischen Zurück und Aufgeben, Brett in Kapitel I und II auf gleicher Höhe (v1.40.0).
+- Umbenennung auf „Gambit" in 177 Stellen (v1.40.0).
 - Felder aller Kapitel: ganze Kachel mit Rand, quadratisch eingepasst (v1.39.2).
 - Abgeschnittene Köpfe der gegnerischen Reihe: gemessen 27 px Luft, erledigt mit v1.39.0.
 - Hofwert des Gegners wird nicht mehr verdeckt (v1.39.0).

@@ -268,7 +268,7 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
   };
   const edges = useMemo(() => CAMPAIGN.flatMap((a) => a.next.map((tid) => ({ a, b: nodeById(tid) }))), []);
 
-  // camera target = the Grand Gambit's position (he leads, the map follows)
+  // camera target = the Gambit's position (he leads, the map follows)
   const camNode = nodeById(token.at) || nodeById(cur);
   const wide = useMedia("(min-width: 900px)");
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -626,7 +626,7 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
                   /* v1.1.9 (Besitzer: "die Figuren, die man auf den Maps sieht, da
                      wuerde ich dich bitten, die noch ein bisschen groesser zu machen -
                      die sind zu klein, die sollten schon auch die Groesse haben wie der
-                     Grand Gambit, und im besten Falle das Element, auf dem sie stehen,
+                     Gambit, und im besten Falle das Element, auf dem sie stehen,
                      ueberdecken"): GEMESSEN WAR ES DIE HALBE GROESSE. Der Wanderer
                      misst 96 px (mal Kartentiefe), die Stationswesen standen auf 46 -
                      ein Meister sah aus wie eine Spielfigur am Wegrand. Jetzt 84 bzw.
@@ -764,7 +764,7 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
               </div>
             );
           })}
-          {/* the traveller — the Grand Gambit walks the trail, larger than life.
+          {/* the traveller — the Gambit walks the trail, larger than life.
               ER REIST IMMER MIT (Besitzer, v0.65): auch beim Durchblaettern
               der Kapitel steht er auf Station 1 des betrachteten Bodens. */}
           {(() => {

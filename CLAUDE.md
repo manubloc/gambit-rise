@@ -1,4 +1,4 @@
-# CLAUDE.md — Grand Gambit
+# CLAUDE.md — Gambit
 
 Fantasy-Schach-RPG als PWA. Live: https://grandgambit.win (Cloudflare Pages,
 deployt AUTOMATISCH bei jedem Push auf main, ~2–5 min). Der Worker "gg-hall"

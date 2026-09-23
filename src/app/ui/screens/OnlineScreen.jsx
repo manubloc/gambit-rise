@@ -1,4 +1,4 @@
-// Online duel lobby — connect to a Grand Gambit server, manage your friend
+// Online duel lobby — connect to a Gambit server, manage your friend
 // list and privacy, then find an evenly-matched foe: random matchmaking pairs
 // players by retinue score, or challenge an online friend directly.
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -502,10 +502,10 @@ export function OnlineScreen({ profile, dispatch, t, net, account, onDaily = nul
             <Button variant="subtle" style={{ padding: "5px 10px", fontSize: 12, marginLeft: 8 }}
               onClick={async () => {
                 const text = en
-                  ? `Play me at Grand Gambit! My friend code: ${o.id} — https://grandgambit.win`
-                  : `Spiel mit mir Grand Gambit! Mein Freundescode: ${o.id} — https://grandgambit.win`;
+                  ? `Play me at Gambit! My friend code: ${o.id} — https://grandgambit.win`
+                  : `Spiel mit mir Gambit! Mein Freundescode: ${o.id} — https://grandgambit.win`;
                 try {
-                  if (navigator.share) { await navigator.share({ title: "Grand Gambit", text }); return; }
+                  if (navigator.share) { await navigator.share({ title: "Gambit", text }); return; }
                   await navigator.clipboard.writeText(text);
                   flash(en ? "Invitation copied" : "Einladung kopiert");
                 } catch { /* abgebrochen oder verboten: dann eben von Hand */ }

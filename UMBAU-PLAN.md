@@ -10,7 +10,7 @@ Referenzbild lag bei Umsetzung nicht vor — Feintuning (Offsets/Look) nach
 Sichtung gern nachziehen.
 1. Kampagne füllt den Screen: kein Seiten-Scroll mehr um die Karte herum —
    Karte = fester Viewport (100dvh minus Kopfleiste), UI-Elemente schweben darüber.
-2. Stations-Medaillons ~30% kleiner; Grand-Gambit-Wanderfigur ~40% größer
+2. Stations-Medaillons ~30% kleiner; Gambit-Wanderfigur ~40% größer
    (er ist der Held, nicht die Felder).
 3. Level-/Node-Detail NICHT als Karte unterhalb, sondern eingebettetes Panel
    IN der Map (Pergament-Overlay nahe dem Node, Ankunft = Teil der Welt).

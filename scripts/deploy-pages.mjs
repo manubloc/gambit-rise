@@ -31,7 +31,7 @@ const version = JSON.parse(readFileSync("package.json", "utf8")).version;
 const work = mkdtempSync(join(tmpdir(), "gg-deploy-"));
 sh(`git init -q -b ${branch}`, { cwd: work });
 sh(`git -C ${work} config user.email "deploy@grand-gambit"`);
-sh(`git -C ${work} config user.name "Grand Gambit Deploy"`);
+sh(`git -C ${work} config user.name "Gambit Deploy"`);
 execSync(`cp -r dist/. ${work}/`);
 writeFileSync(join(work, ".nojekyll"), "");                 // Pages: assets/_-Ordner nicht filtern
 if (cname) writeFileSync(join(work, "CNAME"), cname + "\n");

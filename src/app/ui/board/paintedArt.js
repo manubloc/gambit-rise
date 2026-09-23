@@ -353,7 +353,7 @@ export const paintedIdOf = (url) => (url && URL_ZU_ID.get(url)) || null;
 const PAINTED_FIT = {
   "pawn": { h: 1.0625, y: -0.06, x: 0 },
   /* v1.0.66 (Besitzer, dritter Anlauf - und DIESMAL die richtige Zahl):
-     "der Grand Gambit ist immer noch groesser als die Bauern".
+     "der Gambit ist immer noch groesser als die Bauern".
      v1.0.65 hat die KAESTEN gleich gemacht (beide 121x121, gemessen) - und
      genau darum blieb der Befund stehen: die Figur wird nicht vom Kasten
      gezeichnet, sondern von diesem Hoehenfaktor. Der Bauer stand auf 0.8977,
@@ -430,7 +430,7 @@ const PIECE_BOSS_FIT = { "alchemist": { h: 1.1, y: 0.0, x: 0 }, "amazon": { h: 1
    Reihe. */
 /* v1.0.59 (Besitzer: "noch zu hoch"): Stufe 1 steht jetzt EXAKT auf dem
    Bauernwert (-0.06) - er ist ein Bauer unter Bauern, nur groesser. */
-/* v1.0.73 (Besitzer, endgueltig): "Der Grand Gambit ist immer ein bisschen
+/* v1.0.73 (Besitzer, endgueltig): "Der Gambit ist immer ein bisschen
    hoeher und das sieht doof aus. Der muss genau gleich gross sein wie die
    Bauern und auch genau in der gleichen Position."
    DAS WAR DER REST DES ALTEN FEHLERS. v1.0.66 hat Stufe I auf den Bauernwert

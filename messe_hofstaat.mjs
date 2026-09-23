@@ -1,6 +1,6 @@
 // ── LIVE-MESSUNG DES FIGUREN-REITERS (v1.0.65) ──────────────────────────────
 // Vier Besitzerbefunde, vier Messungen - am lebenden DOM, nicht am Quelltext:
-//   1. Sind Bauer und Grand Gambit in der Aufstellung gleich gross und gleich hoch?
+//   1. Sind Bauer und Gambit in der Aufstellung gleich gross und gleich hoch?
 //   2. Sitzen die Figuren im Hofstaat wirklich mittig in ihrer Kachel?
 //   3./4. Wie sehen Figurenblatt und Monsterblatt im Kopf aus (Rahmen? Masse?)
 import { createServer } from "node:http";

@@ -1,4 +1,4 @@
-// GRAND GAMBIT — the Hall: multiplayer protocol core.
+// GAMBIT — the Hall: multiplayer protocol core.
 //
 // A faithful port of server/server.mjs with the runtime cut away: no sockets,
 // no filesystem, no timers. Everything the protocol needs comes injected:

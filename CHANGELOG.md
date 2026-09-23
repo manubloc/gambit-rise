@@ -1,18 +1,4 @@
-# Changelog - Grand Gambit
-
-## 1.39.2
-- BERICHTIGT (Besitzer: "die Schachfelder hatten doch ganz sanfte Rundungen -
-  hast du die weggeschnitten? das waere unschoen"). Ja, und das war falsch:
-  v0.71.4 haelt ausdruecklich fest, dass jedes Feld die GANZE Kachel samt
-  ihrem Eigenrand zeigt. v1.39.1 hatte den Rand freigeschnitten.
-  DIE ECHTE URSACHE des schiefen Eindrucks: die Haelften der Streifen waren
-  640x720 statt quadratisch. Das Brett legt die Kachel auf ein quadratisches
-  Feld - oben und unten fielen je ~6 % weg, also genau die runden Ecken dort,
-  waehrend die seitlichen blieben. Jetzt sind alle 16 Streifen aus den
-  Originalen neu gebaut: die GANZE Haelfte quadratisch eingepasst (12,5 %
-  Stauchung in der Hoehe, bei Stein unsichtbar) - Rand und alle vier
-  Rundungen vollstaendig, in jedem Kapitel gleich.
-- Offene Punkte stehen ab jetzt gesammelt in design/OFFENE-PUNKTE.md.
+# Changelog - Gambit
 
 ## 1.40.0
 - DIE FELDER TRAGEN WIEDER IHREN EIGENRAND (Besitzer: "die Schachfelder haben
@@ -39,6 +25,33 @@
   rutschte dadurch nach unten (gemessen: Oberkante 259 px statt 154 px). Ein
   Aufbau fuer beide Regeln. Dazu laeuft die Kampfleiste jetzt IMMER - im
   Schach zeigt sie Rochade und En passant.
+- ALLES HEISST JETZT GAMBIT (Besitzer: "wir nennen ihn nur noch Gambit,
+  ueberall - das Spiel selbst und auch die Inhalte"). 177 Stellen in 68
+  Dateien: Wortmarke, Titel, Manifest, Landingpage, Rechtstexte, Lehrtexte,
+  Geschichten, Serverantworten - und die Heldenfigur selbst (Besitzerentscheid
+  23.9.: Spiel und Figur heissen gleich). CHANGELOG und die Entwuerfe unter
+  design/ bleiben unangetastet: sie sind die Geschichte des Projekts, und eine
+  nachtraeglich umgeschriebene Geschichte hilft niemandem.
+- DER UMZUG AUF gambitrise.com ist vorbereitet, aber noch NICHT vollzogen:
+  tools/domain-umstellen.mjs stellt alle 42 Stellen in 22 Dateien in einem Zug
+  um (Trockenlauf ohne --machen). Er darf erst laufen, wenn die Pages-Domain
+  und die Worker-Route duell.gambitrise.com in Cloudflare stehen - sonst
+  liefe das Online-Duell ins Leere. Plan: design/UMBENENNUNG-GAMBIT.md.
+
+
+## 1.39.2
+- BERICHTIGT (Besitzer: "die Schachfelder hatten doch ganz sanfte Rundungen -
+  hast du die weggeschnitten? das waere unschoen"). Ja, und das war falsch:
+  v0.71.4 haelt ausdruecklich fest, dass jedes Feld die GANZE Kachel samt
+  ihrem Eigenrand zeigt. v1.39.1 hatte den Rand freigeschnitten.
+  DIE ECHTE URSACHE des schiefen Eindrucks: die Haelften der Streifen waren
+  640x720 statt quadratisch. Das Brett legt die Kachel auf ein quadratisches
+  Feld - oben und unten fielen je ~6 % weg, also genau die runden Ecken dort,
+  waehrend die seitlichen blieben. Jetzt sind alle 16 Streifen aus den
+  Originalen neu gebaut: die GANZE Haelfte quadratisch eingepasst (12,5 %
+  Stauchung in der Hoehe, bei Stein unsichtbar) - Rand und alle vier
+  Rundungen vollstaendig, in jedem Kapitel gleich.
+- Offene Punkte stehen ab jetzt gesammelt in design/OFFENE-PUNKTE.md.
 
 ## 1.39.1
 - DIE SCHACHFELDER SEHEN IN JEDEM KAPITEL AUS WIE IN KAPITEL I (Besitzer:

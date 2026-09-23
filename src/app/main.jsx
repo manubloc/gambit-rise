@@ -241,7 +241,7 @@ class Boundary extends Component {
       <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", background: "#0c111e",
         color: "#e8e4d8", fontFamily: "Georgia, serif", padding: 24, textAlign: "center" }}>
         <div style={{ maxWidth: 380 }}>
-          <div style={{ fontSize: 20, letterSpacing: 3, color: "#c9a45c" }}>GRAND GAMBIT</div>
+          <div style={{ fontSize: 20, letterSpacing: 3, color: "#c9a45c" }}>GAMBIT</div>
           <div style={{ fontSize: 13.5, color: "#8b90a3", margin: "10px 0 16px", lineHeight: 1.5 }}>
             Da ist etwas schiefgelaufen. Dein Spielstand ist sicher — einmal neu laden hilft meistens.
             Der Fehler wurde automatisch vermerkt und hilft uns, die Ursache zu finden.</div>

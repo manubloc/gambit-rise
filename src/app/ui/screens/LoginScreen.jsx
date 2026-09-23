@@ -111,7 +111,7 @@ export function LoginScreen({ onSignedIn, initialLang = "de" }) {
 
       {/* the artwork carries its own night sky — no vignette, no glow, nothing
           between the eye and the wordmark at its base */}
-      <img src={logoArt()} alt="Grand Gambit" draggable={false} style={{ width: "min(100vw, 800px)", maxHeight: "41vh",
+      <img src={logoArt()} alt="Gambit" draggable={false} style={{ width: "min(100vw, 800px)", maxHeight: "41vh",
         objectFit: "cover", display: "block", marginTop: 0, marginBottom: 42,
         WebkitMaskImage: "radial-gradient(ellipse 78% 74% at 50% 50%, #000 42%, rgba(0,0,0,.6) 70%, transparent 95%)",
         maskImage: "radial-gradient(ellipse 78% 74% at 50% 50%, #000 42%, rgba(0,0,0,.6) 70%, transparent 95%)" }} />
@@ -119,7 +119,7 @@ export function LoginScreen({ onSignedIn, initialLang = "de" }) {
         fontSize: "clamp(19px, 5.2vw, 30px)", lineHeight: 1.15, textAlign: "center", marginTop: -22, marginBottom: 14,
         background: `linear-gradient(180deg, ${T.goldBright} 0%, ${T.gold} 52%, ${T.lime} 100%)`,
         WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent",
-        filter: "drop-shadow(0 2px 12px rgba(0,0,0,.9))" }}>GRAND GAMBIT</div>
+        filter: "drop-shadow(0 2px 12px rgba(0,0,0,.9))" }}>GAMBIT</div>
       <div className="gg-quill" style={{ color: T.dim, fontSize: 16, lineHeight: 1.6, margin: "12px 0 34px" }}>{s.tag}</div>
 
       <div style={{ width: "100%", maxWidth: 380, display: "flex", flexDirection: "column", gap: 10 }}>

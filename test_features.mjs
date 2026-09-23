@@ -256,7 +256,7 @@ sailed = advanceLeague(sailed);
 ok("clearing the Coast opens chapter XII", sailed.campaign.league === 12);
 ok("but the sea still wants a boat (and the boat wants a fortune)", !seaAccessible(sailed) && !seaAccessible(buyItem({ ...sailed, gold: 200 }, "boat")) && seaAccessible(buyItem({ ...sailed, gold: 2500 }, "boat")));
 
-// ── The Grand Gambit: the eponymous hero pawn ────────────────────────────────
+// ── The Gambit: the eponymous hero pawn ────────────────────────────────
 import { upgradeCost as upc2, heroColFor, buildArmy as bArmy } from "./src/meta/index.js";
 import { CHARACTERS as CH2, mapById as mapBy2 } from "./src/content/index.js";
 import { createGame as cg3 } from "./src/core/index.js";
@@ -317,7 +317,7 @@ ok("a save file round-trips through export → import (with migration)", (() => 
   const r = parseSave(serializeSave(p));
   return r.name === "Backup" && r.gold === 77 && r.notices.privacy === true && r.loadout.heroCols;
 })());
-ok("imports reject files that are not Grand Gambit saves", (() => {
+ok("imports reject files that are not Gambit saves", (() => {
   for (const bad of ["nope", "{}", JSON.stringify({ gg: "x", profile: {} })]) {
     try { parseSave(bad); return false; } catch {}
   }

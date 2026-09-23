@@ -1,4 +1,4 @@
-# Grand Gambit — Übergabe (Stand 3. August 2026, v0.75.2 live)
+# Gambit — Übergabe (Stand 3. August 2026, v0.75.2 live)
 
 Für einen frischen Chat. Alles Nötige steht hier; das Repo liegt im Container
 unter `/home/claude/repo`.
