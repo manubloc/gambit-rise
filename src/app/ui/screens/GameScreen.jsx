@@ -119,12 +119,17 @@ const HUD_PAD = 12;
    die Summe daneben war eine dritte Anzeige derselben Sache. Statt ihrer
    steht jetzt klein der Hofwert der Seite: eine Zahl, die man sonst nirgends
    im Gefecht sieht. */
+/* v1.39.0 (Besitzer: "wie du oben Zurueck und Aufgeben gemacht hast, von der
+   Farbgebung super - alle anderen Sachen wie Hofwert oder Du bist am Zug
+   genau gleich"): dasselbe leise Kleid wie die beiden Knoepfe - fast
+   durchsichtiger Grund, zarte violette Kontur, gedaempfte Schrift, kein
+   Leuchten. Die Farbe der Seite (gold/gruen) traegt nur noch die Zahl. */
 function ForceBadge({ hp, atk, neon, t, wert }) {
   return (
     <span style={{ display: "inline-flex", alignItems: "center", gap: 5, whiteSpace: "nowrap",
-      padding: "3px 9px", borderRadius: 999, background: "rgba(10,7,19,.66)",
-      border: `1px solid ${neon}55`, font: "700 11px/1 Georgia, serif", letterSpacing: ".04em",
-      color: neon, textShadow: "0 1px 3px rgba(0,0,0,.8)" }}>
+      padding: "4px 11px", borderRadius: 999, background: "rgba(14,10,26,.34)",
+      border: "1px solid rgba(167,139,250,.24)", font: "700 11px/1 Georgia, serif", letterSpacing: ".04em",
+      color: "rgba(226,218,246,.66)" }}>
       <span style={{ font: "600 8.5px/1 Georgia, serif", letterSpacing: ".12em",
         textTransform: "uppercase", opacity: .8 }}>{t("online.score")}</span>
       {wert}
@@ -1377,17 +1382,20 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
             hellgold pulsierend = Schach. Ein frisches Ereignis verdraengt
             den Zugstand fuer ein paar Sekunden. */}
         <div style={{ flex: 1, minWidth: 0, display: "flex", justifyContent: "center" }}>
+          {/* v1.39.0: dasselbe leise Kleid wie Zurueck, Aufgeben und Hofwert.
+              SCHACH bleibt die Ausnahme - da darf es leuchten, sonst uebersieht
+              man die eine Meldung, die man nicht uebersehen darf. */}
           {(ereignis || statusText) && <div style={{ display: "inline-flex", alignItems: "center", gap: 7, maxWidth: "100%",
-            border: `1px solid ${st.check ? T.gold + "aa" : ereignis ? "rgba(240,206,122,.5)" : "rgba(167,139,250,.32)"}`,
-            background: "linear-gradient(180deg, rgba(26,18,44,.72), rgba(12,9,22,.8))",
-            borderRadius: 999, padding: "4px 12px",
-            boxShadow: st.check ? "0 0 12px rgba(240,206,122,.28)" : "inset 0 1px 0 rgba(255,240,200,.05)" }}>
+            border: `1px solid ${st.check ? T.gold + "aa" : "rgba(167,139,250,.24)"}`,
+            background: st.check ? "linear-gradient(180deg, rgba(40,28,60,.8), rgba(18,12,30,.86))" : "rgba(14,10,26,.34)",
+            borderRadius: 999, padding: "5px 12px",
+            boxShadow: st.check ? "0 0 12px rgba(240,206,122,.28)" : "none" }}>
             <span aria-hidden style={{ width: 7, height: 7, borderRadius: 999, flex: "0 0 auto",
               background: st.check || ereignis ? T.goldBright : myTurn || (hotseat && state.turn === WHITE) ? T.gold : "#8b7bd8",
               boxShadow: st.check ? `0 0 8px ${T.goldBright}` : "none" }} />
             <span className="gg-serif" style={{ fontWeight: 700, fontSize: 12.5, letterSpacing: ".04em", minWidth: 0,
               overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-              color: st.check ? T.goldBright : ereignis ? "#f0e4bc" : "#c9c2ab" }}>{ereignis || statusText}</span>
+              color: st.check ? T.goldBright : ereignis ? "#ded2b4" : "rgba(226,218,246,.66)" }}>{ereignis || statusText}</span>
           </div>}
         </div>
         <span data-gg-tray="b"><Tray kinds={state.captured.w} color="b" /></span>

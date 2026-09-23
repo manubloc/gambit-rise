@@ -1,5 +1,19 @@
 # Changelog - Grand Gambit
 
+## 1.39.0
+- DASSELBE LEISE KLEID FUER ALLES UM DAS BRETT (Besitzer: "wie du oben
+  Zurueck und Aufgeben gemacht hast, von der Farbgebung super - alle anderen
+  Sachen wie Hofwert oder Du bist am Zug genau gleich"): HOFWERT und die
+  Zugmeldung tragen jetzt denselben fast durchsichtigen Grund, dieselbe zarte
+  Kontur und dieselbe gedaempfte Schrift wie die beiden Knoepfe. SCHACH bleibt
+  die Ausnahme und leuchtet weiter - die eine Meldung, die man nicht
+  uebersehen darf.
+- PLATZ FUER DEN HOFWERT DES GEGNERS (Besitzer: "der Hofwert wird von den
+  Figuren verdeckt"): der Vorrat ueber dem Brett war 0,62 Zellen, die Koepfe
+  der hinteren Reihe ragen aber fast eine ganze Zelle hinaus. Jetzt 1,0
+  Zellen Vorrat und 0,8 Zellen Polster. Im Browser nachgemessen: die Plakette
+  endet bei 69 px, die oberste Figur beginnt bei 82 px - sie steht frei.
+
 ## 1.38.0
 - DIE FAEHIGKEITEN STEHEN NUR NOCH EINMAL (Besitzer: "die Faehigkeiten stehen
   doppelt - Pillen im Talentband und der Slider darunter; die Auswahl am

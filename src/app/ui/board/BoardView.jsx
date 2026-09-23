@@ -888,7 +888,11 @@ export function BoardView({ lang = "de", state, onMove, interactive, lastMove, m
     // bottom rank. The zoom viewport clips both without this reserve.
     // ... und der Hoehen-Vorhalt wird schlanker (0,78 statt 1,25 Zellen
     // Luft) - die Koepfe der Grundreihe brauchen weniger Reserve als gedacht.
-    const byH = fitBox && avail.h > 0 ? (avail.h - (H - 1) * GAP) / (H + 0.62 + 0.16) : Infinity;
+    /* v1.39.0 (Besitzer: "der Hofwert wird von den Figuren verdeckt - das
+       Brett noch etwas nach unten, dass oben Platz ist fuer den Hofwert vom
+       Gegner"): der Vorrat oben war 0,62 Zellen, die Koepfe der hinteren
+       Reihe ragen aber fast eine ganze Zelle ueber die Brettkante. Jetzt 1,0. */
+    const byH = fitBox && avail.h > 0 ? (avail.h - (H - 1) * GAP) / (H + 1.0 + 0.16) : Infinity;
     cell = Math.max(8, Math.floor(Math.min(byW, byH)));
     tight = byH <= byW;          // the reserves only need defending when height decides
   }
@@ -1386,7 +1390,7 @@ export function BoardView({ lang = "de", state, onMove, interactive, lastMove, m
      das Areal, das der Besitzer sich wuenscht. */
   if (fitBox) return <div ref={wrapRef} style={{ position: "absolute", inset: 0, display: "flex",
     flexDirection: "column", alignItems: "center", justifyContent: "flex-start",
-    paddingTop: tight && cell ? Math.round(cell * 0.45) : 0,
+    paddingTop: tight && cell ? Math.round(cell * 0.8) : 0,   /* v1.39.0: Luft fuer den Hofwert des Gegners (war 0,45) */
     paddingBottom: tight && cell ? Math.round(cell * 0.2) : 0, gap: 0 }}>{board}{talentBand}</div>;
   return <div ref={wrapRef} style={{ width: "100%" }}>{board}{talentBand}</div>;
 }
