@@ -34,7 +34,7 @@ const errors = [];
    bei einer AUSWAERTIGEN Anfrage entstehen; alles Eigene liefert der lokale
    Server dieser Datei (und im Zweifel seine SPA-Rueckfallseite mit 200). */
 const EXPECTED_OFFLINE = (t) =>
-  /duell\.grandgambit\.win/.test(t)
+  /duell\.gambitrise\.com/.test(t)
   || /^Failed to load resource: net::ERR_(FAILED|TUNNEL_CONNECTION_FAILED)/.test(t);
 const browser = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium-1194/chrome-linux/chrome" });
 const page = await browser.newPage();

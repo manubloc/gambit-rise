@@ -20,7 +20,7 @@ const ctx = await browser.newContext({ serviceWorkers: "block", viewport: { widt
 const page = await ctx.newPage();
 const fehler = [];
 page.on("pageerror", (e) => fehler.push(String(e).slice(0, 200)));
-page.on("console", (m) => { if (m.type() === "error" && !/duell\.grandgambit|ERR_TUNNEL|ERR_FAILED/.test(m.text())) fehler.push(m.text().slice(0, 160)); });
+page.on("console", (m) => { if (m.type() === "error" && !/duell\.gambitrise|ERR_TUNNEL|ERR_FAILED/.test(m.text())) fehler.push(m.text().slice(0, 160)); });
 const zeig = (s) => console.log(s);
 
 await page.goto(`http://127.0.0.1:${port}/`, { waitUntil: "networkidle" });

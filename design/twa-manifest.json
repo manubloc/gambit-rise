@@ -12,8 +12,8 @@
   "backgroundColor": "#000000",
   "enableNotifications": true,
   "startUrl": "/spielen/",
-  "iconUrl": "https://grandgambit.win/icons/icon-512.png",
-  "maskableIconUrl": "https://grandgambit.win/icons/maskable-512.png",
+  "iconUrl": "https://gambitrise.com/icons/icon-512.png",
+  "maskableIconUrl": "https://gambitrise.com/icons/maskable-512.png",
   "splashScreenFadeOutDuration": 300,
   "signingKey": {
     "path": "./gg-upload.keystore",

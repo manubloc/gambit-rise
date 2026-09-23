@@ -45,7 +45,7 @@ const ctx = await browser.newContext({ serviceWorkers: "block", viewport: { widt
 const page = await ctx.newPage();
 const fehler = [];
 page.on("pageerror", (e) => fehler.push(String(e).slice(0, 200)));
-page.on("console", (m) => { if (m.type() === "error" && !/duell\.grandgambit|ERR_TUNNEL|ERR_FAILED/.test(m.text())) fehler.push(m.text().slice(0, 160)); });
+page.on("console", (m) => { if (m.type() === "error" && !/duell\.gambitrise|ERR_TUNNEL|ERR_FAILED/.test(m.text())) fehler.push(m.text().slice(0, 160)); });
 
 const klick = async (muster) => page.evaluate((m) => {
   const b = [...document.querySelectorAll("button")].find((x) => new RegExp(m).test(x.textContent));

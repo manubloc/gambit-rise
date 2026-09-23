@@ -1,14 +1,20 @@
 # Gambit in den Play Store — der ganze Weg
 
-> **Stand 23.9.2026 (Umbenennung und Umzug).** Das Spiel heißt **Gambit**, die
-> Adresse ist **gambitrise.com**. Im Store sind zu ändern: App-Name, Kurz- und
-> Langbeschreibung, Grafiken mit der alten Wortmarke, die Links zu
-> Datenschutz und Nutzungsbedingungen. **Die Paket-Kennung
-> `win.grandgambit.app` bleibt** — eine veröffentlichte App kann sie nie
-> wechseln; sichtbar ist sie praktisch nirgends.
-> **Neuer Build nötig:** die TWA zeigt auf die alte Domain. Auf der neuen
-> liegt `assetlinks.json` bereits korrekt (geprüft: wird als JSON
-> ausgeliefert, mit derselben Kennung und beiden Fingerabdrücken).
+> **Stand 23.9.2026 (Umbenennung, Umzug, neues Paket).** Das Spiel heißt
+> **Gambit Rise**, die Adresse ist **gambitrise.com**, die App wohnt unter
+> **/spielen/**.
+> **GEPRÜFT: die App ist im Play Store NICHT veröffentlicht** (die Store-
+> Adresse gibt es nicht). Damit ist die Paketkennung frei — sie lautet jetzt
+> **`com.gambitrise.app`** statt `com.gambitrise.app`.
+> In der Play Console liegt noch ein alter Eintrag (App 4972631526998923335,
+> altes Paket). Eine Paketkennung lässt sich dort nie ändern, auch nicht im
+> Entwurf: also **neuer Eintrag** mit der neuen Kennung, den alten löschen
+> oder liegen lassen.
+> **Neues Paket bauen ist Pflicht**: die TWA zeigt auf Host und Startpfad, und
+> beides hat sich geändert (gambitrise.com, /spielen/). Danach die
+> Fingerabdrücke des neuen Schlüssels in `public/.well-known/assetlinks.json`
+> eintragen — die Datei wird auf der neuen Domain korrekt als JSON
+> ausgeliefert (geprüft).
 
 Stand: 5.8.2026, v1.0.6. Die App ist eine **TWA** (Trusted Web Activity):
 eine dünne Android-Hülle, die gambitrise.com zeigt. Darum gilt dauerhaft:

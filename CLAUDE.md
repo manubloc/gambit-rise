@@ -5,8 +5,14 @@ deployt AUTOMATISCH bei jedem Push auf main, ~2–5 min). Der Worker "gg-hall"
 (Online-Duelle) deployt ebenfalls automatisch. **Jeder Push auf main geht
 direkt zu echten Nutzern.**
 
-Stack: React 18, Vite 5, pure ESM, Node 22. Play-Store-Paket:
-win.grandgambit.app (interner Test läuft).
+Stack: React 18, Vite 5, pure ESM, Node 22.
+Die Seite: **/** ist das Schaufenster (Landingpage), **/spielen/** die App
+hinter einem Riegel (Passwort, beim Bau über GAMBIT_ZUGANG).
+Play Store: die App ist NICHT veröffentlicht; Paket **com.gambitrise.app**
+(neu, die alte Kennung war nie in Gebrauch). Ein neues Paket muss gebaut
+werden — Host und Startpfad haben sich geändert.
+Cloudflare-Projekt heißt weiterhin **grand-gambit**, das GitHub-Repo soll auf
+**gambit-rise** umbenannt werden (nur der Besitzer darf das).
 
 ## Zusammenarbeit
 
