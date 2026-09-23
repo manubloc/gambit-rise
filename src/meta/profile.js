@@ -125,9 +125,25 @@ export function geschenkteErstattet(p) {
   return geaendert ? { ...p, sp, pieces: { ...p.pieces, abilities: neu } } : p;
 }
 
+/* v1.37.0: FLIEGEN IST EINE FAEHIGKEIT MIT STUFEN. Der Drache lernte die
+   Reichweite bisher als zwei weitere Sprossen (dragon_flight2/3). Wer sie
+   gelernt hat, hat sie bezahlt - sie werden zur STUFE, nicht erstattet und
+   nicht verschenkt. Einmalig: danach stehen sie nicht mehr in der Liste. */
+export function fliegenZusammengelegt(p) {
+  const liste = p?.pieces?.abilities?.dragon;
+  if (!Array.isArray(liste) || !liste.some((a) => a === "dragon_flight2" || a === "dragon_flight3")) return p;
+  const stufe = liste.includes("dragon_flight3") ? 3 : 2;
+  const ohne = liste.filter((a) => a !== "dragon_flight2" && a !== "dragon_flight3");
+  if (!ohne.includes("dragon_flight")) ohne.push("dragon_flight");
+  const stufen = { ...(p.pieces.stufen || {}) };
+  stufen.dragon = { ...(stufen.dragon || {}), dragon_flight: Math.max(stufe, (stufen.dragon || {}).dragon_flight || 1) };
+  return { ...p, pieces: { ...p.pieces, abilities: { ...p.pieces.abilities, dragon: ohne }, stufen } };
+}
+
 export function ohneDauerfeuer(p) {
   p = stufenGekappt(p);   /* v1.33.2: beide Ladewege laufen hier durch */
   p = geschenkteErstattet(p);   /* v1.34.0 */
+  p = fliegenZusammengelegt(p); /* v1.37.0 */
   const ab = p?.pieces?.abilities;
   if (!ab) return p;
   let sp = p.sp || 0, geaendert = false;

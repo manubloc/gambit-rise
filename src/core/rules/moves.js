@@ -11,7 +11,7 @@ import {
    - test_zauber.mjs prueft das. */
 export const PASSIVE_TALENTE = new Set([
   "pawn_charge", "pawn_early_promo", "knight_longleap", "knight_outrider",
-  "rook_diag_step", "ranged_volley", "dragon_flight2", "dragon_flight3", "gambit_masquerade",
+  "rook_diag_step", "gambit_masquerade",   /* v1.37.0: Dauerfeuer ist fort (v1.28.1), Fliegen II/III sind Stufen */
   "lifesteal", "regen", "bulwark",
   /* v1.30.0: die Monsterfaehigkeiten am Treffer - sie wirken von selbst */
   "steinhaut", "widerhall", "unsterblich", "wegelagerei",
@@ -170,7 +170,9 @@ function pawnMoves(moves, from, f, r, piece, board, D, state) {
   const early = hasAbility(piece, "pawn_early_promo");
   const promoR = promoRank(piece.color, D.h);
   const startR = startPawnRank(piece.color, D.h);
-  const isPromo = (rr) => rr === promoR || (early && rr === promoR - dir);
+  /* v1.37.0: FRUEHE KROENUNG nach Stufe - eine oder zwei Reihen frueher */
+  const frueh = early ? Math.min(2, stufeVon(piece, "pawn_early_promo")) : 0;
+  const isPromo = (rr) => rr === promoR || (frueh >= 1 && rr === promoR - dir) || (frueh >= 2 && rr === promoR - 2 * dir);
 
   const fwd = r + dir;
   if (onBoard(f, fwd, D) && D.sperren && versperrt(D.sperren, ix(f, fwd, D))) {
@@ -406,8 +408,8 @@ export function pieceMoves(state, sqIndex) {
      Matt, ohne dass eine Deckung hilft. Genau die Sorge des Besitzers.
      Darum haengt der Schuss jetzt zusaetzlich am Regelwerk selbst - wie das
      En-passant oben, nur andersherum. */
-  if (!(state && state.rules === "chess") && (hasAbility(piece, "ranged_volley") || hasAbility(piece, "ranged_shot"))) {
-    const consume = hasAbility(piece, "ranged_volley") ? null : "ranged_shot";
+  if (!(state && state.rules === "chess") && hasAbility(piece, "ranged_shot")) {   /* v1.37.0: Dauerfeuer ist seit v1.28.1 fort */
+    const consume = "ranged_shot";
     /* v0.79 (Besitzer): Reichweite 2-3 Felder statt 2-4. Der Fernangriff soll
        sich von einer weit ziehenden Figur unterscheiden - kurz, wertig,
        ueber Koepfe hinweg, aber kein Ersatz fuer eine Laufbahn. */
@@ -533,7 +535,7 @@ function bigDragonMoves(moves, from, piece, board, D) {
   // is a direct strike on every covered square — survivors throw him back.
   const abil = piece.abilities || [];
   if (abil.includes("dragon_flight") && !(piece.used || {}).dragon_flight) {
-    const range = 2 + (abil.includes("dragon_flight2") ? 1 : 0) + (abil.includes("dragon_flight3") ? 1 : 0);
+    const range = 1 + stufeVon(piece, "dragon_flight");   /* v1.37.0: I zwei, II drei, III vier Felder (war: drei Sprossen) */
     const f0 = from % w, r0 = (from / w) | 0;
     for (let df = -range; df <= range; df++) for (let dr = -range; dr <= range; dr++) {
       if (!df && !dr) continue;

@@ -335,7 +335,9 @@ export function applyMove(state, move, opts) {
         ns.beute = { ...(ns.beute || {}), [piece.color]: ((ns.beute && ns.beute[piece.color]) || 0) + gold };
       };
       const wacht = schildwachtDeckt(state, ti) ? 1 : 0;
-      const soak = (target.abilities.includes("bulwark") && talentWirkt("bulwark", state.rules, state, ti, target.color) ? 1 : 0) + wall + (warded ? 1 : 0) + wacht;
+      /* v1.37.0: BOLLWERK nach Stufe - 1 oder 2 Schaden weniger */
+      const soak = (target.abilities.includes("bulwark") && talentWirkt("bulwark", state.rules, state, ti, target.color)
+        ? Math.min(2, stufeVon(target, "bulwark")) : 0) + wall + (warded ? 1 : 0) + wacht;
       // BALANCE: strikes from afar carry less weight — a leap or a ranged
       // shot lands at HALF force (rounded up); melee keeps its full bite.
       const afar = move.special === "leap" || move.special === "shot" || move.noAdvance;
@@ -375,7 +377,9 @@ export function applyMove(state, move, opts) {
       raubt(dmg);
       zehrt(retter != null ? b[retter] : target, retter != null ? retter : ti, dmg);   /* v1.31.0 */
       if (move.consumes) verbuche(piece, move.consumes); // v1.28.0: ein Einsatz mehr - die Stufe entscheidet, wie viele
-      if (has("lifesteal") && talentWirkt("lifesteal", state.rules, state, move.from, piece.color)) piece.hp = Math.min(piece.maxHp, piece.hp + Math.ceil(dmg / 2));
+      /* v1.37.0: LEBENSRAUB nach Stufe - ein Viertel, die Haelfte, drei Viertel */
+      if (has("lifesteal") && talentWirkt("lifesteal", state.rules, state, move.from, piece.color))
+        piece.hp = Math.min(piece.maxHp, piece.hp + Math.max(1, Math.ceil(dmg * stufeVon(piece, "lifesteal") / 4)));
       /* ── SCHOCKWELLE (v0.79, blast): EINMAL pro Partie trifft der erste
          Nahkampfschlag auch alle GEGNER rings um das Ziel - mit HALBEM
          Schaden (Besitzerregel: eine Flaeche schlaegt nie so hart wie die
@@ -488,7 +492,15 @@ export function applyMove(state, move, opts) {
       if (move.consumes) verbuche(piece, move.consumes); // v1.28.0: ein Einsatz mehr - die Stufe entscheidet, wie viele
       if (move.promotion) repromote(piece, move.promotion);
     }
-    if (!angreiferFiel && has("regen") && talentWirkt("regen", state.rules, state, move.to, piece.color)) piece.hp = Math.min(piece.maxHp, (piece.hp || 0) + 1);
+    /* v1.37.0: REGENERATION nach Stufe - I heilt 1 je ZWEITEM eigenen Zug
+       (der Takt haengt an der Figur und reist in used mit), II 1 je Zug,
+       III 2 je Zug. */
+    if (!angreiferFiel && has("regen") && talentWirkt("regen", state.rules, state, move.to, piece.color)) {
+      const st = stufeVon(piece, "regen");
+      piece.used = { ...(piece.used || {}), regenTakt: ((piece.used || {}).regenTakt || 0) + 1 };
+      const heilt = st >= 3 ? 2 : (st >= 2 || piece.used.regenTakt % 2 === 0) ? 1 : 0;
+      if (heilt) piece.hp = Math.min(piece.maxHp, (piece.hp || 0) + heilt);
+    }
     /* ── v1.31.0: WAS NACH DEM ZUG WIRKT ────────────────────────────────────
        BLENDEN (Zauber, I: einmal, II: zweimal je Partie): loest von selbst aus,
        wenn das Monster so zieht, dass Gegner im Umkreis von zwei Feldern

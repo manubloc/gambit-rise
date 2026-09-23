@@ -135,17 +135,17 @@ const hpState = (board) => ({ board, w: 8, h: 8, holes: new Set(), rules: "hp", 
   const after = applyMove(st, jump);
   ok("melee keeps its full bite (atk 4 kills hp 3)", after.board[idx(1, 2, 8)]?.color === "w");
 }
-// a ranged volley also strikes at half force and the shooter stays put
+// v1.37.0: der Scharfschuss (Dauerfeuer ist seit v1.28.1 fort) trifft ebenfalls mit halber Wucht, der Schuetze bleibt stehen
 {
   const board = new Array(64).fill(null);
-  board[idx(0, 0, 8)] = Wp("A", { hp: 5, maxHp: 5, atk: 4, abilities: ["ranged_volley"] });
+  board[idx(0, 0, 8)] = Wp("A", { hp: 5, maxHp: 5, atk: 4, abilities: ["ranged_shot"] });
   /* v0.79: die Reichweite endet bei DREI Feldern - das Ziel rueckt von 4 auf 3. */
   board[idx(0, 3, 8)] = Bp("R", { hp: 5, maxHp: 5, atk: 3 });
   board[idx(7, 7, 8)] = Bp("K", { hp: 10, maxHp: 10, atk: 3 });
   board[idx(7, 0, 8)] = Wp("K", { hp: 10, maxHp: 10, atk: 3 });
   const st = hpState(board);
   const shot = legalMovesFrom(st, idx(0, 0, 8)).find((m) => m.special === "shot" && m.to === idx(0, 3, 8));
-  ok("the volley finds its line", !!shot);
+  ok("der Schuss findet seine Linie", !!shot);
   const after = applyMove(st, shot);
   ok("a shot lands at half force and the shooter stays", after.board[idx(0, 3, 8)].hp === 3 && after.board[idx(0, 0, 8)]?.kind === "A");
 }

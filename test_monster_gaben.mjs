@@ -17,18 +17,18 @@ kings(b1);
 let r1 = reduce(hpState(b1), moveCommand({ from: idx(0, 0, 8), to: idx(1, 1, 8), piece: b1[idx(0, 0, 8)].id, kind: "Q", color: "w", capture: true, captureKind: "X" }));
 ok("Panzer am Wesen: atk 3 trifft fuer 2 (9 -> 7)", r1.state.board[idx(1, 1, 8)].hp === 7);
 
-// 2) LIFESTEAL vom Monster: es schlaegt fuer 4 und trinkt 2
+// 2) LIFESTEAL vom Monster: v1.37.0 nach Stufe - hier Stufe II, also die Haelfte von 4
 let b2 = new Array(64).fill(null);
-b2[idx(0, 0, 8)] = fig("X", "b", { abilities: ["lifesteal"], hp: 3, maxHp: 9, atk: 4, moveSpec: { slides: [[1, 1]], range: 2 } });
+b2[idx(0, 0, 8)] = fig("X", "b", { abilities: ["lifesteal"], stufen: { lifesteal: 2 }, hp: 3, maxHp: 9, atk: 4, moveSpec: { slides: [[1, 1]], range: 2 } });
 b2[idx(1, 1, 8)] = fig("R", "w", { hp: 9, maxHp: 9 });
 kings(b2);
 let s2 = { ...hpState(b2), turn: "b" };
 let r2 = reduce(s2, moveCommand({ from: idx(0, 0, 8), to: idx(1, 1, 8), piece: b2[idx(0, 0, 8)].id, kind: "X", color: "b", capture: true, captureKind: "R" }));
 ok("Gift trinkt: Wesen heilt von 3 auf 5 beim Schlag", r2.state.board[idx(0, 0, 8)].hp === 5);
 
-// 3) REGEN am Monster: nach dem eigenen Zug +1
+// 3) REGEN am Monster: v1.37.0 nach Stufe - hier Stufe II, also 1 je Zug
 let b3 = new Array(64).fill(null);
-b3[idx(0, 0, 8)] = fig("X", "b", { abilities: ["regen"], hp: 4, maxHp: 9, moveSpec: { slides: [[1, 0]], range: 1 } });
+b3[idx(0, 0, 8)] = fig("X", "b", { abilities: ["regen"], stufen: { regen: 2 }, hp: 4, maxHp: 9, moveSpec: { slides: [[1, 0]], range: 1 } });
 kings(b3);
 let s3 = { ...hpState(b3), turn: "b" };
 let r3 = reduce(s3, moveCommand({ from: idx(0, 0, 8), to: idx(1, 0, 8), piece: b3[idx(0, 0, 8)].id, kind: "X", color: "b", capture: false, captureKind: null }));

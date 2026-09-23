@@ -30,7 +30,7 @@ export const TAGS = {
   aoe:     { nameDe: "Fläche",     nameEn: "Area",     color: "#ff8a4c" },
   control: { nameDe: "Kontrolle",  nameEn: "Control",  color: "#ff5d8f" },
   /* v1.25.2: eigene Marke fuer die Goldfaehigkeit der Monster. Ohne sie fiel
-     ihre Farbe zufaellig mit dragon_flight2 zusammen - die Probe "alle Talente
+     ihre Farbe zufaellig mit einer zweiten Fluegel-Sprosse zusammen (v1.37.0 zu Stufen zusammengelegt) - die Probe "alle Talente
      haben eine EIGENE Farbe" hat das gefangen. */
   gold:    { nameDe: "Beute",      nameEn: "Plunder",  color: "#e0b341" },
   dot:     { nameDe: "Zehrung",    nameEn: "Decay",    color: "#7bd14a" },
@@ -47,11 +47,7 @@ export const ABILITIES = {
   dragon_flight:        { id: "dragon_flight",        icon: "🜁", tag: "wing",  once: true,  live: true, nameDe: "Fliegen", nameEn: "Flight",
     descDe: "EINMAL pro Partie springt der Drache als ganzer 2×2-Block bis zu 2 Felder weit. Landet er auf Gegnern, trifft er JEDES bedeckte Feld direkt — überleben nicht alle Getroffenen, fällt er auf sein Ursprungsfeld zurück (der Schlag zählt trotzdem).",
     descEn: "ONCE per game the dragon leaps as a full 2×2 block, up to 2 squares. Landing on foes strikes EVERY covered square directly - unless all struck foes fall, he is thrown back to where he took off (the strike still counts)." },
-  dragon_flight2:       { id: "dragon_flight2",       icon: "🜁", tag: "wing",  once: false, live: true, nameDe: "Weite Schwingen", nameEn: "Wide wings",
-    descDe: "Die Flug-Reichweite wächst auf 3 Felder.", descEn: "Flight range grows to 3 squares." },
-  dragon_flight3:       { id: "dragon_flight3",       icon: "🜁", tag: "wing",  once: false, live: true, nameDe: "Sturmschwingen", nameEn: "Storm wings",
-    descDe: "Die Flug-Reichweite wächst auf 4 Felder.", descEn: "Flight range grows to 4 squares." },
-  pawn_early_promo:     { id: "pawn_early_promo",     icon: "★", tag: "promo", once: false, live: true, nameDe: "Frühe Krönung", nameEn: "Early crown",   descDe: "Wandelt eine Reihe früher um.",                       descEn: "Promotes one rank earlier." },
+  pawn_early_promo:     { id: "pawn_early_promo",     icon: "★", tag: "promo", once: false, live: true, nameDe: "Frühe Krönung", nameEn: "Early crown",   descDe: "Wandelt früher um — eine Reihe, auf Stufe II zwei Reihen.",                       descEn: "Promotes one rank earlier." },
   knight_longleap:      { id: "knight_longleap",      icon: "⤢", tag: "move", once: false, live: true,  nameDe: "Weitsprung",   nameEn: "Long leap",      descDe: "Zusätzliche, weitere Springer-Sprünge.",              descEn: "Extra, longer knight jumps." },
   knight_outrider:      { id: "knight_outrider",      icon: "◆", tag: "move", once: false, live: true,  nameDe: "Vorreiter",    nameEn: "Outrider",       descDe: "Zusätzliche diagonale Weitsprünge.",                  descEn: "Extra diagonal long jumps." },
   bishop_hop:           { id: "bishop_hop",           icon: "⟿", tag: "move", once: true,  live: true,  nameDe: "Phase",        nameEn: "Phase",          descDe: "Darf 1× über eine angrenzende Figur springen.",       descEn: "Hop over one adjacent piece once." },
@@ -63,16 +59,15 @@ export const ABILITIES = {
 
   // ── ranged (live) ──
   ranged_shot:          { id: "ranged_shot",          icon: "➶", tag: "ranged", sperre: "riegel", once: true,  live: true, nameDe: "Scharfschuss", nameEn: "Snipe",        descDe: "Trifft 1× eine Figur in Sichtlinie aus der Ferne — du bleibst stehen.", descEn: "Hit a piece in line of sight from afar once — you stay put." },
-  ranged_volley:        { id: "ranged_volley",        icon: "⁂", tag: "ranged", sperre: "riegel", once: false, live: true, nameDe: "Dauerfeuer",   nameEn: "Volley",        descDe: "Darf jederzeit aus der Ferne in Sichtlinie schießen, ohne zu ziehen.", descEn: "May fire from afar in line of sight anytime, without moving." },
 
   // ── blink (live) ──
   gambit_masquerade:    { id: "gambit_masquerade",    icon: "🎭", tag: "trick", once: false, live: true, nameDe: "Maskerade",    nameEn: "Masquerade",    descDe: "Der Grand Gambit trägt kein Wappen mehr — für den Gegner ist er von jedem Bauern ununterscheidbar.", descEn: "The Grand Gambit sheds his crest — to the enemy he is indistinguishable from any pawn." },
   teleport:             { id: "teleport",             icon: "✸", tag: "blink", once: true,  live: true, nameDe: "Blinzeln",     nameEn: "Blink",         descDe: "Teleportiert 1× auf ein freies Feld in der Nähe.",     descEn: "Teleport to a nearby empty square once." },
 
   // ── sustain (live) ──
-  lifesteal:            { id: "lifesteal",            icon: "❦", tag: "sustain", hpOnly: true, sperre: "verborgen", once: false, live: true, nameDe: "Lebensraub",  nameEn: "Lifesteal",     descDe: "Heilt sich beim Schaden zufügen um die Hälfte des Schadens.", descEn: "Heals for half the damage it deals." },
-  regen:                { id: "regen",                icon: "✚", tag: "sustain", hpOnly: true, sperre: "verborgen", once: false, live: true, nameDe: "Regeneration", nameEn: "Regen",        descDe: "Heilt 1 HP, wann immer sie zieht.",                   descEn: "Heals 1 HP whenever it moves." },
-  bulwark:              { id: "bulwark",              icon: "⛨", tag: "sustain", hpOnly: true, sperre: "verborgen", once: false, live: true, nameDe: "Bollwerk",     nameEn: "Bulwark",       descDe: "Erleidet 1 Schaden weniger pro Treffer.",             descEn: "Takes 1 less damage per hit." },
+  lifesteal:            { id: "lifesteal",            icon: "❦", tag: "sustain", hpOnly: true, sperre: "verborgen", once: false, live: true, nameDe: "Lebensraub",  nameEn: "Lifesteal",     descDe: "Heilt sich beim Schaden zufügen um einen Teil des Schadens — ein Viertel, auf Stufe II die Hälfte, auf III drei Viertel.", descEn: "Heals part of the damage dealt - a quarter, half at tier II, three quarters at tier III." },
+  regen:                { id: "regen",                icon: "✚", tag: "sustain", hpOnly: true, sperre: "verborgen", once: false, live: true, nameDe: "Regeneration", nameEn: "Regen",        descDe: "Heilt sich beim Ziehen — 1 Leben je zweitem Zug, auf Stufe II je Zug, auf III 2 je Zug.",                   descEn: "Heals 1 HP whenever it moves." },
+  bulwark:              { id: "bulwark",              icon: "⛨", tag: "sustain", hpOnly: true, sperre: "verborgen", once: false, live: true, nameDe: "Bollwerk",     nameEn: "Bulwark",       descDe: "Erleidet weniger Schaden je Treffer — 1, auf Stufe II 2.",             descEn: "Takes 1 less damage per hit." },
 
   // ── upcoming (shown in the tree, mechanic rolling out) ──
   blast:                { id: "blast",                icon: "✺", tag: "aoe", hpOnly: true, sperre: "verborgen", once: true,  live: true, nameDe: "Schockwelle",  nameEn: "Blast",          descDe: "1× pro Partie: Der erste Nahkampfschlag trifft auch alle Gegner rings um das Ziel — mit halbem Schaden.",   descEn: "Once per battle: your first melee strike also hits every enemy around the target — at half damage." },
@@ -120,6 +115,20 @@ export const ZAUBER_STUFEN = {
    nicht in der Haeufigkeit. Je Stufe ein kurzer Text - die Leiter zeigt ihn
    statt "N x je Partie". Die Zahl der Eintraege IST die Zahl der Stufen. */
 export const STAERKE_STUFEN = {
+  /* v1.37.0 (Besitzerliste): was von selbst wirkt, waechst in der STAERKE -
+     die erste Stufe ist schwaecher als das alte Pauschalmass, die dritte
+     staerker. Lebensraub hielt bisher immer die Haelfte, Regeneration heilte
+     nach JEDEM Zug 1, Bollwerk schluckte immer 1. */
+  lifesteal:  { de: ["heilt ein Viertel des Schadens", "heilt die Haelfte des Schadens", "heilt drei Viertel des Schadens"],
+                en: ["heals a quarter of the damage", "heals half the damage", "heals three quarters of the damage"] },
+  regen:      { de: ["heilt 1 Leben je zweitem eigenen Zug", "heilt 1 Leben je Zug", "heilt 2 Leben je Zug"],
+                en: ["heals 1 life every second own move", "heals 1 life each move", "heals 2 life each move"] },
+  bulwark:    { de: ["1 Schaden weniger je Treffer", "2 Schaden weniger je Treffer"],
+                en: ["1 damage less per hit", "2 damage less per hit"] },
+  pawn_early_promo: { de: ["wandelt eine Reihe frueher um", "wandelt zwei Reihen frueher um"],
+                      en: ["promotes one rank early", "promotes two ranks early"] },
+  dragon_flight: { de: ["fliegt bis zu zwei Felder", "fliegt bis zu drei Felder", "fliegt bis zu vier Felder"],
+                   en: ["flies up to two squares", "flies up to three squares", "flies up to four squares"] },
   /* v1.34.0 (Besitzer): Sturmlauf waechst mit der Stufe */
   pawn_charge: { de: ["bis zu zwei Felder vor", "bis zu drei Felder vor", "bis zu vier Felder vor"],
                  en: ["up to two squares ahead", "up to three squares ahead", "up to four squares ahead"] },

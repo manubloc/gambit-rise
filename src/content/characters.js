@@ -178,8 +178,9 @@ flavorDe: "Jung, gierig und fest überzeugt, dass alles Gold ihm gehört.", flav
     unlock: { type: "boss" }, flank: true, big: true, costValue: 860,
     ladder: [
       { level: 3, ability: "dragon_flight" },
-      { level: 6, ability: "dragon_flight2" },
-      { level: 9, ability: "dragon_flight3" },
+      /* v1.37.0: Fliegen II und III sind STUFEN derselben Faehigkeit (aufstufen
+         ab Stufe 5 und 7), keine eigenen Sprossen mehr. Wer sie gelernt hatte,
+         behaelt sie als Stufe (profile.js, fliegenZusammengelegt). */
     ],
   },
   mage: {

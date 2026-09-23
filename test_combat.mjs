@@ -75,13 +75,18 @@ ok("ranged attack is generated at distance", !!shot && shot.noAdvance);
 let rr = reduce(rs, moveCommand(shot));
 ok("ranged kill removes target but shooter stays put", rr.state.board[idx(0, 3, 8)] === null && rr.state.board[idx(0, 0, 8)].kind === "B");
 
-// lifesteal heals the attacker
-let lb = new Array(64).fill(null);
-lb[idx(0, 0, 8)] = ab("Q", "w", { abilities: ["lifesteal"], hp: 3, maxHp: 9, atk: 4 });
-lb[idx(1, 1, 8)] = ab("R", "b", { hp: 9, maxHp: 9 });
-kings(lb);
-let lr = reduce(hpState(lb), moveCommand({ from: idx(0, 0, 8), to: idx(1, 1, 8), piece: 1, kind: "Q", color: "w", capture: true, captureKind: "R" }));
-ok("lifesteal heals the attacker on a hit", lr.state.board[idx(0, 0, 8)].hp === 5);
+/* v1.37.0 (Besitzer): LEBENSRAUB nach Stufe - ein Viertel, die Haelfte, drei
+   Viertel des Schadens (vorher immer die Haelfte). Schaden hier: 4. */
+const raub = (stufe) => {
+  const lb = new Array(64).fill(null);
+  lb[idx(0, 0, 8)] = ab("Q", "w", { abilities: ["lifesteal"], stufen: { lifesteal: stufe }, hp: 3, maxHp: 9, atk: 4 });
+  lb[idx(1, 1, 8)] = ab("R", "b", { hp: 9, maxHp: 9 });
+  kings(lb);
+  const r = reduce(hpState(lb), moveCommand({ from: idx(0, 0, 8), to: idx(1, 1, 8), piece: 1, kind: "Q", color: "w", capture: true, captureKind: "R" }));
+  return r.state.board[idx(0, 0, 8)].hp - 3;
+};
+ok("Lebensraub I heilt ein Viertel des Schadens (1 von 4)", raub(1) === 1);
+ok("Lebensraub II die Haelfte (2), III drei Viertel (3)", raub(2) === 2 && raub(3) === 3);
 
 // bulwark reduces incoming damage
 let bb = new Array(64).fill(null);
@@ -91,12 +96,25 @@ kings(bb);
 let br = reduce(hpState(bb), moveCommand({ from: idx(0, 0, 8), to: idx(1, 1, 8), piece: 1, kind: "Q", color: "w", capture: true, captureKind: "R" }));
 ok("bulwark soaks 1 damage", br.state.board[idx(1, 1, 8)].hp === 6);
 
-// regen heals 1 on moving
-let gb = new Array(64).fill(null);
-gb[idx(0, 0, 8)] = ab("R", "w", { abilities: ["regen"], hp: 4, maxHp: 9 });
-kings(gb);
-let gr = reduce(hpState(gb), moveCommand(legalMoves(hpState(gb)).find((m) => m.from === idx(0, 0, 8) && !m.capture)));
-ok("regen heals 1 HP when moving", [...gr.state.board].find((p) => p && p.kind === "R" && p.color === "w").hp === 5);
+/* v1.37.0: REGENERATION nach Stufe - I heilt 1 je ZWEITEM eigenen Zug,
+   II 1 je Zug, III 2 je Zug (vorher immer 1 je Zug). */
+const zieht = (st, von) => {
+  const m = legalMoves(st).find((x) => x.from === von && !x.capture);
+  return reduce(st, moveCommand(m)).state;
+};
+const regenLauf = (stufe, zuege) => {
+  const gb = new Array(64).fill(null);
+  gb[idx(0, 0, 8)] = ab("R", "w", { abilities: ["regen"], stufen: { regen: stufe }, hp: 4, maxHp: 9 });
+  kings(gb);
+  let st = hpState(gb);
+  for (let n = 0; n < zuege; n++) {
+    const meine = [...st.board].findIndex((p) => p && p.kind === "R" && p.color === "w");
+    st = zieht({ ...st, turn: "w" }, meine);
+  }
+  return [...st.board].find((p) => p && p.kind === "R" && p.color === "w").hp - 4;
+};
+ok("Regeneration I heilt beim ersten Zug noch nicht, beim zweiten 1", regenLauf(1, 1) === 0 && regenLauf(1, 2) === 1);
+ok("Regeneration II heilt 1 je Zug, III 2 je Zug", regenLauf(2, 1) === 1 && regenLauf(3, 1) === 2);
 
 
 // ── the TWO houses: crown and shadow, plus the boss auras ────────────────────
@@ -305,7 +323,7 @@ import { bossSpec, bossById } from "./src/content/index.js";
 // ── Fernangriff reicht 2-3 Felder (v0.79) ────────────────────────────────────
 {
   const brett = new Array(64).fill(null);
-  const sch = W("R", { hp: 5, maxHp: 5, atk: 3 }); sch.abilities = ["ranged_volley"];
+  const sch = W("R", { hp: 5, maxHp: 5, atk: 3 }); sch.abilities = ["ranged_shot"];   /* v1.37.0: Dauerfeuer ist fort - der Scharfschuss schiesst */
   brett[idx(0, 0, 8)] = sch;
   brett[idx(0, 2, 8)] = B("P", { hp: 2, maxHp: 2, atk: 1 });   // Distanz 2
   brett[idx(1, 0, 8)] = B("N", { hp: 3, maxHp: 3, atk: 2 });   // Distanz 1
@@ -359,7 +377,7 @@ import { bossSpec, bossById } from "./src/content/index.js";
 // ── Schockwelle traegt sich NICHT auf den Fernschuss ─────────────────────────
 {
   const brett = new Array(64).fill(null);
-  const b1 = W("B", { hp: 3, maxHp: 3, atk: 2 }); b1.abilities = ["blast", "ranged_volley"];
+  const b1 = W("B", { hp: 3, maxHp: 3, atk: 2 }); b1.abilities = ["blast", "ranged_shot"];   /* v1.37.0: Dauerfeuer ist fort */
   brett[idx(0, 0, 8)] = b1;
   brett[idx(0, 2, 8)] = B("R", { hp: 5, maxHp: 5, atk: 3 });
   brett[idx(1, 2, 8)] = B("P", { hp: 2, maxHp: 2, atk: 1 });
@@ -945,6 +963,44 @@ console.log("\n== STURM UND GELEIT (v1.11.2) ==");
     && ar.includes("const blattFolge = [") && ar.includes("blaettern(dx < 0 ? 1 : -1)"));
   ok("... nur ein klarer waagrechter Wisch - Scrollen bleibt Scrollen", ar.includes("Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.6"));
   ok("gewonnene Kapitelmeister stehen im Hofstaat, in Kapitelfolge, danach die gekauften (vorher nirgends)", ar.includes("...LEAGUE_BOSSES.filter(imHof)") && ar.includes("...BOSSES.filter((b) => !LEAGUE_BOSSES.includes(b.id) && imHof(b.id))"));
+}
+
+/* ── v1.37.0: BOLLWERK, FRUEHE KROENUNG UND FLIEGEN NACH STUFE ──────────── */
+{
+  const { maxStufe, ABILITIES } = await import("./src/content/abilities.js");
+  const { pieceMoves } = await import("./src/core/rules/moves.js");
+  const { CHARACTERS: CH2 } = await import("./src/content/index.js");
+  const { fliegenZusammengelegt } = await import("./src/meta/profile.js");
+  // Bollwerk: 1 oder 2 Schaden weniger
+  const panzer = (stufe) => {
+    const b = new Array(64).fill(null);
+    b[idx(0, 0, 8)] = ab("Q", "w", { hp: 9, maxHp: 9, atk: 3 });
+    b[idx(1, 1, 8)] = ab("R", "b", { abilities: ["bulwark"], stufen: { bulwark: stufe }, hp: 9, maxHp: 9 });
+    kings(b);
+    const r = reduce(hpState(b), moveCommand({ from: idx(0, 0, 8), to: idx(1, 1, 8), piece: 1, kind: "Q", color: "w", capture: true, captureKind: "R" }));
+    return 9 - r.state.board[idx(1, 1, 8)].hp;
+  };
+  ok("Bollwerk I schluckt 1 Schaden (3 -> 2), II schluckt 2 (3 -> 1)", panzer(1) === 2 && panzer(2) === 1);
+  ok("... und hat genau zwei Stufen", maxStufe("bulwark") === 2);
+  // Fruehe Kroenung: eine oder zwei Reihen frueher
+  const kroent = (stufe, feld) => {
+    const b = new Array(64).fill(null);
+    b[feld] = ab("P", "w", { abilities: ["pawn_early_promo"], stufen: { pawn_early_promo: stufe }, hp: 3, maxHp: 3 });
+    kings(b);
+    return pieceMoves(hpState(b), feld).some((m) => m.promotion);
+  };
+  ok("Fruehe Kroenung I wandelt auf der vorletzten Reihe (nicht zwei davor)", kroent(1, idx(3, 5, 8)) && !kroent(1, idx(3, 4, 8)));
+  ok("... Stufe II auch zwei Reihen frueher", kroent(2, idx(3, 4, 8)));
+  // Fliegen: eine Faehigkeit mit Stufen
+  ok("Fliegen II und III stehen nicht mehr als eigene Faehigkeiten", !ABILITIES.dragon_flight2 && !ABILITIES.dragon_flight3 && maxStufe("dragon_flight") === 3);
+  ok("... und der Drache traegt nur noch EINE Sprosse dafuer",
+    CH2.dragon.ladder.filter((r) => r.ability === "dragon_flight").length === 1 && !CH2.dragon.ladder.some((r) => /dragon_flight[23]/.test(r.ability || "")));
+  const alt = { pieces: { abilities: { dragon: ["dragon_flight", "dragon_flight3"] }, stufen: {} } };
+  const neuP = fliegenZusammengelegt(alt);
+  ok("Altstand: gelerntes Fliegen III wird zur STUFE III (bezahlt bleibt bezahlt)",
+    neuP.pieces.stufen.dragon.dragon_flight === 3 && JSON.stringify(neuP.pieces.abilities.dragon) === '["dragon_flight"]');
+  ok("... und ein zweites Laden aendert nichts", JSON.stringify(fliegenZusammengelegt(neuP)) === JSON.stringify(neuP));
+  ok("Dauerfeuer ist auch aus dem Kern fort", !ABILITIES.ranged_volley);
 }
 
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);

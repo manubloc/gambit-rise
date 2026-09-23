@@ -63,8 +63,6 @@ const Z = {
   knight_longleap:     ["sprung",  <g key="g"><path d="M5 16c2-7 12-7 14 0" /><path d="M16.6 13.4L19 16l-3.4.6" /><path d="M8 17h1M11 17h1" /></g>],
   queen_knightleap:    ["sprung",  <g key="g"><path d="M6 15c2-6 10-6 12 0" /><path d="M12 6l1 2 2-1-1 2" /><path d="M15.8 12.6L18 15l-3 .6" /></g>],
   dragon_flight:       ["sprung",  <g key="g"><path d="M12 15c-3 0-6-2-7-5 3 0 5 1 7 3 2-2 4-3 7-3-1 3-4 5-7 5z" /><path d="M12 15v3" /></g>],
-  dragon_flight2:      ["sprung",  <g key="g"><path d="M12 14c-4 0-7-2-8-5 3 0 6 1 8 3 2-2 5-3 8-3-1 3-4 5-8 5z" /><path d="M12 14v4M9 17l3 2 3-2" /></g>],
-  dragon_flight3:      ["sprung",  <g key="g"><path d="M12 13c-4 0-8-2-9-5 4 0 7 1 9 3 2-2 5-3 9-3-1 3-5 5-9 5z" /><path d="M8 17l2-2M12 18v-4M16 17l-2-2" /></g>],
   // SCHLAG — Klingen und Keile
   pawn_forward_capture:["schlag",  <g key="g"><path d="M12 18V9" /><path d="M8.5 12L12 8.5 15.5 12" /><path d="M9 6h6" /></g>],
   pawn_charge:         ["schlag",  <g key="g"><path d="M8 18V8M12 18V6M16 18V8" /><path d="M10 10l2-3 2 3" /></g>],
@@ -73,7 +71,6 @@ const Z = {
   chain:               ["schlag",  <g key="g"><path d="M6 7l4 3-2 3 5 2-1 4" transform="translate(1 -1)" /><path d="M13 18l-1.6-1 .3-1.9" /></g>],
   // GESCHOSS — Pfeil, Salve, Haken
   ranged_shot:         ["geschoss",<g key="g"><path d="M5 19L17 7" /><path d="M13.5 7H17v3.5" /><path d="M7 13l4 4" /></g>],
-  ranged_volley:       ["geschoss",<g key="g"><path d="M5 17l7-7M9 19l7-7M13 21l6-6" transform="translate(0 -2)" /><path d="M9.5 10H12v2.5M13.5 12H16v2.5" /></g>],
   pull:                ["geschoss",<g key="g"><path d="M6 6l7 7" /><path d="M13 13c2 2 4 2 5 .5s0-3.5-2-3" /><path d="M6 6v3M6 6h3" /></g>],
   // RISS — was die Regeln bricht
   teleport:            ["riss",    <g key="g"><circle cx="8" cy="12" r="2.6" /><circle cx="16.5" cy="9" r="1.7" opacity=".7" /><path d="M11 11l3-1.4" strokeDasharray="1.6 1.8" /></g>],

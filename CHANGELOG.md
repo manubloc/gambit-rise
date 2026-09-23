@@ -1,5 +1,26 @@
 # Changelog - Grand Gambit
 
+## 1.37.0
+- DIE DAUERFAEHIGKEITEN WACHSEN IN DER STAERKE (Besitzerliste):
+    * LEBENSRAUB heilt ein Viertel des Schadens, auf II die Haelfte, auf III
+      drei Viertel (vorher immer die Haelfte).
+    * REGENERATION heilt 1 Leben je ZWEITEM eigenen Zug, auf II 1 je Zug, auf
+      III 2 je Zug (vorher immer 1 je Zug). Der Takt haengt an der Figur.
+    * BOLLWERK schluckt 1 Schaden, auf II 2 (zwei Stufen).
+    * FRUEHE KROENUNG wandelt eine Reihe frueher um, auf II zwei.
+  Stufe I ist damit schwaecher als das alte Pauschalmass, Stufe III staerker.
+  Gemessen (npm run balance): alles im Rahmen - Paladin 56 %, Laeufer 58 %,
+  Attentaeter 36 % bei doppelter Partiezahl; im Schnelllauf sah der Paladin
+  mit 61 % aus wie ein Ausreisser, das war Streuung einzelner Keime.
+- FLIEGEN IST EINE FAEHIGKEIT MIT STUFEN: die drei Sprossen des Drachen
+  (Fliegen, +1 Feld, +1 Feld) sind zu einer geworden - zwei Felder, auf II
+  drei, auf III vier. Wer die alten Sprossen gelernt hatte, bekommt die
+  entsprechende STUFE gutgeschrieben (bezahlt bleibt bezahlt).
+- DAUERFEUER IST GANZ FORT: seit v1.28.1 traegt es keine Figur mehr, im Kern,
+  in der Liste der Faehigkeiten und in den Zeichen lag es noch herum.
+- Scharfschuss hatte seine drei Stufen (1x, 2x, 3x je Partie) schon - der
+  offene Punkt war bereits erledigt.
+
 ## 1.36.0 - Kampagnenumbau, Schritt C: die Lebenspunkte kommen frueh
 - Besitzerentscheid 22.9. (loest v1.2.2 "ab 5" ab): "Wir hatten doch mal
   gesagt, dass man auch in der kostenlosen Version schon HP-Gefechte testen
