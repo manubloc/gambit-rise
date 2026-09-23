@@ -1,5 +1,22 @@
 # Changelog - Grand Gambit
 
+## 1.39.1
+- DIE SCHACHFELDER SEHEN IN JEDEM KAPITEL AUS WIE IN KAPITEL I (Besitzer:
+  "die Schachfelder sind irgendwie so ein bisschen verrueckt ... ich habe das
+  Gefuehl, du hast die in den anderen Kapiteln nicht so sauber zugeschnitten
+  wie im ersten"). GEFUNDEN: jedes Kapitel hat EIN Streifenbild - links das
+  helle Feld, rechts das dunkle -, aus dem sich jede Zelle per Hash ein
+  Fenster schneidet. Die Streifen zeigten aber GEMALTE KACHELN MIT RAHMEN und
+  abgerundeten Ecken, und nur Kapitel I hatte quadratische Haelften (1280x640,
+  alle anderen 1280x720). Traf ein Fenster den Rahmen, sass ein dunkler Balken
+  mitten im Feld.
+  Alle 16 Streifen (12 Kapitel, 3 klassische, das Finale) sind jetzt
+  freigeschnitten: der Rahmen ist weg, aus jeder Haelfte das groesste
+  QUADRAT aus der Mitte (kein Verzerren), zusammengesetzt zu 1280x640 wie in
+  Kapitel I. Die Originale liegen in archiv/bilder/felder-original/.
+- Im Browser nachgesehen (Kapitel III): durchgehend ruhiger Stein, keine
+  Rahmenstuecke mehr im Feld.
+
 ## 1.39.0
 - DASSELBE LEISE KLEID FUER ALLES UM DAS BRETT (Besitzer: "wie du oben
   Zurueck und Aufgeben gemacht hast, von der Farbgebung super - alle anderen
