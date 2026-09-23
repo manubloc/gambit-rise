@@ -936,9 +936,11 @@ console.log("\n== STURM UND GELEIT (v1.11.2) ==");
 {
   const { readFileSync } = await import("node:fs");
   const bv = readFileSync("src/app/ui/board/BoardView.jsx", "utf8");
+  /* v1.38.0: es gibt nur noch EINE Leiste - die Zeile fuer eine Figur ohne
+     Talente. Die gefuellte ist fort (die Kampfleiste traegt die Talente). */
   const baender = bv.split('className="gg-talentband" style={{').slice(1).map((x) => x.slice(0, 60));
-  ok("beide Fassungen der Leiste liegen UEBER dem Brettschatten (position + zIndex)",
-    baender.length === 2 && baender.every((x) => x.includes('position: "relative", zIndex: 2')));
+  ok("die verbliebene Leiste liegt UEBER dem Brettschatten (position + zIndex)",
+    baender.length === 1 && baender.every((x) => x.includes('position: "relative", zIndex: 2')));
   ok("... und die leere Leiste schreibt kraeftig und fast weiss", bv.includes('fontSize: 13.5, fontWeight: 600, lineHeight: 1.45, textAlign: "center", color: "#f1ecff"'));
   const gs = readFileSync("src/app/ui/screens/GameScreen.jsx", "utf8");
   ok("Zurueck und Aufgeben sind leise Knoepfe (kein Gluehen, gedaempfte Schrift)",
@@ -1001,6 +1003,33 @@ console.log("\n== STURM UND GELEIT (v1.11.2) ==");
     neuP.pieces.stufen.dragon.dragon_flight === 3 && JSON.stringify(neuP.pieces.abilities.dragon) === '["dragon_flight"]');
   ok("... und ein zweites Laden aendert nichts", JSON.stringify(fliegenZusammengelegt(neuP)) === JSON.stringify(neuP));
   ok("Dauerfeuer ist auch aus dem Kern fort", !ABILITIES.ranged_volley);
+}
+
+/* ── v1.38.0 (Besitzer): FAEHIGKEITEN NUR NOCH EINMAL, UND DIE LEISTE SCHALTET
+   "die Faehigkeiten stehen doppelt (Pillen im Talentband und der Zeichen-
+   Slider darunter); die Auswahl am Slider greift nicht sauber." ──────────── */
+{
+  const { readFileSync } = await import("node:fs");
+  const bv = readFileSync("src/app/ui/board/BoardView.jsx", "utf8");
+  const kl = readFileSync("src/app/ui/KampfLeiste.jsx", "utf8");
+  const gs = readFileSync("src/app/ui/screens/GameScreen.jsx", "utf8");
+  ok("das Talentband traegt keine Faehigkeits-Pillen mehr", !bv.includes("{eintraege.map((e) => {"));
+  ok("... und verschwindet ganz, sobald die Figur Talente hat", bv.includes("if (eintraege.length) return null;"));
+  ok("... der tote Schild-Chip ist fort (keine Figur und kein Monster traegt einen Schild)", !bv.includes("Schild ×"));
+  ok("... die Zeile fuer eine Figur OHNE Talente bleibt", bv.includes("Diese Figur hat noch keine Talente"));
+  ok("der scharfe Zauber ist EINE Wahrheit: der Gefechtsschirm haelt sie",
+    gs.includes("const [scharf, setScharf] = useState(null);")
+    && /<BoardView[^>]*scharf=\{scharf\} onScharf=\{setScharf\}/.test(gs)
+    && (gs.match(/<KampfLeiste[^>]*scharf=\{scharf\} onScharf=\{setScharf\}/g) || []).length === 2);
+  ok("das Brett nimmt ihn von aussen und haelt ihn sonst selbst",
+    bv.includes("scharf: scharfAussen = undefined, onScharf = null") && bv.includes("const scharf = scharfAussen !== undefined ? scharfAussen : scharfIntern;"));
+  ok("die Kampfleiste schaltet nur ECHTE Zauber der eigenen Figur am Zug scharf",
+    kl.includes("const amZug = !!(pc && eigen && pc.color === state.turn);")
+    && kl.includes("const istZauber = (id) => !!ABILITIES[id] && !PASSIVE_TALENTE.has(id);")
+    && kl.includes("const schaltbar = (id) => amZug && istZauber(id) && !(pc.used || {})[id];"));
+  ok("... ein Tipp schaltet scharf, ein zweiter entschaerft", kl.includes("if (schaltbar(id) && onScharf) onScharf(scharf === id ? null : id);"));
+  ok("... und die scharfe Karte zeigt es (violett) samt Hinweis unter der Reihe",
+    kl.includes('scharf={scharf === id}') && kl.includes('"1.5px solid #c4b5fd"') && kl.includes("bereit — tippe ein ✦-Feld"));
 }
 
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);

@@ -188,17 +188,29 @@ console.log("\n== Die Oberflaeche zeigt die Talente ==");
   const { readFileSync } = await import("node:fs");
   const bv = readFileSync("src/app/ui/board/BoardView.jsx", "utf8");
   ok("das Talentband existiert im Board", bv.includes('className="gg-talentband"'));
-  ok("es unterscheidet Zauber und dauerhafte Talente", bv.includes('"dauerhaft"') && bv.includes('"antippen"'));
-  ok("es sagt, wenn das Buch geschlossen ist", bv.includes("Das Buch ist geschlossen"));
+  /* v1.38.0 (Besitzer: "die Faehigkeiten stehen doppelt"): die Pillen sind
+     fort - die Karten der KAMPFLEISTE tragen beides jetzt. */
+  const kl2 = readFileSync("src/app/ui/KampfLeiste.jsx", "utf8");
+  ok("die Karten unterscheiden Zauber und dauerhafte Talente", kl2.includes('"dauerhaft"') && kl2.includes('"antippen"'));
+  ok("sie sagen, wenn das Buch geschlossen ist", kl2.includes("Das Buch ist geschlossen"));
+  ok("und das Band zeigt keine Talente mehr (keine zweite Anzeige)", !bv.includes('"antippen"') && bv.includes("traegt die Kampfleiste alles"));
+  ok("die Karten tragen die Art-Farbe der Chronik im Zeichen", kl2.includes("ABILITIES[id].icon"));
   ok("es liest die Chronik, nicht eine zweite Liste", bv.includes('from "../../../content/abilities.js"'));
   ok("ZAUBER RUHEN, bis ihr Chip gewaehlt ist (scharf)", bv.includes("mv.consumes && mv.consumes !== scharf"));
   ok("Auswahlwechsel entschaerft", bv.includes("setScharf(null); }, [sel])"));
-  ok("der Schild steht im Band", bv.includes("Schild ×{schild}"));
+  /* v1.38.0: der Schild ist fort - seit dem Umbau der Aufstiegsplaene traegt
+     weder Figur noch Monster einen (gemessen), der Chip konnte nie erscheinen. */
+  const { CHARACTERS: CH3 } = await import("./src/content/index.js");
+  const { BOSSES: BO3 } = await import("./src/content/bosses.js");
+  ok("kein Schild mehr - und darum auch kein Schild-Chip",
+    !bv.includes("Schild ×{schild}")
+    && Object.values(CH3).every((c) => !(c.ladder || []).some((r) => r.shield))
+    && BO3.every((b) => !b.shield));
   /* v1.0.92: drei Befunde vom 12.9. */
   ok("das Band wird UNTER das Brett gestapelt, nicht daneben zentriert",
     bv.includes('flexDirection: "column"') && !bv.includes('alignItems: "center", justifyItems: "center"'));
-  ok("die Talent-Arten tragen ihre Farbe aus der Chronik (TAGS)",
-    bv.includes("TAGS[ab.tag]") && bv.includes("farbe: tg ? tg.color : null"));
+  ok("die Talente tragen Namen und Zeichen aus der Chronik, nicht aus einer zweiten Liste",
+    kl2.includes('from "../../content/index.js"') && kl2.includes("ABILITIES[id].nameDe"));
   ok("Gegnerziele sind Feldfaerbung, keine Perle mehr",
     !bv.includes('background: "radial-gradient(circle at 34% 30%, #ddd2ff') && bv.includes("rgba(167,139,250,.46)"));
   const gs = readFileSync("src/app/ui/screens/GameScreen.jsx", "utf8");

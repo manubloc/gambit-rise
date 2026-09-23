@@ -190,7 +190,7 @@ function Zustaende({ piece, feld, state, ruhig, en }) {
   </>;
 }
 
-export function BoardView({ lang = "de", state, onMove, interactive, lastMove, mattSeite = null, effekt = null, theme = null, maxPx = 520, animateFor = null, flip = false, fitBox = false, feld = null, feldDunkel = null, ruhig = false, pick = null, onPick = null, pov = "w", texture = null, ground = null, artStyle = "painted", showLevel = true, showCoords = false, pulse = 0.4, friendly = false, knownKinds = null, seerVision = false, onEnemyTap = null, introSpot = null, onInspect = null, hotseat = false, setzFelder = null, onSetz = null }) {
+export function BoardView({ lang = "de", state, onMove, interactive, lastMove, mattSeite = null, effekt = null, theme = null, maxPx = 520, animateFor = null, flip = false, fitBox = false, feld = null, feldDunkel = null, ruhig = false, pick = null, onPick = null, pov = "w", texture = null, ground = null, artStyle = "painted", showLevel = true, showCoords = false, pulse = 0.4, friendly = false, knownKinds = null, seerVision = false, onEnemyTap = null, introSpot = null, onInspect = null, hotseat = false, setzFelder = null, onSetz = null , scharf: scharfAussen = undefined, onScharf = null}) {
   const sqL0 = theme?.sqLight || T.sqLight, sqD0 = theme?.sqDark || T.sqDark;
   // a GROUND painting beneath the field: the squares open further so meadow,
   // stream and path shimmer through — the land itself hosts the battle
@@ -433,7 +433,13 @@ export function BoardView({ lang = "de", state, onMove, interactive, lastMove, m
      und ein Fingertipp aufs falsche verbrannte den einen Zauber der Partie.
      Jetzt zeigt das Brett nur normale und dauerhafte Zuege; ein Zauber
      erscheint erst, wenn sein Chip im Talentband angetippt ist. */
-  const [scharf, setScharf] = useState(null);   // id des scharfgeschalteten Zaubers
+  /* v1.38.0 (Besitzer: "die Faehigkeiten stehen doppelt ... die Auswahl am
+     Slider greift nicht sauber"): der Merker, WELCHER Zauber scharf ist, lebt
+     jetzt im Gefechtsschirm - Brett und Kampfleiste teilen ihn. Kommt keiner
+     von aussen (Vorschauen, Proben), haelt das Brett ihn wie bisher selbst. */
+  const [scharfIntern, setScharfIntern] = useState(null);
+  const scharf = scharfAussen !== undefined ? scharfAussen : scharfIntern;
+  const setScharf = onScharf || setScharfIntern;
   useEffect(() => { setScharf(null); }, [sel]);  // Auswahlwechsel entschaerft
   const targets = useMemo(() => {
     const m = new Map();
@@ -933,23 +939,13 @@ export function BoardView({ lang = "de", state, onMove, interactive, lastMove, m
     const eigene = selPiece.color === state.turn;
     const ohneTalent = !selPiece.abilities || !selPiece.abilities.length;
     if (ohneTalent && (!eigene || !interactive)) return null;
-    const zu = Object.keys(selPiece.used || {}).length > 0;
-    const en = false;
-    const schild = selPiece.shield || 0;
-    const eintraege = selPiece.abilities.map((id) => {
-      const ab = ABILITIES[id]; if (!ab) return null;
-      const passiv = PASSIVE_TALENTE.has(id);
-      const verbraucht = !!(selPiece.used || {})[id];
-      /* v1.0.92 (Besitzer: "eine farbliche Kennzeichnung, ob passiv, aktiv,
-         Fernkampf"): die Chronik fuehrt seit je acht Arten mit eigener Farbe
-         (TAGS: Bewegung blau, Fernkampf orange, Sprung violett, Zaehigkeit
-         gruen, Flaeche, Kontrolle, Kroenung, List). Das Band traegt sie
-         jetzt - so sieht man die Art, bevor man den Namen liest. */
-      const tg = TAGS[ab.tag] || null;
-      return { id, name: en ? ab.nameEn : ab.nameDe, icon: ab.icon, passiv, verbraucht,
-        farbe: tg ? tg.color : null, artName: tg ? (en ? tg.nameEn : tg.nameDe) : null };
-    }).filter(Boolean);
-    if (!eintraege.length && !schild) {
+    /* v1.38.0: DER SCHILD IST FORT. Er stand hier noch als Chip, aber die
+       Schildsprossen sind laengst aus allen Aufstiegsplaenen entfernt
+       (characters.js): gemessen traegt KEINE Figur und KEIN Monster einen
+       Schild, der Chip konnte also nie erscheinen. */
+    const eintraege = selPiece.abilities.filter((id) => ABILITIES[id]);
+    if (eintraege.length) return null;   /* v1.38.0: die Karten der Kampfleiste tragen die Talente */
+    {
       /* keine Talente, kein Schild: eine erklaerende Zeile statt Nichts. */
       /* v1.2.3 (Besitzer: "die Faehigkeiten unten bitte immer etwas praesenter
          machen und besser darstellen"): auch die leere Zeile traegt jetzt das
@@ -979,58 +975,7 @@ export function BoardView({ lang = "de", state, onMove, interactive, lastMove, m
         </div>
       );
     }
-    /* v1.2.3: PRAESENTER. Das Band trug 11,5 px Schrift in einem duennen
-       Kasten und verschwand neben dem Brett. Jetzt groessere Chips, mehr Luft,
-       eine sichtbare Kontur und ein Schatten, der es vom Grund hebt - es ist
-       die Schaltflaeche fuer jeden Zauber, nicht eine Fussnote. */
-    return (
-      <div className="gg-talentband" style={{ position: "relative", zIndex: 2,   /* v1.33.1: ueber dem Brettschatten, wie die leere Leiste */
-        display: "flex", flexWrap: "wrap", gap: 7, alignItems: "center",
-        justifyContent: "center", padding: "10px 10px 9px", fontSize: 12.5, lineHeight: 1.35,
-        color: "#e4dcff", background: "linear-gradient(180deg, rgba(34,26,58,.96), rgba(18,15,32,.97))",
-        border: "1px solid rgba(167,139,250,.5)", borderRadius: 12, marginTop: 8,
-        boxShadow: "0 3px 14px rgba(0,0,0,.5), inset 0 1px 0 rgba(196,181,253,.14)" }}>
-        {/* DER SCHILD (Besitzerbefund "er ist nicht gestorben"): seit v1.0.77
-            sind die blauen Perlen vom Brett - und damit war der Schild
-            unsichtbar, obwohl er im Schachmodus jeden Schlag abfaengt. Hier
-            steht er wieder, in Worten. */}
-        {schild > 0 && (
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "5px 11px",
-            borderRadius: 999, whiteSpace: "nowrap", background: "rgba(74,163,232,.16)",
-            border: "1px solid rgba(74,163,232,.55)", color: "#bfe0ff" }}>
-            <span aria-hidden>⛨</span>Schild ×{schild}
-            <span style={{ opacity: .7, fontSize: 10 }}>fängt {schild === 1 ? "einen Schlag" : schild + " Schläge"} ab</span>
-          </span>
-        )}
-        {eintraege.map((e) => {
-          const aktiv = !e.passiv && scharf === e.id;
-          const waehlbar = !e.passiv && !zu && interactive && selPiece.color === state.turn;
-          return (
-          <span key={e.id} role={waehlbar ? "button" : undefined}
-            onClick={waehlbar ? (ev) => { ev.stopPropagation(); setScharf(aktiv ? null : e.id); } : undefined}
-            style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "5px 11px",
-            borderRadius: 999, whiteSpace: "nowrap", cursor: waehlbar ? "pointer" : "default",
-            background: zu && !e.passiv ? "rgba(120,120,140,.14)"
-              : aktiv ? (e.farbe || "#a78bfa") + "88"
-              : e.farbe ? e.farbe + "22" : (e.passiv ? "rgba(233,207,138,.14)" : "rgba(124,58,237,.22)"),
-            border: `1px solid ${zu && !e.passiv ? "rgba(140,140,160,.35)"
-              : aktiv ? "#fff" : (e.farbe ? e.farbe + "aa" : "rgba(167,139,250,.6)")}`,
-            boxShadow: aktiv ? "0 0 10px rgba(167,139,250,.6)" : "none",
-            color: e.passiv ? "#f1e3b2" : (zu ? "#9a97ad" : "#e6ddff"),
-            textDecoration: e.verbraucht ? "line-through" : "none" }}>
-            <span aria-hidden style={{ color: e.farbe || undefined }}>{e.passiv ? "◆" : "✦"}</span>{e.name}
-            <span style={{ opacity: .7, fontSize: 10 }}>{e.passiv ? "dauerhaft" : (e.verbraucht ? "eingesetzt" : aktiv ? "bereit — Feld wählen" : "antippen")}</span>
-          </span>);
-        })}
-        {!eintraege.every((e) => e.passiv) && (
-          <span style={{ width: "100%", textAlign: "center", fontSize: 10.5, color: zu ? "#b8a7ea" : "#a89ac9", marginTop: 2 }}>
-            {zu ? "Das Buch ist geschlossen — ein Zauber je Partie, er ist eingesetzt."
-                : scharf ? "Zauber bereit: tippe ein ✦-Feld. Nochmal antippen entschärft."
-                : "Ein Zauber je Partie — tippe ein Talent an, um seine Züge zu sehen."}
-          </span>
-        )}
-      </div>
-    );
+    return null;   /* v1.38.0: mit Talenten traegt die Kampfleiste alles - hier steht nichts mehr */
   })();
 
   const board = (

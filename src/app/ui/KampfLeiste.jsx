@@ -12,6 +12,7 @@
 import { useState, useEffect } from "react";
 import { legalMovesFrom } from "../../core/index.js";
 import { ABILITIES, CHARACTERS, faehigkeitZustand } from "../../content/index.js";
+import { PASSIVE_TALENTE } from "../../core/rules/moves.js";   /* v1.38.0 */
 import { paintedForPiece } from "./board/paintedArt.js";
 
 import { T } from "./theme.js";
@@ -48,17 +49,20 @@ function Ring({ icon, dry, gruen }) {
 
 // DIE KARTE (nach der Vorlage): schmaler violetter Rahmen, Ring oben,
 // Name darunter - und bei der gesperrten Karte die Stufe als Untertitel.
-function Karte({ icon, label, unter, dry, gruen, active, lock, onTap }) {
+function Karte({ icon, label, unter, dry, gruen, active, lock, onTap, scharf = false, fuss = null }) {
   return (
     <button onClick={onTap} title={label}
       style={{ width: 66, minHeight: 78, flex: "0 0 auto", cursor: "pointer", fontFamily: "inherit",
         display: "flex", flexDirection: "column", alignItems: "center", gap: 4, padding: "7px 3px 5px",
         borderRadius: 12,
-        border: active ? `1.5px solid ${T.goldBright}` : `1px solid ${lock ? "rgba(233,210,150,.2)" : "rgba(233,210,150,.42)"}`,
+        /* v1.38.0: SCHARF leuchtet violett - dieselbe Farbe, die das Brett fuer
+           die Zauberfelder nimmt; "offen" (Beschreibung) bleibt golden. */
+        border: scharf ? "1.5px solid #c4b5fd"
+          : active ? `1.5px solid ${T.goldBright}` : `1px solid ${lock ? "rgba(233,210,150,.2)" : "rgba(233,210,150,.42)"}`,
         background: lock
           ? "linear-gradient(180deg, rgba(20,16,32,.55), rgba(10,9,16,.6))"
           : "linear-gradient(180deg, rgba(38,28,64,.78), rgba(16,12,30,.9))",
-        boxShadow: active ? "0 0 10px rgba(240,214,138,.35)" : "0 2px 8px rgba(0,0,0,.4)",
+        boxShadow: scharf ? "0 0 14px rgba(167,139,250,.65)" : active ? "0 0 10px rgba(240,214,138,.35)" : "0 2px 8px rgba(0,0,0,.4)",
         opacity: lock ? 0.78 : 1 }}>
       <Ring icon={lock ? "🔒" : icon} dry={dry || lock} gruen={gruen} />
       <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: ".05em", textTransform: "uppercase",
@@ -66,11 +70,15 @@ function Karte({ icon, label, unter, dry, gruen, active, lock, onTap }) {
         maxWidth: 60, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
         {label}</span>
       {unter && <span style={{ fontSize: 8.5, fontWeight: 800, color: T.faint }}>{unter}</span>}
+      {/* v1.38.0: die Fusszeile der Pillen zog mit um - dauerhaft, antippen,
+          eingesetzt. Sie sagt in einem Wort, was die Karte kann. */}
+      {fuss && <span style={{ fontSize: 8.5, fontWeight: 700, letterSpacing: ".02em",
+        color: scharf ? "#cbbcf5" : dry ? T.faint : "#a99ac9" }}>{fuss}</span>}
     </button>
   );
 }
 
-export function KampfLeiste({ state, inspect, en, myColor = "w", banner = false, stil = "painted" }) {
+export function KampfLeiste({ state, inspect, en, myColor = "w", banner = false, stil = "painted", scharf = null, onScharf = null }) {
   const [offen, setOffen] = useState(null);
   /* v1.0.44: Ob die gesperrten Kuenste wach sind, entscheidet hier die
      PARTIE, nicht der Spielstand: unter Schachregeln ruhen sie immer - auch
@@ -88,6 +96,16 @@ export function KampfLeiste({ state, inspect, en, myColor = "w", banner = false,
   // mit Nebelregel (ein Talent bleibt "???", bis die Figur es gezeigt hat).
   const pc = inspect && state.board[inspect.i] ? state.board[inspect.i] : null;
   const eigen = pc ? pc.color === myColor : true;
+  /* ── v1.38.0 (Besitzer): DIE LEISTE SCHALTET DEN ZAUBER SCHARF ────────────
+     Bisher oeffnete ein Tipp nur die Beschreibung, und scharf schalten ging
+     allein ueber die Pillen im Talentband - dieselben Talente ZWEIMAL, und
+     die Karten "griffen nicht". Jetzt: ein Tipp auf einen Zauber der eigenen
+     Figur, wenn sie am Zug ist, schaltet ihn scharf UND erklaert ihn; ein
+     zweiter Tipp entschaerft. Passive Talente, fremde Figuren und gesperrte
+     Karten zeigen wie bisher nur ihre Beschreibung. */
+  const amZug = !!(pc && eigen && pc.color === state.turn);
+  const istZauber = (id) => !!ABILITIES[id] && !PASSIVE_TALENTE.has(id);
+  const schaltbar = (id) => amZug && istZauber(id) && !(pc.used || {})[id];
   useEffect(() => { setOffen(null); }, [inspect && inspect.i, state]);
   if (banner) return null;
 
@@ -205,10 +223,19 @@ export function KampfLeiste({ state, inspect, en, myColor = "w", banner = false,
             {abIds.map((id) => {
               const gezeigt = eigen || !!(pc.used && pc.used[id]);
               return (
-              <Karte key={id} icon={gezeigt ? ABILITIES[id].icon : "?"}
+              <Karte key={id} icon={gezeigt ? ABILITIES[id].icon : "✦"}
                 label={gezeigt ? (en ? ABILITIES[id].nameEn : ABILITIES[id].nameDe) : "???"}
                 dry={dry && ABILITIES[id].once} active={offen?.art === "ab" && offen.id === id}
-                onTap={() => setOffen((o) => o?.id === id ? null : { art: "ab", id, nebel: !gezeigt })} />
+                scharf={scharf === id}
+                fuss={!gezeigt ? null
+                  : PASSIVE_TALENTE.has(id) ? (en ? "always on" : "dauerhaft")
+                  : (pc.used || {})[id] ? (en ? "spent" : "eingesetzt")
+                  : scharf === id ? (en ? "ready" : "bereit")
+                  : schaltbar(id) ? (en ? "tap" : "antippen") : null}
+                onTap={() => {
+                  if (schaltbar(id) && onScharf) onScharf(scharf === id ? null : id);
+                  setOffen((o) => (o?.id === id && (!schaltbar(id) || scharf === id)) ? null : { art: "ab", id, nebel: !gezeigt });
+                }} />
             ); })}
             {naechste && (
               <Karte lock icon="🔒"
@@ -223,6 +250,20 @@ export function KampfLeiste({ state, inspect, en, myColor = "w", banner = false,
                     : "Keine Talente — diese Figur kämpft allein mit ihrer Gangart."}</span>
             )}
           </div>
+          {/* v1.38.0: der Hinweis steht UNTER der Reihe - in ihr scrollte er
+              mit und wurde am Rand abgeschnitten (im Browser gesehen). */}
+          {/* v1.38.0: der Satz aus dem alten Talentband - er sagt, warum keine
+              Karte mehr schaltet, wenn der eine Zauber der Partie fort ist. */}
+          {!scharf && dry && amZug && abIds.some((id) => istZauber(id)) && (
+            <span style={{ fontSize: 10.5, color: "#b8a7ea", paddingLeft: 2 }}>
+              {en ? "The book is closed — one spell per battle, and it is spent."
+                  : "Das Buch ist geschlossen — ein Zauber je Partie, er ist eingesetzt."}</span>
+          )}
+          {scharf && ABILITIES[scharf] && (
+            <span style={{ fontSize: 10.5, fontWeight: 700, color: "#cbbcf5", paddingLeft: 2 }}>
+              {en ? "ready — tap a ✦ square · tap the card again to stand down"
+                  : "bereit — tippe ein ✦-Feld · nochmal antippen entschärft"}</span>
+          )}
         </>) : (
           <span style={{ fontSize: 11.5, color: T.faint, padding: "0 4px" }}>
             {en ? "Tap one of your pieces — its talents and special moves appear here."

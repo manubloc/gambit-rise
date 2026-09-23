@@ -1,5 +1,28 @@
 # Changelog - Grand Gambit
 
+## 1.38.0
+- DIE FAEHIGKEITEN STEHEN NUR NOCH EINMAL (Besitzer: "die Faehigkeiten stehen
+  doppelt - Pillen im Talentband und der Slider darunter; die Auswahl am
+  Slider greift nicht sauber"). Die Pillen unter dem Brett sind fort; die
+  Karten der Kampfleiste tragen alles. Bleibt eine Figur ohne Talente, steht
+  dort weiter die Zeile, warum nichts da ist.
+- UND DIE KARTEN SCHALTEN JETZT SELBST: ein Tipp auf einen Zauber der eigenen
+  Figur am Zug schaltet ihn scharf UND erklaert ihn, ein zweiter entschaerft.
+  Die scharfe Karte leuchtet violett - dieselbe Farbe, die das Brett fuer die
+  Zauberfelder nimmt -, darunter steht "bereit - tippe ein ✦-Feld".
+  GRUND fuers "greift nicht sauber": der Merker, WELCHER Zauber scharf ist,
+  lag allein im Brett; die Leiste hatte gar keinen Rueckkanal. Er lebt jetzt
+  im Gefechtsschirm, Brett und Leiste teilen ihn.
+- Die Karten tragen die Fusszeile der Pillen (dauerhaft / antippen / bereit /
+  eingesetzt) und den Satz "Das Buch ist geschlossen", wenn der eine Zauber
+  der Partie verbraucht ist.
+- DER SCHILD-CHIP IST FORT: die Schildsprossen sind laengst aus allen
+  Aufstiegsplaenen entfernt - gemessen traegt keine Figur und kein Monster
+  einen Schild, der Chip konnte also nie erscheinen.
+- Im Browser nachgesehen: Laeufer gewaehlt, Karte "Phase" angetippt, sie
+  leuchtet, die Beschreibung erscheint, der Hinweis steht unter der Reihe
+  (er sass zuerst IN der scrollenden Reihe und wurde abgeschnitten).
+
 ## 1.37.0
 - DIE DAUERFAEHIGKEITEN WACHSEN IN DER STAERKE (Besitzerliste):
     * LEBENSRAUB heilt ein Viertel des Schadens, auf II die Haelfte, auf III

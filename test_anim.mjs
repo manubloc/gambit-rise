@@ -229,11 +229,15 @@ console.log("\n== BRETTRAND: Sperren mittig, Band praesent, Summen nah (v1.2.3) 
   ok("die Sperren sitzen vertikal mittig im Feld",
     sg.includes('top: "50%"') && sg.includes("translate(-50%, calc(-50%") && !sg.includes("bottom: `${sitz.unten * 100}%`"));
   const bv2 = readFileSync("src/app/ui/board/BoardView.jsx", "utf8");
-  ok("das Talentband ist praesenter (groessere Schrift, Kontur, Schatten)",
-    bv2.includes("fontSize: 12.5") && bv2.includes("0 3px 14px rgba(0,0,0,.5)"));
+  /* v1.38.0: die gefuellte Leiste ist fort - die Karten der Kampfleiste tragen
+     die Talente (Besitzer: "die Faehigkeiten stehen doppelt"). Geprueft wird
+     jetzt die verbliebene Zeile und die Kartenreihe. */
+  const kl3 = readFileSync("src/app/ui/KampfLeiste.jsx", "utf8");
+  ok("die verbliebene Zeile ist praesent (groessere Schrift, Kontur, Schatten)",
+    bv2.includes("fontSize: 13.5, fontWeight: 600") && bv2.includes("0 2px 10px rgba(0,0,0,.45)"));
   ok("auch die leere Zeile traegt das volle Band",
     bv2.includes("padding: \"11px 14px\", marginTop: 8, borderRadius: 12"));   /* v1.33.1: etwas mehr Luft (war 10px 12px) */
-  ok("die Chips sind groesser und antippbar", bv2.includes('gap: 5, padding: "5px 11px"'));
+  ok("die Karten sind gross und antippbar", kl3.includes("width: 66, minHeight: 78") && kl3.includes("onClick={onTap}"));
   const gs2 = readFileSync("src/app/ui/screens/GameScreen.jsx", "utf8");
   ok("die Summenleisten ruecken ans Brett",
     gs2.includes("minHeight: 26, marginBottom: -6") && gs2.includes("marginTop: -6,"));
