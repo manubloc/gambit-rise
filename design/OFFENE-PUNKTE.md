@@ -15,7 +15,7 @@ Nach jeder Fassung hier nachführen: erledigte Punkte streichen, neue Besitzerw�
 8. **Bezahlschranke:** gratis bis Kapitel III (Entscheid 22.9.), im Code noch nicht gebaut.
 
 ## Umbenennung und Domain (Auftrag 23.9.)
-9. Alles auf **gambitrise.com** umstellen, Spiel und Inhalte heißen nur noch **Gambit** (nicht mehr Grand Gambit). Plan: `design/UMBENENNUNG-GAMBIT.md`.
+9. Alles auf **gambitrise.com** umstellen, Spiel und Inhalte heißen nur noch **Gambit** (nicht mehr Grand Gambit). Plan steht: `design/UMBENENNUNG-GAMBIT.md`. Wartet auf drei Entscheidungen (Name der Heldenfigur, Weiterleitung der alten Domain, Umbenennung des Repos) und auf die Cloudflare-Schritte des Besitzers.
 
 ## Erledigt (zur Nachverfolgung)
 - Felder aller Kapitel: ganze Kachel mit Rand, quadratisch eingepasst (v1.39.2).
