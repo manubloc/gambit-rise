@@ -239,8 +239,10 @@ console.log("\n== BRETTRAND: Sperren mittig, Band praesent, Summen nah (v1.2.3) 
     bv2.includes("padding: \"11px 14px\", marginTop: 8, borderRadius: 12"));   /* v1.33.1: etwas mehr Luft (war 10px 12px) */
   ok("die Karten sind gross und antippbar", kl3.includes("width: 66, minHeight: 78") && kl3.includes("onClick={onTap}"));
   const gs2 = readFileSync("src/app/ui/screens/GameScreen.jsx", "utf8");
+  /* v1.40.0 (Besitzer: "der Hofwert ... minimal noch naeher ans Schachfeld"):
+     die obere Leiste ist noch enger ans Brett gerueckt. */
   ok("die Summenleisten ruecken ans Brett",
-    gs2.includes("minHeight: 26, marginBottom: -6") && gs2.includes("marginTop: -6,"));
+    gs2.includes("minHeight: 20, marginBottom: -10") && gs2.includes("marginTop: -6,"));
 }
 
 console.log("\n== KEIN GROESSENSPRUNG BEIM ZIEHEN (v1.4.9) ==");

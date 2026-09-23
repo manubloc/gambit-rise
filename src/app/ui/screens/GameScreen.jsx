@@ -126,10 +126,13 @@ const HUD_PAD = 12;
    Leuchten. Die Farbe der Seite (gold/gruen) traegt nur noch die Zahl. */
 function ForceBadge({ hp, atk, neon, t, wert }) {
   return (
+    /* v1.40.0 (Besitzer: "dieses Hofwert wuerde ich evtl sogar ohne diese
+       Button-Geschichte machen und minimal noch naeher ans Schachfeld"):
+       keine Plakette mehr - nur die Zahl mit ihrem Woertchen, frei auf dem
+       Grund, mit einem Schatten, damit sie auf jeder Kulisse lesbar bleibt. */
     <span style={{ display: "inline-flex", alignItems: "center", gap: 5, whiteSpace: "nowrap",
-      padding: "4px 11px", borderRadius: 999, background: "rgba(14,10,26,.34)",
-      border: "1px solid rgba(167,139,250,.24)", font: "700 11px/1 Georgia, serif", letterSpacing: ".04em",
-      color: "rgba(226,218,246,.66)" }}>
+      padding: "0 2px", font: "700 11px/1 Georgia, serif", letterSpacing: ".04em",
+      color: "rgba(226,218,246,.6)", textShadow: "0 1px 3px rgba(0,0,0,.85)" }}>
       <span style={{ font: "600 8.5px/1 Georgia, serif", letterSpacing: ".12em",
         textTransform: "uppercase", opacity: .8 }}>{t("online.score")}</span>
       {wert}
@@ -1053,6 +1056,21 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
   /* Stillstand-Warnung: die letzten zehn Zuege vor dem HP-Remis ansagen. */
   const stillstandRest = hpMode ? Math.ceil((HP_REMIS_HALBZUEGE - (state.ohneSchaden || 0)) / 2) : 99;
   const statusText = banner ? "" : st.check ? t("game.check") : stillstandRest <= 10 ? t("game.stillstandIn", { n: Math.max(0, stillstandRest) }) : hotseat ? t(state.turn === WHITE ? "hs.turnWhite" : "hs.turnBlack") : myTurn ? t("game.turnYou") : pvp ? t("online.turnOpp") : t("game.turnAi");
+  /* v1.40.0 (Besitzer): DIE ZUGMELDUNG - eine Plakette, oben in der Mitte
+     zwischen Zurueck und Aufgeben. Definiert an EINER Stelle, damit sie nicht
+     zweimal im Schirm steht (der alte Platz unter dem Brett ist fort). */
+  const zugMeldung = <div style={{ display: "inline-flex", alignItems: "center", gap: 7, maxWidth: "100%",
+            border: `1px solid ${st.check ? T.gold + "aa" : "rgba(167,139,250,.24)"}`,
+            background: st.check ? "linear-gradient(180deg, rgba(40,28,60,.8), rgba(18,12,30,.86))" : "rgba(14,10,26,.34)",
+            borderRadius: 999, padding: "5px 12px",
+            boxShadow: st.check ? "0 0 12px rgba(240,206,122,.28)" : "none" }}>
+            <span aria-hidden style={{ width: 7, height: 7, borderRadius: 999, flex: "0 0 auto",
+              background: st.check || ereignis ? T.goldBright : myTurn || (hotseat && state.turn === WHITE) ? T.gold : "#8b7bd8",
+              boxShadow: st.check ? `0 0 8px ${T.goldBright}` : "none" }} />
+            <span className="gg-serif" style={{ fontWeight: 700, fontSize: 12.5, letterSpacing: ".04em", minWidth: 0,
+              overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+              color: st.check ? T.goldBright : ereignis ? "#ded2b4" : "rgba(226,218,246,.66)" }}>{ereignis || statusText}</span>
+          </div>;
   const clockLbl = clock != null ? `${Math.floor(Math.max(0, clock) / 60)}:${String(Math.max(0, clock) % 60).padStart(2, "0")}` : null;
   const clockHot = clock != null && (timer?.type === "move" ? clock <= 5 : clock <= 30);
   // DIE UHR DARF NICHT ZU UEBERSEHEN SEIN (Besitzer, v0.45): "man vergisst
@@ -1085,7 +1103,12 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
           </button>
         )}
         <div style={{ flex: "1 1 130px", minWidth: 0, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, overflow: "hidden" }}>
-          {pvp ? <>
+          {/* v1.40.0 (Besitzer: "dieses Du bist am Zug wuerde ich evtl sogar
+              mittig zwischen Zurueck und Aufgeben platzieren"): die Meldung
+              steht jetzt HIER, zwischen den beiden Knoepfen, im selben leisen
+              Kleid. Sie verdraengt den Hinweis auf Gegner und Schwierigkeit,
+              solange sie etwas zu sagen hat - unten ist sie fort. */}
+          {(ereignis || statusText) ? zugMeldung : (pvp ? <>
               <Chip color={T.gold} bg={T.sel}><JewelIc kind="power" size={12} /> {pvp.oppName}</Chip>
               <Chip color={T.dim} bg={T.sel}>{pvp.oppScore}</Chip>
               {desync && <Chip color={"#b4636c"} bg={T.sel}>{t("online.desync")}</Chip>}
@@ -1096,7 +1119,7 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
               {match.boss && <Chip color={match.boss.bossId?.startsWith("pb_") ? T.gold : "#b4636c"} bg={T.sel}>{match.boss.bossId?.startsWith("pb_") ? <JewelIc kind="power" size={12} /> : <SkullIc color="#b4636c" size={12} />} {en ? match.boss.nameEn : match.boss.nameDe}</Chip>}
             </>
             : hotseat ? <Chip color={T.text} bg={T.sel}>{t("quick.hotseat")}</Chip>
-            : <Chip color={T.text} bg={T.sel}>{t("game.ai")} · {t("diff." + difficulty)}</Chip>}
+            : <Chip color={T.text} bg={T.sel}>{t("game.ai")} · {t("diff." + difficulty)}</Chip>)}
         </div>
         {clockLbl && (
           <span className="gg-serif" style={{ ...pill({ cursor: "default",
@@ -1168,7 +1191,7 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
           negativer Unterrand), unten ebenso - die Zahlen gehoeren zum Brett,
           nicht zum Bildschirmrand. */}
       <div style={{ display: "flex", alignItems: "center", gap: 8, padding: `0 ${HUD_PAD}px`,
-        minHeight: 26, marginBottom: -6, flex: "0 0 auto" }}>
+        minHeight: 20, marginBottom: -10, flex: "0 0 auto" }}>
         <span data-gg-tray="w"><Tray kinds={state.captured.b} color="w" /></span>
         <div style={{ flex: 1 }} />
         {hpMode && <ForceBadge hp={F.b.hp} atk={F.b.atk} neon={T.magenta} t={t} wert={F.b.hp + F.b.atk} />}
@@ -1385,18 +1408,7 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
           {/* v1.39.0: dasselbe leise Kleid wie Zurueck, Aufgeben und Hofwert.
               SCHACH bleibt die Ausnahme - da darf es leuchten, sonst uebersieht
               man die eine Meldung, die man nicht uebersehen darf. */}
-          {(ereignis || statusText) && <div style={{ display: "inline-flex", alignItems: "center", gap: 7, maxWidth: "100%",
-            border: `1px solid ${st.check ? T.gold + "aa" : "rgba(167,139,250,.24)"}`,
-            background: st.check ? "linear-gradient(180deg, rgba(40,28,60,.8), rgba(18,12,30,.86))" : "rgba(14,10,26,.34)",
-            borderRadius: 999, padding: "5px 12px",
-            boxShadow: st.check ? "0 0 12px rgba(240,206,122,.28)" : "none" }}>
-            <span aria-hidden style={{ width: 7, height: 7, borderRadius: 999, flex: "0 0 auto",
-              background: st.check || ereignis ? T.goldBright : myTurn || (hotseat && state.turn === WHITE) ? T.gold : "#8b7bd8",
-              boxShadow: st.check ? `0 0 8px ${T.goldBright}` : "none" }} />
-            <span className="gg-serif" style={{ fontWeight: 700, fontSize: 12.5, letterSpacing: ".04em", minWidth: 0,
-              overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-              color: st.check ? T.goldBright : ereignis ? "#ded2b4" : "rgba(226,218,246,.66)" }}>{ereignis || statusText}</span>
-          </div>}
+          {/* v1.40.0: die Meldung steht jetzt OBEN zwischen Zurueck und Aufgeben */}
         </div>
         <span data-gg-tray="b"><Tray kinds={state.captured.w} color="b" /></span>
         {hpMode && <ForceBadge hp={F.w.hp} atk={F.w.atk} neon={T.lime} t={t} wert={F.w.hp + F.w.atk} />}
@@ -1520,7 +1532,14 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
             haben die Figuren keine Talente und keine Sonderzuege - eine Leiste,
             die nichts zu sagen hat, nimmt nur Platz und Aufmerksamkeit. Das
             Brett bekommt den ganzen Blick. */}
-        {leisteNoetig && <KampfLeiste state={state} inspect={inspect} en={en} myColor={hotseat ? state.turn : WHITE} banner={!!banner} stil={profile.pieceStyle} scharf={scharf} onScharf={setScharf} />}
+        {/* v1.40.0 (Besitzer: "bei Kapitel 1 und 2 sollte das Schachbrett auf der
+            gleichen Hoehe sein wie in den anderen Kapiteln"): die Kampfleiste
+            laeuft jetzt IMMER. Im reinen Schach zeigte sie nichts an und fiel
+            weg - dadurch bekam das Brett ihren Platz und stand groesser und
+            tiefer als in allen anderen Kapiteln (gemessen 384 px ab 259 statt
+            283 px ab 154). Sie hat dort auch etwas zu sagen: Rochade und En
+            passant sind Sonderzuege des Schachs. */}
+        {<KampfLeiste state={state} inspect={inspect} en={en} myColor={hotseat ? state.turn : WHITE} banner={!!banner} stil={profile.pieceStyle} scharf={scharf} onScharf={setScharf} />}
         {!schlichteRegeln && ruestungsZeile}
       </aside>
       {dailyDoneEl}
@@ -1546,15 +1565,25 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
           gesehen). Stattdessen traegt ein RAHMEN den freien Raum und
           zentriert das Brett darin; der Brettblock selbst behaelt seine
           eigene Groessenrechnung. */}
-      {schlichteRegeln
-        ? <div style={{ flex: "1 1 auto", minHeight: 0, display: "flex", flexDirection: "column", justifyContent: "center" }}>{boardBlock}</div>
-        : boardBlock}
+      {/* v1.40.0: EIN Aufbau fuer beide Regeln. Im reinen Schach stand der
+          Brettblock in einem eigenen, mittig setzenden Rahmen - daher stand
+          das Brett dort groesser und tiefer als in den Lebenspunkte-Kapiteln
+          (Besitzer: "bei Kapitel 1 und 2 sollte das Schachbrett auf der
+          gleichen Hoehe sein"). */}
+      {boardBlock}
       <div ref={botChromeRef} style={{ flex: "0 0 auto" }}>{yourStrip}</div>
       {/* v0.86 (Besitzer): IM KLASSISCHEN SCHACH SCHWEIGT DIE LEISTE. Dort
             haben die Figuren keine Talente und keine Sonderzuege - eine Leiste,
             die nichts zu sagen hat, nimmt nur Platz und Aufmerksamkeit. Das
             Brett bekommt den ganzen Blick. */}
-        {leisteNoetig && <KampfLeiste state={state} inspect={inspect} en={en} myColor={hotseat ? state.turn : WHITE} banner={!!banner} stil={profile.pieceStyle} scharf={scharf} onScharf={setScharf} />}
+        {/* v1.40.0 (Besitzer: "bei Kapitel 1 und 2 sollte das Schachbrett auf der
+            gleichen Hoehe sein wie in den anderen Kapiteln"): die Kampfleiste
+            laeuft jetzt IMMER. Im reinen Schach zeigte sie nichts an und fiel
+            weg - dadurch bekam das Brett ihren Platz und stand groesser und
+            tiefer als in allen anderen Kapiteln (gemessen 384 px ab 259 statt
+            283 px ab 154). Sie hat dort auch etwas zu sagen: Rochade und En
+            passant sind Sonderzuege des Schachs. */}
+        {<KampfLeiste state={state} inspect={inspect} en={en} myColor={hotseat ? state.turn : WHITE} banner={!!banner} stil={profile.pieceStyle} scharf={scharf} onScharf={setScharf} />}
       {!schlichteRegeln && ruestungsZeile}
       {dailyDoneEl}
       {bannerEl}{raus}

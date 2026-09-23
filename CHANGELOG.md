@@ -1,5 +1,31 @@
 # Changelog - Grand Gambit
 
+## 1.40.0
+- DIE FELDER TRAGEN WIEDER IHREN EIGENRAND (Besitzer: "die Schachfelder haben
+  doch ganz sanfte Rundungen - hast du die weggeschnitten? das waere
+  unschoen"). JA, und das war falsch: v1.39.1 hatte den gemalten Rand
+  abgeschnitten, den der Besitzer in v0.71.4 ausdruecklich behalten wollte.
+  DIE ECHTE URSACHE: jede Zelle skaliert ihre Kachel auf Zellenbreite - bei
+  Kapitel I ist die Haelfte quadratisch (640x640) und passt, bei allen anderen
+  ist sie 640x720 und wurde oben und unten beschnitten: Rand und Rundung
+  fielen weg. Jetzt wird NICHTS geschnitten, jede Haelfte nur auf 640x640
+  gestaucht (8-11 %, im Stein unsichtbar) - Fuge, Eigenrand und Rundung
+  bleiben vollstaendig, in allen 16 Streifen.
+- DIE ZUGMELDUNG STEHT OBEN IN DER MITTE, zwischen Zurueck und Aufgeben
+  (Besitzer). Unter dem Brett ist sie fort - sie stand dort doppelt so weit
+  vom Blick entfernt. Sie verdraengt den Hinweis auf Gegner und Schwierigkeit,
+  solange sie etwas zu sagen hat.
+- DER HOFWERT OHNE KNOPFKLEID (Besitzer: "ohne diese Button-Geschichte und
+  minimal noch naeher ans Schachfeld"): nur die Zahl mit ihrem Woertchen,
+  frei auf dem Grund, mit Schatten fuer die Lesbarkeit; die Leiste rueckt
+  naeher ans Brett (minHeight 26 -> 20, Abstand -6 -> -10).
+- GLEICHE BRETTHOEHE IN ALLEN KAPITELN (Besitzer: "bei Kapitel 1 und 2 sollte
+  das Schachbrett auf der gleichen Hoehe sein wie in den anderen"): im reinen
+  Schach stand der Brettblock in einem eigenen, mittig setzenden Rahmen und
+  rutschte dadurch nach unten (gemessen: Oberkante 259 px statt 154 px). Ein
+  Aufbau fuer beide Regeln. Dazu laeuft die Kampfleiste jetzt IMMER - im
+  Schach zeigt sie Rochade und En passant.
+
 ## 1.39.1
 - DIE SCHACHFELDER SEHEN IN JEDEM KAPITEL AUS WIE IN KAPITEL I (Besitzer:
   "die Schachfelder sind irgendwie so ein bisschen verrueckt ... ich habe das
