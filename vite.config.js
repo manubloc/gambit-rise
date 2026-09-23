@@ -50,8 +50,8 @@ export default defineConfig({
       injectRegister: false, // registration lives in main.jsx (update loop + auto-reload)
       includeAssets: ["favicon.ico", "favicon.svg", "og.png", "landing.html", "privacy.html", "terms.html", "robots.txt"],
       manifest: {
-        name: "Gambit",
-        short_name: "Gambit",
+        name: "Gambit Rise",
+        short_name: "Gambit Rise",
         description: "Schach, das Charaktere erhebt — ein Taktik-Abenteuer. Chess that levels up.",
         lang: "de",
         start_url: "./",

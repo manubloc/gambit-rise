@@ -1,4 +1,20 @@
-# Changelog - Gambit
+# Changelog - Gambit Rise
+
+## 1.44.0 - das Spiel heisst ueberall Gambit Rise
+- Besitzer: "das Spiel muss in Metatexten etc. ueberall Gambit Rise heissen,
+  nur die Figur selbst im Spiel ist DER GAMBIT."
+  Umgestellt, wo der SPIELNAME steht: Titel und Beschreibung, Schluesselwoerter,
+  Open Graph und Twitter, Manifest (name und short_name), die Landingpage
+  samt Fusszeile und Datenschutzkasten, Nutzungsbedingungen und
+  Datenschutzerklaerung (beide Sprachen), die Store-Unterlagen, README und
+  CLAUDE.md sowie die Stellen in der App, die vom Spiel sprechen
+  ("Willkommen bei Gambit Rise", "startet wie eine echte App", der Hinweis
+  auf eine ungueltige Sicherung).
+- UNANGETASTET bleibt die FIGUR: sie heisst weiter "der Gambit" - in der
+  Chronik, in den Lehrtexten, auf der Landingpage und ueberall im Spiel.
+- robots.txt sperrt /spielen/ fuer Suchmaschinen (die Seite hat einen Riegel
+  und der Weg ins Spiel fuehrt ueber den Play Store); die Sitemap fuehrt
+  Startseite, Nutzungsbedingungen und Datenschutz.
 
 ## 1.43.0 - die Wortmarke GAMBIT Rise
 - Besitzer: "das Gambit die Buchstaben naeher zusammen, das Rise in dem

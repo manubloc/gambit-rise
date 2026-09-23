@@ -1,4 +1,4 @@
-# Gambit in den Play Store — der ganze Weg
+# Gambit Rise in den Play Store — der ganze Weg
 
 > **Stand 23.9.2026 (Umbenennung, Umzug, neues Paket).** Das Spiel heißt
 > **Gambit Rise**, die Adresse ist **gambitrise.com**, die App wohnt unter
@@ -52,7 +52,7 @@ eingeben → Android-Paket herunterladen. Erzeugt dasselbe, nur klickbar.
 
 ## 2. App in der Play Console anlegen
 
-Play Console → „App erstellen": Name **Gambit**, Standardsprache
+Play Console → „App erstellen": Name **Gambit Rise**, Standardsprache
 Deutsch, App (kein Spiel? → doch: **Spiel**, Kategorie **Brettspiele**),
 kostenlos.
 
@@ -115,13 +115,13 @@ Fingerprint (noch) nicht — häufigster Stolperstein des ganzen Wegs.
 
 ## 5. Store-Eintrag (für später, schon vorformuliert)
 
-**App-Name:** Gambit — Das Schach-RPG
+**App-Name:** Gambit Rise — Das Schach-RPG
 
 **Kurzbeschreibung (≤ 80 Zeichen):**
 > Schach mit Leben: Figuren leveln, lernen Fähigkeiten — Kampagne & Duelle.
 
 **Lange Beschreibung:**
-> Gambit ist Schach, das mit dir wächst. Deine Figuren haben
+> Gambit Rise ist Schach, das mit dir wächst. Deine Figuren haben
 > Lebenspunkte, steigen im Level auf und lernen echte Fähigkeiten — vom
 > Sturmschritt des Bauern bis zum Drachenflug.
 >

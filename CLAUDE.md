@@ -1,4 +1,4 @@
-# CLAUDE.md — Gambit
+# CLAUDE.md — Gambit Rise
 
 Fantasy-Schach-RPG als PWA. Live: https://gambitrise.com (Cloudflare Pages,
 deployt AUTOMATISCH bei jedem Push auf main, ~2–5 min). Der Worker "gg-hall"
