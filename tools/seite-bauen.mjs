@@ -57,6 +57,14 @@ if (existsSync(join(SPIEL, "landing.html"))) {
 
 /* 3. der Riegel vor der App */
 const riegel = `<script>(function(){try{
+  /* v1.45.1: AUS DER ANDROID-APP KOMMT MAN OHNE PASSWORT HEREIN. Die TWA
+     oeffnet die Seite mit dem Verweis "android-app://<Paket>" - daran
+     erkennen wir sie. Sonst haetten Store-Pruefer (und spaeter jeder
+     Spieler) eine Passwortabfrage vor dem Spiel, und Google lehnt ab. Der
+     Riegel bleibt fuer den offenen Browser. */
+  if (document.referrer.indexOf("android-app://com.gambitrise.app") === 0) {
+    localStorage.setItem("gambit:zugang", "${HASH}"); return;
+  }
   if (localStorage.getItem("gambit:zugang") === "${HASH}") return;
   var p = prompt("Gambit Rise — Entwicklerzugang\\n\\nPasswort:");
   if (p === null) { location.replace("/"); return; }
