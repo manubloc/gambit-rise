@@ -1,5 +1,21 @@
 # Changelog - Gambit Rise
 
+## 1.45.0 - ein Symbol fuer alles
+- Besitzer: "verwende bitte dieses Icon fuer alles, wo man eins braucht ...
+  in der App kannst du das runde mit goldenem Rand lassen, aber als Favicon
+  und als App-Symbol im Play Store ueberall dieses Symbol."
+  Aus dem gelieferten Bild (512x512, die Gestalt vor dem lila Riss) ist der
+  ganze Satz gebaut - in ZWEI Fassungen, weil Android und der Play Store
+  eine eigene Maske darueberlegen:
+    * GERUNDET (wie geliefert, auf schwarzem Grund): favicon.ico (16/32/48),
+      favicon.svg, favicon-16/-32, suche-48/-96/-144/-192, icon-192,
+      icon-512, apple-touch-icon.
+    * RANDLOS (Bild 1,16x vergroessert und beschnitten, damit die Ecken
+      gefuellt sind und die Gestalt in der sicheren Mitte bleibt):
+      maskable-512 und design/playstore-icon-512.png fuer den Store.
+  Das Original liegt in archiv/bilder/app-symbol-512.png.
+- Der runde Goldring bleibt IM Spiel (Ladeschirm, boot-riss) - so gewuenscht.
+
 ## 1.44.0 - das Spiel heisst ueberall Gambit Rise
 - Besitzer: "das Spiel muss in Metatexten etc. ueberall Gambit Rise heissen,
   nur die Figur selbst im Spiel ist DER GAMBIT."
