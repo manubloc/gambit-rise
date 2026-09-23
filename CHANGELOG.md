@@ -1,5 +1,19 @@
 # Changelog - Grand Gambit
 
+## 1.39.2
+- BERICHTIGT (Besitzer: "die Schachfelder hatten doch ganz sanfte Rundungen -
+  hast du die weggeschnitten? das waere unschoen"). Ja, und das war falsch:
+  v0.71.4 haelt ausdruecklich fest, dass jedes Feld die GANZE Kachel samt
+  ihrem Eigenrand zeigt. v1.39.1 hatte den Rand freigeschnitten.
+  DIE ECHTE URSACHE des schiefen Eindrucks: die Haelften der Streifen waren
+  640x720 statt quadratisch. Das Brett legt die Kachel auf ein quadratisches
+  Feld - oben und unten fielen je ~6 % weg, also genau die runden Ecken dort,
+  waehrend die seitlichen blieben. Jetzt sind alle 16 Streifen aus den
+  Originalen neu gebaut: die GANZE Haelfte quadratisch eingepasst (12,5 %
+  Stauchung in der Hoehe, bei Stein unsichtbar) - Rand und alle vier
+  Rundungen vollstaendig, in jedem Kapitel gleich.
+- Offene Punkte stehen ab jetzt gesammelt in design/OFFENE-PUNKTE.md.
+
 ## 1.40.0
 - DIE FELDER TRAGEN WIEDER IHREN EIGENRAND (Besitzer: "die Schachfelder haben
   doch ganz sanfte Rundungen - hast du die weggeschnitten? das waere
