@@ -1,7 +1,17 @@
-# Grand Gambit in den Play Store — der ganze Weg
+# Gambit in den Play Store — der ganze Weg
+
+> **Stand 23.9.2026 (Umbenennung und Umzug).** Das Spiel heißt **Gambit**, die
+> Adresse ist **gambitrise.com**. Im Store sind zu ändern: App-Name, Kurz- und
+> Langbeschreibung, Grafiken mit der alten Wortmarke, die Links zu
+> Datenschutz und Nutzungsbedingungen. **Die Paket-Kennung
+> `win.grandgambit.app` bleibt** — eine veröffentlichte App kann sie nie
+> wechseln; sichtbar ist sie praktisch nirgends.
+> **Neuer Build nötig:** die TWA zeigt auf die alte Domain. Auf der neuen
+> liegt `assetlinks.json` bereits korrekt (geprüft: wird als JSON
+> ausgeliefert, mit derselben Kennung und beiden Fingerabdrücken).
 
 Stand: 5.8.2026, v1.0.6. Die App ist eine **TWA** (Trusted Web Activity):
-eine dünne Android-Hülle, die grandgambit.win zeigt. Darum gilt dauerhaft:
+eine dünne Android-Hülle, die gambitrise.com zeigt. Darum gilt dauerhaft:
 **jeder Push auf main ist zugleich das Play-Store-Update** — nur Änderungen an
 der Hülle selbst (Icon, Name, Berechtigungen) brauchen eine neue Einreichung.
 
@@ -31,17 +41,17 @@ kannst du später keine neue Hüllen-Version hochladen.
 
 Ergebnis: `app-release-bundle.aab` — das lädst du in die Play Console.
 
-Alternative ohne Kommandozeile: https://www.pwabuilder.com → grandgambit.win
+Alternative ohne Kommandozeile: https://www.pwabuilder.com → gambitrise.com
 eingeben → Android-Paket herunterladen. Erzeugt dasselbe, nur klickbar.
 
 ## 2. App in der Play Console anlegen
 
-Play Console → „App erstellen": Name **Grand Gambit**, Standardsprache
+Play Console → „App erstellen": Name **Gambit**, Standardsprache
 Deutsch, App (kein Spiel? → doch: **Spiel**, Kategorie **Brettspiele**),
 kostenlos.
 
 Danach das Dashboard abarbeiten („Richte deine App ein"):
-- **Datenschutzerklärung**: `https://grandgambit.win/privacy.html`
+- **Datenschutzerklärung**: `https://gambitrise.com/privacy.html`
 - **App-Zugriff**: „Alle Funktionen ohne Anmeldung zugänglich" trifft NICHT zu
   (Konto ist Pflicht) → Zugangsdaten für das Prüferteam hinterlegen: lege
   dafür ein eigenes Konto an (z. B. pruefer-google@…) und gib E-Mail+Passwort
@@ -92,24 +102,24 @@ App-Signatur → „SHA-256-Zertifikatfingerabdruck" kopieren. Dann in
 `public/.well-known/assetlinks.json` den Platzhalter ersetzen — am
 robustesten BEIDE Fingerprints als zwei Einträge im Array (Googles +
 Upload-Key, für lokale Testbuilds). Push auf main, ~2 Minuten später live.
-Prüfen: https://grandgambit.win/.well-known/assetlinks.json
+Prüfen: https://gambitrise.com/.well-known/assetlinks.json
 
 Zeigt die installierte App oben eine graue Browserleiste, stimmt der
 Fingerprint (noch) nicht — häufigster Stolperstein des ganzen Wegs.
 
 ## 5. Store-Eintrag (für später, schon vorformuliert)
 
-**App-Name:** Grand Gambit — Das Schach-RPG
+**App-Name:** Gambit — Das Schach-RPG
 
 **Kurzbeschreibung (≤ 80 Zeichen):**
 > Schach mit Leben: Figuren leveln, lernen Fähigkeiten — Kampagne & Duelle.
 
 **Lange Beschreibung:**
-> Grand Gambit ist Schach, das mit dir wächst. Deine Figuren haben
+> Gambit ist Schach, das mit dir wächst. Deine Figuren haben
 > Lebenspunkte, steigen im Level auf und lernen echte Fähigkeiten — vom
 > Sturmschritt des Bauern bis zum Drachenflug.
 >
-> ♟ KAMPAGNE: Ein Feldzug über elf Kapitel mit verzweigten Pfaden,
+> ♟ KAMPAGNE: Ein Feldzug über zwölf Kapitel mit verzweigten Pfaden,
 > 27 rekrutierbaren Helden und 25 Bestien. Jedes Kapitel ein eigenes Land,
 > jeder Meister ein eigenes Duell.
 >
@@ -138,4 +148,4 @@ Fingerprint (noch) nicht — häufigster Stolperstein des ganzen Wegs.
 `appVersionCode` in twa-manifest.json +1, `bubblewrap update && bubblewrap
 build`, neue .aab hochladen. Nötig nur bei: Icon/Name/Farben der Hülle,
 Berechtigungen, Bubblewrap-Sicherheitsupdates (die Console erinnert daran).
-Spielinhalt braucht das nie — der kommt von grandgambit.win.
+Spielinhalt braucht das nie — der kommt von gambitrise.com.
