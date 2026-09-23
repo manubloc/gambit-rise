@@ -306,7 +306,28 @@ ok("full build counts ten league crowns", fullB.stats.leaguesWon === 10);
   ok("den Spielstandschirm gibt es nicht mehr", !existsSync("src/app/ui/screens/SavesScreen.jsx"));
   const app = readFileSync("src/app/App.jsx", "utf8");
   ok("nach der Anmeldung wird der eine Spielstand geoeffnet oder angelegt",
-    app.includes("if (!eintrag) eintrag = await createSave(account.id, null);") && app.includes('dispatch({ type: "HYDRATE", profile: prof })'));
+    app.includes("if (!eintrag) eintrag = await createSave(account.id, null,") && app.includes('dispatch({ type: "HYDRATE", profile: prof })'));
+  /* v1.46.0: ein GAST beginnt auf dem eingefrorenen Schaustand. */
+  ok("... und ein Gast auf dem eingefrorenen Schaustand", app.includes('account.provider === "guest" ? gastProfil() : null'));
+  {
+    const { gastProfil, GAST_STATIONEN, GAST_FIGUREN } = await import("./src/meta/gast.js");
+    const { nodeStatus } = await import("./src/meta/campaign.js");
+    const { darfReiheStellen } = await import("./src/meta/freigaben.js");
+    const g = gastProfil();
+    ok("der Gaststand traegt Kapitel I, drei Figuren und kein Erledigtes",
+      g.gast === true && g.campaign.league === 1 && g.campaign.cleared.length === 0
+      && GAST_FIGUREN.every((f) => g.campaign.unlocked.includes(f)) && GAST_FIGUREN.length === 3);
+    ok("er darf die hintere Reihe stellen (sonst kaeme keine der drei Figuren aufs Brett)", darfReiheStellen(g));
+    ok("vier Stationen sind seine Grenze", GAST_STATIONEN.length === 4
+      && nodeStatus(g, GAST_STATIONEN[0]) === "available"
+      && nodeStatus(g, "L01s06") === "locked" && nodeStatus(g, "L01s09") === "locked");
+    const app2 = readFileSync("src/app/App.jsx", "utf8");
+    ok("Schnelles Spiel und Online sieht ein Gast nicht",
+      app2.includes('{!profile.gast && <Card ruhig title={t("hub.quick")}') && app2.includes('{!profile.gast && <Card ruhig title={t("online.title")}'));
+    const log = readFileSync("src/app/ui/screens/LoginScreen.jsx", "utf8");
+    ok("der Anmeldeschirm bietet den Gastweg an und sagt, was fehlt",
+      log.includes("loginGuest()") && log.includes("Kapitel I, vier Stationen, drei Sonderfiguren"));
+  }
   ok("im Profil gibt es keinen Knopf zum Spielstandwechsel", !app.includes("onSwitchSave="));
   ok("der Gast-Hinweis steht jetzt im Profil", readFileSync("src/app/ui/screens/ProfileScreen.jsx", "utf8").includes('account?.provider === "guest"'));
   const cfg = readFileSync("src/app/config.js", "utf8");

@@ -37,6 +37,10 @@ import { CAMPAIGN12 } from "../content/campaign12.gen.js";
    zweiten Liste. */
 export const REIHE_FUENF = CAMPAIGN12.filter((s) => s.league === 1 && s.haupt && s.row === 5).map((s) => s.id);
 function reiheFuenfGeschafft(profile) {
+  /* v1.46.0: der GAST bekommt die Reihe sofort - er hat drei Figuren dabei
+     und nur vier Stationen; ohne freie Aufstellung koennte er sie nie aufs
+     Brett stellen, und genau das soll er ja sehen. */
+  if (profile?.gast) return true;
   const erledigt = profile?.campaign?.cleared || [];
   return REIHE_FUENF.some((id) => erledigt.includes(id));
 }

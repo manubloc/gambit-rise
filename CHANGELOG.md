@@ -1,5 +1,26 @@
 # Changelog - Gambit Rise
 
+## 1.46.0 - der Gastzugang, eingefroren
+- Besitzerentscheid 23.9.: "Machen wir es mit Gastzugang, aber der sollte
+  einen gefreezten Stand haben ohne Online und lokale Spiele. Einfach
+  Kapitel 1 mit 3 extra Figuren und 4 spielbaren Leveln."
+  ANLASS: Google lehnt Anmeldedaten ab, mit denen Pruefer sich erst ein Konto
+  anlegen muessten - "Pruefer koennen keine Konten erstellen". Mit dem
+  Gastweg braucht die Pruefung weder Konto noch Passwort.
+- src/meta/gast.js haelt den Schaustand an EINER Stelle: Kapitel I, die vier
+  Stationen L01s00/s01/s03/s04, die drei Sonderfiguren Spaeher, Kapitaen und
+  Magier, 6 Siegelpunkte. Die hintere Reihe steht dem Gast sofort offen -
+  ohne sie koennte er seine drei Figuren gar nicht aufstellen.
+- Die uebrigen Stationen bleiben SICHTBAR und verschlossen: man sieht, dass
+  es weitergeht, und weiss, wofuer sich ein Konto lohnt.
+- Schnelles Spiel und Online-Duell fehlen dem Gast ganz (beides haengt am
+  Konto). Der Anmeldeschirm bietet "Als Gast spielen" an und sagt in einem
+  Satz, was fehlt: kein Online, und der Fortschritt bleibt nicht.
+- EINGEFROREN: loginGuest raeumte schon bisher den alten Gast-Stand ab; jeder
+  Einstieg beginnt also wieder hier.
+- GEFUNDEN: loginGuest gab es laengst im Kern, aber KEIN Knopf rief es auf -
+  der Weg lag brach.
+
 ## 1.45.0 - ein Symbol fuer alles
 - Besitzer: "verwende bitte dieses Icon fuer alles, wo man eins braucht ...
   in der App kannst du das runde mit goldenem Rand lassen, aber als Favicon

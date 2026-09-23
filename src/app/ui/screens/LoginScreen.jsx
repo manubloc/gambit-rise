@@ -8,6 +8,7 @@ import { register, login, cloudConfigured, signInWithProvider, signInEmailCloud,
 import { logoArt } from "../livery.js";
 import { RissBoden } from "../RissBoden.jsx";
 import { WortmarkeRise } from "../WortmarkeRise.jsx";   /* v1.43.0 */
+import { loginGuest } from "../../../meta/index.js";   /* v1.46.0 */
 
 const STR = {
   de: {
@@ -154,6 +155,21 @@ export function LoginScreen({ onSignedIn, initialLang = "de" }) {
             opacity: cloud ? 1 : 0.75 }}>
           <GoogleG /> {s.google}
         </button>
+        {/* v1.46.0 (Besitzerentscheid): DER GAST. Ein eingefrorener Schaustand -
+            Kapitel I, vier Stationen, drei Sonderfiguren, kein Online, kein
+            Fortschritt, der bleibt. Wer sein Reich behalten will, legt ein
+            Konto an; genau das sagt der Satz darunter. */}
+        <button disabled={busy} onClick={() => run(() => loginGuest())}
+          style={{ background: "transparent", border: "1px solid rgba(167,139,250,.32)",
+            color: "rgba(226,218,246,.8)", borderRadius: 12, padding: "10px 14px",
+            fontFamily: "inherit", fontWeight: 700, fontSize: 14, cursor: "pointer" }}>
+          {s.guest}
+        </button>
+        <div style={{ fontSize: 11.5, lineHeight: 1.45, color: "rgba(226,218,246,.5)", textAlign: "center" }}>
+          {initialLang === "en"
+            ? "As a guest: chapter I, four stations, three extra pieces. No online play, and progress is not kept."
+            : "Als Gast: Kapitel I, vier Stationen, drei Sonderfiguren. Kein Online-Spiel, und der Fortschritt bleibt nicht."}
+        </div>
         {SHOW_EXTRA_PROVIDERS && <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
           <button disabled={busy} onClick={() => (cloud ? run(() => signInWithProvider("apple")) : setCloudNote(true))}
             style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8,

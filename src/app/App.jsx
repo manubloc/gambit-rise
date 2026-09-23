@@ -63,6 +63,7 @@ const CrestArt = ({ src }) => (
 
 
 import { ProfileScreen } from "./ui/screens/ProfileScreen.jsx";
+import { gastProfil } from "../meta/gast.js";   /* v1.46.0 */
 
 
 // viewport hook for the responsive shell (mobile dock ↔ desktop rail)
@@ -299,7 +300,11 @@ export default function App() {
         await migrateLegacyInto(account.id);
         let liste = await listSaves(account.id);
         let eintrag = liste && liste[0];
-        if (!eintrag) eintrag = await createSave(account.id, null);
+        /* v1.46.0: ein GAST beginnt immer auf dem eingefrorenen Schaustand -
+           Kapitel I, vier Stationen, drei Sonderfiguren. loginGuest hat den
+           alten Gast-Stand vorher geraeumt, also entsteht er jedes Mal neu. */
+        if (!eintrag) eintrag = await createSave(account.id, null,
+          account.provider === "guest" ? gastProfil() : null);
         const prof = await loadSave(account.id, eintrag.id);
         if (!lebt || !prof) return;
         dispatch({ type: "HYDRATE", profile: prof }); setLocked(!!prof.pin); setSlot(eintrag); setReady(true);
@@ -1059,7 +1064,10 @@ export function PlayHub({ profile, t, onQuick, onCamp, onOnline, onTutorial = nu
           <span style={{ display: "inline-block", paddingRight: "min(30%, 130px)" }}>{t("hub.nextStop")}: <b>{cur?.place}</b></span>
           <div style={{ marginTop: 8, paddingRight: "var(--gg-bildfrei, 217px)" }}><Bar pct={Math.max(done / Math.max(1, total), 0.02)} height={5} color={T.gold} /></div></>}
         bild={karteKampagne} art={null} style={{ gridColumn: "1 / -1" }} />
-      <Card ruhig title={t("hub.quick")} sub={t("hub.quickSub")} onGo={onQuick} cta={null}
+      {/* v1.46.0: DER GAST SIEHT NUR DIE KAMPAGNE. Schnelles Spiel und Online
+          bleiben dem Konto vorbehalten - der Gaststand ist ein Schaufenster,
+          kein halbes Spiel (Besitzerentscheid 23.9.). */}
+      {!profile.gast && <Card ruhig title={t("hub.quick")} sub={t("hub.quickSub")} onGo={onQuick} cta={null}
         bild={karteSchnell} art={null}>
         {/* SOFORT LOSLEGEN: ein Griff, keine Konfiguration - gestartet wird
             mit den letzten Einstellungen (oder den Hausvorgaben). "Anpassen"
@@ -1081,8 +1089,8 @@ export function PlayHub({ profile, t, onQuick, onCamp, onOnline, onTutorial = nu
             boxShadow: `0 0 10px ${T.selGlow}` }}>
             {t("hub.adjust")}</button>
         </div>
-      </Card>
-      <Card ruhig title={t("online.title")} sub={t("online.sub")} onGo={onOnline}
+      </Card>}
+      {!profile.gast && <Card ruhig title={t("online.title")} sub={t("online.sub")} onGo={onOnline}
         cta={hallenStand ? (profile.lang === "en" ? "Play" : "Spielen") : t("online.connect")}
         extra={!SERVER_URL ? <Chip color={"#17110a"} bg={T.gold}>{t("hub.soon")}</Chip>
           : <span title={hallenStand ? (profile.lang === "en" ? "Connected" : "Verbunden")
@@ -1132,7 +1140,7 @@ export function PlayHub({ profile, t, onQuick, onCamp, onOnline, onTutorial = nu
             </div>
           </div>
         )}
-      </Card>
+      </Card>}
       {onTutorial && (
         /* DIE AKADEMIE ALS ECHTE KARTE (Besitzer, v0.68): "mach es wirklich
            genau, genau gleich" - also kein Sonder-Knopf mehr, sondern

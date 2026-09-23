@@ -10,6 +10,7 @@ import { buildArmyFromFormation, resolveCharacter, spForXpJump, isUnlocked, mons
 import { hasItem } from "../content/items.js";
 import { BASE_HP, BASE_ATK } from "../core/index.js";
 import { besetzungsPlan, besetzungFuer, gegnerAufstellung } from "./besetzung.js";
+import { GAST_STATIONEN } from "./gast.js";   /* v1.46.0 */
 
 export const campaignLength = (profile = null) =>
   profile ? CAMPAIGN.filter((n) => nodeInLeague(n, profile.campaign?.league)).length : CAMPAIGN.length;
@@ -83,6 +84,12 @@ export function nodeStatus(profile, id) {
   const node = nodeById(id);
   if (!node) return "hidden"; // eine Station, die es nicht gibt, existiert nicht
   if (!nodeInLeague(node, profile?.campaign?.league)) return "hidden";
+  /* v1.46.0: DER GAST SIEHT KAPITEL I, SPIELT ABER NUR VIER STATIONEN.
+     Der Rest bleibt sichtbar und verschlossen - so sieht man, dass es
+     weitergeht, und weiss, wofuer sich ein Konto lohnt. */
+  if (profile?.gast && !GAST_STATIONEN.includes(id)) {
+    return (profile?.campaign?.cleared || []).includes(id) ? "cleared" : "locked";
+  }
   const cleared = new Set(clearedIds(profile));
   if (cleared.has(id)) return "cleared";
   const preds = predsOf(id);
