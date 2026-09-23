@@ -1,4 +1,7 @@
 User-agent: *
 Allow: /
+# v1.43.1: die Spielseite ist bewusst versteckt (Riegel davor) - sie gehoert
+# nicht in die Suche. Der Weg ins Spiel fuehrt ueber den Play Store.
+Disallow: /spielen/
 
 Sitemap: https://gambitrise.com/sitemap.xml
