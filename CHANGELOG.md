@@ -1,5 +1,31 @@
 # Changelog - Gambit
 
+## 1.42.0 - Gambit Rise, und die Seite bekommt ein Schaufenster
+- DER ERSTE SCHIRM SAGT "GAMBIT Rise" (Besitzer: "gerne das Rise in einer
+  anderen Schrift, dass es mehr nach einem Logo aussieht"): GAMBIT in der
+  Wortmarkenschrift, Rise daneben in der Erzaehlschrift, kursiv und kleiner -
+  derselbe Goldverlauf traegt beide, damit es EIN Zeichen bleibt.
+- DIE SEITE IST UMGEBAUT (Besitzer: "spaeter nur noch ueber den Play Store,
+  das Browsergame verstecken wir erstmal, evtl. mit Passwort"):
+    * /          das Schaufenster (Landingpage) mit Verweis auf den Play Store
+    * /spielen/  die App, hinter einem Riegel (Passwort, per GAMBIT_ZUGANG
+                 beim Bau setzbar; Vorgabe rise2026)
+    * /landing   bleibt als alte Adresse bestehen
+  Umgezogen statt umgeschrieben: der Build nutzt relative Pfade, deshalb
+  laeuft die App in jedem Ordner, solange sie vollstaendig dort liegt - und
+  ihr Dienstarbeiter bekommt damit den Bereich /spielen/ und kann dem
+  Schaufenster nicht mehr dazwischenfunken. An der Wurzel liegt ein sw.js,
+  das den ALTEN Dienstarbeiter abmeldet und seine Zwischenspeicher raeumt.
+  DER RIEGEL IST KEIN SCHLOSS: wer die Seite liest, kommt daran vorbei. Er
+  haelt Neugierige ab, mehr soll er nicht.
+- GEFUNDEN: die App ist im Play Store NOCH NICHT veroeffentlicht (die
+  Store-Adresse gibt es nicht). Damit ist die Paketkennung NICHT festgelegt -
+  sie heisst jetzt com.gambitrise.app statt win.grandgambit.app. TWA-Vorlage
+  und assetlinks.json sind darauf umgestellt; die Fingerabdruecke kommen mit
+  dem ersten Build.
+- npm run build baut jetzt Schaufenster + App; npm run build:app ist der
+  reine App-Bau fuer Proben und Fahrproben.
+
 ## 1.41.0 - der Umzug auf gambitrise.com
 - In Cloudflare eingerichtet (ueber den Browser, mit Freigabe des Besitzers):
     * gambitrise.com haengt als eigene Domain am Pages-Projekt - Status aktiv,

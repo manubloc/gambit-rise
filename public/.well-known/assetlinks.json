@@ -5,7 +5,7 @@
     ],
     "target": {
       "namespace": "android_app",
-      "package_name": "win.grandgambit.app",
+      "package_name": "com.gambitrise.app",
       "sha256_cert_fingerprints": [
         "A5:55:18:DA:44:52:32:5A:56:AD:D4:93:A9:E6:C5:0D:32:00:AD:67:3B:8F:5A:44:EA:C1:9C:2B:C9:B6:20:CA",
         "D1:6C:39:AC:36:C6:41:9E:EA:9A:6A:50:5C:A6:55:2E:7A:D5:C6:69:C6:80:36:81:E2:66:08:54:BC:8C:B7:FE"

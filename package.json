@@ -1,12 +1,12 @@
 {
   "name": "gambit",
   "private": true,
-  "version": "1.41.0",
+  "version": "1.42.0",
   "type": "module",
   "description": "GAMBIT — chess that levels up. Characters gain special moves and shields; new pieces unlock over time. Deterministic, UI-free core (command/event sim with replay) for cross-platform reuse.",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && npm run schaukammer",
+    "build": "vite build && npm run schaukammer && node tools/seite-bauen.mjs",
     "build:single": "vite build --config vite.single.config.js && node scripts/singlefile-iife.mjs",
     "preview": "esbuild preview_assets.jsx --bundle --platform=node --jsx=automatic --outfile=.preview.mjs --format=esm --loader:.png=dataurl --external:react --external:react-dom --log-level=silent && node .preview.mjs",
     "test": "node tools/pruefe-buttons.mjs && node tools/pruefe-dateinamen.mjs && node test_kontrast.mjs && node test_core.mjs && node test_engine.mjs && node test_progression.mjs && node test_features.mjs && node test_buende.mjs && node test_decks.mjs && node test_sperren.mjs && node test_kapitel1.mjs && node test_maps.mjs && node test_boards.mjs && node test_combat.mjs && node test_monster_gaben.mjs && node test_boss.mjs && node test_balance.mjs && node test_net.mjs && npm run smoke && npm run ui && node test_story.mjs && node test_saves.mjs && node test_worker.mjs && node test_dragon.mjs && node test_campaign_smoke.mjs && node test_sonderzuege.mjs && node test_anim.mjs && node test_zauber.mjs",
@@ -28,7 +28,8 @@
     "pruefe:hub": "npx esbuild render_hub.mjs --bundle --platform=node --jsx=automatic --outfile=.rh.mjs --format=esm --external:react --external:react-dom --external:jsdom --loader:.jpg=dataurl --loader:.png=dataurl --loader:.webp=dataurl --loader:.mp3=dataurl --loader:.webm=dataurl --loader:.css=empty --log-level=warning && node .rh.mjs",
     "pruefe:fluss": "node tools/pruefe-textfluss.mjs",
     "balance": "npx esbuild tools/balance.mjs --bundle --platform=node --format=esm --outfile=.balance.mjs --log-level=error && node .balance.mjs reif",
-    "besetzung": "npx esbuild tools/besetzung-messen.mjs --bundle --platform=node --format=esm --outfile=.besetzung.mjs --log-level=error && node .besetzung.mjs"
+    "besetzung": "npx esbuild tools/besetzung-messen.mjs --bundle --platform=node --format=esm --outfile=.besetzung.mjs --log-level=error && node .besetzung.mjs",
+    "build:app": "vite build && npm run schaukammer"
   },
   "dependencies": {
     "@fontsource/im-fell-english": "^5.2.6",
