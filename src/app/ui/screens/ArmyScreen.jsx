@@ -1567,8 +1567,13 @@ function FormationEditor({ profile, dispatch, t, en }) {
             onClick={() => { if (zu) return; if (isWing) { setPick(dragonAt); scrollToPicker(); } else { setPick(open ? null : i); if (!open) scrollToPicker(); } }}
             style={{ width: "100%", aspectRatio: "5 / 6", minWidth: 0, borderRadius: 8, cursor: isKingSlot ? "default" : "pointer",
               display: "grid", placeItems: "center", fontFamily: "inherit", padding: 0, position: "relative",
-              background: open || (isWing && pick === dragonAt) ? T.lime : isWing ? "rgba(120,90,190,.16)" : isKingSlot ? "rgba(18,14,26,.6)" : T.bg2,
-              border: `1px solid ${open || (isWing && pick === dragonAt) ? T.lime : isDragon || isWing ? "#8a7ab8" : isKingSlot ? "transparent" : T.line}` }}>
+              /* v1.53.0 (Besitzer: "stell gerne auf das neue Design um"): der
+                 gewaehlte Platz leuchtet golden wie die gewaehlte Karte darunter,
+                 statt vollflaechig gelb zu sein - Raster und Karten sprechen
+                 jetzt dieselbe Sprache. */
+              background: open || (isWing && pick === dragonAt) ? "rgba(240,214,138,.14)" : isWing ? "rgba(120,90,190,.16)" : isKingSlot ? "rgba(18,14,26,.6)" : T.bg2,
+              border: `1px solid ${open || (isWing && pick === dragonAt) ? "#f6dc8e" : isDragon || isWing ? "#8a7ab8" : isKingSlot ? "transparent" : T.line}`,
+              ...(open || (isWing && pick === dragonAt) ? { boxShadow: "0 0 0 1px rgba(240,214,138,.45), 0 0 14px rgba(240,214,138,.5)" } : null) }}>
             {isWing
               ? <span title={t("army.wing")} style={{ fontSize: "clamp(11px, 4vw, 18px)", opacity: 0.5, color: "#b9a6e6" }}>🜁</span>
               : isDragon

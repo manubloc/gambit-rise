@@ -88,6 +88,19 @@
     .modus .inner { padding:13px 14px 15px; }
     .modus h3 { color:var(--goldhell); font-size:16.5px; letter-spacing:.03em; margin-bottom:5px; }
     .modus p { color:#b8b3a5; font-size:13.5px; line-height:1.55; }
+    /* v1.53.0 (Besitzer): die Karten "eins zu eins wie im Hofstaat oder in
+       der Aufstellung" - echte Aufnahmen aus dem Spiel, grauer Sockel (vor dem
+       Erwachen der Lebenspunkte), mit Kulisse und Farbschleier der Figur. */
+    .kachelreihe { display:grid; gap:12px; grid-template-columns:repeat(3,1fr); }
+    @media (min-width:980px){ .kachelreihe { grid-template-columns:repeat(6,1fr); } }
+    .kachelreihe img, .kartenreihe img { width:100%; height:auto; display:block; border-radius:12px;
+      box-shadow:0 8px 22px rgba(0,0,0,.45); }
+    .kartenreihe { display:grid; gap:14px; grid-template-columns:repeat(2,1fr); max-width:760px; margin:0 auto; }
+    @media (min-width:880px){ .kartenreihe { grid-template-columns:repeat(4,1fr); max-width:none; } }
+    .bildrahmen { border:1px solid rgba(167,139,250,.45); border-radius:16px; overflow:hidden;
+      box-shadow:0 12px 34px rgba(0,0,0,.5); max-width:560px; margin:0 auto; }
+    .bildrahmen img { width:100%; height:auto; display:block; }
+    .unterzeile { text-align:center; margin-top:10px; font-size:14px; color:var(--dim, #b9b2cc); }
     .galerie { display:grid; gap:14px; grid-template-columns:repeat(2,1fr); }
     @media (min-width:640px){ .galerie { grid-template-columns:repeat(3,1fr); } }
     @media (min-width:980px){ .galerie { grid-template-columns:repeat(6,1fr); } }
@@ -188,13 +201,13 @@
         <li>Die Kampfleiste zeigt jede Fähigkeit — auch die des Gegners, sobald er sie offenbart</li>
       </ul>
     </div>
-    <div style="order:1" class="galerie" aria-label="Figuren und Bestien aus dem Spiel">
-      <div class="sockel"><img src="/landing/fig-koenig.webp" alt="Geschnitzter König" loading="lazy" /><div class="n">König</div><div class="r sans">Die Krone</div></div>
-      <div class="sockel"><img src="/landing/fig-dame.webp" alt="Geschnitzte Dame" loading="lazy" /><div class="n">Dame</div><div class="r sans">Die Klinge des Hofes</div></div>
-      <div class="sockel"><img src="/landing/fig-gambit.webp" alt="Der Gambit" loading="lazy" /><div class="n">Gambit</div><div class="r sans">Der Held</div></div>
-      <div class="sockel"><img src="/landing/fig-amazone.webp" alt="Amazone" loading="lazy" /><div class="n">Amazone</div><div class="r sans">Dame &amp; Springer zugleich</div></div>
-      <div class="sockel riss"><img src="/landing/mon-waechter.webp" alt="Der Wächter, eine Bestie des Risses" loading="lazy" /><div class="n">Der Wächter</div><div class="r sans">Meister des 1. Kapitels</div></div>
-      <div class="sockel riss"><img src="/landing/mon-bestie.webp" alt="Bestie des Risses" loading="lazy" /><div class="n">Aus dem Riss</div><div class="r sans">Eine von 25 Bestien</div></div>
+    <div style="order:1" class="kachelreihe" aria-label="Figuren und Bestien aus dem Spiel">
+      <img src="/landing/hof-koenig.webp" alt="Der König als Karte im Hofstaat" loading="lazy" />
+      <img src="/landing/hof-dame.webp" alt="Die Dame als Karte im Hofstaat" loading="lazy" />
+      <img src="/landing/hof-gambit.webp" alt="Der Gambit, der Held" loading="lazy" />
+      <img src="/landing/hof-amazone.webp" alt="Die Amazone" loading="lazy" />
+      <img src="/landing/hof-waechter.webp" alt="Der Wächter, eine Bestie des Risses" loading="lazy" />
+      <img src="/landing/hof-brutmutter.webp" alt="Die Brutmutter, eine Bestie des Risses" loading="lazy" />
     </div>
   </div>
 </section>
@@ -203,49 +216,26 @@
   <div class="hof">
     <div class="stich sans" style="text-align:center">Aus der Chronik</div>
     <h2>Jede Figur hat ihr Blatt</h2>
-    <p class="h2u sans">Die Akademie führt über jeden Helden und jede Bestie Buch: Zugbild, Fähigkeiten,
-      Geschichte. Drei Kostproben —</p>
-    <div class="chronik">
-      <div class="blatt">
-        <div class="kopf"><img src="/landing/fig-springer.webp" alt="Springer" loading="lazy" />
-          <div><h3>Der Springer</h3><div class="rolle sans">Reiter des Hofes</div></div></div>
-        <div class="zuege" aria-hidden="true">
-          <div class="z"></div><div class="z d"></div><div class="z l"></div><div class="z d"></div><div class="z l"></div><div class="z d"></div><div class="z"></div>
-          <div class="z d"></div><div class="z l"></div><div class="z d"></div><div class="z"></div><div class="z d"></div><div class="z l"></div><div class="z d"></div>
-          <div class="z"></div><div class="z d"></div><div class="z"></div><div class="z f"></div><div class="z"></div><div class="z d"></div><div class="z"></div>
-          <div class="z d"></div><div class="z l"></div><div class="z d"></div><div class="z"></div><div class="z d"></div><div class="z l"></div><div class="z d"></div>
-          <div class="z"></div><div class="z d"></div><div class="z l"></div><div class="z d"></div><div class="z l"></div><div class="z d"></div><div class="z"></div>
-        </div>
-        <div class="legende sans">Gelb: Sprung · ✦ die Figur</div>
-        <div class="chips sans"><span class="chip">Überspringt jede Deckung</span><span class="chip">Lv 3: Weiter Satz</span></div>
-      </div>
-      <div class="blatt">
-        <div class="kopf"><img src="/landing/fig-drache.webp" alt="Der große Drache" loading="lazy" />
-          <div><h3>Der Drache</h3><div class="rolle sans">Vier Felder, ein Wille</div></div></div>
-        <div class="zuege" aria-hidden="true">
-          <div class="z"></div><div class="z d"></div><div class="z"></div><div class="z d"></div><div class="z"></div><div class="z d"></div><div class="z"></div>
-          <div class="z d"></div><div class="z"></div><div class="z s"></div><div class="z s"></div><div class="z"></div><div class="z d"></div><div class="z"></div>
-          <div class="z"></div><div class="z s"></div><div class="z f"></div><div class="z f"></div><div class="z s"></div><div class="z d"></div><div class="z"></div>
-          <div class="z d"></div><div class="z s"></div><div class="z f"></div><div class="z f"></div><div class="z s"></div><div class="z"></div><div class="z d"></div>
-          <div class="z"></div><div class="z d"></div><div class="z s"></div><div class="z s"></div><div class="z"></div><div class="z d"></div><div class="z"></div>
-        </div>
-        <div class="legende sans">Er deckt 2×2 und schiebt den Block · Blau: Schritt</div>
-        <div class="chips sans"><span class="chip">Einmal je Partie: Flug</span><span class="chip">Landet auf Feinden</span></div>
-      </div>
-      <div class="blatt riss">
-        <div class="kopf"><img src="/landing/mon-waechter.webp" alt="Der Wächter" loading="lazy" style="height:112px" />
-          <div><h3>Der Wächter</h3><div class="rolle sans">Bestie · Meister des 1. Kapitels</div></div></div>
-        <div class="zuege" aria-hidden="true">
-          <div class="z"></div><div class="z d"></div><div class="z g"></div><div class="z d"></div><div class="z g"></div><div class="z d"></div><div class="z"></div>
-          <div class="z d"></div><div class="z"></div><div class="z s"></div><div class="z s"></div><div class="z"></div><div class="z d"></div><div class="z"></div>
-          <div class="z"></div><div class="z d"></div><div class="z s"></div><div class="z f"></div><div class="z s"></div><div class="z d"></div><div class="z"></div>
-          <div class="z d"></div><div class="z"></div><div class="z s"></div><div class="z s"></div><div class="z"></div><div class="z d"></div><div class="z"></div>
-          <div class="z"></div><div class="z d"></div><div class="z"></div><div class="z d"></div><div class="z"></div><div class="z d"></div><div class="z"></div>
-        </div>
-        <div class="legende sans">Blau: Schritt · Grün: seine Gabe</div>
-        <div class="chips sans"><span class="chip violett">Trägt 6 Leben</span><span class="chip violett">Sieg rekrutiert ihn</span></div>
-      </div>
+    <p class="h2u sans">Jeder Held und jede Bestie hat eine eigene Karte: Stufe, Zugbild, Fähigkeiten.
+      Vier Kostproben —</p>
+    <div class="kartenreihe" aria-label="Karten aus der Aufstellung">
+      <img src="/landing/auf-springer.webp" alt="Der Springer mit Zugbild und Fähigkeiten" loading="lazy" />
+      <img src="/landing/auf-laeufer.webp" alt="Der Läufer mit Zugbild und Fähigkeiten" loading="lazy" />
+      <img src="/landing/auf-amazone.webp" alt="Die Amazone - Dame und Springer zugleich" loading="lazy" />
+      <img src="/landing/auf-magier.webp" alt="Der Magier mit Zugbild und Fähigkeiten" loading="lazy" />
     </div>
+    <p class="unterzeile sans">Genau so im Spiel: Stufe, Zugbild und die Fähigkeiten, die eine Figur lernen kann.</p>
+  </div>
+</section>
+
+<section id="gefecht">
+  <div class="hof">
+    <div class="stich sans" style="text-align:center">Mehr als klassisches Schach</div>
+    <h2>Stell dein eigenes Heer auf</h2>
+    <p class="h2u sans">Kapitän statt Turm, Späher statt Springer, eine Bestie aus dem Riss auf dem freien Platz —
+      jede Partie beginnt mit deiner Aufstellung.</p>
+    <div class="bildrahmen"><img src="/landing/gefecht-gemischt.webp"
+      alt="Ein Gefecht in Gambit Rise: die eigene Reihe mit Kapitän, Späher, Magier, Dame, König, Paladin, dem Wächter und einem Turm" loading="lazy" /></div>
   </div>
 </section>
 
@@ -281,15 +271,21 @@
          ersten Zug zu sehen - sie ist aber das, was man sich erspielt. -->
     <div class="weltrahmen"><img src="/landing/weltkarte-ausschnitt.webp" alt="Das Kronland auf der gemalten Weltkarte von Gambit Rise — der Anfang von zwölf Ländern" width="532" height="788" loading="lazy" /></div>
     <p class="h2u sans" style="text-align:center;margin-top:10px;font-style:italic">Das Kronland — der Anfang. Elf weitere Länder liegen dahinter.</p>
+    <!-- v1.53.0 (Besitzer): "nicht nur die Uebersichtskarte, sondern auch die
+         Kapitel-Level" - die Karte eines Kapitels mit ihren Stationen. -->
+    <h3 class="sans" style="text-align:center;margin:34px 0 6px;font-size:19px">Und in jedem Land ein eigener Weg</h3>
+    <p class="h2u sans" style="text-align:center">Jedes Kapitel ist eine Karte voller Stationen, verzweigter Pfade und Meister.</p>
+    <div class="bildrahmen"><img src="/landing/kapitelkarte.webp"
+      alt="Die Karte eines Kapitels: ein Pfad durch den Eichwald mit Stationen wie Erstes Rot, Halle der zwei Schwüre und Bernsteinaltar" loading="lazy" /></div>
   </div>
 </section>
 
 <section class="abgesetzt" id="schluss" style="text-align:center">
   <div class="hof">
     <h2>Die Halle steht offen.</h2>
-    <p class="h2u sans">Kein Konto nötig, kein Download, keine Werbung — der erste Zug ist einen Fingertipp entfernt.</p>
+    <p class="h2u sans">Bald im Play Store — kostenlos bis Kapitel III, ohne Werbung.</p>
     <div class="knopfzeile sans"><a class="knopf gold" href="https://play.google.com/store/apps/details?id=com.gambitrise.app">Im Play Store holen</a></div>
-    <div class="zeile-frei sans">Auf dem Handy: „Zum Startbildschirm hinzufügen" macht Gambit Rise zur App. · Google Play: bald.</div>
+    <div class="zeile-frei sans">Für Android, bald im Google Play Store.</div>
   </div>
 </section>
 

@@ -1,5 +1,27 @@
 # Changelog - Gambit Rise
 
+## 1.53.0 - die Landingpage zeigt das echte Spiel
+- DER GEWAEHLTE PLATZ IM AUFSTELLUNGSRASTER leuchtet golden wie die gewaehlte
+  Karte darunter, statt vollflaechig gelb zu sein (Besitzer: "stell gerne auf
+  das neue Design um").
+- LANDINGPAGE (Besitzer: "die Karten eins zu eins, wie sie im Hofstaat oder
+  in der Aufstellung sind, mit grauem Sockel ... mit dem Hintergrund der
+  jeweiligen Figur mit dieser Faerbung"): alle Figurenbilder sind jetzt
+  ECHTE AUFNAHMEN AUS DEM SPIEL, gemacht vor dem Erwachen der Lebenspunkte
+  (grauer Sockel, keine Werte):
+    * sechs Hofstaat-Kacheln: Koenig, Dame, Gambit, Amazone, Waechter,
+      Brutmutter - mit Kulisse, Farbschleier und Stufenabzeichen
+    * vier Aufstellungskarten mit Zugbild und Faehigkeiten: Springer,
+      Laeufer, Amazone, Magier. Sie ersetzen die handgebauten Zugbilder der
+      alten Chronik-Blaetter, die teils versetzt waren.
+- NEU: "Stell dein eigenes Heer auf" - ein Gefecht mit gemischter Aufstellung
+  (Kapitaen, Spaeher, Magier, Dame, Koenig, Paladin, Waechter, Turm) auf dem
+  Brett von Kapitel I.
+- NEU: unter der Weltkarte die Karte eines Kapitels mit ihren Stationen.
+- Veraltete Saetze gerichtet: "kein Download, der erste Zug ist einen
+  Fingertipp entfernt" und "Zum Startbildschirm hinzufuegen" - das Spiel
+  kommt ueber den Play Store.
+
 ## 1.52.0 - eine Aufstellung fuer beide Regelwerke
 - Besitzer: "Aufstellung ueber diesem Hin- und Herschalter Schach und HP-
   Gefecht weglassen. Ausserdem braucht man den Unterschied zwischen HP-
