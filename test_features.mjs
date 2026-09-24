@@ -251,6 +251,12 @@ const capN = fig2("captain");
 ok("the Captain waits on a side path of chapter VI", capN.league === 6 && !capN.haupt && bsm2(capN.id, { campaign: { league: 6, cleared: [], unlocked: [] } }).boss.unlocks === "captain");
 let sailed = kd9({ v: 2, sp: 0, gold: 0, xp: 0, xpEarned: 0, stats: {}, pieces: { levels: {}, abilities: {} }, items: {}, claims: {},
   loadout: { flank: ["knight", "knight"], formations: {} },
+  /* v1.47.0: diese Probe prueft die KAMPAGNE, nicht die Bezahlschranke -
+     darum traegt ihr Stand die Vollfassung (gratis endet nach Kapitel III). */
+  voll: true,
+  /* v1.47.0: dieser Lauf prueft die KAMPAGNE, nicht die Schranke - er
+     traegt darum die Vollfassung (gratis endet die Reise nach Kapitel III). */
+  voll: true,
   campaign: { league: 11, cleared: [], unlocked: ["captain"], dupes: {} } }, 11);
 sailed = advanceLeague(sailed);
 ok("clearing the Coast opens chapter XII", sailed.campaign.league === 12);

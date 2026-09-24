@@ -486,4 +486,25 @@ console.log("\n== KAPITEL I SCHACH, DER SCHADEN ERWACHT IN KAPITEL II (Besitzere
 }
 
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
+/* ── v1.47.0: DIE SCHRANKE - GRATIS BIS KAPITEL III ──────────────────────── */
+{
+  const { GRATIS_BIS_LIGA, istVoll, hinterSchranke } = await import("./src/meta/schranke.js");
+  const { advanceLeague, nodeStatus } = await import("./src/meta/campaign.js");
+  const { CAMPAIGN12 } = await import("./src/content/campaign12.gen.js");
+  const finale = (lg) => CAMPAIGN12.find((n) => n.final && n.league === lg).id;
+  const stand = (lg) => ({ campaign: { league: lg, cleared: [finale(lg)], unlocked: [], dupes: {} } });
+  ok("gratis reicht bis Kapitel III", GRATIS_BIS_LIGA === 3
+    && !hinterSchranke({}, 3) && hinterSchranke({}, 4));
+  ok("die Vollfassung kennt keine Schranke", !hinterSchranke({ voll: true }, 12) && istVoll({ voll: true }));
+  ok("das Finale von Kapitel II fuehrt gratis nach III", advanceLeague(stand(2)).campaign.league === 3);
+  ok("das Finale von Kapitel III fuehrt gratis NICHT weiter", advanceLeague(stand(3)).campaign.league === 3);
+  ok("... mit Vollfassung schon", advanceLeague({ ...stand(3), voll: true }).campaign.league === 4);
+  ok("der geschaffte Stand bleibt unberuehrt - man steht nur vor dem Tor",
+    nodeStatus(advanceLeague(stand(3)), finale(3)) === "cleared");
+  const { readFileSync } = await import("node:fs");
+  const camp = readFileSync("src/app/ui/screens/CampaignScreen.jsx", "utf8");
+  ok("vor dem Tor steht eine Tafel, kein Knopf der nichts tut",
+    camp.includes('hinterSchranke(profile, league + 1) && (') && camp.includes('t("camp.schranke"'));
+}
+
 process.exit(fail ? 1 : 0);

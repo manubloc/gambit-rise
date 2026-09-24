@@ -1,5 +1,20 @@
 # Changelog - Gambit Rise
 
+## 1.47.0 - die Schranke: gratis bis Kapitel III
+- Besitzerentscheid 22.9.: "gratis bis Kapitel III". Und 23.9.: zwei
+  Fassungen im Play Store - kostenlos bis Kapitel III, daneben die Vollfassung.
+- src/meta/schranke.js haelt die Grenze an EINER Stelle (GRATIS_BIS_LIGA = 3)
+  und liest allein profile.voll. WIE ein Stand zur Vollfassung wird (Bezahl-
+  App mit eigener Paketkennung oder Kauf in der App), entscheidet der Kern
+  nicht - so bleibt er frei von Store-Wissen.
+- advanceLeague haelt nach dem Finale von Kapitel III an: der Stand bleibt
+  unveraendert, das Finale bleibt geschafft, man steht nur vor dem Tor.
+- Statt des Torknopfes steht dann eine Tafel: "Kapitel IV braucht die
+  Vollversion" - ein Knopf, der nichts tut, waere die schlechteste Antwort.
+- Der Gast bleibt unberuehrt, er hat seine eigene, engere Grenze.
+- Eine alte Probe (Kapitel XI nach XII) prueft die Kampagne, nicht die
+  Schranke - sie traegt jetzt die Vollfassung.
+
 ## 1.46.0 - der Gastzugang, eingefroren
 - Besitzerentscheid 23.9.: "Machen wir es mit Gastzugang, aber der sollte
   einen gefreezten Stand haben ohne Online und lokale Spiele. Einfach

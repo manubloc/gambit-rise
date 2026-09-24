@@ -11,6 +11,7 @@ import { hasItem } from "../content/items.js";
 import { BASE_HP, BASE_ATK } from "../core/index.js";
 import { besetzungsPlan, besetzungFuer, gegnerAufstellung } from "./besetzung.js";
 import { GAST_STATIONEN } from "./gast.js";   /* v1.46.0 */
+import { hinterSchranke } from "./schranke.js";   /* v1.47.0 */
 
 export const campaignLength = (profile = null) =>
   profile ? CAMPAIGN.filter((n) => nodeInLeague(n, profile.campaign?.league)).length : CAMPAIGN.length;
@@ -380,6 +381,11 @@ export function advanceLeague(profile) {
   const fin = CAMPAIGN.find((n) => n.final && nodeInLeague(n, profile?.campaign?.league));
   if (!fin || nodeStatus(profile, fin.id) !== "cleared") return profile;
   const league = profile.campaign?.league || 1;
+  /* v1.47.0: DIE SCHRANKE. Gratis reicht die Reise bis Kapitel III
+     (Besitzerentscheid 22.9.); das Tor zu Kapitel IV oeffnet nur die
+     Vollfassung. Der Stand bleibt unveraendert - das Finale ist geschafft
+     und bleibt geschafft, man steht nur vor dem Tor. */
+  if (hinterSchranke(profile, league + 1)) return profile;
   return { ...profile, campaign: { league: league + 1, cleared: [],
     unlocked: [...(profile.campaign?.unlocked || [])], dupes: { ...(profile.campaign?.dupes || {}) },
     bossWins: { ...(profile.campaign?.bossWins || {}) }, tolls: [] } };

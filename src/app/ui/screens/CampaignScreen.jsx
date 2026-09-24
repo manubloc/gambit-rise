@@ -47,6 +47,7 @@ import { voiceFor } from "../../../content/index.js";
 import { placeFor } from "../../../meta/index.js";
 import { MP, GEO, buildCampaignScenery, themeForLeague, Pine, Leafy, Rock, RidgeCluster, Cloud, Keep, Cottage, Mill, Bridge, Field, Boat, Birds, Mist, Wisp, StoneCircle, Crystal, DeadTree, RuinArch, Cactus, Dune, Grass, SnowDrift, Palm, Wave, Isle, Lighthouse, SiteGlyph, siteTypeFor, WandererArt } from "../mapArt.jsx";
 import { besetzungsPlan } from "../../../meta/besetzung.js";   /* v1.35.0 */
+import { hinterSchranke } from "../../../meta/schranke.js";   /* v1.47.0 */
 
 // ── geometry (pixels; shared with previews via mapArt.GEO) ───────────────────
 const { STEP, LANE, LEFT, TOPPAD, WMAP, HMAP, nx, ny } = GEO;
@@ -928,7 +929,21 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
             <span style={{ transform: "scaleX(-1)", display: "grid" }}><BackIc size={19} /></span>
           </button>
         )}
-        {!viewing && nodeStatus(profile, "n22") === "cleared" && (
+        {/* v1.47.0: DIE SCHRANKE. Ist das naechste Kapitel bezahlt, steht
+            statt des Tores eine Tafel - sie sagt, was fehlt, und nicht
+            einfach nichts (ein Knopf, der nichts tut, ist die schlechteste
+            aller Antworten). */}
+        {!viewing && nodeStatus(profile, "n22") === "cleared" && hinterSchranke(profile, league + 1) && (
+          <div style={{ pointerEvents: "auto", padding: "8px 13px", borderRadius: 999,
+            background: "rgba(8, 11, 20, .62)", border: "1px solid rgba(233, 210, 150, .42)",
+            backdropFilter: "blur(10px) saturate(1.1)", WebkitBackdropFilter: "blur(10px) saturate(1.1)",
+            font: "700 12px/1.3 Georgia, serif", color: "#e9d296", maxWidth: 190, textAlign: "center" }}>
+            {t("camp.schranke", { r: ROMAN[league] || league + 1 })}
+            <div style={{ font: "400 10.5px/1.35 Georgia, serif", color: "rgba(233,210,150,.7)", marginTop: 3 }}>
+              {t("camp.schrankeSub")}</div>
+          </div>
+        )}
+        {!viewing && nodeStatus(profile, "n22") === "cleared" && !hinterSchranke(profile, league + 1) && (
           <button onClick={() => dispatch({ type: "REPLACE", profile: advanceLeague(profile) })} title={t("camp.advance", { r: ROMAN[league] || league + 1 })}
             style={{ pointerEvents: "auto", cursor: "pointer", width: 40, height: 40, borderRadius: "50%",
               display: "grid", placeItems: "center", background: "rgba(8, 11, 20, .48)",
