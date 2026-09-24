@@ -89,10 +89,15 @@ function TileArt({ kind, size, hero = false, level = 1, bossId = null, tier = 0 
      Stab zog sie zur Seite, obwohl sein Sockel gerade stand, und mein
      Ausgleich schob ihn daraufhin erst recht nach rechts. Der Standfuss ist
      der Anker, an dem das Auge nebeneinanderstehende Figuren ausrichtet. */
-  /* v1.0.62: kein Versatz mehr - die Bilder selbst sind gerichtet. */
+  /* v1.0.62: kein Versatz mehr - die Bilder selbst sind gerichtet.
+     v1.60.0 (Besitzer: "die Koenigin nicht perfekt mittig"): GEMESSEN - das
+     Bild der Dame wurde nach v1.0.62 ersetzt, ihr Teller sitzt bei cx 327
+     von 576 (+6,9 %), alle anderen unter 1 %. Also wieder ueber den Teller
+     ausgleichen, wie Figurenblatt und Hofstaat-Kachel es laengst tun. */
+  const tellerX = tellerMitteProzent(paintedIdOf(src));
   return src
     ? <img src={src} alt="" draggable={false} style={{ width: size ?? "100%", height: size ?? "100%", objectFit: "contain",
-        objectPosition: "center center",
+        objectPosition: "center center", transform: tellerX ? `translateX(${tellerX.toFixed(2)}%)` : undefined,
         filter: "brightness(1.16) saturate(1.05) drop-shadow(0 2px 3px rgba(0,0,0,.6))",
         userSelect: "none", pointerEvents: "none", display: "block", flex: "none" }} />
     : <span style={{ fontSize: size * 0.8, lineHeight: 1 }}>♟</span>;
@@ -1317,6 +1322,13 @@ function FormationEditor({ profile, dispatch, t, en }) {
 
   const legal = formationLegalOn(draft, unlockedIds, map, ownedLeagueBosses(profile));
   const changed = JSON.stringify(draft) !== JSON.stringify(saved);
+  /* v1.60.0 (Besitzer: "Speichern und Standard weglassen - das ist logisch,
+     dass es in dem Moment, wo ich eine Figur waehle, passt"): jede GUELTIGE
+     Aenderung wird sofort gespeichert. Eine ungueltige bleibt Entwurf, und die
+     rote Zeile unten sagt, was fehlt. */
+  useEffect(() => {
+    if (legal && changed) dispatch({ type: "SET_FORMATION", mapId, rules: regel, formation: draft });
+  }, [draft]); // eslint-disable-line
   /* v1.33.0: dieselbe Zaehlung wie formationLegalOn - ein KAPITELMEISTER
      zaehlt als Dame (er steht fuer sie), ein GEWOEHNLICHES Monster als freier
      Platz. Vorher zaehlte der Meister als freier Platz und der Dame-Chip stand
@@ -1339,8 +1351,40 @@ function FormationEditor({ profile, dispatch, t, en }) {
 
   const [dragonAsk, setDragonAsk] = useState(null); // { slot, wing } awaiting consent
   const pickerRef = useRef(null);
-  const scrollToPicker = () => requestAnimationFrame(() =>
-    pickerRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }));
+  /* v1.60.0 (Besitzer: "ein Menue, das in der Hoehe fixiert ist, nicht
+     scrollen ... je nach Bildschirmgroesse den Slider in der Hoehe anpassen;
+     die Groesse der Figur und des Hintergrundbilds darf skalieren, der Rest
+     nicht"): die Karte richtet ihre BREITE nach der Hoehe, die unter dem
+     Raster bis zur Menueleiste bleibt. Zugbild und Faehigkeiten darunter
+     behalten ihre Groesse (UNTEN_PX); nur der Kachelteil mit Figur und
+     Kulisse waechst oder schrumpft. */
+  const [kartenBreite, setKartenBreite] = useState(160);
+  useEffect(() => {
+    if (pick === null) return undefined;
+    const UNTEN_PX = 152;          // Name-Abstand, Zugbild (100 px), Faehigkeitszeile
+    const KACHEL_SEITE = 2 / 3;    // Breite : Hoehe des Kachelteils (Hofstaat-Kachel)
+    const messen = () => {
+      const el = pickerRef.current; if (!el) return;
+      const oben = el.getBoundingClientRect().top;
+      const nav = document.querySelector("nav");
+      const boden = nav ? nav.getBoundingClientRect().top : window.innerHeight - 96;
+      const hoehe = boden - oben - 18;               // Luft zur Menueleiste
+      const b = Math.round((hoehe - UNTEN_PX) * KACHEL_SEITE);
+      setKartenBreite(Math.max(112, Math.min(210, b)));
+    };
+    /* Besitzer: "es ist bloed, wenn man diesen Slider hat und trotzdem noch
+       hoch und runter scrollen kann" - solange der Slider offen ist, steht
+       die Seite: sie springt an ihren Anfang (Raster ganz oben) und scrollt
+       nicht. Beim Schliessen wird das Scrollen wieder frei. */
+    const haupt = document.querySelector("main");
+    const vorher = haupt ? haupt.style.overflowY : "";
+    if (haupt) { haupt.scrollTop = 0; haupt.style.overflowY = "hidden"; }
+    messen();
+    window.addEventListener("resize", messen);
+    return () => { window.removeEventListener("resize", messen); if (haupt) haupt.style.overflowY = vorher; };
+  }, [pick]);
+  /* v1.60.0: der Slider steht im festen Schirm - kein Hinscrollen mehr noetig */
+  const scrollToPicker = () => {};
   const setSlot = (i, id) => {
     if (id === "dragon") {
       const last = draft.length - 1;
@@ -1397,7 +1441,9 @@ function FormationEditor({ profile, dispatch, t, en }) {
   }, [draft, mapId, legal, profile]); // eslint-disable-line
 
   return <>
-  <Panel>
+  {/* v1.60.0 (Besitzer: "die Kontur um diese Box brauchen wir nicht"): kein Panel mehr - die Konturen
+      der Figurenfelder zeigen, was antippbar ist; eine Box darum waere Rahmen um Rahmen. */}
+  <div data-aufstellung="1" style={{ padding: "2px 0 0" }}>
     {/* v1.52.0 (Besitzer: "Aufstellung ueber diesem Hin- und Herschalter weg-
         lassen; den Unterschied zwischen HP-Gefecht und Schach braucht man
         nicht"): keine Ueberschrift, kein Schalter - der Reiter oben sagt
@@ -1420,45 +1466,11 @@ function FormationEditor({ profile, dispatch, t, en }) {
         from its snapshot, so nothing you do here can reach into a match that
         is already under way — but nobody was told, which invites the fear of
         having just broken a saved game. */}
-    {profile.pausedMatch?.v === 1 && (
-      <div style={{ fontSize: 12, lineHeight: 1.5, color: "#e6d09a", marginBottom: 10, padding: "8px 11px",
-        borderRadius: 10, background: "rgba(74,58,28,.32)", border: "1px solid rgba(233,207,138,.45)" }}>
-        {t("army.pausedHint")}
-      </div>
-    )}
 
     {/* STACKED, not side-by-side: the intro text sits ABOVE, the formation
         gets the FULL width below — room for properly big figures */}
     <div style={{ display: "block" }}>
     <div style={{ minWidth: 0 }}>
-    {preview && (
-      <div style={{ marginBottom: feWide ? 0 : 12 }}>
-        {/* the preview BOARD is retired here — before a match you cannot know
-            the foe anyway; the board view returns as the Seeress's scout,
-            right before the horn, where it actually informs a decision */}
-        {(() => {
-          const kin = { crown: 0, shadow: 0 };
-          for (const p of preview.board) if (p && p.color === "w") { const f = familyOf(p); if (f) kin[f] += 1; }
-          if (!kin.crown && !kin.shadow) return null;
-          const wall = crownWallSoak(kin.crown), cHp = crownHp(kin.crown);
-          const rifts = shadowRifts(kin.shadow), sAtk = shadowAtk(kin.shadow);
-          const chip = (f, label) => kin[f] > 0 && (
-            <span key={f} style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "3px 9px",
-              borderRadius: 999, border: `1px solid ${FAMILIES[f].color}66`, background: `${FAMILIES[f].color}1c`,
-              color: FAMILIES[f].color, fontSize: 11.5, fontWeight: 800 }}>
-              <span style={{ width: 7, height: 7, transform: "rotate(45deg)", borderRadius: 2, background: FAMILIES[f].color }} />
-              {(en ? FAMILIES[f].en : FAMILIES[f].de)} {kin[f]}{label ? <> · {label}</> : null}
-            </span>);
-          const cParts = <>{wall ? `${t("army.famWall")} ${wall}` : t("army.famNeedTwo")}{cHp ? <> · <span style={{ display: "inline-flex", verticalAlign: "-0.3em" }}><b style={{ font: "800 11px/1 Georgia, serif", color: "#ffb3aa" }}>{"+" + cHp}</b></span></> : null}</>;
-          const sParts = <>{rifts ? `${rifts} ⧗` : t("army.famNeedTwo")}{sAtk ? <> · <span style={{ display: "inline-flex", verticalAlign: "-0.3em" }}><b style={{ font: "800 11px/1 Georgia, serif", color: "#b6cdff" }}>{"+" + sAtk}</b></span></> : null}</>;
-          return <div style={{ display: "flex", gap: 6, justifyContent: "center", flexWrap: "wrap", marginTop: 8 }}>
-            {chip("crown", cParts)}
-            {chip("shadow", sParts)}
-          </div>;
-        })()}
-        <div style={{ fontSize: 11.5, color: T.faint, marginTop: 14, marginBottom: 4, textAlign: "center" }}>{t("army.pawnSoon")}</div>
-      </div>
-    )}
     </div>
 
     <div style={{ minWidth: 0 }}>
@@ -1592,9 +1604,16 @@ function FormationEditor({ profile, dispatch, t, en }) {
                  Bauern - gleiche Hoehe, gleiche Grenzen, gleiche Mitte. */
               : schlicht
                 ? <SlotGlyph kind={CHARACTERS[id].kind} size={"clamp(26px, 10.5vw, 86px)"} art={"painted"} />
-                : <img src={bildnisVon(id, characterLevel(profile, id) || 1) || undefined} alt="" draggable={false}
+                : (() => { const bild = bildnisVon(id, characterLevel(profile, id) || 1);
+                    /* v1.60.0 (Besitzer: "die Koenigin nicht perfekt mittig"):
+                       GEMESSEN - das Bild der Dame traegt ihren Teller bei cx 327
+                       von 576 (+6,9 %), alle anderen unter 1 %. Ausgleich ueber
+                       den Teller, wie Brett, Figurenblatt und Hofstaat-Kachel. */
+                    const tx = bild ? tellerMitteProzent(paintedIdOf(bild)) : 0;
+                    return <img src={bild || undefined} alt="" draggable={false}
                     style={{ height: "clamp(26px, 10.5vw, 86px)", maxWidth: "100%", maxHeight: "100%",
-                      objectFit: "contain", objectPosition: "center", pointerEvents: "none" }} />}
+                      objectFit: "contain", objectPosition: "center", pointerEvents: "none",
+                      transform: tx ? `translateX(${tx.toFixed(2)}%)` : undefined }} />; })()}
           </button>;
         })}
       </div>
@@ -1641,7 +1660,10 @@ function FormationEditor({ profile, dispatch, t, en }) {
       </div>
     )}
     {pick !== null && (
-      <div ref={pickerRef} style={{ background: T.bg2, border: `1px solid ${T.line}`, borderRadius: 10, padding: 8, marginBottom: 10 }}>
+      /* v1.60.0 (Besitzer: "die Karten sollen wirklich seitlich aus dem
+         Bildschirm laufen, nicht on top nochmal in der Box"): keine Box, die
+         Reihe reicht von Bildschirmrand zu Bildschirmrand. */
+      <div ref={pickerRef} data-aufst-slider="1" style={{ width: "100vw", marginLeft: "calc(50% - 50vw)", marginBottom: 6 }}>
         {/* v1.1.15 (Besitzerwunsch): DIE FIGURENWAHL IST EINE WISCHREIHE.
             "Wenn man in der Aufstellung auf eine Figur drueckt, dass dann
             unten in gross man nach rechts oder nach links sliden kann und die
@@ -1667,7 +1689,7 @@ function FormationEditor({ profile, dispatch, t, en }) {
         <div style={{ display: "flex", gap: 10, overflowX: "auto", overflowY: "hidden",
           scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch",
           touchAction: "pan-x",
-          padding: "2px 2px 8px", margin: "0 -2px",
+          padding: "4px 16px 8px", margin: 0,
           scrollbarWidth: "none", msOverflowStyle: "none" }}>
           {pieces.filter((c) => (pick === crown.queen
               ? c.id === "queen"          // her square: the queen or a boss (below)
@@ -1698,7 +1720,7 @@ function FormationEditor({ profile, dispatch, t, en }) {
             const zeigen = alle.slice(0, AUFST_TALENT_MAX);
             const mehr = alle.length - zeigen.length;
             return <button key={c.id} onClick={() => setSlot(pick, c.id)}
-              style={{ flex: "0 0 auto", width: "clamp(146px, 40vw, 184px)", scrollSnapAlign: "center",   /* v1.52.0: groesser (war 124-156) */
+              style={{ flex: "0 0 auto", width: kartenBreite + "px", scrollSnapAlign: "center",   /* v1.52.0: groesser (war 124-156) */
                 padding: 0, border: "none", background: "none", cursor: "pointer", fontFamily: "inherit", textAlign: "center" }}>
               <HofKachel img={bildC} artId={c.id} kind={c.kind} hero={c.id === "gambit"} lvl={lvC}
                 stufe={lvC} werte={kachelWerteFuer(profile, c.id)} name={en ? c.nameEn : c.nameDe}
@@ -1707,7 +1729,7 @@ function FormationEditor({ profile, dispatch, t, en }) {
                 glow={on} gewaehlt={on} talente={[]}
                 unten={<div data-aufst-unten="1" style={{ marginTop: 7 }}>
                   <div style={{ display: "flex", justifyContent: "center" }}>
-                    <MoveDiagram kind={c.kind} moveSpec={c.moveSpec} breite={"clamp(92px, 25vw, 118px)"} />
+                    <MoveDiagram kind={c.kind} moveSpec={c.moveSpec} breite={"100px"} />
                   </div>
                   {zeigen.length > 0 && <div style={{ display: "flex", justifyContent: "center", gap: 3, marginTop: 7 }}>
                     {zeigen.map((id) => <span key={id} data-aufst-talent={id} title={en ? ABILITIES[id].nameEn : ABILITIES[id].nameDe}
@@ -1721,6 +1743,46 @@ function FormationEditor({ profile, dispatch, t, en }) {
                 </div>} />
             </button>;
           })}
+          {/* v1.60.0: DIE EIGENEN MONSTER STEHEN ALS KARTEN IN DERSELBEN REIHE -
+              im Design der Hofstaat-Kachel, mit Zugbild und Faehigkeiten. Vorher
+              eine zweite Zeile kleiner Knoepfe UNTER den Karten; im festen Schirm
+              waere sie abgeschnitten, und sie trug das alte Design. Die Regeln
+              bleiben: Kapitelmeister nur auf dem Damenplatz, gewoehnliche
+              Monster auf freien Plaetzen, jedes hoechstens einmal. */}
+          {(() => {
+            if (pick === crown.king) return null;
+            const aufKrone = pick === crown.queen;
+            const liste = ownedLeagueBosses(profile).filter((bid) => (aufKrone ? LEAGUE_BOSSES.includes(bid) : !LEAGUE_BOSSES.includes(bid)));
+            return liste.map((bid) => {
+              const b = bossById(bid); if (!b) return null;
+              const eid = "boss:" + bid;
+              const on = draft[pick] === eid;
+              const blocked = draft.some((d, j) => j !== pick && d === eid) && !on;
+              const mLv = characterLevel(profile, "X:" + bid) || 1;
+              const mSpec = bossSpecLeveled(b, mLv);
+              const mWerte = hpUnlocked(profile) ? rohrAnteile({ hp: mSpec.hp, atk: mSpec.atk, level: mLv, maxLevel: BOSS_MAX_LEVEL })
+                : { leben: 0, kraft: 0, ohne: true };
+              const alle = (b.ladder || []).map((st) => st.ability).filter((id) => id && ABILITIES[id]);
+              const zeigen = alle.slice(0, AUFST_TALENT_MAX); const mehr = alle.length - zeigen.length;
+              return <button key={eid} disabled={blocked} onClick={() => setSlot(pick, eid)} data-aufst-monster={bid}
+                style={{ flex: "0 0 auto", width: kartenBreite + "px", scrollSnapAlign: "center", opacity: blocked ? 0.45 : 1,
+                  padding: 0, border: "none", background: "none", cursor: blocked ? "default" : "pointer", fontFamily: "inherit", textAlign: "center" }}>
+                <HofKachel img={paintedById("boss-" + bid)} bossId={bid} lvl={mLv} stufe={mLv} werte={mWerte} ton={b.accent || null}
+                  meister={LEAGUE_BOSSES.includes(bid)} name={en ? b.nameEn : b.nameDe} glow={on} gewaehlt={on} talente={[]}
+                  unten={<div style={{ marginTop: 7 }}>
+                    <div style={{ display: "flex", justifyContent: "center" }}>
+                      <MoveDiagram kind={"X"} moveSpec={b.moveSpec || mSpec.moveSpec} breite={"100px"} />
+                    </div>
+                    {zeigen.length > 0 && <div style={{ display: "flex", justifyContent: "center", gap: 3, marginTop: 7 }}>
+                      {zeigen.map((id) => <span key={id} style={{ width: 19, height: 19, display: "grid", placeItems: "center", borderRadius: 6,
+                        background: "rgba(12,8,22,.78)", border: "1px solid rgba(233,207,138,.45)" }}><AbilityIcon id={id} size={14} /></span>)}
+                      {mehr > 0 && <span style={{ minWidth: 19, height: 19, padding: "0 4px", display: "grid", placeItems: "center", borderRadius: 6,
+                        background: "rgba(12,8,22,.78)", border: "1px solid rgba(233,207,138,.3)", font: "700 9.5px/1 Georgia, serif", color: "#e9cf8a" }}>+{mehr}</span>}
+                    </div>}
+                  </div>} />
+              </button>;
+            });
+          })()}
         </div>
         {(() => {
           /* v1.33.0 (Besitzer): die KAPITELMEISTER stehen anstelle der Dame - nur
@@ -1728,7 +1790,9 @@ function FormationEditor({ profile, dispatch, t, en }) {
              Turm, Laeufer oder Springer. Jedes Monster hoechstens einmal: steht
              es schon auf einem anderen Platz, ist sein Knopf gedaempft. Die
              Regel selbst prueft formationLegalOn (leveling.js). */
-          const owned = ownedLeagueBosses(profile);
+          /* v1.60.0: die Monster stehen jetzt als Karten in der Wischreihe oben */
+          return null;
+          const owned = ownedLeagueBosses(profile);   // eslint-disable-line no-unreachable
           if (pick === crown.king) return null;
           const aufKrone = pick === crown.queen;
           const liste = owned.filter((bid) => (aufKrone ? LEAGUE_BOSSES.includes(bid) : !LEAGUE_BOSSES.includes(bid)));
@@ -1762,6 +1826,48 @@ function FormationEditor({ profile, dispatch, t, en }) {
     {/* the pawn rank above already carries the Gambit's file — no
         separate hero strip needed anymore */}
 
+    {/* v1.60.0 (Besitzer): "den ganzen Erklaertext mach lieber runter, an die
+        Stelle, die ersetzt wird, wenn man auf eine Figur drueckt ... und
+        Aufstellung 1, 2, 3 kann in dem Moment verschwinden". Ohne Auswahl
+        stehen hier Hinweis, Zaehlzeilen, Erklaersatz und die drei Faecher;
+        ist eine Figur angetippt, nimmt der Slider genau diesen Platz ein.
+        SPEICHERN und STANDARD sind fort: jede gueltige Wahl gilt sofort
+        (Besitzer: "das ist logisch, dass es in dem Moment passt"). */}
+    {pick === null && <div data-aufst-ruhe="1">
+    {profile.pausedMatch?.v === 1 && (
+      <div style={{ fontSize: 12, lineHeight: 1.5, color: "#e6d09a", marginBottom: 10, padding: "8px 11px",
+        borderRadius: 10, background: "rgba(74,58,28,.32)", border: "1px solid rgba(233,207,138,.45)" }}>
+        {t("army.pausedHint")}
+      </div>
+    )}
+    {preview && (
+      <div style={{ marginBottom: feWide ? 0 : 12 }}>
+        {/* the preview BOARD is retired here — before a match you cannot know
+            the foe anyway; the board view returns as the Seeress's scout,
+            right before the horn, where it actually informs a decision */}
+        {(() => {
+          const kin = { crown: 0, shadow: 0 };
+          for (const p of preview.board) if (p && p.color === "w") { const f = familyOf(p); if (f) kin[f] += 1; }
+          if (!kin.crown && !kin.shadow) return null;
+          const wall = crownWallSoak(kin.crown), cHp = crownHp(kin.crown);
+          const rifts = shadowRifts(kin.shadow), sAtk = shadowAtk(kin.shadow);
+          const chip = (f, label) => kin[f] > 0 && (
+            <span key={f} style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "3px 9px",
+              borderRadius: 999, border: `1px solid ${FAMILIES[f].color}66`, background: `${FAMILIES[f].color}1c`,
+              color: FAMILIES[f].color, fontSize: 11.5, fontWeight: 800 }}>
+              <span style={{ width: 7, height: 7, transform: "rotate(45deg)", borderRadius: 2, background: FAMILIES[f].color }} />
+              {(en ? FAMILIES[f].en : FAMILIES[f].de)} {kin[f]}{label ? <> · {label}</> : null}
+            </span>);
+          const cParts = <>{wall ? `${t("army.famWall")} ${wall}` : t("army.famNeedTwo")}{cHp ? <> · <span style={{ display: "inline-flex", verticalAlign: "-0.3em" }}><b style={{ font: "800 11px/1 Georgia, serif", color: "#ffb3aa" }}>{"+" + cHp}</b></span></> : null}</>;
+          const sParts = <>{rifts ? `${rifts} ⧗` : t("army.famNeedTwo")}{sAtk ? <> · <span style={{ display: "inline-flex", verticalAlign: "-0.3em" }}><b style={{ font: "800 11px/1 Georgia, serif", color: "#b6cdff" }}>{"+" + sAtk}</b></span></> : null}</>;
+          return <div style={{ display: "flex", gap: 6, justifyContent: "center", flexWrap: "wrap", marginTop: 8 }}>
+            {chip("crown", cParts)}
+            {chip("shadow", sParts)}
+          </div>;
+        })()}
+        <div style={{ fontSize: 11.5, color: T.faint, marginTop: 14, marginBottom: 4, textAlign: "center" }}>{t("army.pawnSoon")}</div>
+      </div>
+    )}
     <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12, alignItems: "center" }}>
       {reqChips.map((r) => (
         <Chip key={r.id} color={r.have === r.need ? T.green : T.danger} bg={T.panel2}>
@@ -1801,14 +1907,11 @@ function FormationEditor({ profile, dispatch, t, en }) {
         </button>;
       })}
     </div>
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-      <Button variant="primary" disabled={!legal || !changed} onClick={() => dispatch({ type: "SET_FORMATION", mapId, rules: regel, formation: draft })}>{t("common.save")}</Button>
-      <Button variant="subtle" onClick={() => setDraft(map.defaultFormation)}>{t("army.standard")}</Button>
-    </div>
+    </div>}
     {!legal && <div style={{ fontSize: 12, color: T.danger, marginTop: 8 }}>{t("army.invalid")}</div>}
     </div>
     </div>
-  </Panel>
+  </div>
 
   {/* map choice — its own strip below the box: ONE row, scroll if it must */}
   {/* v1.15.0 (Uebergabe): DIE KARTENWAHL ERSCHEINT ERST AB KAPITEL 5 - bis

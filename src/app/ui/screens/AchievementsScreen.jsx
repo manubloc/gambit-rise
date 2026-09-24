@@ -334,12 +334,17 @@ export function AchievementsScreen({ profile, dispatch, t, initialOpenId = null 
                    Rand ringsum, und die goldene Laufkontur. */
                 return <button className="gg-goldlauf" data-einfordern="1"
                   onClick={(e) => { e.stopPropagation(); dispatch({ type: "CLAIM_ACH", id: it.id }); }}
-                  style={{ fontFamily: "inherit", fontWeight: 900, fontSize: 13, borderRadius: 999, padding: "8px 12px",
+                  aria-label={`${t("ach.claim")}: ${r.sp} SP, ${r.gold} Gold`}
+                  style={{ fontFamily: "inherit", fontWeight: 900, fontSize: 14, borderRadius: 999, padding: "8px 12px",
                     marginTop: 9, width: "100%", lineHeight: 1.1,
                     border: "1px solid rgba(255,240,200,.5)", background: GOLD_CTA, color: "#17110a", cursor: "pointer",
                     boxShadow: `0 0 14px ${T.gold}77`, whiteSpace: "nowrap",
                     display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 5 }}>
-                  {t("ach.claim")} · <SkillStar size={14} /> {r.sp} <GoldCoin size={14} /> {r.gold}
+                  {/* v1.60.0: GEMESSEN auf 400 px - "Einfordern · Stern 1 Krone 5"
+                      passte nicht in die halbe Kachel, das E wurde angeschnitten.
+                      Die Belohnung steht bereits oben rechts in jeder Kachel;
+                      der Knopf sagt nur noch, was er tut. */}
+                  {t("ach.claim")}
                 </button>;
               })()}
             </div>

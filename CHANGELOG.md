@@ -1,5 +1,35 @@
 # Changelog - Gambit Rise
 
+## 1.60.0 - die Aufstellung als fester Schirm
+- Besitzer: "den Slider nicht nochmal in einer Box, die Karten seitlich aus
+  dem Bildschirm laufen ... bei der Aufstellung nicht scrollen koennen ... je
+  nach Bildschirmgroesse den Slider in der Hoehe anpassen, die Figur und das
+  Hintergrundbild duerfen skalieren, der Rest nicht ... den Erklaertext nach
+  unten, an die Stelle, die ersetzt wird, wenn man eine Figur waehlt ...
+  Aufstellung 1, 2, 3 verschwindet ... Speichern und Standard weglassen ...
+  die Kontur um die Box brauchen wir nicht."
+- Kein Rahmen um die Aufstellung; das Raster steht oben.
+- Unter dem Raster (solange keine Figur gewaehlt ist): Hinweise, Zaehler,
+  die drei Faecher. Tippt man einen Platz an, ersetzt der Slider diesen
+  Bereich - Faecher und Hinweise treten zurueck.
+- Der Slider laeuft von Bildschirmrand zu Bildschirmrand; die Kartenbreite
+  richtet sich nach der Hoehe bis zur Menueleiste (Zugbild und Faehigkeiten
+  behalten ihre Groesse), die Seite scrollt nicht, solange er offen ist.
+  Gemessen auf 400 x 860 und 360 x 740: kein Scrollen, Slider endet ueber
+  der Leiste.
+- Die eigenen Monster stehen als Karten in derselben Reihe (Hofstaat-Kachel
+  mit Zugbild und Faehigkeiten) statt als alte Knoepfe darunter.
+- SOFORT GESPEICHERT: jede gueltige Aenderung; Speichern und Standard sind fort.
+- DIE DAME MITTIG: GEMESSEN - ihr Bild traegt den Teller bei cx 327 von 576
+  (+6,9 %), alle anderen unter 1 %. Das Raster gleicht jetzt ueber den Teller
+  aus, wie Brett, Figurenblatt und Hofstaat-Kachel es laengst tun.
+- SCHATZKAMMER: der Knopf sagt nur noch "Einfordern" - gemessen passte
+  "Einfordern · Stern 1 · Krone 5" nicht in die halbe Kachel, und die
+  Belohnung steht ohnehin oben rechts in jeder Kachel.
+- LANDINGPAGE: die Schatzkammer klein im Abschnitt Haendler & Mauern.
+- Begonnen von einer parallelen Sitzung, die unfertig abbrach; uebernommen,
+  geprueft und vervollstaendigt.
+
 ## 1.59.0 - Wortmarke nach Vorlage, Symbole ueberall, Schatzkammer, Play-Abzeichen
 - WORTMARKE nach dem Vorlagebild des Besitzers: Rise in kalligrafischer
   Schreibschrift (Great Vibes, OFL, ueber npm/@fontsource), rechts unter
