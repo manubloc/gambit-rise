@@ -625,7 +625,7 @@ const SEERS = ["seeress", "hawk"];
 export function hasForesight(profile, map, rules = null) {
   if (!profile || !map || rules === "chess") return false; // pure chess has no seers
   const owned = unlockedCharacterIds(profile);
-  const saved = profile?.loadout?.formations?.[formationKey(map.id, rules)] || profile?.loadout?.formations?.[map.id];
+  const saved = gespeicherteAufstellung(profile?.loadout?.formations, map.id);   /* v1.52.0 */
   const ok = saved && formationLegalOn(saved, owned, map, ownedLeagueBosses(profile));
   const formation = ok ? saved : map.defaultFormation;
   return SEERS.some((id) => owned.includes(id) && formation.includes(id));
@@ -637,7 +637,14 @@ export function hasForesight(profile, map, rules = null) {
  *  und Faehigkeiten. Wer beides in denselben Speicher zwingt, baut nach jedem
  *  Wechsel neu. Der Schluessel bleibt fuer HP der blanke Kartenname - so
  *  finden alle alten Spielstaende ihre Aufstellung unveraendert wieder. */
-export const formationKey = (mapId, rules) => rules === "chess" ? `${mapId}#chess` : mapId;
+/* v1.52.0 (Besitzer: "den Unterschied zwischen HP-Gefecht und Schach braucht
+   man nicht"): EINE Aufstellung je Brett fuer beide Regelwerke. Der Schluessel
+   ist nur noch die Karte. Alte Schach-Plaene unter "<karte>#chess" liest
+   `gespeicherteAufstellung` weiter, solange es keinen gemeinsamen gibt -
+   niemand verliert seinen Plan. */
+export const formationKey = (mapId, _rules) => mapId;
+export const gespeicherteAufstellung = (forms, mapId) =>
+  (forms || {})[mapId] || (forms || {})[`${mapId}#chess`] || null;
 
 /** v1.0.22 (Besitzer, GESETZ DES KLASSISCHEN): "Klassisch" - im Schnellen
  *  Spiel wie in der Klassisch-Halle - ist IMMER das alte Standard-Schach:
@@ -663,7 +670,7 @@ export function buildArmyForMap(profile, map, excludeId = null, rules = null, st
   const legalHere = (f) => f && formationLegalOn(f, unlockedCharacterIds(profile), map, ownedLeagueBosses(profile));
   /* Erst der Plan fuer DIESES Regelwerk; fehlt er, gilt der des anderen -
      eine vorhandene Aufstellung ist immer besser als die Werkseinstellung. */
-  let saved = standard ? null : (forms[formationKey(map.id, rules)] || forms[map.id]);
+  let saved = standard ? null : gespeicherteAufstellung(forms, map.id);   /* v1.52.0: eine fuer beide */
   if (!legalHere(saved)) {
     saved = null;
     for (const [mid, f] of Object.entries(forms)) {

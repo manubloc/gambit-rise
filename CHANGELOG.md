@@ -1,5 +1,20 @@
 # Changelog - Gambit Rise
 
+## 1.52.0 - eine Aufstellung fuer beide Regelwerke
+- Besitzer: "Aufstellung ueber diesem Hin- und Herschalter Schach und HP-
+  Gefecht weglassen. Ausserdem braucht man den Unterschied zwischen HP-
+  Gefecht und Schach nicht. ... die Flaeche nutzen, dass du es noch nach oben
+  ruecken kannst, und die Figuren unten zum seitlichen Durchwischen ein
+  bisschen groesser."
+- EINE AUFSTELLUNG JE BRETT: formationKey ist fuer beide Regelwerke der
+  Kartenname. Alte Schach-Plaene unter "<karte>#chess" liest
+  gespeicherteAufstellung weiter, solange es keinen gemeinsamen gibt - niemand
+  verliert seinen Plan (eigene Probe).
+- Ueberschrift "Aufstellung" und der Schalter Schach/HP-Gefecht sind fort;
+  der Reiter oben sagt schon "Aufstellung". Brett und Karten ruecken nach oben.
+- Die Karten sind groesser (146-184 px statt 124-156), das Zugbild waechst
+  mit - jetzt stehen zwei Karten ganz nebeneinander.
+
 ## 1.51.0 - die Aufstellung traegt die Karten des Hofstaats
 - Besitzer: "nimm einfach die Karten, die wir jetzt unter den Figuren im
   Hofstaat haben, mit dem Hintergrund, mit komplett diesen Designs, aber

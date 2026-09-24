@@ -436,7 +436,10 @@ import { formationKey as _fk, buildArmyForMap as _bafm } from "./src/meta/index.
 import { MAPS as _MAPS } from "./src/content/index.js";
 {
   ok("the hp plan keeps the bare map key", _fk("classic", "hp") === "classic" && _fk("classic", null) === "classic");
-  ok("and chess gets its own", _fk("classic", "chess") === "classic#chess");
+  /* v1.52.0 (Besitzer: "den Unterschied zwischen HP-Gefecht und Schach
+     braucht man nicht"): EINE Aufstellung je Brett - der Schluessel ist
+     fuer beide Regelwerke der Kartenname. */
+  ok("chess and hp now share one plan", _fk("classic", "chess") === "classic");
   const karte = _MAPS.find((m) => m.id === "classic");
   const basis = dp2();
   const schachPlan = [...karte.defaultFormation];
@@ -451,11 +454,18 @@ import { MAPS as _MAPS } from "./src/content/index.js";
   const heerSchach = _bafm(prof, karte, null, "chess");
   const heerHp = _bafm(prof, karte, null, "hp");
   const reihe = (h) => h.back.map((sp) => sp && sp.kind).join("");
-  ok("each ruleset builds from its OWN plan", reihe(heerSchach) !== reihe(heerHp));
+  /* v1.52.0: liegt ein gemeinsamer Plan vor, gilt er fuer BEIDE Regelwerke;
+     der alte Schach-Plan "#chess" ist dann bedeutungslos */
+  ok("both rulesets build from the ONE shared plan", reihe(heerSchach) === reihe(heerHp));
   // und ein fehlender Plan faellt auf den vorhandenen zurueck statt auf Werk
   const nurHp = { ...basis, loadout: { ...basis.loadout, formations: { classic: schachPlan } } };
   ok("a missing plan falls back to the other, not to the factory",
     reihe(_bafm(nurHp, karte, null, "chess")) === reihe(_bafm(nurHp, karte, null, "hp")));
+  // ... und wer NUR einen alten Schach-Plan hat, verliert ihn nicht
+  const nurSchach = { ...basis, loadout: { ...basis.loadout, formations: { "classic#chess": schachPlan } } };
+  ok("an old chess-only plan is still found for both",
+    reihe(_bafm(nurSchach, karte, null, "hp")) === reihe(_bafm(nurSchach, karte, null, "chess"))
+    && reihe(_bafm(nurSchach, karte, null, "hp")) !== reihe(_bafm({ ...basis, loadout: { ...basis.loadout, formations: {} } }, karte, null, "hp")));
 }
 
 

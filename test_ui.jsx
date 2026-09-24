@@ -1427,7 +1427,7 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
     ok("die Wahl ist eine waagerechte Reihe mit Einrasten",
       as.includes('scrollSnapType: "x mandatory"') && as.includes('scrollSnapAlign: "center"'));
     ok("die Figuren stehen gross und wachsen mit dem Schirm",
-      as.includes("<HofKachel img={bildC}") && as.includes('width: "clamp(124px, 32vw, 156px)"'));
+      as.includes("<HofKachel img={bildC}") && as.includes('width: "clamp(146px, 40vw, 184px)"'));
 
     ok("und sie zeigen ihre Talente aus der Stufenleiter",
       as.includes("(c.ladder || [])") && as.includes("stufe.ability && ABILITIES[stufe.ability]"));
@@ -1440,13 +1440,13 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
     /* v1.2.1: aus festen Massen wurden mitwachsende (clamp) - die Proben
        pruefen jetzt die Sache, nicht die Zahl. */
     ok("die Karten haben eine feste Mindestbreite und schrumpfen nicht",
-      as.includes('flex: "0 0 auto", width: "clamp(124px, 32vw, 156px)"'));
+      as.includes('flex: "0 0 auto", width: "clamp(146px, 40vw, 184px)"'));
     ok("die Gangart steht in der Karte", as.includes("<MoveDiagram kind={c.kind} moveSpec={c.moveSpec} breite="));
     ok("das funktionslose Mehr ist fort", !as.includes('{t("tree.more")}'));
     /* v1.2.1: die Karte skaliert mit dem Schirm, und ALLES passt darauf. */
-    ok("Kartenbreite waechst mit dem Schirm", as.includes('width: "clamp(124px, 32vw, 156px)"'));
+    ok("Kartenbreite waechst mit dem Schirm", as.includes('width: "clamp(146px, 40vw, 184px)"'));
     ok("Figur und Gangart skalieren mit",
-      as.includes("<HofKachel img={bildC}") && as.includes('breite={"clamp(78px, 21vw, 100px)"}'));
+      as.includes("<HofKachel img={bildC}") && as.includes('breite={"clamp(92px, 25vw, 118px)"}'));
     ok("der Spruch ist fort - er verdraengte die Gangart", !as.includes("{en ? c.flavorEn : c.flavorDe}</span>"));
     ok("der Erklaertext ueber den Plaenen ist fort", !as.includes('{t("army.planHint")}'));
     /* und die Quelle muss wirklich etwas liefern - sonst ist die Reihe leer */

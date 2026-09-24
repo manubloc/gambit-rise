@@ -9,7 +9,7 @@ export {
   MAX_PIECE_LEVEL, GAMBIT_MAX_LEVEL, maxLevelFor, gambitTier, upgradeCost, canUpgrade, upgradePiece,
   isUnlocked, unlockedCharacterIds,
   buildArmyFrom, buildArmy, buildAiArmy, buildAiArmyScaled, buildArmyForMap, buildAiArmyForMap, hasForesight,
-  formationKey, defaultFormation, formationLegal, formationLegalOn, formationSpec, crownSlots, formationCounts, buildArmyFromFormation, ownedLeagueBosses, isBossEntry, bossEntryId,
+  formationKey, gespeicherteAufstellung, defaultFormation, formationLegal, formationLegalOn, formationSpec, crownSlots, formationCounts, buildArmyFromFormation, ownedLeagueBosses, isBossEntry, bossEntryId,
   FORMATION_REQUIRED, FORMATION_FLEX, FORMATION_FLEX_COUNT,
   stufenVon, faehigkeitsStufe, stufeBenoetigt, canUpgradeAbility, upgradeAbility,
 } from "./leveling.js";

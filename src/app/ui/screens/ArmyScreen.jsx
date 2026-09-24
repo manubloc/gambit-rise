@@ -14,7 +14,7 @@ import { iconFarbe } from "../AbilityIcons.jsx";   /* v1.26.6 */
 import { BASE_HP, BASE_ATK, SHIELD_HP, HELD_PUNKTE, NORM_PUNKTE, werteBeiStufe, createGame, familyOf, crownHp, crownWallSoak, shadowRifts, shadowAtk } from "../../../core/index.js";
 import {
   characterLevel, resolveCharacter, isUnlocked, upgradeCost, canUpgrade, maxLevelFor, gambitTier, clearedCount,
-  formationKey, formationLegalOn, formationCounts, buildArmyFromFormation, buildArmyFrom, defaultFormation, buildAiArmyForMap, hpUnlocked, ownedLeagueBosses, isBossEntry, bossEntryId, crownSlots,
+  formationKey, gespeicherteAufstellung, formationLegalOn, formationCounts, buildArmyFromFormation, buildArmyFrom, defaultFormation, buildAiArmyForMap, hpUnlocked, ownedLeagueBosses, isBossEntry, bossEntryId, crownSlots,
   chosenAbilities, abilityCost, canUnlockAbility, faehigkeitsStufe, stufeBenoetigt, canUpgradeAbility, dupeCount, RESPEC_GOLD, heroColFor, mapUnlocked,
   itemRevealed, bossWinsFor, effectiveNodeBoss, nodeStatus, hpWach } from "../../../meta/index.js";
 import { CAMPAIGN } from "../../../content/index.js";
@@ -1298,7 +1298,7 @@ function FormationEditor({ profile, dispatch, t, en }) {
   const [regel, setRegel] = useState("chess");
   const loadFormation = (id, rl = regel) => {
     const m = mapById(id);
-    const f = profile.loadout.formations?.[formationKey(id, rl)] ?? profile.loadout.formations?.[id];
+    const f = gespeicherteAufstellung(profile.loadout.formations, id);   /* v1.52.0: eine fuer beide Regelwerke */
     return f && formationLegalOn(f, unlockedIds, m, ownedLeagueBosses(profile)) ? f : m.defaultFormation;
   };
   const saved = loadFormation(mapId);
@@ -1398,12 +1398,16 @@ function FormationEditor({ profile, dispatch, t, en }) {
 
   return <>
   <Panel>
-    <PanelTitle>{t("army.formation")}</PanelTitle>   {/* v1.0.14: der 2er-Zwang faellt, der Grundabstand traegt */}
+    {/* v1.52.0 (Besitzer: "Aufstellung ueber diesem Hin- und Herschalter weg-
+        lassen; den Unterschied zwischen HP-Gefecht und Schach braucht man
+        nicht"): keine Ueberschrift, kein Schalter - der Reiter oben sagt
+        schon "Aufstellung", und EINE Aufstellung gilt fuer beide Regelwerke
+        (formationKey in leveling.js). Der Platz gehoert Brett und Karten. */}
     {/* v1.0.20 (Besitzer): ZWEI PLAENE, ABER ERST WENN ES SIE BRAUCHT.
         Solange die alte Magie schlaeft, gibt es nur Schach - eine Schiene mit
         einer sinnlosen zweiten Wahl waere blosser Laerm. Sie erscheint an dem
         Tag, an dem die erste Figur blutet. */}
-    {hpUnlocked(profile) && <>
+    {false && <>
       <Segmented value={regel} onChange={setRegel}
         options={[{ value: "chess", label: t("army.planChess") }, { value: "hp", label: t("army.planHp") }]} />
       {/* v1.2.1 (Besitzer: "der Erklaertext ist denke ich nicht noetig"): die
@@ -1689,7 +1693,7 @@ function FormationEditor({ profile, dispatch, t, en }) {
             const zeigen = alle.slice(0, AUFST_TALENT_MAX);
             const mehr = alle.length - zeigen.length;
             return <button key={c.id} onClick={() => setSlot(pick, c.id)}
-              style={{ flex: "0 0 auto", width: "clamp(124px, 32vw, 156px)", scrollSnapAlign: "center",
+              style={{ flex: "0 0 auto", width: "clamp(146px, 40vw, 184px)", scrollSnapAlign: "center",   /* v1.52.0: groesser (war 124-156) */
                 padding: 0, border: "none", background: "none", cursor: "pointer", fontFamily: "inherit", textAlign: "center" }}>
               <HofKachel img={bildC} artId={c.id} kind={c.kind} hero={c.id === "gambit"} lvl={lvC}
                 stufe={lvC} werte={kachelWerteFuer(profile, c.id)} name={en ? c.nameEn : c.nameDe}
@@ -1698,7 +1702,7 @@ function FormationEditor({ profile, dispatch, t, en }) {
                 glow={on} gewaehlt={on} talente={[]}
                 unten={<div data-aufst-unten="1" style={{ marginTop: 7 }}>
                   <div style={{ display: "flex", justifyContent: "center" }}>
-                    <MoveDiagram kind={c.kind} moveSpec={c.moveSpec} breite={"clamp(78px, 21vw, 100px)"} />
+                    <MoveDiagram kind={c.kind} moveSpec={c.moveSpec} breite={"clamp(92px, 25vw, 118px)"} />
                   </div>
                   {zeigen.length > 0 && <div style={{ display: "flex", justifyContent: "center", gap: 3, marginTop: 7 }}>
                     {zeigen.map((id) => <span key={id} data-aufst-talent={id} title={en ? ABILITIES[id].nameEn : ABILITIES[id].nameDe}
