@@ -207,8 +207,7 @@ export const GLOBAL_CSS = `
      laesst Georgia sofort stehen, bis die echte Stimme geladen ist. */
   /* v1.43.0: das Rise wird gezeichnet wie mit der Feder, dann laeuft die
      Fuellung nach */
-  @keyframes ggRiseZug { to { stroke-dashoffset: 0; } }
-  @keyframes ggRiseFuellung { from { fill-opacity: 0; } to { fill-opacity: 1; } }
+  @keyframes ggRiseBlitz { 0% { opacity: 0; filter: brightness(1); } 7% { opacity: 1; filter: brightness(3.4) drop-shadow(0 0 14px #fff); } 16% { filter: brightness(1.3); } 23% { filter: brightness(2.6) drop-shadow(0 0 10px #f4eaff); } 40% { filter: brightness(1.05); } 100% { opacity: 1; filter: brightness(1); } }
   @font-face { font-family: 'Cinzel'; src: url('/fonts/cinzel-600.woff2') format('woff2');
     font-weight: 600; font-style: normal; font-display: swap; }
   @font-face { font-family: 'Cormorant Garamond'; src: url('/fonts/cormorant-600.woff2') format('woff2');

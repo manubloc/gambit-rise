@@ -1,5 +1,18 @@
 # Changelog - Gambit Rise
 
+## 1.54.0 - Rise kleiner, rechts unten, mit Blitz
+- Besitzer: "das Rise nicht zeichnen beim Ladescreen, sondern so wie im
+  Anmeldebereich - aber kleiner und nach rechts unten: wenn man das Gambit
+  mittig ausrichtet, das Rise leicht rechts versetzt unten ... und animier
+  es eher mit einem Aufleuchten des ganzen Begriffes, nur sehr schnell,
+  kurz, sehr hell, wie ein Blitz."
+- Rise steht jetzt kleiner (104 statt 150) unter der rechten Haelfte von
+  GAMBIT und ragt mit den Oberlaengen leicht hinein - auf dem Anmeldeschirm,
+  im Vorlader und im festen Ladeschirm gleich.
+- Kein Nachzeichnen mehr: auf beiden Ladeschirmen flammt Rise beim
+  Erscheinen zweimal kurz weiss auf (ggRiseBlitz, knapp eine Sekunde).
+- Probe haelt die drei Stellen weiter zusammen, jetzt auf den Blitz.
+
 ## 1.53.0 - die Landingpage zeigt das echte Spiel
 - DER GEWAEHLTE PLATZ IM AUFSTELLUNGSRASTER leuchtet golden wie die gewaehlte
   Karte darunter, statt vollflaechig gelb zu sein (Besitzer: "stell gerne auf

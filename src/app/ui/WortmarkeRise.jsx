@@ -14,16 +14,16 @@
      Rise    Cormorant kursiv, deutlich größer, von sehr hellem Lila über
              Violett bis fast Schwarz, mit Schein. Es sitzt UNTER dem Wort
              und ragt mit seinen Oberlängen leicht darüber.
-   ZEICHNEN: mit `zeichnen` fährt eine Linie die Buchstaben ab (Strichmaske),
-   danach läuft die Füllung nach - das liest sich wie eine Handschrift. Ohne
-   `zeichnen` steht die Marke sofort fertig da.                              */
+   BLITZ (seit v1.54.0, statt des frueheren Nachzeichnens): mit `blitz`
+   flammt Rise beim Erscheinen zweimal kurz weiss auf, wie ein Blitz. Ohne
+   `blitz` steht die Marke sofort fertig da.                                 */
 import { useId } from "react";
 
-export function WortmarkeRise({ breite = "min(78vw, 420px)", zeichnen = false, verzug = 0 }) {
+export function WortmarkeRise({ breite = "min(78vw, 420px)", blitz = false, verzug = 0 }) {
   const id = useId().replace(/:/g, "");
   const g = (n) => `${n}-${id}`;
   return (
-    <svg viewBox="0 0 620 250" width={breite} style={{ display: "block", overflow: "visible" }}
+    <svg viewBox="0 0 620 230" width={breite} style={{ display: "block", overflow: "visible" }}
       role="img" aria-label="Gambit Rise">
       <defs>
         <linearGradient id={g("gold")} x1="0" y1="0" x2="0" y2="1">
@@ -53,18 +53,18 @@ export function WortmarkeRise({ breite = "min(78vw, 420px)", zeichnen = false, v
         <text x="310" y="112" textAnchor="middle" fill={`url(#${g("glanz")})`}>GAMBIT</text>
       </g>
 
-      {/* Rise - groesser, leuchtend lila, ragt von unten leicht ins Wort */}
-      <g style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontStyle: "italic", fontWeight: 600, fontSize: 150 }}>
-        {/* der Schein liegt DARUNTER und ist lila - darueber bleibt der
-            Verlauf von sehr hell bis fast dunkel sichtbar (vorher wusch ein
-            weisser Schein daruber alles aus) */}
-        <text x="330" y="205" textAnchor="middle" fill="#7c3aed" opacity=".75" filter={`url(#${g("schein")})`}>Rise</text>
-        <text x="330" y="205" textAnchor="middle" fill={`url(#${g("lila")})`}
-          stroke={zeichnen ? "#efe6ff" : "none"} strokeWidth={zeichnen ? 1.1 : 0} strokeLinejoin="round"
-          style={zeichnen
-            ? { strokeDasharray: 1400, strokeDashoffset: 1400, fillOpacity: 0,
-                animation: `ggRiseZug 2.1s ease-out ${verzug}s forwards, ggRiseFuellung 1.1s ease-out ${verzug + 1.5}s forwards` }
-            : undefined}>Rise</text>
+      {/* v1.54.0 (Besitzer): "das Rise kleiner und nach rechts unten - wenn
+          man das Gambit mittig ausrichtet, das Rise leicht rechts versetzt
+          unten ... beim Ladescreen nicht zeichnen, sondern wie ein Blitz:
+          ein Aufleuchten des ganzen Begriffes, nur sehr schnell, kurz, hell."
+          Rise steht jetzt kleiner unter der rechten Haelfte von GAMBIT und
+          ragt mit den Oberlaengen leicht hinein. Mit `blitz` flammt es beim
+          Erscheinen zweimal kurz weiss auf - kein Nachzeichnen mehr. */}
+      <g style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontStyle: "italic", fontWeight: 600, fontSize: 104,
+        ...(blitz ? { opacity: 0, animation: `ggRiseBlitz .95s ease-out ${verzug}s forwards` } : null) }}>
+        {/* der Schein liegt DARUNTER und ist lila - darueber bleibt der Verlauf sichtbar */}
+        <text x="448" y="196" textAnchor="middle" fill="#7c3aed" opacity=".75" filter={`url(#${g("schein")})`}>Rise</text>
+        <text x="448" y="196" textAnchor="middle" fill={`url(#${g("lila")})`}>Rise</text>
       </g>
     </svg>
   );

@@ -71,8 +71,8 @@ for (const f of dateien) {
   if (!L.includes("<WortmarkeRise")) funde.push("Wortmarke im Login nicht gefunden");
   if (!V.includes("<WortmarkeRise")) funde.push("Wortmarke im Vorlader nicht gefunden");
   if (!/aria-label="Gambit Rise"/.test(H)) funde.push("Wortmarke im festen Ladeschirm nicht gefunden");
-  if (!/ggRiseZug/.test(H) || !/ggRiseZug/.test(readFileSync("src/app/ui/theme.js", "utf8")))
-    funde.push("das gezeichnete Rise fehlt in einem der beiden Ladeschirme");
+  if (!/ggRiseBlitz/.test(H) || !/ggRiseBlitz/.test(readFileSync("src/app/ui/theme.js", "utf8")))
+    funde.push("der Blitz des Rise fehlt in einem der beiden Ladeschirme");
 }
 
 

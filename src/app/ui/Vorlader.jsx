@@ -252,7 +252,7 @@ export default function Vorlader() {
         </div>
         {/* v1.43.0: beim Laden wird das Rise gezeichnet */}
         <div style={{ animation: "ggBootWort 1.1s ease-out both", display: "flex", justifyContent: "center" }}>
-          <WortmarkeRise breite="min(70vw, 320px)" zeichnen verzug={0.35} /></div>
+          <WortmarkeRise breite="min(70vw, 320px)" blitz verzug={0.35} /></div>
         <div style={{ width: "min(60vw, 220px)", height: 3, margin: "18px auto 0", borderRadius: 99,
           background: "rgba(242,217,140,.14)", overflow: "hidden" }}>
           <div style={{ width: `${Math.round(anteil * 100)}%`, height: "100%", borderRadius: 99,
