@@ -14,7 +14,17 @@ Nach jeder Fassung hier nachführen: erledigte Punkte streichen, neue Besitzerw�
 10. **GitHub-Repo umbenennen** auf `gambit-rise` — muss der Besitzer tun, mein Zugriffsschlüssel hat keine Verwaltungsrechte. Danach `git remote set-url` in der Arbeitskopie.
 11. (alt) Alles auf **gambitrise.com** umstellen, Spiel und Inhalte heißen nur noch **Gambit** (nicht mehr Grand Gambit). Plan steht: `design/UMBENENNUNG-GAMBIT.md`. Wartet auf drei Entscheidungen (Name der Heldenfigur, Weiterleitung der alten Domain, Umbenennung des Repos) und auf die Cloudflare-Schritte des Besitzers.
 
+## Play Console (Stand 23.9.)
+- Erledigt: App angelegt (com.gambitrise.app), Store-Texte, Datenschutzlink, Werbung, Werbe-ID, Behörden-App, Zielgruppe 13+, Finanz- und Gesundheitsfunktionen, Anmeldedaten (Gastzugang → nicht zugangsbeschränkt).
+- Altersfreigaben: vollständig ausgefüllt — Besitzer drückt „Speichern" und bestätigt die Zusammenfassung.
+- Datensicherheit: Antwortbogen in design/PLAYSTORE.md (aus dem Code erhoben). Noch einzutragen.
+- Uploads (nur Besitzer): App-Symbol design/playstore-icon-512.png, Feature-Grafik, Screenshots, später das Paket.
+- Paket bauen (PWABuilder aus https://gambitrise.com/spielen/), Fingerabdrücke in public/.well-known/assetlinks.json.
+- Bei Vollversion: im Altersfragebogen „digitale Käufe" auf Ja.
+
 ## Erledigt (zur Nachverfolgung)
+- Bezahlschranke: gratis bis Kapitel III, danach nur mit profile.voll (v1.47.0).
+- Gastzugang mit eingefrorenem Schaustand (v1.46.0).
 - Hofwert ohne Knopf-Optik und näher am Brett, Zugmeldung oben mittig zwischen Zurück und Aufgeben, Brett in Kapitel I und II auf gleicher Höhe (v1.40.0).
 - Umbenennung auf „Gambit" in 177 Stellen (v1.40.0).
 - Felder aller Kapitel: ganze Kachel mit Rand, quadratisch eingepasst (v1.39.2).

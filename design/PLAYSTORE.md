@@ -155,3 +155,35 @@ Fingerprint (noch) nicht — häufigster Stolperstein des ganzen Wegs.
 build`, neue .aab hochladen. Nötig nur bei: Icon/Name/Farben der Hülle,
 Berechtigungen, Bubblewrap-Sicherheitsupdates (die Console erinnert daran).
 Spielinhalt braucht das nie — der kommt von gambitrise.com.
+
+## Datensicherheit — Antwortbogen (Stand v1.47.0, aus dem Code erhoben)
+
+Grundlage ist, was das Spiel tatsächlich an Server schickt (geprüft im Code,
+nicht aus der Erinnerung). **Achtung:** eine frühere Zusammenfassung im Chat
+nannte nur E-Mail, Name und Spielstände — das war unvollständig.
+
+**Erhebt oder teilt die App Nutzerdaten? — Ja.**
+**Werden alle Daten bei der Übertragung verschlüsselt? — Ja** (HTTPS/WSS).
+**Können Nutzer die Löschung ihrer Daten beantragen? — Ja** (Profil →
+Konto löschen, ruft `/vergiss` am Spielserver auf).
+**Geteilt mit Dritten (im Sinne von Google)? — Nein.** Supabase und
+Cloudflare sind Dienstleister, die in unserem Auftrag verarbeiten — das ist
+laut Google kein „Teilen".
+
+| Datentyp (Play-Kategorie) | Was genau | Erhoben | Pflicht? | Zweck |
+|---|---|---|---|---|
+| Persönliche Info → E-Mail-Adresse | Konto (Supabase) | ja | **optional** (Gast geht ohne) | Kontoverwaltung |
+| Persönliche Info → Name | Spielername | ja | optional | App-Funktionen (Rangliste, Duelle) |
+| Persönliche Info → Nutzer-IDs | Konto-ID | ja | optional | Kontoverwaltung |
+| App-Aktivität → Sonstige Aktionen | Spielstand in der Wolke, Ranglistenpunkte, Züge in Online-Duellen | ja | optional | App-Funktionen |
+| App-Aktivität → Sonstige nutzergenerierte Inhalte | Feedbacktext | ja | optional | Support / Entwicklung |
+| Fotos und Videos → Fotos | bis zu zwei Bilder im Feedback | ja | optional | Support |
+| App-Infos und Leistung → Absturzprotokolle | **automatisch** bei Absturz: Fehlertext, Stapelspur | ja | **nicht optional** (automatisch) | Analyse, App-Funktionen |
+| App-Infos und Leistung → Diagnose | Spielversion, Browserkennung, letzte Fehler | ja | nicht optional | Analyse |
+| Geräte- oder andere IDs | Push-Kennung für Benachrichtigungen | ja | optional (nur wer einschaltet) | App-Funktionen |
+
+**Nicht erhoben:** Standort, Kontakte, Finanzdaten, Gesundheit, Nachrichten,
+Audio, Dateien, Kalender, Web-Browsing, Werbe-ID.
+
+**Offen zu entscheiden:** Soll der automatische Absturzbericht künftig
+abschaltbar sein? Dann wäre er „optional" und das Formular freundlicher.
