@@ -208,6 +208,8 @@ export const GLOBAL_CSS = `
   /* v1.43.0: das Rise wird gezeichnet wie mit der Feder, dann laeuft die
      Fuellung nach */
   @keyframes ggRiseBlitz { 0% { opacity: 0; filter: brightness(1); } 7% { opacity: 1; filter: brightness(3.4) drop-shadow(0 0 14px #fff); } 16% { filter: brightness(1.3); } 23% { filter: brightness(2.6) drop-shadow(0 0 10px #f4eaff); } 40% { filter: brightness(1.05); } 100% { opacity: 1; filter: brightness(1); } }
+  @font-face { font-family: 'Great Vibes'; src: url('./fonts/great-vibes-400.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+  @keyframes ggRiseGlimm { 0%,100% { filter: brightness(1) drop-shadow(0 0 0 rgba(0,0,0,0)); } 50% { filter: brightness(1.18) drop-shadow(0 0 8px rgba(167,139,250,.55)); } } @keyframes ggSternFunkeln { 0%,62%,100% { transform: scale(.72) rotate(0deg); opacity: .75; } 70% { transform: scale(1.25) rotate(20deg); opacity: 1; } 78% { transform: scale(.85) rotate(35deg); opacity: .9; } 84% { transform: scale(1.12) rotate(45deg); opacity: 1; } }
   @font-face { font-family: 'Cinzel'; src: url('/fonts/cinzel-600.woff2') format('woff2');
     font-weight: 600; font-style: normal; font-display: swap; }
   @font-face { font-family: 'Cormorant Garamond'; src: url('/fonts/cormorant-600.woff2') format('woff2');
@@ -319,6 +321,16 @@ export const GLOBAL_CSS = `
   @keyframes ggPlateSheen { from { transform: translateX(-120%); } to { transform: translateX(175%); } }
   /* der Funkenschlag: ein Lichtpunkt wandert die Kontur entlang */
   @keyframes ggFunkenlauf { to { background-position: 200% 0; } }
+  /* v1.59.0 (Besitzer: "die Kontur so ein bisschen wie bei diesem lila
+     Leuchten laufen lassen, bloss in Gelb, um es einzufordern"): dieselbe
+     laufende Kontur in Gold - fuer Knoepfe, die etwas einloesen. */
+  .gg-goldlauf { position: relative; }
+  .gg-goldlauf::after { content: ""; position: absolute; inset: -1px; border-radius: inherit; padding: 1.5px;
+    background: linear-gradient(90deg, transparent 0%, rgba(255,236,170,.2) 30%, rgba(255,250,225,1) 46%,
+      rgba(246,210,110,.8) 54%, rgba(212,160,40,.25) 70%, transparent 100%);
+    background-size: 200% 100%; animation: ggFunkenlauf 2.2s linear infinite;
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; }
   .gg-funkenkontur { position: relative; }
   .gg-funkenkontur::after { content: ""; position: absolute; inset: -1px; border-radius: inherit; padding: 1px;
     background: linear-gradient(90deg, transparent 0%, rgba(196,181,253,.15) 30%, rgba(230,220,255,.95) 46%,

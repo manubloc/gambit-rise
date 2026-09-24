@@ -1,5 +1,27 @@
 # Changelog - Gambit Rise
 
+## 1.59.0 - Wortmarke nach Vorlage, Symbole ueberall, Schatzkammer, Play-Abzeichen
+- WORTMARKE nach dem Vorlagebild des Besitzers: Rise in kalligrafischer
+  Schreibschrift (Great Vibes, OFL, ueber npm/@fontsource), rechts unter
+  GAMBIT und mit den Oberlaengen im Wort, darunter ein Schwung, ueber dem e
+  ein Stern. Das Lila glimmt sanft (ggRiseGlimm), der Stern funkelt
+  (ggSternFunkeln), der Blitz beim Laden bleibt. Gleich auf Anmeldeschirm,
+  beiden Ladeschirmen und der Landingpage.
+- SYMBOLE UEBERALL: die Landingpage an der Wurzel hatte KEIN Manifest und
+  keine Suchsymbole. Wer sie zum Startbildschirm hinzufuegte, bekam wieder
+  ein Behelfssymbol. Jetzt site.webmanifest (randlose, maskierbare Symbole,
+  Start /spielen/) und Symbole in 48/96/144/192 px - Googles Vorgabe fuer
+  das Symbol in den Suchergebnissen (Vielfache von 48).
+- PLAY STORE: das offizielle Google-Play-Abzeichen statt goldener Knoepfe,
+  eingebunden wie Googles Badge-Generator es ausgibt.
+- SCHATZKAMMER: der Chip "N einforderbar" oben springt zur ersten Kachel mit
+  Einfordern-Knopf; der Knopf ist flacher, mit gleichem Rand ringsum und
+  goldener Laufkontur; die Kacheln einer Zeile strecken sich auf gleiche Hoehe
+  (kein Leerraum mehr neben einer Kachel mit Knopf).
+- MENUELEISTE: der Verlauf, mit dem der Inhalt hinter der Leiste verschwindet,
+  ist von 96 auf 50 px gestaucht - der Blitz im Hintergrund tritt nicht mehr
+  hervor.
+
 ## 1.58.0 - die Landingpage zeigt die Tiefe des Rollenspiels
 - Besitzer: "ganz brutal auf dieses Roleplaying-Game gehen ... die Figuren in
   der Anzahl nennen, wie viele Monster ... Monster bestechen, eigenes Heer

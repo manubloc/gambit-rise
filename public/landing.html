@@ -10,6 +10,15 @@
   <link rel="icon" href="/favicon.ico" sizes="any" />
   <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png" />
   <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+  <!-- v1.59.0: Suchsymbole in Vielfachen von 48 px (Googles Vorgabe fuer das
+       Symbol in den Suchergebnissen) und ein Manifest: wer die Landingpage
+       zum Startbildschirm hinzufuegt, bekommt das randlose, maskierbare
+       Symbol statt eines Behelfs im weissen Kreis. -->
+  <link rel="icon" type="image/png" sizes="48x48" href="/icons/suche-48.png" />
+  <link rel="icon" type="image/png" sizes="96x96" href="/icons/suche-96.png" />
+  <link rel="icon" type="image/png" sizes="144x144" href="/icons/suche-144.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/suche-192.png" />
+  <link rel="manifest" href="/site.webmanifest" />
   <meta name="theme-color" content="#0c111e" />
   <meta property="og:title" content="Gambit Rise — Das Schach-RPG" />
   <meta property="og:description" content="Klassisches Schach oder Gefechte mit Lebenspunkten und Fähigkeiten. Zwölf Kapitel, 27 Helden, 25 Bestien, Online-Duelle. Kostenlos & werbefrei." />
@@ -51,7 +60,9 @@
         linear-gradient(180deg,#0a0e18,var(--night)); }
     @font-face { font-family:'Cinzel'; src:url('/fonts/cinzel-600.woff2') format('woff2'); font-weight:600; font-display:swap; }
     @font-face { font-family:'Cormorant Garamond'; src:url('/fonts/cormorant-500i.woff2') format('woff2'); font-weight:500; font-style:italic; font-display:swap; }
-    @keyframes ggRiseBlitz { 0% { opacity: 0; filter: brightness(1); } 7% { opacity: 1; filter: brightness(3.4) drop-shadow(0 0 14px #fff); } 16% { filter: brightness(1.3); } 23% { filter: brightness(2.6) drop-shadow(0 0 10px #f4eaff); } 40% { filter: brightness(1.05); } 100% { opacity: 1; filter: brightness(1); } }
+    @font-face { font-family:'Great Vibes'; src:url('/fonts/great-vibes-400.woff2') format('woff2'); font-weight:400; font-display:swap; }
+      @keyframes ggRiseGlimm { 0%,100% { filter: brightness(1) drop-shadow(0 0 0 rgba(0,0,0,0)); } 50% { filter: brightness(1.18) drop-shadow(0 0 8px rgba(167,139,250,.55)); } } @keyframes ggSternFunkeln { 0%,62%,100% { transform: scale(.72) rotate(0deg); opacity: .75; } 70% { transform: scale(1.25) rotate(20deg); opacity: 1; } 78% { transform: scale(.85) rotate(35deg); opacity: .9; } 84% { transform: scale(1.12) rotate(45deg); opacity: 1; } }
+      @keyframes ggRiseBlitz { 0% { opacity: 0; filter: brightness(1); } 7% { opacity: 1; filter: brightness(3.4) drop-shadow(0 0 14px #fff); } 16% { filter: brightness(1.3); } 23% { filter: brightness(2.6) drop-shadow(0 0 10px #f4eaff); } 40% { filter: brightness(1.05); } 100% { opacity: 1; filter: brightness(1); } }
     .wortmarke svg { display:block; overflow:visible; }
     .wortmarke { width:min(420px,78vw); margin:0 auto 14px;
       filter:drop-shadow(0 8px 30px rgba(0,0,0,.85)); }
@@ -108,6 +119,8 @@
     .faehig b { color:#e9d296; } .faehig i { color:rgba(196,181,253,.8); font-style:normal; font-size:12.5px; margin-left:4px; }
     .paar { display:grid; gap:22px; grid-template-columns:1fr; }
     @media (min-width:880px){ .paar { grid-template-columns:1fr 1fr; } }
+    .playbadge { display:inline-block; line-height:0; }
+    .playbadge img { height:64px; width:auto; }   /* das Abzeichen traegt seinen Rand selbst */
     .kachelreihe { display:grid; gap:12px; grid-template-columns:repeat(3,1fr); }
     @media (min-width:980px){ .kachelreihe { grid-template-columns:repeat(6,1fr); } }
     .kachelreihe img, .kartenreihe img { width:100%; height:auto; display:block; border-radius:12px;
@@ -178,36 +191,42 @@
   <!-- v1.55.0 (Besitzer): "auf der Landingpage nicht das Bild, sondern das
        gleiche Logo wie beim Anmeldescreen - gerne mit diesem Blitzeffekt":
        dieselbe Wortmarke wie in der App, Rise flammt beim Laden kurz auf. -->
-  <div class="wortmarke" role="img" aria-label="Gambit Rise"><svg viewBox="0 0 620 230" width="100%" style="display:block;overflow:visible" role="img" aria-label="Gambit Rise">
+  <div class="wortmarke" role="img" aria-label="Gambit Rise"><svg viewBox="0 0 620 250" width="100%" style="display:block;overflow:visible" role="img" aria-label="Gambit Rise">
             <defs>
-              <linearGradient id="lgold" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#fff3cf"/><stop offset="38%" stop-color="#f2d98c"/>
-                <stop offset="62%" stop-color="#d4af37"/><stop offset="100%" stop-color="#8a6a1f"/></linearGradient>
-              <linearGradient id="lglanz" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#ffffff" stop-opacity=".85"/>
-                <stop offset="42%" stop-color="#ffffff" stop-opacity=".12"/>
-                <stop offset="58%" stop-color="#ffffff" stop-opacity="0"/></linearGradient>
-              <linearGradient id="llila" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#f6f0ff"/><stop offset="26%" stop-color="#cbb2ff"/>
-                <stop offset="58%" stop-color="#8b5cf6"/><stop offset="82%" stop-color="#4c1d95"/>
-                <stop offset="100%" stop-color="#1a0b33"/></linearGradient>
+              <linearGradient id="lgold" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fff3cf"/><stop offset="38%" stop-color="#f2d98c"/><stop offset="62%" stop-color="#d4af37"/><stop offset="100%" stop-color="#8a6a1f"/></linearGradient>
+              <linearGradient id="lglanz" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ffffff" stop-opacity=".85"/><stop offset="42%" stop-color="#ffffff" stop-opacity=".12"/><stop offset="58%" stop-color="#ffffff" stop-opacity="0"/></linearGradient>
+              <linearGradient id="llila" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fbf7ff"/><stop offset="30%" stop-color="#d9c6ff"/><stop offset="58%" stop-color="#8b5cf6"/><stop offset="82%" stop-color="#4c1d95"/><stop offset="100%" stop-color="#1a0b33"/></linearGradient>
+              <linearGradient id="lschwung" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#c4a8ff" stop-opacity="0"/><stop offset="35%" stop-color="#e9ddff"/><stop offset="80%" stop-color="#a78bfa"/><stop offset="100%" stop-color="#7c3aed" stop-opacity="0"/></linearGradient>
               <filter id="lschein" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="11"/></filter>
+              <filter id="lstern" x="-200%" y="-200%" width="500%" height="500%"><feGaussianBlur stdDeviation="3"/></filter>
             </defs>
             <g style="font-family:'Cinzel',Georgia,serif;font-weight:600;font-size:108px;letter-spacing:2px">
               <text x="310" y="112" text-anchor="middle" fill="#120b22" opacity=".85" transform="translate(0,3)">GAMBIT</text>
               <text x="310" y="112" text-anchor="middle" fill="url(#lgold)" style="filter:drop-shadow(0 2px 10px rgba(0,0,0,.8))">GAMBIT</text>
               <text x="310" y="112" text-anchor="middle" fill="url(#lglanz)">GAMBIT</text>
             </g>
-            <g style="font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-weight:600;font-size:104px;opacity:0;animation:ggRiseBlitz .95s ease-out .35s forwards">
-              <text x="448" y="196" text-anchor="middle" fill="#7c3aed" opacity=".75" filter="url(#lschein)">Rise</text>
-              <text x="448" y="196" text-anchor="middle" fill="url(#llila)">Rise</text>
+            <g style="opacity:0;animation:ggRiseBlitz .95s ease-out .35s forwards"><g style="animation:ggRiseGlimm 3.8s ease-in-out 1.35s infinite">
+              <g style="font-family:'Great Vibes','Cormorant Garamond',Georgia,serif;font-weight:400;font-size:150px">
+                <text x="452" y="205" text-anchor="middle" fill="#7c3aed" opacity=".8" filter="url(#lschein)">Rise</text>
+                <text x="452" y="205" text-anchor="middle" fill="url(#llila)">Rise</text>
+              </g>
+              <path d="M 318 214 C 372 240, 470 240, 596 176" fill="none" stroke="url(#lschwung)" stroke-width="3.2" stroke-linecap="round"/>
             </g>
+            <g transform="translate(560,128)"><g style="transform-origin:0 0;transform-box:fill-box;animation:ggSternFunkeln 3.2s ease-in-out infinite">
+              <path d="M0,-16 C2,-4 4,-2 16,0 C4,2 2,4 0,16 C-2,4 -4,2 -16,0 C-4,-2 -2,-4 0,-16Z" fill="#fff" filter="url(#lstern)"/><path d="M0,-16 C2,-4 4,-2 16,0 C4,2 2,4 0,16 C-2,4 -4,2 -16,0 C-4,-2 -2,-4 0,-16Z" fill="#fffaf0"/>
+            </g></g></g>
           </svg></div>
   <div class="claim">Schach, das Charaktere erhebt.</div>
   <p class="unterclaim sans">Führe Figuren mit Lebenspunkten, Stufen und echten Fähigkeiten durch eine
     Kampagne über zwölf Kapitel — oder spiel ganz klassisch. Auf dem Handy, ohne Werbung.</p>
   <div class="knopfzeile sans">
-    <a class="knopf gold" href="https://play.google.com/store/apps/details?id=com.gambitrise.app">Im Play Store</a>
+    <!-- v1.59.0 (Besitzer): das OFFIZIELLE Google-Play-Abzeichen statt eines
+         goldenen Knopfes - so erkennt jeder sofort, was passiert. Eingebunden
+         wie Googles Badge-Generator es ausgibt (Bild von Googles Server,
+         unveraendert, mit Mindestabstand). -->
+    <a class="playbadge" href="https://play.google.com/store/apps/details?id=com.gambitrise.app"><img
+      alt="Jetzt bei Google Play" width="646" height="250"
+      src="https://play.google.com/intl/en_us/badges/static/images/badges/de_badge_web_generic.png" /></a>
     <a class="knopf still" href="#riss">Was dich erwartet</a>
   </div>
   <div class="zeile-frei sans">Kostenlos · werbefrei · Deutsch &amp; Englisch · bald für Android · <a href="/spielen/" style="color:inherit">Entwicklerzugang</a></div>
@@ -383,7 +402,9 @@
   <div class="hof">
     <h2>Die Halle steht offen.</h2>
     <p class="h2u sans">Bald im Play Store — kostenlos bis Kapitel III, ohne Werbung.</p>
-    <div class="knopfzeile sans"><a class="knopf gold" href="https://play.google.com/store/apps/details?id=com.gambitrise.app">Im Play Store holen</a></div>
+    <div class="knopfzeile sans"><a class="playbadge" href="https://play.google.com/store/apps/details?id=com.gambitrise.app"><img
+      alt="Jetzt bei Google Play" width="646" height="250"
+      src="https://play.google.com/intl/en_us/badges/static/images/badges/de_badge_web_generic.png" /></a></div>
     <div class="zeile-frei sans">Für Android, bald im Google Play Store.</div>
   </div>
 </section>

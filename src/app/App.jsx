@@ -773,11 +773,14 @@ export default function App() {
       </>)}
       <main style={{ width: "100%", minWidth: 0, flex: "1 1 auto", minHeight: 0,
         overflowY: immersive ? "hidden" : "auto", overscrollBehavior: "none",
+        // v1.59.0 (Besitzer: "der Verlauf muss auf weniger Hoehe passieren,
+        // sonst wird der Blitz im Hintergrund zu praesent"): das Band ist von
+        // 96 auf 50 px gestaucht (124 -> 74 px ueber dem Rand statt 170 -> 74).
         // AUSBLENDUNG AN DER MENUELEISTE (Besitzer, v0.62): was hinter das
         // Dock rutscht, ist bei dessen Oberkante 100 % transparent - der
         // Inhalt loest sich im kurzen Band darueber auf, in ALLEN Menues.
-        WebkitMaskImage: immersive ? "none" : "linear-gradient(180deg, #000 0%, #000 calc(100% - 170px - env(safe-area-inset-bottom)), rgba(0,0,0,.4) calc(100% - 118px - env(safe-area-inset-bottom)), transparent calc(100% - 74px - env(safe-area-inset-bottom)))",
-        maskImage: immersive ? "none" : "linear-gradient(180deg, #000 0%, #000 calc(100% - 170px - env(safe-area-inset-bottom)), rgba(0,0,0,.4) calc(100% - 118px - env(safe-area-inset-bottom)), transparent calc(100% - 74px - env(safe-area-inset-bottom)))",
+        WebkitMaskImage: immersive ? "none" : "linear-gradient(180deg, #000 0%, #000 calc(100% - 124px - env(safe-area-inset-bottom)), rgba(0,0,0,.4) calc(100% - 98px - env(safe-area-inset-bottom)), transparent calc(100% - 74px - env(safe-area-inset-bottom)))",
+        maskImage: immersive ? "none" : "linear-gradient(180deg, #000 0%, #000 calc(100% - 124px - env(safe-area-inset-bottom)), rgba(0,0,0,.4) calc(100% - 98px - env(safe-area-inset-bottom)), transparent calc(100% - 74px - env(safe-area-inset-bottom)))",
         // the fixed dock (~76px) + Safari's home-bar safe-area float OVER the
         // scroll area: without this reserve the last buttons (e.g. sign-out on
         // the profile) end up UNDER the dock, which then swallows the tap
@@ -869,8 +872,8 @@ export default function App() {
           14, three different alignments (the profile looked narrower than the
           menu). */}
       <main style={{ flex: 1, minHeight: 0, overflowY: immersive ? "hidden" : "auto", overflowX: "hidden", overscrollBehavior: "none",
-        WebkitMaskImage: (immersive || inMatch) ? "none" : "linear-gradient(180deg, #000 0%, #000 calc(100% - 170px - env(safe-area-inset-bottom)), rgba(0,0,0,.4) calc(100% - 118px - env(safe-area-inset-bottom)), transparent calc(100% - 74px - env(safe-area-inset-bottom)))",
-        maskImage: (immersive || inMatch) ? "none" : "linear-gradient(180deg, #000 0%, #000 calc(100% - 170px - env(safe-area-inset-bottom)), rgba(0,0,0,.4) calc(100% - 118px - env(safe-area-inset-bottom)), transparent calc(100% - 74px - env(safe-area-inset-bottom)))", padding: immersive ? (mapView ? "0 6px calc(72px + env(safe-area-inset-bottom))" : "0 3px") : inMatch ? "8px 6px 12px" : "22px 10px calc(108px + min(30vh, 270px))",
+        WebkitMaskImage: (immersive || inMatch) ? "none" : "linear-gradient(180deg, #000 0%, #000 calc(100% - 124px - env(safe-area-inset-bottom)), rgba(0,0,0,.4) calc(100% - 98px - env(safe-area-inset-bottom)), transparent calc(100% - 74px - env(safe-area-inset-bottom)))",
+        maskImage: (immersive || inMatch) ? "none" : "linear-gradient(180deg, #000 0%, #000 calc(100% - 124px - env(safe-area-inset-bottom)), rgba(0,0,0,.4) calc(100% - 98px - env(safe-area-inset-bottom)), transparent calc(100% - 74px - env(safe-area-inset-bottom)))", padding: immersive ? (mapView ? "0 6px calc(72px + env(safe-area-inset-bottom))" : "0 3px") : inMatch ? "8px 6px 12px" : "22px 10px calc(108px + min(30vh, 270px))",
         ...(tab === "play" && view === "hub" && !inMatch && !immersive
           ? { display: "flex", flexDirection: "column", justifyContent: "flex-start" } : {}),
         ...(immersive ? { display: "flex", flexDirection: "column" } : {}) }}>{screen}</main>

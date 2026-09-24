@@ -116,7 +116,12 @@ export function AchievementsScreen({ profile, dispatch, t, initialOpenId = null 
               kann, bleibt ein Chip - das ist ein Knopf-Versprechen. */}
           <span style={{ fontSize: 12, color: T.dim, letterSpacing: ".02em" }}>
             {tiersDone} / {tiersTotal} {t("ach.tiers")}</span>
-          {claimable > 0 && <Chip color={"#17110a"} bg={T.gold}>{t("ach.claimable", { n: claimable })}</Chip>}
+          {/* v1.59.0 (Besitzer: "wenn ich oben auf Einfordern druecke, dass ich
+              zum ersten, was von der Hoehe her kommt, runterspringe") */}
+          {claimable > 0 && <button onClick={() => { const k = document.querySelector("[data-einfordern]");
+              if (k) k.scrollIntoView({ behavior: "smooth", block: "center" }); }}
+            style={{ border: "none", background: "none", padding: 0, cursor: "pointer", fontFamily: "inherit" }}>
+            <Chip color={"#17110a"} bg={T.gold}>{t("ach.claimable", { n: claimable })} ↓</Chip></button>}
         </div>
         {/* v0.52: Skillpunkt-Erklaerung raus - das lehrt der Herald/die Akademie. */}
       </div>
@@ -127,7 +132,10 @@ export function AchievementsScreen({ profile, dispatch, t, initialOpenId = null 
         darunter zentriert kurz, was es ist und was der naechste Schritt
         bringt"): ZWEI SPALTEN. Eine geoeffnete Kachel nimmt wieder die ganze
         Breite, damit die Zahlen darin Platz haben. */}
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8, alignItems: "start" }}>
+    {/* v1.59.0 (Besitzer: "die Kachel sollte nicht irgendwo aufhoeren und
+        dann einen Leerraum bilden"): die Kacheln einer Zeile strecken sich auf
+        die gleiche Hoehe - auch neben einer Kachel mit Einfordern-Knopf. */}
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8, alignItems: "stretch" }}>
     {items.map((it) => {
       const done = it.nextN === null;
       const pct = done ? 1 : Math.min(1, it.val / it.nextN);
@@ -320,13 +328,18 @@ export function AchievementsScreen({ profile, dispatch, t, initialOpenId = null 
                 const cl = claimedTiers(profile, it.id);
                 if (cl >= it.done) return null;
                 const r = claimReward(it, cl);
-                return <button onClick={(e) => { e.stopPropagation(); dispatch({ type: "CLAIM_ACH", id: it.id }); }}
-                  style={{ fontFamily: "inherit", fontWeight: 900, fontSize: 14, borderRadius: 999, padding: "13px 18px 12px",
-                    marginTop: 9, width: "100%",
+                /* v1.59.0 (Besitzer: "Einfordern steht viel zu knapp am Button -
+                   gleichmaessiger Abstand nach oben wie nach links; den Button
+                   weniger hoch"): flacher, eine Spur kleinere Schrift, gleicher
+                   Rand ringsum, und die goldene Laufkontur. */
+                return <button className="gg-goldlauf" data-einfordern="1"
+                  onClick={(e) => { e.stopPropagation(); dispatch({ type: "CLAIM_ACH", id: it.id }); }}
+                  style={{ fontFamily: "inherit", fontWeight: 900, fontSize: 13, borderRadius: 999, padding: "8px 12px",
+                    marginTop: 9, width: "100%", lineHeight: 1.1,
                     border: "1px solid rgba(255,240,200,.5)", background: GOLD_CTA, color: "#17110a", cursor: "pointer",
-                    boxShadow: `0 0 16px ${T.gold}88`, whiteSpace: "nowrap",
-                    display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
-                  {t("ach.claim")} · <SkillStar size={16} /> {r.sp} <GoldCoin size={16} /> {r.gold}
+                    boxShadow: `0 0 14px ${T.gold}77`, whiteSpace: "nowrap",
+                    display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 5 }}>
+                  {t("ach.claim")} · <SkillStar size={14} /> {r.sp} <GoldCoin size={14} /> {r.gold}
                 </button>;
               })()}
             </div>
