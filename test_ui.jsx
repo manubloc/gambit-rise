@@ -60,9 +60,19 @@ const piece = (x = {}) => ({ id: 1, kind: "Q", color: "w", level: 1, abilities: 
   ok("the champion has his own portrait, not the queen's", bossArt && bossArt !== queenArt);
   ok("the enemy's markup carries that champion portrait", foe.includes(bossArt.slice(0, 60)));
 
-  // and his SIZE is queen-class, as the formation promises
-  const fb = paintedFitFor(boss), fq = paintedFitFor(piece({ kind: "Q" }));
-  ok("champion is scaled to queen format (within 6%)", Math.abs(fb.h - fq.h) / fq.h < 0.06);
+  // and his SIZE is queen-class, as the formation promises.
+  /* v1.62.0: der Waechter (b01) ist ein GEWOEHNLICHES Monster, kein Meister -
+     die Probe nimmt jetzt den ersten echten Kapitelmeister (b12). Gewoehnliche
+     Monster werden wie jede Figur ueber ihren Teller vermessen. */
+  const meister = piece({ bossId: "b12", color: "b" });
+  const fb = paintedFitFor(meister), fq = paintedFitFor(piece({ kind: "Q" }));
+  /* GEMESSEN: die Meistertabelle (BOSS_FIT, mitskaliert) stellt Meister rund
+     10 % ueber die Dame - so war sie gebaut; die alte 6-%-Probe sah das nie,
+     weil sie den Waechter pruefte. Gilt: mindestens damengross, hoechstens
+     15 % darueber. */
+  ok("champion (chapter master) is queen-class: at least her size, at most 15% above", fb.h >= fq.h * 0.98 && fb.h <= fq.h * 1.15);
+  const fw = paintedFitFor(piece({ bossId: "b01", color: "w" }));
+  ok("an ordinary monster is measured by its plate like every piece (yProzent)", fw.yProzent === true);
 }
 
 /* ── DIE PERLENFASSUNG (bis v1.2.x) ───────────────────────────────────────

@@ -1,5 +1,30 @@
 # Changelog - Gambit Rise
 
+## 1.62.0 - Zugbilder richtig, Waechter vermessen, Landingpage ueberarbeitet
+- DRACHE IM ZUGBILD (Besitzer: "das Sternchen links unten ist schuld, dass
+  die vier Felder nicht mittig sind"): ein 7x7-Raster hat ein Mittelfeld, ein
+  2x2-Block kann darin nie mittig liegen. Der Drache bekommt ein 6x6-Raster,
+  der Block steht genau in der Mitte, seine acht Lagen symmetrisch darum; der
+  goldene Block ist die Figur, kein Stern mehr. Gilt ueberall, wo das Zugbild
+  erscheint (Aufstellung, Figurenblatt, Chronik).
+- SCHRITT STATT SCHEINSPRUNG (Besitzer: "ein Feld schraeg springen macht keinen
+  Sinn"): zwoelf Figuren und Monster haben Einfeld-"Spruenge" - spielerisch
+  Schritte, es gibt kein Feld dazwischen. Die Regeln bleiben; Zugbild (blau
+  statt gelb) und Beschreibung ("zieht ein Feld schraeg") zeigen es richtig.
+- WAECHTER (Besitzer: "immer noch nicht sauber von der Groesse"): die Ausnahme
+  von der gemessenen Anpassung galt den Kapitelmeistern, der Code schloss aber
+  JEDES Monster aus. Gewoehnliche Monster werden jetzt wie jede Figur ueber
+  ihren Teller vermessen - gleiche Tellerbreite, gleiche Bodenlinie. Die alte
+  Probe pruefte den Waechter als Meister; sie prueft jetzt b12 und die
+  tatsaechliche Regel (Meister damengross bis 15 % darueber).
+- LANDINGPAGE: "50+ Figuren" (Monster sind Figuren) und "2 Spielarten";
+  Galerie aus dem echten Hofstaat - neun Figuren farbig, darunter Silhouetten;
+  "Was dich erwartet" fort; klassisches Schach nur noch einmal, dort beide
+  Spielarten genannt ("Drei Wege zu spielen"); Karten ohne Stufenabzeichen;
+  vier Faehigkeiten je mit eigenem Zugbild aus dem echten Bauteil; laufende
+  Konturen an Zahlen und Bildrahmen; Kronland und Wolkenjoch als zwei
+  Bretter nebeneinander; Heer-Bild mit richtig vermessenem Waechter.
+
 ## 1.61.0 - alte Domain leitet um, Store-Material fertig
 - grandgambit.win und www.grandgambit.win antworten mit 301 auf denselben
   Pfad unter gambitrise.com (functions/_middleware.js, Cloudflare Pages).

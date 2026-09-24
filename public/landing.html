@@ -107,7 +107,7 @@
        der Aufstellung" - echte Aufnahmen aus dem Spiel, grauer Sockel (vor dem
        Erwachen der Lebenspunkte), mit Kulisse und Farbschleier der Figur. */
     .zahlen { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin:16px 0 6px; }
-    .zahlen div { text-align:center; padding:10px 4px; border:1px solid rgba(167,139,250,.35); border-radius:12px;
+    .zahlen div { position:relative; text-align:center; padding:10px 4px; border:1px solid rgba(167,139,250,.35); border-radius:12px;
       background:rgba(20,14,34,.6); }
     .zahlen b { display:block; font-size:24px; color:#e9d296; font-family:Georgia,serif; }
     .zahlen span { font-size:12px; color:rgba(226,218,246,.7); }
@@ -123,6 +123,20 @@
     @media (min-width:880px){ .paar { grid-template-columns:1fr 1fr; } }
     .playbadge { display:inline-block; line-height:0; }
     .playbadge img { height:64px; width:auto; }   /* das Abzeichen traegt seinen Rand selbst */
+    .galeriebild img { width:100%; max-width:420px; height:auto; display:block; margin:0 auto; border-radius:14px; }
+    .zugreihe { display:grid; grid-template-columns:repeat(2,1fr); gap:14px; margin-top:14px; }
+    .zugreihe figure { margin:0; } .zugreihe img { width:100%; height:auto; display:block; border-radius:10px; }
+    .zugreihe figcaption { margin-top:6px; font-size:13px; line-height:1.4; color:rgba(226,218,246,.82); }
+    .zugreihe b { color:#e9d296; } .zugreihe i { font-style:normal; font-size:12px; color:rgba(196,181,253,.8); }
+    /* v1.62.0 (Besitzer: "mit den leuchtenden Konturen arbeiten, dass es
+       lebendiger wirkt"): dieselbe laufende Kontur wie im Spiel */
+    @keyframes ggFunkenlauf { to { background-position: 200% 0; } }
+    .leuchtkontur { position:relative; }
+    .leuchtkontur::after { content:""; position:absolute; inset:-1px; border-radius:inherit; padding:1.5px; pointer-events:none;
+      background:linear-gradient(90deg,transparent 0%,rgba(196,181,253,.15) 30%,rgba(230,220,255,.95) 46%,rgba(196,181,253,.6) 54%,rgba(139,92,246,.2) 70%,transparent 100%);
+      background-size:200% 100%; animation:ggFunkenlauf 3.2s linear infinite;
+      -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0); -webkit-mask-composite:xor; mask-composite:exclude; }
+    @media (prefers-reduced-motion: reduce) { .leuchtkontur::after { animation:none; } }
     .kachelreihe { display:grid; gap:12px; grid-template-columns:repeat(3,1fr); }
     @media (min-width:980px){ .kachelreihe { grid-template-columns:repeat(6,1fr); } }
     .kachelreihe img, .kartenreihe img { width:100%; height:auto; display:block; border-radius:12px;
@@ -229,7 +243,7 @@
     <a class="playbadge" href="https://play.google.com/store/apps/details?id=com.gambitrise.app"><img
       alt="Jetzt bei Google Play" width="646" height="250"
       src="https://play.google.com/intl/en_us/badges/static/images/badges/de_badge_web_generic.png" /></a>
-    <a class="knopf still" href="#riss">Was dich erwartet</a>
+
   </div>
   <div class="zeile-frei sans">Kostenlos · werbefrei · Deutsch &amp; Englisch · bald für Android · <a href="/spielen/" style="color:inherit">Entwicklerzugang</a></div>
 </header>
@@ -244,25 +258,20 @@
         <b>lernen Fähigkeiten</b>. Geschlagen wird nicht in einem Zug, sondern erkämpft — und aus dem Riss
         treten Bestien, die eigenen Regeln folgen.</p>
       <div class="zahlen sans" aria-label="Das Spiel in Zahlen">
-        <div><b>27</b><span>Figuren</span></div>
-        <div><b>25</b><span>Monster</span></div>
-        <div><b>32</b><span>Fähigkeiten</span></div>
-        <div><b>12</b><span>Kapitel</span></div>
+        <div class="leuchtkontur"><b>50+</b><span>Figuren</span></div>
+        <div class="leuchtkontur"><b>32</b><span>Fähigkeiten</span></div>
+        <div class="leuchtkontur"><b>12</b><span>Kapitel</span></div>
+        <div class="leuchtkontur"><b>2</b><span>Spielarten</span></div>
       </div>
       <ul class="haken violett sans">
-        <li>Jede Figur mit eigener Kunst, eigenem Zugbild und eigener Fähigkeitenleiter</li>
+        <li>Über 50 Figuren — Helden und Monster, jede mit eigener Kunst, eigenem Zugbild und eigener Fähigkeitenleiter</li>
         <li>12 Kapitelmeister und 13 Monster, die du besiegen — und für dein Heer gewinnen — kannst</li>
         <li>Tränke, Zeitenwender, Mauern und Schlüssel beim Händler</li>
       </ul>
     </div>
-    <div style="order:1" class="kachelreihe" aria-label="Figuren und Bestien aus dem Spiel">
-      <img src="/landing/hof-koenig.webp" alt="Der König als Karte im Hofstaat" loading="lazy" />
-      <img src="/landing/hof-dame.webp" alt="Die Dame als Karte im Hofstaat" loading="lazy" />
-      <img src="/landing/hof-gambit.webp" alt="Der Gambit, der Held" loading="lazy" />
-      <img src="/landing/hof-amazone.webp" alt="Die Amazone" loading="lazy" />
-      <img src="/landing/hof-waechter.webp" alt="Der Wächter, eine Bestie des Risses" loading="lazy" />
-      <img src="/landing/hof-brutmutter.webp" alt="Die Brutmutter, eine Bestie des Risses" loading="lazy" />
-    </div>
+    <div style="order:1" class="galeriebild"><img src="/landing/hofstaat-raster.webp" loading="lazy"
+      alt="Der Hofstaat: neun erspielte Figuren in Farbe, darunter noch unbekannte als dunkle Silhouetten" />
+      <p class="unterzeile sans">Was du erspielst, steht in Farbe — der Rest wartet als Schatten.</p></div>
   </div>
 </section>
 
@@ -274,7 +283,7 @@
       keine darf. Vier davon —</p>
     <div class="kartenreihe" aria-label="Figuren mit neuen Zugmustern">
       <figure><img src="/landing/auf-kapitaen.webp" alt="Der Kapitän" loading="lazy" />
-        <figcaption class="sans"><b>Kapitän</b> — gleitet bis zu drei Felder gerade und springt ein Feld schräg.</figcaption></figure>
+        <figcaption class="sans"><b>Kapitän</b> — gleitet bis zu drei Felder gerade und zieht ein Feld schräg.</figcaption></figure>
       <figure><img src="/landing/auf-kanzler.webp" alt="Der Kanzler" loading="lazy" />
         <figcaption class="sans"><b>Kanzler</b> — Turm und Springer in einer Figur.</figcaption></figure>
       <figure><img src="/landing/auf-amazone.webp" alt="Die Amazone" loading="lazy" />
@@ -294,16 +303,17 @@
       <h2 style="text-align:left">Auch der Springer lernt dazu</h2>
       <p class="fliess">Selbst die klassischen Figuren wachsen. Mit jeder Stufe schalten sie Fähigkeiten frei,
         die ihre Züge verändern — oder einmal im Gefecht das Blatt wenden.</p>
-      <ul class="faehig sans">
-        <li><b>Weitsprung</b> <i>Springer</i> — zusätzliche, weitere Springersprünge.</li>
-        <li><b>Vorreiter</b> <i>Springer</i> — zusätzliche schräge Weitsprünge.</li>
-        <li><b>Sturmlauf</b> <i>Bauer</i> — mehrere Felder auf einmal geradeaus.</li>
-        <li><b>Sturmschritt</b> <i>Turm</i> — darf zusätzlich ein Feld schräg ziehen.</li>
-        <li><b>Scharfschuss</b> <i>Amazone, Kapitän</i> — trifft einmal aus der Ferne, ohne den Platz zu verlassen.</li>
-        <li><b>Blinzeln</b> — teleportiert einmal auf ein freies Feld in der Nähe.</li>
-        <li><b>Fliegen</b> <i>Drache</i> — springt einmal je Partie als ganzer Block.</li>
-        <li><b>Blenden</b> und <b>Schrecken</b> <i>Monster</i> — Gegner ringsum setzen aus, ein Feld wird unbetretbar.</li>
-      </ul>
+      <div class="zugreihe sans">
+        <figure><img src="/landing/zug-knight_longleap.webp" alt="Zugbild Weitsprung" loading="lazy" />
+          <figcaption><b>Weitsprung</b> <i>Springer</i> — weitere Sprünge über das L hinaus.</figcaption></figure>
+        <figure><img src="/landing/zug-knight_outrider.webp" alt="Zugbild Vorreiter" loading="lazy" />
+          <figcaption><b>Vorreiter</b> <i>Springer</i> — springt zwei Felder schräg.</figcaption></figure>
+        <figure><img src="/landing/zug-rook_diag_step.webp" alt="Zugbild Sturmschritt" loading="lazy" />
+          <figcaption><b>Sturmschritt</b> <i>Turm</i> — zieht zusätzlich ein Feld schräg.</figcaption></figure>
+        <figure><img src="/landing/zug-king_dash.webp" alt="Zugbild Königsflucht" loading="lazy" />
+          <figcaption><b>Königsflucht</b> <i>König</i> — einmal zwei Felder gerade.</figcaption></figure>
+      </div>
+      <p class="unterzeile sans" style="text-align:left">Farbig: die Felder, die eine Fähigkeit neu erschließt.</p>
     </div>
   </div>
 </section>
@@ -315,7 +325,7 @@
     <p class="h2u sans">Kapitän statt Turm, Späher statt Springer, eine Bestie aus dem Riss auf dem freien Platz —
       jede Partie beginnt mit deiner Aufstellung. Besiegte Monster lassen sich mit Gold und einem Opfer aus
       deinem Hofstaat <b>anwerben</b>, und wer ein Kapitel gewinnt, holt dessen <b>Meister</b> an den Platz der Dame.</p>
-    <div class="bildrahmen"><img src="/landing/gefecht-gemischt.webp"
+    <div class="bildrahmen leuchtkontur"><img src="/landing/gefecht-gemischt.webp"
       alt="Ein Gefecht in Gambit Rise: die eigene Reihe mit Kapitän, Späher, Magier, Dame, König, Paladin, dem Wächter und einem Turm" loading="lazy" /></div>
   </div>
 </section>
@@ -327,7 +337,7 @@
     <p class="h2u sans">Beim Krämer gibt es, was im Gefecht den Unterschied macht — und vor jedem Gefecht
       darfst du Mauern auf deine dritte oder vierte Reihe setzen.</p>
     <div class="paar">
-      <figure><div class="bildrahmen"><img src="/landing/haendler.webp" alt="Corvo, der Krämer, mit seinen Waren" loading="lazy" /></div>
+      <figure><div class="bildrahmen leuchtkontur"><img src="/landing/haendler.webp" alt="Corvo, der Krämer, mit seinen Waren" loading="lazy" /></div>
         <figcaption class="sans"><b>Lebenstrank</b> heilt eine Figur, der <b>Zeitenwender</b> nimmt deinen letzten Zug
           zurück, der <b>Vergessenstrank</b> verteilt die Fähigkeiten einer Figur neu. Dazu Schlüssel und Werkzeug
           für verborgene Wege der Karte.</figcaption></figure>
@@ -345,7 +355,7 @@
 
 <section class="abgesetzt" id="modi">
   <div class="hof">
-    <div class="stich sans" style="text-align:center">Vier Wege zu spielen</div>
+    <div class="stich sans" style="text-align:center">Drei Wege zu spielen</div>
     <h2>Deine Partie, deine Regeln</h2>
     <p class="h2u sans">Jeder Modus lässt dir die Wahl: klassisches Schach oder Gefecht mit Lebenspunkten.</p>
     <div class="modi sans">
@@ -358,9 +368,6 @@
       <div class="modus"><img src="/landing/modus-online.webp" alt="Online-Duell" loading="lazy" />
         <div class="inner"><h3>Online-Duell</h3><p>Faire Duelle mit Wertung, Freundescodes und Rangliste —
           live oder als Fernpartie mit einem Zug pro Tag.</p></div></div>
-      <div class="modus"><img src="/landing/klassik-brett.webp" alt="Klassisches Schach" loading="lazy" style="object-position:center 20%" />
-        <div class="inner"><h3>Klassisch pur</h3><p>Das volle Schachregelwerk ohne jede Beigabe — für alle,
-          die einfach nur Schach wollen. Jederzeit, in jedem Modus wählbar.</p></div></div>
     </div>
   </div>
 </section>
@@ -381,6 +388,15 @@
     <p class="h2u sans" style="text-align:center">Jedes Kapitel ist eine Karte voller Stationen, verzweigter Pfade und Meister.</p>
     <div class="bildrahmen"><img src="/landing/kapitelkarte.webp"
       alt="Die Karte eines Kapitels: ein Pfad durch den Eichwald mit Stationen wie Erstes Rot, Halle der zwei Schwüre und Bernsteinaltar" loading="lazy" /></div>
+    <!-- v1.62.0 (Besitzer: "Kapitel I zeigen ... und vielleicht noch ein anderes
+         von den Bergen, ein helles - dass man Varianz reinbringt") -->
+    <h3 class="sans" style="text-align:center;margin:34px 0 6px;font-size:19px">Jedes Land sein eigenes Brett</h3>
+    <div class="paar">
+      <figure><div class="bildrahmen"><img src="/landing/gefecht-gemischt.webp" alt="Das Brett im Kronland, Kapitel I" loading="lazy" /></div>
+        <figcaption class="sans" style="text-align:center"><b>Kronland</b> — Kapitel I</figcaption></figure>
+      <figure><div class="bildrahmen leuchtkontur"><img src="/landing/brett-wolkenjoch.webp" alt="Das eisblaue Brett im Wolkenjoch, Kapitel VI" loading="lazy" /></div>
+        <figcaption class="sans" style="text-align:center"><b>Wolkenjoch</b> — Kapitel VI</figcaption></figure>
+    </div>
   </div>
 </section>
 
@@ -393,6 +409,8 @@
     <div>
       <div class="stich sans">Und wenn du nur Schach willst</div>
       <h2 style="text-align:left">Klassisches Schach, wie es sein soll</h2>
+      <p class="fliess">Zwei Spielarten, eine Wahl: das <b>HP-Gefecht</b> mit Lebenspunkten, Stufen und Fähigkeiten —
+        oder <b>klassisches Schach</b> nach den vollen Regeln.</p>
       <p class="fliess">Volle Regeln — <b>Rochade, en passant, Umwandlung</b> — auf einem ruhigen Brett mit
         handgeschnitzten Figuren, glänzend goldenen Koordinaten und einer sanften Lichtspur für den letzten Zug.
         Keine Lebenspunkte, keine Zauber: nur du, dein Gegner und die 64 Felder.</p>

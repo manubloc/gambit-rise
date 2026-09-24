@@ -572,14 +572,28 @@ function describeMoves(ch, en) {
     const r = ms.range || 99;
     parts.push(en ? `Slides ${dir}, up to ${r} square${r > 1 ? "s" : ""}` : `Gleitet ${dir}, bis zu ${r} ${r > 1 ? "Felder" : "Feld"}`);
   }
-  if (ms.leaps?.length) {
-    const L = ms.leaps, n = L.length;
-    const allDiag1 = n === 4 && L.every(([a, b]) => Math.abs(a) === 1 && Math.abs(b) === 1);
+  /* v1.62.0 (Besitzer: "ein Feld schraeg springen macht keinen Sinn - beim
+     Springen muss man immer mindestens zwei Felder, sonst ist es keiner"):
+     RICHTIG. Ein Einfeld-"Sprung" hat kein Feld dazwischen, ueber das man
+     springen koennte - er ist ein SCHRITT. Die Regeln bleiben gleich; die
+     Beschreibung trennt jetzt Schritte von echten Spruengen. */
+  const schritte = (ms.leaps || []).filter(([a, b]) => Math.max(Math.abs(a), Math.abs(b)) === 1);
+  if (schritte.length) {
+    const schraeg = schritte.every(([a, b]) => a && b), gerade = schritte.every(([a, b]) => !a || !b);
+    parts.push(en ? `steps one square ${schraeg ? "diagonally" : gerade ? "straight" : "in any direction"}`
+      : `zieht ein Feld ${schraeg ? "schräg" : gerade ? "gerade" : "in jede Richtung"}`);
+  }
+  const echteSpruenge = (ms.leaps || []).filter(([a, b]) => Math.max(Math.abs(a), Math.abs(b)) >= 2);
+  if (echteSpruenge.length) {
+    const L = echteSpruenge, n = L.length;
+    const allDiag1 = false;
+    const diag2 = n === 4 && L.every(([a, b]) => Math.abs(a) === 2 && Math.abs(b) === 2);
     const diag12 = n === 8 && L.every(([a, b]) => Math.abs(a) === Math.abs(b) && Math.abs(a) <= 2);
     const ring2 = n === 16 && L.every(([a, b]) => Math.max(Math.abs(a), Math.abs(b)) === 2);
     const ortho2 = n === 4 && L.every(([a, b]) => (a === 0) !== (b === 0) && Math.max(Math.abs(a), Math.abs(b)) === 2);
     const knightL = n === 8 && L.every(([a, b]) => Math.abs(a) + Math.abs(b) === 3 && a && b);
     const what = allDiag1 ? (en ? "one square diagonally (leaping)" : "ein Feld diagonal (springend)")
+      : diag2 ? (en ? "two squares diagonally, over pieces" : "zwei Felder schräg, über Figuren hinweg")
       : diag12 ? (en ? "one or two squares diagonally, over pieces" : "ein bis zwei Felder diagonal, über Figuren hinweg")
       : ring2 ? (en ? "anywhere on the 2-ring around it, over pieces" : "auf den gesamten 2er-Ring, über Figuren hinweg")
       : ortho2 ? (en ? "two squares straight, over pieces" : "zwei Felder gerade, über Figuren hinweg")
@@ -681,8 +695,10 @@ export function MoveDiagram({ kind, moveSpec, extra = null, breite = null, talen
     const rng = Math.min(sp.range || 1, R);
     for (const [df, dr] of sp.slides || [])
       for (let k = 1; k <= rng; k++) reach.set(`${df * k},${dr * k}`, "slide");
+    /* v1.62.0: ein Einfeld-"Sprung" ist ein Schritt - blau, nicht gelb */
     for (const [df, dr] of sp.leaps || [])
-      if (Math.abs(df) <= R && Math.abs(dr) <= R) reach.set(`${df},${dr}`, "leap");
+      if (Math.abs(df) <= R && Math.abs(dr) <= R)
+        reach.set(`${df},${dr}`, Math.max(Math.abs(df), Math.abs(dr)) === 1 ? "slide" : "leap");
   }
   // ability squares glow green, ON TOP of the base pattern
   if (extra) for (const [df, dr] of extra.leaps || [])
@@ -727,14 +743,24 @@ export function MoveDiagram({ kind, moveSpec, extra = null, breite = null, talen
         if (Math.abs(f) <= R && Math.abs(r) <= R) reach.set(`${f},${r}`, "slide");
       }
   }
+  /* v1.62.0 (Besitzer: "beim Drachen tust du immer ein kleines Sternchen
+     links unten rein, und das ist schuld, dass die vier Felder nicht mittig
+     sind"): ER HAT RECHT. Das 7x7-Raster hat ein Mittelfeld - ein 2x2-Block
+     kann darin nie mittig liegen, er wurde vom Mittelfeld aus nach rechts
+     oben angesetzt. Fuer den Drachen gilt jetzt ein 6x6-Raster (f und r von
+     -2 bis 3): der Block steht genau in der Mitte, und seine acht moeglichen
+     Lagen liegen symmetrisch darum. Den Stern traegt er nicht - der goldene
+     Block IST die Figur. */
+  const lo = grossDrache ? -2 : -R, hi = grossDrache ? R : R;
+  const NN = hi - lo + 1;
   const cells = [];
-  for (let r = R; r >= -R; r--) for (let f = -R; f <= R; f++) {
+  for (let r = hi; r >= lo; r--) for (let f = lo; f <= hi; f++) {
     const here = blockFelder.some(([bx, by]) => bx === f && by === r);
     const mark = here ? null : reach.get(`${f},${r}`);
     const light = (f + r + 100) % 2 === 0;
     cells.push({ f, r, here, mark, light });
   }
-  return <div style={{ display: "grid", gridTemplateColumns: `repeat(${N}, 1fr)`, gap: 1.5, width: breite || "min(150px, 52vw)",
+  return <div data-zugbild={grossDrache ? "drache" : undefined} style={{ display: "grid", gridTemplateColumns: `repeat(${NN}, 1fr)`, gap: 1.5, width: breite || "min(150px, 52vw)",
     padding: 4, borderRadius: 8, background: "rgba(8,12,22,.55)", border: "1px solid #ffffff10" }}>
     {cells.map((c, i) => <div key={i} style={{ aspectRatio: "1", borderRadius: 3, position: "relative",
       background: c.here ? "linear-gradient(160deg,#e7c877,#b1863c)"
@@ -744,7 +770,7 @@ export function MoveDiagram({ kind, moveSpec, extra = null, breite = null, talen
         : c.mark === "extra" ? "rgba(62,224,137,.62)"
         : c.light ? "rgba(255,255,255,.05)" : "rgba(255,255,255,.02)",
       boxShadow: c.here ? "0 0 5px rgba(231,200,119,.7)" : c.mark === "extra" ? "inset 0 0 0 1px rgba(120,255,180,.5)" : c.mark ? "inset 0 0 0 1px rgba(255,255,255,.18)" : "none" }}>
-      {c.here && c.f === 0 && c.r === 0 && <span style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center",
+      {c.here && c.f === 0 && c.r === 0 && !grossDrache && <span style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center",
         fontSize: 8, fontWeight: 900, color: "#1a1206" }}>✦</span>}
     </div>)}
   </div>;
@@ -2446,7 +2472,7 @@ export function HofKachel({ img, name, dim, dark, action, glow, origin, onOpen, 
                   Talentspalte auf der anderen Seite.
                   v1.23.5 (Besitzer): 7/7 - die kleinere Verzierung gibt den
                   Platz frei, das Abzeichen rueckt weiter in die Ecke. */}
-              <div style={{ position: "absolute", top: -4, right: -1 }}>
+              <div data-stufenabzeichen="1" style={{ position: "absolute", top: -4, right: -1 }}>
                 <StufenAbzeichen form={formFuer({ charId: artId, bossId })} stufe={stufe} maxStufe={bossId ? BOSS_MAX_LEVEL : maxLevelFor(artId || "pawn")}
                   farbe={ton || figurFarbe(paintedIdOf(img)) || "#5b3fa6"} grau={!!(dim || dark)} size={36} /></div></div>
           : <div style={{ width: 21, height: 21, flex: "0 0 auto" }} />}

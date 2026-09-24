@@ -3,6 +3,7 @@
 // painting. Pieces without a painting yet fall back to the drawn SVG silently,
 // so the set may grow one figure at a time.
 import SOCKELMASS from "./sockelband.json";
+import { LEAGUE_BOSSES as LEAGUE_BOSS_IDS } from "../../../content/bosses.js";   /* v1.62.0 */
 import pPawn from "../assets/painted/painted-pawn.webp";
 import pHaendler from "../assets/painted/painted-haendler.webp";  // der fahrende Haendler am Stand
 /* v1.0.91: DIE SCHATZKAMMER HAT IHR BILD (Besitzerwunsch) - dasselbe Format
@@ -625,7 +626,15 @@ export function paintedFitFor(piece) {
      deshalb BOSS_FIT das Mass - aber MITSKALIERT: die Tabelle war gegen die
      alte Dame (1,1329) abgestimmt, die gemessene steht auf 1,0237. Ohne den
      Faktor waere der Meister plotzlich 8 % groesser als sie. */
-  if (!HANDTABELLE && !piece.bossId) {
+  /* v1.62.0 (Besitzer: "der Waechter ist immer noch nicht sauber
+     positioniert von der Groesse"): die Ausnahme oben galt den KAPITEL-
+     MEISTERN - der Code schloss aber JEDES Monster aus. Ein gewoehnliches
+     Monster in der eigenen Reihe (Waechter, Brutmutter ...) bekam darum
+     keine gemessene Anpassung und stand mit seinem breit gemalten Teller
+     groesser als die Nachbarn. Jetzt misst es wie jede Figur: Teller auf
+     dieselbe Breite, Boden auf dieselbe Linie. Meister behalten BOSS_FIT. */
+  const istMeister = !!piece.bossId && LEAGUE_BOSS_IDS.includes(piece.bossId);
+  if (!HANDTABELLE && (!piece.bossId || (!istMeister && !piece.bossId.startsWith("pb_")))) {
     const id = paintedIdFuerStueck(piece);
     const f = id && gemessenerFit(id);
     if (f) return f;
