@@ -62,6 +62,12 @@ export default defineConfig({
         icons: [
           { src: "icons/icon-192.png", sizes: "192x192", type: "image/png" },
           { src: "icons/icon-512.png", sizes: "512x512", type: "image/png" },
+          /* v1.56.0: ZWEI maskierbare Groessen. Fehlte die 192er, nahm Android
+             fuer den Startbildschirm das gerundete "any"-Symbol und setzte es
+             verkleinert in einen weissen Kreis (Besitzerfoto 24.9.). Die
+             maskierbaren Bilder sind randlos; die Gestalt liegt in der
+             sicheren Zone (Kreis mit 80 % Durchmesser). */
+          { src: "icons/maskable-192.png", sizes: "192x192", type: "image/png", purpose: "maskable" },
           { src: "icons/maskable-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
         ],
       },

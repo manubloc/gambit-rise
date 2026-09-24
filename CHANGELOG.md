@@ -1,5 +1,26 @@
 # Changelog - Gambit Rise
 
+## 1.56.0 - das App-Symbol, diesmal richtig
+- Besitzerfoto 24.9.: auf dem Startbildschirm stand das neue Symbol klein in
+  einem WEISSEN KREIS, mit dunklen Ecken. URSACHE (mein Fehler aus v1.45.0):
+  das Manifest bot ein maskierbares Symbol nur in 512 an. Android nahm fuer
+  den Startbildschirm das gerundete 192er ("any") - das ich zudem auf dunklen
+  Grund gelegt hatte - und setzte es, weil nicht maskierbar, verkleinert in
+  einen weissen Kreis.
+- ZWEI FASSUNGEN aus dem gelieferten Bild (480-px-Rundquadrat mit dunklem
+  Innenrand), nach Einsatzort:
+    * RANDLOS und deckend - wo das System selbst rundet oder maskiert:
+      maskable-192, maskable-512 (Android: Kreis, Squircle, je nach Handy),
+      apple-touch-icon (iPhone), Play-Store-Symbol, Suchsymbole. Die
+      durchsichtigen Ecken sind mit dem dunklen Rand des Bildes gefuellt,
+      nicht weggezoomt - nichts wird unscharf. Die Gestalt liegt in der
+      sicheren Zone (Kreis mit 80 % Durchmesser).
+    * GERUNDET mit DURCHSICHTIGEN Ecken - wo niemand rundet: icon-192/512
+      ("any", Desktop), Favicons.
+- Manifest: maskable in 192 UND 512. Android-Paketvorlage nimmt das randlose
+  Bild. Proben halten Manifest, Deckkraft und Paketvorlage fest.
+- Vorschau aller Masken: design/app-symbol-masken-2026-09-24.png.
+
 ## 1.55.0 - Slider und Brett-Hintergruende wieder da
 - FEHLER 1 (Besitzer: "der Slider bei Aufstellung kommt nicht, wenn ich auf
   eine Figur klicke"): die hintere Reihe oeffnete sich, wenn eine Station

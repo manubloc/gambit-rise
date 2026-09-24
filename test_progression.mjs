@@ -545,4 +545,25 @@ console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
   ok("die App laedt Brett, Kapitel und Archive RELATIV (sie wohnt unter /spielen/)", absolut.length === 0);
 }
 
+/* ── v1.56.0: DAS APP-SYMBOL ─────────────────────────────────────────────────
+   Besitzerfoto 24.9.: auf dem Startbildschirm stand das Symbol verkleinert in
+   einem weissen Kreis - das Manifest bot kein maskierbares 192er an, Android
+   nahm das gerundete "any"-Symbol. */
+{
+  const { readFileSync } = await import("node:fs");
+  const vc = readFileSync("vite.config.js", "utf8");
+  ok("das Manifest bietet maskierbare Symbole in 192 UND 512",
+    vc.includes('src: "icons/maskable-192.png", sizes: "192x192", type: "image/png", purpose: "maskable"')
+    && vc.includes('src: "icons/maskable-512.png", sizes: "512x512", type: "image/png", purpose: "maskable"'));
+  // PNG-Kopf lesen: Farbtyp 2 = RGB ohne Alpha (randlos), 6 = RGBA
+  const farbtyp = (f) => readFileSync(f)[25];
+  ok("maskierbare Symbole, Apple-Symbol und Play-Symbol sind randlos und deckend (RGB)",
+    ["public/icons/maskable-192.png", "public/icons/maskable-512.png", "public/icons/apple-touch-icon.png", "design/playstore-icon-512.png"]
+      .every((f) => farbtyp(f) === 2));
+  ok("die any-Symbole tragen durchsichtige Ecken (RGBA) - kein dunkler Grund mehr",
+    ["public/icons/icon-192.png", "public/icons/icon-512.png"].every((f) => farbtyp(f) === 6));
+  const twa = JSON.parse(readFileSync("design/twa-manifest.json", "utf8"));
+  ok("auch das Android-Paket nimmt das randlose Bild", /maskable-512\.png$/.test(twa.maskableIconUrl || ""));
+}
+
 process.exit(fail ? 1 : 0);
