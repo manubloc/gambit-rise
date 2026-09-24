@@ -278,4 +278,16 @@ console.log("\n== KEIN GROESSENSPRUNG BEIM ZIEHEN (v1.4.9) ==");
 }
 
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
+/* ── v1.49.0: DAS STATIONSFENSTER IST DUNKEL ─────────────────────────────── */
+{
+  const { readFileSync } = await import("node:fs");
+  const c = readFileSync("src/app/ui/screens/CampaignScreen.jsx", "utf8");
+  ok("die Fensterpalette ist Nachtglas, kein Pergament mehr",
+    c.includes('bg: "linear-gradient(170deg, rgba(24,18,38,.94), rgba(11,8,20,.96))"') && !c.includes('#f4eee0, #ece4cf'));
+  ok("kein heller Pergamentknopf mehr (er waere mit heller Schrift unlesbar)", !c.includes('background: "#dcd3ba"'));
+  ok("der Hauptknopf traegt das kraeftige Gold", (c.match(/linear-gradient\(180deg, #f6dc8e, #cda24b\)/g) || []).length >= 2);
+  ok("keine braunen Pergament-Schrifttoene im Fenster",
+    !/color: "#8a6f4d"|color: "#6b5c44"|: "#8e2f39"/.test(c));
+}
+
 process.exit(fail ? 1 : 0);

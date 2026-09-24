@@ -1,5 +1,18 @@
 # Changelog - Gambit Rise
 
+## 1.49.0 - das Stationsfenster ist dunkel
+- Offener Besitzerpunkt "dunkles Stationsfenster": das Fenster einer Station
+  auf der Kapitelkarte war helles Pergament - das einzige helle Blatt in
+  einem sonst dunklen Spiel. Jetzt dieselbe Nachtglas-Sprache wie Kampfleiste,
+  Figurenblatt und Tafeln: fast schwarzer, durchscheinender Grund, zarte
+  Goldkontur, helle Schrift, dunkle Chips (XP gruen, Gold bleibt golden).
+- Der Hauptknopf traegt das kraeftige Gold der uebrigen Hauptknoepfe; das
+  matte, halbdurchsichtige Gold war fuers Pergament gedacht.
+- GEFUNDEN beim Umfaerben: geschaffte und gesperrte Stationen hatten einen
+  hellen Pergamentknopf (#dcd3ba) - mit der neuen hellen Schrift waere er
+  unlesbar geworden. Jetzt ein stiller dunkler Knopf.
+- Die Figurenkunst im Fenster bleibt unveraendert. Im Browser geprueft.
+
 ## 1.48.0 - die vierte Stufe: sehr schwer
 - Offener Besitzerwunsch: eine vierte Schwierigkeit "sehr schwer".
   Eine Suchtiefe mehr als "schwer" (3 statt 2) und hoeher gestufte Figuren

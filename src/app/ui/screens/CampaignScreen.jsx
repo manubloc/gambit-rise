@@ -60,8 +60,13 @@ const MEDAL = 32, MEDAL_ART = 22, HIT = 44;
 const tiefeStation = (y, H) => 0.86 + 0.14 * Math.max(0, Math.min(1, y / Math.max(1, H)));
 const tiefeWanderer = (y, H) => 0.78 + 0.22 * Math.max(0, Math.min(1, y / Math.max(1, H)));
 // parchment palette for the embedded node panel — map-world UI, not app chrome
-const PP = { bg: "linear-gradient(170deg, #f4eee0, #ece4cf)", bg2: "#e7dfc9", line: "#c9bfa4",
-  ink: MP.ink, dim: "#171310" /* v0.71.10: Fliesstext SCHWARZ - Lesbarkeit (Besitzer) */, chipInk: "#4a4433", green: "#3e7d47" };
+/* v1.49.0 (offener Besitzerpunkt "dunkles Stationsfenster"): das Fenster war
+   helles Pergament - das einzige helle Blatt in einem sonst dunklen Spiel.
+   Jetzt dieselbe Nachtglas-Sprache wie Kampfleiste, Figurenblatt und Tafeln:
+   fast schwarzer, durchscheinender Grund, zarte Goldkontur, helle Schrift.
+   Figurenkunst und goldene Akzente (Startknopf, Goldchip) bleiben. */
+const PP = { bg: "linear-gradient(170deg, rgba(24,18,38,.94), rgba(11,8,20,.96))", bg2: "rgba(255,255,255,.06)",
+  line: "rgba(233,210,150,.3)", ink: "#f0e4bc", dim: "rgba(236,230,250,.86)", chipInk: "#e9d296", green: "#8fd99a" };
 
 const EMPTY_SCENERY = { clouds: [], ridges: [], dunes: [], floors: [], drifts: [], isles: [], mistsBack: [],
   stonesAt: null, ruin: false, crystals: [], rocks: [], grass: [], leafy: [], blossoms: [], cacti: [], fields: [],
@@ -1131,9 +1136,9 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
           no bookkeeping; just the road, walked once more. */}
       {panelOpen && viewing && !!node && (
         <div key={"vw" + sel} style={{ position: "absolute", left: frameX + panelLeft, width: panelW, ...panelPos,
-          zIndex: 7, background: "rgba(240,233,216,.6)", backdropFilter: "blur(16px) saturate(1.15)",
+          zIndex: 7, background: "rgba(14,10,24,.8)", backdropFilter: "blur(16px) saturate(1.15)",
           WebkitBackdropFilter: "blur(16px) saturate(1.15)", border: `1px solid ${PP.line}`, borderRadius: 18, color: PP.ink,
-          boxShadow: "0 0 30px rgba(30,25,15,.2)",
+          boxShadow: "0 8px 30px rgba(0,0,0,.5)",
           // v0.73.1 (Besitzer): oben wie unten - die Zeilenluft des groesseren
           // Titels wird gekappt statt zusaetzlich gepolstert.
           padding: "9px 13px 13px" }}>
@@ -1163,7 +1168,7 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
             const bild = paintedById("boss-" + bossHier.bossId);
             const S = 74;
             return <div style={{ display: "flex", gap: 10, alignItems: "center", marginTop: 9,
-              padding: "8px 10px", borderRadius: 10, background: "rgba(255,250,235,.42)",
+              padding: "8px 10px", borderRadius: 10, background: "rgba(255,255,255,.05)",
               border: `1px solid ${PP.line}` }}>
               {bild && <img src={bild} alt="" draggable={false} style={{ width: S, height: S,
                 objectFit: "contain", objectPosition: "bottom", flex: "0 0 auto" }} />}
@@ -1181,8 +1186,11 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
           })()}
           <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
             <Button variant="primary" onClick={() => onStart(sel, viewLeague)} style={{ flex: 1,
-              background: "rgba(201,164,92,.72)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
-              border: "1px solid rgba(255,240,200,.55)", boxShadow: "0 0 16px rgba(201,164,92,.3)" }}>
+              /* v1.49.0: auf dunklem Grund das kraeftige Gold der uebrigen
+                 Hauptknoepfe (Anmelden, Kampagne starten) - das matte,
+                 halbdurchsichtige Gold war fuers helle Pergament gedacht. */
+              background: "linear-gradient(180deg, #f6dc8e, #cda24b)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
+              border: "1px solid rgba(255,240,200,.7)", boxShadow: "0 0 18px rgba(233,196,106,.35)" }}>
               <BladesIc color={T.limeInk} size={14} /> {t("camp.friendly")}
             </Button>
           </div>
@@ -1190,9 +1198,9 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
       )}
       {showPanel && (
         <div key={sel + (token.at === sel ? "@" : "")} style={{ position: "absolute", left: frameX + panelLeft, width: panelW, ...panelPos,
-          zIndex: 7, background: "rgba(240,233,216,.6)", backdropFilter: "blur(16px) saturate(1.15)",
+          zIndex: 7, background: "rgba(14,10,24,.8)", backdropFilter: "blur(16px) saturate(1.15)",
           WebkitBackdropFilter: "blur(16px) saturate(1.15)", border: `1px solid ${PP.line}`, borderRadius: 18, color: PP.ink,
-          boxShadow: "0 0 30px rgba(30,25,15,.2)",
+          boxShadow: "0 8px 30px rgba(0,0,0,.5)",
           // v0.73.1 (Besitzer): oben wie unten - die Zeilenluft des groesseren
           // Titels wird gekappt statt zusaetzlich gepolstert.
           padding: "9px 13px 13px" }}>
@@ -1216,7 +1224,7 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
                 <button onClick={() => setInfoAuf((v) => !v)} aria-label="Info" title={t("camp.replayNone")}
                   style={{ width: 20, height: 20, borderRadius: "50%", flex: "0 0 auto",
                     display: "inline-flex", alignItems: "center", justifyContent: "center",
-                    border: `1px solid ${infoAuf ? "rgba(90,75,40,.75)" : "rgba(90,75,40,.38)"}`,
+                    border: `1px solid ${infoAuf ? "rgba(233,210,150,.6)" : "rgba(233,210,150,.28)"}`,
                     background: infoAuf ? "rgba(201,164,92,.3)" : "none", color: PP.dim,
                     fontFamily: "Georgia, serif", fontStyle: "italic", fontWeight: 700, fontSize: 12,
                     lineHeight: 1, cursor: "pointer", padding: 0 }}>i</button>
@@ -1241,7 +1249,7 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
                 Versuch anders steht, tragen ein Label mit gekreuzten Pfeilen */}
             {besetzungsPlan(node).wechselnd && <Chip className="gg-serif" color={PP.chipInk} bg={PP.bg2}>
               <span aria-hidden="true" style={{ marginRight: 4 }}>⤨</span>{en ? "Shifting line-up" : "Wechselnde Aufstellung"}</Chip>}
-            <Chip className="gg-serif" color={"#3c4a22"} bg={"#d3deb2"}>+{Math.round((node.reward?.xp || 0) * mult * (friendly ? 0.25 : 1))} XP</Chip>
+            <Chip className="gg-serif" color={"#c4ecb0"} bg={"rgba(110,170,90,.22)"}>+{Math.round((node.reward?.xp || 0) * mult * (friendly ? 0.25 : 1))} XP</Chip>
             <Chip className="gg-serif" color={"#17110a"} bg={"#e8c96a"}><GoldCoin size={12} /> +{Math.round((5 + 2 * node.row + (node.boss ? 6 : 0)) * mult / (friendly ? 2 : 1))}</Chip>
           </div>
           {/* v1.1.8 (Besitzerentscheid): DIE FIGUR IST IMMER ZU SEHEN. "Hast du
@@ -1319,14 +1327,14 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
                     vor der Zugehoerigkeit stand ein LEERES Element und dann ein
                     Trennpunkt - der Punkt sass allein vorn und rueckte das Wort
                     ein. Jetzt buendig unter dem Namen, in Kapitaelchen. */}
-                <div className="gg-serif" style={{ fontSize: 11.5, color: "#8a6f4d", marginTop: 3, letterSpacing: .6, textTransform: "uppercase" }}>
+                <div className="gg-serif" style={{ fontSize: 11.5, color: "#c9b27a", marginTop: 3, letterSpacing: .6, textTransform: "uppercase" }}>
                   {(() => { const f = familyOf(boss.kind);
                     return f ? (f === "crown" ? (en ? "Crown" : "Kronenfiguren") : (en ? "Shadows" : "Schattenwesen")) : null; })()}
                 </div>
-                {unlockCh && known && status !== "cleared" && facedSet.has(sel) && <div className="gg-serif" style={{ fontSize: 11.5, color: "#8e2f39", fontStyle: "italic", marginTop: 4, lineHeight: 1.4 }}>
+                {unlockCh && known && status !== "cleared" && facedSet.has(sel) && <div className="gg-serif" style={{ fontSize: 11.5, color: "#ffa3a3", fontStyle: "italic", marginTop: 4, lineHeight: 1.4 }}>
                   {t("camp.turncoat", { name: unlockCh[en ? "nameEn" : "nameDe"] })}</div>}
                 {(() => { const v = voiceFor(boss);   // the saga speaks on the map too
-                  return v ? <div className="gg-serif" style={{ fontSize: 11.5, color: "#6b5c44", fontStyle: "italic", marginTop: 5, lineHeight: 1.5 }}>
+                  return v ? <div className="gg-serif" style={{ fontSize: 11.5, color: "rgba(226,218,246,.62)", fontStyle: "italic", marginTop: 5, lineHeight: 1.5 }}>
                     {mitHeld(v[en ? "heraldEn" : "heraldDe"], profile)}</div> : null; })()}
               </div>
             </div>
@@ -1375,13 +1383,13 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
                 <GoldCoin size={22} />
                 <div style={{ flex: 1, fontSize: 12.5 }}>
                   <b>{t("camp.tollNeed", { n: cost })}</b>
-                  <div style={{ color: can ? PP.dim : "#8e2f39", fontSize: 11.5 }}>
+                  <div style={{ color: can ? PP.dim : "#ffa3a3", fontSize: 11.5 }}>
                     {can ? t("camp.tollHint") : t("camp.tollShort", { have })}
                   </div>
                 </div>
                 <Button variant={can ? "primary" : "subtle"} disabled={!can}
                   onClick={() => dispatch({ type: "PAY_TOLL", id: node.id })}
-                  style={{ padding: "9px 14px", whiteSpace: "nowrap", ...(can ? {} : { background: "#dcd3ba", color: PP.ink }) }}>
+                  style={{ padding: "9px 14px", whiteSpace: "nowrap", ...(can ? {} : { background: "rgba(255,255,255,.08)", color: PP.ink }) }}>
                   <GoldCoin size={13} /> {cost} · {t("camp.payToll")}
                 </Button>
               </div>;
@@ -1403,7 +1411,7 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
               </div>
               {!itemOk && <Button variant={can ? "primary" : "subtle"} disabled={!can}
                 onClick={() => dispatch({ type: "BUY_ITEM", id: it.id })}
-                style={{ padding: "9px 14px", whiteSpace: "nowrap", ...(can ? {} : { background: "#dcd3ba", color: PP.ink }) }}>
+                style={{ padding: "9px 14px", whiteSpace: "nowrap", ...(can ? {} : { background: "rgba(255,255,255,.08)", color: PP.ink }) }}>
                 <GoldCoin size={13} /> {itemPrice(profile, it)} · {t("camp.buyHere")}
               </Button>}
             </div>;
@@ -1430,9 +1438,13 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
                   // Riss-Zweig (violett bei purem Risswesen) verriet obendrein
                   // Geheimnis-Stationen. Gold ist die Krone, Punkt.
                   ...(status === "available" || friendly
-                    ? { background: "rgba(201,164,92,.72)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
-                        border: "1px solid rgba(255,240,200,.55)", boxShadow: "0 0 16px rgba(201,164,92,.3)", color: "#17110a" }
-                    : { background: "#dcd3ba", color: PP.ink }) }}>
+                    /* v1.49.0: kraeftiges Gold auf dunklem Grund; geschaffte oder
+                       gesperrte Stationen bekommen einen stillen dunklen Knopf
+                       (der alte Pergamentgrund #dcd3ba waere mit der neuen hellen
+                       Schrift unlesbar geworden). */
+                    ? { background: "linear-gradient(180deg, #f6dc8e, #cda24b)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
+                        border: "1px solid rgba(255,240,200,.7)", boxShadow: "0 0 18px rgba(233,196,106,.35)", color: "#17110a" }
+                    : { background: "rgba(255,255,255,.08)", border: "1px solid rgba(233,210,150,.3)", color: PP.ink }) }}>
                 {status === "available" && <span aria-hidden style={{ position: "absolute", top: 0, bottom: 0, left: 0, width: "42%",
                   background: "linear-gradient(90deg, transparent, rgba(255,244,210,.28), transparent)",
                   animation: "ggShine 12s ease-in-out 1.8s infinite", pointerEvents: "none" }} />}
