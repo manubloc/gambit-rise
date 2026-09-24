@@ -187,3 +187,52 @@ Audio, Dateien, Kalender, Web-Browsing, Werbe-ID.
 
 **Offen zu entscheiden:** Soll der automatische Absturzbericht künftig
 abschaltbar sein? Dann wäre er „optional" und das Formular freundlicher.
+
+## Weg zum Livegang (Stand 24.9.2026, v1.61.0)
+
+### Fertig vorbereitet (liegt in design/playstore/)
+- icon-512.png - Store-Symbol, 512 x 512, randlos (Google rundet selbst)
+- feature-1024x500.png - Feature-Grafik mit neuer Wortmarke
+- handy-1080x1920-1..6 - Handy-Screenshots, montiert (Ueberschrift + echte Aufnahme)
+- tablet7-1200x1920-1..6 - 7-Zoll-Tablet
+- tablet10-1600x2560-1..6 - 10-Zoll-Tablet
+Alle als 24-Bit-PNG ohne Transparenz, Seitenverhaeltnis unter 2:1 (Googles Vorgabe).
+Reihenfolge: Gefecht, Hofstaat, Faehigkeiten, Aufstellung, Welt, Haendler.
+
+### In der Play Console bereits erledigt
+App angelegt (com.gambitrise.app), Store-Texte, Datenschutzlink, Werbung, Werbe-ID,
+Behoerden-App, Zielgruppe 13+, Finanz- und Gesundheitsfunktionen, App-Zugriff
+(Gastzugang -> nicht zugangsbeschraenkt). Altersfragebogen vollstaendig ausgefuellt.
+
+### Schritte, in dieser Reihenfolge
+1. **Altersfreigaben absenden** - Speichern, Weiter, Zusammenfassung bestaetigen.
+2. **Datensicherheit** nach dem Antwortbogen oben eintragen (oder Claude, sobald
+   der Browser stabil laeuft).
+3. **Store-Eintrag -> Grafiken**: die Dateien aus design/playstore/ hochladen.
+4. **Android-Paket bauen** auf pwabuilder.com:
+   - Adresse: https://gambitrise.com/spielen/
+   - "Package for stores" -> Android -> Google Play
+   - Package ID `com.gambitrise.app`, App name und Launcher name `Gambit Rise`
+   - Signing key: **neu erzeugen lassen**. Die ZIP enthaelt `signing.keystore`
+     und `signing-key-info.txt` mit den Passwoertern.
+   - **Schluessel und Passwoerter doppelt sichern** (Passwortmanager + zweiter Ort).
+     Ohne diesen Schluessel ist nie wieder ein Update moeglich.
+5. **assetlinks.json** aus der ZIP an Claude geben -> kommt nach
+   public/.well-known/assetlinks.json. Zusaetzlich den SHA-256 des
+   **App-Signaturschluessels** aus der Console (Test und Veroeffentlichung ->
+   App-Integritaet) - Google signiert neu, beide Fingerabdruecke gehoeren hinein,
+   sonst zeigt die App eine Browserleiste.
+6. **Geschlossener Test**: Testen -> Geschlossene Tests -> Track anlegen, die
+   .aab hochladen, Tester per E-Mail-Liste eintragen, Release einfuehren.
+7. **Fuer private Entwicklerkonten** (angelegt nach dem 13.11.2023): mindestens
+   **12 Tester, 14 Tage am Stueck** im geschlossenen Test, dann unter
+   "Produktionszugriff" den Antrag stellen. Pruefen, ob das fuer dieses Konto gilt.
+8. **Produktion**: Release anlegen, einreichen. Pruefung durch Google meist
+   einige Tage. Ab dann funktioniert der Link
+   https://play.google.com/store/apps/details?id=com.gambitrise.app -
+   das Abzeichen auf der Landingpage zeigt schon dorthin.
+
+### Parallel
+- grandgambit.win leitet ab v1.61.0 per 301 auf gambitrise.com (Pages-Funktion).
+  Danach in der Search Console die **Adressaenderung** von grandgambit.win auf
+  gambitrise.com melden.

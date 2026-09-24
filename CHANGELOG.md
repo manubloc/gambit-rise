@@ -1,5 +1,17 @@
 # Changelog - Gambit Rise
 
+## 1.61.0 - alte Domain leitet um, Store-Material fertig
+- grandgambit.win und www.grandgambit.win antworten mit 301 auf denselben
+  Pfad unter gambitrise.com (functions/_middleware.js, Cloudflare Pages).
+  _routes.json haelt die Funktion von Bildern, Schriften und Skripten fern -
+  sie springt nur bei Seitenaufrufen an und schont das freie Kontingent.
+  Besitzer: "diese alte Domain, das ist mir total egal ... richte das ein."
+- STORE-MATERIAL in design/playstore/, alles aus echten Aufnahmen montiert:
+  sechs Handy-Screenshots (1080 x 1920), je sechs fuer 7- und 10-Zoll-Tablets
+  (1200 x 1920, 1600 x 2560), Feature-Grafik 1024 x 500 mit der neuen
+  Wortmarke, Store-Symbol 512 x 512. 24-Bit-PNG, unter 2:1.
+- design/PLAYSTORE.md: die Schritte bis zum Livegang in Reihenfolge.
+
 ## 1.60.0 - die Aufstellung als fester Schirm
 - Besitzer: "den Slider nicht nochmal in einer Box, die Karten seitlich aus
   dem Bildschirm laufen ... bei der Aufstellung nicht scrollen koennen ... je
