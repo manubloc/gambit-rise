@@ -1,5 +1,18 @@
 # Changelog - Gambit Rise
 
+## 1.57.0 - der Gambit faellt als Gambit
+- Besitzerbefund: faellt der Gambit, wurde er kurz vor dem Abraeumen als
+  gewoehnlicher Bauer dargestellt. URSACHE: der fallende Geist wurde nur aus
+  Art und Farbe gebaut ({ kind, color }) - der Gambit hat die Art "Bauer".
+  Derselbe Fehler traf JEDE Sonderfigur (ein Kapitaen fiel als Turm) und
+  jedes Monster.
+- Der Zugeintrag traegt jetzt eine Kopie der GANZEN geschlagenen Figur
+  (hitPiece), und das Brett zeichnet den Geist daraus.
+- Die MASKERADE gilt weiter: ein maskierter Gambit erscheint dem Gegner als
+  Bauer, dem eigenen Blick immer als Gambit - PieceGlyph entscheidet das wie
+  auf dem Brett. Ohne Maskerade ist er fuer beide Seiten sichtbar. In der
+  Kampagne fuehrt nur der Spieler einen Gambit; im Online-Duell beide.
+
 ## 1.56.0 - das App-Symbol, diesmal richtig
 - Besitzerfoto 24.9.: auf dem Startbildschirm stand das neue Symbol klein in
   einem WEISSEN KREIS, mit dunklen Ecken. URSACHE (mein Fehler aus v1.45.0):

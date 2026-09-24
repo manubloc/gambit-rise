@@ -581,6 +581,11 @@ export function applyMove(state, move, opts) {
     hitKind: target ? target.kind : epOpfer ? epOpfer.kind : null,
     hitColor: target ? target.color : epOpfer ? epOpfer.color : null,
     hitHero: target ? !!target.hero : !!(epOpfer && epOpfer.hero),
+    /* v1.57.0: die GANZE geschlagene Figur, wie sie vor dem Zug stand. Das
+       Brett zeichnet daraus den fallenden Geist - vorher kannte es nur Art
+       und Farbe, und der Gambit flog als gewoehnlicher Bauer vom Brett
+       (Besitzerbefund), ein Kapitaen als Turm, ein Monster als Grundfigur. */
+    hitPiece: target ? { ...target } : epOpfer ? { ...epOpfer } : null,
     special: move.special || null, promotion: move.promotion || null,
     double: !!move.double, epCapture: move.epCapture ?? null,
     rookFrom: move.rookFrom ?? null, rookTo: move.rookTo ?? null,

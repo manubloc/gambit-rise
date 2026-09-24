@@ -332,7 +332,11 @@ export function BoardView({ lang = "de", state, onMove, interactive, lastMove, m
     if ((lastMove.capture || lastMove.lethal) && lastMove.hitKind && !lastMove.bounced) {
       const iWon = lastMove.color === pov;            // did MY side make this capture?
       setDeath({ at: lastMove.to, id: a.id + 100000,
-        piece: { kind: lastMove.hitKind, color: lastMove.hitColor || (lastMove.color === "w" ? "b" : "w") },
+        /* v1.57.0: der Geist ist die ECHTE Figur (Gambit, Sonderfigur, Monster,
+           Stufe). Die Maskerade gilt weiter: PieceGlyph zeigt einen maskierten
+           Gambit dem Gegner als Bauern, dem eigenen Blick aber als Gambit. */
+        piece: lastMove.hitPiece ? { ...lastMove.hitPiece }
+          : { kind: lastMove.hitKind, color: lastMove.hitColor || (lastMove.color === "w" ? "b" : "w"), hero: !!lastMove.hitHero },
         dir: (lastMove.color === "w" ? 1 : -1) * (pov === "w" ? 1 : -1),
         // hold the victim in place until the attacker actually arrives, THEN
         // fling it — so you read the strike, not a piece leaving early.

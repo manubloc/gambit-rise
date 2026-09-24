@@ -566,4 +566,26 @@ console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
   ok("auch das Android-Paket nimmt das randlose Bild", /maskable-512\.png$/.test(twa.maskableIconUrl || ""));
 }
 
+/* ── v1.57.0: DER FALLENDE GEIST IST DIE ECHTE FIGUR ────────────────────────
+   Besitzerbefund: faellt der Gambit, flog er kurz als gewoehnlicher Bauer vom
+   Brett - der Geist kannte nur Art und Farbe. */
+{
+  const { createGame, applyMove, legalMoves } = await import("./src/core/index.js");
+  const st = createGame(undefined, undefined, { seed: 3 });
+  const W = st.w || 8; const b = st.board;
+  const wp = b.findIndex((p) => p && p.color === "w" && p.kind === "P");
+  let erg = null;
+  for (const ziel of [wp + W + 1, wp - W + 1]) {
+    if (b[ziel]) continue;
+    b[ziel] = { ...b.find((p) => p && p.color === "b" && p.kind === "P"), hero: true, charId: "gambit" };
+    const mv = legalMoves(st).find((m) => m.from === wp && m.to === ziel);
+    if (!mv) { b[ziel] = null; continue; }
+    erg = applyMove(st, mv).lastMove.hitPiece; break;
+  }
+  ok("der Zug kennt die GANZE geschlagene Figur (Gambit bleibt Gambit)", !!erg && erg.hero === true && erg.charId === "gambit");
+  const { readFileSync } = await import("node:fs");
+  const bv = readFileSync("src/app/ui/board/BoardView.jsx", "utf8");
+  ok("das Brett zeichnet den Geist aus dieser Figur", bv.includes("piece: lastMove.hitPiece ? { ...lastMove.hitPiece }"));
+}
+
 process.exit(fail ? 1 : 0);
