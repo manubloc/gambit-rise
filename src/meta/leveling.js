@@ -687,7 +687,7 @@ export function buildArmyForMap(profile, map, excludeId = null, rules = null, st
   return army;
 }
 
-const AI_BUMP = { easy: 0, normal: 1, hard: 2 };
+const AI_BUMP = { easy: 0, normal: 1, hard: 2, veryhard: 3 };   /* v1.48.0: vierte Stufe */
 
 // Varied enemy back ranks per board width — the AI fields a different (often
 // wilder) squad each match. Each entry contains exactly one king.

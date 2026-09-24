@@ -1,5 +1,16 @@
 # Changelog - Gambit Rise
 
+## 1.48.0 - die vierte Stufe: sehr schwer
+- Offener Besitzerwunsch: eine vierte Schwierigkeit "sehr schwer".
+  Eine Suchtiefe mehr als "schwer" (3 statt 2) und hoeher gestufte Figuren
+  (Bauer 7, Offiziere 6, Koenig 3, Erzbischof und Kanzler 5).
+- GEMESSEN vor dem Einbau: Tiefe 3 braucht auf der Sandbox im Schnitt
+  ~200 ms je Zug, hoechstens ~0,4 s (Schach; HP-Gefecht deutlich weniger).
+  Auf dem Handy rund eine Sekunde - man sieht die KI nachdenken, fuer diese
+  Stufe passt das.
+- Angeboten im Schnellspiel und im Einrichtungsschirm; zahlt 15 Gold (schwer
+  11); KI-Aufschlag 3. Die Kampagne bleibt bei ihren drei Stufen.
+
 ## 1.47.0 - die Schranke: gratis bis Kapitel III
 - Besitzerentscheid 22.9.: "gratis bis Kapitel III". Und 23.9.: zwei
   Fassungen im Play Store - kostenlos bis Kapitel III, daneben die Vollfassung.

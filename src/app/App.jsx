@@ -1266,7 +1266,7 @@ export function GameIntro({ t, dispatch, onStart, en = false }) {
 
           <div className="gg-serif" style={{ fontSize: 12, letterSpacing: ".12em", color: T.gold, marginTop: 14 }}>{t("setup.diff").toUpperCase()}</div>
           <div style={{ display: "flex", gap: 8, margin: "7px 0 4px" }}>
-            {[["easy", t("diff.easy")], ["normal", t("diff.normal")], ["hard", t("diff.hard")]].map(([v, label]) => (
+            {[["easy", t("diff.easy")], ["normal", t("diff.normal")], ["hard", t("diff.hard")], ["veryhard", t("diff.veryhard")]].map(([v, label]) => (
               <button key={v} onClick={() => setDiff(v)} style={pick(diff === v)}>{label}</button>
             ))}
           </div>

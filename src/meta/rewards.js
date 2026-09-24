@@ -4,7 +4,7 @@ import { completedSet } from "./achievements.js";
 const XP = { win: 18, draw: 7, loss: 3, perCapture: 1, checkmate: 8, promotion: 5 };
 const GOLD = { win: 2, draw: 1, loss: 0 };
 /** Free-play purse per win, scaled by the difficulty you dared. */
-export const winGold = (difficulty) => ({ easy: 4, normal: 7, hard: 11 }[difficulty] || 4);
+export const winGold = (difficulty) => ({ easy: 4, normal: 7, hard: 11, veryhard: 15 }[difficulty] || 4);
 
 /**
  * Apply a finished match to the profile. Pure: returns a new profile plus a

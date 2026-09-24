@@ -507,4 +507,20 @@ console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
     camp.includes('hinterSchranke(profile, league + 1) && (') && camp.includes('t("camp.schranke"'));
 }
 
+/* ── v1.48.0: DIE VIERTE STUFE "SEHR SCHWER" ─────────────────────────────── */
+{
+  const { DIFFICULTIES, difficultyById } = await import("./src/content/difficulties.js");
+  const { winGold } = await import("./src/meta/rewards.js");
+  const vh = difficultyById("veryhard");
+  const h = difficultyById("hard");
+  ok("es gibt vier Stufen, die vierte heisst veryhard", DIFFICULTIES.length === 4 && vh.id === "veryhard");
+  ok("sie rechnet eine Tiefe weiter als schwer", vh.depth === h.depth + 1);
+  ok("ihre Figuren stehen hoeher als bei schwer",
+    Object.keys(h.levels).every((k) => (vh.levels[k] || 0) >= h.levels[k]) && vh.levels.queen > h.levels.queen);
+  ok("sie zahlt mehr Gold", winGold("veryhard") > winGold("hard"));
+  const { readFileSync } = await import("node:fs");
+  const gs = readFileSync("src/app/ui/screens/GameScreen.jsx", "utf8");
+  ok("das Schnellspiel bietet sie an", gs.includes('{ value: "veryhard", label: t("diff.veryhard") }'));
+}
+
 process.exit(fail ? 1 : 0);

@@ -1277,7 +1277,7 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
           texture={boardTexture(match, profile)} ground={boardGround(match, profile)} artStyle={profile.pieceStyle === "svg" ? "svg" : klassikOptik ? "classic" : livery() === "carved" ? "carved" : "painted"} friendly={!!match?.friendly}
           pulse={classic ? 0.2 : match?.boss
             ? (match.boss.bossId && !match.boss.bossId.startsWith("pb_") ? 0.9 : 0.7)
-            : ({ easy: 0.25, normal: 0.4, hard: 0.6 }[(campaign && match?.node?.difficulty) || difficulty] ?? 0.4)} />
+            : ({ easy: 0.25, normal: 0.4, hard: 0.6, veryhard: 0.75 }[(campaign && match?.node?.difficulty) || difficulty] ?? 0.4)} />
         </div>
         {/* v0.50: die EIGENE Figur berichtet jetzt in der KAMPFLEISTE unter dem
             Brett (Figur gross, Talente als goldene Bubbles) - hier schwebt nur
@@ -1650,7 +1650,8 @@ export function QuickSetup({ profile, dispatch, t, onStart, initial = null }) {
         <div style={{ height: 12 }} />
         <FieldLabel>{t("game.difficulty")}</FieldLabel>
         <Segmented value={difficulty} onChange={setDifficulty}
-          options={[{ value: "easy", label: t("diff.easy") }, { value: "normal", label: t("diff.normal") }, { value: "hard", label: t("diff.hard") }]} />
+          options={[{ value: "easy", label: t("diff.easy") }, { value: "normal", label: t("diff.normal") }, { value: "hard", label: t("diff.hard") },
+            /* v1.48.0: die vierte Stufe */ { value: "veryhard", label: t("diff.veryhard") }]} />
       </>}
       {foe === "ai" && mode === "classic" && <>
         <div style={{ height: 12 }} />
