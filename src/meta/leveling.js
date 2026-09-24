@@ -13,6 +13,10 @@ import { maxStufe } from "../content/abilities.js";
    ERREICHT, sobald sie selbst geschafft ist oder von einer geschafften
    Station aus offensteht. */
 export function hpWach(profile) {
+  /* v1.55.0: die Lebenspunkte erwachen in Kapitel II. Ab Kapitel III sind
+     sie wach, gleich was im laufenden Kapitel schon geschafft ist (cleared
+     wird beim Kapitelwechsel geleert). */
+  if ((profile?.campaign?.league || 1) > 2) return true;
   const erledigt = profile?.campaign?.cleared || [];
   if (!erledigt.length) return false;          // vor dem ersten Sieg schlaeft alles
   const fertig = new Set(erledigt);
@@ -57,6 +61,11 @@ export function hpWach(profile) {
    seiner Stelle, der erste Sieg weckt ihn - und er bringt Sturmlauf mit. */
 export const GAMBIT_ERWACHT_AB = 1;
 export function gambitWach(profile) {
+  /* v1.55.0: campaign.cleared gilt nur fuer das LAUFENDE Kapitel und wird
+     beim Kapitelwechsel geleert. Der Gambit erwacht in Kapitel I - wer
+     weiter ist, hat ihn laengst geweckt. Vorher schlief er zu Beginn jedes
+     neuen Kapitels wieder ein. */
+  if ((profile?.campaign?.league || 1) > 1) return true;
   const erledigt = profile?.campaign?.cleared || [];
   return erledigt.length >= GAMBIT_ERWACHT_AB;
 }

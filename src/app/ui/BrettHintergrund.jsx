@@ -37,7 +37,11 @@ export function BrettHintergrund({ liga = 1, staerke = 1 }) {
   const [geladen, setGeladen] = useState(false);
   const quelle = useMemo(() => {
     const n = Math.min(12, Math.max(1, Math.round(liga || 1)));
-    return `/brett/${DATEI[n] || DATEI[1]}.webp`;
+    /* v1.55.0: RELATIV, nicht absolut ab der Wurzel. Seit die App unter /spielen/ wohnt
+       (v1.42.0), zeigte der absolute Pfad an die Wurzel - dort liegt nur das
+       Schaufenster, und alle Brett-Hintergruende fehlten im Spiel (Besitzer:
+       "die ganzen schoenen Hintergruende von den Spielfeldern fehlen alle"). */
+    return `./brett/${DATEI[n] || DATEI[1]}.webp`;
   }, [liga]);
 
   return (

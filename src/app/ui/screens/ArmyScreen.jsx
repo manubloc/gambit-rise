@@ -2194,7 +2194,12 @@ export function HofKachel({ img, name, dim, dark, action, glow, origin, onOpen, 
        unter Figur und Schrift liegt. overflow: hidden beschneidet es auf die
        runden Ecken. */
     <div onClick={onOpen ? () => { klang("menue"); onOpen(); } : undefined}
-      className={meister ? "gg-funkenkontur-innen" : undefined}   /* v1.27.1: laufende Kontur der Grossmeister */
+      /* v1.55.0 (Besitzer: "leuchtend gut, aber nicht animiert - sonst zu
+         viel, wenn die alle so glaenzen ... nicht, dass die ganze Zeit dieses
+         Leuchten im Kreis rennt, nicht in der Uebersicht der Karten"): die
+         Kontur der Kapitelmeister leuchtet, steht aber still. An anderen
+         Stellen (Damenplatz der Aufstellung) laeuft sie weiter. */
+      className={meister ? "gg-funkenkontur-innen gg-kontur-still" : undefined}
       style={{ position: "relative",
       isolation: "isolate", overflow: "hidden",
       // der leichte Riss-Verlauf der Menueleisten, eine Stufe stiller

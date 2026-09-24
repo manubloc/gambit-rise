@@ -217,7 +217,7 @@ export function sockelLinieEm(piece) {
   const fit = painting ? paintedFitFor(piece) : { h: 1, y: 0 };
   const kante = (painting && sockelKanteAusCache(painting)) || KANTE_FALLBACK;
   const fuss = (painting && fusslinieAusCache(painting)) ?? HAUSLINIE;
-  const ps = piece.bossId ? 1.14 : 0.99;               // pieceSize im HP-Gefecht
+  const ps = 0.99;   // pieceSize im HP-Gefecht - v1.55.0: Monster wie Figuren (vorher 1,14)
   /* v1.24.5c: die gemessene Anpassung liefert y in PROZENT der Figurenhoehe
      (rund 1,3 em), die Handtabelle in em - hier auf em gebracht, und ohne die
      alte Fusslinien-Korrektur, die im gemessenen Fall entfaellt. */
@@ -575,7 +575,12 @@ export function PieceGlyph({ piece, showLevel = true, pov = "w", artStyle = "pai
     : (tonung ? tonung + " " : "") + "drop-shadow(0 2px 3px rgba(0,0,0,.65))"
       + (SAUM_RUHIG ? " " + SAUM_RUHIG : "");
   // v0.71.1: klassische Figuren einen Hauch kleiner (Besitzer: "noch etwas zu gross")
-  const pieceSize = isBoss ? "1.14em" /* v0.71.12: Bosse stehen groesser - der Waechter war kaum zu erkennen */
+  /* v1.55.0 (Besitzer: "das Monster ist viel zu gross - das musst du richtig
+     skalieren"): Monster standen seit v0.71.12 pauschal auf 1,14 em. Jetzt
+     stehen sie so gross wie jede Figur - auf BEIDEN Seiten gleich, denn ein
+     Monster sieht fuer beide Spieler gleich aus (test_ui: "champion renders
+     identically to both sides"). Erkennbar bleibt es an seiner Gestalt. */
+  const pieceSize =
     /* v1.0.14 (Besitzer): KLASSIK WAECHST. 0.9em liess besonders den Bauern
        verloren auf seinem Feld stehen; der klassische Satz traegt keine
        Orben und keine Sterne, also darf er die Zelle fuellen. Der Bauer
@@ -591,7 +596,7 @@ export function PieceGlyph({ piece, showLevel = true, pov = "w", artStyle = "pai
        des Satzes und verlor gegen die hohen Figuren jedes Mal; jetzt steht
        er hoeher als sie. Die uebrigen gehen eine Spur zurueck, damit die
        Reihe nicht gedraengt wirkt. */
-    : klassisch ? (paintPiece.kind === "P" ? "1.46em" : "1.08em")
+    klassisch ? (paintPiece.kind === "P" ? "1.46em" : "1.08em")
     : hpMode && piece.maxHp > 0 ? "0.99em" : "1.0em";
 
   // Resolve the painting up-front (if any) so we can level its base width. The
@@ -974,7 +979,13 @@ export function PieceGlyph({ piece, showLevel = true, pov = "w", artStyle = "pai
             userSelect: "none", pointerEvents: "none" }} />
           {bandDa && (() => { const { leben, kraft } = rohrAnteile(piece);
             return <SockelBand paintedId={paintedIdOf(painting)} leben={werteAn ? leben : 0} kraft={werteAn ? kraft : 0}
-              schaden={blitzAnteil} grau={!werteAn} hell={!!white} ausrichtung="unten" id={`sbb-${piece.charId || piece.bossId || "x"}`} />; })()}
+              schaden={blitzAnteil} grau={!werteAn} hell={!!white} ausrichtung="unten"
+              /* v1.55.0: EINE KENNUNG JE FIGUR. Vorher teilten alle Figuren ohne
+                 charId die Kennung "sbb-x" - und doppelte Kennungen loest der
+                 Browser auf das ERSTE Vorkommen auf, die schwarze Figur oben.
+                 Alle weissen Figuren trugen darum das dunkle Band des Gegners;
+                 nur Monster (eigene Kennung) zeigten das richtige helle. */
+              id={`sbb-${piece.color || "n"}-${piece.id ?? piece.charId ?? piece.bossId ?? "x"}`} />; })()}
           {/* v1.0.66: DER SCHATTEN, AUS DEM SIE AUFSTEIGT. Ein schmaler
               schwarzer Schleier ueber den untersten Prozenten - er nimmt dem
               Fuss die Helligkeit, ohne die Glut zu senken. Im weissen Ton

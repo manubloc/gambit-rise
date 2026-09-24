@@ -331,6 +331,10 @@ export const GLOBAL_CSS = `
      Dieselbe laufende Kontur - aber INNEN: die Kachel schneidet mit
      overflow hidden alles ab, was ueber ihren Rand ragt, und die
      Knopffassung sitzt mit inset -1px genau dort. Sie waere unsichtbar. */
+  /* v1.55.0: dieselbe leuchtende Kontur, aber stehend - fuer die Kachel-
+     Uebersicht der Kapitelmeister */
+  .gg-kontur-still::after { animation: none !important;
+    background: linear-gradient(135deg, rgba(230,220,255,.9), rgba(167,139,250,.55) 35%, rgba(139,92,246,.35) 55%, rgba(230,220,255,.8)) !important; }
   .gg-funkenkontur-innen::after { content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1.5px;
     background: linear-gradient(90deg, transparent 0%, rgba(196,181,253,.15) 30%, rgba(230,220,255,.95) 46%,
       rgba(196,181,253,.6) 54%, rgba(139,92,246,.2) 70%, transparent 100%);

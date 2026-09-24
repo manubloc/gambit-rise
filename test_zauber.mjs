@@ -187,7 +187,7 @@ console.log("\n== Die Oberflaeche zeigt die Talente ==");
 {
   const { readFileSync } = await import("node:fs");
   const bv = readFileSync("src/app/ui/board/BoardView.jsx", "utf8");
-  ok("das Talentband existiert im Board", bv.includes('className="gg-talentband"'));
+  ok("die Talent-Zeile existiert im Board (v1.55.0: ruhige Auskunft statt Box)", bv.includes('data-talent-hinweis="1"'));
   /* v1.38.0 (Besitzer: "die Faehigkeiten stehen doppelt"): die Pillen sind
      fort - die Karten der KAMPFLEISTE tragen beides jetzt. */
   const kl2 = readFileSync("src/app/ui/KampfLeiste.jsx", "utf8");

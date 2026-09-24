@@ -152,7 +152,10 @@ await page.waitForTimeout(2800);
     };
     const eigene = felder().filter((d) => d.querySelector("img,svg") && d.getBoundingClientRect().top > innerHeight * 0.42);
     if (eigene.length) { eigene[Math.floor(eigene.length / 2)].click(); await new Promise((r) => setTimeout(r, 450)); }
-    const b = document.querySelector(".gg-talentband");
+    /* v1.55.0: die Talent-Zeile ist keine Box mehr (Klasse gg-talentband
+       fort), sondern eine ruhige Auskunft mit data-talent-hinweis. Gemessen
+       wird wie bisher: sie muss unter dem Brett erscheinen und anschliessen. */
+    const b = document.querySelector("[data-talent-hinweis]");
     if (!b) return { da: false };
     const r = b.getBoundingClientRect();
     const unten = Math.max(...felder().map((d) => d.getBoundingClientRect().bottom));

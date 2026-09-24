@@ -34,8 +34,8 @@ import { SPERR_ARTEN } from "../../core/rules/sperren.js";
    sie holt die Liste aus einer kleinen Beilage, die der Bau erzeugt. Kein
    Buendler sieht die Bilder je - weder Vite noch esbuild. */
 const VERZEICHNIS = "/schaukammer.json";
-const BESTAND = "/bildarchiv/bestand.json";
-const ZUORDNUNG = "/bildarchiv/zuordnung.json";
+const BESTAND = "./bildarchiv/bestand.json";
+const ZUORDNUNG = "./bildarchiv/zuordnung.json";
 /* v1.0.55: welche Bilder der Quelltext WIRKLICH importiert (baue-schaukammer). */
 const AKTIV = "/schaukammer-aktiv.json";
 
@@ -136,9 +136,9 @@ export function SchaukammerScreen() {
       kante: t ? t.kante : 0,
       mass: t ? t.mass : null,
       massSpiel: t ? t.massSpiel : null,
-      original: t ? "/bildarchiv/" + t.original : null,
+      original: t ? "./bildarchiv/" + t.original : null,
       originalVorschau: t
-        ? "/bildarchiv-klein/" + (/\.webp$/i.test(t.original) ? t.original : t.original + ".webp")
+        ? "./bildarchiv-klein/" + (/\.webp$/i.test(t.original) ? t.original : t.original + ".webp")
         : null,
     };
   }), [roh, zu, aktiv]);
@@ -240,7 +240,7 @@ export function SchaukammerScreen() {
     const karte = Object.fromEntries(ALLE.map((e) => [e.rel, e]));
     const zeilen = z.map(([r, a]) => {
       const e = karte[r];
-      return `${a}\t${r}\t${e && e.original ? e.original.replace("/bildarchiv/", "") : "KEIN ORIGINAL"}`;
+      return `${a}\t${r}\t${e && e.original ? e.original.replace("./bildarchiv/", "") : "KEIN ORIGINAL"}`;
     });
     const blob = new Blob(["art\tdatei\toriginal\n" + zeilen.join("\n") + "\n"], { type: "text/plain" });
     const a = document.createElement("a");
@@ -549,7 +549,7 @@ export function SchaukammerScreen() {
             <div style={{ fontSize: 13.5, fontWeight: 800, marginTop: 10 }}>{gross.titel}</div>
             <div className="gg-serif" style={{ fontSize: 11.5, color: T.dim, fontStyle: "italic" }}>
               {gross.gruppe} · {gross.rel}
-              {gross.original ? " ← " + gross.original.replace("/bildarchiv/", "") : ""}</div>
+              {gross.original ? " ← " + gross.original.replace("./bildarchiv/", "") : ""}</div>
             <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap", marginTop: 12 }}>
               <button onClick={() => laden(gross.quelle, gross.datei)} style={{ ...knopf(false), fontSize: 12.5 }}>
                 Spielfassung laden</button>

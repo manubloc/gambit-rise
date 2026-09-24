@@ -41,6 +41,12 @@ function reiheFuenfGeschafft(profile) {
      und nur vier Stationen; ohne freie Aufstellung koennte er sie nie aufs
      Brett stellen, und genau das soll er ja sehen. */
   if (profile?.gast) return true;
+  /* v1.55.0 (Besitzer: "der Slider bei Aufstellung kommt nicht, wenn ich
+     auf eine Figur klicke"): campaign.cleared gilt nur fuer das LAUFENDE
+     Kapitel und wird beim Wechsel geleert. Wer Kapitel I hinter sich hatte,
+     verlor die freie Reihe wieder - jeder Platz war gesperrt, der Slider kam
+     nie. Die fuenfte Reihe liegt in Kapitel I; ab Kapitel II ist sie frei. */
+  if ((profile?.campaign?.league || 1) > 1) return true;
   const erledigt = profile?.campaign?.cleared || [];
   return REIHE_FUENF.some((id) => erledigt.includes(id));
 }

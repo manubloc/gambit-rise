@@ -967,12 +967,14 @@ export function BoardView({ lang = "de", state, onMove, interactive, lastMove, m
            positioniert und wird deshalb nach ihr gemalt. Gemessen: die erste
            Zeile war dunkler als die zweite. position + zIndex heben die Leiste
            darueber. */
-        <div className="gg-talentband" style={{ position: "relative", zIndex: 2, padding: "11px 14px", marginTop: 8, borderRadius: 12,
-          fontSize: 13.5, fontWeight: 600, lineHeight: 1.45, textAlign: "center", color: "#f1ecff",
-          textShadow: "0 1px 2px rgba(0,0,0,.55)", letterSpacing: ".005em",
-          background: "linear-gradient(180deg, rgba(46,36,78,.96), rgba(26,20,46,.97))",
-          border: "1px solid rgba(167,139,250,.5)",
-          boxShadow: "0 2px 10px rgba(0,0,0,.45), inset 0 1px 0 rgba(196,181,253,.10)" }}>
+        /* v1.55.0 (Besitzer: "versuch bitte immer nur Buttons, die man
+           andruecken kann, so praesent zu machen - alles andere sind Infos,
+           die du eher zurueckhalten solltest"): die leuchtende Box mit Rahmen,
+           Verlauf und Schatten sah aus wie ein Knopf, war aber nur Auskunft.
+           Jetzt eine ruhige Zeile ohne Rahmen und ohne Grund. */
+        <div data-talent-hinweis="1" style={{ position: "relative", zIndex: 2, padding: "6px 10px", marginTop: 6,
+          fontSize: 12.5, fontWeight: 500, fontStyle: "italic", lineHeight: 1.45, textAlign: "center",
+          color: "rgba(226,218,246,.62)", textShadow: "0 1px 2px rgba(0,0,0,.6)" }}>
           {state.rules === "chess" && (selPiece.level || 1) <= 1
             ? "Klassisch — hier zählt nur Schach. Talente lernen die Figuren im Gambit-Modus."
             : "Diese Figur hat noch keine Talente — im Hofstaat lernt sie welche."}

@@ -96,7 +96,7 @@ export function KapitelIntro({ liga, titel, text, onWeiter }) {
       background: "#05040a", overflow: "hidden", display: "flex", flexDirection: "column",
       justifyContent: "flex-end" }}>
       {/* Das Land, vollflaechig und in langsamer Fahrt */}
-      <img ref={imgRef} src={`/kapitel/${datei}.webp`} alt="" onLoad={(e) => misst(e.target)}
+      <img ref={imgRef} src={`./kapitel/${datei}.webp`} alt="" onLoad={(e) => misst(e.target)}
         style={fahrt && fahrt.quer
           ? { position: "absolute", top: 0, left: 0, height: "100%", width: "auto", maxWidth: "none",
               opacity: da ? 1 : 0, transition: "opacity 1.2s ease",

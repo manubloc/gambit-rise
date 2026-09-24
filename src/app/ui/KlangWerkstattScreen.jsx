@@ -15,7 +15,7 @@ import { T } from "./theme.js";
    am besten gefaellt, und die frueheren waren im Spiel nicht mehr zu
    erreichen. Das Archiv wird NICHT eingebunden (26 MB), sondern beim Bau
    neben das Spiel gelegt; die Liste kommt zur Laufzeit. */
-const ARCHIV = "/klangarchiv/verzeichnis.json";
+const ARCHIV = "./klangarchiv/verzeichnis.json";
 
 
 // Reihenfolge und Woerter der Werkbank: erst das Brett (das man tausendmal
@@ -103,7 +103,7 @@ export function KlangWerkstattScreen() {
   const musik = (datei) => {
     const a = spieler.current; if (!a) return;
     if (laeuft === datei) { a.pause(); setLaeuft(null); return; }
-    a.src = "/klangarchiv/" + datei; a.volume = staerke * 0.85;
+    a.src = "./klangarchiv/" + datei; a.volume = staerke * 0.85;
     a.play().then(() => setLaeuft(datei)).catch(() => setLaeuft(null));
   };
   const gruppen = [];

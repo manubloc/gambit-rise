@@ -523,4 +523,26 @@ console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
   ok("das Schnellspiel bietet sie an", gs.includes('{ value: "veryhard", label: t("diff.veryhard") }'));
 }
 
+/* ── v1.55.0: FREIGABEN GELTEN UEBER DEN KAPITELWECHSEL HINAUS ──────────────
+   campaign.cleared wird beim Kapitelwechsel geleert. Die hintere Reihe (und
+   mit ihr der Slider der Aufstellung), der Gambit und die Lebenspunkte
+   duerfen deshalb nicht allein daran haengen. */
+{
+  const { darfReiheStellen } = await import("./src/meta/freigaben.js");
+  const { gambitWach, hpWach } = await import("./src/meta/leveling.js");
+  const frisch = (lg) => ({ campaign: { league: lg, cleared: [] } });
+  ok("Kapitel I frisch: Reihe zu, Gambit schlaeft, keine Lebenspunkte",
+    !darfReiheStellen(frisch(1)) && !gambitWach(frisch(1)) && !hpWach(frisch(1)));
+  ok("Kapitel II frisch: die hintere Reihe bleibt frei (sonst kommt der Slider nie)", darfReiheStellen(frisch(2)));
+  ok("Kapitel II frisch: der Gambit bleibt wach", gambitWach(frisch(2)));
+  ok("Kapitel III frisch: die Lebenspunkte bleiben wach", hpWach(frisch(3)));
+  const { readdirSync, readFileSync } = await import("node:fs");
+  const dateien = [];
+  const lauf = (d) => { for (const n of readdirSync(d, { withFileTypes: true })) {
+    const q = d + "/" + n.name; if (n.isDirectory()) lauf(q); else if (/\.(jsx?|mjs)$/.test(n.name)) dateien.push(q); } };
+  lauf("src");
+  const absolut = dateien.filter((f) => /["'`]\/(brett|kapitel|bildarchiv|bildarchiv-klein|klangarchiv)\//.test(readFileSync(f, "utf8")));
+  ok("die App laedt Brett, Kapitel und Archive RELATIV (sie wohnt unter /spielen/)", absolut.length === 0);
+}
+
 process.exit(fail ? 1 : 0);

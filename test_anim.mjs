@@ -233,10 +233,15 @@ console.log("\n== BRETTRAND: Sperren mittig, Band praesent, Summen nah (v1.2.3) 
      die Talente (Besitzer: "die Faehigkeiten stehen doppelt"). Geprueft wird
      jetzt die verbliebene Zeile und die Kartenreihe. */
   const kl3 = readFileSync("src/app/ui/KampfLeiste.jsx", "utf8");
-  ok("die verbliebene Zeile ist praesent (groessere Schrift, Kontur, Schatten)",
-    bv2.includes("fontSize: 13.5, fontWeight: 600") && bv2.includes("0 2px 10px rgba(0,0,0,.45)"));
-  ok("auch die leere Zeile traegt das volle Band",
-    bv2.includes("padding: \"11px 14px\", marginTop: 8, borderRadius: 12"));   /* v1.33.1: etwas mehr Luft (war 10px 12px) */
+  /* v1.55.0 (Besitzer, NEUE ENTSCHEIDUNG): "versuch bitte immer nur Buttons,
+     die man andruecken kann, so praesent zu machen - alles andere sind Infos,
+     die du eher zurueckhalten solltest." Die Zeile fuer eine Figur ohne
+     Talente war bewusst praesent (v1.2.3, v1.33.1); jetzt ist sie bewusst
+     ruhig: lesbar, aber ohne Band, Rahmen und Schatten. */
+  ok("die Talent-Zeile bleibt lesbar (12,5 px, Schatten fuer den Kontrast)",
+    bv2.includes('fontSize: 12.5, fontWeight: 500, fontStyle: "italic"') && bv2.includes('textShadow: "0 1px 2px rgba(0,0,0,.6)"'));
+  ok("... traegt aber kein Band mehr - sie ist Auskunft, kein Knopf",
+    !bv2.includes('padding: "11px 14px", marginTop: 8, borderRadius: 12') && bv2.includes('data-talent-hinweis="1"'));
   ok("die Karten sind gross und antippbar", kl3.includes("width: 66, minHeight: 78") && kl3.includes("onClick={onTap}"));
   const gs2 = readFileSync("src/app/ui/screens/GameScreen.jsx", "utf8");
   /* v1.40.0 (Besitzer: "der Hofwert ... minimal noch naeher ans Schachfeld"):
@@ -273,8 +278,11 @@ console.log("\n== KEIN GROESSENSPRUNG BEIM ZIEHEN (v1.4.9) ==");
     bootZeile.includes("left: `calc(50% - ${Math.round(bw / 2)}px)`") && !bootZeile.includes('translateX(-50%)'));
   const th2 = readFileSync("src/app/ui/theme.js", "utf8");
   const ar2 = readFileSync("src/app/ui/screens/ArmyScreen.jsx", "utf8");
-  ok("Grossmeister-Kacheln tragen die laufende Kontur (innen)",
-    th2.includes(".gg-funkenkontur-innen::after") && ar2.includes('className={meister ? "gg-funkenkontur-innen" : undefined}'));
+  /* v1.55.0 (Besitzer): "leuchtend gut, aber nicht animiert ... nicht in
+     der Uebersicht der Karten" - die Kontur leuchtet, steht aber still. */
+  ok("Grossmeister-Kacheln tragen die leuchtende Kontur - still",
+    th2.includes(".gg-funkenkontur-innen::after") && th2.includes(".gg-kontur-still::after { animation: none !important;")
+    && ar2.includes('className={meister ? "gg-funkenkontur-innen gg-kontur-still" : undefined}'));
 }
 
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);

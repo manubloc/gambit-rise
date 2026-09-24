@@ -1,5 +1,31 @@
 # Changelog - Gambit Rise
 
+## 1.55.0 - Slider und Brett-Hintergruende wieder da
+- FEHLER 1 (Besitzer: "der Slider bei Aufstellung kommt nicht, wenn ich auf
+  eine Figur klicke"): die hintere Reihe oeffnete sich, wenn eine Station
+  der fuenften Reihe von Kapitel I in campaign.cleared stand - aber cleared
+  gilt nur fuer das LAUFENDE Kapitel und wird beim Wechsel geleert. Wer
+  Kapitel I hinter sich hatte, verlor die freie Reihe wieder: jeder Platz
+  gesperrt, der Slider kam nie. Meine Proben liefen alle in Kapitel I.
+  DERSELBE DENKFEHLER zweimal mehr: der Gambit waere zu Beginn jedes neuen
+  Kapitels wieder eingeschlafen, ab Kapitel III auch die Lebenspunkte.
+  Alle drei stuetzen sich jetzt auf das Kapitel (Reihe und Gambit ab II,
+  Lebenspunkte ab III). Proben fuer jedes Kapitel.
+- FEHLER 2 (Besitzer: "die ganzen schoenen Hintergruende von den
+  Spielfeldern fehlen alle"): Brett, Kapitel-Einleitung und die Archive
+  luden mit absoluten Pfaden. Seit die App unter /spielen/ wohnt (v1.42.0)
+  suchten sie an der Wurzel. Jetzt relativ; unter /spielen/ geprueft: keine
+  fehlende Datei. Eine Probe verbietet absolute Pfade dorthin.
+- Die leuchtende Box "Diese Figur hat noch keine Talente" ist eine ruhige
+  Zeile ohne Rahmen und Grund (Besitzer: "nur Buttons praesent, Infos
+  zurueckhalten").
+- Die Kapitelmeister-Kacheln im Hofstaat leuchten, aber STILL - der Lichtlauf
+  ist dort aus, an anderen Stellen laeuft er weiter.
+- Monster stehen so gross wie die Figuren, auf beiden Seiten gleich.
+- LANDINGPAGE: dieselbe Wortmarke wie beim Anmelden, mit dem Blitz, statt des
+  Bildes; "Klassisches Schach" steht jetzt am Ende, vorn das Besondere der
+  Figuren; "Was dich erwartet" springt dorthin.
+
 ## 1.54.0 - Rise kleiner, rechts unten, mit Blitz
 - Besitzer: "das Rise nicht zeichnen beim Ladescreen, sondern so wie im
   Anmeldebereich - aber kleiner und nach rechts unten: wenn man das Gambit

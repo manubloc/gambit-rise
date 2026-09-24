@@ -938,10 +938,16 @@ console.log("\n== STURM UND GELEIT (v1.11.2) ==");
   const bv = readFileSync("src/app/ui/board/BoardView.jsx", "utf8");
   /* v1.38.0: es gibt nur noch EINE Leiste - die Zeile fuer eine Figur ohne
      Talente. Die gefuellte ist fort (die Kampfleiste traegt die Talente). */
-  const baender = bv.split('className="gg-talentband" style={{').slice(1).map((x) => x.slice(0, 60));
-  ok("die verbliebene Leiste liegt UEBER dem Brettschatten (position + zIndex)",
-    baender.length === 1 && baender.every((x) => x.includes('position: "relative", zIndex: 2')));
-  ok("... und die leere Leiste schreibt kraeftig und fast weiss", bv.includes('fontSize: 13.5, fontWeight: 600, lineHeight: 1.45, textAlign: "center", color: "#f1ecff"'));
+  /* v1.55.0 (Besitzer: "nur Buttons praesent, Infos zurueckhalten"): die
+     Zeile fuer eine Figur ohne Talente ist keine leuchtende Box mehr, sondern
+     eine ruhige Auskunft - kein Rahmen, kein Grund, gedaempfte Schrift. Sie
+     liegt weiter UEBER dem Brettschatten. */
+  const zeile = bv.split('<div data-talent-hinweis="1" style={{').slice(1).map((x) => x.slice(0, 400));
+  ok("die Talent-Zeile liegt UEBER dem Brettschatten (position + zIndex)",
+    zeile.length === 1 && zeile[0].includes('position: "relative", zIndex: 2'));
+  ok("... und ist eine ruhige Auskunft: kein Rahmen, kein Grund, gedaempfte Schrift",
+    !zeile[0].includes("border:") && !zeile[0].includes("background:") && zeile[0].includes('color: "rgba(226,218,246,.62)"')
+    && !bv.includes('className="gg-talentband"'));
   const gs = readFileSync("src/app/ui/screens/GameScreen.jsx", "utf8");
   ok("Zurueck und Aufgeben sind leise Knoepfe (kein Gluehen, gedaempfte Schrift)",
     (gs.match(/leiserKnopf\(/g) || []).length === 2 && gs.includes('const leiserKnopf = (extra) => pill({') && !gs.includes("boxShadow: `0 0 10px ${T.selGlow}` })}>\n            <span style={{ fontSize: 15"));
