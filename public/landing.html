@@ -95,6 +95,19 @@
     /* v1.53.0 (Besitzer): die Karten "eins zu eins wie im Hofstaat oder in
        der Aufstellung" - echte Aufnahmen aus dem Spiel, grauer Sockel (vor dem
        Erwachen der Lebenspunkte), mit Kulisse und Farbschleier der Figur. */
+    .zahlen { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin:16px 0 6px; }
+    .zahlen div { text-align:center; padding:10px 4px; border:1px solid rgba(167,139,250,.35); border-radius:12px;
+      background:rgba(20,14,34,.6); }
+    .zahlen b { display:block; font-size:24px; color:#e9d296; font-family:Georgia,serif; }
+    .zahlen span { font-size:12px; color:rgba(226,218,246,.7); }
+    .kartenreihe figure, .paar figure { margin:0; }
+    .kartenreihe figcaption, .paar figcaption { margin-top:8px; font-size:13.5px; line-height:1.45; color:rgba(226,218,246,.78); }
+    .einzelkarte { width:min(260px,70vw); height:auto; display:block; margin:0 auto; border-radius:14px; box-shadow:0 10px 30px rgba(0,0,0,.5); }
+    .faehig { list-style:none; padding:0; margin:14px 0 0; display:grid; gap:8px; }
+    .faehig li { font-size:14.5px; line-height:1.45; color:rgba(226,218,246,.85); }
+    .faehig b { color:#e9d296; } .faehig i { color:rgba(196,181,253,.8); font-style:normal; font-size:12.5px; margin-left:4px; }
+    .paar { display:grid; gap:22px; grid-template-columns:1fr; }
+    @media (min-width:880px){ .paar { grid-template-columns:1fr 1fr; } }
     .kachelreihe { display:grid; gap:12px; grid-template-columns:repeat(3,1fr); }
     @media (min-width:980px){ .kachelreihe { grid-template-columns:repeat(6,1fr); } }
     .kachelreihe img, .kartenreihe img { width:100%; height:auto; display:block; border-radius:12px;
@@ -205,14 +218,20 @@
   <div class="hof zwei">
     <div style="order:2">
       <div class="stich sans" style="color:var(--riss)">Das Besondere</div>
-      <h2 style="text-align:left">Gefechte mit Leben, Stufen und Fähigkeiten</h2>
-      <p class="fliess">Im RPG-Modus tragen Figuren <b>Lebenspunkte und Angriffswerte</b> — geschlagen wird
-        nicht in einem Zug, sondern erkämpft. Deine Helden <b>steigen auf</b>, lernen Talente wie Sturmschritt,
-        Teleport oder den Flug des Drachen, und aus dem Riss treten <b>25 Bestien</b>, die eigenen Regeln folgen.</p>
+      <h2 style="text-align:left">Ein Schach-Rollenspiel</h2>
+      <p class="fliess">Deine Figuren haben <b>Lebenspunkte und Angriffswerte</b>, sie <b>steigen auf</b> und
+        <b>lernen Fähigkeiten</b>. Geschlagen wird nicht in einem Zug, sondern erkämpft — und aus dem Riss
+        treten Bestien, die eigenen Regeln folgen.</p>
+      <div class="zahlen sans" aria-label="Das Spiel in Zahlen">
+        <div><b>27</b><span>Figuren</span></div>
+        <div><b>25</b><span>Monster</span></div>
+        <div><b>32</b><span>Fähigkeiten</span></div>
+        <div><b>12</b><span>Kapitel</span></div>
+      </div>
       <ul class="haken violett sans">
-        <li>27 rekrutierbare Helden vom Bauern bis zur Amazone — jeder mit eigener Kunst und Zugbild</li>
-        <li>Tränke, Zeitriss und Ausrüstung, wenn es eng wird</li>
-        <li>Die Kampfleiste zeigt jede Fähigkeit — auch die des Gegners, sobald er sie offenbart</li>
+        <li>Jede Figur mit eigener Kunst, eigenem Zugbild und eigener Fähigkeitenleiter</li>
+        <li>12 Kapitelmeister und 13 Monster, die du besiegen — und für dein Heer gewinnen — kannst</li>
+        <li>Tränke, Zeitenwender, Mauern und Schlüssel beim Händler</li>
       </ul>
     </div>
     <div style="order:1" class="kachelreihe" aria-label="Figuren und Bestien aus dem Spiel">
@@ -229,16 +248,42 @@
 <section id="chronik">
   <div class="hof">
     <div class="stich sans" style="text-align:center">Aus der Chronik</div>
-    <h2>Jede Figur hat ihr Blatt</h2>
-    <p class="h2u sans">Jeder Held und jede Bestie hat eine eigene Karte: Stufe, Zugbild, Fähigkeiten.
-      Vier Kostproben —</p>
-    <div class="kartenreihe" aria-label="Karten aus der Aufstellung">
-      <img src="/landing/auf-springer.webp" alt="Der Springer mit Zugbild und Fähigkeiten" loading="lazy" />
-      <img src="/landing/auf-laeufer.webp" alt="Der Läufer mit Zugbild und Fähigkeiten" loading="lazy" />
-      <img src="/landing/auf-amazone.webp" alt="Die Amazone - Dame und Springer zugleich" loading="lazy" />
-      <img src="/landing/auf-magier.webp" alt="Der Magier mit Zugbild und Fähigkeiten" loading="lazy" />
+    <h2>Neue Figuren, neue Züge</h2>
+    <p class="h2u sans">Neben den sechs klassischen Figuren warten Helden, die ziehen, wie es im Schach
+      keine darf. Vier davon —</p>
+    <div class="kartenreihe" aria-label="Figuren mit neuen Zugmustern">
+      <figure><img src="/landing/auf-kapitaen.webp" alt="Der Kapitän" loading="lazy" />
+        <figcaption class="sans"><b>Kapitän</b> — gleitet bis zu drei Felder gerade und springt ein Feld schräg.</figcaption></figure>
+      <figure><img src="/landing/auf-kanzler.webp" alt="Der Kanzler" loading="lazy" />
+        <figcaption class="sans"><b>Kanzler</b> — Turm und Springer in einer Figur.</figcaption></figure>
+      <figure><img src="/landing/auf-amazone.webp" alt="Die Amazone" loading="lazy" />
+        <figcaption class="sans"><b>Amazone</b> — Dame und Springer zugleich.</figcaption></figure>
+      <figure><img src="/landing/auf-drache.webp" alt="Der Drache" loading="lazy" />
+        <figcaption class="sans"><b>Drache</b> — ein Körper aus vier Feldern, der als Block zieht.</figcaption></figure>
     </div>
-    <p class="unterzeile sans">Genau so im Spiel: Stufe, Zugbild und die Fähigkeiten, die eine Figur lernen kann.</p>
+    <p class="unterzeile sans">Die Karten sind echt aus dem Spiel: Stufe, Zugbild und die Fähigkeiten, die eine Figur lernen kann.</p>
+  </div>
+</section>
+
+<section class="abgesetzt" id="faehigkeiten">
+  <div class="hof zwei">
+    <div><img class="einzelkarte" src="/landing/auf-springer6.webp" alt="Der Springer mit seinen Fähigkeiten" loading="lazy" /></div>
+    <div>
+      <div class="stich sans">Fähigkeiten</div>
+      <h2 style="text-align:left">Auch der Springer lernt dazu</h2>
+      <p class="fliess">Selbst die klassischen Figuren wachsen. Mit jeder Stufe schalten sie Fähigkeiten frei,
+        die ihre Züge verändern — oder einmal im Gefecht das Blatt wenden.</p>
+      <ul class="faehig sans">
+        <li><b>Weitsprung</b> <i>Springer</i> — zusätzliche, weitere Springersprünge.</li>
+        <li><b>Vorreiter</b> <i>Springer</i> — zusätzliche schräge Weitsprünge.</li>
+        <li><b>Sturmlauf</b> <i>Bauer</i> — mehrere Felder auf einmal geradeaus.</li>
+        <li><b>Sturmschritt</b> <i>Turm</i> — darf zusätzlich ein Feld schräg ziehen.</li>
+        <li><b>Scharfschuss</b> <i>Amazone, Kapitän</i> — trifft einmal aus der Ferne, ohne den Platz zu verlassen.</li>
+        <li><b>Blinzeln</b> — teleportiert einmal auf ein freies Feld in der Nähe.</li>
+        <li><b>Fliegen</b> <i>Drache</i> — springt einmal je Partie als ganzer Block.</li>
+        <li><b>Blenden</b> und <b>Schrecken</b> <i>Monster</i> — Gegner ringsum setzen aus, ein Feld wird unbetretbar.</li>
+      </ul>
+    </div>
   </div>
 </section>
 
@@ -247,9 +292,28 @@
     <div class="stich sans" style="text-align:center">Mehr als klassisches Schach</div>
     <h2>Stell dein eigenes Heer auf</h2>
     <p class="h2u sans">Kapitän statt Turm, Späher statt Springer, eine Bestie aus dem Riss auf dem freien Platz —
-      jede Partie beginnt mit deiner Aufstellung.</p>
+      jede Partie beginnt mit deiner Aufstellung. Besiegte Monster lassen sich mit Gold und einem Opfer aus
+      deinem Hofstaat <b>anwerben</b>, und wer ein Kapitel gewinnt, holt dessen <b>Meister</b> an den Platz der Dame.</p>
     <div class="bildrahmen"><img src="/landing/gefecht-gemischt.webp"
       alt="Ein Gefecht in Gambit Rise: die eigene Reihe mit Kapitän, Späher, Magier, Dame, König, Paladin, dem Wächter und einem Turm" loading="lazy" /></div>
+  </div>
+</section>
+
+<section id="haendler">
+  <div class="hof">
+    <div class="stich sans" style="text-align:center">Händler &amp; Mauern</div>
+    <h2>Rüste dich für den nächsten Kampf</h2>
+    <p class="h2u sans">Beim Krämer gibt es, was im Gefecht den Unterschied macht — und vor jedem Gefecht
+      darfst du Mauern auf deine dritte oder vierte Reihe setzen.</p>
+    <div class="paar">
+      <figure><div class="bildrahmen"><img src="/landing/haendler.webp" alt="Corvo, der Krämer, mit seinen Waren" loading="lazy" /></div>
+        <figcaption class="sans"><b>Lebenstrank</b> heilt eine Figur, der <b>Zeitenwender</b> nimmt deinen letzten Zug
+          zurück, der <b>Vergessenstrank</b> verteilt die Fähigkeiten einer Figur neu. Dazu Schlüssel und Werkzeug
+          für verborgene Wege der Karte.</figcaption></figure>
+      <figure><div class="bildrahmen"><img src="/landing/mauern.webp" alt="Ein Brett mit einer Mauer und einem Bollwerk vor dem Gefecht" loading="lazy" /></div>
+        <figcaption class="sans"><b>Zaun</b>, <b>Mauer</b> und <b>Bollwerk</b> halten einen, zwei oder drei Schläge.
+          Höchstens zwei je Gefecht — wohin, entscheidest du.</figcaption></figure>
+    </div>
   </div>
 </section>
 

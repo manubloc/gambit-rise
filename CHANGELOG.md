@@ -1,5 +1,25 @@
 # Changelog - Gambit Rise
 
+## 1.58.0 - die Landingpage zeigt die Tiefe des Rollenspiels
+- Besitzer: "ganz brutal auf dieses Roleplaying-Game gehen ... die Figuren in
+  der Anzahl nennen, wie viele Monster ... Monster bestechen, eigenes Heer
+  aufbauen ... ein paar Faehigkeiten skizzieren ... Figuren mit neuen
+  Bewegungsmustern ... Faehigkeiten von Standardfiguren wie dem Pferd ... den
+  Haendler mit zwei, drei Gegenstaenden ... wie es mit den Mauern aussieht."
+- ALLE ZAHLEN UND TEXTE AUS DEM SPIELINHALT, nicht aus dem Gedaechtnis:
+  27 Figuren, 25 Monster (12 Kapitelmeister, 13 gewoehnliche), 32 Faehig-
+  keiten, 12 Kapitel; Zugregeln aus moveSpec, Faehigkeiten aus abilities,
+  Waren aus items, Anwerben aus dem Hofstaat (Gold plus ein Opfer).
+- "Ein Schach-Rollenspiel" mit Zahlenleiste.
+- "Neue Figuren, neue Zuege": Kapitaen, Kanzler, Amazone, Drache - echte
+  Aufstellungskarten, je mit einem Satz zur Gangart.
+- NEU "Auch der Springer lernt dazu": die Springerkarte (Stufe 6) und acht
+  Faehigkeiten in einem Satz (Weitsprung, Vorreiter, Sturmlauf, Sturmschritt,
+  Scharfschuss, Blinzeln, Fliegen, Blenden/Schrecken).
+- "Stell dein eigenes Heer auf": Monster anwerben, Kapitelmeister erobern.
+- NEU "Haendler & Mauern": Corvo der Kraemer mit Waren und Preisen, und ein
+  Brett in der Setzphase mit Mauer und Bollwerk - beides echte Aufnahmen.
+
 ## 1.57.0 - der Gambit faellt als Gambit
 - Besitzerbefund: faellt der Gambit, wurde er kurz vor dem Abraeumen als
   gewoehnlicher Bauer dargestellt. URSACHE: der fallende Geist wurde nur aus
