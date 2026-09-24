@@ -3,7 +3,7 @@
 Nach jeder Fassung hier nachführen: erledigte Punkte streichen, neue Besitzerwünsche eintragen.
 
 ## Spiel
-4. **Aufstellungskarte mit Slider** (die vierte Schwierigkeit „sehr schwer" ist seit v1.48.0 da).
+4. **Aufstellungskarte mit Slider** — Besitzer 17.9.: „für die Aufstellung mit dem Slider brauchen wir so eine Art Kartendesign … erst einen Vorschlag, bevor du irgendwas machst, basierend auf dem, wie es aktuell grob umgesetzt ist, aber mit dem neuen Design." Vorschlag liegt vor: design/vorschlag-aufstellungskarten-2026-09-23.png — wartet auf Freigabe. (Die vierte Schwierigkeit „sehr schwer" ist seit v1.48.0 da.)
 5. ~~Fremde Monster: Leiter schreibgeschützt~~ — erledigt v1.50.0.
 6. ~~Dunkles Stationsfenster~~ — erledigt v1.49.0.
 7. **Freistellung einzelner Monsterbilder** (u. a. boss-b22, boss-b25, boss-b14) — der Besitzer nennt Nummern aus `/mnt/user-data/outputs/fal-originale.html`.
