@@ -1,5 +1,16 @@
 # Changelog - Gambit Rise
 
+## 1.50.0 - fremde Monster zeigen ihre Leiter
+- Offener Besitzerpunkt "schreibgeschuetzte Leiter bei fremden Monstern":
+  ein Monster, das einem nicht gehoert, zeigte seit v1.26.7 nur seine Buehne -
+  wer wissen wollte, was es lernen kann, sah nichts.
+- Der Aufstiegsplan - dasselbe Bauteil fuer Figuren und Monster - kennt jetzt
+  einen Nur-Lesen-Modus: ALLE Sprossen sichtbar, auch die sonst verhuellten,
+  aber kein Erlernen, kein Aufstufen, kein Vergessen. Eine Zeile sagt warum:
+  "Was es lernen kann - erst, wenn es dir dient."
+- Im Browser geprueft am Waechter: Steinhaut, Schrecken, Widerhall stehen da,
+  kein Erlernen-Knopf.
+
 ## 1.49.0 - das Stationsfenster ist dunkel
 - Offener Besitzerpunkt "dunkles Stationsfenster": das Fenster einer Station
   auf der Kapitelkarte war helles Pergament - das einzige helle Blatt in

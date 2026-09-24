@@ -347,17 +347,24 @@ function BlattBuehne({ kennung, name, haus, satz, portraet, pid, ton, kul, form,
    Monster ("X:b01" - dieselbe Schreibweise, unter der das Spiel seinen Rang
    fuehrt). Zusammen mit BlattBuehne sind damit beide Fenster aus denselben
    zwei Teilen gebaut. */
+/* v1.50.0 (offener Besitzerpunkt "schreibgeschuetzte Leiter bei fremden
+   Monstern"): mit `nurLesen` zeigt der Plan ALLE Sprossen - auch die sonst
+   verhuellten -, aber ohne Erlernen, Aufstufen und Vergessen. So sieht man
+   bei einem Monster, das einem nicht gehoert, was es lernen kann, statt nur
+   seine Buehne. */
 function Aufstiegsplan({ schluessel, kind, rungs, level, chosen, profile, en, t, dispatch, setFeier, bild,
-  frisch = null, glanz = 0 }) {
+  frisch = null, glanz = 0, nurLesen = false }) {
   const [openAb, setOpenAb] = useState(null);
       const future = rungs.filter((rg) => level < rg.level);
   return <div style={{ display: "flex", flexDirection: "column", gap: 7, marginTop: 12 }}>
     <div className="gg-serif" style={{ fontSize: 10, letterSpacing: ".14em", color: "#c9b26a", marginBottom: 1 }}>
       {(en ? "Abilities" : "Fähigkeiten").toUpperCase()}</div>
+    {nurLesen && <div style={{ fontSize: 11.5, lineHeight: 1.45, color: "#a9a28a", marginTop: -3, marginBottom: 2 }}>
+      {en ? "What it can learn — only once it serves you." : "Was es lernen kann — erst, wenn es dir dient."}</div>}
     {rungs.map((rg) => {
       const owned = chosen.includes(rg.id);
       const reach = level >= rg.level;
-      if (!reach && future.indexOf(rg) >= 2) return (
+      if (!nurLesen && !reach && future.indexOf(rg) >= 2) return (
         <div key={rg.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "9px 11px",
           borderRadius: 11, border: `1px dashed ${T.line}`, background: "rgba(10, 14, 26, .4)", color: "#a9a28a", fontSize: 12 }}>
           <LockIc size={12} />
@@ -378,7 +385,7 @@ function Aufstiegsplan({ schluessel, kind, rungs, level, chosen, profile, en, t,
       const tg = TAGS[ab.tag] || { color: T.gold, nameDe: "Talent", nameEn: "Talent" };
       const price = abilityCost(rg.level);
       const cost = 0; // energy is gone — talents are once-per-game now
-      const can = reach && !owned && canUnlockAbility(profile, schluessel, rg.id);
+      const can = !nurLesen && reach && !owned && canUnlockAbility(profile, schluessel, rg.id);
       /* v1.0.70: die eben erwachte Sprosse pulst dreimal - key=glanz
          startet den Puls je Stufenkauf genau einmal neu. */
       const eben = rg.level === frisch;
@@ -399,7 +406,7 @@ function Aufstiegsplan({ schluessel, kind, rungs, level, chosen, profile, en, t,
           {(CHARACTERS[schluessel]?.ladder || []).some((e) => e.ability === rg.id && e.geschenkt)
             && <span style={{ color: "#8a856f" }}> · {en ? "gift of the awakening" : "Geschenk des Erwachens"}</span>}</span>
         <span style={{ flex: 1 }} />
-        {stNext && (stKann
+        {stNext && !nurLesen && (stKann
           ? <button onClick={() => { klang("stufe"); dispatch({ type: "UPGRADE_ABILITY", id: schluessel, ability: rg.id }); }}
               className="gg-funkenkontur" style={{ padding: "5px 10px", borderRadius: 8, fontFamily: "inherit", fontWeight: 800,
                 fontSize: 11.5, cursor: "pointer", color: T.riftBright, border: `1px solid ${T.riftLine}`,
@@ -412,7 +419,7 @@ function Aufstiegsplan({ schluessel, kind, rungs, level, chosen, profile, en, t,
         <AbilityAccordion ab={{ ...ab, _lvl: rg.level }} charId={schluessel} tg={tg} price={price} cost={cost}
         owned={owned} reach={reach} can={can} kind={kind} en={en} sperre={zustand === "wirkt" ? null : zustand}
         open={openAb === rg.id} onToggle={() => setOpenAb(openAb === rg.id ? null : rg.id)}
-        onBuy={() => { klang("frei");
+        onBuy={nurLesen ? null : () => { klang("frei");
           dispatch({ type: "UNLOCK_ABILITY", id: schluessel, ability: rg.id });
           /* v1.0.75 (Besitzer: "megawichtig, dass Du mir zeigst, was die
              Faehigkeit dann ist"): die frisch gekaufte Faehigkeit erklaert
@@ -423,7 +430,7 @@ function Aufstiegsplan({ schluessel, kind, rungs, level, chosen, profile, en, t,
             desc: faehigkeitsText(ab, schluessel, en), once: ab.once } });
         }} />{stufenZeile}</div>;
     })}
-    {chosen.length > 0 && (() => {
+    {!nurLesen && chosen.length > 0 && (() => {
       /* v1.0.11 (Besitzer): Vergessen kostet einen VERGESSENSTRANK aus
          dem Lager (steigender Preis beim Händler), keine Goldgebühr mehr. */
       const trank = profile.items?.vergessenstrank || 0;
@@ -2775,7 +2782,11 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
                   level={bossLevelOf(profile, b.id)} chosen={chosenAbilities(profile, "X:" + b.id)}
                   profile={profile} en={en} t={t} dispatch={dispatch} setFeier={null}
                   bild={img} />
-              : null}
+              /* v1.50.0: das fremde Monster zeigt seine Leiter - nur zum Ansehen */
+              : <Aufstiegsplan schluessel={"X:" + b.id} kind={null} nurLesen
+                  rungs={(b.ladder || []).map((r) => ({ level: r.level, id: r.ability }))}
+                  level={0} chosen={[]} profile={profile} en={en} t={t} dispatch={dispatch} setFeier={null}
+                  bild={img} />}
           </div>
         </div>
       </div>;

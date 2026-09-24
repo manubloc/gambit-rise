@@ -4,7 +4,7 @@ Nach jeder Fassung hier nachführen: erledigte Punkte streichen, neue Besitzerw�
 
 ## Spiel
 4. **Aufstellungskarte mit Slider** (die vierte Schwierigkeit „sehr schwer" ist seit v1.48.0 da).
-5. **Fremde Monster:** ihre Leiter schreibgeschützt anzeigen statt nur der Bühne.
+5. ~~Fremde Monster: Leiter schreibgeschützt~~ — erledigt v1.50.0.
 6. ~~Dunkles Stationsfenster~~ — erledigt v1.49.0.
 7. **Freistellung einzelner Monsterbilder** (u. a. boss-b22, boss-b25, boss-b14) — der Besitzer nennt Nummern aus `/mnt/user-data/outputs/fal-originale.html`.
 8. **Bezahlschranke:** gratis bis Kapitel III (Entscheid 22.9.), im Code noch nicht gebaut.

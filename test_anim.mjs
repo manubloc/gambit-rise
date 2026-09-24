@@ -290,4 +290,19 @@ console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
     !/color: "#8a6f4d"|color: "#6b5c44"|: "#8e2f39"/.test(c));
 }
 
+/* ── v1.50.0: FREMDE MONSTER ZEIGEN IHRE LEITER - NUR ZUM ANSEHEN ────────── */
+{
+  const { readFileSync } = await import("node:fs");
+  const a = readFileSync("src/app/ui/screens/ArmyScreen.jsx", "utf8");
+  ok("der Aufstiegsplan kennt einen Nur-Lesen-Modus", a.includes("frisch = null, glanz = 0, nurLesen = false }) {"));
+  ok("... darin kann nichts erlernt werden", a.includes("const can = !nurLesen && reach && !owned")
+    && a.includes("onBuy={nurLesen ? null : () =>"));
+  ok("... nichts aufgestuft und nichts vergessen", a.includes("{stNext && !nurLesen && (stKann")
+    && a.includes("{!nurLesen && chosen.length > 0 && (() => {"));
+  ok("... und nichts verhuellt - man sieht alles, was es lernen kann",
+    a.includes("if (!nurLesen && !reach && future.indexOf(rg) >= 2) return ("));
+  ok("das fremde Monster ruft den Plan im Nur-Lesen-Modus", /: <Aufstiegsplan schluessel=\{"X:" \+ b\.id\} kind=\{null\} nurLesen/.test(a));
+  ok("eine Zeile sagt, warum man nichts lernen kann", a.includes("erst, wenn es dir dient."));
+}
+
 process.exit(fail ? 1 : 0);
