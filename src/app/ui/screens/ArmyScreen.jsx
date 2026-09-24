@@ -1673,45 +1673,43 @@ function FormationEditor({ profile, dispatch, t, en }) {
             const talente = (c.ladder || [])
               .map((stufe) => stufe.ability && ABILITIES[stufe.ability])
               .filter(Boolean).slice(0, 4);
+            /* ── v1.51.0 (Besitzer 23.9.): DIE KARTE DES HOFSTAATS ──────────────
+               "nimm einfach die Karten, die wir unter den Figuren im Hofstaat
+               haben, mit dem Hintergrund, mit komplett diesen Designs, aber
+               unten drunter diese Liste, wie die Zuege sind, und darunter noch
+               die Faehigkeiten ... die Karte muss laenglicher werden."
+               Hier steht jetzt DIESELBE Kachel (HofKachel) - Kulisse, Farb-
+               schleier, Eckverzierung, Stufenabzeichen, Lebensrohr -, und
+               unter dem Namen das Zugbild und die Faehigkeiten aus der Leiter.
+               Die gewaehlte Karte traegt einen goldenen Rand statt der alten
+               vollflaechig gelben Flaeche. */
+            const lvC = characterLevel(profile, c.id) || 1;
+            const bildC = paintedForPiece({ kind: c.kind, color: "w", hero: c.id === "gambit", level: lvC });
+            const alle = (c.ladder || []).map((st) => st.ability).filter((id) => id && ABILITIES[id]);
+            const zeigen = alle.slice(0, AUFST_TALENT_MAX);
+            const mehr = alle.length - zeigen.length;
             return <button key={c.id} onClick={() => setSlot(pick, c.id)}
-              style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
-                padding: "9px 8px 10px", borderRadius: 13, cursor: "pointer", fontFamily: "inherit",
-                /* v1.2.1 (Besitzer: "mach es so, dass schon alles von der Karte
-                   drauf passt, und skaliere die Karte einfach entsprechend
-                   Bildschirmgroesse"): die Karte waechst mit dem Schirm
-                   (30 % der Breite, zwischen 118 und 150 px) und ist so hoch,
-                   dass Bild, Name, Gangart und Talente ZUSAMMEN hineinpassen -
-                   vorher schnitt die Reihe die Gangart unten ab. */
-                flex: "0 0 auto", width: "clamp(118px, 30vw, 150px)", scrollSnapAlign: "center", textAlign: "center",
-                background: on ? T.lime : T.panel2, color: on ? T.limeInk : T.text,
-                border: `1.5px solid ${on ? T.lime : T.line}`,
-                boxShadow: on ? `0 0 12px ${T.lime}55` : "none" }}>
-              <SlotGlyph kind={c.kind} size={"clamp(64px, 17vw, 88px)"} art={"painted"} />
-              <span style={{ display: "block", fontWeight: 800, fontSize: 13.5, lineHeight: 1.15 }}>{en ? c.nameEn : c.nameDe}</span>
-              {/* v1.1.17 (Besitzer: "du musst wie bei der Chronik, wie die Zuege
-                  dargestellt werden, das auch noch bei den Figuren reinbringen -
-                  sonst weiss man ja nicht, wie wo was"): DIE GANGART STEHT IN
-                  DER KARTE. Man waehlt hier eine Figur fuer seine Hinterreihe;
-                  ohne ihr Zugbild waehlt man nach Aussehen. Dasselbe Diagramm
-                  wie in der Chronik, nur klein (96 px). */}
-              <span style={{ display: "block", marginTop: 1, opacity: on ? 1 : 0.92 }}>
-                <MoveDiagram kind={c.kind} moveSpec={c.moveSpec} breite={"clamp(74px, 20vw, 96px)"} />
-              </span>
-              {talente.length > 0 && (
-                <span style={{ display: "flex", gap: 3, flexWrap: "wrap", justifyContent: "center", marginTop: 1 }}>
-                  {talente.map((ab) => {
-                    const tg = TAGS[ab.tag];
-                    return <span key={ab.id} title={en ? ab.nameEn : ab.nameDe}
-                      style={{ fontSize: 10, lineHeight: 1, padding: "3px 5px", borderRadius: 6,
-                        background: tg ? tg.color + "2e" : "rgba(167,139,250,.18)",
-                        border: `1px solid ${tg ? tg.color + "88" : "rgba(167,139,250,.5)"}`,
-                        color: on ? T.limeInk : T.text }}>{ab.icon}</span>;
-                  })}
-                </span>
-              )}
-              {/* v1.2.1: der Spruch ist fort - er kostete zwei Zeilen und
-                  verdraengte die Gangart aus der Karte. Er steht vollstaendig
-                  in der Chronik, wo man ihn liest, statt beim Aufstellen. */}
+              style={{ flex: "0 0 auto", width: "clamp(124px, 32vw, 156px)", scrollSnapAlign: "center",
+                padding: 0, border: "none", background: "none", cursor: "pointer", fontFamily: "inherit", textAlign: "center" }}>
+              <HofKachel img={bildC} artId={c.id} kind={c.kind} hero={c.id === "gambit"} lvl={lvC}
+                stufe={lvC} werte={kachelWerteFuer(profile, c.id)} name={en ? c.nameEn : c.nameDe}
+                /* im Hofstaat tragen alle eigenen Karten den Goldrand - hier
+                   leuchtet NUR die gewaehlte, damit man sie sofort findet */
+                glow={on} gewaehlt={on} talente={[]}
+                unten={<div data-aufst-unten="1" style={{ marginTop: 7 }}>
+                  <div style={{ display: "flex", justifyContent: "center" }}>
+                    <MoveDiagram kind={c.kind} moveSpec={c.moveSpec} breite={"clamp(78px, 21vw, 100px)"} />
+                  </div>
+                  {zeigen.length > 0 && <div style={{ display: "flex", justifyContent: "center", gap: 3, marginTop: 7 }}>
+                    {zeigen.map((id) => <span key={id} data-aufst-talent={id} title={en ? ABILITIES[id].nameEn : ABILITIES[id].nameDe}
+                      style={{ width: 19, height: 19, display: "grid", placeItems: "center", borderRadius: 6,
+                        background: "rgba(12,8,22,.78)", border: "1px solid rgba(233,207,138,.45)" }}>
+                      <AbilityIcon id={id} size={14} /></span>)}
+                    {mehr > 0 && <span data-aufst-mehr={mehr} style={{ minWidth: 19, height: 19, padding: "0 4px", display: "grid", placeItems: "center",
+                      borderRadius: 6, background: "rgba(12,8,22,.78)", border: "1px solid rgba(233,207,138,.3)",
+                      font: "700 9.5px/1 Georgia, serif", color: "#e9cf8a" }}>+{mehr}</span>}
+                  </div>}
+                </div>} />
             </button>;
           })}
         </div>
@@ -2108,106 +2106,9 @@ const FAM_LABEL = { golem: ["Golems","Golems"], beast: ["Bestien","Beasts"], ser
 // figure paintings preload once per session, so the muster grid shows tiles
 // and figures TOGETHER instead of empty tiles that fill in a moment later
 let codexArtReady = false;
-function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
-  // Werkbank-Durchblick: der Admin sieht jedes Monster und kann jede Kachel
-  // oeffnen - Spieler sehen weiter nur, was sie erlebt haben.
-  const isAdmin = !!account?.isAdmin;
-  const met = new Set(isAdmin ? BOSSES.map((b) => "X:" + b.id) : (profile.codex?.met || []));
-  const unlocked = new Set(profile.campaign?.unlocked || []);
-  const league = profile.campaign?.league || 1;
-  const gold = profile.gold || 0;
-  // monsters currently prowling THIS league's road (rotations included)
-  const sighted = useMemo(() => {
-    const set = new Set();
-    for (const n of CAMPAIGN) {
-      const st = nodeStatus(profile, n.id);
-      if (st === "locked" || st === "hidden") continue; // beyond the fog: never glimpsed
-      const b = effectiveNodeBoss(n, league);
-      if (b?.pure) set.add(b.pure);
-    }
-    return set;
-  }, [profile, league]);
-  const bribePrice = (ch) => Math.max(250, Math.round((ch.costValue || 320) * 0.9));
-  // ── monster bribery: SOME monsters take gold — but only a lot of it, and
-  // only sealed with the SACRIFICE of a recruited crown piece. Tyrants and
-  // the two named finals are beyond corruption. ──
-  const MONSTER_BRIBE_GOLD = 1800;
-  const [sacrificeFor, setSacrificeFor] = useState(null); // bossId awaiting a crown sacrifice
-  // preload every painting shown in the grid, then reveal tiles + figures at once
-  const [artReady, setArtReady] = useState(codexArtReady);
-  useEffect(() => {
-    if (codexArtReady) return;
-    const urls = new Set();
-    const push = (u) => { if (u) urls.add(u); };
-    for (const cid of [...COURT_IDS, ...CROWN_IDS, ...SHADOW_IDS]) {
-      const ch = CHARACTERS[cid];
-      /* v1.0.84: alle SECHS Raenge vorladen, sonst blitzt beim Aufstieg ein
-         leeres Bild auf, bis die Datei geholt ist. */
-      if (ch) { if (cid === 'gambit') for (let t = 1; t <= 6; t++) push(paintedForPiece({ kind: ch.kind, color: "w", hero: true, tier: t }));
-        else push(paintedForPiece({ kind: ch.kind, color: "w", hero: false, level: 1 })); }
-    }
-    for (const b of BOSSES) push(paintedById("boss-" + b.id));
-    const list = [...urls];
-    if (!list.length) { codexArtReady = true; setArtReady(true); return; }
-    let done = 0, cancelled = false;
-    const bump = () => { if (!cancelled && ++done >= list.length) { codexArtReady = true; setArtReady(true); } };
-    for (const u of list) { const im = new Image(); im.onload = bump; im.onerror = bump; im.src = u; }
-    const to = setTimeout(() => { if (!cancelled) { codexArtReady = true; setArtReady(true); } }, 3000);
-    return () => { cancelled = true; clearTimeout(to); };
-  }, []);
-  const bribedSet = new Set(profile.campaign?.bribedBosses || []);
-  const ownedBossSet = new Set(ownedLeagueBosses(profile)); // beaten league tyrants fight FOR you — the tree shows them in gold
-  const crownOwned = CROWN_IDS.filter((cid) => unlocked.has(cid));
-  /* v1.0.50: BESTECHEN IST EINE FREIGABE. Der Knopf existiert erst, nachdem
-     das erste echte Monster besiegt wurde (Freischalt-Ordnung "bestechen") -
-     vorher ist er nicht gesperrt, sondern GAR NICHT DA. Ein Knopf, den man
-     sieht, aber nicht versteht, ist schlechter als keiner. */
-  const bestechenOffen = freigegeben(profile, "bestechen");
-  const monsterBribable = (b) => bestechenOffen && b.art !== "tyrant" && b.id !== "b23" && b.id !== "b25" && met.has("X:" + b.id) && !bribedSet.has(b.id);
-  const bribeMonster = (bossId, victim) => {
-    if (gold < MONSTER_BRIBE_GOLD || !unlocked.has(victim)) return;
-    // formations that fielded the victim are dissolved (they fall back to default)
-    const forms = { ...(profile.loadout?.formations || {}) };
-    for (const k of Object.keys(forms)) if ((forms[k] || []).includes(victim)) delete forms[k];
-    dispatch({ type: "REPLACE", profile: { ...profile, gold: gold - MONSTER_BRIBE_GOLD,
-      loadout: { ...(profile.loadout || {}), formations: forms },
-      campaign: { ...profile.campaign,
-        unlocked: (profile.campaign?.unlocked || []).filter((c) => c !== victim),
-        bossWins: { ...(profile.campaign?.bossWins || {}), [victim]: 0 },
-        bribedBosses: [...new Set([...(profile.campaign?.bribedBosses || []), bossId])] } } });
-    setSacrificeFor(null);
-  };
-  const bribe = (ch) => {
-    const price = bribePrice(ch);
-    if (gold < price) return;
-    dispatch({ type: "REPLACE", profile: { ...profile, gold: gold - price,
-      campaign: { ...profile.campaign, unlocked: [...new Set([...(profile.campaign?.unlocked || []), ch.id])],
-        bossWins: { ...(profile.campaign?.bossWins || {}), [ch.id]: 99 } } } });
-  };
-  /* v1.0.60 (Besitzer, SECHSTE Meldung - und die Live-Messung gab ihm recht):
-     der Sockelausgleich griff NUR bei den sechs Grundarten. Tile schluesselte
-     ueber die Figurenart (kind), die Sockeltabelle kennt Hofstaat-Charaktere
-     und Monster aber unter ihrer ID ("guardian", "boss-b04"). Der Schluessel
-     lief ins Leere, Versatz 0 - Schildtraeger (+6.1 %!) und alle Monster
-     standen weiter schief, waehrend Laeufer und Dame laengst sassen.
-     Jetzt reicht champTile die ID als artId durch; Tile prueft ID, dann
-     boss-ID, dann erst die Art. */
-  /* v1.4.0: was die Kachel an Werten zeigt. Die Anteile rechnen wie am Brett
-     (rohrAnteile), damit dieselbe Figur ueberall dasselbe Bild ergibt. */
-  /* ── DIE WERTE DIREKT AUS DEN GRUNDZAHLEN (v1.6.0) ───────────────────────
-     Besitzerbefund am Screenshot: "Warum haben manche Figuren jetzt so einen
-     Lebensbalken und andere nicht?"
-
-     GEFUNDEN: ich habe die Werte aus einer STANDARDAUFSTELLUNG geholt - und
-     die kennt nur die sechs Grundarten (P, N, B, R, Q, K). Magier (E), Barde
-     (J), Paladin (U), Schildtraeger und Spaeher haben eigene Arten, standen
-     in keiner Aufstellung und fielen deshalb durch. Sie bekamen kein Rohr.
-
-     Jetzt wird direkt gerechnet, aus BASE_HP/BASE_ATK und der Stufe - so wie
-     das Spiel selbst es tut (leveling.js: hp = basis + (stufe - 1)). Damit
-     bekommt JEDE Figur ihre Werte, auch eine, die nie in einer Grundstellung
-     steht. */
-  const kachelWerte = (cid) => {
+/* v1.51.0: die Werte der Kachel auf Modulebene - Hofstaat und Aufstellung
+   zeigen damit dieselben Zahlen wie das Gefecht. */
+export function kachelWerteFuer(profile, cid) {
     const ch = CHARACTERS[cid]; if (!ch) return null;
     const lv = characterLevel(profile, cid) || 1;
     const hp0 = BASE_HP[ch.kind], atk0 = BASE_ATK[ch.kind];
@@ -2254,22 +2155,27 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
     const sMax = resolveCharacter(ch, mx, chosenAbilities(profile, cid)).shield;
     const budget = heldK ? HELD_PUNKTE : wMax.hp + wMax.atk;
     return rohrAnteile({ hp: hpGanz, maxHp: hpGanz, atk: atkGanz, level: lv, maxLevel: mx, budget });
-  };
-  /* Wie weit bis zur naechsten Stufe? Aus den Skillpunkten, die sie kostet. */
-  /* Es gibt keine Erfahrungspunkte JE FIGUR - Stufen kosten Skillpunkte aus
-     einem gemeinsamen Vorrat. Der Balken zeigt deshalb, wie viel von den
-     Kosten der naechsten Stufe schon beisammen ist. Das ist die einzige
-     ehrliche Lesart: "du hast 2 von 3 Punkten, die der Turm braucht". */
-  const kachelXp = (cid) => {
-    const lv = characterLevel(profile, cid) || 1;
-    const kosten = upgradeCost(cid, lv);
-    if (!kosten) return null;
-    const hat = Math.max(0, profile.sp || 0);
-    return { anteil: Math.max(0, Math.min(1, hat / kosten)), hat: Math.min(hat, kosten), kosten };
-  };
+}
 
-  const Tile = ({ img, name, dim, dark, action, glow, origin, onOpen, sigil = null, sigilBig = null, stufe = null, kind = null, hero = false, lvl = 1,
-    werte = null, xpAnteil = null, artId = null, bossId = null, talente = [], ton = null, meister = false }) => (
+/* v1.51.0: hoechstens vier Faehigkeitszeichen auf der Aufstellungskarte,
+   darueber "+N" (Besitzerregel aus der Kachelsitzung: "maximal vier, dann
+   plus"). Vier Zeichen zu 19 px und der Zaehler passen in eine Zeile. */
+const AUFST_TALENT_MAX = 4;
+
+/* ═══ DIE HOFSTAAT-KACHEL ALS BAUTEIL (v1.51.0) ═════════════════════════════
+   Besitzer (23.9.): "nimm einfach die Karten, die wir jetzt unter den
+   Figuren im Hofstaat haben, mit dem Hintergrund, mit komplett diesen
+   Designs ... die Karte muss halt einfach laenglicher werden, dass diese
+   Zuege noch drauf passen." Bis hierher lebte die Kachel als inneres
+   Bauteil des Hofstaats. Jetzt steht sie auf Modulebene und wird von
+   Hofstaat UND Aufstellung aufgerufen - dieselbe Kulisse, dieselbe
+   Eckverzierung, dasselbe Stufenabzeichen, dasselbe Lebensrohr. Neu:
+     unten     - was unter dem Namen steht (Aufstellung: Zugbild, Faehigkeiten)
+     gewaehlt  - der goldene Rand der gewaehlten Karte */
+export function HofKachel({ img, name, dim, dark, action, glow, origin, onOpen, sigil = null, sigilBig = null, stufe = null, kind = null, hero = false, lvl = 1,
+    werte = null, xpAnteil = null, artId = null, bossId = null, talente = [], ton = null, meister = false,
+    unten = null, gewaehlt = false }) {
+  return (
     /* v1.0.11 (Besitzer): die Kachel KLINGT beim Tippen. Der Klangfaenger
        hoert nur auf button/[role=button] — diese div blieb stumm. */
     /* v1.14.0: DIE KACHEL TRAEGT DIE KULISSE IHRES BUNDES (Besitzerentscheid
@@ -2288,7 +2194,11 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
       borderRadius: 11, padding: "10px 7px 9px", textAlign: "center", minWidth: 0, cursor: onOpen ? "pointer" : "default",
       /* v1.23.0 (Besitzer): Grossmeister tragen einen leuchtenden violetten Rahmen */
       ...(meister ? { border: "1px solid rgba(167,139,250,.85)", boxShadow: "0 0 14px rgba(124,58,237,.55), inset 0 0 10px rgba(124,58,237,.18)" } : null),
-      boxShadow: meister ? "0 0 14px rgba(124,58,237,.55), inset 0 0 10px rgba(124,58,237,.18)" : glow ? "0 0 10px rgba(240,206,122,.22)" : "0 0 6px rgba(124,58,237,.12)" }}>
+      boxShadow: meister ? "0 0 14px rgba(124,58,237,.55), inset 0 0 10px rgba(124,58,237,.18)" : glow ? "0 0 10px rgba(240,206,122,.22)" : "0 0 6px rgba(124,58,237,.12)",
+      /* v1.51.0: die gewaehlte Karte der Aufstellung - goldener Rand und
+         Schein statt der alten vollflaechig gelben Karte */
+      ...(gewaehlt ? { border: "1.5px solid #f6dc8e",
+        boxShadow: "0 0 0 2px rgba(240,214,138,.45), 0 0 26px rgba(240,214,138,.55)" } : null) }}>
       {/* v1.15.1 (Besitzer): was noch nicht zu einem gehoert, steht in
           GRAUSTUFEN da - Kulisse wie Figur. Vorher fehlte dunklen Kacheln die
           Kulisse ganz, gedaempfte trugen sie farbig. Monster bekommen dazu
@@ -2502,6 +2412,7 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
       {/* v1.15.1: das Rohr sitzt jetzt oben in der Kopfzeile */}
       <div className="gg-quill" style={{ fontSize: 12.5, marginTop: 5, color: dark ? T.faint : glow ? T.goldBright : T.text,
         whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{name}</div>
+      {unten}
       {/* Die Vorlage (ds1-vorlage-screens): jede Kachel traegt ihre Stufe -
           "Koenig Stufe 8" - klein und golden unter dem Namen. */}
       {/* v1.4.0: DIE STUFE ALS GOLDKREIS OBEN RECHTS (Besitzerwunsch). Vorher
@@ -2525,6 +2436,122 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
       {action}
     </div>
   );
+}
+
+function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
+  // Werkbank-Durchblick: der Admin sieht jedes Monster und kann jede Kachel
+  // oeffnen - Spieler sehen weiter nur, was sie erlebt haben.
+  const isAdmin = !!account?.isAdmin;
+  const met = new Set(isAdmin ? BOSSES.map((b) => "X:" + b.id) : (profile.codex?.met || []));
+  const unlocked = new Set(profile.campaign?.unlocked || []);
+  const league = profile.campaign?.league || 1;
+  const gold = profile.gold || 0;
+  // monsters currently prowling THIS league's road (rotations included)
+  const sighted = useMemo(() => {
+    const set = new Set();
+    for (const n of CAMPAIGN) {
+      const st = nodeStatus(profile, n.id);
+      if (st === "locked" || st === "hidden") continue; // beyond the fog: never glimpsed
+      const b = effectiveNodeBoss(n, league);
+      if (b?.pure) set.add(b.pure);
+    }
+    return set;
+  }, [profile, league]);
+  const bribePrice = (ch) => Math.max(250, Math.round((ch.costValue || 320) * 0.9));
+  // ── monster bribery: SOME monsters take gold — but only a lot of it, and
+  // only sealed with the SACRIFICE of a recruited crown piece. Tyrants and
+  // the two named finals are beyond corruption. ──
+  const MONSTER_BRIBE_GOLD = 1800;
+  const [sacrificeFor, setSacrificeFor] = useState(null); // bossId awaiting a crown sacrifice
+  // preload every painting shown in the grid, then reveal tiles + figures at once
+  const [artReady, setArtReady] = useState(codexArtReady);
+  useEffect(() => {
+    if (codexArtReady) return;
+    const urls = new Set();
+    const push = (u) => { if (u) urls.add(u); };
+    for (const cid of [...COURT_IDS, ...CROWN_IDS, ...SHADOW_IDS]) {
+      const ch = CHARACTERS[cid];
+      /* v1.0.84: alle SECHS Raenge vorladen, sonst blitzt beim Aufstieg ein
+         leeres Bild auf, bis die Datei geholt ist. */
+      if (ch) { if (cid === 'gambit') for (let t = 1; t <= 6; t++) push(paintedForPiece({ kind: ch.kind, color: "w", hero: true, tier: t }));
+        else push(paintedForPiece({ kind: ch.kind, color: "w", hero: false, level: 1 })); }
+    }
+    for (const b of BOSSES) push(paintedById("boss-" + b.id));
+    const list = [...urls];
+    if (!list.length) { codexArtReady = true; setArtReady(true); return; }
+    let done = 0, cancelled = false;
+    const bump = () => { if (!cancelled && ++done >= list.length) { codexArtReady = true; setArtReady(true); } };
+    for (const u of list) { const im = new Image(); im.onload = bump; im.onerror = bump; im.src = u; }
+    const to = setTimeout(() => { if (!cancelled) { codexArtReady = true; setArtReady(true); } }, 3000);
+    return () => { cancelled = true; clearTimeout(to); };
+  }, []);
+  const bribedSet = new Set(profile.campaign?.bribedBosses || []);
+  const ownedBossSet = new Set(ownedLeagueBosses(profile)); // beaten league tyrants fight FOR you — the tree shows them in gold
+  const crownOwned = CROWN_IDS.filter((cid) => unlocked.has(cid));
+  /* v1.0.50: BESTECHEN IST EINE FREIGABE. Der Knopf existiert erst, nachdem
+     das erste echte Monster besiegt wurde (Freischalt-Ordnung "bestechen") -
+     vorher ist er nicht gesperrt, sondern GAR NICHT DA. Ein Knopf, den man
+     sieht, aber nicht versteht, ist schlechter als keiner. */
+  const bestechenOffen = freigegeben(profile, "bestechen");
+  const monsterBribable = (b) => bestechenOffen && b.art !== "tyrant" && b.id !== "b23" && b.id !== "b25" && met.has("X:" + b.id) && !bribedSet.has(b.id);
+  const bribeMonster = (bossId, victim) => {
+    if (gold < MONSTER_BRIBE_GOLD || !unlocked.has(victim)) return;
+    // formations that fielded the victim are dissolved (they fall back to default)
+    const forms = { ...(profile.loadout?.formations || {}) };
+    for (const k of Object.keys(forms)) if ((forms[k] || []).includes(victim)) delete forms[k];
+    dispatch({ type: "REPLACE", profile: { ...profile, gold: gold - MONSTER_BRIBE_GOLD,
+      loadout: { ...(profile.loadout || {}), formations: forms },
+      campaign: { ...profile.campaign,
+        unlocked: (profile.campaign?.unlocked || []).filter((c) => c !== victim),
+        bossWins: { ...(profile.campaign?.bossWins || {}), [victim]: 0 },
+        bribedBosses: [...new Set([...(profile.campaign?.bribedBosses || []), bossId])] } } });
+    setSacrificeFor(null);
+  };
+  const bribe = (ch) => {
+    const price = bribePrice(ch);
+    if (gold < price) return;
+    dispatch({ type: "REPLACE", profile: { ...profile, gold: gold - price,
+      campaign: { ...profile.campaign, unlocked: [...new Set([...(profile.campaign?.unlocked || []), ch.id])],
+        bossWins: { ...(profile.campaign?.bossWins || {}), [ch.id]: 99 } } } });
+  };
+  /* v1.0.60 (Besitzer, SECHSTE Meldung - und die Live-Messung gab ihm recht):
+     der Sockelausgleich griff NUR bei den sechs Grundarten. Tile schluesselte
+     ueber die Figurenart (kind), die Sockeltabelle kennt Hofstaat-Charaktere
+     und Monster aber unter ihrer ID ("guardian", "boss-b04"). Der Schluessel
+     lief ins Leere, Versatz 0 - Schildtraeger (+6.1 %!) und alle Monster
+     standen weiter schief, waehrend Laeufer und Dame laengst sassen.
+     Jetzt reicht champTile die ID als artId durch; Tile prueft ID, dann
+     boss-ID, dann erst die Art. */
+  /* v1.4.0: was die Kachel an Werten zeigt. Die Anteile rechnen wie am Brett
+     (rohrAnteile), damit dieselbe Figur ueberall dasselbe Bild ergibt. */
+  /* ── DIE WERTE DIREKT AUS DEN GRUNDZAHLEN (v1.6.0) ───────────────────────
+     Besitzerbefund am Screenshot: "Warum haben manche Figuren jetzt so einen
+     Lebensbalken und andere nicht?"
+
+     GEFUNDEN: ich habe die Werte aus einer STANDARDAUFSTELLUNG geholt - und
+     die kennt nur die sechs Grundarten (P, N, B, R, Q, K). Magier (E), Barde
+     (J), Paladin (U), Schildtraeger und Spaeher haben eigene Arten, standen
+     in keiner Aufstellung und fielen deshalb durch. Sie bekamen kein Rohr.
+
+     Jetzt wird direkt gerechnet, aus BASE_HP/BASE_ATK und der Stufe - so wie
+     das Spiel selbst es tut (leveling.js: hp = basis + (stufe - 1)). Damit
+     bekommt JEDE Figur ihre Werte, auch eine, die nie in einer Grundstellung
+     steht. */
+  const kachelWerte = (cid) => kachelWerteFuer(profile, cid);   /* v1.51.0 */
+  /* Wie weit bis zur naechsten Stufe? Aus den Skillpunkten, die sie kostet. */
+  /* Es gibt keine Erfahrungspunkte JE FIGUR - Stufen kosten Skillpunkte aus
+     einem gemeinsamen Vorrat. Der Balken zeigt deshalb, wie viel von den
+     Kosten der naechsten Stufe schon beisammen ist. Das ist die einzige
+     ehrliche Lesart: "du hast 2 von 3 Punkten, die der Turm braucht". */
+  const kachelXp = (cid) => {
+    const lv = characterLevel(profile, cid) || 1;
+    const kosten = upgradeCost(cid, lv);
+    if (!kosten) return null;
+    const hat = Math.max(0, profile.sp || 0);
+    return { anteil: Math.max(0, Math.min(1, hat / kosten)), hat: Math.min(hat, kosten), kosten };
+  };
+
+  const Tile = HofKachel;   /* v1.51.0: die Kachel ist ein Bauteil auf Modulebene */
   const [detail, setDetail] = useState(null); // a tapped figure opens its FULL card (level, ladder, upgrades)
   /* v1.33.1 (Besitzer): IM POP-UP WISCHEN - nach links die naechste Karte,
      nach rechts die vorige, in der Reihenfolge der Uebersicht. Die Hooks

@@ -1,5 +1,24 @@
 # Changelog - Gambit Rise
 
+## 1.51.0 - die Aufstellung traegt die Karten des Hofstaats
+- Besitzer: "nimm einfach die Karten, die wir jetzt unter den Figuren im
+  Hofstaat haben, mit dem Hintergrund, mit komplett diesen Designs, aber
+  unten drunter diese Liste, wie die Zuege sind, und darunter noch die
+  Faehigkeiten ... die Karte muss halt einfach laenglicher werden."
+- DIE KACHEL IST EIN BAUTEIL: bis hierher lebte sie als inneres Teil des
+  Hofstaats. Jetzt steht sie als HofKachel auf Modulebene, und Hofstaat UND
+  Aufstellung rufen DIESELBE auf - Kulisse, Farbschleier, Eckverzierung,
+  Stufenabzeichen, Lebensrohr. Nichts nachgebaut; die Vermessung der
+  Hofstaat-Kacheln (messe_kulissen) ist unveraendert gruen.
+- Zwei neue Angaben: `unten` (in der Aufstellung: Zugbild und Faehigkeiten
+  aus der Leiter, hoechstens vier Zeichen, darueber "+N") und `gewaehlt`.
+- AUSWAHL: im Hofstaat tragen alle eigenen Karten den Goldrand - in der
+  Aufstellung leuchtet NUR die gewaehlte golden, die uebrigen tragen den
+  violetten Rand. Die alte vollflaechig gelbe Karte ist fort.
+- Auch die Werte der Kachel (kachelWerteFuer) stehen auf Modulebene, damit
+  beide Stellen dieselben Zahlen zeigen wie das Gefecht.
+- Im Browser geprueft.
+
 ## 1.50.0 - fremde Monster zeigen ihre Leiter
 - Offener Besitzerpunkt "schreibgeschuetzte Leiter bei fremden Monstern":
   ein Monster, das einem nicht gehoert, zeigte seit v1.26.7 nur seine Buehne -

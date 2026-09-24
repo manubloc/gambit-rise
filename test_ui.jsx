@@ -1285,8 +1285,10 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
 {
   const { readFileSync: _rf2 } = await import("node:fs");
   const q = _rf2("src/app/ui/screens/ArmyScreen.jsx", "utf8");
-  const von = q.indexOf("const Tile = (");
-  const bis = q.indexOf("\n  const ", von + 10);
+  /* v1.51.0: die Kachel steht jetzt als Bauteil auf Modulebene (HofKachel),
+     Hofstaat UND Aufstellung rufen sie auf */
+  const von = q.indexOf("export function HofKachel(");
+  const bis = q.indexOf("\n}\n", von + 10);
   const tile = q.slice(von, bis);
   ok("Tile existiert und ist abgegrenzt", von > 0 && bis > von);
   ok("Tile greift nicht auf ch zu", !/\bch\./.test(tile));
@@ -1425,11 +1427,12 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
     ok("die Wahl ist eine waagerechte Reihe mit Einrasten",
       as.includes('scrollSnapType: "x mandatory"') && as.includes('scrollSnapAlign: "center"'));
     ok("die Figuren stehen gross und wachsen mit dem Schirm",
-      as.includes('size={"clamp(64px, 17vw, 88px)"}'));
+      as.includes("<HofKachel img={bildC}") && as.includes('width: "clamp(124px, 32vw, 156px)"'));
 
     ok("und sie zeigen ihre Talente aus der Stufenleiter",
       as.includes("(c.ladder || [])") && as.includes("stufe.ability && ABILITIES[stufe.ability]"));
-    ok("die Talente tragen ihre Artfarbe", as.includes("const tg = TAGS[ab.tag];") && as.includes("tg ? tg.color + \"2e\""));
+    /* v1.51.0: die Talente tragen das Zeichen der Hofstaat-Kachel (AbilityIcon, Artfarbe im Zeichen) */
+    ok("die Talente tragen ihr Zeichen wie im Hofstaat", as.includes("data-aufst-talent={id}") && as.includes("<AbilityIcon id={id} size={14} />"));
     /* v1.1.17: drei Nachbesserungen nach dem Besitzerbefund "der Slider geht
        gar nicht mehr" und "man weiss ja nicht, wie wo was". */
     ok("die Reihe sagt dem Browser, dass waagerecht gewischt wird",
@@ -1437,13 +1440,13 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
     /* v1.2.1: aus festen Massen wurden mitwachsende (clamp) - die Proben
        pruefen jetzt die Sache, nicht die Zahl. */
     ok("die Karten haben eine feste Mindestbreite und schrumpfen nicht",
-      as.includes('flex: "0 0 auto", width: "clamp(118px, 30vw, 150px)"'));
+      as.includes('flex: "0 0 auto", width: "clamp(124px, 32vw, 156px)"'));
     ok("die Gangart steht in der Karte", as.includes("<MoveDiagram kind={c.kind} moveSpec={c.moveSpec} breite="));
     ok("das funktionslose Mehr ist fort", !as.includes('{t("tree.more")}'));
     /* v1.2.1: die Karte skaliert mit dem Schirm, und ALLES passt darauf. */
-    ok("Kartenbreite waechst mit dem Schirm", as.includes('width: "clamp(118px, 30vw, 150px)"'));
+    ok("Kartenbreite waechst mit dem Schirm", as.includes('width: "clamp(124px, 32vw, 156px)"'));
     ok("Figur und Gangart skalieren mit",
-      as.includes('size={"clamp(64px, 17vw, 88px)"}') && as.includes('breite={"clamp(74px, 20vw, 96px)"}'));
+      as.includes("<HofKachel img={bildC}") && as.includes('breite={"clamp(78px, 21vw, 100px)"}'));
     ok("der Spruch ist fort - er verdraengte die Gangart", !as.includes("{en ? c.flavorEn : c.flavorDe}</span>"));
     ok("der Erklaertext ueber den Plaenen ist fort", !as.includes('{t("army.planHint")}'));
     /* und die Quelle muss wirklich etwas liefern - sonst ist die Reihe leer */
