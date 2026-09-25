@@ -144,7 +144,7 @@ ${stuecke(HAUPT, HAUPT_PROFIL).map((x) => `<path d="${x.d}" stroke="url(#${p}bk)
 
 <!-- v1.68.0: Rise ist keine Schrift mehr, sondern gezeichnet (riseGezeichnet.js) -->
 <!-- v1.69.0: Rise sitzt im Feld - der Ausstrich lief sonst rechts hinaus -->
-<g transform="translate(96,30) scale(.72)">
+<g transform="translate(84,44) scale(.82)">
   <!-- v1.73.0 (Besitzer: "lieber duenn die Schrift, aber mit so einem
        minimalen Schimmer - dass es wirklich die gleiche Optik aufweist wie
        der Blitz"): derselbe Aufbau wie der Blitz - weiter Schein, mittlerer

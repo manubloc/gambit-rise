@@ -1,5 +1,11 @@
 # Changelog - Gambit Rise
 
+## 1.75.1 - Rise groesser und weiter nach rechts unten
+- Besitzer: "mach das Rise weiter rechts nach unten und groesser."
+  Von 72 auf 82 %, dazu nach rechts und nach unten gerueckt.
+- Erster Anlauf (84 %, weiter rechts) stiess mit dem e an den rechten Rand -
+  eine Spur zurueckgenommen, jetzt steht der Ausstrich frei.
+
 ## 1.75.0 - Rise ist selbst ein Blitz
 - Besitzer: "viel wichtiger ist, dass dieses Rise wirklich so ein bisschen
   leicht wellenartig ist - so wie du den Blitz an der dicksten Stelle hast,
