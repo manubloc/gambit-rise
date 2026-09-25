@@ -1,5 +1,23 @@
 # Changelog - Gambit Rise
 
+## 1.77.0 - das gelieferte Logo loest die gezeichnete Wortmarke ab
+- Besitzer: "wir lassen das jetzt mal mit dem Logo und verwenden einfach das
+  Bild, das ich hinzugefuegt habe - bei der Landingpage und beim
+  Anmeldescreen. Bei der Ladeanimation bitte das bestehende Kreislogo mit
+  der kreisenden Animation lassen, aber dort nicht noch on top dieses Logo,
+  das wird dann zu viel."
+- Das Bild liegt freigestellt (2111 x 658) als design/logo/, dazu in 1100 px
+  fuer Landingpage (public/landing/wortmarke.webp) und App
+  (src/app/ui/assets/wortmarke.webp).
+- ANMELDESCHIRM und LANDINGPAGE zeigen es; der VORLADER und der feste
+  Ladeschirm zeigen nur noch das kreisende Siegel.
+- tools/wortmarke-einsetzen.mjs laeuft nicht mehr beim Bauen (es suchte die
+  entfernten Marken und brach den Bau ab). Es bleibt stehen, weil
+  wortmarkeSvg.js und der Export die gezeichnete Fassung weiter erzeugen.
+- pruefe-buttons haelt jetzt das Bildlogo fest: es steht an beiden Stellen,
+  der Ladeschirm traegt keinen Schriftzug, beide Bilddateien sind da.
+- Das Logo liegt auch im Store-Paket (design/playstore/logo-wortmarke.png).
+
 ## 1.76.0 - ise groesser, Marke neu eingepasst
 - Besitzer: "ob du das i, das s und das e noch ein bisschen groesser machst -
   ich glaube, dann ist es perfekt." ise steht auf weiteren 112 %.

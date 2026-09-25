@@ -7,7 +7,9 @@ import { T } from "../theme.js";
 import { register, login, cloudConfigured, signInWithProvider, signInEmailCloud, signUpEmailCloud } from "../../../meta/index.js";
 import { logoArt } from "../livery.js";
 import { RissBoden } from "../RissBoden.jsx";
-import { WortmarkeRise } from "../WortmarkeRise.jsx";   /* v1.43.0 */
+/* v1.77.0 (Besitzer): das gelieferte Logo als Bild - die gezeichnete
+   Wortmarke ist damit aus der App heraus. */
+import wortmarkeBild from "../assets/wortmarke.webp";
 import { loginGuest } from "../../../meta/index.js";   /* v1.46.0 */
 
 const STR = {
@@ -118,7 +120,9 @@ export function LoginScreen({ onSignedIn, initialLang = "de" }) {
         WebkitMaskImage: "radial-gradient(ellipse 78% 74% at 50% 50%, #000 42%, rgba(0,0,0,.6) 70%, transparent 95%)",
         maskImage: "radial-gradient(ellipse 78% 74% at 50% 50%, #000 42%, rgba(0,0,0,.6) 70%, transparent 95%)" }} />
       {/* v1.43.0: die Wortmarke - dieselbe wie auf dem Ladeschirm */}
-      <div style={{ marginTop: -30, marginBottom: 6 }}><WortmarkeRise breite="min(82vw, 400px)" /></div>
+      <div style={{ marginTop: -30, marginBottom: 6 }}>
+        <img src={wortmarkeBild} alt="Gambit Rise" draggable={false}
+          style={{ width: "min(84vw, 420px)", height: "auto", display: "block", margin: "0 auto" }} /></div>
       <div className="gg-quill" style={{ color: T.dim, fontSize: 16, lineHeight: 1.6, margin: "12px 0 34px" }}>{s.tag}</div>
 
       <div style={{ width: "100%", maxWidth: 380, display: "flex", flexDirection: "column", gap: 10 }}>

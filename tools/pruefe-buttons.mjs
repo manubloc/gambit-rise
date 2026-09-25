@@ -7,7 +7,7 @@
 //
 // Geprueft wird der Quelltext, weil dort die Stile stehen; jeder <button ...>
 // samt seines style={{...}} wird gelesen, dazu die zentralen Bausteine.
-import { readdirSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 
 const dateien = [];
@@ -63,27 +63,19 @@ for (const f of dateien) {
 // Schriften - das darf nie wieder auseinanderlaufen.
 {
   const L = readFileSync("src/app/ui/screens/LoginScreen.jsx", "utf8");
-  /* v1.43.0: die Wortmarke ist ein SVG (WortmarkeRise) und steht an DREI
-     Stellen gleich: Anmeldeschirm, Vorlader und der feste Ladeschirm in
-     index.html. Geprueft wird, dass keine der drei ausschert. */
   const V = readFileSync("src/app/ui/Vorlader.jsx", "utf8");
   const H = readFileSync("index.html", "utf8");
-  if (!L.includes("<WortmarkeRise")) funde.push("Wortmarke im Login nicht gefunden");
-  if (!V.includes("<WortmarkeRise")) funde.push("Wortmarke im Vorlader nicht gefunden");
-  if (!/aria-label="Gambit Rise"/.test(H)) funde.push("Wortmarke im festen Ladeschirm nicht gefunden");
-  /* v1.63.0: die Marke kommt aus EINER Quelle (wortmarkeSvg.js). Der feste
-     Ladeschirm und die Landingpage tragen sie zwischen WORTMARKE-Marken; das
-     Bauteil und die App-Stile holen sie aus der Quelle. Geprueft wird, dass
-     die eingesetzte Fassung der Quelle entspricht. */
-  const { wortmarkeSvg } = await import("../src/app/ui/wortmarkeSvg.js");
-  const soll = wortmarkeSvg("b", { breite: "min(70vw, 320px)", animiert: true, blitz: true, verzug: 0.35 });
-  if (!H.includes("<!--WORTMARKE-->" + soll + "<!--/WORTMARKE-->"))
-    funde.push("der feste Ladeschirm traegt nicht die Marke aus der Quelle (tools/wortmarke-einsetzen.mjs laufen lassen)");
   const LP = readFileSync("public/landing.html", "utf8");
-  if (!LP.includes("<!--WORTMARKE-->" + wortmarkeSvg("l", { breite: "100%", animiert: true, blitz: true, verzug: 0.35 }) + "<!--/WORTMARKE-->"))
-    funde.push("die Landingpage traegt nicht die Marke aus der Quelle");
-  if (!readFileSync("src/app/ui/WortmarkeRise.jsx", "utf8").includes("wortmarkeSvg(")) funde.push("das Bauteil zeichnet nicht aus der Quelle");
-  if (!readFileSync("src/app/ui/theme.js", "utf8").includes("${WORTMARKE_KEYFRAMES}")) funde.push("die App-Stile holen die Schrittfolgen nicht aus der Quelle");
+  /* v1.77.0 (Besitzer): das Logo ist jetzt ein geliefertes BILD. Es steht an
+     ZWEI Stellen - Anmeldeschirm und Landingpage - und ueberall dasselbe.
+     Der Ladeschirm zeigt nur das kreisende Siegel, ohne Schriftzug: dort war
+     beides zusammen zu viel. Geprueft wird genau das. */
+  if (!L.includes('src={wortmarkeBild}')) funde.push("das Logo fehlt im Anmeldeschirm");
+  if (!LP.includes('class="wortmarke" src="/landing/wortmarke.webp"')) funde.push("das Logo fehlt auf der Landingpage");
+  if (V.includes("WortmarkeRise") || V.includes("wortmarkeBild")) funde.push("der Vorlader traegt einen Schriftzug - dort gehoert nur das Siegel hin");
+  if (/aria-label="Gambit Rise"/.test(H) || H.includes("<!--WORTMARKE-->")) funde.push("der feste Ladeschirm traegt einen Schriftzug");
+  for (const [datei, pfad] of [["Landingpage", "public/landing/wortmarke.webp"], ["App", "src/app/ui/assets/wortmarke.webp"]])
+    if (!existsSync(pfad)) funde.push(`das Logobild fuer die ${datei} fehlt (${pfad})`);
 }
 
 
