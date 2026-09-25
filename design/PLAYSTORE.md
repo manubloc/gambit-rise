@@ -190,14 +190,18 @@ abschaltbar sein? Dann wäre er „optional" und das Formular freundlicher.
 
 ## Weg zum Livegang (Stand 24.9.2026, v1.61.0)
 
-### Fertig vorbereitet (liegt in design/playstore/)
+### Fertig vorbereitet (liegt in design/playstore/, Stand v1.63.2)
 - icon-512.png - Store-Symbol, 512 x 512, randlos (Google rundet selbst)
-- feature-1024x500.png - Feature-Grafik mit neuer Wortmarke
-- handy-1080x1920-1..6 - Handy-Screenshots, montiert (Ueberschrift + echte Aufnahme)
-- tablet7-1200x1920-1..6 - 7-Zoll-Tablet
-- tablet10-1600x2560-1..6 - 10-Zoll-Tablet
-Alle als 24-Bit-PNG ohne Transparenz, Seitenverhaeltnis unter 2:1 (Googles Vorgabe).
-Reihenfolge: Gefecht, Hofstaat, Faehigkeiten, Aufstellung, Welt, Haendler.
+- feature-1024x500-de.png / -en.png - Feature-Grafik mit dem Blitz-Logo
+- de/ und en/ - je sieben Screenshots in drei Formaten, montiert aus echten
+  Aufnahmen; die App lief dabei in der jeweiligen Sprache:
+    handy-1080x1920-*, tablet7-1200x1920-*, tablet10-1600x2560-*
+  Reihenfolge: 1 Wolkenjoch (HP-Gefecht), 2 Kronland (eigenes Heer),
+  3 Hofstaat, 4 Faehigkeiten, 5 Aufstellung, 6 Welt, 7 Haendler.
+Alle als 24-Bit-PNG ohne Transparenz, Seitenverhaeltnis unter 2:1.
+In der Console: Store-Eintrag -> Hauptspeicher-Eintrag fuer Deutsch die
+Dateien aus de/, dann unter "Uebersetzungen verwalten" Englisch anlegen und
+die Dateien aus en/ hochladen.
 
 ### In der Play Console bereits erledigt
 App angelegt (com.gambitrise.app), Store-Texte, Datenschutzlink, Werbung, Werbe-ID,

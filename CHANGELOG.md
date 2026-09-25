@@ -1,5 +1,15 @@
 # Changelog - Gambit Rise
 
+## 1.63.2 - Store-Screenshots deutsch und englisch
+- Besitzer: "man braucht es immer auf Englisch und auf Deutsch" und "die
+  erste Welt, Kapitel I, zeigen ... und noch ein anderes von den Bergen, ein
+  helles". Sieben Motive je Sprache: Wolkenjoch (HP-Gefecht), Kronland
+  (eigenes Heer), Hofstaat, Faehigkeiten, Aufstellung, Welt, Haendler.
+- Die App lief bei den englischen Aufnahmen auf Englisch - nicht nur die
+  Ueberschriften sind uebersetzt.
+- Je drei Formate: Handy 1080 x 1920, Tablet 7 Zoll 1200 x 1920, Tablet
+  10 Zoll 1600 x 2560. Die alten, nicht uebersetzten Bilder sind entfernt.
+
 ## 1.63.1 - das Logo aus einer Quelle, Store-Grafik deutsch und englisch
 - Das Logo wird beim Bauen aus wortmarkeSvg.js in Ladeschirm und Landingpage
   eingesetzt (tools/wortmarke-einsetzen.mjs laeuft vor vite build) - nie
