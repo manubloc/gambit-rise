@@ -1,5 +1,14 @@
 # Changelog - Gambit Rise
 
+## 1.63.4 - der Drache steht wieder sauber auf seinem Sockel
+- Besitzer: "der Sockel vom Drachen sieht nicht perfekt aus". URSACHE im Bild
+  selbst: als v1.1.9 den Drachensockel grau machte, lief die Grautoenung
+  weich bis in die Pranken - ein weisser Schleier ueber den Fuessen.
+- Die Pranken sind aus der Fassung vor v1.1.9 zurueckgeholt, und zwar NUR die
+  gruenen und orangen Pixel des Drachen: der graue Sockel bleibt, der alte
+  Goldring und die waermeren Grautoene am Tellerrand kommen nicht zurueck.
+  Beide Groessen (576 und 192 px) erneuert.
+
 ## 1.63.3 - klassisches Brett erhaben, Figuren im Schach eine Spur kleiner
 - Besitzer: "die Felder vom klassischen Schach nicht so perfekt wie die
   neuerdings - die haben eine kleine Rundung und Kontur und wirken erhaben".
