@@ -224,7 +224,12 @@
        dieselbe Wortmarke wie in der App, Rise flammt beim Laden kurz auf. -->
   <div class="wortmarke" role="img" aria-label="Gambit Rise"><!--WORTMARKE--><svg viewBox="-40 0 700 250" width="100%" style="display:block;overflow:visible" role="img" aria-label="Gambit Rise">
 <defs>
-<linearGradient id="lgold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff3cf"/><stop offset=".38" stop-color="#f2d98c"/><stop offset=".62" stop-color="#d4af37"/><stop offset="1" stop-color="#8a6a1f"/></linearGradient>
+<!-- v1.67.0 (Besitzer: "das Gambit darf gerne noch erhabener und
+     goldglaenzender wirken"): mehr Stufen im Verlauf - Licht auf der oberen
+     Kante, ein heller Grat in der Mitte, tiefes Altgold unten. Dazu unten
+     eine zweite, hellere Kante (goldK), die den Buchstaben Hoehe gibt. -->
+<linearGradient id="lgold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fffdf4"/><stop offset=".16" stop-color="#ffeec0"/><stop offset=".40" stop-color="#f7dd93"/><stop offset=".52" stop-color="#fff6d8"/><stop offset=".66" stop-color="#e0bb55"/><stop offset=".86" stop-color="#b98f2e"/><stop offset="1" stop-color="#7d5f1a"/></linearGradient>
+<linearGradient id="lgoldK" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fffbe8"/><stop offset=".5" stop-color="#ffe9a8" stop-opacity=".5"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
 <linearGradient id="lglanz" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".8"/><stop offset=".42" stop-color="#fff" stop-opacity=".1"/><stop offset=".58" stop-color="#fff" stop-opacity="0"/></linearGradient>
 <linearGradient id="llila" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".45" stop-color="#efe7ff"/><stop offset=".8" stop-color="#c3a6ff"/><stop offset="1" stop-color="#9b6cf7"/></linearGradient>
 <linearGradient id="lband" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#a78bfa" stop-opacity="0"/><stop offset=".22" stop-color="#e9ddff"/><stop offset=".5" stop-color="#ffffff"/><stop offset=".78" stop-color="#d9c6ff"/><stop offset="1" stop-color="#8b5cf6" stop-opacity="0"/></linearGradient>
@@ -250,8 +255,10 @@
 <path d="M-40.0,26.0 L-34.5,27.8 L-29.4,30.7 L-24.0,32.8 L-18.6,34.8 L-13.6,37.8 L-8.1,39.7 L-2.4,40.8 L2.8,43.6 L8.3,45.4 L14.2,46.1 L19.2,49.1 L24.5,51.5 L29.8,54.3 L35.7,55.1 L39.9,59.3 L45.2,61.9 L51.1,61.8 L56.7,63.7 L62.1,65.9 L67.6,68.0 L73.4,67.6 L79.3,68.6 L85.0,70.0 L90.3,72.5 L96.1,72.3 L102.0,72.4 L107.8,73.2 L113.7,72.6 L119.2,74.5 L124.8,75.9 L130.5,77.6 L136.1,79.2 L141.1,82.4 L146.9,83.6 L152.7,84.7 L158.5,84.4 L164.0,86.4 L169.0,89.2 L174.7,90.3 L180.1,92.5 L185.8,93.8 L191.7,93.9 L197.1,95.9 L202.4,98.4 L207.6,100.9 L212.6,103.9 L218.0,106.3 L223.8,107.0 L229.6,108.3 L235.5,107.9 L241.2,109.3 L246.9,110.9 L251.8,114.2 L256.4,117.9 L262.3,118.8 L267.7,121.5 L273.4,122.6 L278.9,124.5 L284.8,124.1 L290.5,125.4 L296.3,126.6 L302.1,125.8 L307.7,127.2 L313.5,127.5 L319.4,126.9 L325.3,127.6 L331.1,126.6 L336.9,125.4 L342.8,125.7 L348.5,127.2 L354.2,128.8 L360.0,129.4 L365.9,129.8 L371.5,131.7 L377.3,132.1 L383.2,132.9 L388.9,134.0 L394.5,136.1 L399.3,139.6 L405.0,141.3 L410.6,143.2 L415.7,146.2 L421.5,147.0 L427.2,148.2 L432.1,151.4 L437.3,154.1 L443.1,155.1 L448.4,157.6 L454.3,158.5 L459.9,160.5 L465.0,163.5 L470.6,165.4 L476.4,164.9 L482.3,165.3 L488.2,165.0 L494.0,166.5 L499.7,167.8 L505.2,169.5 L510.9,170.6 L516.6,171.8 L521.7,174.8 L526.8,177.8 L532.5,179.3 L538.2,180.5 L544.1,181.4 L549.5,183.6 L554.4,187.1 L560.0,189.0 L565.8,190.0 L571.3,192.0 L577.2,191.6 L583.0,192.5 L587.4,196.6 L592.9,199.0 L596.5,203.8 L601.2,207.3 L606.5,209.8 L611.7,212.5 L617.5,213.9 L622.6,216.9 L628.2,218.9 L633.4,221.9 L639.2,223.2 L645.1,223.5 L650.0,226.9 L655.6,229.0 L660.2,232.7 L665.0,236.0" stroke="url(#lbk)" stroke-width="2.6"/>
 </g></g>
 <g style="font-family:'Cinzel',Georgia,serif;font-weight:600;font-size:108px;letter-spacing:2px">
-<text x="310" y="112" text-anchor="middle" fill="#120b22" opacity=".85" transform="translate(0,3)">GAMBIT</text>
+<text x="310" y="112" text-anchor="middle" fill="#0b0716" opacity=".92" transform="translate(0,4.5)">GAMBIT</text>
+<text x="310" y="112" text-anchor="middle" fill="#6b4f16" opacity=".8" transform="translate(0,2)">GAMBIT</text>
 <text x="310" y="112" text-anchor="middle" fill="url(#lgold)">GAMBIT</text>
+<text x="310" y="112" text-anchor="middle" fill="url(#lgoldK)" transform="translate(0,-1.2)">GAMBIT</text>
 <text x="310" y="112" text-anchor="middle" fill="url(#lglanz)">GAMBIT</text>
 </g>
 <g style="opacity:0;animation:ggBlitzEinschlag 1.05s cubic-bezier(.2,.9,.3,1) 0.35s forwards;"><g>
@@ -266,6 +273,13 @@
      auslaeuft - in der Mitte breit, weiss-lila, darueber eine schmale
      Goldschneide. Zwei Bezierkurven, die sich in den Spitzen treffen; ein
      Strich kann das nicht, er ist ueberall gleich dick. -->
+<!-- v1.67.0 (Besitzer, an der Vorlage): hinter Rise kreuzen sich ZWEI
+     goldene Klingen in einem X - lang, sehr duenn, an beiden Enden spitz.
+     Sie liegen unter der Schrift, damit die Buchstaben lesbar bleiben. -->
+<g opacity=".9">
+  <path d="M 336 268 C 430 214, 540 158, 646 104 C 542 164, 432 222, 336 268 Z" fill="url(#lbandG)"/>
+  <path d="M 362 108 C 440 170, 550 228, 654 268 C 548 234, 438 178, 362 108 Z" fill="url(#lbandG)" opacity=".7"/>
+</g>
 <g filter="url(#lg3)" opacity=".5">
   <path d="M 330 218 C 392 262, 520 248, 622 150 C 516 268, 392 278, 330 218 Z" fill="url(#lband)"/>
 </g>

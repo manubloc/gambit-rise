@@ -48,7 +48,12 @@ export function wortmarkeSvg(p = "wm", { breite = "100%", animiert = true, blitz
   const einschlag = blitz ? `opacity:0;animation:ggBlitzEinschlag 1.05s cubic-bezier(.2,.9,.3,1) ${verzug}s forwards;` : "";
   return `<svg viewBox="-40 0 700 250" width="${breite}" style="display:block;overflow:visible" role="img" aria-label="Gambit Rise">
 <defs>
-<linearGradient id="${p}gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff3cf"/><stop offset=".38" stop-color="#f2d98c"/><stop offset=".62" stop-color="#d4af37"/><stop offset="1" stop-color="#8a6a1f"/></linearGradient>
+<!-- v1.67.0 (Besitzer: "das Gambit darf gerne noch erhabener und
+     goldglaenzender wirken"): mehr Stufen im Verlauf - Licht auf der oberen
+     Kante, ein heller Grat in der Mitte, tiefes Altgold unten. Dazu unten
+     eine zweite, hellere Kante (goldK), die den Buchstaben Hoehe gibt. -->
+<linearGradient id="${p}gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fffdf4"/><stop offset=".16" stop-color="#ffeec0"/><stop offset=".40" stop-color="#f7dd93"/><stop offset=".52" stop-color="#fff6d8"/><stop offset=".66" stop-color="#e0bb55"/><stop offset=".86" stop-color="#b98f2e"/><stop offset="1" stop-color="#7d5f1a"/></linearGradient>
+<linearGradient id="${p}goldK" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fffbe8"/><stop offset=".5" stop-color="#ffe9a8" stop-opacity=".5"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
 <linearGradient id="${p}glanz" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".8"/><stop offset=".42" stop-color="#fff" stop-opacity=".1"/><stop offset=".58" stop-color="#fff" stop-opacity="0"/></linearGradient>
 <linearGradient id="${p}lila" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".45" stop-color="#efe7ff"/><stop offset=".8" stop-color="#c3a6ff"/><stop offset="1" stop-color="#9b6cf7"/></linearGradient>
 <linearGradient id="${p}band" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#a78bfa" stop-opacity="0"/><stop offset=".22" stop-color="#e9ddff"/><stop offset=".5" stop-color="#ffffff"/><stop offset=".78" stop-color="#d9c6ff"/><stop offset="1" stop-color="#8b5cf6" stop-opacity="0"/></linearGradient>
@@ -74,8 +79,10 @@ export function wortmarkeSvg(p = "wm", { breite = "100%", animiert = true, blitz
 <path d="${HAUPT}" stroke="url(#${p}bk)" stroke-width="2.6"/>
 </g></g>
 <g style="font-family:'Cinzel',Georgia,serif;font-weight:600;font-size:108px;letter-spacing:2px">
-<text x="310" y="112" text-anchor="middle" fill="#120b22" opacity=".85" transform="translate(0,3)">GAMBIT</text>
+<text x="310" y="112" text-anchor="middle" fill="#0b0716" opacity=".92" transform="translate(0,4.5)">GAMBIT</text>
+<text x="310" y="112" text-anchor="middle" fill="#6b4f16" opacity=".8" transform="translate(0,2)">GAMBIT</text>
 <text x="310" y="112" text-anchor="middle" fill="url(#${p}gold)">GAMBIT</text>
+<text x="310" y="112" text-anchor="middle" fill="url(#${p}goldK)" transform="translate(0,-1.2)">GAMBIT</text>
 <text x="310" y="112" text-anchor="middle" fill="url(#${p}glanz)">GAMBIT</text>
 </g>
 <g style="${einschlag}"><g>
@@ -90,6 +97,13 @@ export function wortmarkeSvg(p = "wm", { breite = "100%", animiert = true, blitz
      auslaeuft - in der Mitte breit, weiss-lila, darueber eine schmale
      Goldschneide. Zwei Bezierkurven, die sich in den Spitzen treffen; ein
      Strich kann das nicht, er ist ueberall gleich dick. -->
+<!-- v1.67.0 (Besitzer, an der Vorlage): hinter Rise kreuzen sich ZWEI
+     goldene Klingen in einem X - lang, sehr duenn, an beiden Enden spitz.
+     Sie liegen unter der Schrift, damit die Buchstaben lesbar bleiben. -->
+<g opacity=".9">
+  <path d="M 336 268 C 430 214, 540 158, 646 104 C 542 164, 432 222, 336 268 Z" fill="url(#${p}bandG)"/>
+  <path d="M 362 108 C 440 170, 550 228, 654 268 C 548 234, 438 178, 362 108 Z" fill="url(#${p}bandG)" opacity=".7"/>
+</g>
 <g filter="url(#${p}g3)" opacity=".5">
   <path d="M 330 218 C 392 262, 520 248, 622 150 C 516 268, 392 278, 330 218 Z" fill="url(#${p}band)"/>
 </g>

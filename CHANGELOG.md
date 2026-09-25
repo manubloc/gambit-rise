@@ -1,5 +1,17 @@
 # Changelog - Gambit Rise
 
+## 1.67.0 - goldene Klingen hinter Rise, GAMBIT erhaben
+- An der Vorlage nachgesehen: hinter "Rise" kreuzen sich dort ZWEI feine
+  goldene Klingen in einem X - lang, sehr duenn, an beiden Enden spitz. Die
+  fehlten. Sie liegen jetzt UNTER der Schrift, damit die Buchstaben lesbar
+  bleiben. (Ein erster Anlauf machte sie zu dick - sie beherrschten das Bild
+  und wurden schmal nachgezogen.)
+- GAMBIT (Besitzer: "darf gerne noch erhabener und goldglaenzender wirken"):
+  mehr Stufen im Verlauf - Licht auf der oberen Kante, ein heller Grat in der
+  Mitte, tiefes Altgold unten -, dazu ein dunkler Absatz darunter und eine
+  helle Lichtkante. Die Buchstaben stehen damit plastisch auf dem Grund.
+- design/logo/ und die Feature-Grafiken neu erzeugt.
+
 ## 1.66.0 - der Blitz schlaegt einmal ein, das Rise traegt eine Klinge
 - Besitzer: "der Blitz sollte nur einmal kurz so aufblitzen - aus dem Nichts
   kommt er und dann ist er da". Das Dauerzucken des Blitzes, das Flackern der
