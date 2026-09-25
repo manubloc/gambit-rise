@@ -53,24 +53,21 @@ S=[]
 #    verlaesst - vorher begann es frei darunter. ────────────────────────────
 # v1.73.0 (Besitzer: "das R ist immer noch zu gross"): weitere 0,86 um die
 # obere Spitze, und die Zuege duenner (siehe Breitenprofile).
-S.append(strich([[(468,96),(450,131),(434,163),(411,207)]], [(0,.3),(.22,9),(.55,7),(.85,3),(1,.25)]))
-S.append(strich([[(466,99),(505,95),(514,124),(480,135)],
-                 [(480,135),(472,138),(464,135),(458,132)]], [(0,1.3),(.35,7),(.75,4),(1,.9)]))
-S.append(strich([[(458,132),(470,155),(485,176),(511,212)]], [(0,.9),(.3,6.4),(.7,5),(1,.25)]))
-# ── kleine Ausläufer an den Spitzen des R (Besitzer: "am Ende darf das R auch
-#    noch so kleine Mini-Auslaeufer eines Blitzes haben") ───────────────────
-for a,b in [((411,207),(400,222)), ((411,207),(419,224)), ((511,212),(524,224)), ((511,212),(505,228))]:
-    S.append(strich([g(a,b)], [(0,1.1),(.5,.8),(1,.2)]))
+S.append(strich([[(468,96),(451,129),(436,159),(414,200)]], [(0,.3),(.22,9),(.55,7),(.85,3),(1,.25)]))
+S.append(strich([[(466,99),(503,95),(512,122),(479,132)],
+                 [(479,132),(471,135),(464,132),(458,129)]], [(0,1.3),(.35,7),(.75,4),(1,.9)]))
+S.append(strich([[(458,129),(469,151),(484,171),(509,205)]], [(0,.9),(.3,6.4),(.7,5),(1,.25)]))
+# v1.74.0 (Besitzer): die Mini-Auslaeufer an den R-Spitzen sind wieder fort.
 # ── ise: deutlich kleiner als das R, rechts oben (Besitzer: "dürfte etwas
 #    kleiner sein") ─────────────────────────────────────────────────────────
-S.append(strich([[(514,212),(516,200),(520,186),(526,172)]], [(0,.6),(.5,6.5),(1,.6)]))
-PUNKT='<circle cx="530" cy="154" r="3.4"/>'
+S.append(strich([[(514,212),(516,199),(520,184),(527,169)]], [(0,.6),(.5,6.5),(1,.6)]))
+PUNKT='<circle cx="531" cy="150" r="3.4"/>'
 # v1.72.0 (Besitzer: "das e und das s etwas mit kantig"): gerade Zuege mit
 # scharfen Ecken. Das s ist ein liegendes Z: Kopfbalken nach links, Diagonale
 # hinab, Fussbalken nach links. Das e: Mittelbalken, Schleife darueber, Bauch.
-S.append(strich([g((559,172),(536,177)), g((536,177),(557,192)), g((557,192),(533,200))],
+S.append(strich([g((562,169),(538,175)), g((538,175),(560,191)), g((560,191),(534,199))],
                 [(0,.5),(.24,5.4),(.55,4.6),(.82,5.2),(1,.5)]))
-S.append(strich([g((564,192),(592,186)), g((592,186),(594,175)), g((594,175),(578,172)),
-                 g((578,172),(566,186)), g((566,186),(576,200)), g((576,200),(600,192))],
+S.append(strich([g((568,191),(597,184)), g((597,184),(600,172)), g((600,172),(582,169)),
+                 g((582,169),(570,184)), g((570,184),(580,199)), g((580,199),(606,191))],
                 [(0,.5),(.2,4.2),(.45,6.2),(.75,5.8),(1,.4)]))
 print(json.dumps({"pfade":S,"punkt":PUNKT}))

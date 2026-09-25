@@ -1,5 +1,18 @@
 # Changelog - Gambit Rise
 
+## 1.74.0 - der Blitz entsteht von links nach rechts
+- Besitzer: "bau doch mal eine Animation daraus, dass dieser Blitz wie so von
+  links nach rechts entsteht mit dem Rise und dann halt einmal so aufblitzt
+  und auch dann stehen bleibt." Zwei Schritte:
+    1. WISCHEN (0,62 s): eine Maske faehrt von links nach rechts - Blitz und
+       Rise erscheinen entlang der Bahn, so wie der Einschlag laeuft.
+    2. AUFBLITZEN: ist der Wisch durch, flammt alles einmal hell auf und
+       bleibt dann ruhig stehen.
+  GAMBIT bleibt aussen vor: das Wort steht, der Blitz schlaegt ein.
+- Die Mini-Auslaeufer an den R-Spitzen sind wieder fort (Besitzer).
+- Das R ein weiteres Mal kleiner (0,94 um die obere Spitze), "ise" dafuer
+  minimal groesser (1,07) - das Verhaeltnis war zu weit auseinander.
+
 ## 1.73.0 - Rise traegt die Optik des Blitzes
 - Besitzer: "lieber duenn die Schrift, aber mit so einem minimalen Schimmer -
   dass es wirklich die gleiche Optik aufweist wie der Blitz." Rise wird jetzt

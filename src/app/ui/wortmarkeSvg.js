@@ -28,7 +28,8 @@ const STERN = "M0,-16 C2,-4 4,-2 16,0 C4,2 2,4 0,16 C-2,4 -4,2 -16,0 C-4,-2 -2,-
 
 /** Die Schrittfolgen der animierten Fassung - einmal in jedes Dokument. */
 export const WORTMARKE_KEYFRAMES =
-  "@keyframes ggBlitzEinschlag { 0% { opacity: 0; filter: brightness(1); transform: scale(1.012); } "
+  "@keyframes ggWisch { from { transform: scaleX(0); } to { transform: scaleX(1); } } "
+  + "@keyframes ggBlitzEinschlag { 0% { opacity: 1; filter: brightness(1); transform: scale(1.004); } "
   + "6% { opacity: 1; filter: brightness(4) drop-shadow(0 0 22px #fff) drop-shadow(0 0 44px #c4a8ff); transform: scale(1); } "
   + "13% { opacity: .82; filter: brightness(1.1); } 20% { opacity: 1; filter: brightness(2.6) drop-shadow(0 0 14px #efe7ff); } "
   + "34% { filter: brightness(1.04); } 100% { opacity: 1; filter: brightness(1); } } "
@@ -73,7 +74,19 @@ export function wortmarkeSvg(p = "wm", { breite = "100%", animiert = true, blitz
   const an = (s) => (animiert ? s : "");
   /* v1.66.0: EIN Einschlag. Aus dem Nichts, zwei harte Lichtspitzen, dann
      steht die Marke ruhig - kein Nachglimmen, kein Dauerzucken. */
-  const einschlag = blitz ? `opacity:0;animation:ggBlitzEinschlag 1.05s cubic-bezier(.2,.9,.3,1) ${verzug}s forwards;` : "";
+  /* v1.74.0 (Besitzer: "eine Animation daraus bauen, dass dieser Blitz wie so
+     von links nach rechts entsteht mit dem Rise und dann halt einmal so
+     aufblitzt und auch dann stehen bleibt"): zwei Schritte.
+       1. WISCHEN: eine Maske faehrt von links nach rechts - Blitz und Rise
+          erscheinen entlang der Bahn, so wie der Einschlag laeuft.
+       2. AUFBLITZEN: ist der Wisch durch, flammt alles einmal hell auf und
+          bleibt dann ruhig stehen.
+     GAMBIT bleibt aussen vor: das Wort steht, der Blitz schlaegt ein. */
+  const WISCH = 0.62;
+  const einschlag = blitz
+    ? `animation:ggBlitzEinschlag 1.05s cubic-bezier(.2,.9,.3,1) ${(verzug + WISCH).toFixed(2)}s both;`
+    : "";
+  const wisch = blitz ? ` mask="url(#${p}wisch)"` : "";
   return `<svg viewBox="-40 0 700 250" width="${breite}" style="display:block;overflow:visible" role="img" aria-label="Gambit Rise">
 <defs>
 <!-- v1.67.0 (Besitzer: "das Gambit darf gerne noch erhabener und
@@ -101,8 +114,12 @@ export function wortmarkeSvg(p = "wm", { breite = "100%", animiert = true, blitz
      Weichzeichner um jedes kurze Blitzstueck einen Kasten. -->
 <filter id="${p}g2" filterUnits="userSpaceOnUse" x="-80" y="-60" width="820" height="380"><feGaussianBlur stdDeviation="3"/></filter>
 <filter id="${p}g3" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter>
+<mask id="${p}wisch" maskUnits="userSpaceOnUse" x="-80" y="-60" width="820" height="380">
+  <rect class="${p}balken" x="-80" y="-60" width="820" height="380" fill="#fff"
+    style="${an(`transform-box:fill-box;transform-origin:left center;animation:ggWisch ${WISCH}s ease-out ${verzug}s both;`)}"/>
+</mask>
 </defs>
-<g style="${einschlag}">
+<g style="${einschlag}"${wisch}>
 <!-- v1.66.0 (Besitzer: "der sollte nur einmal kurz so aufblitzen - aus dem
      Nichts kommt er und dann ist er da"): kein Dauerzucken mehr. Der Einschlag
      laesst den Blitz einmal hell aufflammen (ggBlitzEinschlag), danach steht
@@ -123,7 +140,7 @@ ${stuecke(HAUPT, HAUPT_PROFIL).map((x) => `<path d="${x.d}" stroke="url(#${p}bk)
 <text x="310" y="112" text-anchor="middle" fill="url(#${p}goldK)" transform="translate(0,-1.2)">GAMBIT</text>
 <text x="310" y="112" text-anchor="middle" fill="url(#${p}glanz)">GAMBIT</text>
 </g>
-<g style="${einschlag}"><g>
+<g style="${einschlag}"${wisch}><g>
 
 <!-- v1.68.0: Rise ist keine Schrift mehr, sondern gezeichnet (riseGezeichnet.js) -->
 <!-- v1.69.0: Rise sitzt im Feld - der Ausstrich lief sonst rechts hinaus -->
