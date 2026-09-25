@@ -1,5 +1,27 @@
 # Changelog - Gambit Rise
 
+## 1.63.0 - das Logo mit dem Blitz, aus einer Quelle
+- Besitzer (mit Vorlagebild): "genau das ist das Logo ... Rise mit einem Blitz
+  im Hintergrund, der auch hinter das GAMBIT geht ... animiert ... eine
+  statische Form und eine animierte Form."
+- EINE QUELLE: src/app/ui/wortmarkeSvg.js erzeugt das SVG. Die App zeigt es
+  (WortmarkeRise), tools/wortmarke-einsetzen.mjs schreibt dieselbe Fassung in
+  Ladeschirm und Landingpage (zwischen <!--WORTMARKE--> ... ). Vorher waren es
+  drei von Hand gepflegte Kopien.
+- DER BLITZ wird erzeugt, nicht gezeichnet: Mittelpunktverschiebung mit festem
+  Startwert - viele kleine, unregelmaessige Knicke wie bei einem echten Blitz,
+  sechs Aeste nahe der Hauptrichtung, Enden laufen ueber eine Maske aus, drei
+  Lagen (weiter Schein, lila Kern, weisse Mitte). Diagonal von rechts unten
+  nach links oben, mitten durch GAMBIT, hinter Rise hindurch.
+- ANIMIERT: der Blitz zuckt beim Erscheinen ein (ggWmZug), flackert danach in
+  Abstaenden (ggWmFlacker), Rise glimmt, der Stern funkelt; bei "weniger
+  Bewegung" steht alles still. STATISCH fuer Store und Druck.
+- design/logo/: gambit-rise.svg (statisch) und gambit-rise-animiert.svg, beide
+  mit eingebetteten Schriften (Cinzel, Great Vibes, OFL); PNGs transparent und
+  auf dunklem Grund (tools/logo-dateien.mjs).
+- Keyframe-Namen ggWm*, damit sie nicht mit dem Schadensblitz (ggBlitz*)
+  verwechselt werden - eine Probe haelt dessen Schrittfolgen fest.
+
 ## 1.62.0 - Zugbilder richtig, Waechter vermessen, Landingpage ueberarbeitet
 - DRACHE IM ZUGBILD (Besitzer: "das Sternchen links unten ist schuld, dass
   die vier Felder nicht mittig sind"): ein 7x7-Raster hat ein Mittelfeld, ein
