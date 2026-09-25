@@ -1,5 +1,17 @@
 # Changelog - Gambit Rise
 
+## 1.72.0 - das R noch kleiner, s und e kantig
+- Besitzer: "das R von Rise noch kleiner und naeher an das i ran, und das e
+  und das s etwas mit kantig."
+- Das R steht auf weiteren 87 % (um die obere Spitze verkleinert) und ist
+  naeher ans i gerueckt.
+- s und e bestehen jetzt aus geraden Zuegen mit scharfen Ecken: das s als
+  liegendes Z - Kopfbalken nach links, Diagonale hinab, Fussbalken nach
+  links -, das e mit Mittelbalken, Schleife darueber und Bauch.
+- ZWEI FEHLVERSUCHE dabei: ein s mit Anstrich las sich als "ss"-Ligatur,
+  weil der Anstrich den Kopf schloss; ein frueheres e war blockig und
+  spiegelverkehrt. Beide im Werkzeug verworfen, nicht nachgebessert.
+
 ## 1.71.0 - das R kleiner, das Bein am Bogen
 - Besitzer: "das R muss noch mehr zu dem i ruecken und der untere Strich vom
   R noch an den Bogen oben, und das R allgemein kleiner."
