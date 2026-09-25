@@ -1,5 +1,21 @@
 # Changelog - Gambit Rise
 
+## 1.69.0 - Rise im Zickzack, Blitz ohne Geaest in der Mitte
+- Besitzer: "dieses Rise ist als Schrift noch zu sehr abgerundet ... versuch
+  es wirklich eher zickzackartig zu zeichnen." Alle Zuege sind jetzt GERADE
+  Strecken mit scharfen Ecken - kein Bogen mehr: das R aus drei Knicken, das
+  s als Zickzack hinauf und hinab, das e mit Balken und Spitze.
+- Die Buchstaben stehen auseinander (s und e ueberlagerten sich), und die
+  Striche sind ein Drittel kraeftiger - neben dem schweren GAMBIT wirkte
+  Rise sonst duenn.
+- DER STERN IST FORT (Besitzer), samt seinem Bewegungsablauf.
+- DIE AESTE (Besitzer: "lass die kleinen Blitze eher weg - nur ganz am Ende
+  und am Anfang ist es ok"): behalten wird nur, was im ersten oder letzten
+  Fuenftel ansetzt. In der Mitte, wo der Blitz am breitesten ist, bleibt er
+  ungeteilt.
+- Rise sass nach dem Umbau erst zu weit links und ueberschnitt GAMBIT; es
+  steht jetzt wieder unter der rechten Haelfte des Wortes.
+
 ## 1.68.0 - Rise ist gezeichnet, nicht gesetzt
 - Besitzer: "nimm keine Schrift, sondern versuch es einfach selbst mit SVG zu
   zeichnen, ich glaub nur das ist der Weg." Er hatte recht: eine Schriftart

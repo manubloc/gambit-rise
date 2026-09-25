@@ -16,7 +16,7 @@
 
    wortmarkeSvg(praefix, { breite, animiert, blitz, verzug })
      praefix   - macht die ids eindeutig, falls zwei Marken auf einer Seite stehen
-     animiert  - Blitz zuckt, Aeste flackern, Rise glimmt, Stern funkelt
+     animiert  - EIN Einschlag, dann steht alles still (v1.69.0)
      blitz     - beim Erscheinen flammt die Marke einmal hell auf
      verzug    - Sekunden bis zu diesem Aufflammen                            */
 
@@ -34,7 +34,6 @@ export const WORTMARKE_KEYFRAMES =
   + "34% { filter: brightness(1.04); } 100% { opacity: 1; filter: brightness(1); } } "
   + "@keyframes ggRiseBlitz { 0% { opacity: 0; filter: brightness(1); } 7% { opacity: 1; filter: brightness(3.4) drop-shadow(0 0 14px #fff); } 16% { filter: brightness(1.3); } 23% { filter: brightness(2.6) drop-shadow(0 0 10px #f4eaff); } 40% { filter: brightness(1.05); } 100% { opacity: 1; filter: brightness(1); } }"
   + " @keyframes ggRiseGlimm { 0%,100% { filter: brightness(1); } 50% { filter: brightness(1.16) drop-shadow(0 0 6px rgba(167,139,250,.5)); } }"
-  + " @keyframes ggSternFunkeln { 0%,62%,100% { transform: scale(.72) rotate(0deg); opacity: .75; } 70% { transform: scale(1.25) rotate(20deg); opacity: 1; } 78% { transform: scale(.85) rotate(35deg); opacity: .9; } 84% { transform: scale(1.12) rotate(45deg); opacity: 1; } }"
   + " @keyframes ggBlitzZucken { 0%,100% { opacity: .92; } 3% { opacity: 1; } 5% { opacity: .35; } 7% { opacity: 1; } 10% { opacity: .55; } 13% { opacity: .98; } 45% { opacity: .78; } 70% { opacity: .9; } }"
   + " @keyframes ggAesteA { 0%,100% { opacity: .95; } 30% { opacity: .15; } 55% { opacity: .85; } 80% { opacity: .35; } }"
   + " @keyframes ggAesteB { 0%,100% { opacity: .25; } 35% { opacity: .95; } 62% { opacity: .2; } 85% { opacity: .9; } }";
@@ -59,7 +58,15 @@ function stuecke(pfad, profil) {
 }
 /* duenn - breit - duenn: der Einschlag sitzt in der Mitte */
 const HAUPT_PROFIL = [0.45, 0.62, 0.85, 1.18, 1.55, 1.75, 1.5, 1.1, 0.8, 0.55];
-const jedeZweite = (a) => a.filter((_, i) => i % 2 === 0);
+/* v1.69.0 (Besitzer: "lass die kleinen Blitze eher weg - nur ganz am Ende und
+   am Anfang ist es ok, wenn es kleine Auslaeufer gibt"): behalten wird nur,
+   was im ersten oder letzten Fuenftel der Strecke ansetzt. In der Mitte, wo
+   der Blitz ohnehin am breitesten ist, bleibt er ungeteilt. */
+const nurRaender = (a) => a.filter((d) => {
+  const m = /^M\s*(-?[\d.]+)/.exec(d); if (!m) return false;
+  const x = parseFloat(m[1]);
+  return x < 100 || x > 520;
+});
 
 
 export function wortmarkeSvg(p = "wm", { breite = "100%", animiert = true, blitz = false, verzug = 0 } = {}) {
@@ -99,8 +106,8 @@ export function wortmarkeSvg(p = "wm", { breite = "100%", animiert = true, blitz
 ${stuecke(HAUPT, HAUPT_PROFIL).map((x) => `<path d="${x.d}" stroke="url(#${p}bh)" stroke-width="${(34 * x.w).toFixed(1)}" opacity=".5" filter="url(#${p}g1)"/>`).join("")}
 <!-- v1.68.0 (Besitzer: "die Blitze gar nicht so arg viel verAesteln"):
      nur noch jeder zweite Ast, die feinsten Faeden ganz fort. -->
-<g stroke="url(#${p}bh)" stroke-width="2.2" opacity=".7" filter="url(#${p}g2)"><g>${pfade(jedeZweite(AESTE_A))}</g><g>${pfade(jedeZweite(AESTE_B))}</g></g>
-<g stroke="url(#${p}bk)" stroke-width=".9"><g>${pfade(jedeZweite(AESTE_A))}</g><g>${pfade(jedeZweite(AESTE_B))}</g></g>
+<g stroke="url(#${p}bh)" stroke-width="2.2" opacity=".7" filter="url(#${p}g2)"><g>${pfade(nurRaender(AESTE_A))}</g><g>${pfade(nurRaender(AESTE_B))}</g></g>
+<g stroke="url(#${p}bk)" stroke-width=".9"><g>${pfade(nurRaender(AESTE_A))}</g><g>${pfade(nurRaender(AESTE_B))}</g></g>
 ${stuecke(HAUPT, HAUPT_PROFIL).map((x) => `<path d="${x.d}" stroke="url(#${p}bh)" stroke-width="${(7 * x.w).toFixed(1)}" filter="url(#${p}g2)"/>`).join("")}
 ${stuecke(HAUPT, HAUPT_PROFIL).map((x) => `<path d="${x.d}" stroke="url(#${p}bk)" stroke-width="${(2.6 * x.w).toFixed(2)}"/>`).join("")}
 </g></g>
@@ -114,15 +121,17 @@ ${stuecke(HAUPT, HAUPT_PROFIL).map((x) => `<path d="${x.d}" stroke="url(#${p}bk)
 <g style="${einschlag}"><g>
 
 <!-- v1.68.0: Rise ist keine Schrift mehr, sondern gezeichnet (riseGezeichnet.js) -->
-<g filter="url(#${p}g3)" fill="#7c3aed" opacity=".9">${RISE_PFADE}</g>
-<g fill="url(#${p}lila)">${RISE_PFADE}</g>
+<!-- v1.69.0: Rise sitzt im Feld - der Ausstrich lief sonst rechts hinaus -->
+<g transform="translate(-16,14) scale(.94)">
+  <g filter="url(#${p}g3)" fill="#7c3aed" opacity=".9">${RISE_PFADE}</g>
+  <g fill="url(#${p}lila)">${RISE_PFADE}</g>
+</g>
 <!-- v1.68.0: das weisse Band ist fort - der Abstrich des gezeichneten R IST
      der Schwung. Es blieben nur die zwei goldenen Klingen der Vorlage. -->
 
 
 </g>
-<g transform="translate(578,146)"><g style="transform-origin:0 0;transform-box:fill-box;">
-<path d="${STERN}" fill="#fff" filter="url(#${p}g2)"/><path d="${STERN}" fill="#fffaf0" transform="scale(.8)"/>
-</g></g></g>
+<!-- v1.69.0 (Besitzer): der Stern ist fort. -->
+</g>
 </svg>`;
 }
