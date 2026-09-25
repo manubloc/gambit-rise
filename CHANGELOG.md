@@ -1,5 +1,13 @@
 # Changelog - Gambit Rise
 
+## 1.63.5 - Bilder mit dem korrigierten Drachen
+- Landingpage: Drachenkarte und Hofstaat-Galerie neu aufgenommen - die Pranken
+  ohne Grauschleier.
+- Store: der Tablet-Hofstaat (deutsch und englisch, 7 und 10 Zoll) zeigte den
+  Drachen - neu aufgenommen und montiert. Dabei aufgefallen: im ersten Anlauf
+  war die Koenigskachel leer, weil ihr Bild noch lud; die Aufnahme wartet
+  jetzt, bis alle Bilder geladen sind.
+
 ## 1.63.4 - der Drache steht wieder sauber auf seinem Sockel
 - Besitzer: "der Sockel vom Drachen sieht nicht perfekt aus". URSACHE im Bild
   selbst: als v1.1.9 den Drachensockel grau machte, lief die Grautoenung
