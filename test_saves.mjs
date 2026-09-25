@@ -322,8 +322,11 @@ ok("full build counts ten league crowns", fullB.stats.leaguesWon === 10);
       && nodeStatus(g, GAST_STATIONEN[0]) === "available"
       && nodeStatus(g, "L01s06") === "locked" && nodeStatus(g, "L01s09") === "locked");
     const app2 = readFileSync("src/app/App.jsx", "utf8");
-    ok("Schnelles Spiel und Online sieht ein Gast nicht",
-      app2.includes('{!profile.gast && <Card ruhig title={t("hub.quick")}') && app2.includes('{!profile.gast && <Card ruhig title={t("online.title")}'));
+    /* v1.65.0 (Besitzer 25.9.): das Schnelle Spiel darf der Gast; das Online-
+       Duell bleibt sichtbar, aber ausgegraut und ohne Aktion. */
+    ok("der Gast sieht das Online-Duell ausgegraut und ohne Aktion, das Schnelle Spiel darf er",
+      app2.includes('onGo={profile.gast ? undefined : onOnline}') && app2.includes('"Als Gast nicht nutzbar"')
+      && !app2.includes('{!profile.gast && <Card ruhig title={t("hub.quick")}'));
     const log = readFileSync("src/app/ui/screens/LoginScreen.jsx", "utf8");
     ok("der Anmeldeschirm bietet den Gastweg an und sagt, was fehlt",
       log.includes("loginGuest()") && log.includes("Kapitel I, vier Stationen, drei Sonderfiguren"));

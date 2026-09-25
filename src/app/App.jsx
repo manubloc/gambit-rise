@@ -63,7 +63,7 @@ const CrestArt = ({ src }) => (
 
 
 import { ProfileScreen } from "./ui/screens/ProfileScreen.jsx";
-import { gastProfil } from "../meta/gast.js";   /* v1.46.0 */
+import { gastProfil, istGast } from "../meta/gast.js";   /* v1.46.0 */
 
 
 // viewport hook for the responsive shell (mobile dock ↔ desktop rail)
@@ -187,6 +187,11 @@ export default function App() {
   const [ready, setReady] = useState(false);
   const [locked, setLocked] = useState(false);
   const [tab, setTab] = useState("play");
+  /* v1.65.0 (Besitzer: "Tooltips erst, wenn man auf das Element drueckt ...
+     man ist noch nicht mal im Spiel und kriegt schon Sachen erklaert"): welche
+     Reiter der Spieler SELBST angetippt hat. Nur dort stellt sich ein Reiter
+     vor - der Startreiter "Spielen" schweigt, bis man ihn wirklich waehlt. */
+  const [getippt, setGetippt] = useState({});
   const [view, setView] = useState("hub"); // play tab: hub | quick | camp | online
   /* ── JEDER RAUM BEGINNT OBEN (v1.0.53, Besitzerbefund) ────────────────────
      "Manchmal ist das Menue Spielen runtergescrollt." Der Grund: der Browser
@@ -528,14 +533,25 @@ export default function App() {
   // local preview override, then the Hall's live answer (cached), then the
   // shipped APP_DESIGN. houseDesign state re-renders us when the Hall differs.
   setLivery((account?.isAdmin && profile.design) || houseDesign || APP_DESIGN);
-  const showPrivacy = !profile.notices?.privacy;
+  /* v1.65.0 (Besitzer): beim Gast faellt der Hinweis zum Speicherstand weg -
+     er speichert nichts, sein Stand ist beim Verlassen fort. */
+  const showPrivacy = !profile.notices?.privacy && !istGast(profile);
   const showIntro = !showPrivacy && !profile.notices?.intro; // what the game IS — once, at the very start
   /* v1.0.5: Bestandsstaende ohne Namen (seit der E-Mail-Trennung gibt es
      die) bekommen den Herold-Ruf nachgereicht - einmal, mit vorbefuelltem
      Vorschlag. Neue Spieler setzen den Namen schon im GameIntro. */
   const showName = !showPrivacy && !showIntro && !(profile.name || "").trim();
   // onboarding lessons appear between battles, never over a running match
-  const teach = (!showPrivacy && !showIntro && !showName && !inMatchNow) ? pendingTeach(profile) : null;
+  /* v1.65.0: Hinweise lassen sich global ausschalten (Profil oder in jedem
+     Hinweis), und Lehrstunden wie Freigaben erscheinen nur dort, wo sie
+     hingehoeren: im Figurenreiter, wo Aufstellung und Hofstaat sind. */
+  const hinweiseAus = !!profile?.notices?.hinweiseAus;
+  /* immer nur EIN Hinweis: steht die Vorstellung des Reiters noch offen,
+     warten Lehrstunde und Freigabe, bis sie bestaetigt ist */
+  const mlOffen = MENUE_LEHREN[profile?.lang === "en" ? "en" : "de"];
+  const reiterVorstellungOffen = !!(mlOffen && mlOffen[tab] && getippt[tab] && !(profile?.gesehen || {})[tab] && !hinweiseAus);
+  const hinweisOrt = tab === "army" && !reiterVorstellungOffen;
+  const teach = (!showPrivacy && !showIntro && !showName && !inMatchNow && !hinweiseAus && hinweisOrt) ? pendingTeach(profile) : null;
   /* v1.12.0: ein erwachter Bund geht VOR den Lehrstunden - er ist der
      seltenere Moment und der, auf den man hingearbeitet hat. */
   const bundWach = (!showPrivacy && !showIntro && !showName && !inMatchNow && !teach)
@@ -543,7 +559,7 @@ export default function App() {
   /* v1.0.44: die naechste Freigabe, die sich noch nicht erklaert hat. Nach
      den Lehrstunden, damit nie zwei Fenster uebereinander stehen - und nie
      mitten in einer Partie. */
-  const freigabe = (!showPrivacy && !showIntro && !showName && !inMatchNow && !teach)
+  const freigabe = (!showPrivacy && !showIntro && !showName && !inMatchNow && !teach && !hinweiseAus && hinweisOrt)
     ? naechsteErklaerung(profile) : null;
   const t = makeT(profile.lang);
   if (locked) return <Lock t={t} profile={profile} onUnlock={() => setLocked(false)}
@@ -614,6 +630,7 @@ export default function App() {
       <button key={tb.id} onClick={() => {
         if (inMatch && tb.id !== tab) { setLeaveTo(tb.id); return; }
         if (tb.id !== tab) { try { klang("menue"); } catch {} }   /* v0.79: der leiseste Klang im Haus */
+        setGetippt((g) => (g[tb.id] ? g : { ...g, [tb.id]: true }));
         setTab(tb.id); setView("hub");
       }} style={{ position: "relative",
         display: "flex", alignItems: "center", gap: wide ? 12 : 0, flexDirection: wide ? "row" : "column",
@@ -709,20 +726,26 @@ export default function App() {
         // (profile.gesehen). "Alle ueberspringen" bringt alle zum Schweigen.
         const ml = MENUE_LEHREN[profile?.lang === "en" ? "en" : "de"];
         const eintrag = ml && ml[tab];
-        const zeigen = eintrag && ready && !showIntro && !showPrivacy && !showName && !inMatch && !(profile?.gesehen || {})[tab];
+        const zeigen = eintrag && ready && !showIntro && !showPrivacy && !showName && !inMatch && !(profile?.gesehen || {})[tab]
+          && !profile?.notices?.hinweiseAus && getippt[tab];   /* v1.65.0: nur nach echtem Antippen */
         if (!zeigen) return null;
         const merken = (alle) => dispatch({ type: "REPLACE", profile: { ...profile,
           gesehen: alle ? Object.fromEntries(Object.keys(ml).map((k) => [k, true]))
-                        : { ...(profile.gesehen || {}), [tab]: true } } });
+                        : { ...(profile.gesehen || {}), [tab]: true },
+          /* v1.65.0: "Hinweise ausschalten" schaltet ALLE Hinweise aus - im Profil wieder an */
+          notices: alle ? { ...(profile.notices || {}), hinweiseAus: true } : profile.notices } });
         return (
-          <div style={{ position: "fixed", inset: 0, zIndex: 60, display: "grid", placeItems: "center",
-            background: "rgba(8,10,14,.78)", backdropFilter: "blur(3px)", padding: "16px 10px" }}>
-            <div style={{ background: `radial-gradient(125% 135% at 50% -10%, ${T.panel2} 0%, ${T.panel} 52%, ${T.bg2} 100%)`,
-              border: `1.5px solid ${T.gold}66`, borderRadius: 16, padding: "18px 18px 14px", maxWidth: 420, width: "100%",
-              boxShadow: "0 14px 44px rgba(0,0,0,.6)" }}>
+          /* v1.65.0 (Besitzer: "wie so eine Art Tooltips"): keine Wand mitten im
+             Bild mehr, sondern eine kompakte Karte ueber der Leiste; der Grund
+             bleibt sichtbar. */
+          <div style={{ position: "fixed", inset: 0, zIndex: 60, display: "flex", alignItems: "flex-end", justifyContent: "center",
+            background: "rgba(8,10,14,.32)", padding: "16px 10px calc(104px + env(safe-area-inset-bottom, 0px))" }}>
+            <div className="gg-funkenkontur-innen" style={{ background: `radial-gradient(125% 135% at 50% -10%, ${T.panel2} 0%, ${T.panel} 52%, ${T.bg2} 100%)`,
+              border: `1px solid ${T.gold}55`, borderRadius: 14, padding: "13px 15px 11px", maxWidth: 400, width: "100%",
+              boxShadow: "0 10px 34px rgba(0,0,0,.55)" }}>
               <div className="gg-serif" style={{ fontSize: 19, color: T.goldBright, letterSpacing: ".04em", marginBottom: 4 }}>{eintrag.titel}</div>
               <div style={{ fontSize: 12.5, fontWeight: 800, color: "#cbbcf5", marginBottom: 8 }}>{eintrag.kurz}</div>
-              <div style={{ fontSize: 12.5, lineHeight: 1.62, color: T.text, marginBottom: 14 }}>{eintrag.text}</div>
+              <div style={{ fontSize: 12.5, lineHeight: 1.55, color: T.dim, marginBottom: 11 }}>{eintrag.text}</div>
               <button onClick={() => merken(false)} style={{ width: "100%", padding: "11px 14px", borderRadius: 12,
                 border: "none", cursor: "pointer", fontFamily: "inherit", fontWeight: 900, fontSize: 14.5, color: "#17110a",
                 background: "linear-gradient(160deg, #f0d68a, #d9b565 55%, #b08c44)" }}>
@@ -730,13 +753,14 @@ export default function App() {
               <button onClick={() => merken(true)} style={{ width: "100%", marginTop: 8, padding: "9px 14px", borderRadius: 12,
                 border: `1px solid ${T.line}`, cursor: "pointer", fontFamily: "inherit", fontWeight: 800, fontSize: 12.5,
                 color: T.dim, background: "transparent" }}>
-                {profile?.lang === "en" ? "Skip all introductions" : "Alle Vorstellungen überspringen"}</button>
+                {profile?.lang === "en" ? "Turn hints off" : "Hinweise ausschalten"}</button>
             </div>
           </div>
         );
       })()}
       {showPrivacy && <PrivacyNotice t={t} dispatch={dispatch} />}
-      {showIntro && <GameIntro t={t} en={profile.lang === "en"} dispatch={dispatch} onStart={() => { setTab("play"); setView("hub"); }} />}
+      {showIntro && <GameIntro t={t} en={profile.lang === "en"} dispatch={dispatch} gast={istGast(profile)}
+        onStart={() => { setTab("play"); setView(istGast(profile) ? "camp" : "hub"); }} />}
       {showName && !inMatch && <NamensRuf t={t} en={profile.lang === "en"} dispatch={dispatch} />}
       {bundWach && <BundErwacht bundId={bundWach} en={profile.lang === "en"}
         onClose={() => dispatch({ type: "SET_NOTICE", key: `bund_${bundWach}` })} />}
@@ -808,20 +832,26 @@ export default function App() {
         // (profile.gesehen). "Alle ueberspringen" bringt alle zum Schweigen.
         const ml = MENUE_LEHREN[profile?.lang === "en" ? "en" : "de"];
         const eintrag = ml && ml[tab];
-        const zeigen = eintrag && ready && !showIntro && !showPrivacy && !showName && !inMatch && !(profile?.gesehen || {})[tab];
+        const zeigen = eintrag && ready && !showIntro && !showPrivacy && !showName && !inMatch && !(profile?.gesehen || {})[tab]
+          && !profile?.notices?.hinweiseAus && getippt[tab];   /* v1.65.0: nur nach echtem Antippen */
         if (!zeigen) return null;
         const merken = (alle) => dispatch({ type: "REPLACE", profile: { ...profile,
           gesehen: alle ? Object.fromEntries(Object.keys(ml).map((k) => [k, true]))
-                        : { ...(profile.gesehen || {}), [tab]: true } } });
+                        : { ...(profile.gesehen || {}), [tab]: true },
+          /* v1.65.0: "Hinweise ausschalten" schaltet ALLE Hinweise aus - im Profil wieder an */
+          notices: alle ? { ...(profile.notices || {}), hinweiseAus: true } : profile.notices } });
         return (
-          <div style={{ position: "fixed", inset: 0, zIndex: 60, display: "grid", placeItems: "center",
-            background: "rgba(8,10,14,.78)", backdropFilter: "blur(3px)", padding: "16px 10px" }}>
-            <div style={{ background: `radial-gradient(125% 135% at 50% -10%, ${T.panel2} 0%, ${T.panel} 52%, ${T.bg2} 100%)`,
-              border: `1.5px solid ${T.gold}66`, borderRadius: 16, padding: "18px 18px 14px", maxWidth: 420, width: "100%",
-              boxShadow: "0 14px 44px rgba(0,0,0,.6)" }}>
+          /* v1.65.0 (Besitzer: "wie so eine Art Tooltips"): keine Wand mitten im
+             Bild mehr, sondern eine kompakte Karte ueber der Leiste; der Grund
+             bleibt sichtbar. */
+          <div style={{ position: "fixed", inset: 0, zIndex: 60, display: "flex", alignItems: "flex-end", justifyContent: "center",
+            background: "rgba(8,10,14,.32)", padding: "16px 10px calc(104px + env(safe-area-inset-bottom, 0px))" }}>
+            <div className="gg-funkenkontur-innen" style={{ background: `radial-gradient(125% 135% at 50% -10%, ${T.panel2} 0%, ${T.panel} 52%, ${T.bg2} 100%)`,
+              border: `1px solid ${T.gold}55`, borderRadius: 14, padding: "13px 15px 11px", maxWidth: 400, width: "100%",
+              boxShadow: "0 10px 34px rgba(0,0,0,.55)" }}>
               <div className="gg-serif" style={{ fontSize: 19, color: T.goldBright, letterSpacing: ".04em", marginBottom: 4 }}>{eintrag.titel}</div>
               <div style={{ fontSize: 12.5, fontWeight: 800, color: "#cbbcf5", marginBottom: 8 }}>{eintrag.kurz}</div>
-              <div style={{ fontSize: 12.5, lineHeight: 1.62, color: T.text, marginBottom: 14 }}>{eintrag.text}</div>
+              <div style={{ fontSize: 12.5, lineHeight: 1.55, color: T.dim, marginBottom: 11 }}>{eintrag.text}</div>
               <button onClick={() => merken(false)} style={{ width: "100%", padding: "11px 14px", borderRadius: 12,
                 border: "none", cursor: "pointer", fontFamily: "inherit", fontWeight: 900, fontSize: 14.5, color: "#17110a",
                 background: "linear-gradient(160deg, #f0d68a, #d9b565 55%, #b08c44)" }}>
@@ -829,13 +859,14 @@ export default function App() {
               <button onClick={() => merken(true)} style={{ width: "100%", marginTop: 8, padding: "9px 14px", borderRadius: 12,
                 border: `1px solid ${T.line}`, cursor: "pointer", fontFamily: "inherit", fontWeight: 800, fontSize: 12.5,
                 color: T.dim, background: "transparent" }}>
-                {profile?.lang === "en" ? "Skip all introductions" : "Alle Vorstellungen überspringen"}</button>
+                {profile?.lang === "en" ? "Turn hints off" : "Hinweise ausschalten"}</button>
             </div>
           </div>
         );
       })()}
       {showPrivacy && <PrivacyNotice t={t} dispatch={dispatch} />}
-      {showIntro && <GameIntro t={t} en={profile.lang === "en"} dispatch={dispatch} onStart={() => { setTab("play"); setView("hub"); }} />}
+      {showIntro && <GameIntro t={t} en={profile.lang === "en"} dispatch={dispatch} gast={istGast(profile)}
+        onStart={() => { setTab("play"); setView(istGast(profile) ? "camp" : "hub"); }} />}
       {showName && !inMatch && <NamensRuf t={t} en={profile.lang === "en"} dispatch={dispatch} />}
       {bundWach && <BundErwacht bundId={bundWach} en={profile.lang === "en"}
         onClose={() => dispatch({ type: "SET_NOTICE", key: `bund_${bundWach}` })} />}
@@ -1070,7 +1101,8 @@ export function PlayHub({ profile, t, onQuick, onCamp, onOnline, onTutorial = nu
       {/* v1.46.0: DER GAST SIEHT NUR DIE KAMPAGNE. Schnelles Spiel und Online
           bleiben dem Konto vorbehalten - der Gaststand ist ein Schaufenster,
           kein halbes Spiel (Besitzerentscheid 23.9.). */}
-      {!profile.gast && <Card ruhig title={t("hub.quick")} sub={t("hub.quickSub")} onGo={onQuick} cta={null}
+      {/* v1.65.0 (Besitzer 25.9.): das Schnelle Spiel darf auch der Gast */}
+      {<Card ruhig title={t("hub.quick")} sub={t("hub.quickSub")} onGo={onQuick} cta={null}
         bild={karteSchnell} art={null}>
         {/* SOFORT LOSLEGEN: ein Griff, keine Konfiguration - gestartet wird
             mit den letzten Einstellungen (oder den Hausvorgaben). "Anpassen"
@@ -1093,7 +1125,13 @@ export function PlayHub({ profile, t, onQuick, onCamp, onOnline, onTutorial = nu
             {t("hub.adjust")}</button>
         </div>
       </Card>}
-      {!profile.gast && <Card ruhig title={t("online.title")} sub={t("online.sub")} onGo={onOnline}
+      {/* v1.65.0 (Besitzer: "Online-Spiel ausgegraut - alle Varianten sichtbar,
+          aber nicht anklickbar, dass da steht: als Gast nicht nutzbar") */}
+      <div style={profile.gast ? { position: "relative", opacity: 0.45, filter: "grayscale(.7)", pointerEvents: "none" } : undefined}
+        aria-disabled={profile.gast ? "true" : undefined}>
+      {profile.gast && <div style={{ position: "absolute", top: 10, right: 12, zIndex: 3, fontSize: 11, fontWeight: 700,
+        letterSpacing: ".04em", color: "#e9d296" }}>{profile.lang === "en" ? "Not available as guest" : "Als Gast nicht nutzbar"}</div>}
+      {<Card ruhig title={t("online.title")} sub={t("online.sub")} onGo={profile.gast ? undefined : onOnline}
         cta={hallenStand ? (profile.lang === "en" ? "Play" : "Spielen") : t("online.connect")}
         extra={!SERVER_URL ? <Chip color={"#17110a"} bg={T.gold}>{t("hub.soon")}</Chip>
           : <span title={hallenStand ? (profile.lang === "en" ? "Connected" : "Verbunden")
@@ -1144,6 +1182,7 @@ export function PlayHub({ profile, t, onQuick, onCamp, onOnline, onTutorial = nu
           </div>
         )}
       </Card>}
+      </div>
       {onTutorial && (
         /* DIE AKADEMIE ALS ECHTE KARTE (Besitzer, v0.68): "mach es wirklich
            genau, genau gleich" - also kein Sonder-Knopf mehr, sondern
@@ -1189,7 +1228,7 @@ function Lock({ t, profile, onUnlock, onBack }) {
 
 // ── first-run game intro (once): what Gambit IS and what makes it
 // special — a parchment card in the world's own voice. ───────────────────────
-export function GameIntro({ t, dispatch, onStart, en = false }) {
+export function GameIntro({ t, dispatch, onStart, en = false, gast = false }) {
   const [style, setStyle] = useState("painted");    // v1.0.8 (Besitzer): die detailreichen Figuren sind der Standard
   const [diff, setDiff] = useState("easy");
   /* v1.0.5 (Besitzer): "wenn ich mich angemeldet habe, muss ich mir doch
@@ -1225,8 +1264,8 @@ export function GameIntro({ t, dispatch, onStart, en = false }) {
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 60, display: "grid", placeItems: "center",
       background: "rgba(8,10,14,.8)", backdropFilter: "blur(3px)", padding: eng ? "6px 6px" : "18px 10px" }}>
-      <div style={{ width: "100%", maxWidth: 420, background: `radial-gradient(125% 135% at 50% -10%, #241a3e 0%, ${T.panel} 52%, ${T.bg2} 100%)`,
-        border: "1.5px solid rgba(168,130,255,.55)", borderRadius: 16, boxShadow: "0 18px 50px rgba(60,30,120,.55)",
+      <div className="gg-funkenkontur-innen" style={{ width: "100%", maxWidth: 420, background: `radial-gradient(125% 135% at 50% -10%, #241a3e 0%, ${T.panel} 52%, ${T.bg2} 100%)`,
+        border: "1.5px solid rgba(168,130,255,.55)", borderRadius: 16, boxShadow: "0 18px 50px rgba(60,30,120,.55), 0 0 40px rgba(124,58,237,.25)",
         padding: eng ? "11px 12px 10px" : "22px 20px 18px", textAlign: "center",
         maxHeight: "calc(100dvh - 36px)", overflowY: "auto" }}>
         <div className="gg-serif" style={{ fontSize: eng ? 17 : 21, letterSpacing: ".05em", color: "#cbb6ff" }}>{t("intro.title")}</div>
@@ -1236,16 +1275,17 @@ export function GameIntro({ t, dispatch, onStart, en = false }) {
           <span style={{ flex: 1, height: 1, background: `${T.gold}44` }} />
         </div>
         <div className="gg-serif" style={{ fontSize: eng ? 11.5 : 13.5, fontStyle: "italic", lineHeight: eng ? 1.32 : 1.55, color: T.dim }}>{t("intro.lead")}</div>
-        <div style={{ display: "grid", gap: eng ? 5 : 11, margin: eng ? "6px 0 2px" : "15px 0 4px" }}>
-          <Row icon={<JewelIc kind="life" size={17} />}>{t("intro.p1")}</Row>
-          <Row icon={<SkillIc size={17} />}>{t("intro.p2")}</Row>
-          <Row icon={<MapPinIc size={17} />}>{t("intro.p3")}</Row>
-        </div>
+        {/* v1.65.0 (Besitzer: "der Screen ist zu ueberladen ... zieh durch elf
+            Kapitel und online warten Duelle, das kann alles weg"): die drei
+            Aufzaehlungen sind fort. Beim Gast gibt es gar keine Auswahl - er
+            heisst Gast und spielt mit den Voreinstellungen. */}
+        {gast && <div style={{ marginTop: 16, fontSize: 12.5, color: T.dim, lineHeight: 1.5 }}>
+          {en ? "You are playing as a guest." : "Du spielst als Gast."}</div>}
         {/* THE TWO CHOICES, ASKED ONCE AND UP FRONT: which figures you want to
             look at, and how hard the opponent should think. Both were buried in
             the profile screen, where a new player never looks. Both stay
             changeable there — the note says so, so nobody feels locked in. */}
-        <div style={{ marginTop: eng ? 6 : 16, textAlign: "left" }}>
+        {!gast && <div style={{ marginTop: eng ? 6 : 16, textAlign: "left" }}>
           <div className="gg-serif" style={{ fontSize: 12, letterSpacing: ".12em", color: T.gold }}>{t("setup.name").toUpperCase()}</div>
           <div style={{ display: "flex", gap: 8, margin: "7px 0 4px" }}>
             <input value={name} onChange={(e) => setName(e.target.value.slice(0, 24))}
@@ -1256,7 +1296,7 @@ export function GameIntro({ t, dispatch, onStart, en = false }) {
               style={{ flex: "0 0 auto", width: 42, borderRadius: 10, border: `1px solid ${T.line}`,
                 background: T.bg2, color: T.gold, fontSize: 18, cursor: "pointer" }}>⚄</button>
           </div>
-          {!eng && <div style={{ fontSize: 11.5, color: T.faint, lineHeight: 1.45 }}>{t("setup.nameHint")}</div>}   {/* v1.0.28: auf 320px weicht der Hinweis - der Start-Knopf zaehlt mehr */}
+          {!eng && <div style={{ fontSize: 10.5, color: T.faint, lineHeight: 1.4 }}>{t("setup.nameHint")}</div>}   {/* v1.0.28: auf 320px weicht der Hinweis - der Start-Knopf zaehlt mehr */}
           {!name.trim() && <div style={{ fontSize: 11.5, color: "#e0a0a8", fontWeight: 800, marginTop: 4 }}>{t("setup.nameNeed")}</div>}
 
           <div className="gg-serif" style={{ fontSize: 12, letterSpacing: ".12em", color: T.gold, marginTop: 14 }}>{t("setup.style").toUpperCase()}</div>
@@ -1265,7 +1305,7 @@ export function GameIntro({ t, dispatch, onStart, en = false }) {
               <button key={v} onClick={() => setStyle(v)} style={pick(style === v)}>{label}</button>
             ))}
           </div>
-          <div style={{ fontSize: 11.5, color: T.faint, lineHeight: 1.45 }}>{t("setup.styleHint")}</div>
+          <div style={{ fontSize: 10.5, color: T.faint, lineHeight: 1.4 }}>{t("setup.styleHint")}</div>
 
           <div className="gg-serif" style={{ fontSize: 12, letterSpacing: ".12em", color: T.gold, marginTop: 14 }}>{t("setup.diff").toUpperCase()}</div>
           <div style={{ display: "flex", gap: 8, margin: "7px 0 4px" }}>
@@ -1273,16 +1313,15 @@ export function GameIntro({ t, dispatch, onStart, en = false }) {
               <button key={v} onClick={() => setDiff(v)} style={pick(diff === v)}>{label}</button>
             ))}
           </div>
-          <div style={{ fontSize: 11.5, color: T.faint, lineHeight: 1.45 }}>{t("setup.diffHint")}</div>
-          <div style={{ fontSize: 11.5, color: T.dim, lineHeight: 1.45, marginTop: 12 }}>{t("setup.lead")}</div>
-        </div>
-        <button disabled={!name.trim()} onClick={() => {
+          <div style={{ fontSize: 10.5, color: T.faint, lineHeight: 1.4 }}>{t("setup.diffHint")}</div>
+        </div>}
+        <button disabled={!gast && !name.trim()} onClick={() => {
             /* v1.0.6: DER NAME IST PFLICHT. Vorher liess der Knopf auch ein
                geleertes Feld durch - dann fing zwar der NamensRuf den Spieler
                gleich danach ab, aber zwei Blaetter fuer eine Frage sind eins
                zu viel. Das Feld kommt vorbefuellt, der Wuerfel liegt daneben:
                niemand muss dichten, aber leer geht es nicht hinein. */
-            const n = name.trim();
+            const n = gast ? (en ? "Guest" : "Gast") : name.trim();
             if (!n) return;
             dispatch({ type: "SET_NAME", name: n });
             dispatch({ type: "SET_PIECE_STYLE", style });
@@ -1292,7 +1331,7 @@ export function GameIntro({ t, dispatch, onStart, en = false }) {
           style={{ marginTop: 15, width: "100%", padding: "12px 14px", borderRadius: 10,
             background: "linear-gradient(165deg, #e0b76c, #b78d43)", border: "1px solid rgba(255,240,200,.5)",
             color: "#17110a", fontWeight: 800, fontSize: 14.5, fontFamily: "inherit",
-            cursor: "pointer", letterSpacing: ".04em", opacity: name.trim() ? 1 : 0.55 }}>{t("setup.go")}</button>
+            cursor: "pointer", letterSpacing: ".04em", opacity: gast || name.trim() ? 1 : 0.55 }}>{t("setup.go")}</button>
       </div>
     </div>
   );
@@ -1404,20 +1443,27 @@ function TeachPopup({ which, t, dispatch }) {
     teachGambitPos: ["teach.gambitPosTitle", "teach.gambitPosBody"] };
   const [tk, bk] = map[which];
   return (
-    <div style={{ position: "fixed", inset: 0, zIndex: 62, display: "grid", placeItems: "center",
-      background: "rgba(8,10,14,.8)", backdropFilter: "blur(3px)", padding: "18px 10px" }}>
-      <div style={{ width: "100%", maxWidth: 400, background: T.panel, border: `1px solid ${T.gold}77`,
-        borderRadius: T.radius, boxShadow: "0 18px 50px rgba(0,0,0,.6)", padding: "20px 18px 16px" }}>
+    /* v1.65.0 (Besitzer: "wie so eine Art Tooltips ... man sollte bei jedem
+       Pop-up es auch deaktivieren koennen"): kompakte Karte ueber der Leiste,
+       leichter Grund, dazu "Hinweise ausschalten". */
+    <div style={{ position: "fixed", inset: 0, zIndex: 62, display: "flex", alignItems: "flex-end", justifyContent: "center",
+      background: "rgba(8,10,14,.32)", padding: "16px 10px calc(104px + env(safe-area-inset-bottom, 0px))" }}>
+      <div className="gg-funkenkontur-innen" style={{ width: "100%", maxWidth: 400, background: T.panel, border: `1px solid ${T.gold}55`,
+        borderRadius: 14, boxShadow: "0 10px 34px rgba(0,0,0,.55)", padding: "13px 15px 11px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 4 }}>
           <span style={{ width: 8, height: 8, background: T.gold, transform: "rotate(45deg)", flex: "0 0 auto" }} />
           <div className="gg-serif" style={{ fontSize: 18.5, color: T.gold, letterSpacing: ".04em" }}>{t(tk)}</div>
         </div>
-        <div style={{ fontSize: 13.5, color: T.dim, lineHeight: 1.6, margin: "8px 0 14px" }}>{t(bk)}</div>
+        <div style={{ fontSize: 12.5, color: T.dim, lineHeight: 1.55, margin: "6px 0 11px" }}>{t(bk)}</div>
         <button onClick={() => dispatch({ type: "SET_NOTICE", key: which })}
           style={{ width: "100%", padding: "12px 14px", borderRadius: 10,
             background: "linear-gradient(165deg, #e0b76c, #b78d43)", border: "1px solid rgba(255,240,200,.5)",
             color: "#17110a", fontWeight: 800, fontSize: 14.5, fontFamily: "inherit", cursor: "pointer", letterSpacing: ".04em" }}>
           {t("teach.ok")}</button>
+        <button onClick={() => dispatch({ type: "SET_NOTICE", key: "hinweiseAus" })}
+          style={{ width: "100%", marginTop: 7, padding: "7px 12px", borderRadius: 10, border: "none", background: "transparent",
+            color: T.dim, fontWeight: 600, fontSize: 12, fontFamily: "inherit", cursor: "pointer" }}>
+          {t("teach.ok") === "Understood" ? "Turn hints off" : "Hinweise ausschalten"}</button>
       </div>
     </div>
   );
@@ -1439,11 +1485,13 @@ function TeachPopup({ which, t, dispatch }) {
    kein Fenster. */
 function FreigabeFenster({ freigabe, en, dispatch }) {
   return (
-    <div style={{ position: "fixed", inset: 0, zIndex: 63, display: "grid", placeItems: "center",
-      background: "rgba(8,10,14,.82)", backdropFilter: "blur(3px)", padding: "18px 10px" }}>
-      <div style={{ width: "100%", maxWidth: 400, background: T.panel,
-        border: `1px solid ${T.gold}88`, borderRadius: T.radius,
-        boxShadow: `0 18px 50px rgba(0,0,0,.6), 0 0 34px ${T.gold}22`, padding: "20px 18px 16px" }}>
+    /* v1.65.0 (Besitzer: "wie so eine Art Tooltips ... man sollte bei jedem
+       Pop-up es auch deaktivieren koennen"): kompakte Karte ueber der Leiste,
+       leichter Grund, dazu "Hinweise ausschalten". */
+    <div style={{ position: "fixed", inset: 0, zIndex: 63, display: "flex", alignItems: "flex-end", justifyContent: "center",
+      background: "rgba(8,10,14,.32)", padding: "16px 10px calc(104px + env(safe-area-inset-bottom, 0px))" }}>
+      <div className="gg-funkenkontur-innen" style={{ width: "100%", maxWidth: 400, background: T.panel, border: `1px solid ${T.gold}55`,
+        borderRadius: 14, boxShadow: "0 10px 34px rgba(0,0,0,.55)", padding: "13px 15px 11px" }}>
         <div className="gg-serif" style={{ fontSize: 10.5, letterSpacing: ".18em",
           color: "#a78bfa", textTransform: "uppercase", marginBottom: 7 }}>
           {en ? "Something has opened" : "Etwas hat sich geöffnet"}</div>
@@ -1452,7 +1500,7 @@ function FreigabeFenster({ freigabe, en, dispatch }) {
           <div className="gg-serif" style={{ fontSize: 18.5, color: T.gold, letterSpacing: ".04em" }}>
             {en ? freigabe.titelEn : freigabe.titelDe}</div>
         </div>
-        <div style={{ fontSize: 13.5, color: T.dim, lineHeight: 1.6, margin: "8px 0 14px" }}>
+        <div style={{ fontSize: 12.5, color: T.dim, lineHeight: 1.55, margin: "6px 0 11px" }}>
           {en ? freigabe.textEn : freigabe.textDe}</div>
         <button onClick={() => dispatch({ type: "SET_NOTICE", key: merkschluessel(freigabe.id) })}
           style={{ width: "100%", padding: "12px 14px", borderRadius: 10,
@@ -1460,6 +1508,10 @@ function FreigabeFenster({ freigabe, en, dispatch }) {
             color: "#17110a", fontWeight: 800, fontSize: 14.5, fontFamily: "inherit",
             cursor: "pointer", letterSpacing: ".04em" }}>
           {en ? "Understood" : "Verstanden"}</button>
+        <button onClick={() => dispatch({ type: "SET_NOTICE", key: "hinweiseAus" })}
+          style={{ width: "100%", marginTop: 7, padding: "7px 12px", borderRadius: 10, border: "none", background: "transparent",
+            color: T.dim, fontWeight: 600, fontSize: 12, fontFamily: "inherit", cursor: "pointer" }}>
+          {en ? "Turn hints off" : "Hinweise ausschalten"}</button>
       </div>
     </div>
   );

@@ -1,5 +1,31 @@
 # Changelog - Gambit Rise
 
+## 1.65.0 - Hinweise statt Fensterflut, der Gast startet im Spiel
+- Besitzer: "alle diese Pop-ups kommen jetzt nacheinander ... man ist noch
+  nicht mal im Spiel und kriegt schon Sachen erklaert. Wie so eine Art
+  Tooltips, die man unter Profil ein- und ausstellen kann, und man sollte
+  bei jedem Pop-up es auch deaktivieren koennen."
+    * Ein Reiter stellt sich nur noch vor, wenn der Spieler ihn SELBST
+      antippt - der Startreiter "Spielen" schweigt beim ersten Start.
+    * Lehrstunden und Freigaben erscheinen nur im Figurenreiter, wo
+      Aufstellung und Hofstaat liegen - nicht mehr ueber dem Hauptmenue.
+    * Nie zwei Hinweise uebereinander: steht die Vorstellung eines Reiters
+      offen, warten Lehrstunde und Freigabe, bis sie bestaetigt ist.
+    * Statt einer Wand mitten im Bild eine kompakte Karte ueber der Leiste,
+      mit leuchtender Kontur; der Grund bleibt sichtbar.
+    * Jeder Hinweis traegt "Hinweise ausschalten", und im Profil steht der
+      Schalter "Hinweise: An / Aus".
+- WILLKOMMENSSCHIRM (Besitzer: "zu ueberladen, zu viel Text"): die drei
+  Aufzaehlungen sind fort, die Erklaertexte kleiner, das Blatt traegt die
+  leuchtende Kontur. Es stellt nur noch seine Fragen.
+- DER GAST (Besitzer): keine Auswahl mehr - er heisst "Gast" ("Guest" auf
+  Englisch), kein Hinweis zum Speicherstand, und nach "Los geht's" landet er
+  direkt in der KAMPAGNE. Das Schnelle Spiel darf er; das Online-Duell bleibt
+  SICHTBAR, aber ausgegraut und ohne Aktion, mit dem Vermerk "Als Gast nicht
+  nutzbar".
+- Im Browser als Gast durchgespielt: Willkommen, Start, Kampagne, beide
+  Reiter - keine Fehler.
+
 ## 1.64.0 - die Google-Anmeldung kehrt ins Spiel zurueck
 - Besitzer: "ich schaffe es nicht, mich mit meinem Google-Konto anzumelden -
   er springt zurueck auf die Landingpage". URSACHE: die Rueckkehradresse nach

@@ -804,7 +804,11 @@ const erloschen = (m) => m.includes("#2f2a3d");
   ok("all three difficulties are offered",
     [t("diff.easy"), t("diff.normal"), t("diff.hard")].every((d) => intro.includes(d)));
   ok("it says the campaign climbs on its own", intro.includes(t("setup.diffHint").slice(0, 30)));
-  ok("and that both can be changed later", intro.includes(t("setup.lead").slice(0, 30)));
+  /* v1.65.0 (Besitzer: "der Screen ist zu ueberladen, zu viel Text"): der
+     Zusatzsatz und die drei Aufzaehlungen sind fort - der Schirm stellt nur
+     noch die Fragen. */
+  ok("the welcome sheet asks only the questions - no bullet points, no extra lead",
+    !intro.includes(t("setup.lead").slice(0, 30)) && !intro.includes(t("intro.p1").slice(0, 30)) && !intro.includes(t("intro.p3").slice(0, 30)));
 }
 
 // ── 18. FACTS IN THE TREASURY'S OWN WORDS ───────────────────────────────────

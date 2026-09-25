@@ -208,6 +208,14 @@ export function ProfileScreen({ profile, dispatch, t, account, onSwitchSave, onL
       <div style={{ fontSize: 11.5, color: T.faint, margin: "5px 2px 0", lineHeight: 1.45 }}>{t("profile.pieceStyleHint")}</div>
       {/* v1.0.8 (Besitzer): NUR die Regler. Die alten An/Aus-Schalter
           darunter sagten dasselbe zweimal - sie sind fort. */}
+      {/* v1.65.0 (Besitzer: "Tooltips, die man global unter Profil ein- und
+          ausstellen kann"): an = jeder Hinweis erscheint einmal, beim ersten
+          Antippen seines Ortes; aus = keiner. Einschalten holt auch die
+          Reitervorstellungen zurueck, die man noch nicht gesehen hat. */}
+      <div style={{ fontSize: 12, color: T.faint, margin: "14px 0 6px" }}>{profile.lang === "en" ? "Hints" : "Hinweise"}</div>
+      <Segmented value={profile.notices?.hinweiseAus ? "aus" : "an"}
+        onChange={(v) => dispatch({ type: "REPLACE", profile: { ...profile, notices: { ...(profile.notices || {}), hinweiseAus: v === "aus" } } })}
+        options={[{ value: "an", label: profile.lang === "en" ? "On" : "An" }, { value: "aus", label: profile.lang === "en" ? "Off" : "Aus" }]} />
       <div style={{ fontSize: 12, color: T.faint, margin: "14px 0 6px" }}>{t("profile.lang")}</div>
       <Segmented value={profile.lang} onChange={(v) => dispatch({ type: "SET_LANG", lang: v })}
         options={[{ value: "de", label: "Deutsch" }, { value: "en", label: "English" }]} />
