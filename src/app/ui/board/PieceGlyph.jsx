@@ -596,8 +596,14 @@ export function PieceGlyph({ piece, showLevel = true, pov = "w", artStyle = "pai
        des Satzes und verlor gegen die hohen Figuren jedes Mal; jetzt steht
        er hoeher als sie. Die uebrigen gehen eine Spur zurueck, damit die
        Reihe nicht gedraengt wirkt. */
-    klassisch ? (paintPiece.kind === "P" ? "1.46em" : "1.08em")
-    : hpMode && piece.maxHp > 0 ? "0.99em" : "1.0em";
+    /* v1.63.3 (Besitzer: "es taete dem klassischen Schach gut, wenn die
+       Figuren mini, minimal kleiner sind"): rund 4 % kleiner, das
+       Verhaeltnis Bauer zu Figur bleibt gleich. */
+    klassisch ? (paintPiece.kind === "P" ? "1.40em" : "1.04em")
+    /* v1.63.3: auch der gemalte Satz im reinen Schach 4 % kleiner - das
+       sind die Figuren, die man im Schach tatsaechlich sieht. Im HP-Gefecht
+       bleibt 0,99 em, dort tragen sie Lebensband und Werte. */
+    : hpMode && piece.maxHp > 0 ? "0.99em" : "0.96em";
 
   // Resolve the painting up-front (if any) so we can level its base width. The
   // enemy's gallery is turned to steel; the risen Gambit wears his tier portrait.

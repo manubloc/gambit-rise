@@ -1264,7 +1264,7 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
               <span style={{ fontWeight: 400, fontSize: 11.5, color: "#a99bc6", marginLeft: 8 }}>{en ? "new" : "neu"}</span></div>
             <div className="gg-serif" style={{ fontSize: 12.5, lineHeight: 1.5, color: "#cfc4e2" }}>{en ? ab.descEn : ab.descDe}</div>
           </div>; })()}
-        <BoardView lang={profile.lang} state={state} onMove={play} interactive={myTurn} scharf={scharf} onScharf={setScharf} showCoords={klassikOptik} lastMove={state.lastMove} animateFor={null} hotseat={hotseat} feld={feld} feldDunkel={feldDunkel} ruhig={armResign || !!banner} mattSeite={banner && (banner.reason === "checkmate" || banner.reason === "regicide") ? (banner.result === "win" ? (myColor === "w" ? "b" : "w") : myColor) : null} effekt={brettEffekt}
+        <BoardView lang={profile.lang} state={state} onMove={play} interactive={myTurn} scharf={scharf} onScharf={setScharf} showCoords={klassikOptik} lastMove={state.lastMove} animateFor={null} hotseat={hotseat} feld={feld} feldDunkel={feldDunkel} feldKontur={!campaign && !hpMode} ruhig={armResign || !!banner} mattSeite={banner && (banner.reason === "checkmate" || banner.reason === "regicide") ? (banner.result === "win" ? (myColor === "w" ? "b" : "w") : myColor) : null} effekt={brettEffekt}
           flip={viewColor === BLACK} theme={{ ...(map.theme || {}), ...boardPalette(profile, match) }} fitBox pick={scout && pvp ? myColor : potionArm ? WHITE : null}
           onPick={scout && pvp ? scoutTap : usePotion} pov={viewColor}
           /* v1.12.1: im Geleit-Modus dienen dieselben Regler der Figurenwahl.

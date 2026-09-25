@@ -330,6 +330,8 @@ export const GLOBAL_CSS = `
   /* v1.59.0 (Besitzer: "die Kontur so ein bisschen wie bei diesem lila
      Leuchten laufen lassen, bloss in Gelb, um es einzufordern"): dieselbe
      laufende Kontur in Gold - fuer Knoepfe, die etwas einloesen. */
+  .gg-feldkontur::after { content: ""; position: absolute; inset: 3.5%; border-radius: 9%; pointer-events: none;
+    box-shadow: inset 0 0 0 1px rgba(255,244,220,.26), inset 2px 2px 2px -1px rgba(255,255,255,.34), inset -2px -2px 3px -1px rgba(0,0,0,.42); }
   .gg-goldlauf { position: relative; }
   .gg-goldlauf::after { content: ""; position: absolute; inset: -1px; border-radius: inherit; padding: 1.5px;
     background: linear-gradient(90deg, transparent 0%, rgba(255,236,170,.2) 30%, rgba(255,250,225,1) 46%,

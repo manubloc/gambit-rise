@@ -1,5 +1,19 @@
 # Changelog - Gambit Rise
 
+## 1.63.3 - klassisches Brett erhaben, Figuren im Schach eine Spur kleiner
+- Besitzer: "die Felder vom klassischen Schach nicht so perfekt wie die
+  neuerdings - die haben eine kleine Rundung und Kontur und wirken erhaben".
+  Die Kapitelkacheln tragen ihre helle Kante im Bild, die klassischen
+  Marmor- und Steinkacheln nicht. Fuer sie zeichnet .gg-feldkontur eine
+  gerundete Kontur als ::after der Kachel (Lichtsaum oben links, Schatten
+  unten rechts) - kein eigenes Element, der Aufbau des Feldes bleibt gleich.
+  (Ein erster Versuch mit eigenem Element verwirrte die Fahrprobe, die die
+  kleinsten Quadrate als Felder liest - zurecht: das Element war unnoetig.)
+- Besitzer: "dem klassischen Schach taete es gut, wenn die Figuren minimal
+  kleiner sind": gemalter Satz im reinen Schach 0,96 statt 1,0 em, der
+  klassische Holzsatz 1,04 / Bauer 1,40 statt 1,08 / 1,46. Im HP-Gefecht
+  unveraendert (Lebensband und Werte brauchen den Platz).
+
 ## 1.63.2 - Store-Screenshots deutsch und englisch
 - Besitzer: "man braucht es immer auf Englisch und auf Deutsch" und "die
   erste Welt, Kapitel I, zeigen ... und noch ein anderes von den Bergen, ein

@@ -190,7 +190,7 @@ function Zustaende({ piece, feld, state, ruhig, en }) {
   </>;
 }
 
-export function BoardView({ lang = "de", state, onMove, interactive, lastMove, mattSeite = null, effekt = null, theme = null, maxPx = 520, animateFor = null, flip = false, fitBox = false, feld = null, feldDunkel = null, ruhig = false, pick = null, onPick = null, pov = "w", texture = null, ground = null, artStyle = "painted", showLevel = true, showCoords = false, pulse = 0.4, friendly = false, knownKinds = null, seerVision = false, onEnemyTap = null, introSpot = null, onInspect = null, hotseat = false, setzFelder = null, onSetz = null , scharf: scharfAussen = undefined, onScharf = null}) {
+export function BoardView({ lang = "de", state, onMove, interactive, lastMove, mattSeite = null, effekt = null, theme = null, maxPx = 520, animateFor = null, flip = false, fitBox = false, feldKontur = false, feld = null, feldDunkel = null, ruhig = false, pick = null, onPick = null, pov = "w", texture = null, ground = null, artStyle = "painted", showLevel = true, showCoords = false, pulse = 0.4, friendly = false, knownKinds = null, seerVision = false, onEnemyTap = null, introSpot = null, onInspect = null, hotseat = false, setzFelder = null, onSetz = null , scharf: scharfAussen = undefined, onScharf = null}) {
   const sqL0 = theme?.sqLight || T.sqLight, sqD0 = theme?.sqDark || T.sqDark;
   // a GROUND painting beneath the field: the squares open further so meadow,
   // stream and path shimmer through — the land itself hosts the battle
@@ -645,7 +645,13 @@ export function BoardView({ lang = "de", state, onMove, interactive, lastMove, m
               // ROHDATEN ANEINANDER (Besitzer, v0.67.1): kein Schleier,
               // keine Fase, keine Fuge - die Kacheln stehen Kante an Kante,
               // genau wie geliefert. Nur Freundschaftskaempfe dimmen leicht.
-              return <div aria-hidden style={{ position: "absolute", inset: 0, pointerEvents: "none",
+              /* v1.63.3 (Besitzer: "die Felder vom klassischen Schach nicht so
+                 perfekt wie die neuerdings - kleine Rundung und Kontur, erhaben"):
+                 die Kapitelkacheln tragen ihre helle Kante im Bild, die
+                 Marmorkacheln nicht. Fuer sie zeichnet .gg-feldkontur eine
+                 gerundete Kontur als ::after DIESER Kachel - kein eigenes
+                 Element, der Aufbau des Feldes bleibt unveraendert. */
+              return <div aria-hidden className={feldKontur ? "gg-feldkontur" : undefined} style={{ position: "absolute", inset: 0, pointerEvents: "none",
                 background: `url(${quelle}) ${px}% ${fy * 100}% / ${groesse} no-repeat`,
                 opacity: friendly ? 0.55 : 1 }} />;
             }
