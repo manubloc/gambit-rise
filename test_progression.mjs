@@ -588,4 +588,18 @@ console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
   ok("das Brett zeichnet den Geist aus dieser Figur", bv.includes("piece: lastMove.hitPiece ? { ...lastMove.hitPiece }"));
 }
 
+/* ── v1.64.0: DIE ANMELDUNG KEHRT INS SPIEL ZURUECK ─────────────────────────
+   Besitzer: "mit meinem Google-Konto springt er zurueck auf die Landingpage".
+   Die Rueckkehradresse war window.location.origin - die Wurzel ist seit
+   v1.42.0 die Landingpage. */
+{
+  const { readFileSync } = await import("node:fs");
+  const ca = readFileSync("src/meta/cloudAuth.js", "utf8");
+  ok("die Anmeldung kehrt auf die Seite des Spiels zurueck, nicht an die Wurzel",
+    !ca.includes("redirectTo: window.location.origin }") && ca.includes("window.location.pathname.replace("));
+  const lp = readFileSync("public/landing.html", "utf8");
+  ok("die Landingpage reicht eine ankommende Anmeldung an /spielen/ weiter",
+    lp.includes('location.replace("/spielen/" + q + h)') && lp.indexOf("location.replace(\"/spielen/\"") < lp.indexOf("<body"));
+}
+
 process.exit(fail ? 1 : 0);

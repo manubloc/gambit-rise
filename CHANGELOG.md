@@ -1,5 +1,17 @@
 # Changelog - Gambit Rise
 
+## 1.64.0 - die Google-Anmeldung kehrt ins Spiel zurueck
+- Besitzer: "ich schaffe es nicht, mich mit meinem Google-Konto anzumelden -
+  er springt zurueck auf die Landingpage". URSACHE: die Rueckkehradresse nach
+  der Anmeldung war window.location.origin; seit die App unter /spielen/
+  wohnt (v1.42.0), ist die Wurzel die Landingpage. Die Anmeldung kam dort
+  an, das Spiel sah sie nie. Derselbe Umzugsfehler wie bei den Brett-
+  Hintergruenden (v1.55.0).
+- Die App gibt jetzt ihre eigene Seite als Rueckkehradresse an.
+- Und die Landingpage reicht eine ankommende Anmeldung (code, access_token,
+  error) sofort an /spielen/ weiter - falls der Anmeldedienst die neue
+  Adresse noch nicht zulaesst und auf die Hauptadresse zurueckfaellt.
+
 ## 1.63.5 - Bilder mit dem korrigierten Drachen
 - Landingpage: Drachenkarte und Hofstaat-Galerie neu aufgenommen - die Pranken
   ohne Grauschleier.

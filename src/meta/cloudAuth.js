@@ -40,7 +40,12 @@ async function mirror(user, provider) {
     the return trip lands in resumeCloudSession(). */
 export async function signInWithProvider(provider) {
   const c = await sb(); if (!c) throw new Error("unconfigured");
-  const { error } = await c.auth.signInWithOAuth({ provider, options: { redirectTo: window.location.origin } });
+  /* v1.64.0 (Besitzer: "mit meinem Google-Konto springt er zurueck auf die
+     Landingpage"): die Rueckkehr ging an window.location.origin - seit die App
+     unter /spielen/ wohnt (v1.42.0) ist das die LANDINGPAGE. Jetzt kehrt die
+     Anmeldung auf die Seite zurueck, von der sie ausging. */
+  const zurueck = window.location.origin + window.location.pathname.replace(/[^/]*$/, "");
+  const { error } = await c.auth.signInWithOAuth({ provider, options: { redirectTo: zurueck } });
   if (error) throw error;
 }
 export const signInWithGoogle = () => signInWithProvider("google");
