@@ -1,5 +1,17 @@
 # Changelog - Gambit Rise
 
+## 1.63.1 - das Logo aus einer Quelle, Store-Grafik deutsch und englisch
+- Das Logo wird beim Bauen aus wortmarkeSvg.js in Ladeschirm und Landingpage
+  eingesetzt (tools/wortmarke-einsetzen.mjs laeuft vor vite build) - nie
+  wieder drei Stellen, die auseinanderlaufen.
+- tools/wortmarke-export.mjs erzeugt die Dateien fuer Store und Presse:
+  design/logo/gambit-rise-logo.svg (statisch), -animiert.svg, PNG in 2800 px
+  hell/dunkel, und die Feature-Grafik design/playstore/feature-1024x500-de.png
+  und -en.png ("Das Schach-Rollenspiel" / "The Chess RPG") mit dem neuen Logo.
+- Begonnen von einer parallelen Sitzung, die nach v1.63.0 unfertig abbrach;
+  uebernommen, geprueft (Landingpage, Ladeschirm, Anmeldung zeigen dasselbe
+  Logo) und abgeschlossen.
+
 ## 1.63.0 - das Logo mit dem Blitz, aus einer Quelle
 - Besitzer (mit Vorlagebild): "genau das ist das Logo ... Rise mit einem Blitz
   im Hintergrund, der auch hinter das GAMBIT geht ... animiert ... eine

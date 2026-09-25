@@ -1,3 +1,4 @@
+import { WORTMARKE_KEYFRAMES } from "./wortmarkeSvg.js";   /* v1.63.0 */
 // Design tokens — GAMBIT. Deep royal navy, antique gold, ivory text.
 // The player is GOLD (gold plays the role of white); the enemy is the dark
 // navy side rimmed in steel. Elegance over flash: serif brandmarks, diamond
@@ -207,13 +208,14 @@ export const GLOBAL_CSS = `
      laesst Georgia sofort stehen, bis die echte Stimme geladen ist. */
   /* v1.43.0: das Rise wird gezeichnet wie mit der Feder, dann laeuft die
      Fuellung nach */
-  @keyframes ggRiseBlitz { 0% { opacity: 0; filter: brightness(1); } 7% { opacity: 1; filter: brightness(3.4) drop-shadow(0 0 14px #fff); } 16% { filter: brightness(1.3); } 23% { filter: brightness(2.6) drop-shadow(0 0 10px #f4eaff); } 40% { filter: brightness(1.05); } 100% { opacity: 1; filter: brightness(1); } }
+
+  ${WORTMARKE_KEYFRAMES}   /* v1.63.0: aus der einen Quelle der Wortmarke */
   @font-face { font-family: 'Great Vibes'; src: url('./fonts/great-vibes-400.woff2') format('woff2'); font-weight: 400; font-display: swap; }
   @keyframes ggWmZug { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
   @keyframes ggWmFlacker { 0%,58%,100% { opacity: 1; } 60% { opacity: .25; } 62% { opacity: 1; } 64% { opacity: .5; } 67% { opacity: 1; } }
   @keyframes ggWmSchein { 0%,58%,100% { opacity: .85; } 60% { opacity: .3; } 62% { opacity: 1; } 67% { opacity: .9; } }
   @media (prefers-reduced-motion: reduce) { .gg-wm * { animation: none !important; opacity: 1 !important; } }
-  @keyframes ggRiseGlimm { 0%,100% { filter: brightness(1) drop-shadow(0 0 0 rgba(0,0,0,0)); } 50% { filter: brightness(1.18) drop-shadow(0 0 8px rgba(167,139,250,.55)); } } @keyframes ggSternFunkeln { 0%,62%,100% { transform: scale(.72) rotate(0deg); opacity: .75; } 70% { transform: scale(1.25) rotate(20deg); opacity: 1; } 78% { transform: scale(.85) rotate(35deg); opacity: .9; } 84% { transform: scale(1.12) rotate(45deg); opacity: 1; } }
+
   @font-face { font-family: 'Cinzel'; src: url('/fonts/cinzel-600.woff2') format('woff2');
     font-weight: 600; font-style: normal; font-display: swap; }
   @font-face { font-family: 'Cormorant Garamond'; src: url('/fonts/cormorant-600.woff2') format('woff2');
