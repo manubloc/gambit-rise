@@ -13,8 +13,8 @@
 - [x] D1 Willkommensschirm: weniger Text, professioneller, leuchtende Kontur, frischer; die drei Aufzaehlungen weg; Erklaertexte kleiner
 
 ## Logo
-- [ ] F1 Blitz nur EINMAL kurz aufblitzen (aus dem Nichts, dann steht er)
-- [ ] F2 "Rise" wie im Vorlagebild - blitzartig, nicht so schwungvoll
+- [x] F1 Blitz nur EINMAL kurz aufblitzen (aus dem Nichts, dann steht er)
+- [~] F2 (Band statt Bogen; die Buchstaben selbst bleiben Great Vibes) "Rise" wie im Vorlagebild - blitzartig, nicht so schwungvoll
 
 ## Landingpage
 - [ ] G1 Zugbilder der Faehigkeiten: Weitsprung verstaendlicher (Legende); Design 1:1 wie im Spiel (Rundungen, Abstaende)

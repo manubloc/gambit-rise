@@ -28,7 +28,11 @@ const STERN = "M0,-16 C2,-4 4,-2 16,0 C4,2 2,4 0,16 C-2,4 -4,2 -16,0 C-4,-2 -2,-
 
 /** Die Schrittfolgen der animierten Fassung - einmal in jedes Dokument. */
 export const WORTMARKE_KEYFRAMES =
-  "@keyframes ggRiseBlitz { 0% { opacity: 0; filter: brightness(1); } 7% { opacity: 1; filter: brightness(3.4) drop-shadow(0 0 14px #fff); } 16% { filter: brightness(1.3); } 23% { filter: brightness(2.6) drop-shadow(0 0 10px #f4eaff); } 40% { filter: brightness(1.05); } 100% { opacity: 1; filter: brightness(1); } }"
+  "@keyframes ggBlitzEinschlag { 0% { opacity: 0; filter: brightness(1); transform: scale(1.012); } "
+  + "6% { opacity: 1; filter: brightness(4) drop-shadow(0 0 22px #fff) drop-shadow(0 0 44px #c4a8ff); transform: scale(1); } "
+  + "13% { opacity: .82; filter: brightness(1.1); } 20% { opacity: 1; filter: brightness(2.6) drop-shadow(0 0 14px #efe7ff); } "
+  + "34% { filter: brightness(1.04); } 100% { opacity: 1; filter: brightness(1); } } "
+  + "@keyframes ggRiseBlitz { 0% { opacity: 0; filter: brightness(1); } 7% { opacity: 1; filter: brightness(3.4) drop-shadow(0 0 14px #fff); } 16% { filter: brightness(1.3); } 23% { filter: brightness(2.6) drop-shadow(0 0 10px #f4eaff); } 40% { filter: brightness(1.05); } 100% { opacity: 1; filter: brightness(1); } }"
   + " @keyframes ggRiseGlimm { 0%,100% { filter: brightness(1); } 50% { filter: brightness(1.16) drop-shadow(0 0 6px rgba(167,139,250,.5)); } }"
   + " @keyframes ggSternFunkeln { 0%,62%,100% { transform: scale(.72) rotate(0deg); opacity: .75; } 70% { transform: scale(1.25) rotate(20deg); opacity: 1; } 78% { transform: scale(.85) rotate(35deg); opacity: .9; } 84% { transform: scale(1.12) rotate(45deg); opacity: 1; } }"
   + " @keyframes ggBlitzZucken { 0%,100% { opacity: .92; } 3% { opacity: 1; } 5% { opacity: .35; } 7% { opacity: 1; } 10% { opacity: .55; } 13% { opacity: .98; } 45% { opacity: .78; } 70% { opacity: .9; } }"
@@ -39,12 +43,16 @@ const pfade = (liste) => liste.map((d) => `<path d="${d}"/>`).join("");
 
 export function wortmarkeSvg(p = "wm", { breite = "100%", animiert = true, blitz = false, verzug = 0 } = {}) {
   const an = (s) => (animiert ? s : "");
-  const einschlag = blitz ? `opacity:0;animation:ggRiseBlitz .95s ease-out ${verzug}s forwards;` : "";
+  /* v1.66.0: EIN Einschlag. Aus dem Nichts, zwei harte Lichtspitzen, dann
+     steht die Marke ruhig - kein Nachglimmen, kein Dauerzucken. */
+  const einschlag = blitz ? `opacity:0;animation:ggBlitzEinschlag 1.05s cubic-bezier(.2,.9,.3,1) ${verzug}s forwards;` : "";
   return `<svg viewBox="-40 0 700 250" width="${breite}" style="display:block;overflow:visible" role="img" aria-label="Gambit Rise">
 <defs>
 <linearGradient id="${p}gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff3cf"/><stop offset=".38" stop-color="#f2d98c"/><stop offset=".62" stop-color="#d4af37"/><stop offset="1" stop-color="#8a6a1f"/></linearGradient>
 <linearGradient id="${p}glanz" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".8"/><stop offset=".42" stop-color="#fff" stop-opacity=".1"/><stop offset=".58" stop-color="#fff" stop-opacity="0"/></linearGradient>
 <linearGradient id="${p}lila" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".45" stop-color="#efe7ff"/><stop offset=".8" stop-color="#c3a6ff"/><stop offset="1" stop-color="#9b6cf7"/></linearGradient>
+<linearGradient id="${p}band" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#a78bfa" stop-opacity="0"/><stop offset=".22" stop-color="#e9ddff"/><stop offset=".5" stop-color="#ffffff"/><stop offset=".78" stop-color="#d9c6ff"/><stop offset="1" stop-color="#8b5cf6" stop-opacity="0"/></linearGradient>
+<linearGradient id="${p}bandG" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#d4af37" stop-opacity="0"/><stop offset=".3" stop-color="#ffe9b0"/><stop offset=".55" stop-color="#fff8e6"/><stop offset=".85" stop-color="#f2d98c"/><stop offset="1" stop-color="#d4af37" stop-opacity="0"/></linearGradient>
 <linearGradient id="${p}schwung" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".3" stop-color="#fff"/><stop offset=".75" stop-color="#c4a8ff"/><stop offset="1" stop-color="#8b5cf6" stop-opacity="0"/></linearGradient>
 <linearGradient id="${p}bh" gradientUnits="userSpaceOnUse" x1="-40" y1="26" x2="665" y2="236"><stop offset="0" stop-color="#7c3aed" stop-opacity="0"/><stop offset=".15" stop-color="#8b5cf6"/><stop offset=".5" stop-color="#a78bfa"/><stop offset=".85" stop-color="#8b5cf6"/><stop offset="1" stop-color="#7c3aed" stop-opacity="0"/></linearGradient>
 <linearGradient id="${p}bk" gradientUnits="userSpaceOnUse" x1="-40" y1="26" x2="665" y2="236"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".18" stop-color="#f3edff"/><stop offset=".5" stop-color="#fff"/><stop offset=".82" stop-color="#f3edff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
@@ -53,11 +61,15 @@ export function wortmarkeSvg(p = "wm", { breite = "100%", animiert = true, blitz
 <filter id="${p}g3" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter>
 </defs>
 <g style="${einschlag}">
-<g fill="none" stroke-linecap="round" stroke-linejoin="round" style="${an("animation:ggBlitzZucken 4.2s linear infinite;")}">
+<!-- v1.66.0 (Besitzer: "der sollte nur einmal kurz so aufblitzen - aus dem
+     Nichts kommt er und dann ist er da"): kein Dauerzucken mehr. Der Einschlag
+     laesst den Blitz einmal hell aufflammen (ggBlitzEinschlag), danach steht
+     er ruhig. -->
+<g fill="none" stroke-linecap="round" stroke-linejoin="round">
 <path d="${HAUPT}" stroke="url(#${p}bh)" stroke-width="34" opacity=".55" filter="url(#${p}g1)"/>
-<g stroke="url(#${p}bh)" stroke-width="2.4" opacity=".75" filter="url(#${p}g2)"><g style="${an("animation:ggAesteA 2.6s ease-in-out infinite;")}">${pfade(AESTE_A)}</g><g style="${an("animation:ggAesteB 3.1s ease-in-out infinite;")}">${pfade(AESTE_B)}</g></g>
-<g stroke="url(#${p}bk)" stroke-width="1"><g style="${an("animation:ggAesteA 2.6s ease-in-out infinite;")}">${pfade(AESTE_A)}</g><g style="${an("animation:ggAesteB 3.1s ease-in-out infinite;")}">${pfade(AESTE_B)}</g></g>
-<g stroke="url(#${p}bk)" stroke-width=".7" opacity=".7" style="${an("animation:ggAesteB 2.2s ease-in-out infinite;")}">${pfade(FEINE)}</g>
+<g stroke="url(#${p}bh)" stroke-width="2.4" opacity=".75" filter="url(#${p}g2)"><g>${pfade(AESTE_A)}</g><g>${pfade(AESTE_B)}</g></g>
+<g stroke="url(#${p}bk)" stroke-width="1"><g>${pfade(AESTE_A)}</g><g>${pfade(AESTE_B)}</g></g>
+<g stroke="url(#${p}bk)" stroke-width=".7" opacity=".7">${pfade(FEINE)}</g>
 <path d="${HAUPT}" stroke="url(#${p}bh)" stroke-width="7" filter="url(#${p}g2)"/>
 <path d="${HAUPT}" stroke="url(#${p}bk)" stroke-width="2.6"/>
 </g></g>
@@ -66,12 +78,24 @@ export function wortmarkeSvg(p = "wm", { breite = "100%", animiert = true, blitz
 <text x="310" y="112" text-anchor="middle" fill="url(#${p}gold)">GAMBIT</text>
 <text x="310" y="112" text-anchor="middle" fill="url(#${p}glanz)">GAMBIT</text>
 </g>
-<g style="${einschlag}"><g style="${an("animation:ggRiseGlimm 3.8s ease-in-out infinite;")}">
+<g style="${einschlag}"><g>
+
 <g style="font-family:'Great Vibes','Cormorant Garamond',Georgia,serif;font-weight:400;font-size:140px">
 <text x="468" y="208" text-anchor="middle" fill="#7c3aed" opacity=".9" filter="url(#${p}g3)">Rise</text>
 <text x="468" y="208" text-anchor="middle" fill="url(#${p}lila)">Rise</text>
 </g>
-<path d="M 360 222 C 430 236, 520 232, 612 190" fill="none" stroke="url(#${p}schwung)" stroke-width="3" stroke-linecap="round"/>
+<!-- v1.66.0 (Besitzer: "das Rise soll auch wie so ein Blitz sein und nicht so
+     schwungvoll - genauso wie in dem Bild"): der Schwung ist kein duenner
+     Strich mehr, sondern ein GESCHWUNGENES BAND, das an beiden Enden spitz
+     auslaeuft - in der Mitte breit, weiss-lila, darueber eine schmale
+     Goldschneide. Zwei Bezierkurven, die sich in den Spitzen treffen; ein
+     Strich kann das nicht, er ist ueberall gleich dick. -->
+<g filter="url(#${p}g3)" opacity=".5">
+  <path d="M 330 218 C 392 262, 520 248, 622 150 C 516 268, 392 278, 330 218 Z" fill="url(#${p}band)"/>
+</g>
+<path d="M 330 218 C 394 258, 520 244, 622 150 C 516 262, 394 272, 330 218 Z" fill="url(#${p}band)"/>
+<path d="M 330 218 C 394 258, 520 244, 622 150 C 518 252, 396 264, 330 218 Z" fill="url(#${p}bandG)" opacity=".85"/>
+
 </g>
 <g transform="translate(578,146)"><g style="transform-origin:0 0;transform-box:fill-box;${an("animation:ggSternFunkeln 3.2s ease-in-out infinite;")}">
 <path d="${STERN}" fill="#fff" filter="url(#${p}g2)"/><path d="${STERN}" fill="#fffaf0" transform="scale(.8)"/>

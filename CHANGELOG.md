@@ -1,5 +1,22 @@
 # Changelog - Gambit Rise
 
+## 1.66.0 - der Blitz schlaegt einmal ein, das Rise traegt eine Klinge
+- Besitzer: "der Blitz sollte nur einmal kurz so aufblitzen - aus dem Nichts
+  kommt er und dann ist er da". Das Dauerzucken des Blitzes, das Flackern der
+  Aeste und das Glimmen von Rise sind FORT. Ein Einschlag
+  (ggBlitzEinschlag): aus dem Nichts, zwei harte Lichtspitzen, dann steht
+  die Marke ruhig. Der Stern funkelt weiter - er ist das einzige, was sich
+  noch bewegt.
+- Besitzer: "das Rise soll auch wie so ein Blitz sein und nicht so
+  schwungvoll - genauso wie in dem Bild". Der duenne Bogen unter Rise ist
+  jetzt ein GESCHWUNGENES BAND, das an beiden Enden spitz auslaeuft: in der
+  Mitte breit, weiss-lila, darueber eine schmale Goldschneide. Ein Strich
+  kann das nicht - er ist ueberall gleich dick; das Band sind zwei
+  Bezierkurven, die sich in den Spitzen treffen.
+- GESCHEITERT UND VERWORFEN: zwei Anlaeufe mit geraden Keilen quer durchs
+  Wort. Sie lasen sich wie Kratzer, nicht wie Licht - herausgenommen.
+- design/logo/ und die Feature-Grafiken (de/en) neu erzeugt.
+
 ## 1.65.0 - Hinweise statt Fensterflut, der Gast startet im Spiel
 - Besitzer: "alle diese Pop-ups kommen jetzt nacheinander ... man ist noch
   nicht mal im Spiel und kriegt schon Sachen erklaert. Wie so eine Art
