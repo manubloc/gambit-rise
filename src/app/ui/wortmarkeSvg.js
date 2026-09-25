@@ -87,8 +87,13 @@ export function wortmarkeSvg(p = "wm", { breite = "100%", animiert = true, blitz
 <linearGradient id="${p}band" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#a78bfa" stop-opacity="0"/><stop offset=".22" stop-color="#e9ddff"/><stop offset=".5" stop-color="#ffffff"/><stop offset=".78" stop-color="#d9c6ff"/><stop offset="1" stop-color="#8b5cf6" stop-opacity="0"/></linearGradient>
 <linearGradient id="${p}bandG" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#d4af37" stop-opacity="0"/><stop offset=".3" stop-color="#ffe9b0"/><stop offset=".55" stop-color="#fff8e6"/><stop offset=".85" stop-color="#f2d98c"/><stop offset="1" stop-color="#d4af37" stop-opacity="0"/></linearGradient>
 <linearGradient id="${p}schwung" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".3" stop-color="#fff"/><stop offset=".75" stop-color="#c4a8ff"/><stop offset="1" stop-color="#8b5cf6" stop-opacity="0"/></linearGradient>
-<linearGradient id="${p}bh" gradientUnits="userSpaceOnUse" x1="-40" y1="26" x2="665" y2="236"><stop offset="0" stop-color="#7c3aed" stop-opacity="0"/><stop offset=".15" stop-color="#8b5cf6"/><stop offset=".5" stop-color="#a78bfa"/><stop offset=".85" stop-color="#8b5cf6"/><stop offset="1" stop-color="#7c3aed" stop-opacity="0"/></linearGradient>
-<linearGradient id="${p}bk" gradientUnits="userSpaceOnUse" x1="-40" y1="26" x2="665" y2="236"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".18" stop-color="#f3edff"/><stop offset=".5" stop-color="#fff"/><stop offset=".82" stop-color="#f3edff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+<linearGradient id="${p}bh" gradientUnits="userSpaceOnUse" x1="-40" y1="26" x2="665" y2="236"><!-- v1.73.0 (Besitzer: "den Verlauf des Blitzes innerhalb sich selbst ein
+     bisschen staerker machen"): mehr Wechsel im Schein - tiefes Violett,
+     dann Aufhellung, wieder Absenkung. -->
+<stop offset="0" stop-color="#5b21b6" stop-opacity="0"/><stop offset=".12" stop-color="#6d28d9"/><stop offset=".28" stop-color="#a78bfa"/><stop offset=".42" stop-color="#7c3aed"/><stop offset=".55" stop-color="#c4b5fd"/><stop offset=".7" stop-color="#7c3aed"/><stop offset=".88" stop-color="#a78bfa"/><stop offset="1" stop-color="#7c3aed" stop-opacity="0"/></linearGradient>
+<linearGradient id="${p}bk" gradientUnits="userSpaceOnUse" x1="-40" y1="26" x2="665" y2="236"><!-- v1.73.0: der Kern gluht in der Mitte weiss aus und faellt dazwischen
+     ins Lila zurueck - das gibt dem Blitz Leben in sich selbst. -->
+<stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".14" stop-color="#e6d9ff"/><stop offset=".3" stop-color="#fff"/><stop offset=".4" stop-color="#d8c6ff"/><stop offset=".53" stop-color="#fff"/><stop offset=".64" stop-color="#e0d0ff"/><stop offset=".78" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
 <!-- v1.68.0: Wirkbereich im BILDRAUM, nicht je Element - sonst zeichnet der
      Weichzeichner um jedes kurze Blitzstueck einen Kasten. -->
 <filter id="${p}g1" filterUnits="userSpaceOnUse" x="-80" y="-60" width="820" height="380"><feGaussianBlur stdDeviation="9"/></filter>
@@ -122,8 +127,13 @@ ${stuecke(HAUPT, HAUPT_PROFIL).map((x) => `<path d="${x.d}" stroke="url(#${p}bk)
 
 <!-- v1.68.0: Rise ist keine Schrift mehr, sondern gezeichnet (riseGezeichnet.js) -->
 <!-- v1.69.0: Rise sitzt im Feld - der Ausstrich lief sonst rechts hinaus -->
-<g transform="translate(64,18) scale(.82)">
-  <g filter="url(#${p}g3)" fill="#7c3aed" opacity=".9">${RISE_PFADE}</g>
+<g transform="translate(96,30) scale(.72)">
+  <!-- v1.73.0 (Besitzer: "lieber duenn die Schrift, aber mit so einem
+       minimalen Schimmer - dass es wirklich die gleiche Optik aufweist wie
+       der Blitz"): derselbe Aufbau wie der Blitz - weiter Schein, mittlerer
+       Schein, klarer Kern. -->
+  <g filter="url(#${p}g1)" fill="#6d28d9" opacity=".32">${RISE_PFADE}</g>
+  <g filter="url(#${p}g2)" fill="#c4b5fd" opacity=".7">${RISE_PFADE}</g>
   <g fill="url(#${p}lila)">${RISE_PFADE}</g>
 </g>
 <!-- v1.68.0: das weisse Band ist fort - der Abstrich des gezeichneten R IST

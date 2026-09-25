@@ -12,7 +12,7 @@ def dbez(p, t):
     (x0,y0),(x1,y1),(x2,y2),(x3,y3)=p; u=1-t
     return (3*u*u*(x1-x0)+6*u*t*(x2-x1)+3*t*t*(x3-x2),
             3*u*u*(y1-y0)+6*u*t*(y2-y1)+3*t*t*(y3-y2))
-FAKTOR = 1.34   # v1.69.0: Rise wirkte neben dem kraeftigen GAMBIT zu duenn
+FAKTOR = 0.92   # v1.73.0 (Besitzer): duenner - "vor allem bei dem R noch duenner"
 
 def breite(prof, t):
     # prof: Liste (t, w) - linear dazwischen
@@ -51,10 +51,16 @@ S=[]
 #    v1.71.0 (Besitzer): das R ist kleiner (0,84 um die Spitze) und naeher
 #    ans i gerueckt; das BEIN setzt jetzt OBEN AM BOGEN an, wo die Feder ihn
 #    verlaesst - vorher begann es frei darunter. ────────────────────────────
-S.append(strich([[(468,96),(447,137),(428,174),(401,225)]], [(0,.4),(.22,12),(.55,9),(.85,3.5),(1,.3)]))
-S.append(strich([[(466,99),(511,94),(522,128),(483,141)],
-                 [(483,141),(474,144),(465,141),(458,137)]], [(0,1.8),(.35,9),(.75,5),(1,1.1)]))
-S.append(strich([[(458,137),(472,164),(489,188),(519,230)]], [(0,1.1),(.3,8),(.7,6.2),(1,.3)]))
+# v1.73.0 (Besitzer: "das R ist immer noch zu gross"): weitere 0,86 um die
+# obere Spitze, und die Zuege duenner (siehe Breitenprofile).
+S.append(strich([[(468,96),(450,131),(434,163),(411,207)]], [(0,.3),(.22,9),(.55,7),(.85,3),(1,.25)]))
+S.append(strich([[(466,99),(505,95),(514,124),(480,135)],
+                 [(480,135),(472,138),(464,135),(458,132)]], [(0,1.3),(.35,7),(.75,4),(1,.9)]))
+S.append(strich([[(458,132),(470,155),(485,176),(511,212)]], [(0,.9),(.3,6.4),(.7,5),(1,.25)]))
+# ── kleine Ausläufer an den Spitzen des R (Besitzer: "am Ende darf das R auch
+#    noch so kleine Mini-Auslaeufer eines Blitzes haben") ───────────────────
+for a,b in [((411,207),(400,222)), ((411,207),(419,224)), ((511,212),(524,224)), ((511,212),(505,228))]:
+    S.append(strich([g(a,b)], [(0,1.1),(.5,.8),(1,.2)]))
 # ── ise: deutlich kleiner als das R, rechts oben (Besitzer: "dürfte etwas
 #    kleiner sein") ─────────────────────────────────────────────────────────
 S.append(strich([[(514,212),(516,200),(520,186),(526,172)]], [(0,.6),(.5,6.5),(1,.6)]))

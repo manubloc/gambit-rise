@@ -1,5 +1,20 @@
 # Changelog - Gambit Rise
 
+## 1.73.0 - Rise traegt die Optik des Blitzes
+- Besitzer: "lieber duenn die Schrift, aber mit so einem minimalen Schimmer -
+  dass es wirklich die gleiche Optik aufweist wie der Blitz." Rise wird jetzt
+  in DREI Schichten gezeichnet, genau wie der Blitz: weiter Schein, mittlerer
+  Schein, klarer Kern. Der weite Schein liegt bei 32 % - hoeher ueberstrahlte
+  er die Schrift.
+- DER BLITZ IN SICH (Besitzer: "den Verlauf innerhalb sich selbst staerker
+  machen"): Kern und Schein wechseln jetzt mehrfach zwischen Weissglut und
+  Violett, statt einmal sanft auf- und abzuschwellen.
+- DAS R (Besitzer: "immer noch zu gross ... vor allem beim R noch duenner"):
+  weitere 0,86 um die obere Spitze, die Striche merklich duenner (Faktor 0,92
+  statt 1,34, dazu schmalere Profile). Die ganze Marke steht auf 72 %.
+- NEU: kleine Auslaeufer an den beiden unteren Spitzen des R - wie die
+  Faeden an den Enden des grossen Blitzes (Besitzerwunsch).
+
 ## 1.72.0 - das R noch kleiner, s und e kantig
 - Besitzer: "das R von Rise noch kleiner und naeher an das i ran, und das e
   und das s etwas mit kantig."
