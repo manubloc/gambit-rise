@@ -1,5 +1,14 @@
 # Changelog - Gambit Rise
 
+## 1.71.0 - das R kleiner, das Bein am Bogen
+- Besitzer: "das R muss noch mehr zu dem i ruecken und der untere Strich vom
+  R noch an den Bogen oben, und das R allgemein kleiner."
+- Das R steht auf 0,84 seiner Groesse (um die obere Spitze verkleinert) und
+  ist naeher ans i gerueckt.
+- Das BEIN setzt jetzt dort an, wo der Bogen endet - oben, wo die Feder ihn
+  verlaesst. Vorher begann es frei darunter, was wie ein zweiter, loser
+  Strich aussah.
+
 ## 1.70.0 - Rise nach der Vorlage: glatte Zuege, Nadelspitzen
 - Besitzer zeigte zwei Bildvorlagen: "beim zweiten das Rise extrem gekonnt,
   bloss duerfte es etwas kleiner sein".

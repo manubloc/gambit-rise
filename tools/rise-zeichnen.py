@@ -47,11 +47,14 @@ def g(a, b):
 S=[]
 # ── R nach der Vorlage: zwei lange Diagonalen mit NADELSPITZEN, dazwischen
 #    der Bogen. Glatte Zuege (keine Ecken), aber die Enden laufen auf Null -
-#    das macht die Spitzen, nicht ein Knick. (v1.70.0) ─────────────────────
-S.append(strich([[(436,96),(408,148),(382,196),(344,272)]], [(0,.4),(.22,15),(.55,12),(.85,5),(1,.3)]))
-S.append(strich([[(434,100),(494,94),(510,140),(456,158)],
-                 [(456,158),(444,161),(432,158),(422,152)]], [(0,2),(.35,11.5),(.75,6),(1,1)]))
-S.append(strich([[(404,176),(444,206),(478,232),(530,274)]], [(0,.8),(.3,10),(.7,8),(1,.3)]))
+#    das macht die Spitzen, nicht ein Knick. (v1.70.0)
+#    v1.71.0 (Besitzer): das R ist kleiner (0,84 um die Spitze) und naeher
+#    ans i gerueckt; das BEIN setzt jetzt OBEN AM BOGEN an, wo die Feder ihn
+#    verlaesst - vorher begann es frei darunter. ────────────────────────────
+S.append(strich([[(454,96),(430,143),(408,186),(377,244)]], [(0,.4),(.22,13),(.55,10),(.85,4),(1,.3)]))
+S.append(strich([[(452,99),(503,94),(516,133),(471,148)],
+                 [(471,148),(461,151),(451,148),(442,143)]], [(0,2),(.35,10),(.75,5.5),(1,1.2)]))
+S.append(strich([[(442,143),(458,174),(478,202),(512,250)]], [(0,1.2),(.3,9),(.7,7),(1,.3)]))
 # ── ise: deutlich kleiner als das R, rechts oben (Besitzer: "dürfte etwas
 #    kleiner sein") ─────────────────────────────────────────────────────────
 S.append(strich([[(514,212),(516,200),(520,186),(526,172)]], [(0,.6),(.5,6.5),(1,.6)]))
