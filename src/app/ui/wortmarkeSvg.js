@@ -41,6 +41,27 @@ export const WORTMARKE_KEYFRAMES =
 
 const pfade = (liste) => liste.map((d) => `<path d="${d}"/>`).join("");
 
+import { RISE_PFADE } from "./riseGezeichnet.js";   /* v1.68.0 */
+
+/* v1.68.0 (Besitzer: "die Staerke des Blitzes variieren, insbesondere in der
+   Mitte darf er gerne breiter sein"): ein Strich ist ueberall gleich dick.
+   Also zerlegen wir den Hauptblitz in Stuecke und zeichnen jedes mit eigener
+   Staerke - duenn am Rand, breit in der Mitte, wie ein echter Einschlag.
+   Die Stuecke ueberlappen um einen Punkt, damit keine Luecke entsteht. */
+function stuecke(pfad, profil) {
+  const pk = pfad.trim().split(/\s*[ML]\s*/).filter(Boolean);
+  const n = profil.length, aus = [];
+  for (let i = 0; i < n; i++) {
+    const a = Math.floor((i * (pk.length - 1)) / n), b = Math.ceil(((i + 1) * (pk.length - 1)) / n);
+    aus.push({ d: "M" + pk.slice(a, b + 1).join(" L"), w: profil[i] });
+  }
+  return aus;
+}
+/* duenn - breit - duenn: der Einschlag sitzt in der Mitte */
+const HAUPT_PROFIL = [0.45, 0.62, 0.85, 1.18, 1.55, 1.75, 1.5, 1.1, 0.8, 0.55];
+const jedeZweite = (a) => a.filter((_, i) => i % 2 === 0);
+
+
 export function wortmarkeSvg(p = "wm", { breite = "100%", animiert = true, blitz = false, verzug = 0 } = {}) {
   const an = (s) => (animiert ? s : "");
   /* v1.66.0: EIN Einschlag. Aus dem Nichts, zwei harte Lichtspitzen, dann
@@ -61,8 +82,12 @@ export function wortmarkeSvg(p = "wm", { breite = "100%", animiert = true, blitz
 <linearGradient id="${p}schwung" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".3" stop-color="#fff"/><stop offset=".75" stop-color="#c4a8ff"/><stop offset="1" stop-color="#8b5cf6" stop-opacity="0"/></linearGradient>
 <linearGradient id="${p}bh" gradientUnits="userSpaceOnUse" x1="-40" y1="26" x2="665" y2="236"><stop offset="0" stop-color="#7c3aed" stop-opacity="0"/><stop offset=".15" stop-color="#8b5cf6"/><stop offset=".5" stop-color="#a78bfa"/><stop offset=".85" stop-color="#8b5cf6"/><stop offset="1" stop-color="#7c3aed" stop-opacity="0"/></linearGradient>
 <linearGradient id="${p}bk" gradientUnits="userSpaceOnUse" x1="-40" y1="26" x2="665" y2="236"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".18" stop-color="#f3edff"/><stop offset=".5" stop-color="#fff"/><stop offset=".82" stop-color="#f3edff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
-<filter id="${p}g1" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="9"/></filter>
-<filter id="${p}g2" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="3"/></filter>
+<!-- v1.68.0: Wirkbereich im BILDRAUM, nicht je Element - sonst zeichnet der
+     Weichzeichner um jedes kurze Blitzstueck einen Kasten. -->
+<filter id="${p}g1" filterUnits="userSpaceOnUse" x="-80" y="-60" width="820" height="380"><feGaussianBlur stdDeviation="9"/></filter>
+<!-- v1.68.0: Wirkbereich im BILDRAUM, nicht je Element - sonst zeichnet der
+     Weichzeichner um jedes kurze Blitzstueck einen Kasten. -->
+<filter id="${p}g2" filterUnits="userSpaceOnUse" x="-80" y="-60" width="820" height="380"><feGaussianBlur stdDeviation="3"/></filter>
 <filter id="${p}g3" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter>
 </defs>
 <g style="${einschlag}">
@@ -71,12 +96,13 @@ export function wortmarkeSvg(p = "wm", { breite = "100%", animiert = true, blitz
      laesst den Blitz einmal hell aufflammen (ggBlitzEinschlag), danach steht
      er ruhig. -->
 <g fill="none" stroke-linecap="round" stroke-linejoin="round">
-<path d="${HAUPT}" stroke="url(#${p}bh)" stroke-width="34" opacity=".55" filter="url(#${p}g1)"/>
-<g stroke="url(#${p}bh)" stroke-width="2.4" opacity=".75" filter="url(#${p}g2)"><g>${pfade(AESTE_A)}</g><g>${pfade(AESTE_B)}</g></g>
-<g stroke="url(#${p}bk)" stroke-width="1"><g>${pfade(AESTE_A)}</g><g>${pfade(AESTE_B)}</g></g>
-<g stroke="url(#${p}bk)" stroke-width=".7" opacity=".7">${pfade(FEINE)}</g>
-<path d="${HAUPT}" stroke="url(#${p}bh)" stroke-width="7" filter="url(#${p}g2)"/>
-<path d="${HAUPT}" stroke="url(#${p}bk)" stroke-width="2.6"/>
+${stuecke(HAUPT, HAUPT_PROFIL).map((x) => `<path d="${x.d}" stroke="url(#${p}bh)" stroke-width="${(34 * x.w).toFixed(1)}" opacity=".5" filter="url(#${p}g1)"/>`).join("")}
+<!-- v1.68.0 (Besitzer: "die Blitze gar nicht so arg viel verAesteln"):
+     nur noch jeder zweite Ast, die feinsten Faeden ganz fort. -->
+<g stroke="url(#${p}bh)" stroke-width="2.2" opacity=".7" filter="url(#${p}g2)"><g>${pfade(jedeZweite(AESTE_A))}</g><g>${pfade(jedeZweite(AESTE_B))}</g></g>
+<g stroke="url(#${p}bk)" stroke-width=".9"><g>${pfade(jedeZweite(AESTE_A))}</g><g>${pfade(jedeZweite(AESTE_B))}</g></g>
+${stuecke(HAUPT, HAUPT_PROFIL).map((x) => `<path d="${x.d}" stroke="url(#${p}bh)" stroke-width="${(7 * x.w).toFixed(1)}" filter="url(#${p}g2)"/>`).join("")}
+${stuecke(HAUPT, HAUPT_PROFIL).map((x) => `<path d="${x.d}" stroke="url(#${p}bk)" stroke-width="${(2.6 * x.w).toFixed(2)}"/>`).join("")}
 </g></g>
 <g style="font-family:'Cinzel',Georgia,serif;font-weight:600;font-size:108px;letter-spacing:2px">
 <text x="310" y="112" text-anchor="middle" fill="#0b0716" opacity=".92" transform="translate(0,4.5)">GAMBIT</text>
@@ -87,31 +113,15 @@ export function wortmarkeSvg(p = "wm", { breite = "100%", animiert = true, blitz
 </g>
 <g style="${einschlag}"><g>
 
-<g style="font-family:'Great Vibes','Cormorant Garamond',Georgia,serif;font-weight:400;font-size:140px">
-<text x="468" y="208" text-anchor="middle" fill="#7c3aed" opacity=".9" filter="url(#${p}g3)">Rise</text>
-<text x="468" y="208" text-anchor="middle" fill="url(#${p}lila)">Rise</text>
-</g>
-<!-- v1.66.0 (Besitzer: "das Rise soll auch wie so ein Blitz sein und nicht so
-     schwungvoll - genauso wie in dem Bild"): der Schwung ist kein duenner
-     Strich mehr, sondern ein GESCHWUNGENES BAND, das an beiden Enden spitz
-     auslaeuft - in der Mitte breit, weiss-lila, darueber eine schmale
-     Goldschneide. Zwei Bezierkurven, die sich in den Spitzen treffen; ein
-     Strich kann das nicht, er ist ueberall gleich dick. -->
-<!-- v1.67.0 (Besitzer, an der Vorlage): hinter Rise kreuzen sich ZWEI
-     goldene Klingen in einem X - lang, sehr duenn, an beiden Enden spitz.
-     Sie liegen unter der Schrift, damit die Buchstaben lesbar bleiben. -->
-<g opacity=".9">
-  <path d="M 336 268 C 430 214, 540 158, 646 104 C 542 164, 432 222, 336 268 Z" fill="url(#${p}bandG)"/>
-  <path d="M 362 108 C 440 170, 550 228, 654 268 C 548 234, 438 178, 362 108 Z" fill="url(#${p}bandG)" opacity=".7"/>
-</g>
-<g filter="url(#${p}g3)" opacity=".5">
-  <path d="M 330 218 C 392 262, 520 248, 622 150 C 516 268, 392 278, 330 218 Z" fill="url(#${p}band)"/>
-</g>
-<path d="M 330 218 C 394 258, 520 244, 622 150 C 516 262, 394 272, 330 218 Z" fill="url(#${p}band)"/>
-<path d="M 330 218 C 394 258, 520 244, 622 150 C 518 252, 396 264, 330 218 Z" fill="url(#${p}bandG)" opacity=".85"/>
+<!-- v1.68.0: Rise ist keine Schrift mehr, sondern gezeichnet (riseGezeichnet.js) -->
+<g filter="url(#${p}g3)" fill="#7c3aed" opacity=".9">${RISE_PFADE}</g>
+<g fill="url(#${p}lila)">${RISE_PFADE}</g>
+<!-- v1.68.0: das weisse Band ist fort - der Abstrich des gezeichneten R IST
+     der Schwung. Es blieben nur die zwei goldenen Klingen der Vorlage. -->
+
 
 </g>
-<g transform="translate(578,146)"><g style="transform-origin:0 0;transform-box:fill-box;${an("animation:ggSternFunkeln 3.2s ease-in-out infinite;")}">
+<g transform="translate(578,146)"><g style="transform-origin:0 0;transform-box:fill-box;">
 <path d="${STERN}" fill="#fff" filter="url(#${p}g2)"/><path d="${STERN}" fill="#fffaf0" transform="scale(.8)"/>
 </g></g></g>
 </svg>`;

@@ -1,5 +1,27 @@
 # Changelog - Gambit Rise
 
+## 1.68.0 - Rise ist gezeichnet, nicht gesetzt
+- Besitzer: "nimm keine Schrift, sondern versuch es einfach selbst mit SVG zu
+  zeichnen, ich glaub nur das ist der Weg." Er hatte recht: eine Schriftart
+  bringt ihre eigene Strichlogik mit, und der Abstrich des R kann darin nicht
+  in eine Spitze auslaufen.
+    * tools/rise-zeichnen.py beschreibt jeden Strich als MITTELLINIE mit
+      Breitenprofil - duenn beim Ansetzen, breit im Zug, spitz beim Abheben,
+      wie eine Feder. Sieben Striche plus i-Punkt.
+    * Das Ergebnis liegt in src/app/ui/riseGezeichnet.js. Aendern heisst:
+      im Werkzeug aendern und neu erzeugen.
+    * Der Abstrich des R IST jetzt der Schwung - das weisse Band darunter
+      ist fort, es war doppelt.
+- STERNFUNKELN FORT (Besitzer): der Stern steht still wie alles andere.
+- DER BLITZ (Besitzer: "nicht so arg viel verAesteln ... die Staerke
+  variieren, in der Mitte gerne breiter"): nur noch jeder zweite Ast, die
+  feinsten Faeden ganz fort. Der Hauptblitz wird in zehn Stuecke zerlegt und
+  jedes mit eigener Staerke gezeichnet - duenn am Rand, in der Mitte fast
+  doppelt so breit.
+- GEFUNDEN dabei: die Weichzeichner rechneten je Element; um jedes kurze
+  Blitzstueck stand ein sichtbarer Kasten. Ihr Wirkbereich liegt jetzt im
+  Bildraum.
+
 ## 1.67.0 - goldene Klingen hinter Rise, GAMBIT erhaben
 - An der Vorlage nachgesehen: hinter "Rise" kreuzen sich dort ZWEI feine
   goldene Klingen in einem X - lang, sehr duenn, an beiden Enden spitz. Die

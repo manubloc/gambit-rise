@@ -14,7 +14,7 @@
 
 ## Logo
 - [x] F1 Blitz nur EINMAL kurz aufblitzen (aus dem Nichts, dann steht er)
-- [~] F2 (Band statt Bogen; die Buchstaben selbst bleiben Great Vibes) "Rise" wie im Vorlagebild - blitzartig, nicht so schwungvoll
+- [x] F2 (Rise selbst gezeichnet, keine Schrift mehr) "Rise" wie im Vorlagebild - blitzartig, nicht so schwungvoll
 
 ## Landingpage
 - [ ] G1 Zugbilder der Faehigkeiten: Weitsprung verstaendlicher (Legende); Design 1:1 wie im Spiel (Rundungen, Abstaende)
