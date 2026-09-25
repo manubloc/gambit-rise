@@ -1,5 +1,19 @@
 # Changelog - Gambit Rise
 
+## 1.75.0 - Rise ist selbst ein Blitz
+- Besitzer: "viel wichtiger ist, dass dieses Rise wirklich so ein bisschen
+  leicht wellenartig ist - so wie du den Blitz an der dicksten Stelle hast,
+  genau so stelle ich mir das vor."
+- Jeder Zug bekommt jetzt einen seitlichen Versatz aus DREI ueberlagerten
+  Wellen: die langsame gibt die Welle, die beiden schnellen die kleinen
+  Knicke - dieselbe Machart wie der Blitz. Der Versatz laeuft MIT der
+  Strichstaerke: wo der Zug breit ist, zackt er deutlich, an den Nadelspitzen
+  verlaeuft er ruhig aus. Damit tragen Schrift und Blitz dieselbe Handschrift.
+- Drei WINZIGE Faeden an den Spitzen (untere R-Spitze, Beinspitze, obere
+  Spitze), kaum laenger als die Strichbreite - "ganz wenig an den Enden
+  spielen". Die kraeftigen aus v1.73.0 bleiben fort.
+- Das Verhaeltnis gerichtet: R noch einmal auf 0,96, "ise" auf 1,08.
+
 ## 1.74.0 - der Blitz entsteht von links nach rechts
 - Besitzer: "bau doch mal eine Animation daraus, dass dieser Blitz wie so von
   links nach rechts entsteht mit dem Rise und dann halt einmal so aufblitzt
