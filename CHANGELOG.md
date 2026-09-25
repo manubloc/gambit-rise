@@ -1,5 +1,19 @@
 # Changelog - Gambit Rise
 
+## 1.70.0 - Rise nach der Vorlage: glatte Zuege, Nadelspitzen
+- Besitzer zeigte zwei Bildvorlagen: "beim zweiten das Rise extrem gekonnt,
+  bloss duerfte es etwas kleiner sein".
+- ERKENNTNIS aus der Vergroesserung: das R dort ist KEIN Zickzack (mein
+  Anlauf v1.69.0 lag daneben). Es sind glatte, leicht geschwungene Zuege -
+  die Spitzen entstehen, weil die Strichbreite an den Enden auf NULL laeuft,
+  nicht durch Knicke. Aufbau: zwei lange Diagonalen als grosses Dreieck,
+  dazwischen der Bogen, dazu das Bein nach rechts unten.
+- Also zurueck zu Kurven, aber mit Nadelspitzen (Breite .3 an den Enden) und
+  starkem Dick-Duenn-Kontrast (bis 15 in der Mitte).
+- "ise" deutlich kleiner als das R und dicht an den Bogen gerueckt, wie in
+  der Vorlage; die ganze Marke auf 82 % und unter die rechte Haelfte von
+  GAMBIT gesetzt.
+
 ## 1.69.0 - Rise im Zickzack, Blitz ohne Geaest in der Mitte
 - Besitzer: "dieses Rise ist als Schrift noch zu sehr abgerundet ... versuch
   es wirklich eher zickzackartig zu zeichnen." Alle Zuege sind jetzt GERADE

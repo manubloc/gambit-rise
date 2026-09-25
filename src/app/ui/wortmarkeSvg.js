@@ -122,7 +122,7 @@ ${stuecke(HAUPT, HAUPT_PROFIL).map((x) => `<path d="${x.d}" stroke="url(#${p}bk)
 
 <!-- v1.68.0: Rise ist keine Schrift mehr, sondern gezeichnet (riseGezeichnet.js) -->
 <!-- v1.69.0: Rise sitzt im Feld - der Ausstrich lief sonst rechts hinaus -->
-<g transform="translate(-16,14) scale(.94)">
+<g transform="translate(64,18) scale(.82)">
   <g filter="url(#${p}g3)" fill="#7c3aed" opacity=".9">${RISE_PFADE}</g>
   <g fill="url(#${p}lila)">${RISE_PFADE}</g>
 </g>
