@@ -1,5 +1,13 @@
 # Changelog - Gambit Rise
 
+## 1.76.0 - ise groesser, Marke neu eingepasst
+- Besitzer: "ob du das i, das s und das e noch ein bisschen groesser machst -
+  ich glaube, dann ist es perfekt." ise steht auf weiteren 112 %.
+- Dadurch stiess der Ausstrich des e an den rechten Rand; die ganze Marke ist
+  eine Spur zurueckgenommen (80 % statt 82) und sitzt wieder frei.
+- Animationsablauf geprueft: Wisch von links nach rechts, ein Aufblitzen,
+  dann Ruhe - siehe design/logo/gambit-rise-logo-animiert.svg.
+
 ## 1.75.1 - Rise groesser und weiter nach rechts unten
 - Besitzer: "mach das Rise weiter rechts nach unten und groesser."
   Von 72 auf 82 %, dazu nach rechts und nach unten gerueckt.

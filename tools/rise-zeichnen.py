@@ -80,16 +80,16 @@ S.append(strich([[(459,127),(469,148),(483,167),(507,199)]], [(0,.9),(.3,6.4),(.
 # die Strichbreite. Die kraeftigen aus v1.73.0 waren zu viel und sind fort.
 for a,b in [((417,195),(412,204)), ((507,199),(513,207)), ((468,96),(472,89))]:
     S.append(strich([g(a,b)], [(0,.8),(.5,.5),(1,.15)]))
-# ── ise: deutlich kleiner als das R, rechts oben (Besitzer: "dürfte etwas
+# ── ise (v1.76.0: noch einmal 12 % groesser - Besitzer): deutlich kleiner als das R, rechts oben (Besitzer: "dürfte etwas
 #    kleiner sein") ─────────────────────────────────────────────────────────
-S.append(strich([[(514,212),(516,198),(521,182),(528,165)]], [(0,.6),(.5,6.5),(1,.6)]))
-PUNKT='<circle cx="533" cy="145" r="3.4"/>'
+S.append(strich([[(514,212),(516,196),(522,178),(530,159)]], [(0,.6),(.5,6.5),(1,.6)]))
+PUNKT='<circle cx="536" cy="137" r="3.4"/>'
 # v1.72.0 (Besitzer: "das e und das s etwas mit kantig"): gerade Zuege mit
 # scharfen Ecken. Das s ist ein liegendes Z: Kopfbalken nach links, Diagonale
 # hinab, Fussbalken nach links. Das e: Mittelbalken, Schleife darueber, Bauch.
-S.append(strich([g((566,165),(540,172)), g((540,172),(564,189)), g((564,189),(536,198))],
+S.append(strich([g((572,159),(543,167)), g((543,167),(570,186)), g((570,186),(539,196))],
                 [(0,.5),(.24,5.4),(.55,4.6),(.82,5.2),(1,.5)]))
-S.append(strich([g((572,189),(604,182)), g((604,182),(607,169)), g((607,169),(588,165)),
-                 g((588,165),(575,182)), g((575,182),(585,198)), g((585,198),(614,189))],
+S.append(strich([g((579,186),(615,178)), g((615,178),(618,164)), g((618,164),(597,159)),
+                 g((597,159),(583,178)), g((583,178),(594,196)), g((594,196),(626,186))],
                 [(0,.5),(.2,4.2),(.45,6.2),(.75,5.8),(1,.4)]))
 print(json.dumps({"pfade":S,"punkt":PUNKT}))
