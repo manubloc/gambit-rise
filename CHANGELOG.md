@@ -1,5 +1,26 @@
 # Changelog - Gambit Rise
 
+## 1.85.0 - die letzten drei Landingpage-Punkte
+
+- G2 GALERIE: statt der Aufnahme des Hofstaat-Rasters stehen oben die Figuren
+  selbst - acht in Farbe, vier als Schatten. Kapitaen, Kanzler, Amazone und
+  Drache kommen weiter unten mit ihren Zuegen wieder; Gambit, Bauer und die
+  uebrigen Standardfiguren fehlen bewusst, sie erzaehlen nichts Neues.
+  Die Schatten sind im zweiten Anlauf deutlich dunkler geraten - bei Faktor
+  0,16 waren die Figuren noch zu erkennen und "??? noch verborgen" wirkte
+  unehrlich.
+- G1 LEGENDE: die Zugbilder tragen jetzt eine Legende in den Farben des
+  Spiels (Figur / gewohnter Zug / neu durch die Faehigkeit) und einen Satz,
+  der den Weitsprung benennt. Ohne sie sah man bunte Kaestchen und wusste
+  nicht, was sie heissen.
+- G7 LAENDER: ein Band aus den echten Kapitel-Hintergruenden (public/brett),
+  quer zugeschnitten - sechs von zwoelf, genug fuer den Eindruck, ohne die
+  Reise vorwegzunehmen.
+- hofstaat-raster.webp nach archiv/ausgemustert/v1.85.0/.
+- GEPRUEFT und nichts zu tun: der Willkommensschirm traegt die drei
+  Aufzaehlungen seit v1.65.0 nicht mehr. Das Bildschirmfoto des Besitzers kam
+  aus der eingefrorenen Installation auf der alten Adresse.
+
 ## 1.84.0 - die Store-Bilder entstehen jetzt auf Knopfdruck
 
 - Besitzer: "das wäre das nächste große Ding auch, dass du mir ordentlich

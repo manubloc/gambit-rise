@@ -289,10 +289,20 @@
     .z.l{ background:rgba(233,197,63,.5);  box-shadow:inset 0 0 0 1px rgba(255,255,255,.16); }
     .z.g{ background:rgba(62,224,137,.55); box-shadow:inset 0 0 0 1px rgba(120,255,180,.45); }
     .legende { color:var(--dim); font-size:10.5px; margin-bottom:8px; }
+    .zuglegende { list-style:none; padding:0; margin:12px 0 4px; display:flex; flex-wrap:wrap; gap:8px 16px; }
+    .zuglegende li { display:flex; align-items:center; gap:7px; font-size:12.5px; color:rgba(226,218,246,.82); }
+    .zuglegende .z { width:15px; height:15px; border-radius:4px; flex:0 0 auto; }
     .chips { display:flex; flex-wrap:wrap; gap:6px; }
     .chip { font-size:11px; font-weight:700; letter-spacing:.03em; padding:4px 10px; border-radius:999px;
       border:1px solid rgba(201,164,92,.4); color:var(--goldhell); background:rgba(201,164,92,.08); }
     .chip.violett { border-color:rgba(167,139,250,.45); color:#cdbcf7; background:rgba(124,58,237,.12); }
+    .laender { display:grid; gap:10px; grid-template-columns:repeat(2,1fr); margin-top:6px; }
+    @media (min-width:700px){ .laender { grid-template-columns:repeat(3,1fr); } }
+    .laender figure { margin:0; }
+    .laender img { width:100%; height:auto; display:block; border-radius:12px;
+      border:1px solid rgba(167,139,250,.3); box-shadow:0 8px 22px rgba(0,0,0,.5); }
+    .laender figcaption { margin-top:6px; text-align:center; font-size:12.5px; color:rgba(226,218,246,.8); }
+    .laender figcaption i { font-style:normal; color:var(--gold); margin-left:5px; letter-spacing:.08em; }
     .weltrahmen { border:1px solid rgba(167,139,250,.55); border-radius:16px; overflow:hidden;
       box-shadow:0 14px 44px rgba(0,0,0,.55), 0 0 16px rgba(124,58,237,.25); }
     footer { border-top:1px solid var(--line); background:var(--night); padding:34px 18px 44px;
@@ -393,8 +403,28 @@
         <li>Tränke, Zeitenwender, Mauern und Schlüssel beim Händler</li>
       </ul>
     </div>
-    <div style="order:1" class="galeriebild"><img src="/landing/hofstaat-raster.webp" loading="lazy"
-      alt="Der Hofstaat: neun erspielte Figuren in Farbe, darunter noch unbekannte als dunkle Silhouetten" />
+    <!-- v1.85.0 (Besitzer G2: "Galerie oben mit den Figuren, die unten mit
+         Zuegen vorgestellt werden; Gambit und Bauer weg, weniger
+         Standardfiguren"): statt der Aufnahme des Hofstaat-Rasters stehen
+         hier die Figuren selbst - acht in Farbe, vier als Schatten. Kapitaen,
+         Kanzler, Amazone und Drache kommen weiter unten mit ihren Zuegen
+         wieder; Gambit, Bauer und die uebrigen Standardfiguren fehlen hier
+         bewusst, sie erzaehlen nichts Neues. -->
+    <div style="order:1">
+      <div class="galerie sans">
+        <div class="sockel"><img src="/landing/gal-captain.webp" alt="Der Kapitän" loading="lazy" /><div class="n">Kapitän</div><div class="r">gerade &amp; schräg</div></div>
+        <div class="sockel"><img src="/landing/gal-chancellor.webp" alt="Der Kanzler" loading="lazy" /><div class="n">Kanzler</div><div class="r">Turm &amp; Springer</div></div>
+        <div class="sockel"><img src="/landing/gal-amazon.webp" alt="Die Amazone" loading="lazy" /><div class="n">Amazone</div><div class="r">Dame &amp; Springer</div></div>
+        <div class="sockel riss"><img src="/landing/gal-dragon.webp" alt="Der Drache" loading="lazy" /><div class="n">Drache</div><div class="r">vier Felder groß</div></div>
+        <div class="sockel"><img src="/landing/gal-archbishop.webp" alt="Der Erzbischof" loading="lazy" /><div class="n">Erzbischof</div><div class="r">Läufer &amp; Springer</div></div>
+        <div class="sockel"><img src="/landing/gal-mage.webp" alt="Der Magier" loading="lazy" /><div class="n">Magier</div><div class="r">wirkt Zauber</div></div>
+        <div class="sockel"><img src="/landing/gal-paladin.webp" alt="Der Paladin" loading="lazy" /><div class="n">Paladin</div><div class="r">hält die Reihe</div></div>
+        <div class="sockel riss"><img src="/landing/gal-guardian.webp" alt="Der Wächter" loading="lazy" /><div class="n">Wächter</div><div class="r">Bestie aus dem Riss</div></div>
+        <div class="sockel"><img src="/landing/gal-schatten-1.webp" alt="" loading="lazy" /><div class="n">???</div><div class="r">noch verborgen</div></div>
+        <div class="sockel"><img src="/landing/gal-schatten-2.webp" alt="" loading="lazy" /><div class="n">???</div><div class="r">noch verborgen</div></div>
+        <div class="sockel"><img src="/landing/gal-schatten-3.webp" alt="" loading="lazy" /><div class="n">???</div><div class="r">noch verborgen</div></div>
+        <div class="sockel"><img src="/landing/gal-schatten-4.webp" alt="" loading="lazy" /><div class="n">???</div><div class="r">noch verborgen</div></div>
+      </div>
       <p class="unterzeile sans">Was du erspielst, steht in Farbe — der Rest wartet als Schatten.</p></div>
   </div>
 </section>
@@ -456,7 +486,17 @@
         <figure><img src="/landing/zug-king_dash.webp" alt="Zugbild Königsflucht" loading="lazy" />
           <figcaption><b>Königsflucht</b> <i>König</i> — einmal zwei Felder gerade.</figcaption></figure>
       </div>
-      <p class="unterzeile sans" style="text-align:left">Farbig: die Felder, die eine Fähigkeit neu erschließt.</p>
+      <!-- v1.85.0 (Besitzer G1: "Zugbilder der Faehigkeiten: Weitsprung
+           verstaendlicher (Legende)"): ohne Legende waren die Farben nicht zu
+           deuten - man sah bunte Kaestchen und wusste nicht, was sie heissen.
+           Die Farben sind dieselben wie im Spiel (.z.f / .z.s / .z.l). -->
+      <ul class="zuglegende sans">
+        <li><span class="z f"></span>die Figur selbst</li>
+        <li><span class="z s"></span>ihr gewohnter Zug</li>
+        <li><span class="z l"></span>neu durch die Fähigkeit</li>
+      </ul>
+      <p class="unterzeile sans" style="text-align:left">Der <b>Weitsprung</b> etwa gibt dem Springer vier
+        weitere Ziele über das L hinaus — im Bild die gelben Felder.</p>
     </div>
   </div>
 </section>
@@ -514,6 +554,20 @@
       alt="Die Karte eines Kapitels: ein Pfad durch den Eichwald mit Stationen wie Erstes Rot, Halle der zwei Schwüre und Bernsteinaltar" loading="lazy" /></div>
     <!-- v1.62.0 (Besitzer: "Kapitel I zeigen ... und vielleicht noch ein anderes
          von den Bergen, ein helles - dass man Varianz reinbringt") -->
+    <!-- v1.85.0 (Besitzer G7: "weiter unten weitere Hintergruende aus dem
+         Spiel verwenden"): die echten Kapitel-Hintergruende aus public/brett,
+         quer zugeschnitten. Sechs von zwoelf - genug fuer den Eindruck, ohne
+         die Reise vorwegzunehmen. -->
+    <h3 class="sans" style="text-align:center;margin:34px 0 6px;font-size:19px">Zwölf Länder, zwölf Stimmungen</h3>
+    <div class="laender">
+      <figure><img src="/landing/land-kronland.webp" alt="Das Kronland" loading="lazy" /><figcaption class="sans">Kronland <i>I</i></figcaption></figure>
+      <figure><img src="/landing/land-eichwald.webp" alt="Der Eichwald" loading="lazy" /><figcaption class="sans">Eichwald <i>III</i></figcaption></figure>
+      <figure><img src="/landing/land-grauwacht.webp" alt="Die Grauwacht" loading="lazy" /><figcaption class="sans">Grauwacht <i>V</i></figcaption></figure>
+      <figure><img src="/landing/land-wolkenjoch.webp" alt="Das Wolkenjoch" loading="lazy" /><figcaption class="sans">Wolkenjoch <i>VI</i></figcaption></figure>
+      <figure><img src="/landing/land-aschgrund.webp" alt="Der Aschgrund" loading="lazy" /><figcaption class="sans">Aschgrund <i>VIII</i></figcaption></figure>
+      <figure><img src="/landing/land-kueste.webp" alt="Die Küste" loading="lazy" /><figcaption class="sans">Die Küste <i>XI</i></figcaption></figure>
+    </div>
+
     <h3 class="sans" style="text-align:center;margin:34px 0 6px;font-size:19px">Jedes Land sein eigenes Brett</h3>
     <div class="paar">
       <figure><div class="bildrahmen"><img src="/landing/gefecht-gemischt.webp" alt="Das Brett im Kronland, Kapitel I" loading="lazy" /></div>

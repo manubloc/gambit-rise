@@ -17,13 +17,13 @@
 - [x] F2 (Rise selbst gezeichnet, keine Schrift mehr) "Rise" wie im Vorlagebild - blitzartig, nicht so schwungvoll
 
 ## Landingpage
-- [ ] G1 Zugbilder der Faehigkeiten: Weitsprung verstaendlicher (Legende); Design 1:1 wie im Spiel (Rundungen, Abstaende)
-- [ ] G2 Galerie oben: die Figuren, die unten mit Zuegen vorgestellt werden; Gambit und Bauer weg, weniger Standardfiguren
+- [x] G1 Zugbilder der Faehigkeiten: Weitsprung verstaendlicher (Legende); Design 1:1 wie im Spiel (Rundungen, Abstaende)
+- [x] G2 Galerie oben: die Figuren, die unten mit Zuegen vorgestellt werden; Gambit und Bauer weg, weniger Standardfiguren
 - [x] G3 Fliesstext feiner (extra light), weniger Wechsel fett/normal
 - [x] G4 "Sperren setzen" (Mauer-Bild) weg
 - [x] G5 Spielarten (Kampagne, Online ...) weiter nach oben
 - [x] G6 Erster Schirm bildschirmfuellend: Logo, darunter Figuren hintereinander (Koenig, Dame, Laeufer ...), unten weich auslaufend; Hintergrund = Menuehintergrund mit den Schachfeldern
-- [ ] G7 Weiter unten weitere Hintergruende aus dem Spiel verwenden
+- [x] G7 Weiter unten weitere Hintergruende aus dem Spiel verwenden
 
 ## Nachtrag 26.9. (v1.78.0 / v1.79.0)
 - [x] G6 mit riss-01 als Grund (v1.79.0 - v1.78.0 hatte bg-hall genommen, falsch)
@@ -34,3 +34,14 @@
 - [ ] G1 Zugbilder 1:1 im Spieldesign + Legende zum Weitsprung
 - [ ] G2 Galerie oben mit den Figuren, die unten mit Zuegen vorgestellt werden
 - [ ] G7 Weitere Hintergruende aus dem Spiel weiter unten
+
+## Nachtrag 26.9. spaet (v1.84.0 / v1.85.0)
+- [x] Store-Bilder neu: 8 Motive x 3 Formate x 2 Sprachen, auf Knopfdruck
+      (tools/playstore-schirme.mjs + tools/playstore_gestell.py)
+- [x] PLAYSTORE.md: IARC-Fragebogen und Datensicherheit Feld fuer Feld
+- [x] G1 Legende zu den Zugbildern
+- [x] G2 Galerie oben mit den vorgestellten Figuren
+- [x] G7 Band aus den echten Kapitel-Hintergruenden
+- [x] Willkommensschirm geprueft: die drei Aufzaehlungen sind seit v1.65.0 fort
+- [ ] Store-Bild MIT Lebenspunkten (braucht einen Spielstand ab Kapitel III)
+- [ ] Monsterbilder freistellen (Besitzer: "lassen wir erstmal, kann man nachziehen")
