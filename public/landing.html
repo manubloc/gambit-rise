@@ -120,12 +120,27 @@
        Kasten mit left:50% darf gemessen nur die halbe Fensterbreite breit
        werden (auf dem Handy 195 px) - die Reihe wurde dadurch gequetscht. */
     .hofreihe { position:absolute; left:0; right:0; bottom:calc(var(--fh) * -.17); z-index:2;
-      display:flex; flex-wrap:nowrap; align-items:flex-end; justify-content:center; pointer-events:none; }
+      display:flex; flex-wrap:nowrap; align-items:flex-end; justify-content:center; pointer-events:none;
+      --ue:.075; }
+    /* v1.83.0 (Besitzer: "die Pferde sieht man jetzt nur so angeschnitten,
+       vielleicht kannst du die sogar ein bisschen nach oben ruecken, als
+       wuerden die noch dahinter stehen mit dem Turm, oder vielleicht kannst
+       du auch mischen, du machst den Laeufer nach rechts und links das Pferd
+       oder den Turm"): genau so steht die Reihe jetzt - aussen die Laeufer,
+       die Pferde eine Reihe dahinter ZWISCHEN Laeufer und Dame. Das ist auch
+       technisch der bessere Platz: die Ueberlappung frisst dann die hinteren
+       Figuren und nicht Dame oder Koenig. --y hebt eine Figur
+       an. Zusammen mit kleinerer Hoehe und gedaempfter Helligkeit steht sie
+       damit sichtbar in zweiter Reihe statt neben den anderen.
+       Und auf schmalen Schirmen ruecken alle enger zusammen (--ue): gemessen
+       brauchten die sechs sichtbaren Figuren bei 390 px Fensterbreite 554 px,
+       82 px hingen links und rechts ueber dem Rand. */
     .hofreihe img { height:calc(var(--fh) * var(--h,1)); width:auto; display:block; position:relative;
-      margin-inline:calc(var(--fh) * -.075); z-index:var(--z,1);
+      margin-inline:calc(var(--fh) * var(--ue) * -1); z-index:var(--z,1);
+      transform:translateY(calc(var(--fh) * var(--y,0) * -1));
       filter:brightness(var(--b,1)) drop-shadow(0 12px 26px rgba(0,0,0,.8)); }
     @media (max-width:900px){ .hofreihe img.rand { display:none; } }
-    @media (max-width:560px){ .hofreihe img.rand2 { display:none; } }
+    @media (max-width:560px){ .hofreihe img.rand2 { display:none; } .hofreihe { --ue:.134; } }
     /* v1.82.0: der Abdunkler bleibt, faellt aber flacher aus - er soll den
        Uebergang zum naechsten Abschnitt tragen, nicht die Beine schlucken. */
     .buehne::after { content:""; position:absolute; left:0; right:0; bottom:0; height:56px;
@@ -324,16 +339,16 @@
        dunkelt die hinteren ab. Am Rand verschwinden Figuren auf schmalen
        Geraeten (Klassen rand/rand2), damit die Reihe nie beschnitten wirkt. -->
   <div class="hofreihe" aria-hidden="true">
-    <img class="rand"  src="/landing/held-pawn.webp"   alt="" style="--h:.6;--z:1;--b:.44" loading="eager" />
-    <img class="rand2" src="/landing/held-rook.webp"   alt="" style="--h:.76;--z:2;--b:.6"  loading="eager" />
-    <img               src="/landing/held-knight.webp" alt="" style="--h:.84;--z:3;--b:.76" loading="eager" />
-    <img               src="/landing/held-bishop.webp" alt="" style="--h:.87;--z:4;--b:.9"  loading="eager" />
-    <img               src="/landing/held-queen.webp"  alt="" style="--h:.96;--z:6;--b:1"   loading="eager" />
-    <img               src="/landing/held-king.webp"   alt="" style="--h:1;--z:7;--b:1"     loading="eager" />
-    <img               src="/landing/held-bishop.webp" alt="" style="--h:.87;--z:5;--b:.9"  loading="eager" />
-    <img               src="/landing/held-knight.webp" alt="" style="--h:.84;--z:3;--b:.76" loading="eager" />
-    <img class="rand2" src="/landing/held-rook.webp"   alt="" style="--h:.76;--z:2;--b:.6"  loading="eager" />
-    <img class="rand"  src="/landing/held-pawn.webp"   alt="" style="--h:.6;--z:1;--b:.44" loading="eager" />
+    <img class="rand"  src="/landing/held-pawn.webp"   alt="" style="--h:.54;--z:1;--b:.38;--y:.11"  loading="eager" />
+    <img class="rand2" src="/landing/held-rook.webp"   alt="" style="--h:.70;--z:2;--b:.54;--y:.082" loading="eager" />
+    <img               src="/landing/held-bishop.webp" alt="" style="--h:.87;--z:5;--b:.92"          loading="eager" />
+    <img               src="/landing/held-knight.webp" alt="" style="--h:.76;--z:3;--b:.68;--y:.10" loading="eager" />
+    <img               src="/landing/held-queen.webp"  alt="" style="--h:.96;--z:6;--b:1"            loading="eager" />
+    <img               src="/landing/held-king.webp"   alt="" style="--h:1;--z:7;--b:1"              loading="eager" />
+    <img               src="/landing/held-knight.webp" alt="" style="--h:.76;--z:3;--b:.68;--y:.10" loading="eager" />
+    <img               src="/landing/held-bishop.webp" alt="" style="--h:.87;--z:5;--b:.92"          loading="eager" />
+    <img class="rand2" src="/landing/held-rook.webp"   alt="" style="--h:.70;--z:2;--b:.54;--y:.082" loading="eager" />
+    <img class="rand"  src="/landing/held-pawn.webp"   alt="" style="--h:.54;--z:1;--b:.38;--y:.11"  loading="eager" />
   </div>
   <a class="runter" href="#spiel" aria-label="Weiter nach unten">&#9662;</a>
 </header>

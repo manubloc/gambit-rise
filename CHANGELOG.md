@@ -1,5 +1,33 @@
 # Changelog - Gambit Rise
 
+## 1.83.0 - Gambit und Bauer angeglichen, die Pferde treten zurueck
+
+- Besitzer: "Der Kopf vom Gambit neu koennte noch minimal kleiner sein. Er ist
+  jetzt ein bisschen zu hoch ... die Breite passt, aber er ist noch ein
+  bisschen zu hoch. Also tu einfach den Kopf noch von oben herab ein bisschen
+  stauchen nach unten."
+- DIE FIGUREN sind eingebaut: zehn Bilder (Bauer und seine zwei Stufen, Gambit
+  und seine sechs), Breite im Kopfband auf 130 px zusammengezogen, beim Gambit
+  zusaetzlich der Kopf auf 89 % zum Hals hin gestaucht. Gemessen vorher:
+  Gambit 143,6 px gegen Bauer 124,1 - und die Stufen schwankten um 40 %.
+  Die Figurenhoehe faellt beim Gambit von 535 auf 520 px; der Sockelfuss,
+  an dem das Brett ausrichtet, ruehrt sich nicht. Die 192-px-Fassungen in
+  painted/klein/ sind mitgezogen.
+- VERWORFEN: eine Umverteilung (Kopf stauchen, Hals um denselben Betrag
+  dehnen), die die 535 px exakt gehalten haette. Ausprobiert und angesehen -
+  sie macht den Rumpf laenger und die Figur wirkt gestreckt statt kompakter.
+- DIE FIGURENREIHE auf der Landingpage steht neu: aussen die Laeufer, die
+  Pferde eine Reihe DAHINTER zwischen Laeufer und Dame - so, wie der Besitzer
+  es vorgeschlagen hat. Das ist auch technisch der bessere Platz: die
+  Ueberlappung frisst dann die hinteren Figuren statt Dame oder Koenig.
+  Gemessen auf dem Handy: vorher hingen 82 px links und rechts ueber dem
+  Fensterrand, jetzt 0.
+- Neue CSS-Stellschrauben --y (hebt eine Figur an, macht Tiefe) und --ue
+  (Ueberlappung, auf schmalen Schirmen 13,4 % statt 7,5 %).
+- PLAY STORE: design/playstore/UEBERSICHT.png zeigt den ganzen Satz auf einen
+  Blick, design/PLAYSTORE.md bekommt eine Tabelle, was Pflicht ist und was
+  nicht. Die Feature-Grafik traegt die neue Aufstellung.
+
 ## 1.82.0 - die Figuren werden geschnitten, nicht ausgeblendet
 
 - Besitzer: "ich habe das Gefuehl, der Hintergrund scheint jetzt noch bei den

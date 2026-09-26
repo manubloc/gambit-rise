@@ -28,6 +28,42 @@ Vorbereitet liegt hier:
   Platzhalter-Fingerprint (Schritt 4)
 - Store-Texte: unten in diesem Dokument
 
+## Das Paket zum Hochladen (Stand 26.9.2026, v1.83.0)
+
+Alles Bildmaterial liegt unter `design/playstore/`. `UEBERSICHT.png` zeigt
+den ganzen Satz auf einen Blick — gedacht fürs Handy, damit man nicht jede
+Datei einzeln öffnen muss.
+
+| Was | Datei | Pflicht |
+|---|---|---|
+| Feature-Grafik | `feature-1024x500-de.png` (= `-en`) | ja |
+| App-Symbol | `icon-512.png` | ja |
+| Handy-Screenshots | `de/handy-1080x1920-*.png`, 7 Stück | ja, min. 2 |
+| Tablet 7″ | `de/tablet7-1200x1920-*.png`, 7 Stück | nein |
+| Tablet 10″ | `de/tablet10-1600x2560-*.png`, 7 Stück | nein |
+| Wortmarke | `logo-wortmarke.png` | nein |
+
+Englisch liegt unter `en/` in denselben Formaten. Die Feature-Grafik ist für
+beide Sprachen dieselbe Datei, weil sie außer der Wortmarke keinen Text
+trägt.
+
+**Die Feature-Grafik wird beschnitten.** Play zeigt auf dem Handy oft nur die
+mittleren rund 60 %. Deshalb steht alles Wichtige in der Mitte; an den Rändern
+darf nichts stehen, was man lesen muss.
+
+**Screenshots als JPEG sind erlaubt** — für die Übergabe aufs Handy lohnt das:
+dieselben Bilder wiegen als PNG rund viermal so viel. Im Repo bleiben die
+PNGs als verlustfreie Quelle.
+
+### Womit das Material gebaut wird
+
+- `tools/playstore_grafik.py` — Feature-Grafik aus Rissboden, Figurenreihe und
+  Wortmarke, also aus denselben Teilen wie der erste Schirm der Landingpage.
+  Ein Lauf, keine Handarbeit: ändert sich eines der Teile, zieht der Store mit.
+- Die Screenshots entstehen aus der echten App im Browser (Playwright), mit
+  einer Überschrift je Bild.
+
+
 ## 1. Die Hülle bauen (einmalig, ~20 Minuten)
 
 Braucht Node (hast du) und einmalig das Android-SDK, das Bubblewrap selbst

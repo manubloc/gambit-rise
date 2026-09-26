@@ -96,6 +96,60 @@ def angleichen(pfad, ziel, ziel_datei=None, deckel=0.80):
     return dict(datei=pfad, ist=ist, faktor=s_ziel, neu=kopfbreite(neu), bild=neu)
 
 
+# ── v1.83.0: DER KOPF DARF AUCH FLACHER WERDEN ──────────────────────────────
+# Besitzer: "Der Kopf vom Gambit neu koennte noch minimal kleiner sein. Er ist
+# jetzt ein bisschen zu hoch ... die Breite passt, aber er ist noch ein
+# bisschen zu hoch. Also tu einfach den Kopf noch von oben herab ein bisschen
+# stauchen nach unten."
+#
+# Woertlich genommen: der Kopf wird zum Hals hin zusammengezogen, die
+# Oberkante der Figur rutscht nach unten, und ALLES ab dem Hals bleibt, wo es
+# ist. Die Figur wird dadurch oben ein paar Pixel kuerzer - der Sockelfuss,
+# an dem das Brett sie ausrichtet, ruehrt sich nicht.
+#
+# Eine Umverteilung (Kopf stauchen, Hals dehnen) waere die Alternative
+# gewesen, damit die 535 px exakt stehen bleiben. Ausprobiert und verworfen:
+# sie macht den Rumpf laenger, und die Figur wirkt dann gestreckt statt
+# kompakter - das Gegenteil dessen, was gewuenscht war.
+HALS = 0.26            # bis hierhin (Anteil der Figurenhoehe) reicht der Kopf
+
+
+def kopf_senken(im, k=0.90):
+    """Zieht den Kopf senkrecht auf das k-fache zum Hals hin zusammen."""
+    if abs(k - 1.0) < 0.002:
+        return im
+    y0, h = figurband(im)
+    hals = y0 + h * HALS
+    a = np.asarray(im, dtype=np.float64) / 255.0
+    alpha = a[:, :, 3:4]
+    vor = np.concatenate([a[:, :, :3] * alpha, alpha], axis=2)
+    H, W = vor.shape[:2]
+
+    # Zielzeile -> Quellzeile. Ueber dem Hals gestaucht, darunter identisch.
+    # Eine weiche Flanke ueber 6 % der Figurenhoehe verhindert einen Knick.
+    flanke = max(1.0, h * 0.06)
+    ziel = np.arange(H, dtype=np.float64)
+    quelle = ziel.copy()
+    oben = ziel < hals
+    d = (hals - ziel[oben])
+    # voller Faktor weit oben, 1,0 direkt am Hals
+    f = 1.0 / k + (1.0 - 1.0 / k) * glatt(np.clip(d / flanke, 0.0, 1.0)) * 0
+    f = np.full_like(d, 1.0 / k)
+    weich = glatt(np.clip(d / flanke, 0.0, 1.0))
+    f = 1.0 + (1.0 / k - 1.0) * weich
+    quelle[oben] = hals - d * f
+
+    neu = np.zeros_like(vor)
+    for kk in range(4):
+        for x in range(W):
+            neu[:, x, kk] = np.interp(quelle, np.arange(H, dtype=np.float64), vor[:, x, kk],
+                                      left=0.0, right=0.0)
+    na = neu[:, :, 3:4]
+    rgb = np.divide(neu[:, :, :3], np.maximum(na, 1e-6))
+    aus = np.concatenate([np.clip(rgb, 0, 1), np.clip(na, 0, 1)], axis=2)
+    return Image.fromarray((aus * 255 + 0.5).astype(np.uint8), "RGBA")
+
+
 if __name__ == "__main__":
     for p in sys.argv[1:]:
         print(p, round(kopfbreite(Image.open(p).convert("RGBA")), 1))

@@ -15,20 +15,24 @@ from PIL import Image, ImageFilter
 WURZEL = "public/landing"
 # Die Reihe wie auf der Landingpage: --h ist die Hoehe im Verhaeltnis zum
 # Koenig, --b dunkelt die hinteren Figuren ab.
+# v1.83.0: dieselbe Aufstellung wie auf der Landingpage - aussen die Laeufer,
+# die Pferde eine Reihe dahinter ZWISCHEN Laeufer und Dame. Die vierte Zahl
+# hebt eine Figur an (Anteil der Reihenhoehe); zusammen mit kleinerer Hoehe
+# und gedaempfter Helligkeit steht sie damit sichtbar in zweiter Reihe.
 REIHE = [
-    ("held-pawn.webp",   0.60, 0.44),
-    ("held-rook.webp",   0.76, 0.60),
-    ("held-knight.webp", 0.84, 0.76),
-    ("held-bishop.webp", 0.87, 0.90),
-    ("held-queen.webp",  0.96, 1.00),
-    ("held-king.webp",   1.00, 1.00),
-    ("held-bishop.webp", 0.87, 0.90),
-    ("held-knight.webp", 0.84, 0.76),
-    ("held-rook.webp",   0.76, 0.60),
-    ("held-pawn.webp",   0.60, 0.44),
+    ("held-pawn.webp",   0.54, 0.38, 0.110),
+    ("held-rook.webp",   0.70, 0.54, 0.082),
+    ("held-bishop.webp", 0.87, 0.92, 0.000),
+    ("held-knight.webp", 0.76, 0.68, 0.100),
+    ("held-queen.webp",  0.96, 1.00, 0.000),
+    ("held-king.webp",   1.00, 1.00, 0.000),
+    ("held-knight.webp", 0.76, 0.68, 0.100),
+    ("held-bishop.webp", 0.87, 0.92, 0.000),
+    ("held-rook.webp",   0.70, 0.54, 0.082),
+    ("held-pawn.webp",   0.54, 0.38, 0.110),
 ]
 # Wer vor wem steht - die Mitte zuletzt, damit sie oben liegt.
-ORDNUNG = [0, 9, 1, 8, 2, 7, 3, 6, 4, 5]
+ORDNUNG = [0, 9, 1, 8, 3, 6, 2, 7, 4, 5]
 
 
 def boden(b, h, stelle=0.62):
@@ -56,8 +60,8 @@ def dunkeln(im, oben=0.62):
 
 def figurenreihe(hoehe, ueberlappung=0.075):
     """Die Figuren nebeneinander, Fuesse auf einer Linie, mit Tiefe."""
-    teile = []
-    for datei, f, hell in REIHE:
+    teile, hebung = [], []
+    for datei, f, hell, y in REIHE:
         im = Image.open(f"{WURZEL}/{datei}").convert("RGBA")
         z = round(hoehe * f)
         im = im.resize((round(im.width * z / im.height), z), Image.LANCZOS)
@@ -65,14 +69,16 @@ def figurenreihe(hoehe, ueberlappung=0.075):
             a = im.split()[3]
             im = Image.merge("RGBA", [c.point(lambda v: int(v * hell)) for c in im.split()[:3]] + [a])
         teile.append(im)
+        hebung.append(round(hoehe * y))
     schritt = [t.width - round(hoehe * ueberlappung * 2) for t in teile]
     breite = sum(schritt) + round(hoehe * ueberlappung * 2)
-    platte = Image.new("RGBA", (breite, hoehe), (0, 0, 0, 0))
+    platte = Image.new("RGBA", (breite, hoehe + max(hebung)), (0, 0, 0, 0))
     x = [0]
     for s in schritt[:-1]:
         x.append(x[-1] + s)
+    fussline = hoehe + max(hebung)
     for i in ORDNUNG:
-        platte.alpha_composite(teile[i], (x[i], hoehe - teile[i].height))
+        platte.alpha_composite(teile[i], (x[i], fussline - teile[i].height - hebung[i]))
     return platte
 
 
