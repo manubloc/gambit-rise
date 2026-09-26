@@ -31,9 +31,9 @@
 - [x] Texte sprechen von zwoelf Kapiteln, nicht elf (3 Stellen)
 - [x] App-Symbol nachgemessen: die Bilder sind in Ordnung, der weisse Kreis
       kommt von einer alten Verknuepfung auf dem Startbildschirm
-- [ ] G1 Zugbilder 1:1 im Spieldesign + Legende zum Weitsprung
-- [ ] G2 Galerie oben mit den Figuren, die unten mit Zuegen vorgestellt werden
-- [ ] G7 Weitere Hintergruende aus dem Spiel weiter unten
+- [x] G1 Zugbilder 1:1 im Spieldesign + Legende zum Weitsprung  (v1.85.0)
+- [x] G2 Galerie oben mit den Figuren, die unten mit Zuegen vorgestellt werden  (v1.85.0)
+- [x] G7 Weitere Hintergruende aus dem Spiel weiter unten  (v1.85.0)
 
 ## Nachtrag 26.9. spaet (v1.84.0 / v1.85.0)
 - [x] Store-Bilder neu: 8 Motive x 3 Formate x 2 Sprachen, auf Knopfdruck

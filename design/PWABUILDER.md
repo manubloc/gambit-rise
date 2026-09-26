@@ -75,6 +75,15 @@ Interner Test → **Tester** → deine Google-Adresse eintragen → den
 **Opt-in-Link** auf dem Handy öffnen → „Tester werden" → App aus dem Play
 Store installieren.
 
+**Beim ersten Start auf zwei Dinge achten** — beides entscheidet darüber, ob
+Google die App durchlässt:
+
+1. **Kommt eine Passwortabfrage?** Dann greift der Riegel (Abschnitt 9) nicht,
+   und ein Prüfer würde die App ablehnen. Sag es mir, dann nehme ich den Riegel
+   für die Einreichung heraus.
+2. **Ist oben eine graue Browserleiste?** Dann stimmt der Fingerprint nicht
+   (Abschnitt 8).
+
 ## 8. assetlinks scharf schalten — der häufigste Stolperstein
 
 Zeigt die installierte App oben eine **graue Browserleiste**, stimmt der
@@ -100,12 +109,32 @@ es live.
 Prüfen kannst du es unter
 <https://gambitrise.com/.well-known/assetlinks.json>.
 
-## 9. Passwortriegel — schon gelöst, nur zur Beruhigung
+## 9. Passwortriegel — vorgesehen ist er gelöst, geprüft ist er nicht
 
 `/spielen/` liegt hinter einem Passwort. Die TWA öffnet die Seite mit dem
 Verweis `android-app://com.gambitrise.app`; daran erkennt der Riegel sie und
-lässt sie ohne Abfrage durch (seit v1.45.1). Store-Prüfer und Spieler sehen
-also keine Passwortabfrage — nur wer die Adresse im offenen Browser aufruft.
+lässt sie ohne Abfrage durch (seit v1.45.1, `tools/seite-bauen.mjs:65` —
+Paket und Startpfad passen zusammen, am 26.9. gegengeprüft).
+
+**Aber der Durchlass hängt an einem Verweis, den niemand garantiert** — und
+das ist das größte Ablehnungsrisiko des ganzen Weges, weil ein Prüfer, der vor
+einer Passwortabfrage steht, die App wegen „App-Zugriff nicht möglich" ablehnt:
+
+- `twa-manifest.json` setzt `fallbackType: "customtabs"`. Wo die TWA nicht
+  greift, öffnet ein Custom Tab — dort kann der Verweis fehlen.
+- Nach dem ersten Herein steht der Hash im `localStorage`. Wer ihn leert oder
+  das Gerät wechselt, steht wieder vor der Abfrage — ein Prüfer startet immer
+  frisch.
+
+**Deshalb: Schritt 7 ernst nehmen.** Startet das Spiel auf dem Handy ohne
+Abfrage, ist die Sache erledigt. Wenn nicht, gibt es zwei Auswege:
+
+- den Riegel für die Einreichung fallen lassen (`GAMBIT_ZUGANG` leer bauen
+  bzw. den Riegel-Einschub in `tools/seite-bauen.mjs` überspringen), oder
+- einen zweiten Durchlass einbauen: `?zugang=<Hash>` an die `startUrl` der
+  Hülle, den der Riegel zusätzlich akzeptiert. Der wirkt auch im Custom Tab.
+
+Sag mir, was das Handy zeigt — dann baue ich den passenden Weg ein.
 
 ## 10. Danach
 

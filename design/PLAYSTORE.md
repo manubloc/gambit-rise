@@ -123,11 +123,30 @@ und Cloudflare verarbeiten in unserem Auftrag und zaehlen nicht dazu.
 | Fotos und Videos → Fotos | ja | nein | optional | Support (bis zu zwei Bilder im Feedback) |
 | App-Infos und Leistung → Absturzprotokolle | ja | nein | **erforderlich** | Analyse, App-Funktionen |
 | App-Infos und Leistung → Diagnose | ja | nein | **erforderlich** | Analyse (Spielversion, Browserkennung) |
-| Geraete- oder andere IDs | ja | nein | optional (nur wer Benachrichtigungen einschaltet) | App-Funktionen |
+| **Standort → Ungefaehrer Standort** | **ja** | nein | optional (nur bei Online-Nutzung) | App-Funktionen, Betrugspraevention |
+| Geraete- oder andere IDs | ja | nein | optional (nur bei Online-Nutzung bzw. wer Benachrichtigungen einschaltet) | App-Funktionen, Betrugspraevention |
 
-**Nichts ankreuzen bei:** Standort, Finanzdaten, Gesundheit und Fitness,
-Nachrichten, Audio, Dateien und Dokumente, Kalender, Kontakte, Suchverlauf,
-Web-Browsing, Werbe-ID, Kaufverlauf.
+**Nichts ankreuzen bei:** Finanzdaten, Gesundheit und Fitness, Nachrichten,
+Audio, Dateien und Dokumente, Kalender, Kontakte, Suchverlauf, Web-Browsing,
+Werbe-ID, Kaufverlauf.
+
+> **BERICHTIGUNG 26.9.2026 — BITTE VOR DEM SENDEN LESEN.** Hier stand
+> „Nichts ankreuzen bei: **Standort**". Das ist falsch, und zwar am Code
+> gemessen: `worker/src/index.mjs:322` legt zu jedem Online-Spieler `land`,
+> `region` und `stadt` aus den Cloudflare-Kopfzeilen an, Zeile 333 dazu einen
+> Kurz-Hash der IP; `worker/src/logic.mjs:380-383` schreibt das ins
+> Spielerbuch, `index.mjs:294` gibt es wieder aus. Nach Googles Kategorien ist
+> das **Standort → Ungefaehrer Standort**, deshalb steht es jetzt in der
+> Tabelle darueber.
+>
+> Dass nur der Besitzer es sieht, aendert daran nichts: Google fragt, ob Daten
+> **erhoben** werden, nicht ob sie angezeigt werden. Die Zeile „Standort wird
+> anderen Nutzern angezeigt → Nein" im Altersfragebogen bleibt richtig
+> (`/spielerbuch` verlangt den ADMIN_TOKEN, sonst 401 — geprueft).
+>
+> Eine falsche Angabe in der Datensicherheit ist ein Ablehnungsgrund und
+> spaeter ein Sperrgrund. Wer den Standort nicht angeben will, muss ihn erst
+> aus dem Worker nehmen — dann stimmt die alte Fassung wieder.
 
 Zum Schluss: *Speichern → Weiter → Vorschau → **Senden***.
 
@@ -293,8 +312,10 @@ laut Google kein „Teilen".
 | App-Infos und Leistung → Diagnose | Spielversion, Browserkennung, letzte Fehler | ja | nicht optional | Analyse |
 | Geräte- oder andere IDs | Push-Kennung für Benachrichtigungen | ja | optional (nur wer einschaltet) | App-Funktionen |
 
-**Nicht erhoben:** Standort, Kontakte, Finanzdaten, Gesundheit, Nachrichten,
-Audio, Dateien, Kalender, Web-Browsing, Werbe-ID.
+**Nicht erhoben:** Kontakte, Finanzdaten, Gesundheit, Nachrichten, Audio,
+Dateien, Kalender, Web-Browsing, Werbe-ID, **genauer Standort (kein GPS)**.
+Der *ungefaehre* Standort (Land, Region, Stadt) WIRD erhoben — siehe die
+Berichtigung im Abschnitt „ZUM ABHAKEN".
 
 **Offen zu entscheiden:** Soll der automatische Absturzbericht künftig
 abschaltbar sein? Dann wäre er „optional" und das Formular freundlicher.
