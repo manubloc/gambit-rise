@@ -77,21 +77,18 @@ def figurenreihe(hoehe, ueberlappung=0.075):
 
 
 def feature(pfad, b=1024, h=500, lang="de"):
-    bild = dunkeln(boden(b, h, 0.58), oben=0.66)
-    reihe = figurenreihe(round(h * 0.52))
+    bild = dunkeln(boden(b, h, 0.84), oben=0.66)
+    reihe = figurenreihe(round(h * 0.60))
     s = min(1.0, (b * 0.98) / reihe.width)
     if s < 1.0:
         reihe = reihe.resize((round(reihe.width * s), round(reihe.height * s)), Image.LANCZOS)
-    # Nach unten weich auslaufen lassen
-    maske = Image.new("L", (1, reihe.height))
-    for y in range(reihe.height):
-        t = y / max(1, reihe.height - 1)
-        maske.putpixel((0, y), 255 if t < 0.82 else int(255 * max(0.0, (1 - t) / 0.18)))
-    maske = maske.resize(reihe.size)
-    a = reihe.split()[3].point(lambda v: v)
-    reihe.putalpha(Image.composite(a, Image.new("L", reihe.size, 0), maske))
+    # v1.82.0 (Besitzer: "ich habe das Gefuehl, der Hintergrund scheint jetzt
+    # noch bei den Figuren durch ... schneid das untere Fuenftel, Sechstel
+    # noch ab"): KEIN weiches Auslaufen mehr - das hat die Figuren nach unten
+    # durchsichtig gemacht, und der violette Boden schien durch die Koenigin.
+    # Stattdessen ein harter Schnitt an der Unterkante, wie auf der Seite.
     bild = bild.convert("RGBA")
-    bild.alpha_composite(reihe, ((b - reihe.width) // 2, h - reihe.height))
+    bild.alpha_composite(reihe, ((b - reihe.width) // 2, h - round(reihe.height * 0.83)))
 
     marke = Image.open(f"{WURZEL}/wortmarke.webp").convert("RGBA")
     mb = round(b * 0.46)

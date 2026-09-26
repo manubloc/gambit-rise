@@ -1,5 +1,30 @@
 # Changelog - Gambit Rise
 
+## 1.82.0 - die Figuren werden geschnitten, nicht ausgeblendet
+
+- Besitzer: "ich habe das Gefuehl, der Hintergrund scheint jetzt noch bei den
+  Figuren durch. Mach es bitte einfach so, dass du den Hintergrund noch
+  weiter nach oben schiebst, aber die Figuren tatsaechlich auch nur bis, ja,
+  halt einfach nochmal die unteren, das untere Viertel, eher Fuenftel,
+  Sechstel noch abschneidest, dass man sie nur bis theoretisch zu den Knien
+  oder so sieht."
+- DIE URSACHE war meine Maske. Seit v1.78.0 lief die Figurenreihe nach unten
+  in einen Verlauf aus - das macht die Pixel DURCHSICHTIG, nicht dunkel.
+  Genau deshalb schien der violette Boden durch die Koenigin. Die Maske ist
+  weg; stattdessen haengt die Reihe um 17 % ihrer Hoehe (ein knappes
+  Sechstel, wie gewuenscht) unter der Fensterkante, und header.buehne
+  schneidet sie mit overflow:hidden hart ab. Gemessen: 43 px von 253 auf dem
+  Handy, 46 von 270 auf dem Desktop.
+- DER GRUND rueckt weiter nach oben: der Kasten waechst von 64 auf 76 % der
+  Schirmhoehe (Desktop 62 auf 72), die Bildstelle von 62 auf 84 %
+  (Desktop 70 auf 88). Beides schiebt bei object-fit cover den hellen
+  Streifen nach oben, ohne die Unterkante des Bildes ins Fenster zu holen.
+- Der Abdunkler am unteren Rand faellt flacher aus (120 auf 56 px, .75 auf
+  .45) - er soll den Uebergang zum naechsten Abschnitt tragen, nicht die
+  Beine schlucken. Der Pfeil bekommt dafuer einen Schatten.
+- DIE PLAY-STORE-GRAFIK zieht mit: derselbe harte Schnitt, derselbe hoehere
+  Bildausschnitt, Figuren etwas groesser.
+
 ## 1.81.0 - die Play-Store-Grafik kommt aus denselben Teilen wie der erste Schirm
 
 - Besitzer: "vielleicht kannst du aus dem dann auch noch schon beispielhaft
