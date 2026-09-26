@@ -143,14 +143,23 @@ for (const sprache of ["de", "en"]) {
     });
     await warte(1700); await aufraeumen();
     await page.evaluate((m) => {
-      /* NICHT auf den ganzen Text ankern: die Modusknoepfe sind zweizeilig
-         ("HP-Gefecht" mit Unterzeile), ein ^...$-Vergleich ging deshalb ins
-         Leere und das Bild zeigte ein klassisches Brett. */
+      /* NICHT auf den ganzen Text ankern: die Modusknoepfe sind zweizeilig. */
       const wort = m === "klassisch" ? /^Klassisch|^Classic/i : /HP|Gefecht|Battle/i;
       const b = [...document.querySelectorAll("button")].find((x) => wort.test((x.innerText || "").trim()));
       b?.click();
     }, modus);
     await warte(900);
+    /* GEMESSEN am 26.9., nach vier Fehlversuchen mit dem Modusschalter: ein
+       GAST kann das HP-Gefecht ueberhaupt nicht waehlen. Im Anpassen-Schirm
+       traegt "Schach" den aktiven violetten Rand (rgb(167,...)), "HP-Gefecht"
+       reagiert auf einen Klick gar nicht, und von den drei Karten ist nur
+       "Klassik · 8×8" frei - "Hof" und "Schneise" stehen gedaempft und mit
+       grauem Rand da, also gesperrt. Das ist Spieldesign: die Lebenspunkte
+       erwachen erst im Lauf der Kampagne (hpWach: league > 2).
+       Ein Store-Bild MIT Lebenspunkten braucht deshalb einen vorbereiteten
+       Spielstand ab Kapitel III - kein Klickproblem, eine Freischaltung.
+       Bis dahin bleibt es beim klassischen Brett, und die Ueberschrift sagt,
+       was zu sehen ist. */
     await page.evaluate(() => {
       const b = [...document.querySelectorAll("button")].find((x) =>
         /^(Partie starten|Start match)$/i.test((x.innerText || "").trim()));
