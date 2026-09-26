@@ -2,8 +2,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { mitHeld } from "../namen.js";   /* v1.0.13: {held} in Erzaehltexten */
 import { klang, klangVorwaermen, klangEinstellen } from "../klang.js";
 import { musikBereich } from "../musik.js";
-import { geleitTauschbar } from "../../../core/rules/buende.js";
-import { geleitCommand } from "../../../core/sim/commands.js";
+import { geleitTauschbar, geleitCommand } from "../../../core/index.js";   /* v1.86.0: ueber das Barrel */
 import { WHITE, BLACK, createGame, reduce, moveCommand, potionCommand, shiftCommand, status, undo, encodeState, decodeState, HP_REMIS_HALBZUEGE, VALUE,
   SPERR_ARTEN, MAX_SPERREN, setzFelder as sperrFelder, setzeSperre, nimmSperre, sperrenAnzahl } from "../../../core/index.js";
 import { difficultyById, mapById, MAPS, campaignTag, chapterForRow, CHARACTERS as CHARACTERS_BY_ID, voiceFor, ITEMS, KIND_TO_CHAR } from "../../../content/index.js";

@@ -33,8 +33,10 @@ unter `/home/claude/repo`.
   `api.elevenlabs.io` **bereits freigegeben**, die Freigabe greift aber erst in
   einer **neuen Sitzung** (im alten Container weiterhin `host_not_allowed`).
   → **Im neuen Chat zuerst `curl -sI https://api.elevenlabs.io` prüfen.**
-- **Cloudflare:** Konto `frey.manu@gmail.com`, Account-ID
-  `73af6b7e9469b4f0ac2577e7c9e5ac18`. `ADMIN_TOKEN` liegt als Worker-Secret
+- **Cloudflare:** Konto und Account-ID standen hier im Klartext und sind am
+  26.9.2026 entfernt worden — beides gehoert nicht in ein Repo. Die Account-ID
+  steht im Cloudflare-Dashboard rechts in der Seitenleiste; der Besitzer nennt
+  sie im Chat, wenn eine Sitzung sie braucht. `ADMIN_TOKEN` liegt als Worker-Secret
   (Wert unbekannt — Manuel tippt ihn selbst ein, nie erfragen).
   **Achtung:** `duell.gambitrise.com` steht **nicht** auf der Container-
   Freigabeliste; curl von dort liefert einen Proxy-403 („Host not in

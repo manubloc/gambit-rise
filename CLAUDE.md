@@ -29,18 +29,33 @@ Cloudflare-Projekt heißt weiterhin **grand-gambit**, das GitHub-Repo soll auf
 
 ## Befehle
 
-- `npm test` — volle Batterie. MUSS 22 Suiten melden (Runner stoppt nach
-  der ersten roten Suite: Suitenzahl prüfen, nicht nur Assertions!).
+- `npm test` — volle Batterie. MUSS **27 Suiten / 1993 Prüfungen** melden
+  (Stand v1.86.0; der Runner stoppt nach der ersten roten Suite, also
+  Suitenzahl prüfen, nicht nur Assertions!).
 - `npm run ui` — nur die UI-Proben (test_ui.jsx läuft NIE direkt mit node;
   braucht esbuild-Vorlauf).
 - `npm run build` — Spielfassung + Schaukammer-Scan (Zeile
-  "vorschauen: N/N" muss vollzählig sein).
+  "vorschauen: N/N" muss vollzählig sein) + Umzug auf `/` und `/spielen/`.
+- **`OHNE_ARCHIV=1 npm run build`** — derselbe Bau, aber ohne die drei großen
+  Archivordner. **Gemessen: 51 MB statt 743 MB**, und in Sekunden statt Minuten
+  fertig. Für jeden Zwischenstand und jede Probe der richtige Weg; für einen
+  echten Release **ohne** den Schalter bauen, sonst fehlen der Schaukammer live
+  die Originale (der Vorschau-Zähler sagt dann „übersprungen" statt N/N).
 - `npm run build:single` — Ein-Datei-Fassung (~49 MB).
 - `node test_boot.mjs` — Boot-Proben (3/3).
 - `node scripts/verify-boot.mjs` — DAS CI-SKRIPT (JSDOM; wertet jeden
   Konsolenfehler als Boot-Versagen). Lokal grün heißt CI grün.
 - `timeout 250 node drive3.mjs` — Kampagnen-Fahrprobe ("== KEINE FEHLER ==").
 - `npm run pruefe:fluss` — Playwright-Textfluss/Popup-Messung.
+- `node tools/pruefe-navigation.mjs` — die NAVIGATIONSPROBE (v1.86.0): fährt
+  Karte, Stationen, Gefecht, Reiter und die Zurück-Geste in mehreren Runden und
+  wertet jeden Konsolenfehler als Absturz. `RUNDEN=5` für längere Läufe.
+  Braucht `dist/` mit der App, also **nach `npm run build:app`**.
+- `node test_layout.mjs` — echte Geometrie im Browser. Läuft wieder (v1.86.0:
+  die Klang-Loader fehlten), hängt aber NICHT in der Kette: vier Proben
+  erwarten ein vertikal zentriertes Brett, was seit dem Talentband nicht mehr
+  gilt. Der Kopf der Datei hat die Messwerte — die Erwartung ist eine offene
+  Designfrage.
 
 Lange Läufe im Muster
 `(timeout 280 cmd > /tmp/x.log 2>&1; echo exit=$? >> /tmp/x.log) & sleep 285; tail /tmp/x.log`
@@ -48,10 +63,21 @@ starten, sonst reißen Werkzeug-Zeitlimits den Lauf ab.
 
 ## EISERNE KETTE — Pflicht vor JEDEM Push, keine Ausnahmen
 
-1. `npm test` (22 Suiten, Assertionszahl notieren)
-2. `npm run build` und `npm run build:single`
+1. `npm test` (27 Suiten, Assertionszahl notieren)
+2. `npm run build`, dann **`npm run build:app`**, dann `npm run build:single`
+
+   **Warum `build:app` NACH `build` gehört** (v1.86.0, teuer gelernt):
+   `npm run build` schließt `tools/seite-bauen.mjs` ein. Danach liegt unter
+   `dist/index.html` die **Landingpage**, die App steckt in `dist/spielen/`.
+   Wer dann `drive3.mjs` laufen lässt, bekommt vier Fehler gemeldet, die es
+   nicht gibt („Anmeldung nicht möglich | kein Brett | kein Zug | kein
+   Talentband"). `build:app` stellt die App an die Wurzel zurück, und die
+   Proben greifen wieder. drive3 erkennt seit v1.86.0 BEIDE Stände und prüft im
+   Auslieferungsstand zusätzlich Landingpage, Riegel und den abmeldenden
+   Dienstarbeiter — der Umzug ist damit erstmals unter Aufsicht.
 3. `node test_boot.mjs` (3/3) und `node scripts/verify-boot.mjs` (grün)
-4. `timeout 250 node drive3.mjs` (keine Fehler)
+4. `timeout 250 node drive3.mjs` (keine Fehler); bei Arbeit an Karte,
+   Kampagne oder Navigation zusätzlich `node tools/pruefe-navigation.mjs`
 5. REINRAUM: `git clone . /tmp/rr && cp -r node_modules /tmp/rr/` und dort
    Schritte 1–4 wiederholen
 6. `git fetch` + Punktprüfung: liegt auf origin ein fremder Commit, Inhalt
@@ -114,10 +140,24 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
   Auswahl-Lichtspektakel.
 - Alles Optionale abschaltbar (Klang, Online).
 
-## Offene Baustellen (Stand v1.0.62)
+## Offene Baustellen (Stand v1.86.0)
 
-Sperren kaufen/setzen (Reihe 3–4, max. 2 je Spieler, Zerfall < 20 Züge;
-Zaun 1 HP → Mauer 2 HP → Bollwerk 3 HP) · Schaukammer-Platzhalter für
-fehlende Bilder · Animationen · Onboarding-Treppe · HP-Remis (60 Züge) ·
-Brett-Hintergrund je Liga · erste Aura · Play-Store-Einreichung
-(IARC, Datensicherheit, Grafiken, ~20 Tester).
+Die vollständige, gepflegte Liste steht in **`design/STAND-2026-09-26.md`**
+(technische Punkte als T1–T11) und **`design/PLAYSTORE-BACKLOG.md`** (alles zur
+Store-Einreichung). Hier nur der Überblick:
+
+- **Spiel:** Brett-Hintergrund je Liga · „Die Karte erzählt die Geschichte" ·
+  Name beim Anlegen verlangen · Ladeschirm (Komet/Funken näher an die Kontur) ·
+  Installationsknopf aus dem Profilfuß.
+- **Technik:** Deploy wiegt 743 MB, davon 692 MB Archiv für die Schaukammer
+  (Schalter `OHNE_ARCHIV=1` liegt bereit, Standard unverändert) · `.git` 1 GB ·
+  Layout-Erwartung „Brett zentriert" zu klären.
+- **Store:** siehe `design/PLAYSTORE-BACKLOG.md`.
+
+**Erledigt und aus dieser Liste gestrichen** (die alte Fassung stand auf
+v1.0.62 und führte längst Gebautes als offen): Sperren kaufen/setzen
+(`core/rules/sperren.js`, eigene Suite) · Fallen (Spitzgrube, Bärenfalle) ·
+Schaukammer-Platzhalter (vorschauen vollzählig) · Animationen
+(`app/ui/anim.js` + `test_anim.mjs`) · Onboarding-Treppe (auf Tooltips
+umgestellt) · HP-Remis (120 Halbzüge in `core/domain/constants.js`) ·
+erste Aura.

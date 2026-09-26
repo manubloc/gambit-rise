@@ -129,11 +129,29 @@ Engine-Operation am offenen Herzen.
 
 ## Tests
 
-Drei Node-Suites, ohne Build/Browser lauffähig (`npm test`):
+**27 Suiten, 1993 Prüfungen** (Stand v1.86.0, `npm test`). Die Zahl steigt mit
+jedem Regelwerk; maßgeblich ist immer das, was der Lauf meldet — nicht diese
+Datei. Die drei Kernsuiten, die ohne Build und Browser laufen:
 
-- `test_core.mjs` — Kern inkl. Reducer, Events, Replay-Reproduzierbarkeit (17).
-- `test_engine.mjs` — Regeln: Matt, Schild-Mechanik, Fähigkeiten (14).
-- `test_progression.mjs` — Meta: KI-Armeen, XP, Erfolge (11).
+- `test_core.mjs` — Kern inkl. Reducer, Events, Replay-Reproduzierbarkeit.
+- `test_engine.mjs` — Regeln: Matt, Schild-Mechanik, Fähigkeiten.
+- `test_progression.mjs` — Meta: KI-Armeen, XP, Erfolge.
+
+Dazu Suiten für Gefecht, Bünde, Sperren, Monster, Bosse, Balance, Netz,
+Spielstände, Zauber, Sonderzüge, Kapitel und Animationen, zwei
+Werkzeugprüfungen (`tools/pruefe-buttons.mjs`, `tools/pruefe-dateinamen.mjs`)
+sowie die gerenderten Proben `npm run smoke` und `npm run ui`.
+
+**Im Browser, außerhalb von `npm test`:**
+
+- `node test_boot.mjs` und `node scripts/verify-boot.mjs` — Boot ohne einen
+  einzigen Konsolenfehler (letzteres ist das CI-Skript).
+- `timeout 250 node drive3.mjs` — die Fahrprobe: spielt wirklich und prüft im
+  Auslieferungsstand auch Landingpage, Riegel und den Dienstarbeiter.
+- `node tools/pruefe-navigation.mjs` — Karte, Stationen, Gefecht, Reiter und
+  Zurück-Geste über mehrere Runden.
+- `node test_layout.mjs` — echte Geometrie; hängt nicht in der Kette, siehe
+  Kopf der Datei.
 
 ---
 

@@ -1,5 +1,85 @@
 # Changelog - Gambit Rise
 
+## 1.86.0 - die Proben sehen jetzt, was ausgeliefert wird
+
+- Besitzer: "arbeite alle offenen Punkte in dem Projekt ausserhalb von dem
+  Playstore durch ... ich moechte, dass keine Fehler auftreten, wenn ich in der
+  Map hin und her gehe, wenn ich auch in die Kapitel zurueckgehe ... auch dort
+  ist es manchmal wieder abgestuerzt."
+- NEUE PROBE tools/pruefe-navigation.mjs: faehrt Karte, Stationsfenster,
+  Gefecht (betreten UND mitten im Spiel verlassen), Reiterwechsel und die
+  Zurueck-Geste in mehreren Runden; jeder Konsolenfehler gilt als Absturz.
+  ERGEBNIS nach fuenf Runden: KEINE FEHLER. Die vom Besitzer beschriebenen
+  Abstuerze liegen also NICHT auf diesen Wegen - fuer die Suche fehlt der
+  Hinweis, wann genau es passiert (Kapitel, Aktion, Geraet, App oder Browser).
+- WAS DIE PROBE UEBER SICH SELBST GELERNT HAT, in fuenf Fassungen: jeder ihrer
+  Funde war ein Messfehler, die App war jedes Mal im Recht. Der weisse Schirm
+  nach der zweiten Zurueck-Geste ist about:blank - die App DARF ganz oben
+  verlassen werden. Die Reiter fehlen auf der Karte, weil die Leiste dort
+  absichtlich weg ist (immersive). Gesperrte Stationen sind eine Spielregel.
+  Der Ausgang aus dem Gefecht heisst "‹ Zurück" MIT Winkel - ein Muster mit
+  ^Anker traf ihn nicht, also klickte die Probe "Aufgeben" und blieb drin. Und
+  "‹ Zurück" fragt zurueck ("Der Kampf wird gesichert"), danach heisst der
+  Knopf "Fortsetzen", nicht "Herausforderung starten". Alles gemessen und im
+  Kopf der Datei festgehalten, damit die Probe nicht wieder falsch gebaut wird.
+- DIE LUECKE IM PRUEFNETZ IST ZU: drive3 lud seit dem Umzug am 23.9. weiter
+  "/" - dort liegt die Landingpage, nicht die App. Es meldete vier Fehler, die
+  es nicht gab, und gruen blieb die Kette nur, weil hinterher build:app den
+  Umzug zurueckdrehte. FOLGE: nie hat eine Probe den ausgelieferten Stand
+  geprueft. drive3 erkennt jetzt beide Staende und prueft im Auslieferungsstand
+  Landingpage (Titel, Store-Verweis, Weg nach /spielen/), den abmeldenden
+  Dienstarbeiter an der Wurzel und den Riegel - den es wirklich bedient, indem
+  Playwright den prompt() mit GAMBIT_ZUGANG beantwortet.
+- 238 BUILD-ARTEFAKTE aus dem Wurzelverzeichnis (7,2 MB), vorher geprueft:
+  238 von 238 nirgends referenziert. Das Verzeichnis schrumpft von 353 auf 115
+  Eintraege. URSACHE ABGESTELLT, nicht nur das Symptom: die Hashform 4GYTKWU7
+  ist esbuild, nicht Vite - dessen file-Loader legt gehashte Kopien NEBEN die
+  Ausgabedatei, und die liegen hier. .gitignore sperrt jetzt /*.webp und
+  /*.webm, also genau die Wurzel; src/app/ui/assets bleibt unberuehrt.
+  KORREKTUR der eigenen Analyse: dort stand, sie "wachsen weiter" (229 -> 238).
+  Falsch - nur ein Commit hat sie gebracht, die erste Zaehlung war zu eng und
+  uebersprang Namen mit @gross. Es waren immer 238.
+- ZWEI WERKZEUGE WAREN KAPUTT, gleiche Ursache: als die Klaenge als webm/mp3
+  dazukamen, wurden nicht alle esbuild-Aufrufe nachgezogen. "npm run preview"
+  brach ab (und --log-level=silent verdeckte es), test_layout.mjs - laut
+  eigenem Kopf "the only suite that measures REAL geometry" - lag verwaist da
+  UND war nicht lauffaehig (53 Fehler). Beide haben jetzt die Loader von smoke
+  und ui.
+- test_layout haengt NICHT in der Kette, und das ist Absicht: 12 Proben gruen,
+  vier rot, alle dieselbe Erwartung "board rests vertically centred" (iPhone
+  256 px, Android 252, grosses Telefon 290, Tablet 44). Die Erwartung stammt
+  aus der Zeit, als das Brett falsch sass; seit dem Talentband (v1.55.0, 6 px
+  darunter) kann ein Telefonbrett gar nicht mehr zentriert sein. Das ist eine
+  DESIGNFRAGE fuer den Besitzer, keine Aufraeumarbeit - deshalb weder gruen
+  gebogen noch rot in die Kette gehaengt. Messwerte im Kopf der Datei.
+- DER DEPLOY wog 748 MB, davon 692 MB Archiv-Kopien (bildarchiv 617,
+  klangarchiv 43, schau 32), die kein Spieler laedt - sein Buendel ist 1,4 MB
+  Javascript und 24 MB Bilder. Weil das Material dem Besitzer gehoert und er
+  die Kammer live nutzt, wurde NICHT umgestellt, sondern ein Schalter gebaut:
+  OHNE_ARCHIV=1 npm run build liefert 51 MB in Sekunden; ohne Schalter bleibt
+  alles wie es war (vorschauen 395/395, 408/408, gegengeprueft). Der
+  Vorschau-Zaehler sagt bei gesetztem Schalter "uebersprungen", damit die
+  Hausregel "die Zeile vorschauen: N/N muss vollzaehlig sein" ihren Wert behaelt.
+- SIEBEN BARREL-VERSTOESSE aufgeloest: PASSIVE_TALENTE, geleitTauschbar,
+  geleitCommand und schattenVerbirgt fehlten im Barrel und wurden direkt aus
+  core/rules bzw. core/sim geholt. Jetzt ueber core/index.js, die Buende mit
+  eigener Exportzeile.
+- ZUGANGSDATEN: Cloudflare-Account-ID und private E-Mail standen im Klartext in
+  UEBERGABE.md - entfernt. Bewusst geblieben sind ADMIN_EMAILS in
+  src/app/config.js (dokumentierter Besitzerentscheid, traegt die
+  Admin-Erkennung) und die Pflichtadresse in privacy.html/terms.html.
+- DOKU: CLAUDE.md nennt 27 Suiten statt 22, die Kette fuehrt build:app mit
+  Begruendung, die neue Probe und den Schalter; die "Offenen Baustellen" standen
+  auf v1.0.62 und fuehrten laengst Gebautes als offen (Sperren, Fallen,
+  Animationen, Onboarding, HP-Remis, erste Aura). ARCHITECTURE.md sprach von
+  "drei Node-Suites (17/14/11)". NEU design/PLAYSTORE-BACKLOG.md - ein Ort, der
+  immer sagt, was fuer die Store-Einreichung fehlt (S1-S14), und
+  design/AUDIT-2026-09-26.md mit allen Messungen.
+- Kette: npm test 27 Suiten / 1993 Pruefungen / 0 Fehler - build (395/395,
+  408/408, 748 MB) - OHNE_ARCHIV 51 MB - build:app - build:single (46591 KB) -
+  test_boot 3/3 - verify-boot fehlerfrei - drive3 KEINE FEHLER in BEIDEN
+  Staenden - pruefe-navigation 5 Runden KEINE FEHLER.
+
 ## 1.85.0 - die letzten drei Landingpage-Punkte
 
 - G2 GALERIE: statt der Aufnahme des Hofstaat-Rasters stehen oben die Figuren

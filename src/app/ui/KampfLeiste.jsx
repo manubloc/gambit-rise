@@ -12,7 +12,7 @@
 import { useState, useEffect } from "react";
 import { legalMovesFrom } from "../../core/index.js";
 import { ABILITIES, CHARACTERS, faehigkeitZustand } from "../../content/index.js";
-import { PASSIVE_TALENTE } from "../../core/rules/moves.js";   /* v1.38.0 */
+import { PASSIVE_TALENTE } from "../../core/index.js";   /* v1.38.0, v1.86.0 ueber das Barrel */
 import { paintedForPiece } from "./board/paintedArt.js";
 
 import { T } from "./theme.js";

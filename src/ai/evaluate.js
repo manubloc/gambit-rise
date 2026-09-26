@@ -1,5 +1,5 @@
 import { VALUE, SHIELD_VALUE, FILES, RANKS, fileOf, rankOf } from "../core/index.js";
-import { schattenVerbirgt } from "../core/rules/buende.js";
+import { schattenVerbirgt } from "../core/index.js";   /* v1.86.0: ueber das Barrel */
 
 /** Static evaluation from `color`'s perspective. In HP mode a piece's worth
  *  scales with its remaining HP (so wounding the enemy king pulls the AI in). */

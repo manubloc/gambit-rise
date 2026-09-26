@@ -9,8 +9,7 @@ import { gespart } from "../sparmodus.js";
 import { SperrGlyph } from "./SperrGlyph.jsx";
 import { animAn, schlagArt } from "../anim.js";
 import { ABILITIES, TAGS } from "../../../content/abilities.js";
-import { PASSIVE_TALENTE } from "../../../core/rules/moves.js";
-import { stadium } from "../../../core/rules/sperren.js";
+import { PASSIVE_TALENTE, stadium } from "../../../core/index.js";   /* v1.86.0: ueber das Barrel, nicht in die Innereien */
 import { PieceGlyph, StatTriad } from "./PieceGlyph.jsx";
 import { BrettRahmen, lageAusBrett } from "./BrettRahmen.jsx";
 import { PieceArt } from "./PieceArt.jsx";

@@ -9,6 +9,25 @@ const QUELLE = "src/app/ui/assets";
 const ZIEL = "dist/schau";
 const ARTEN = new Set([".webp", ".jpg", ".png", ".svg"]);
 
+/* ── DER SCHALTER FUERS GEWICHT (v1.86.0) ─────────────────────────────────
+   GEMESSEN am 26.9.2026: dist/ wog nach "npm run build" 743 MB. Davon waren
+   692 MB Archiv-Kopien - bildarchiv 617 MB, klangarchiv 43 MB, schau 32 MB.
+   Der SPIELER laedt davon nichts: sein Buendel ist 1,4 MB Javascript und
+   24 MB Bilder. Die 692 MB dienen allein der Schaukammer, und sie gehen bei
+   JEDEM Push nach Cloudflare - das ist der Grund, warum Deploys dauern.
+
+   Der Standard bleibt, wie er war: alles wird kopiert, damit die Kammer live
+   vollstaendig ist. Wer schnell bauen will (jede Probe, jeder Zwischenstand),
+   setzt OHNE_ARCHIV=1 - dann bleiben die drei grossen Ordner weg und der Bau
+   ist in Sekunden statt Minuten fertig:
+
+     OHNE_ARCHIV=1 npm run build:app
+
+   Die Kammer selbst ueberlebt das: sie zeigt 200-px-Vorschauen (die aus
+   public/ kommen) und laedt ein Original erst auf Knopfdruck.             */
+const OHNE_ARCHIV = process.env.OHNE_ARCHIV === "1";
+if (OHNE_ARCHIV) console.log("Schaukammer: OHNE_ARCHIV=1 - die drei grossen Archivordner bleiben weg");
+
 async function sammle(ordner, unter = "") {
   const out = [];
   for (const e of await readdir(join(ordner, unter), { withFileTypes: true })) {
@@ -21,10 +40,12 @@ async function sammle(ordner, unter = "") {
 
 await rm(ZIEL, { recursive: true, force: true });
 const dateien = (await sammle(QUELLE)).sort();
-for (const rel of dateien) {
-  const zielPfad = join(ZIEL, rel);
-  await mkdir(zielPfad.slice(0, zielPfad.lastIndexOf("/")), { recursive: true });
-  await copyFile(join(QUELLE, rel), zielPfad);
+if (!OHNE_ARCHIV) {
+  for (const rel of dateien) {
+    const zielPfad = join(ZIEL, rel);
+    await mkdir(zielPfad.slice(0, zielPfad.lastIndexOf("/")), { recursive: true });
+    await copyFile(join(QUELLE, rel), zielPfad);
+  }
 }
 /* ── WAS WIRD WIRKLICH GEZOGEN? (v1.0.55, Besitzerwunsch) ──────────────────
    Der Besitzer wollte in der Kammer aufraeumen - und was er archivierte oder
@@ -99,14 +120,16 @@ try {
 // Laufzeit.
 const MQ = "archiv/musik", MZ = "dist/klangarchiv";
 await rm(MZ, { recursive: true, force: true });
-await mkdir(MZ, { recursive: true });
 let anzahl = 0;
-for (const e of await readdir(MQ, { withFileTypes: true })) {
-  if (!e.isFile()) continue;
-  await copyFile(join(MQ, e.name), join(MZ, e.name));
-  if (e.name.endsWith(".mp3")) anzahl++;
-}
-console.log(`klangarchiv: ${anzahl} Stuecke nach ${MZ}`);
+if (!OHNE_ARCHIV) {
+  await mkdir(MZ, { recursive: true });
+  for (const e of await readdir(MQ, { withFileTypes: true })) {
+    if (!e.isFile()) continue;
+    await copyFile(join(MQ, e.name), join(MZ, e.name));
+    if (e.name.endsWith(".mp3")) anzahl++;
+  }
+  console.log(`klangarchiv: ${anzahl} Stuecke nach ${MZ}`);
+} else console.log("klangarchiv: uebersprungen (OHNE_ARCHIV)");
 
 // Und die BILD-ORIGINALE: sie liegen unter archiv/bilder und werden - wie
 // Musik und Schaukammer - neben das Spiel gelegt, nie hineingebunden.
@@ -126,8 +149,14 @@ async function kopiereBaum(von, nach) {
     }
   }
 }
-await kopiereBaum(BQ, BZ);
-console.log(`bildarchiv: ${bilder} Originale nach ${BZ}`);
+if (!OHNE_ARCHIV) {
+  await kopiereBaum(BQ, BZ);
+  console.log(`bildarchiv: ${bilder} Originale nach ${BZ}`);
+} else {
+  // ohne Originale auch keine Vorschauen daraus - die Zaehler unten wissen das
+  bilder = 0;
+  console.log("bildarchiv: uebersprungen (OHNE_ARCHIV)");
+}
 
 /* v1.0.3: die Kammer zeigt jetzt neben jeder Spielfassung ihr Original -
    und die Originale sind 1024x1536 PNG, bis 2,5 MB das Stueck. Also
@@ -157,5 +186,13 @@ async function zaehle(ordner) {
 }
 const vs = await zaehle(VZIEL).catch(() => 0);
 const vb = await zaehle(BVZ).catch(() => 0);
-console.log(`vorschauen: ${vs}/${dateien.length} Spielfassungen, ${vb}/${bilder} Originale`);
-if (vs < dateien.length) console.log(`  ! ${dateien.length - vs} Vorschauen FEHLEN - "npm run vorschau" laufen lassen`);
+if (OHNE_ARCHIV) {
+  /* Der Zaehler darf hier NICHT klagen. Die Hausregel lautet "die Zeile
+     vorschauen: N/N muss vollzaehlig sein" - mit OHNE_ARCHIV ist sie
+     absichtlich leer, und eine Mangelmeldung an dieser Stelle wuerde die
+     Regel entwerten und bei jedem schnellen Bau Alarm schlagen. */
+  console.log("vorschauen: uebersprungen (OHNE_ARCHIV) - fuer einen Release-Bau ohne den Schalter bauen");
+} else {
+  console.log(`vorschauen: ${vs}/${dateien.length} Spielfassungen, ${vb}/${bilder} Originale`);
+  if (vs < dateien.length) console.log(`  ! ${dateien.length - vs} Vorschauen FEHLEN - "npm run vorschau" laufen lassen`);
+}

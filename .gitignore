@@ -31,3 +31,13 @@ __pycache__/
 .riss.mjs
 .balance.mjs
 .besetzung.mjs
+
+# Bildausgaben von esbuild, die im Wurzelverzeichnis landen (v1.86.0).
+# Der file-Loader von esbuild legt gehashte Kopien NEBEN die Ausgabedatei -
+# und die Ausgabedateien (.preview.mjs, .smoke.mjs ...) liegen hier. So sind
+# am 23.9. mit einem Sammel-Commit 238 solche Dateien (7,2 MB) ins Repo
+# geraten, die nie eine Zeile Code referenziert hat. In der Wurzel gehoert
+# kein Bild und kein Film, deshalb sperrt die Regel genau sie - Unterordner
+# wie src/app/ui/assets/ bleiben unberuehrt.
+/*.webp
+/*.webm

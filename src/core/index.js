@@ -12,7 +12,7 @@ export { makePiece, emptyBoard, clonePiece, cloneBoard, findKing, newId } from "
 export { DEFAULT_BACK_RANK, FLANK_SLOTS, defaultArmy, createInitialState } from "./domain/setup.js";
 
 // Rules: move generation + attack/check detection
-export { pieceMoves, pseudoMoves, hasAbility } from "./rules/moves.js";
+export { pieceMoves, pseudoMoves, hasAbility, PASSIVE_TALENTE } from "./rules/moves.js";
 export { isSquareAttacked, inCheck } from "./rules/attacks.js";
 /* v1.0.63: die Sperren treten aus dem Maschinenraum heraus - Laden, Brett und
    Kampfschirm brauchen sie beim Namen (kaufen, setzen, zeichnen). */
@@ -25,8 +25,13 @@ export {
 // Simulation: state, transitions, commands, events, reducer
 export { createGame } from "./sim/state.js";
 export { applyMove, legalMoves, legalMovesFrom, status, undo, cloneState } from "./sim/transitions.js";
-export { COMMAND, moveCommand, resignCommand, potionCommand, shiftCommand } from "./sim/commands.js";
+export { COMMAND, moveCommand, resignCommand, potionCommand, shiftCommand, geleitCommand } from "./sim/commands.js";
 export { familyOf, FAMILY_BY_KIND, familyCount, crownWallSoak, crownHp, shadowRifts, shadowAtk } from "./rules/families.js";
+/* v1.86.0: die Buende gehoeren ins Barrel. Der Kampfschirm brauchte
+   geleitTauschbar und die Gegnerbewertung schattenVerbirgt - beide holten
+   sie bis hierher direkt aus core/rules/buende.js und gingen damit an dem
+   Vertrag vorbei, den dieses Barrel darstellt. */
+export { geleitTauschbar, schattenVerbirgt } from "./rules/buende.js";
 export { EVENT, Ev } from "./sim/events.js";
 export { reduce } from "./sim/reducer.js";
 

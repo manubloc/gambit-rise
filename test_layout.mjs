@@ -1,5 +1,26 @@
 // LAYOUT TEST — the only suite that measures REAL geometry.
 //
+// STAND 26.9.2026 (v1.86.0) — WARUM DIESE SUITE NICHT IN DER KETTE HAENGT:
+// Sie lag verwaist da, in keinem npm-Skript, und war nicht mehr lauffaehig
+// (die Loader fuer .webm/.mp3 fehlten, 53 esbuild-Fehler). Das ist jetzt
+// behoben, sie laeuft und misst wieder: 12 Proben gruen, VIER rot, und zwar
+// ueberall dieselbe - "the board rests vertically centred":
+//     iPhone 390x844   off by 256px
+//     Android 360x800  off by 252px
+//     large phone      off by 290px
+//     tablet 768x1024  off by  44px
+// Das ist KEIN Befund gegen die App, sondern eine offene DESIGNFRAGE. Die
+// Erwartung stammt aus der Zeit, als das Brett nachweislich falsch sass (437px
+// unter dem Himmel, 47px ueber dem Boden - siehe unten). Seither liegt unter
+// dem Brett bewusst das Talentband (v1.55.0; drive3 messt es 6px darunter) und
+// darueber die Kampfleiste - ein vertikal zentriertes Brett kann es damit auf
+// einem Telefon gar nicht mehr geben. Auf dem Tablet, wo Platz ist, sind es
+// nur noch 44px.
+// ZU ENTSCHEIDEN (Besitzer): soll das Brett auf Telefonen zentriert sitzen -
+// dann ist das Layout zu aendern - oder gilt "Brett oben, Band darunter"? Dann
+// bekommt diese Probe eine neue Erwartung und darf in die Kette. Bis dahin
+// laeuft sie von Hand: node test_layout.mjs
+//
 // SSR tests can prove what renders; they cannot prove where it lands. This one
 // mounts the live match screen in headless Chromium at real device sizes and
 // measures the board's distance to the top and bottom of the viewport. It
@@ -12,9 +33,17 @@ import { chromium } from "playwright-core";
 
 const DIR = "/tmp/gg-layout";
 await mkdir(DIR, { recursive: true });
+/* v1.86.0: DIE LOADER FUER KLANG FEHLTEN. Diese Suite lag verwaist da - in
+   keinem npm-Skript eingetragen - und war nicht mehr lauffaehig: seit die
+   Klaenge als .webm/.mp3 dazugekommen sind, brach esbuild mit "No loader is
+   configured for .webm files" ab (53 Fehler). Wer sie aufrief, sah einen
+   Haufen esbuild-Ausgabe und legte sie beiseite. Dasselbe hatte "npm run
+   preview" erwischt. Jetzt tragen beide dieselbe Loader-Liste wie smoke
+   und ui. */
 execFileSync("npx", ["esbuild", "board_harness.jsx", "--bundle", "--jsx=automatic",
   `--outfile=${DIR}/app.js`, "--format=iife", "--loader:.jpg=dataurl", "--loader:.webp=dataurl",
-  "--loader:.css=text", "--log-level=warning"], { stdio: "inherit" });
+  "--loader:.png=dataurl", "--loader:.mp3=dataurl", "--loader:.webm=dataurl",
+  "--loader:.css=text", "--log-level=error"], { stdio: "inherit" });
 await writeFile(`${DIR}/index.html`,
   `<!doctype html><meta charset="utf-8"><style>html,body{margin:0;height:100%;background:#0c111e;font-family:system-ui}#root{height:100%}</style><div id="root"></div><script src="app.js"></script>`);
 

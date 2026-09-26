@@ -3,11 +3,35 @@
 // Gate line "== KEINE FEHLER ==" is what the push battery greps for.
 import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
 import { extname, join } from "node:path";
 import { chromium } from "playwright-core";
 
 const MIME = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css",
   ".webp": "image/webp", ".png": "image/png", ".svg": "image/svg+xml", ".webmanifest": "application/manifest+json" };
+/* ── WELCHEN STAND FAHREN WIR? (v1.86.0) ──────────────────────────────────
+   Seit dem Umzug am 23.9. (v1.42.0, tools/seite-bauen.mjs) liegt nach
+   "npm run build" unter dist/index.html die LANDINGPAGE, und die App steckt
+   in dist/spielen/ hinter dem Riegel. Diese Probe lud aber weiter "/" - sie
+   fand dort keine Anmeldemaske und meldete vier Fehler, die es nicht gab
+   ("Anmeldung nicht moeglich | kein Brett | kein Zug | kein Talentband").
+   Gruen blieb die Kette nur, weil in der Praxis hinterher "npm run build:app"
+   lief und den Umzug zurueckdrehte.
+
+   FOLGE, und das war die eigentliche Luecke: NIE hat eine Probe den Stand
+   geprueft, der wirklich ausgeliefert wird - nicht den Riegel, nicht die
+   Verschiebung nach /spielen/, nicht den Dienstarbeiter an der Wurzel, nicht
+   die Landingpage. Also genau die vier Dinge, die jeder Spieler zuerst
+   trifft.
+
+   Jetzt erkennt die Probe beides und fuehrt sich entsprechend:
+     dist/spielen/index.html da  -> Auslieferungsstand: erst die Landingpage
+                                    an "/", dann die App unter "/spielen/",
+                                    Riegel inbegriffen.
+     nur dist/index.html         -> reiner App-Bau (build:app) wie bisher. */
+const AUSLIEFERUNG = existsSync(join("dist", "spielen", "index.html"));
+const EINSTIEG = AUSLIEFERUNG ? "/spielen/" : "/";
+
 const srv = createServer(async (req, res) => {
   const p = req.url.split("?")[0];
   try {
@@ -15,7 +39,9 @@ const srv = createServer(async (req, res) => {
     const b = await readFile(f);
     res.writeHead(200, { "content-type": MIME[extname(f)] || "application/octet-stream" }); res.end(b);
   } catch {
-    const b = await readFile("dist/index.html");            // SPA fallback
+    // SPA-Rueckfall: im Auslieferungsstand gehoert er zur App, nicht zur Seite
+    const f = AUSLIEFERUNG ? "dist/spielen/index.html" : "dist/index.html";
+    const b = await readFile(f);
     res.writeHead(200, { "content-type": "text/html" }); res.end(b);
   }
 });
@@ -40,8 +66,52 @@ const browser = await chromium.launch({ executablePath: "/opt/pw-browsers/chromi
 const page = await browser.newPage();
 page.on("console", (m) => { if (m.type() === "error" && !EXPECTED_OFFLINE(m.text())) errors.push(m.text().slice(0, 160)); });
 page.on("pageerror", (e) => errors.push(String(e).slice(0, 160)));
-await page.goto(`http://127.0.0.1:${port}/`, { waitUntil: "networkidle" });
+/* ── DER AUSLIEFERUNGSSTAND, ZUERST ───────────────────────────────────────
+   Nur wenn dist/ wirklich die Seite traegt. Geprueft wird, was der Besucher
+   als Erstes sieht: die Landingpage an der Wurzel, dann der Riegel, dann die
+   App. Der Riegel fragt mit prompt() - ohne Antwort haengt die Probe, deshalb
+   der Dialog-Horcher VOR dem Aufruf. Das Passwort muss dasselbe sein, mit dem
+   gebaut wurde (tools/seite-bauen.mjs: GAMBIT_ZUGANG, sonst "rise2026"). */
+const ZUGANG = process.env.GAMBIT_ZUGANG || "rise2026";
+if (AUSLIEFERUNG) {
+  page.on("dialog", async (d) => {
+    try { await (d.type() === "prompt" ? d.accept(ZUGANG) : d.accept()); } catch {}
+  });
+
+  await page.goto(`http://127.0.0.1:${port}/`, { waitUntil: "networkidle" });
+  await page.waitForTimeout(1500);
+  const seite = await page.evaluate(() => ({
+    titel: document.title || "",
+    zeichen: (document.body.innerText || "").trim().length,
+    store: /play\.google\.com/.test(document.body.innerHTML),
+    spielen: [...document.querySelectorAll("a")].some((a) => /\/spielen\/?$/.test(a.getAttribute("href") || "")),
+    eingaben: document.querySelectorAll("input").length,
+  }));
+  if (seite.zeichen < 200) errors.push(`Landingpage fast leer (${seite.zeichen} Zeichen)`);
+  if (!/Gambit/i.test(seite.titel)) errors.push(`Landingpage ohne Titel: "${seite.titel}"`);
+  if (!seite.store) errors.push("Landingpage ohne Verweis auf den Play Store");
+  if (!seite.spielen) errors.push("Landingpage ohne Weg nach /spielen/");
+  if (!errors.length) console.log(`   Landingpage steht: "${seite.titel.slice(0, 40)}", ${seite.zeichen} Zeichen`);
+
+  /* Der Dienstarbeiter an der Wurzel MUSS der abmeldende sein (v1.42.0),
+     sonst bedient ein alter Zwischenspeicher die Startseite. */
+  try {
+    const sw = await (await fetch(`http://127.0.0.1:${port}/sw.js`)).text();
+    if (!/unregister\(\)/.test(sw)) errors.push("sw.js an der Wurzel meldet sich nicht ab");
+    else console.log("   sw.js an der Wurzel raeumt auf");
+  } catch { errors.push("sw.js an der Wurzel fehlt"); }
+}
+
+await page.goto(`http://127.0.0.1:${port}${EINSTIEG}`, { waitUntil: "networkidle" });
 await page.waitForTimeout(2500);
+if (AUSLIEFERUNG) {
+  /* Nach dem Riegel laedt die Seite neu - einmal nachfassen, damit die App
+     wirklich steht, bevor gemessen wird. */
+  await page.waitForTimeout(1500);
+  const versteckt = await page.evaluate(() => document.documentElement.style.visibility === "hidden");
+  if (versteckt) errors.push("der Riegel laesst die Probe nicht durch - Passwort stimmt nicht mit dem Bau ueberein");
+  else console.log(`   Riegel passiert, App unter ${EINSTIEG}`);
+}
 const hasLogin = await page.locator("input").count() > 0 || (await page.textContent("body"))?.includes("Spielstand");
 if (!hasLogin) errors.push("Login-/Startmaske nicht gefunden");
 /* ── AB HIER WIRD WIRKLICH GESPIELT (v1.1.13) ─────────────────────────────

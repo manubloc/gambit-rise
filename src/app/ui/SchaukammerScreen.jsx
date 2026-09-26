@@ -18,7 +18,7 @@ import { T } from "./theme.js";
    Brett und Laden ziehen sie ohnehin schon ins Buendel. */
 import { fehlendeSperrBilder } from "./board/sperrenArt.js";
 import { SperrVektor } from "./board/sperrenVektor.jsx";
-import { SPERR_ARTEN } from "../../core/rules/sperren.js";
+import { SPERR_ARTEN } from "../../core/index.js";   /* v1.86.0: ueber das Barrel */
 
 /* Die Bilder werden NICHT statisch eingebunden. Der erste Versuch tat das
    (348 Importe) und blies das Spielbuendel von 1,7 auf 2,82 MB auf - so
