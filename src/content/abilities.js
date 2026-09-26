@@ -119,13 +119,13 @@ export const STAERKE_STUFEN = {
      die erste Stufe ist schwaecher als das alte Pauschalmass, die dritte
      staerker. Lebensraub hielt bisher immer die Haelfte, Regeneration heilte
      nach JEDEM Zug 1, Bollwerk schluckte immer 1. */
-  lifesteal:  { de: ["heilt ein Viertel des Schadens", "heilt die Haelfte des Schadens", "heilt drei Viertel des Schadens"],
+  lifesteal:  { de: ["heilt ein Viertel des Schadens", "heilt die Hälfte des Schadens", "heilt drei Viertel des Schadens"],
                 en: ["heals a quarter of the damage", "heals half the damage", "heals three quarters of the damage"] },
   regen:      { de: ["heilt 1 Leben je zweitem eigenen Zug", "heilt 1 Leben je Zug", "heilt 2 Leben je Zug"],
                 en: ["heals 1 life every second own move", "heals 1 life each move", "heals 2 life each move"] },
   bulwark:    { de: ["1 Schaden weniger je Treffer", "2 Schaden weniger je Treffer"],
                 en: ["1 damage less per hit", "2 damage less per hit"] },
-  pawn_early_promo: { de: ["wandelt eine Reihe frueher um", "wandelt zwei Reihen frueher um"],
+  pawn_early_promo: { de: ["wandelt eine Reihe früher um", "wandelt zwei Reihen früher um"],
                       en: ["promotes one rank early", "promotes two ranks early"] },
   dragon_flight: { de: ["fliegt bis zu zwei Felder", "fliegt bis zu drei Felder", "fliegt bis zu vier Felder"],
                    en: ["flies up to two squares", "flies up to three squares", "flies up to four squares"] },

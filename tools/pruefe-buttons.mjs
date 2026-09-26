@@ -87,7 +87,41 @@ for (const f of dateien) {
   if (!LP.includes('class="hofreihe"')) funde.push("die Figurenreihe fehlt auf dem ersten Schirm der Landingpage");
   for (const m of LP.matchAll(/src="\/landing\/(held-[a-z0-9-]+\.webp)"/g))
     if (!existsSync("public/landing/" + m[1])) funde.push(`Figurenbild fehlt: public/landing/${m[1]}`);
-  if (!existsSync("public/landing/menue-halle.webp")) funde.push("public/landing/menue-halle.webp fehlt");
+  if (!existsSync("public/landing/menue-boden.webp")) funde.push("public/landing/menue-boden.webp fehlt");
+}
+
+/* v1.79.0 (Besitzerbefund aus einem Bildschirmfoto): "Er ist NICHT deine
+   E-Mail und laesst sich jederzeit im Profil aendern." - die deutschen
+   Spieltexte trugen die Behelfsschreibung ae/oe/ue statt echter Umlaute.
+   Das faellt nur dem auf, der es liest, und stand seit Monaten im ersten
+   Schirm, den ein neuer Spieler sieht. Ab jetzt faellt es HIER auf.
+   Geprueft werden nur ZEICHENKETTEN: Kommentare und Bezeichner duerfen
+   weiter ASCII bleiben, das ist im Haus so vereinbart. */
+{
+  const BEHELF = ["aendern","aenderbar","geaendert","Anfaenger","anfuegen","Bestaetigung",
+    "Einfuegen","endgueltig","Endgueltig","frueher","geloescht","geoeffnet","Geraet","Geraete",
+    "Haelfte","kuenftig","laesst","loeschen","Loeschen","loescht","Loescht","pruefen",
+    "rueckgaengig","spaeter","Spielstaende","Spielstaenden","Staerke","staerker","wuenschst",
+    "wuerfle","moechte","koennen","muessen","waehlen","naechste","moeglich","noetig"];
+  const RE = new RegExp("\\b(" + BEHELF.join("|") + ")\\b");
+  for (const f of ["src/app/i18n/strings.js", "src/content/lehren.js", "src/content/abilities.js",
+                   "src/content/characters.js", "src/content/bosses.js"]) {
+    const txt = readFileSync(f, "utf8")
+      .replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^\s*\/\/.*$/gm, " ");
+    for (const m of txt.matchAll(/"((?:[^"\\\n]|\\.)*)"/g))
+      if (RE.test(m[1])) { funde.push(`${f}: deutscher Text ohne Umlaut - "${m[1].slice(0, 60)}"`); break; }
+  }
+
+  /* Und die Kapitelzahl: die Texte sprachen von "elf Kapitel", die Kampagne
+     liefert zwoelf. Wer die Zahl aendert, muss die Texte mitziehen. */
+  const cfg = readFileSync("src/app/config.js", "utf8");
+  const max = Number((cfg.match(/VITE_MAX_KAPITEL\) \|\| (\d+)/) || [])[1] || 0);
+  if (max !== 12) funde.push("MAX_KAPITEL ist nicht mehr 12 - die Texte unten pruefen");
+  for (const f of ["src/app/i18n/strings.js", "src/content/lehren.js"]) {
+    const t = readFileSync(f, "utf8");
+    if (/\belf Kapitel\b|\beleven chapters\b/.test(t))
+      funde.push(`${f}: nennt elf Kapitel, die Kampagne hat zwoelf`);
+  }
 }
 
 

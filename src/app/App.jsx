@@ -313,7 +313,7 @@ export default function App() {
         const prof = await loadSave(account.id, eintrag.id);
         if (!lebt || !prof) return;
         dispatch({ type: "HYDRATE", profile: prof }); setLocked(!!prof.pin); setSlot(eintrag); setReady(true);
-      } catch (e) { console.error("Spielstand konnte nicht geoeffnet werden", e); }
+      } catch (e) { console.error("Spielstand konnte nicht geöffnet werden", e); }
     })();
     return () => { lebt = false; };
   }, [account, slot]);

@@ -1,5 +1,33 @@
 # Changelog - Gambit Rise
 
+## 1.79.0 - der richtige Menuegrund, echte Umlaute, zwoelf Kapitel
+
+- Besitzer: "du hast leider bloss hinter die Figuren den falschen Hintergrund
+  genommen. Ich meinte diesen Hintergrund von dem Menue ... das ist ja so eine
+  Reihe von mehreren Hintergruenden, die du da hinter dem Menue hast, aber ich
+  meine den allerersten."
+- ERSTER SCHIRM: nicht bg-hall (die dunkle Halle), sondern riss-01 - die
+  erste der zehn Bodenstufen, die RissBoden.jsx unter jedes Menue legt.
+  public/landing/menue-boden.webp (22 KB statt 112 KB). Schleier und Maske
+  entsprechend leiser, weil der Boden heller ist.
+- UMLAUTE: die deutschen Spieltexte trugen an 48 Stellen die Behelfsschreibung
+  ae/oe/ue - "Er ist NICHT deine E-Mail und laesst sich jederzeit im Profil
+  aendern" stand im ERSTEN Schirm, den ein neuer Spieler liest. Ersetzt wurde
+  nur INNERHALB von Zeichenketten und nur nach Woerterbuch, damit kein
+  englischer Text und kein Bezeichner getroffen wird; Kommentare bleiben ASCII.
+- KAPITELZAHL: drei Texte sprachen von "elf Kapitel" / "eleven chapters", die
+  Kampagne hat zwoelf (MAX_KAPITEL = 12).
+- APP-SYMBOL (Besitzerfoto: weisser Kreis): NACHGEMESSEN, NICHT GERATEN. Die
+  maskierbaren Symbole neu aus archiv/bilder/app-symbol-randlos-1024.png
+  gerechnet und mit den alten verglichen - Unterschied null, sie waren schon
+  randlos und deckend, und das Manifest bietet sie in 192 und 512 an. Der
+  weisse Kreis kommt also NICHT von den Bildern. Die Aenderung ist
+  zurueckgenommen; die wahrscheinliche Ursache ist eine alte Verknuepfung
+  vom Startbildschirm (aus einem Browserfenster der alten Adresse), die ihr
+  Bild behaelt - sie muss entfernt und neu angelegt werden.
+- PROBEN: tools/pruefe-buttons.mjs haelt ab jetzt fest, dass deutsche
+  Spieltexte Umlaute tragen und dass die Texte zwoelf Kapitel nennen.
+
 ## 1.78.0 - die Landingpage beginnt bildschirmfuellend
 
 - Besitzer: "die erste Seite sollte so sein, dass man auch egal welchen

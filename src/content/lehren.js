@@ -38,7 +38,7 @@ export const LEHREN = {
       { id: "ausruestung", titel: "Ausrüstung & Vorräte", kurz: "Tränke und Gegenstände helfen im Kampf — der Einsatz kostet den Zug.",
         text: "In der Schatzkammer gekaufte AUSRÜSTUNG begleitet dich in den Kampf: Ein Lebenstrank heilt eine Figur um 2 Lebenspunkte, weitere Gegenstände enthüllt die Reise. Jeder Einsatz kostet deinen Zug — Vorrat ist Tempo." },
       { id: "kampagne", titel: "Kampagne & Kapitel", kurz: "Elf Kapitel, verzweigte Pfade — Siege rekrutieren Gefährten.",
-        text: "Die KAMPAGNE führt durch elf Kapitel mit verzweigten Pfaden und Geheimwegen. Siege über Herausforderer REKRUTIEREN sie in deinen Hofstaat. Geräumte Stationen bleiben bespielbar, aber nur der FREUNDSCHAFTSKAMPF zahlt noch (+15 % Gold, +25 % Erfahrung) — alles andere ist Übung." },
+        text: "Die KAMPAGNE führt durch zwölf Kapitel mit verzweigten Pfaden und Geheimwegen. Siege über Herausforderer REKRUTIEREN sie in deinen Hofstaat. Geräumte Stationen bleiben bespielbar, aber nur der FREUNDSCHAFTSKAMPF zahlt noch (+15 % Gold, +25 % Erfahrung) — alles andere ist Übung." },
       { id: "hofwert", titel: "Der Hofwert", kurz: "Eine Zahl für die Stärke deines Hofes — online entscheidet sie, wer gegen dich antritt.",
         text: "Der HOFWERT ist die eine Zahl für die Stärke deines Hofes. Er wächst mit allem, was dich stärker macht: jeder geräumten Station (+100), jedem erreichten Kapitel (+200), jedem rekrutierten Gefährten (nach seinem Figurenwert), jeder gekauften Stufe (+40), jedem Duplikat-Stern (+30) und jeder gelernten Fähigkeit (+15).\n\nONLINE ist er dein Schild und dein Maß: Die Zufallssuche stellt dir Gegner mit ÄHNLICHEM Hofwert gegenüber — das Suchband beginnt bei ±150 und weitet sich beim Warten alle fünf Sekunden um 60, bis jemand gefunden ist. So trifft ein junger Hof keinen Veteranen, und dein Fortschritt im Feldzug zählt auch im Duell." },
     ],
@@ -75,7 +75,7 @@ export const LEHREN = {
       { id: "ausruestung", titel: "Gear & supplies", kurz: "Potions and items help in battle — using one costs your turn.",
         text: "Gear from the treasury travels with you: a life potion heals a piece by 2 HP; more items reveal themselves along the journey. Every use costs your turn." },
       { id: "kampagne", titel: "Campaign & chapters", kurz: "Eleven chapters, branching paths — victories recruit companions.",
-        text: "The CAMPAIGN crosses eleven chapters on branching paths. Beating challengers RECRUITS them. Cleared sites stay playable, but only the FRIENDLY MATCH still pays (+15% gold, +25% XP)." },
+        text: "The CAMPAIGN crosses twelve chapters on branching paths. Beating challengers RECRUITS them. Cleared sites stay playable, but only the FRIENDLY MATCH still pays (+15% gold, +25% XP)." },
       { id: "hofwert", titel: "Court value", kurz: "One number for your court's strength — online it decides who faces you.",
         text: "The COURT VALUE is the one number for your court's strength. It grows with every cleared station, chapter, companion, level and ability.\n\nOnline it is your shield: search pairs you with opponents of similar court value, so a young court never meets a veteran." },
     ],
@@ -91,7 +91,7 @@ export const LEHREN = {
 export const MENUE_LEHREN = {
   de: {
     play: { titel: "Spielen", kurz: "Dein Weg aufs Brett.",
-      text: "Hier beginnt alles: die KAMPAGNE erzählt deine Reise durch elf Kapitel, das SCHNELLE SPIEL wirft dich sofort auf ein Brett deiner Wahl, und im ONLINE-DUELL wartet ein echter Gegner. Die Akademie darunter erklärt Schach und alles, was dieses Spiel darüber hinaus kann." },
+      text: "Hier beginnt alles: die KAMPAGNE erzählt deine Reise durch zwölf Kapitel, das SCHNELLE SPIEL wirft dich sofort auf ein Brett deiner Wahl, und im ONLINE-DUELL wartet ein echter Gegner. Die Akademie darunter erklärt Schach und alles, was dieses Spiel darüber hinaus kann." },
     army: { titel: "Hofstaat", kurz: "Deine Figuren, deine Aufstellung.",
       text: "Dein Hof versammelt alle Figuren, die dir folgen. Im STAMMBAUM verteilst du Erfahrungspunkte und schaltest Fähigkeiten frei, in der AUFSTELLUNG bestimmst du, wer aufs Brett zieht, und unter AUSRÜSTUNG rüstest du deine Kämpfer. Je stärker der Hof, desto höher dein HOFWERT — und der entscheidet online über faire Paarungen." },
     ach: { titel: "Schatzkammer", kurz: "Gold wird zu Stärke.",
@@ -101,7 +101,7 @@ export const MENUE_LEHREN = {
   },
   en: {
     play: { titel: "Play", kurz: "Your way onto the board.",
-      text: "Everything starts here: the CAMPAIGN tells your journey through eleven chapters, QUICK PLAY drops you onto any board at once, and an ONLINE DUEL brings a real opponent. The Academy below teaches chess and everything this game adds on top." },
+      text: "Everything starts here: the CAMPAIGN tells your journey through twelve chapters, QUICK PLAY drops you onto any board at once, and an ONLINE DUEL brings a real opponent. The Academy below teaches chess and everything this game adds on top." },
     army: { titel: "Court", kurz: "Your pieces, your formation.",
       text: "Your court gathers every piece that follows you. In the TREE you spend experience and unlock talents, FORMATION decides who takes the board, and GEAR equips your fighters. The stronger the court, the higher your COURT VALUE — and online, that value drives fair matchmaking." },
     ach: { titel: "Treasury", kurz: "Gold becomes strength.",

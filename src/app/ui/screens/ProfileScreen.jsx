@@ -512,7 +512,7 @@ function reportText(r, t) {
   ];
   if (r.account) L.push(`Konto/Account: ${r.account}`);
   if (r.url) L.push(`URL: ${r.url}`);
-  if (r.ua) L.push(`Geraet/UA: ${r.ua}`);
+  if (r.ua) L.push(`Gerät/UA: ${r.ua}`);
   L.push("", r.message || "(kein Text)");
   if (r.note) L.push("", `Notiz/Note: ${r.note}`);
   if (r.stack) L.push("", "Stack:", r.stack);

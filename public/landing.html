@@ -86,13 +86,13 @@
        den falschen Wert - rechts blieb ein 70 px breiter schwarzer Streifen. */
     .halle img { position:absolute; left:50%; transform:translateX(-50%); bottom:0; width:168%;
       max-width:none; opacity:1;
-      -webkit-mask-image:linear-gradient(180deg,transparent 0%,rgba(0,0,0,.5) 18%,#000 46%,#000 100%);
-      mask-image:linear-gradient(180deg,transparent 0%,rgba(0,0,0,.5) 18%,#000 46%,#000 100%); }
+      -webkit-mask-image:linear-gradient(180deg,transparent 0%,rgba(0,0,0,.45) 14%,#000 42%,#000 100%);
+      mask-image:linear-gradient(180deg,transparent 0%,rgba(0,0,0,.45) 14%,#000 42%,#000 100%); }
     @media (min-width:760px){ .halle img { width:min(122%,1560px); } }
     /* Ein weicher Schleier ueber dem Brett: gemessen stand der Claim sonst auf
        den hellen Feldern und war kaum zu lesen. */
     .halle::after { content:""; position:absolute; inset:0; pointer-events:none;
-      background:radial-gradient(74% 42% at 50% 36%, rgba(5,7,12,.78), rgba(5,7,12,.28) 62%, transparent 82%); }
+      background:radial-gradient(74% 40% at 50% 34%, rgba(5,7,12,.6), rgba(5,7,12,.18) 62%, transparent 82%); }
     .buehne-inhalt { position:relative; z-index:3; padding-bottom:calc(var(--fh) * .62); }
     /* Die Figuren stehen auf der Unterkante und loesen sich nach unten auf. */
     /* left:0/right:0 statt left:50% + translateX: ein absolut gesetzter
@@ -283,9 +283,13 @@
   <!-- v1.77.0 (Besitzer): das gelieferte Logo als Bild statt der gezeichneten
      Wortmarke. -->
   <!-- v1.78.0 (Besitzer: "du nimmst den Hintergrund natuerlich vom Menue mit
-       diesen Schachfeldern ganz am Anfang"): bg-hall.carved.webp, dieselbe
-       Datei, die die App hinter dem Menue zeigt. -->
-  <div class="halle" aria-hidden="true"><img src="/landing/menue-halle.webp" alt=""
+       diesen Schachfeldern ganz am Anfang").
+       v1.79.0 (Besitzer: "du hast leider hinter die Figuren den falschen
+       Hintergrund genommen ... das ist ja so eine Reihe von mehreren
+       Hintergruenden, die du da hinter dem Menue hast, aber ich meine den
+       allerersten"): NICHT die Halle (bg-hall), sondern riss-01 - die erste
+       der zehn Bodenstufen, die RissBoden.jsx unter dem Menue legt. -->
+  <div class="halle" aria-hidden="true"><img src="/landing/menue-boden.webp" alt=""
     width="1280" height="853" fetchpriority="high" /></div>
 
   <div class="buehne-inhalt">
