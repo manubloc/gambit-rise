@@ -75,6 +75,26 @@
   "drei Node-Suites (17/14/11)". NEU design/PLAYSTORE-BACKLOG.md - ein Ort, der
   immer sagt, was fuer die Store-Einreichung fehlt (S1-S14), und
   design/AUDIT-2026-09-26.md mit allen Messungen.
+- NACHTRAG, DIE PROBE DECKT JETZT DAS GANZE HAUS. Nach dem ersten Durchgang
+  kannte sie nur Karte und Gefecht - der Auftrag "es gibt viele Dinge, die
+  einfach getestet werden muessen" war damit nicht erfuellt. Dazugekommen sind
+  Schnelles Spiel, Die Akademie, Online-Duell, die Unterreiter im
+  Figuren-Schirm und die uebrigen Reiter, jeder Schirm hin und zurueck. Drei
+  Runden ueber alles: KEINE FEHLER. Beinahe waere daraus eine falsche
+  "Verbesserung" geworden: die Probe meldete "Figuren: 2 Unterreiter", was nach
+  zu wenig aussah (intern kennt der Schirm vier: tree, formation, gear, chron).
+  Nachgesehen in ArmyScreen.jsx:3019-3027 - die Leiste traegt wirklich nur
+  zwei, der Haendler-Zweig ist seit v0.72.2 daraus entfernt ("sein Zuhause ist
+  jetzt das Lager"), und das Lager faehrt die Probe ohnehin an. Die Messung war
+  richtig; im Kopf der Datei steht jetzt, warum.
+- UMBAU-PLAN.md nach archiv/doku/ - er beschreibt den Umbau von v0.3.0 auf
+  v0.6.0 und hat keine Verweise mehr. RELEASE-ANLEITUNG.md bleibt dagegen
+  liegen: der eigene Vorschlag, auch sie zu archivieren, war FALSCH - README,
+  ACCOUNTS-ANLEITUNG (zweimal) und .github/workflows/release-itch.yml verweisen
+  aktiv darauf, ein Umzug haette vier Verweise gebrochen. Sie hat stattdessen
+  einen Warnhinweis bekommen, der trennt, was historisch ist (GitHub Pages,
+  DEINNAME, v0.2.0 - alles vor Cloudflare) und was weiter gilt (itch.io ueber
+  butler, ADMIN_TOKEN).
 - Kette: npm test 27 Suiten / 1993 Pruefungen / 0 Fehler - build (395/395,
   408/408, 748 MB) - OHNE_ARCHIV 51 MB - build:app - build:single (46591 KB) -
   test_boot 3/3 - verify-boot fehlerfrei - drive3 KEINE FEHLER in BEIDEN

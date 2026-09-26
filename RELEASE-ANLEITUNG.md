@@ -1,5 +1,32 @@
 # GAMBIT — Release-Anleitung
 
+> **⚠ GRÖSSTENTEILS HISTORISCH (Hinweis vom 26.9.2026, v1.86.0).**
+> Diese Anleitung stammt aus der Zeit **vor** Cloudflare: sie spricht von
+> Platzhaltern wie `DEINNAME`, vom Repo `grand-gambit`, von GitHub Pages als
+> Hosting und von Version 0.2.0. Nichts davon gilt heute.
+>
+> **Was heute gilt:**
+> - Live ist **gambitrise.com** auf **Cloudflare Pages**, und der Deploy
+>   passiert **automatisch bei jedem Push auf `main`** (~2–5 min), ebenso beim
+>   Worker `gg-hall`. Es gibt keinen Release-Knopf, den man drücken müsste.
+> - Der verbindliche Ablauf vor jedem Push steht in **`CLAUDE.md`**
+>   („EISERNE KETTE"), nicht hier.
+> - Der Weg in den Play Store steht in **`design/PLAYSTORE-BACKLOG.md`**
+>   (was fehlt), **`design/PLAYSTORE.md`** (die Console-Bögen) und
+>   **`design/PWABUILDER.md`** (das Android-Paket).
+>
+> **Was hier weiter brauchbar ist** — deshalb steht die Datei noch hier und
+> nicht im Archiv, und deshalb verweisen `README.md`, `ACCOUNTS-ANLEITUNG.md`
+> und `.github/workflows/release-itch.yml` darauf:
+> - **Abschnitt 3**: die itch.io-Veröffentlichung über butler (die einmaligen
+>   Secrets `BUTLER_API_KEY` und `ITCH_TARGET`).
+> - **Abschnitt 6/7**: der Umgang mit `ADMIN_TOKEN` und dem
+>   Multiplayer-Server.
+>
+> Alles andere bitte gegen `CLAUDE.md` prüfen, bevor man danach handelt.
+
+---
+
 Vom Repo zum öffentlichen Browsergame in ~30 Minuten, danach itch.io und
 Google Play mit minimalem Mehraufwand. Alles hier ist bereits vorbereitet —
 du füllst nur noch Platzhalter und klickst dich durch die Anbieter-Dashboards.

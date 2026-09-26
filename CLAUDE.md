@@ -47,10 +47,19 @@ Cloudflare-Projekt heißt weiterhin **grand-gambit**, das GitHub-Repo soll auf
   Konsolenfehler als Boot-Versagen). Lokal grün heißt CI grün.
 - `timeout 250 node drive3.mjs` — Kampagnen-Fahrprobe ("== KEINE FEHLER ==").
 - `npm run pruefe:fluss` — Playwright-Textfluss/Popup-Messung.
-- `node tools/pruefe-navigation.mjs` — die NAVIGATIONSPROBE (v1.86.0): fährt
-  Karte, Stationen, Gefecht, Reiter und die Zurück-Geste in mehreren Runden und
-  wertet jeden Konsolenfehler als Absturz. `RUNDEN=5` für längere Läufe.
-  Braucht `dist/` mit der App, also **nach `npm run build:app`**.
+- `node tools/pruefe-navigation.mjs` — die NAVIGATIONSPROBE (v1.86.0): fährt in
+  mehreren Runden **das ganze Haus** und wertet jeden Konsolenfehler als
+  Absturz — Karte mit allen Stationsfenstern, Gefecht (betreten *und* mitten im
+  Spiel verlassen, inklusive der Rückfrage „Kampf verlassen?"), alle vier
+  Reiter, Schnelles Spiel, Akademie, Online-Duell, die Unterreiter im
+  Figuren-Schirm und die Zurück-Geste. `RUNDEN=5` für längere Läufe.
+  Braucht `dist/` mit der App, also **nach `npm run build:app`**
+  (oder `npx vite build`).
+  **Der Kopf der Datei ist Pflichtlektüre, bevor man sie ändert:** fünf
+  Fassungen lang hat sie Dinge als Absturz gemeldet, die keiner waren
+  (`about:blank` nach der Zurück-Geste, die ausgeblendete Reiterleiste auf der
+  Karte, gesperrte Stationen, „‹ Zurück" mit Winkel, „Fortsetzen" statt
+  „Herausforderung starten"). Alle fünf sind dort mit Messung festgehalten.
 - `node test_layout.mjs` — echte Geometrie im Browser. Läuft wieder (v1.86.0:
   die Klang-Loader fehlten), hängt aber NICHT in der Kette: vier Proben
   erwarten ein vertikal zentriertes Brett, was seit dem Talentband nicht mehr

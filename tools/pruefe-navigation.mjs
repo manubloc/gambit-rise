@@ -324,6 +324,69 @@ for (let runde = 1; runde <= RUNDEN; runde++) {
   }
   console.log(`   ${reiterOk} Reiter durchgefahren`);
 
+  /* 4b. ALLE UEBRIGEN SCHIRME. Besitzer: "es gibt viele Dinge, die einfach
+     getestet werden muessen." Die Runde oben faehrt Karte und Gefecht; hier
+     kommt der Rest des Hauses dazu, jeder Schirm hin und zurueck:
+       Schnelles Spiel (mit Anpassen) - Die Akademie - Online-Duell -
+       die Unterreiter im Figuren-Schirm (Hofstaat, Aufstellung, Ausruestung) -
+       Erfolge - Profil.
+     Der Figuren-Schirm ist dabei der wichtigste: ArmyScreen.jsx ist mit 3143
+     Zeilen und 31 Hooks die groesste Datei des Hauses, also die mit der
+     hoechsten Wahrscheinlichkeit fuer einen Fehler beim Aufraeumen. */
+  schritt = `R${runde} uebrige Schirme`;
+  for (const [knopf, name] of [["Schnelles Spiel", "Schnelles Spiel"],
+                               ["Die Akademie", "Akademie"],
+                               ["Online-Duell", "Online-Duell"]]) {
+    schritt = `R${runde} ${name}`;
+    if (!(await klick(`^${knopf}`))) { melde(`Knopf '${knopf}' im Hub nicht gefunden`); continue; }
+    await page.waitForTimeout(2000);
+    if ((await zustand(name)).tot) break;
+    // wieder heraus: der Zurueck-Knopf des Unterschirms, sonst die Geste
+    if (!(await klick("Zurück|Zurueck"))) await page.goBack().catch(() => {});
+    await page.waitForTimeout(1200);
+    const z = await zustand(`Hub nach ${name}`);
+    if (z.draussen) { await wiederHinein(); break; }
+    if (z.tot) break;
+    console.log(`   ${name}: hin und zurueck`);
+  }
+
+  /* Die Unterreiter im Figuren-Schirm. Es sind ZWEI, und das ist richtig, kein
+     fehlender Fund: die Leiste traegt nur "Figuren" (tree) und "Aufstellung"
+     (formation) - der Haendler-Zweig (gear) steht seit v0.72.2 nicht mehr
+     darin, sein Zuhause ist das Lager, und dort faehrt diese Probe ihn
+     ohnehin an (ArmyScreen.jsx:3019-3027, nachgesehen am 26.9., nachdem die
+     Meldung "2 Unterreiter" nach zu wenig aussah). Gedrueckt wird die oberste
+     Knopfzeile der Reihe nach, mit Lebensprobe nach jedem Klick. */
+  schritt = `R${runde} Figuren-Unterreiter`;
+  if (await klick("^Figuren$")) {
+    await page.waitForTimeout(1600);
+    const reiterZahl = await page.evaluate(() => {
+      const oben = [...document.querySelectorAll("button")]
+        .filter((b) => { const r = b.getBoundingClientRect(); return r.top < 260 && r.width > 40 && r.height > 20 && r.height < 70; });
+      return oben.length;
+    });
+    for (let i = 0; i < Math.min(reiterZahl, 6); i++) {
+      const wohin = await page.evaluate((n) => {
+        const oben = [...document.querySelectorAll("button")]
+          .filter((b) => { const r = b.getBoundingClientRect(); return r.top < 260 && r.width > 40 && r.height > 20 && r.height < 70; });
+        if (!oben[n]) return null;
+        const t = (oben[n].textContent || "").trim().replace(/\s+/g, " ").slice(0, 20);
+        oben[n].click(); return t || `Reiter ${n}`;
+      }, i);
+      if (!wohin) break;
+      await page.waitForTimeout(1500);
+      if ((await zustand(`Figuren-Unterreiter "${wohin}"`)).tot) break;
+    }
+    console.log(`   Figuren: ${Math.min(reiterZahl, 6)} Unterreiter durchgefahren`);
+  } else melde("Reiter 'Figuren' nicht gefunden");
+
+  schritt = `R${runde} Erfolge und Profil`;
+  for (const reiter of ["Lager", "Profil", "Spielen"]) {
+    if (!(await klick(`^${reiter}$`))) { melde(`Reiter '${reiter}' nicht gefunden`); continue; }
+    await page.waitForTimeout(1400);
+    if ((await zustand(`Reiter ${reiter} (zweite Fahrt)`)).tot) break;
+  }
+
   // 5. Noch einmal auf die Karte und mit der ZURUECK-GESTE heraus. Eine
   //    Geste: Karte -> Hub. Mehr nicht, denn die zweite verlaesst die App
   //    (gewollt) und macht die Messung blind.
