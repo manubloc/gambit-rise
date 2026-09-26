@@ -76,6 +76,18 @@ for (const f of dateien) {
   if (/aria-label="Gambit Rise"/.test(H) || H.includes("<!--WORTMARKE-->")) funde.push("der feste Ladeschirm traegt einen Schriftzug");
   for (const [datei, pfad] of [["Landingpage", "public/landing/wortmarke.webp"], ["App", "src/app/ui/assets/wortmarke.webp"]])
     if (!existsSync(pfad)) funde.push(`das Logobild fuer die ${datei} fehlt (${pfad})`);
+
+  /* v1.78.0 (Besitzer): der erste Schirm der Landingpage ist bildschirm-
+     fuellend - Hallengrund mit den Schachfeldern, Logo, darunter die
+     Figurenreihe auf der Unterkante. Alle drei Stuecke muessen da sein, und
+     jedes Figurenbild muss wirklich im Baum liegen: ein fehlendes Bild faellt
+     sonst erst live auf, weil die Reihe einfach eine Luecke bekommt. */
+  if (!/min-height:100svh/.test(LP)) funde.push("der erste Schirm der Landingpage ist nicht mehr bildschirmfuellend");
+  if (!LP.includes('class="halle"')) funde.push("der Hallengrund mit den Schachfeldern fehlt auf der Landingpage");
+  if (!LP.includes('class="hofreihe"')) funde.push("die Figurenreihe fehlt auf dem ersten Schirm der Landingpage");
+  for (const m of LP.matchAll(/src="\/landing\/(held-[a-z0-9-]+\.webp)"/g))
+    if (!existsSync("public/landing/" + m[1])) funde.push(`Figurenbild fehlt: public/landing/${m[1]}`);
+  if (!existsSync("public/landing/menue-halle.webp")) funde.push("public/landing/menue-halle.webp fehlt");
 }
 
 

@@ -63,11 +63,58 @@
     a { color:var(--goldhell); }
     img { max-width:100%; height:auto; display:block; }
     .hof { max-width:1060px; margin:0 auto; padding:0 18px; }
+    /* v1.78.0 (Besitzer: "die erste Seite sollte so sein, dass man auch egal
+       welchen Bildschirm und welche Groesse man hat, dass das immer so
+       skaliert, also dass es so einen Fullscreen ... dann sieht man das Logo
+       und unterhalb von dem Logo sieht man ein paar Schachfiguren, die so ein
+       bisschen hintereinander stehen ... und die sind im Prinzip die
+       Unterkante des Bildschirms"): der erste Schirm fuellt das Fenster.
+       100svh statt 100vh - auf dem Handy zaehlt vh die eingeklappte
+       Adressleiste mit, die Figurenreihe waere dahinter verschwunden. */
     header.buehne { position:relative; overflow:hidden; text-align:center;
-      padding:64px 18px 54px; background:
+      min-height:100vh; min-height:100svh; display:flex; flex-direction:column;
+      align-items:center; justify-content:center; padding:0 18px;
+      --fh:clamp(146px,30svh,330px); background:
         radial-gradient(1000px 460px at 50% -140px, rgba(124,58,237,.20), transparent 65%),
         radial-gradient(800px 380px at 50% 108%, rgba(201,164,92,.10), transparent 70%),
         linear-gradient(180deg,#0a0e18,var(--night)); }
+    /* Der Hallengrund - dieselbe Aufnahme, die im Spiel hinter dem Menue
+       liegt. Sie laeuft nach oben ins Schwarz aus, genau wie dort. */
+    .halle { position:absolute; inset:0; z-index:0; overflow:hidden; pointer-events:none; }
+    /* left:50% + translateX(-50%) statt eines Aussenabstands: der Abstand
+       muss die HALBE benutzte Breite sein, und min() lieferte dafuer gemessen
+       den falschen Wert - rechts blieb ein 70 px breiter schwarzer Streifen. */
+    .halle img { position:absolute; left:50%; transform:translateX(-50%); bottom:0; width:168%;
+      max-width:none; opacity:1;
+      -webkit-mask-image:linear-gradient(180deg,transparent 0%,rgba(0,0,0,.5) 18%,#000 46%,#000 100%);
+      mask-image:linear-gradient(180deg,transparent 0%,rgba(0,0,0,.5) 18%,#000 46%,#000 100%); }
+    @media (min-width:760px){ .halle img { width:min(122%,1560px); } }
+    /* Ein weicher Schleier ueber dem Brett: gemessen stand der Claim sonst auf
+       den hellen Feldern und war kaum zu lesen. */
+    .halle::after { content:""; position:absolute; inset:0; pointer-events:none;
+      background:radial-gradient(74% 42% at 50% 36%, rgba(5,7,12,.78), rgba(5,7,12,.28) 62%, transparent 82%); }
+    .buehne-inhalt { position:relative; z-index:3; padding-bottom:calc(var(--fh) * .62); }
+    /* Die Figuren stehen auf der Unterkante und loesen sich nach unten auf. */
+    /* left:0/right:0 statt left:50% + translateX: ein absolut gesetzter
+       Kasten mit left:50% darf gemessen nur die halbe Fensterbreite breit
+       werden (auf dem Handy 195 px) - die Reihe wurde dadurch gequetscht. */
+    .hofreihe { position:absolute; left:0; right:0; bottom:0; z-index:2;
+      display:flex; flex-wrap:nowrap; align-items:flex-end; justify-content:center; pointer-events:none;
+      -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 70%,rgba(0,0,0,.5) 88%,transparent 100%);
+      mask-image:linear-gradient(180deg,#000 0%,#000 70%,rgba(0,0,0,.5) 88%,transparent 100%); }
+    .hofreihe img { height:calc(var(--fh) * var(--h,1)); width:auto; display:block; position:relative;
+      margin-inline:calc(var(--fh) * -.075); z-index:var(--z,1);
+      filter:brightness(var(--b,1)) drop-shadow(0 12px 26px rgba(0,0,0,.8)); }
+    @media (max-width:900px){ .hofreihe img.rand { display:none; } }
+    @media (max-width:560px){ .hofreihe img.rand2 { display:none; } }
+    .buehne::after { content:""; position:absolute; left:0; right:0; bottom:0; height:120px;
+      z-index:4; pointer-events:none;
+      background:linear-gradient(180deg,transparent,rgba(5,7,12,.75) 62%,var(--night)); }
+    .runter { position:absolute; left:50%; transform:translateX(-50%); bottom:14px; z-index:6;
+      color:rgba(233,207,138,.72); text-decoration:none; font-size:26px; line-height:1;
+      animation:ggWink 2.4s ease-in-out infinite; }
+    @keyframes ggWink { 0%,100% { transform:translate(-50%,0); opacity:.55; } 50% { transform:translate(-50%,6px); opacity:1; } }
+    @media (prefers-reduced-motion: reduce) { .runter { animation:none; } }
     @font-face { font-family:'Cinzel'; src:url('/fonts/cinzel-600.woff2') format('woff2'); font-weight:600; font-display:swap; }
     @font-face { font-family:'Cormorant Garamond'; src:url('/fonts/cormorant-500i.woff2') format('woff2'); font-weight:500; font-style:italic; font-display:swap; }
     @font-face { font-family:'Great Vibes'; src:url('/fonts/great-vibes-400.woff2') format('woff2'); font-weight:400; font-display:swap; }
@@ -79,10 +126,21 @@
       @media (prefers-reduced-motion: reduce) { .gg-wm * { animation: none !important; opacity: 1 !important; } }
       /*WM-KF*/@keyframes ggWisch { from { transform: scaleX(0); } to { transform: scaleX(1); } } @keyframes ggBlitzEinschlag { 0% { opacity: 1; filter: brightness(1); transform: scale(1.004); } 6% { opacity: 1; filter: brightness(4) drop-shadow(0 0 22px #fff) drop-shadow(0 0 44px #c4a8ff); transform: scale(1); } 13% { opacity: .82; filter: brightness(1.1); } 20% { opacity: 1; filter: brightness(2.6) drop-shadow(0 0 14px #efe7ff); } 34% { filter: brightness(1.04); } 100% { opacity: 1; filter: brightness(1); } } @keyframes ggRiseBlitz { 0% { opacity: 0; filter: brightness(1); } 7% { opacity: 1; filter: brightness(3.4) drop-shadow(0 0 14px #fff); } 16% { filter: brightness(1.3); } 23% { filter: brightness(2.6) drop-shadow(0 0 10px #f4eaff); } 40% { filter: brightness(1.05); } 100% { opacity: 1; filter: brightness(1); } } @keyframes ggRiseGlimm { 0%,100% { filter: brightness(1); } 50% { filter: brightness(1.16) drop-shadow(0 0 6px rgba(167,139,250,.5)); } } @keyframes ggBlitzZucken { 0%,100% { opacity: .92; } 3% { opacity: 1; } 5% { opacity: .35; } 7% { opacity: 1; } 10% { opacity: .55; } 13% { opacity: .98; } 45% { opacity: .78; } 70% { opacity: .9; } } @keyframes ggAesteA { 0%,100% { opacity: .95; } 30% { opacity: .15; } 55% { opacity: .85; } 80% { opacity: .35; } } @keyframes ggAesteB { 0%,100% { opacity: .25; } 35% { opacity: .95; } 62% { opacity: .2; } 85% { opacity: .9; } }/*/WM-KF*/
     .wortmarke svg { display:block; overflow:visible; }
-    .wortmarke { width:min(420px,78vw); margin:0 auto 14px;
+    .wortmarke { width:min(520px,84vw); margin:0 auto 14px;
       filter:drop-shadow(0 8px 30px rgba(0,0,0,.85)); }
     .claim { font-size:clamp(18px,2.6vw,23px); color:var(--goldhell); letter-spacing:.02em; }
-    .unterclaim { color:var(--dim); max-width:640px; margin:10px auto 26px; font-size:15.5px; }
+    .unterclaim { color:var(--dim); max-width:640px; margin:10px auto 26px; font-size:16px; font-weight:300; }
+    /* v1.78.0 (Besitzer): "Fliesstext feiner (extra light), weniger Wechsel
+       fett/normal". Der Fliesstext traegt jetzt durchgehend die schmale
+       serifenlose Schrift in Gewicht 300; hervorgehobene Woerter stehen nur
+       noch in Gold bei Gewicht 500 statt im fetten 700 - der Text springt
+       beim Lesen nicht mehr. Die Ueberschriften bleiben, wie sie waren. */
+    .fliess, .h2u, .unterclaim, .haken li, .modus p, .zugreihe figcaption,
+    .kartenreihe figcaption, .paar figcaption, .schatz figcaption, .unterzeile,
+    #hinweis p { font-family:ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+      font-weight:300; letter-spacing:.005em; }
+    .fliess b, .h2u b, .haken li b, .zugreihe b, .kartenreihe b, .paar b,
+    .schatz b, #hinweis b { font-weight:500; }
     .knopfzeile { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
     .knopf { display:inline-block; padding:13px 30px; border-radius:999px; text-decoration:none;
       font-weight:700; letter-spacing:.04em; font-size:16px; }
@@ -101,8 +159,8 @@
       background:var(--panel); box-shadow:0 14px 44px rgba(0,0,0,.5); }
     .rahmen.riss { border-color:rgba(167,139,250,.5); box-shadow:0 14px 44px rgba(0,0,0,.5), 0 0 18px rgba(124,58,237,.22); }
     .stich { color:var(--gold); font-size:12px; letter-spacing:.22em; text-transform:uppercase; margin-bottom:8px; }
-    .fliess { color:#c7c2b4; font-size:15.5px; }
-    .fliess b { color:var(--goldhell); font-weight:700; }
+    .fliess { color:#c7c2b4; font-size:16px; line-height:1.78; }
+    .fliess b { color:var(--goldhell); }
     .haken { list-style:none; padding:0; margin:14px 0 0; }
     .haken li { padding-left:26px; position:relative; margin:8px 0; color:#c7c2b4; font-size:15px; }
     .haken li::before { content:"✦"; position:absolute; left:2px; color:var(--gold); }
@@ -224,22 +282,54 @@
        dieselbe Wortmarke wie in der App, Rise flammt beim Laden kurz auf. -->
   <!-- v1.77.0 (Besitzer): das gelieferte Logo als Bild statt der gezeichneten
      Wortmarke. -->
-<img class="wortmarke" src="/landing/wortmarke.webp" alt="Gambit Rise" width="1100" height="343" />
-  <div class="claim">Schach, das Charaktere erhebt.</div>
-  <p class="unterclaim sans">Führe Figuren mit Lebenspunkten, Stufen und echten Fähigkeiten durch eine
-    Kampagne über zwölf Kapitel — oder spiel ganz klassisch. Auf dem Handy, ohne Werbung.</p>
-  <div class="knopfzeile sans">
-    <!-- v1.59.0 (Besitzer): das OFFIZIELLE Google-Play-Abzeichen statt eines
-         goldenen Knopfes - so erkennt jeder sofort, was passiert. Eingebunden
-         wie Googles Badge-Generator es ausgibt (Bild von Googles Server,
-         unveraendert, mit Mindestabstand). -->
-    <a class="playbadge" href="https://play.google.com/store/apps/details?id=com.gambitrise.app"><img
-      alt="Jetzt bei Google Play" width="646" height="250"
-      src="https://play.google.com/intl/en_us/badges/static/images/badges/de_badge_web_generic.png" /></a>
+  <!-- v1.78.0 (Besitzer: "du nimmst den Hintergrund natuerlich vom Menue mit
+       diesen Schachfeldern ganz am Anfang"): bg-hall.carved.webp, dieselbe
+       Datei, die die App hinter dem Menue zeigt. -->
+  <div class="halle" aria-hidden="true"><img src="/landing/menue-halle.webp" alt=""
+    width="1280" height="853" fetchpriority="high" /></div>
 
+  <div class="buehne-inhalt">
+    <img class="wortmarke" src="/landing/wortmarke.webp" alt="Gambit Rise" width="1100" height="343" />
+    <div class="claim">Schach, das Charaktere erhebt.</div>
   </div>
-  <div class="zeile-frei sans">Kostenlos · werbefrei · Deutsch &amp; Englisch · bald für Android · <a href="/spielen/" style="color:inherit">Entwicklerzugang</a></div>
+
+  <!-- Die Figuren stehen hintereinander auf der Unterkante des Schirms. Die
+       Reihenfolge ist die Tiefe: die Zahl in --z sagt, wer vor wem steht, --b
+       dunkelt die hinteren ab. Am Rand verschwinden Figuren auf schmalen
+       Geraeten (Klassen rand/rand2), damit die Reihe nie beschnitten wirkt. -->
+  <div class="hofreihe" aria-hidden="true">
+    <img class="rand"  src="/landing/held-pawn.webp"   alt="" style="--h:.6;--z:1;--b:.44" loading="eager" />
+    <img class="rand2" src="/landing/held-rook.webp"   alt="" style="--h:.76;--z:2;--b:.6"  loading="eager" />
+    <img               src="/landing/held-knight.webp" alt="" style="--h:.84;--z:3;--b:.76" loading="eager" />
+    <img               src="/landing/held-bishop.webp" alt="" style="--h:.87;--z:4;--b:.9"  loading="eager" />
+    <img               src="/landing/held-queen.webp"  alt="" style="--h:.96;--z:6;--b:1"   loading="eager" />
+    <img               src="/landing/held-king.webp"   alt="" style="--h:1;--z:7;--b:1"     loading="eager" />
+    <img               src="/landing/held-bishop.webp" alt="" style="--h:.87;--z:5;--b:.9"  loading="eager" />
+    <img               src="/landing/held-knight.webp" alt="" style="--h:.84;--z:3;--b:.76" loading="eager" />
+    <img class="rand2" src="/landing/held-rook.webp"   alt="" style="--h:.76;--z:2;--b:.6"  loading="eager" />
+    <img class="rand"  src="/landing/held-pawn.webp"   alt="" style="--h:.6;--z:1;--b:.44" loading="eager" />
+  </div>
+  <a class="runter" href="#spiel" aria-label="Weiter nach unten">&#9662;</a>
 </header>
+
+<!-- v1.78.0 (Besitzer: "wenn man dann runter scrollt, kommt man in den neuen
+     Bereich, wo das Spiel halt da steht gleich mit dem Play Store"). -->
+<section id="spiel" style="padding-top:44px">
+  <div class="hof" style="text-align:center">
+    <p class="unterclaim sans">Führe Figuren mit Lebenspunkten, Stufen und echten Fähigkeiten durch eine
+      Kampagne über zwölf Kapitel — oder spiel ganz klassisch. Auf dem Handy, ohne Werbung.</p>
+    <div class="knopfzeile sans">
+      <!-- v1.59.0 (Besitzer): das OFFIZIELLE Google-Play-Abzeichen statt eines
+           goldenen Knopfes - so erkennt jeder sofort, was passiert. Eingebunden
+           wie Googles Badge-Generator es ausgibt (Bild von Googles Server,
+           unveraendert, mit Mindestabstand). -->
+      <a class="playbadge" href="https://play.google.com/store/apps/details?id=com.gambitrise.app"><img
+        alt="Jetzt bei Google Play" width="646" height="250" loading="lazy"
+        src="https://play.google.com/intl/en_us/badges/static/images/badges/de_badge_web_generic.png" /></a>
+    </div>
+    <div class="zeile-frei sans">Kostenlos · werbefrei · Deutsch &amp; Englisch · bald für Android · <a href="/spielen/" style="color:inherit">Entwicklerzugang</a></div>
+  </div>
+</section>
 
 
 <section class="abgesetzt" id="riss">
@@ -247,9 +337,9 @@
     <div style="order:2">
       <div class="stich sans" style="color:var(--riss)">Das Besondere</div>
       <h2 style="text-align:left">Ein Schach-Rollenspiel</h2>
-      <p class="fliess">Deine Figuren haben <b>Lebenspunkte und Angriffswerte</b>, sie <b>steigen auf</b> und
-        <b>lernen Fähigkeiten</b>. Geschlagen wird nicht in einem Zug, sondern erkämpft — und aus dem Riss
-        treten Bestien, die eigenen Regeln folgen.</p>
+      <p class="fliess">Deine Figuren haben <b>Lebenspunkte, Stufen und echte Fähigkeiten</b>. Geschlagen
+        wird nicht in einem Zug, sondern erkämpft — und aus dem Riss treten Bestien, die eigenen Regeln
+        folgen.</p>
       <div class="zahlen sans" aria-label="Das Spiel in Zahlen">
         <div class="leuchtkontur"><b>50+</b><span>Figuren</span></div>
         <div class="leuchtkontur"><b>32</b><span>Fähigkeiten</span></div>
@@ -265,6 +355,25 @@
     <div style="order:1" class="galeriebild"><img src="/landing/hofstaat-raster.webp" loading="lazy"
       alt="Der Hofstaat: neun erspielte Figuren in Farbe, darunter noch unbekannte als dunkle Silhouetten" />
       <p class="unterzeile sans">Was du erspielst, steht in Farbe — der Rest wartet als Schatten.</p></div>
+  </div>
+</section>
+
+<section id="modi">
+  <div class="hof">
+    <div class="stich sans" style="text-align:center">Drei Wege zu spielen</div>
+    <h2>Deine Partie, deine Regeln</h2>
+    <p class="h2u sans">Jeder Modus lässt dir die Wahl: klassisches Schach oder Gefecht mit Lebenspunkten.</p>
+    <div class="modi sans">
+      <div class="modus"><img src="/landing/modus-kampagne.webp" alt="Kampagnenkarte" loading="lazy" />
+        <div class="inner"><h3>Kampagne</h3><p>Zwölf Kapitel, verzweigte Pfade, Meister an jedem Kapitelende —
+          und der Großmeister am Riss. Siege rekrutieren Helden und sogar Bestien.</p></div></div>
+      <div class="modus"><img src="/landing/modus-schnell.webp" alt="Schnelles Spiel" loading="lazy" />
+        <div class="inner"><h3>Schnelles Spiel</h3><p>Sofort aufs Brett: klassisches Schach oder HP-Gefecht,
+          Karte und Stärke frei gewählt. Auch zu zweit an einem Gerät.</p></div></div>
+      <div class="modus"><img src="/landing/modus-online.webp" alt="Online-Duell" loading="lazy" />
+        <div class="inner"><h3>Online-Duell</h3><p>Faire Duelle mit Wertung, Freundescodes und Rangliste —
+          live oder als Fernpartie mit einem Zug pro Tag.</p></div></div>
+    </div>
   </div>
 </section>
 
@@ -317,7 +426,7 @@
     <h2>Stell dein eigenes Heer auf</h2>
     <p class="h2u sans">Kapitän statt Turm, Späher statt Springer, eine Bestie aus dem Riss auf dem freien Platz —
       jede Partie beginnt mit deiner Aufstellung. Besiegte Monster lassen sich mit Gold und einem Opfer aus
-      deinem Hofstaat <b>anwerben</b>, und wer ein Kapitel gewinnt, holt dessen <b>Meister</b> an den Platz der Dame.</p>
+      deinem Hofstaat anwerben, und wer ein Kapitel gewinnt, holt dessen Meister an den Platz der Dame.</p>
     <div class="bildrahmen leuchtkontur"><img src="/landing/gefecht-gemischt.webp"
       alt="Ein Gefecht in Gambit Rise: die eigene Reihe mit Kapitän, Späher, Magier, Dame, König, Paladin, dem Wächter und einem Turm" loading="lazy" /></div>
   </div>
@@ -325,45 +434,26 @@
 
 <section id="haendler">
   <div class="hof">
-    <div class="stich sans" style="text-align:center">Händler &amp; Mauern</div>
+    <div class="stich sans" style="text-align:center">Der Händler</div>
     <h2>Rüste dich für den nächsten Kampf</h2>
-    <p class="h2u sans">Beim Krämer gibt es, was im Gefecht den Unterschied macht — und vor jedem Gefecht
-      darfst du Mauern auf deine dritte oder vierte Reihe setzen.</p>
+    <!-- v1.78.0 (Besitzer): "Sperren setzen" (das Mauer-Bild) weg. Die Mauern
+         bleiben als Satz im Text, das Bild hat niemandem etwas erklaert. -->
+    <p class="h2u sans">Beim Krämer gibt es, was im Gefecht den Unterschied macht — Tränke, Schlüssel,
+      Werkzeug und Mauern für deine eigene dritte Reihe.</p>
     <div class="paar">
       <figure><div class="bildrahmen leuchtkontur"><img src="/landing/haendler.webp" alt="Corvo, der Krämer, mit seinen Waren" loading="lazy" /></div>
-        <figcaption class="sans"><b>Lebenstrank</b> heilt eine Figur, der <b>Zeitenwender</b> nimmt deinen letzten Zug
-          zurück, der <b>Vergessenstrank</b> verteilt die Fähigkeiten einer Figur neu. Dazu Schlüssel und Werkzeug
-          für verborgene Wege der Karte.</figcaption></figure>
-      <figure><div class="bildrahmen"><img src="/landing/mauern.webp" alt="Ein Brett mit einer Mauer und einem Bollwerk vor dem Gefecht" loading="lazy" /></div>
-        <figcaption class="sans"><b>Zaun</b>, <b>Mauer</b> und <b>Bollwerk</b> halten einen, zwei oder drei Schläge.
-          Höchstens zwei je Gefecht — wohin, entscheidest du.</figcaption></figure>
+        <figcaption class="sans"><b>Tränke und Werkzeug</b> — der Lebenstrank heilt eine Figur, der Zeitenwender
+          nimmt deinen letzten Zug zurück, der Vergessenstrank verteilt die Fähigkeiten einer Figur neu. Dazu
+          Schlüssel und Werkzeug für verborgene Wege der Karte.</figcaption></figure>
+      <!-- v1.60.0 (Besitzer): die Schatzkammer klein andeuten -->
+      <figure><div class="bildrahmen"><img src="/landing/schatzkammer.webp"
+        alt="Die Schatzkammer: Taten wie Siege und Schachmatts bringen Gold und Skillpunkte zum Einfordern" loading="lazy" /></div>
+        <figcaption class="sans"><b>Die Schatzkammer</b> — jede Tat zählt: Siege, Schachmatts, Schlagzahl,
+          Umwandlungen. Jede Stufe bringt Gold und Skillpunkte zum Einfordern.</figcaption></figure>
     </div>
-    <!-- v1.60.0 (Besitzer): die Schatzkammer klein andeuten -->
-    <figure class="schatz"><div class="bildrahmen"><img src="/landing/schatzkammer.webp"
-      alt="Die Schatzkammer: Taten wie Siege und Schachmatts bringen Gold und Skillpunkte zum Einfordern" loading="lazy" /></div>
-      <figcaption class="sans"><b>Die Schatzkammer</b> — jede Tat zählt: Siege, Schachmatts, Schlagzahl, Umwandlungen.
-        Jede Stufe bringt Gold und Skillpunkte zum Einfordern.</figcaption></figure>
   </div>
 </section>
 
-<section class="abgesetzt" id="modi">
-  <div class="hof">
-    <div class="stich sans" style="text-align:center">Drei Wege zu spielen</div>
-    <h2>Deine Partie, deine Regeln</h2>
-    <p class="h2u sans">Jeder Modus lässt dir die Wahl: klassisches Schach oder Gefecht mit Lebenspunkten.</p>
-    <div class="modi sans">
-      <div class="modus"><img src="/landing/modus-kampagne.webp" alt="Kampagnenkarte" loading="lazy" />
-        <div class="inner"><h3>Kampagne</h3><p>Zwölf Kapitel, verzweigte Pfade, Meister an jedem Kapitelende —
-          und der Großmeister am Riss. Siege rekrutieren Helden und sogar Bestien.</p></div></div>
-      <div class="modus"><img src="/landing/modus-schnell.webp" alt="Schnelles Spiel" loading="lazy" />
-        <div class="inner"><h3>Schnelles Spiel</h3><p>Sofort aufs Brett: klassisches Schach oder HP-Gefecht,
-          Karte und Stärke frei gewählt. Auch zu zweit an einem Gerät.</p></div></div>
-      <div class="modus"><img src="/landing/modus-online.webp" alt="Online-Duell" loading="lazy" />
-        <div class="inner"><h3>Online-Duell</h3><p>Faire Duelle mit Wertung, Freundescodes und Rangliste —
-          live oder als Fernpartie mit einem Zug pro Tag.</p></div></div>
-    </div>
-  </div>
-</section>
 
 <section id="welt">
   <div class="hof">
@@ -402,11 +492,11 @@
     <div>
       <div class="stich sans">Und wenn du nur Schach willst</div>
       <h2 style="text-align:left">Klassisches Schach, wie es sein soll</h2>
-      <p class="fliess">Zwei Spielarten, eine Wahl: das <b>HP-Gefecht</b> mit Lebenspunkten, Stufen und Fähigkeiten —
-        oder <b>klassisches Schach</b> nach den vollen Regeln.</p>
-      <p class="fliess">Volle Regeln — <b>Rochade, en passant, Umwandlung</b> — auf einem ruhigen Brett mit
-        handgeschnitzten Figuren, glänzend goldenen Koordinaten und einer sanften Lichtspur für den letzten Zug.
-        Keine Lebenspunkte, keine Zauber: nur du, dein Gegner und die 64 Felder.</p>
+      <p class="fliess">Zwei Spielarten, eine Wahl: <b>HP-Gefecht oder klassisches Schach</b> nach den vollen
+        Regeln.</p>
+      <p class="fliess">Rochade, en passant, Umwandlung — auf einem ruhigen Brett mit handgeschnitzten Figuren,
+        glänzend goldenen Koordinaten und einer sanften Lichtspur für den letzten Zug. Keine Lebenspunkte,
+        keine Zauber: nur du, dein Gegner und die 64 Felder.</p>
       <ul class="haken sans">
         <li>Gegen den Rechner in wählbarer Stärke, online oder zu zweit am Gerät</li>
         <li>Zugvorschau, Koordinaten, Zeitenwender für zurückgenommene Züge</li>

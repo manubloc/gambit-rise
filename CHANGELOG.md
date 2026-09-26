@@ -1,5 +1,44 @@
 # Changelog - Gambit Rise
 
+## 1.78.0 - die Landingpage beginnt bildschirmfuellend
+
+- Besitzer: "die erste Seite sollte so sein, dass man auch egal welchen
+  Bildschirm und welche Groesse man hat, dass das immer so skaliert, also
+  dass es so einen Fullscreen gibt ... dann sieht man das Logo und unterhalb
+  von dem Logo sieht man ein paar Schachfiguren, die so ein bisschen
+  hintereinander stehen, natuerlich Koenig, Dame, Laeufer, die alle mit
+  dabei ... und die sind im Prinzip die Unterkante des Bildschirms, und wenn
+  man dann runter scrollt, kommt man in den neuen Bereich, wo das Spiel halt
+  da steht gleich mit dem Play Store ... du nimmst den Hintergrund
+  natuerlich vom Menue mit diesen Schachfeldern ganz am Anfang."
+- ERSTER SCHIRM: header.buehne ist jetzt min-height 100svh (NICHT 100vh - auf
+  dem Handy zaehlt vh die eingeklappte Adressleiste mit, die Figurenreihe
+  waere dahinter verschwunden). Dahinter liegt bg-hall.carved.webp, dieselbe
+  Aufnahme, die im Spiel hinter dem Menue steht, als
+  public/landing/menue-halle.webp.
+- FIGURENREIHE: zehn freigestellte Figuren (Bauer, Turm, Springer, Laeufer,
+  Dame, Koenig und zurueck) stehen mit den Fuessen auf der Unterkante und
+  loesen sich nach unten in einer Maske auf. --z gibt die Tiefe, --b dunkelt
+  die hinteren ab; unter 900 px fallen die aeusseren, unter 560 px die
+  naechsten weg, damit die Reihe symmetrisch bleibt.
+- ZWEI MESSFEHLER unterwegs: ein absolut gesetzter Kasten mit left:50% +
+  translateX(-50%) darf nur die halbe Fensterbreite breit werden - die Reihe
+  war auf dem Handy auf 195 px gequetscht (jetzt left:0/right:0). Und
+  margin-left:min(-59%,-750px) ist NICHT die halbe benutzte Breite - rechts
+  blieb ein 70 px breiter schwarzer Streifen (jetzt translateX).
+- PLAY STORE steht jetzt im Abschnitt UNTER dem ersten Schirm, nicht mehr im
+  Kopf - genau dort, wo der Besitzer ihn beim Scrollen erwartet.
+- SPIELARTEN (Kampagne, Schnelles Spiel, Online-Duell) ruecken vor die
+  Chronik, statt hinter dem Haendler zu stehen.
+- "SPERREN SETZEN" (das Mauer-Bild) ist weg; die Mauern bleiben als Satz im
+  Text, das Bild nach archiv/ausgemustert/v1.78.0/. Die Schatzkammer rueckt
+  an den frei gewordenen Platz neben den Haendler.
+- FLIESSTEXT feiner: durchgehend die schmale serifenlose Schrift in Gewicht
+  300, Hervorhebungen nur noch in Gold bei Gewicht 500 statt fett 700, und in
+  vier Absaetzen die Zahl der Hervorhebungen auf eine gesenkt.
+- PROBE: tools/pruefe-buttons.mjs verlangt 100svh, den Hallengrund, die
+  Figurenreihe und jedes einzelne Figurenbild im Baum.
+
 ## 1.77.0 - das gelieferte Logo loest die gezeichnete Wortmarke ab
 - Besitzer: "wir lassen das jetzt mal mit dem Logo und verwenden einfach das
   Bild, das ich hinzugefuegt habe - bei der Landingpage und beim
