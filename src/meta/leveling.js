@@ -443,7 +443,15 @@ export function upgradeBoss(profile, bossId) {
    Muetze ohne Waffe, Stufe 2 der Wanderstab, Stufe 3 der Speer - drei
    handgefuehrte GPT-Bilder in Gruen. Die Staffel haengt am Bauern-Level:
    1-2 -> Stufe 1, 3-4 -> Stufe 2, ab 5 -> Stufe 3. */
-export const pawnTier = (level) => (level >= 5 ? 3 : level >= 3 ? 2 : 1);
+/* v1.80.0 (Besitzer: "ich habe dir mal vor einer Weile eigentlich fuer die
+   Bauern drei Stufen gegeben ... da haette ich gut gefunden, wenn du diese
+   drei Bilder von den Stufen halt verteilst auf diese zehn Stufen").
+   Bisher war der Bauer nach Stufe 5 fertig: Bild 1 auf 1-2, Bild 2 auf 3-4,
+   Bild 3 ab 5 - die Stufen 5 bis 10, also die halbe Leiter, sahen alle
+   gleich aus. Jetzt derselbe Dreisatz, den der Gambit mit seinen sechs
+   Bildern ueber zwanzig Stufen nimmt: 1-3 / 4-6 / 7-10. */
+export const pawnTier = (level) =>
+  Math.min(3, Math.max(1, Math.ceil(Math.max(1, level) * 3 / MAX_PIECE_LEVEL)));
 
 export function buildArmyFromFormation(levelOf, formation, chosenOf = null, boostOf = null, stufenOf = null) {
   // (null slots — the dragon's wing — become empty back-rank squares)

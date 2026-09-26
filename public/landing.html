@@ -84,11 +84,21 @@
     /* left:50% + translateX(-50%) statt eines Aussenabstands: der Abstand
        muss die HALBE benutzte Breite sein, und min() lieferte dafuer gemessen
        den falschen Wert - rechts blieb ein 70 px breiter schwarzer Streifen. */
-    .halle img { position:absolute; left:50%; transform:translateX(-50%); bottom:0; width:168%;
+    /* v1.80.0 (Besitzer: "du kannst ihn vielleicht ein bisschen groesser
+       machen, so dass man wirklich den helleren Teil des Schachbretts auch
+       hinter den Figuren noch eher sieht ... man darf halt nicht die
+       Unterkante sehen"): NICHT mehr ein proportional skaliertes Bild -
+       damit haette der helle Streifen nur ueber einen Zoom von 276 % nach
+       oben gefunden. Stattdessen ein Kasten fester Hoehe mit object-fit
+       cover, genau wie es die App mit background-size cover tut. Die
+       Bildstelle waehlt object-position: 39-50 % der Bildhoehe ist der
+       hellste Teil des Bretts (gemessen an der Zeilenhelligkeit). */
+    .halle img { position:absolute; left:0; right:0; bottom:0;
+      width:100%; height:min(64%, 640px); object-fit:cover; object-position:50% 62%;
       max-width:none; opacity:1;
-      -webkit-mask-image:linear-gradient(180deg,transparent 0%,rgba(0,0,0,.45) 14%,#000 42%,#000 100%);
-      mask-image:linear-gradient(180deg,transparent 0%,rgba(0,0,0,.45) 14%,#000 42%,#000 100%); }
-    @media (min-width:760px){ .halle img { width:min(122%,1560px); } }
+      -webkit-mask-image:linear-gradient(180deg,transparent 0%,rgba(0,0,0,.45) 12%,#000 38%,#000 100%);
+      mask-image:linear-gradient(180deg,transparent 0%,rgba(0,0,0,.45) 12%,#000 38%,#000 100%); }
+    @media (min-width:760px){ .halle img { height:min(62%, 720px); object-position:50% 70%; } }
     /* Ein weicher Schleier ueber dem Brett: gemessen stand der Claim sonst auf
        den hellen Feldern und war kaum zu lesen. */
     .halle::after { content:""; position:absolute; inset:0; pointer-events:none;

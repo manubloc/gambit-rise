@@ -602,4 +602,22 @@ console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
     lp.includes('location.replace("/spielen/" + q + h)') && lp.indexOf("location.replace(\"/spielen/\"") < lp.indexOf("<body"));
 }
 
+/* ── v1.80.0: DIE DREI BAUERNBILDER REICHEN UEBER ALLE ZEHN STUFEN ──────────
+   Besitzer: "ich habe dir mal vor einer Weile eigentlich fuer die Bauern
+   drei Stufen gegeben ... da haette ich gut gefunden, wenn du diese drei
+   Bilder von den Stufen halt verteilst auf diese zehn Stufen."
+   Vorher war nach Stufe 5 Schluss - die halbe Leiter sah gleich aus. */
+{
+  const { pawnTier, MAX_PIECE_LEVEL } = await import("./src/meta/leveling.js");
+  const stufen = [];
+  for (let l = 1; l <= MAX_PIECE_LEVEL; l++) stufen.push(pawnTier(l));
+  ok("die Bauernleiter geht bis Stufe 10", MAX_PIECE_LEVEL === 10);
+  ok("sie nutzt genau drei Bilder", new Set(stufen).size === 3 && Math.max(...stufen) === 3);
+  ok("Bild 1 steht auf den Stufen 1-3", stufen.slice(0, 3).every((t) => t === 1));
+  ok("Bild 2 steht auf den Stufen 4-6", stufen.slice(3, 6).every((t) => t === 2));
+  ok("Bild 3 steht auf den Stufen 7-10", stufen.slice(6).every((t) => t === 3));
+  ok("kein Bild bleibt auf halbem Weg stehen (Stufe 10 zeigt das letzte)", pawnTier(10) === 3);
+  ok("und ueber die Grenzen hinaus bleibt es gedeckelt", pawnTier(0) === 1 && pawnTier(99) === 3);
+}
+
 process.exit(fail ? 1 : 0);

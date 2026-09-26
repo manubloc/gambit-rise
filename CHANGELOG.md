@@ -1,5 +1,31 @@
 # Changelog - Gambit Rise
 
+## 1.80.0 - der Boden rueckt hoch, die Bauernleiter zeigt alle drei Bilder
+
+- Besitzer: "bei diesem Landingpage-Hintergrund, den du da jetzt gemacht
+  hast, das ist der richtige, aber du kannst ihn vielleicht ein bisschen
+  groesser machen, so dass man wirklich den helleren Teil des Schachbretts
+  auch hinter den Figuren noch eher sieht, oder du rueckst ihn allgemein nach
+  oben. Man darf halt nicht die Unterkante sehen."
+- GEMESSEN: der hellste Teil des Bodens liegt bei 56-64 % der Bildhoehe
+  (Zeilenhelligkeit von riss-01). Bei einem proportional skalierten Bild waere
+  er nur ueber einen Zoom von rund 280 % nach oben gewandert. Deshalb steht
+  der Grund jetzt in einem Kasten fester Hoehe mit object-fit cover -
+  genauso, wie die App ihn mit background-size cover zeichnet - und
+  object-position waehlt die Bildstelle. Unterkante bleibt ausserhalb.
+- BAUERNLEITER: pawnTier schaltete Bild 2 auf Stufe 3 und Bild 3 auf Stufe 5.
+  Die Stufen 5 bis 10 - die halbe Leiter - sahen damit alle gleich aus. Jetzt
+  derselbe Dreisatz, den der Gambit mit sechs Bildern ueber zwanzig Stufen
+  nimmt: 1-3 / 4-6 / 7-10. Sieben neue Proben halten das fest.
+- NEUES WERKZEUG tools/kopfbreite_angleichen.py: gleicht die Breite im oberen
+  Teil einer Figur an, mit weicher Rampe, die lange vor dem Sockel auf 1,0
+  ausgelaufen ist - unterhalb von 42 % der Figurenhoehe wird kein Pixel
+  angefasst. Interpoliert mit vormultipliziertem Alpha, sonst zieht die
+  Interpolation Schwarz aus den durchsichtigen Randpixeln in die Figur.
+  Gemessen: Gambit-Kopf 143,6 px, Bauer 124,1 px - 16 % Unterschied. Die
+  angeglichenen Bilder liegen dem Besitzer zur Ansicht vor und sind NOCH
+  NICHT eingebaut (Hausregel: Bilder erst zeigen).
+
 ## 1.79.0 - der richtige Menuegrund, echte Umlaute, zwoelf Kapitel
 
 - Besitzer: "du hast leider bloss hinter die Figuren den falschen Hintergrund
