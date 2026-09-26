@@ -19,8 +19,18 @@
 ## Landingpage
 - [ ] G1 Zugbilder der Faehigkeiten: Weitsprung verstaendlicher (Legende); Design 1:1 wie im Spiel (Rundungen, Abstaende)
 - [ ] G2 Galerie oben: die Figuren, die unten mit Zuegen vorgestellt werden; Gambit und Bauer weg, weniger Standardfiguren
-- [ ] G3 Fliesstext feiner (extra light), weniger Wechsel fett/normal
-- [ ] G4 "Sperren setzen" (Mauer-Bild) weg
-- [ ] G5 Spielarten (Kampagne, Online ...) weiter nach oben
-- [ ] G6 Erster Schirm bildschirmfuellend: Logo, darunter Figuren hintereinander (Koenig, Dame, Laeufer ...), unten weich auslaufend; Hintergrund = Menuehintergrund mit den Schachfeldern
+- [x] G3 Fliesstext feiner (extra light), weniger Wechsel fett/normal
+- [x] G4 "Sperren setzen" (Mauer-Bild) weg
+- [x] G5 Spielarten (Kampagne, Online ...) weiter nach oben
+- [x] G6 Erster Schirm bildschirmfuellend: Logo, darunter Figuren hintereinander (Koenig, Dame, Laeufer ...), unten weich auslaufend; Hintergrund = Menuehintergrund mit den Schachfeldern
 - [ ] G7 Weiter unten weitere Hintergruende aus dem Spiel verwenden
+
+## Nachtrag 26.9. (v1.78.0 / v1.79.0)
+- [x] G6 mit riss-01 als Grund (v1.79.0 - v1.78.0 hatte bg-hall genommen, falsch)
+- [x] Deutsche Spieltexte tragen Umlaute statt ae/oe/ue (48 Stellen)
+- [x] Texte sprechen von zwoelf Kapiteln, nicht elf (3 Stellen)
+- [x] App-Symbol nachgemessen: die Bilder sind in Ordnung, der weisse Kreis
+      kommt von einer alten Verknuepfung auf dem Startbildschirm
+- [ ] G1 Zugbilder 1:1 im Spieldesign + Legende zum Weitsprung
+- [ ] G2 Galerie oben mit den Figuren, die unten mit Zuegen vorgestellt werden
+- [ ] G7 Weitere Hintergruende aus dem Spiel weiter unten
