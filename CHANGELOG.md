@@ -1,5 +1,29 @@
 # Changelog - Gambit Rise
 
+## 1.84.0 - die Store-Bilder entstehen jetzt auf Knopfdruck
+
+- Besitzer: "das wäre das nächste große Ding auch, dass du mir ordentlich
+  Bilder generierst, ähnlich wie Screenshots als Tablet und Ding, dass ich das
+  alles parat habe für den Play Store."
+- ZWEI NEUE WERKZEUGE statt Handarbeit:
+  tools/playstore-schirme.mjs fotografiert die echte App (acht Motive, deutsch
+  und englisch), tools/playstore_gestell.py baut daraus die drei Play-Formate
+  mit Ueberschrift und Rahmen. 48 Bilder aus einem Lauf.
+- DIE SCHRIFT kommt aus public/fonts - dieselbe Cinzel, die die App traegt,
+  ueber fontTools aus der woff2 gewandelt.
+- VIER IRRWEGE, alle gemessen und im Werkzeug vermerkt: der Gast landet nicht
+  im Hub, sondern im Kapitel-Intro; der Aufgeben-Dialog heisst "⚑ Aufgeben",
+  nicht "Aufgeben & wechseln"; nach dem Aufgeben steht ein Ergebnisschirm ohne
+  Rueckweg (deshalb kommen die Bretter zuletzt, jedes in einem frischen
+  Durchlauf); und die Kampagne spielt in Kapitel I klassisch, weil die
+  Lebenspunkte erst ab Kapitel III wach sind.
+- OFFEN: ein Brett MIT Lebenspunkten braucht einen Spielstand ab Kapitel III.
+  Bis dahin nennt die Ueberschrift, was das Bild wirklich zeigt.
+- PLAYSTORE.md bekommt einen Abschnitt ZUM ABHAKEN: der IARC-Fragebogen Frage
+  fuer Frage und die Datensicherheit Feld fuer Feld, beides aus dem Code
+  erhoben. Dazu die Richtigstellung beim App-Zugriff: es gibt einen
+  Gastzugang, aber das Online-Duell braucht ein Konto.
+
 ## 1.83.0 - Gambit und Bauer angeglichen, die Pferde treten zurueck
 
 - Besitzer: "Der Kopf vom Gambit neu koennte noch minimal kleiner sein. Er ist

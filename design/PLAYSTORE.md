@@ -64,6 +64,81 @@ PNGs als verlustfreie Quelle.
   einer Überschrift je Bild.
 
 
+## ZUM ABHAKEN: Altersfreigabe und Datensicherheit (Stand 26.9.2026, v1.84.0)
+
+Beides sind reine Formulare in der Play Console. Hier steht jede Antwort,
+damit man nur noch klickt. Die Angaben sind aus dem Code erhoben, nicht
+geschaetzt — falsche Angaben bei der Datensicherheit sind der haeufigste
+Grund fuer eine Ablehnung.
+
+### A. Altersfreigabe (IARC)
+*Play Console → Richtlinien und Programme → Altersfreigabe → Fragebogen*
+
+| Frage | Antwort |
+|---|---|
+| E-Mail-Adresse | deine Entwickler-Adresse |
+| Kategorie | **Spiel** |
+| Gewalt: realistische Gewalt gegen Menschen/Tiere | **Nein** |
+| Gewalt: Fantasy-Gewalt (Fantasiewesen) | **Ja** — Schachfiguren und Bestien kaempfen, ohne Blut und ohne realistische Darstellung |
+| Blut, Verstuemmelung, Folter, Enthauptung | **Nein** (jeweils) |
+| Sexualitaet, Nacktheit | **Nein** |
+| Schimpfwoerter, grobe Sprache | **Nein** |
+| Drogen, Alkohol, Tabak | **Nein** |
+| Gluecksspiel (echt oder simuliert) | **Nein** — es gibt weder Wetten noch Lootboxen |
+| Angst, Horror | **Nein** |
+| In-App-Kaeufe | **Nein** (noch keine; kommen sie, ist der Bogen zu wiederholen) |
+| Nutzer koennen miteinander interagieren | **Ja** — Online-Duelle |
+| … freier Text-/Sprachchat | **Nein** — es gibt nur Zuege und Freundescodes, keinen Chat |
+| … Standort wird anderen Nutzern angezeigt | **Nein** |
+| … nutzergenerierte Inhalte werden geteilt | **Nein** |
+| Digitale Kaeufe / Waehrung mit Echtgeld | **Nein** |
+| Zielgruppe | **13 Jahre und aelter** |
+
+Danach: *Speichern → Weiter → Zusammenfassung bestaetigen → **Absenden***.
+Ohne das letzte Absenden bleibt der Bogen ein Entwurf. Erwartetes Ergebnis:
+USK 6 / PEGI 7 oder niedriger.
+
+### B. Datensicherheit
+*Play Console → Richtlinien und Programme → Datensicherheit*
+
+Einstieg, die vier Grundfragen:
+1. Erhebt oder teilt deine App Nutzerdaten? → **Ja**
+2. Werden alle Nutzerdaten bei der Uebertragung verschluesselt? → **Ja** (HTTPS/WSS)
+3. Koennen Nutzer die Loeschung ihrer Daten beantragen? → **Ja**, und zwar
+   **in der App**: Profil → Konto endgueltig loeschen (ruft `/vergiss` am
+   Spielserver auf und raeumt auch die Online-Halle)
+4. Wurden die Angaben von einem unabhaengigen Dritten geprueft? → **Nein**
+
+Dann die Datentypen. **Erhoben ja, geteilt nein** — bei jedem. „Geteilt"
+meint bei Google die Weitergabe an Dritte fuer deren eigene Zwecke; Supabase
+und Cloudflare verarbeiten in unserem Auftrag und zaehlen nicht dazu.
+
+| Play-Kategorie → Typ | Erhoben | Geteilt | Pflicht? | Zweck |
+|---|---|---|---|---|
+| Personenbezogene Daten → E-Mail-Adresse | ja | nein | optional (Gast spielt ohne Konto) | Kontoverwaltung |
+| Personenbezogene Daten → Name | ja | nein | optional | App-Funktionen |
+| Personenbezogene Daten → Nutzer-IDs | ja | nein | optional | Kontoverwaltung, App-Funktionen |
+| App-Aktivitaet → Sonstige Aktionen | ja | nein | optional | App-Funktionen (Spielstand in der Wolke, Rangliste, Zuege) |
+| App-Aktivitaet → Sonstige nutzergenerierte Inhalte | ja | nein | optional | Support (Feedbacktext) |
+| Fotos und Videos → Fotos | ja | nein | optional | Support (bis zu zwei Bilder im Feedback) |
+| App-Infos und Leistung → Absturzprotokolle | ja | nein | **erforderlich** | Analyse, App-Funktionen |
+| App-Infos und Leistung → Diagnose | ja | nein | **erforderlich** | Analyse (Spielversion, Browserkennung) |
+| Geraete- oder andere IDs | ja | nein | optional (nur wer Benachrichtigungen einschaltet) | App-Funktionen |
+
+**Nichts ankreuzen bei:** Standort, Finanzdaten, Gesundheit und Fitness,
+Nachrichten, Audio, Dateien und Dokumente, Kalender, Kontakte, Suchverlauf,
+Web-Browsing, Werbe-ID, Kaufverlauf.
+
+Zum Schluss: *Speichern → Weiter → Vorschau → **Senden***.
+
+### C. Zwei Angaben, die dazu passen muessen
+- **App-Zugriff**: Es gibt einen Gastzugang, aber das **Online-Duell braucht
+  ein Konto**. Also „Alle Funktionen sind eingeschraenkt" waehlen und dem
+  Pruefteam ein Konto hinterlegen (eigenes Konto anlegen, E-Mail und
+  Passwort eintragen, als Anweisung „Anmelden oder unten 'Als Gast spielen'").
+- **Werbung**: enthaelt **keine** Werbung.
+
+
 ## 1. Die Hülle bauen (einmalig, ~20 Minuten)
 
 Braucht Node (hast du) und einmalig das Android-SDK, das Bubblewrap selbst
@@ -229,11 +304,15 @@ abschaltbar sein? Dann wäre er „optional" und das Formular freundlicher.
 ### Fertig vorbereitet (liegt in design/playstore/, Stand v1.63.2)
 - icon-512.png - Store-Symbol, 512 x 512, randlos (Google rundet selbst)
 - feature-1024x500-de.png / -en.png - Feature-Grafik mit dem Blitz-Logo
-- de/ und en/ - je sieben Screenshots in drei Formaten, montiert aus echten
-  Aufnahmen; die App lief dabei in der jeweiligen Sprache:
+- de/ und en/ - je ACHT Screenshots in drei Formaten (v1.84.0 neu aufgenommen),
+  montiert aus echten Aufnahmen; die App lief dabei in der jeweiligen Sprache:
     handy-1080x1920-*, tablet7-1200x1920-*, tablet10-1600x2560-*
-  Reihenfolge: 1 Wolkenjoch (HP-Gefecht), 2 Kronland (eigenes Heer),
-  3 Hofstaat, 4 Faehigkeiten, 5 Aufstellung, 6 Welt, 7 Haendler.
+  Reihenfolge: 1 Figuren lernen dazu, 2 Klassisches Schach, 3 Hofstaat,
+  4 Figurenkarte, 5 Aufstellung, 6 Kapitelkarte, 7 Lager, 8 Halle.
+  Gebaut mit `node tools/playstore-schirme.mjs` (fotografiert die App) und
+  `python3 tools/playstore_gestell.py` (Ueberschrift, Rahmen, drei Formate).
+  VORHER `npm run build:app` laufen lassen - nach `npm run build` liegt in
+  dist/ die Landingpage, und das Werkzeug bricht mit einer Ansage ab.
 Alle als 24-Bit-PNG ohne Transparenz, Seitenverhaeltnis unter 2:1.
 In der Console: Store-Eintrag -> Hauptspeicher-Eintrag fuer Deutsch die
 Dateien aus de/, dann unter "Uebersetzungen verwalten" Englisch anlegen und
