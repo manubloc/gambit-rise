@@ -1,5 +1,21 @@
 # Changelog - Gambit Rise
 
+## 1.81.0 - die Play-Store-Grafik kommt aus denselben Teilen wie der erste Schirm
+
+- Besitzer: "vielleicht kannst du aus dem dann auch noch schon beispielhaft
+  ein Bild ableiten fuer den Google Play Store."
+- NEUES WERKZEUG tools/playstore_grafik.py baut die Feature-Grafik aus
+  Rissboden, Figurenreihe und Wortmarke - denselben drei Teilen, aus denen
+  der erste Schirm der Landingpage besteht. Damit erzaehlen Seite und Store
+  dieselbe Geschichte, und eine Aenderung an den Teilen zieht beide mit.
+- DIE ALTE GRAFIK trug noch die GEZEICHNETE Wortmarke (seit v1.77.0
+  abgeloest) und stellte den Text an den rechten Rand. Play beschneidet die
+  Grafik auf dem Handy stark - oft bleiben nur die mittleren rund 60 %, der
+  Text waere also weggefallen. Jetzt steht alles Wichtige in der Mitte.
+  Die alte liegt in archiv/ausgemustert/v1.81.0/.
+- Deutsch und Englisch sind gleich, weil die Grafik ausser der Wortmarke
+  keinen Text traegt.
+
 ## 1.80.0 - der Boden rueckt hoch, die Bauernleiter zeigt alle drei Bilder
 
 - Besitzer: "bei diesem Landingpage-Hintergrund, den du da jetzt gemacht
