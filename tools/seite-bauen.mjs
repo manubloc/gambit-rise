@@ -30,7 +30,7 @@ const SPIEL = join(DIST, "spielen");
 
 /* was die Landingpage an der Wurzel braucht */
 const AN_DIE_WURZEL = ["landing", "og.png", "og.jpg", "favicon.ico", "favicon.svg", "icons", "fonts",
-  "terms.html", "privacy.html", "site.webmanifest", "_routes.json", "impressum.html", "_headers", ".well-known", "robots.txt", "sitemap.xml"];
+  "terms.html", "privacy.html", "konto-loeschen.html", "site.webmanifest", "_routes.json", "impressum.html", "_headers", ".well-known", "robots.txt", "sitemap.xml"];
 
 if (!existsSync(join(DIST, "index.html"))) {
   console.error("dist/index.html fehlt - erst 'vite build' laufen lassen"); process.exit(1);

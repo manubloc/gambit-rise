@@ -101,13 +101,24 @@ USK 6 / PEGI 7 oder niedriger.
 ### B. Datensicherheit
 *Play Console → Richtlinien und Programme → Datensicherheit*
 
-Einstieg, die vier Grundfragen:
+Einstieg, die Grundfragen von Schritt 2 (**Stand 27.9.2026 am lebenden
+Formular abgeglichen** — Google hat den Bogen seit der letzten Fassung erweitert):
 1. Erhebt oder teilt deine App Nutzerdaten? → **Ja**
 2. Werden alle Nutzerdaten bei der Uebertragung verschluesselt? → **Ja** (HTTPS/WSS)
-3. Koennen Nutzer die Loeschung ihrer Daten beantragen? → **Ja**, und zwar
-   **in der App**: Profil → Konto endgueltig loeschen (ruft `/vergiss` am
-   Spielserver auf und raeumt auch die Online-Halle)
-4. Wurden die Angaben von einem unabhaengigen Dritten geprueft? → **Nein**
+3. **NEU: Welche Methoden zur Kontoerstellung unterstuetzt die App?** →
+   **Nutzername und Passwort** *und* **OAuth**. Beides am Code belegt:
+   `signUpEmailCloud`/`signInWithPassword` und `signInWithOAuth` (Google) in
+   `src/meta/cloudAuth.js`. NICHT „Nutzer koennen kein Konto erstellen“.
+4. **NEU: Link zum Loeschen des Kontos** →
+   `https://gambitrise.com/konto-loeschen.html` — eigene Seite seit v1.89.6
+   (`public/konto-loeschen.html`). Google verlangt dort die Schritte, die
+   geloeschten Daten und die Aufbewahrungsfristen; eine tiefe Stelle in der
+   langen `privacy.html` genuegt dafuer erfahrungsgemaess nicht.
+   **Achtung:** die Seite steht in `AN_DIE_WURZEL` in `tools/seite-bauen.mjs` —
+   ohne diesen Eintrag landet sie nur unter `/spielen/` (dieselbe Falle wie bei
+   `version.json`).
+5. Zusatzfrage „Daten loeschen ohne Kontoloeschung?“ (optional) → leer gelassen.
+6. Wurden die Angaben von einem unabhaengigen Dritten geprueft? → **Nein**
 
 Dann die Datentypen. **Erhoben ja, geteilt nein** — bei jedem. „Geteilt"
 meint bei Google die Weitergabe an Dritte fuer deren eigene Zwecke; Supabase
@@ -147,6 +158,30 @@ Werbe-ID, Kaufverlauf.
 > Eine falsche Angabe in der Datensicherheit ist ein Ablehnungsgrund und
 > spaeter ein Sperrgrund. Wer den Standort nicht angeben will, muss ihn erst
 > aus dem Worker nehmen — dann stimmt die alte Fassung wieder.
+
+**Schritt 4 „Datennutzung und Umgang mit Daten“** oeffnet je Datentyp ein
+eigenes Fenster. Ueberall gleich: **Erhoben** ja, **Geteilt** nein,
+**sitzungsspezifisch: Nein** (die Daten werden gespeichert). Zweck und
+Pflichtangabe je Zeile:
+
+| Datentyp | Pflicht? | Zweck |
+|---|---|---|
+| Ungefaehrer Standort | Nutzer koennen entscheiden | Analyse, Betrugspraevention |
+| Name | Nutzer koennen entscheiden | Funktionen der App |
+| E-Mail-Adresse | Nutzer koennen entscheiden | Kontoverwaltung |
+| Nutzer-IDs | Nutzer koennen entscheiden | Kontoverwaltung, Funktionen der App |
+| Fotos | Nutzer koennen entscheiden | Funktionen der App |
+| Andere von Nutzern erstellte Inhalte | Nutzer koennen entscheiden | Funktionen der App |
+| Andere Aktionen | Nutzer koennen entscheiden | Funktionen der App |
+| Absturzprotokolle | erforderlich | Analyse |
+| Diagnosedaten | erforderlich | Analyse |
+| Geraete- oder andere IDs | Nutzer koennen entscheiden | Funktionen der App, Betrugspraevention |
+
+Zwei Abweichungen von der Tabelle weiter oben, bewusst: beim **Standort** nennt
+Google keinen Zweck „App-Funktionen“, der zutraefe — Land/Region/Stadt landen
+allein im Spielerbuch und in der Laenderstatistik, das ist **Analyse**. Fuer
+**Fotos** und den **Feedbacktext** gibt es keinen Zweck „Support“; dort passt
+**Funktionen der App**.
 
 Zum Schluss: *Speichern → Weiter → Vorschau → **Senden***.
 

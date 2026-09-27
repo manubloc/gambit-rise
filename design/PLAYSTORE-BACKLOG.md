@@ -38,10 +38,9 @@
 
 ## Offen — in dieser Reihenfolge
 
-- [ ] **S1 Altersfreigabe absenden.** Der Fragebogen ist ausgefüllt; es fehlt
-  nur *Speichern → Weiter → Zusammenfassung bestätigen → Absenden*. Ohne das
-  letzte Absenden bleibt alles Entwurf. Erwartet: USK 6 / PEGI 7 oder
-  niedriger. Antworten zum Abgleichen: `PLAYSTORE.md`, Abschnitt „ZUM ABHAKEN".
+- [x] **S1 Altersfreigabe absenden.** — **erledigt.** Am 27.9. abends in der
+  Console nachgesehen: „Einstufung des Inhalts" trägt im Dashboard den Haken,
+  der Bogen ist also abgesendet und kein Entwurf mehr.
 
 - [ ] **S2 Datensicherheit eintragen.** Bogen in `PLAYSTORE.md`.
   **⚠ Der Bogen wurde am 26.9. berichtigt — bitte die berichtigte Fassung
@@ -55,6 +54,13 @@
   Dass nur der Besitzer es sieht, ändert nichts — gefragt ist, ob Daten
   *erhoben* werden. Eine falsche Angabe ist Ablehnungs- und später Sperrgrund.
   *Falls der Bogen schon abgesendet wurde: nachtragen.*
+
+  **Stand 27.9. abends:** Schritt 1–3 ausgefüllt und als Entwurf gespeichert
+  (Erhebung ja, Verschlüsselung ja, Kontowege Passwort + OAuth, Lösch-Link,
+  alle zehn Datentypen). Offen ist Schritt 4 (zehn Fenster je Datentyp) und
+  das Absenden. Google hat den Bogen erweitert — die **zwei neuen Fragen**
+  (Methoden der Kontoerstellung, Link zum Löschen des Kontos) stehen jetzt mit
+  Antwort in `PLAYSTORE.md`.
 
 - [ ] **S3 Grafiken hochladen.** *Store-Präsenz → Hauptspeicher-Eintrag* für
   Deutsch die Dateien aus `design/playstore/de/`, dann unter „Übersetzungen
@@ -93,6 +99,13 @@
   Google meist einige Tage. Danach funktioniert der Link, auf den das
   Play-Abzeichen der Landingpage schon zeigt.
 
+- [ ] **S15 Löschseite live prüfen.** Seit v1.89.6 gibt es
+  `https://gambitrise.com/konto-loeschen.html` (Quelle `public/konto-loeschen.html`,
+  verlinkt aus Landingpage-Fußzeile, `privacy.html` und Sitemap). Sie ist die
+  Adresse im Datensicherheits-Bogen. Nach dem Deploy einmal aufrufen — liefert
+  sie die Landingpage statt der Seite, fehlt der Eintrag in `AN_DIE_WURZEL`
+  (`tools/seite-bauen.mjs`).
+
 ## Nebenher, unabhängig von der Einreichung
 
 - [ ] **S10 Search Console:** Adressänderung `grandgambit.win` →
@@ -107,6 +120,9 @@
   `tools/playstore-schirme.mjs` hält das fest.
 - [ ] **S13 Monsterbilder freistellen** — der Besitzer nennt die Nummern
   („lassen wir erstmal, kann man nachziehen").
+  Voraussetzung: **beide** Domains müssen als Property bestätigt sein, sonst
+  bietet die Console das Werkzeug nicht an. Danach `sitemap.xml` für
+  gambitrise.com einreichen (sie führt seit v1.89.6 auch `konto-loeschen.html`).
 
 ## Eine Entscheidung, die noch aussteht
 

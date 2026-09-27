@@ -1,5 +1,40 @@
 # Changelog - Gambit Rise
 
+## 1.89.6 - eine eigene Seite zum Konto loeschen, weil der Play-Bogen sie verlangt
+
+Beim Ausfuellen des Datensicherheits-Bogens in der Play Console (27.9. abends)
+kamen zwei Fragen, die der Antwortbogen in design/PLAYSTORE.md noch nicht kannte
+- Google hat das Formular seit der letzten Fassung erweitert:
+
+- METHODEN DER KONTOERSTELLUNG: "Nutzername und Passwort" UND "OAuth". Am Code
+  belegt (src/meta/cloudAuth.js: signUpEmailCloud/signInWithPassword und
+  signInWithOAuth fuer Google).
+- LINK ZUM LOESCHEN DES KONTOS: Google will eine oeffentliche Adresse, die die
+  Schritte zeigt, die geloeschten Daten benennt und die Aufbewahrungsfristen
+  nennt. Der Knopf in der App genuegt dafuer nicht - der Bogen nimmt nur eine
+  URL. Eine tiefe Stelle in der langen privacy.html ist erfahrungsgemaess ein
+  Ablehnungsgrund, deshalb jetzt public/konto-loeschen.html: beide Wege (App und
+  E-Mail) Schritt fuer Schritt mit den ECHTEN Knopfbeschriftungen aus
+  strings.js ("Konto endgueltig loeschen ...", dann "Endgueltig loeschen"),
+  Tabelle was faellt, Liste was wie lange bleibt, dazu eine englische Fassung.
+  Das Passwortfeld erscheint NUR bei Konten mit eigenem Passwort
+  (ProfileScreen.jsx: brauchtPass = account.provider === "local") - bei
+  Google-Anmeldung entfaellt es. Das steht so auf der Seite.
+
+- DIE SEITE MUSSTE IN AN_DIE_WURZEL (tools/seite-bauen.mjs). Ohne den Eintrag
+  waere sie nur unter /spielen/konto-loeschen.html gelandet und die Wurzel haette
+  die Landingpage geliefert - genau die Falle, die heute frueh schon
+  version.json getroffen hat. Verlinkt aus der Landingpage-Fusszeile (nav hat
+  flex-wrap, der vierte Link bricht auf dem Handy um), aus privacy.html
+  (Kopfzeile, Abschnitt 3, Fusszeile) und in sitemap.xml.
+
+- Blaetter nachgezogen: PLAYSTORE.md hat die zwei neuen Fragen mit Antwort und
+  die Zwecktabelle fuer Schritt 4; PLAYSTORE-BACKLOG.md hakt S1
+  (Altersfreigabe, in der Console als abgesendet bestaetigt) ab, haelt den Stand
+  von S2 fest und legt S15 an (Loeschseite nach dem Deploy live pruefen).
+
+Kein Spielcode geaendert.
+
 ## 1.89.5 - nach dem Meister ging es nie weiter, und die Aufstiegsfeier gab es nie
 
 Zwei Funde des Spieltests vom 27.9. (Werkstatt, Playwright gegen den Bau,
