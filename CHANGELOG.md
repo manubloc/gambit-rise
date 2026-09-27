@@ -1,5 +1,48 @@
 # Changelog - Gambit Rise
 
+## 1.87.0 - die Landingpage nach dem Blick des Besitzers
+
+- Besitzer (27.9.): "zwoelf Laender, zwoelf Stimmungen, das ist einfach
+  weglassen ... bei den Figuren die lilanen Hintergruende weg ... bei diesem
+  Schachbrett die Kontur weg, dass man nur das Schachbrett sieht ... der
+  Sockel immer grau oder schwarz, aber nicht die einen schwarz und das andere
+  grau ... beim Weitsprung zeichne bitte auch den normalen Zug ein ... beim
+  Turm hast du sie richtig eingezeichnet ... im Hintergrund noch mehrere
+  Figuren: Paladin, Waechter, Erzbischof, Amazone, Kapitaen und Kanzler, wie
+  so eine Crowd dahinter, so dass man die Gesichter sieht."
+- LAENDERBAND FORT: der Abschnitt "Zwoelf Laender, zwoelf Stimmungen" aus
+  v1.85.0 ist gestrichen; die sechs Bilder liegen in
+  archiv/ausgemustert/v1.87.0/.
+- DIE BRETTER (das Gefechtsbrett und die zwei unter "Jedes Land sein eigenes
+  Brett"). URSACHE der lila Felder und der ungleichen Sockel: es waren echte
+  Aufnahmen aus dem Spiel, und das Spiel zeigt die Gegnerreihen violett und
+  traegt seit v1.0.83 die Sockelglut schwarz/weiss ohne Wahl - aus dem Spiel
+  kommt kein Bild ohne beides. Darum setzt tools/landing_bilder.py die
+  Bretter neu zusammen: die leeren Felder aus der alten Aufnahme (gemessen:
+  8 x 144 px, Kronland ab y=124, Wolkenjoch ab y=92), die Figuren aus painted/
+  mit ihrem eigenen grauen Sockel (Kasten 228 px aus dem gemessenen
+  Gegnerkoenig), beschnitten auf die Feldkante. Rahmen, Rundung und
+  Leuchtkontur um die Bretter sind weg. Die alten Aufnahmen liegen im Archiv.
+- DIE ZUGBILDER. GEMESSEN war nicht das Bild unvollstaendig, sondern die
+  Legende verkehrt: die Bilder trugen die Farben des Spiels (Blau = Gleiten,
+  Gelb = Sprung, Talentfarbe = neu), die Legende darunter sagte "Blau =
+  gewohnt, Gelb = neu". Beim Turm stimmte das zufaellig (er gleitet), beim
+  Springer stand sein L als "neu" und der Weitsprung als "gewohnt" - genau der
+  Eindruck, den der Besitzer beschreibt. Alle vier Bilder sprechen jetzt die
+  Sprache des Turmbilds: Blau der gewohnte Zug, Gruen was die Faehigkeit
+  hinzugibt; die Kacheln sind aus dem alten Turmbild abgetastet, damit Stil
+  und Geometrie gleich bleiben. Legende und Satz angepasst - und "vier weitere
+  Ziele" war falsch, LONG_LEAPS hat acht Eintraege.
+- DIE CROWD: eine zweite Figurenreihe hinter der ersten (hoeher, kleiner,
+  dunkler - Kanzler, Amazone, Paladin, Erzbischof, Schildtraeger/"Waechter",
+  Kapitaen), gebaut wie die held-*.webp aus v1.78.0. Gemessen bei 390, 820 und
+  1440 px: der Koenig vorn reicht bis 0,80 fh ueber die Fensterkante, die
+  hinteren Gesichter beginnen bei 0,86 fh - keines steckt hinter einer Krone.
+  Auf dem Handy stehen vier der sechs.
+- NICHT angefasst, weil nicht bestellt (steht im Audit): die Weltkarte im
+  Abschnitt "Die Welt" fuellt auf breiten Schirmen nur die linke Haelfte ihres
+  Rahmens.
+
 ## 1.86.0 - die Proben sehen jetzt, was ausgeliefert wird
 
 - Besitzer: "arbeite alle offenen Punkte in dem Projekt ausserhalb von dem

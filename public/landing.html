@@ -141,6 +141,16 @@
       filter:brightness(var(--b,1)) drop-shadow(0 12px 26px rgba(0,0,0,.8)); }
     @media (max-width:900px){ .hofreihe img.rand { display:none; } }
     @media (max-width:560px){ .hofreihe img.rand2 { display:none; } .hofreihe { --ue:.134; } }
+    /* v1.87.0 (Besitzer: "im Hintergrund noch mehrere Figuren ... den Paladin,
+       den Waechter, den Erzbischof, die Amazone, Kapitaen und Kanzler ... wie
+       so eine Crowd dahinter stehen, so dass man die Gesichter sieht"): eine
+       ZWEITE REIHE hinter der ersten. Sie steht hoeher (bottom), kleiner (--h)
+       und dunkler (--b), also weiter hinten; ihre Koepfe schauen ueber die
+       Schultern der vorderen Reihe. Gemessen: der Koenig vorn reicht bis
+       0,80 fh ueber die Fensterkante, die hinteren Gesichter beginnen bei
+       0,86 fh - kein Gesicht steckt hinter einer Krone. */
+    .hofreihe.hinten { bottom:calc(var(--fh) * .30); z-index:1; --ue:.05; }
+    @media (max-width:560px){ .hofreihe.hinten { --ue:.11; } }
     /* v1.82.0: der Abdunkler bleibt, faellt aber flacher aus - er soll den
        Uebergang zum naechsten Abschnitt tragen, nicht die Beine schlucken. */
     .buehne::after { content:""; position:absolute; left:0; right:0; bottom:0; height:56px;
@@ -296,13 +306,11 @@
     .chip { font-size:11px; font-weight:700; letter-spacing:.03em; padding:4px 10px; border-radius:999px;
       border:1px solid rgba(201,164,92,.4); color:var(--goldhell); background:rgba(201,164,92,.08); }
     .chip.violett { border-color:rgba(167,139,250,.45); color:#cdbcf7; background:rgba(124,58,237,.12); }
-    .laender { display:grid; gap:10px; grid-template-columns:repeat(2,1fr); margin-top:6px; }
-    @media (min-width:700px){ .laender { grid-template-columns:repeat(3,1fr); } }
-    .laender figure { margin:0; }
-    .laender img { width:100%; height:auto; display:block; border-radius:12px;
-      border:1px solid rgba(167,139,250,.3); box-shadow:0 8px 22px rgba(0,0,0,.5); }
-    .laender figcaption { margin-top:6px; text-align:center; font-size:12.5px; color:rgba(226,218,246,.8); }
-    .laender figcaption i { font-style:normal; color:var(--gold); margin-left:5px; letter-spacing:.08em; }
+    /* v1.87.0 (Besitzer: "die lilanen Hintergruende weg ... die Kontur weg,
+       dass man nur das Schachbrett sieht"): das Gefechtsbrett steht ohne
+       Rahmen, ohne Leuchtkontur und ohne Rundung - nur das Brett. */
+    .brettbild { max-width:560px; margin:0 auto; }
+    .brettbild img { width:100%; height:auto; display:block; }
     .weltrahmen { border:1px solid rgba(167,139,250,.55); border-radius:16px; overflow:hidden;
       box-shadow:0 14px 44px rgba(0,0,0,.55), 0 0 16px rgba(124,58,237,.25); }
     footer { border-top:1px solid var(--line); background:var(--night); padding:34px 18px 44px;
@@ -348,6 +356,15 @@
        Reihenfolge ist die Tiefe: die Zahl in --z sagt, wer vor wem steht, --b
        dunkelt die hinteren ab. Am Rand verschwinden Figuren auf schmalen
        Geraeten (Klassen rand/rand2), damit die Reihe nie beschnitten wirkt. -->
+  <!-- v1.87.0: die Crowd dahinter - sechs Menschen des Hofstaats, keine Bestie -->
+  <div class="hofreihe hinten" aria-hidden="true">
+    <img class="rand2" src="/landing/held-chancellor.webp" alt="" style="--h:.66;--z:1;--b:.40;--y:.03" loading="eager" />
+    <img               src="/landing/held-amazon.webp"     alt="" style="--h:.70;--z:2;--b:.46;--y:.07" loading="eager" />
+    <img               src="/landing/held-paladin.webp"    alt="" style="--h:.74;--z:3;--b:.52;--y:0"   loading="eager" />
+    <img               src="/landing/held-archbishop.webp" alt="" style="--h:.72;--z:3;--b:.52;--y:.05" loading="eager" />
+    <img               src="/landing/held-guardian.webp"   alt="" style="--h:.70;--z:2;--b:.46;--y:.02" loading="eager" />
+    <img class="rand2" src="/landing/held-captain.webp"    alt="" style="--h:.66;--z:1;--b:.40;--y:.06" loading="eager" />
+  </div>
   <div class="hofreihe" aria-hidden="true">
     <img class="rand"  src="/landing/held-pawn.webp"   alt="" style="--h:.54;--z:1;--b:.38;--y:.11"  loading="eager" />
     <img class="rand2" src="/landing/held-rook.webp"   alt="" style="--h:.70;--z:2;--b:.54;--y:.082" loading="eager" />
@@ -489,14 +506,22 @@
       <!-- v1.85.0 (Besitzer G1: "Zugbilder der Faehigkeiten: Weitsprung
            verstaendlicher (Legende)"): ohne Legende waren die Farben nicht zu
            deuten - man sah bunte Kaestchen und wusste nicht, was sie heissen.
-           Die Farben sind dieselben wie im Spiel (.z.f / .z.s / .z.l). -->
+           v1.87.0 (Besitzer: "beim Weitsprung zeichne bitte auch den normalen
+           Zug ein ... beim Turm hast du sie richtig eingezeichnet"): GEMESSEN
+           war die Legende verkehrt herum zu den Bildern. Die Bilder trugen die
+           Farben des Spiels (Blau = Gleiten, Gelb = Sprung, Talentfarbe = neu);
+           das L des Springers stand damit in Gelb, das die Legende "neu"
+           nannte, und der Weitsprung in Blau, das sie "gewohnt" nannte. Jetzt
+           sprechen alle vier Bilder die Sprache des Turmbildes: Blau der
+           gewohnte Zug, Gruen was die Faehigkeit hinzugibt
+           (tools/landing_bilder.py). -->
       <ul class="zuglegende sans">
         <li><span class="z f"></span>die Figur selbst</li>
         <li><span class="z s"></span>ihr gewohnter Zug</li>
-        <li><span class="z l"></span>neu durch die Fähigkeit</li>
+        <li><span class="z g"></span>neu durch die Fähigkeit</li>
       </ul>
-      <p class="unterzeile sans" style="text-align:left">Der <b>Weitsprung</b> etwa gibt dem Springer vier
-        weitere Ziele über das L hinaus — im Bild die gelben Felder.</p>
+      <p class="unterzeile sans" style="text-align:left">Der <b>Weitsprung</b> etwa gibt dem Springer acht
+        weitere Ziele über das L hinaus — im Bild die grünen Felder, das L bleibt blau.</p>
     </div>
   </div>
 </section>
@@ -508,7 +533,10 @@
     <p class="h2u sans">Kapitän statt Turm, Späher statt Springer, eine Bestie aus dem Riss auf dem freien Platz —
       jede Partie beginnt mit deiner Aufstellung. Besiegte Monster lassen sich mit Gold und einem Opfer aus
       deinem Hofstaat anwerben, und wer ein Kapitel gewinnt, holt dessen Meister an den Platz der Dame.</p>
-    <div class="bildrahmen leuchtkontur"><img src="/landing/gefecht-gemischt.webp"
+    <!-- v1.87.0 (Besitzer): kein Rahmen, keine Leuchtkontur. Das Bild selbst
+         ist neu zusammengesetzt (tools/landing_bilder.py): ohne die violetten
+         Gegnerfelder und ohne die Sockelglut - alle Sockel gleich grau. -->
+    <div class="brettbild"><img src="/landing/gefecht-gemischt.webp" width="1152" height="1236"
       alt="Ein Gefecht in Gambit Rise: die eigene Reihe mit Kapitän, Späher, Magier, Dame, König, Paladin, dem Wächter und einem Turm" loading="lazy" /></div>
   </div>
 </section>
@@ -554,25 +582,18 @@
       alt="Die Karte eines Kapitels: ein Pfad durch den Eichwald mit Stationen wie Erstes Rot, Halle der zwei Schwüre und Bernsteinaltar" loading="lazy" /></div>
     <!-- v1.62.0 (Besitzer: "Kapitel I zeigen ... und vielleicht noch ein anderes
          von den Bergen, ein helles - dass man Varianz reinbringt") -->
-    <!-- v1.85.0 (Besitzer G7: "weiter unten weitere Hintergruende aus dem
-         Spiel verwenden"): die echten Kapitel-Hintergruende aus public/brett,
-         quer zugeschnitten. Sechs von zwoelf - genug fuer den Eindruck, ohne
-         die Reise vorwegzunehmen. -->
-    <h3 class="sans" style="text-align:center;margin:34px 0 6px;font-size:19px">Zwölf Länder, zwölf Stimmungen</h3>
-    <div class="laender">
-      <figure><img src="/landing/land-kronland.webp" alt="Das Kronland" loading="lazy" /><figcaption class="sans">Kronland <i>I</i></figcaption></figure>
-      <figure><img src="/landing/land-eichwald.webp" alt="Der Eichwald" loading="lazy" /><figcaption class="sans">Eichwald <i>III</i></figcaption></figure>
-      <figure><img src="/landing/land-grauwacht.webp" alt="Die Grauwacht" loading="lazy" /><figcaption class="sans">Grauwacht <i>V</i></figcaption></figure>
-      <figure><img src="/landing/land-wolkenjoch.webp" alt="Das Wolkenjoch" loading="lazy" /><figcaption class="sans">Wolkenjoch <i>VI</i></figcaption></figure>
-      <figure><img src="/landing/land-aschgrund.webp" alt="Der Aschgrund" loading="lazy" /><figcaption class="sans">Aschgrund <i>VIII</i></figcaption></figure>
-      <figure><img src="/landing/land-kueste.webp" alt="Die Küste" loading="lazy" /><figcaption class="sans">Die Küste <i>XI</i></figcaption></figure>
-    </div>
-
+    <!-- v1.87.0 (Besitzer: "zwoelf Laender, zwoelf Stimmungen, das ist einfach
+         weglassen"): das Laenderband aus v1.85.0 (sechs quer geschnittene
+         Kapitel-Hintergruende) ist fort; die Bilder liegen in
+         archiv/ausgemustert/v1.87.0/. -->
     <h3 class="sans" style="text-align:center;margin:34px 0 6px;font-size:19px">Jedes Land sein eigenes Brett</h3>
+    <!-- v1.87.0 (Besitzer): beide Bretter wie das Gefechtsbrett oben - ohne
+         Rahmen und Leuchtkontur, ohne violette Gegnerreihen, alle Sockel
+         gleich grau (tools/landing_bilder.py). -->
     <div class="paar">
-      <figure><div class="bildrahmen"><img src="/landing/gefecht-gemischt.webp" alt="Das Brett im Kronland, Kapitel I" loading="lazy" /></div>
+      <figure><div class="brettbild"><img src="/landing/gefecht-gemischt.webp" width="1152" height="1236" alt="Das Brett im Kronland, Kapitel I" loading="lazy" /></div>
         <figcaption class="sans" style="text-align:center"><b>Kronland</b> — Kapitel I</figcaption></figure>
-      <figure><div class="bildrahmen leuchtkontur"><img src="/landing/brett-wolkenjoch.webp" alt="Das eisblaue Brett im Wolkenjoch, Kapitel VI" loading="lazy" /></div>
+      <figure><div class="brettbild"><img src="/landing/brett-wolkenjoch.webp" width="1152" height="1236" alt="Das eisblaue Brett im Wolkenjoch, Kapitel VI" loading="lazy" /></div>
         <figcaption class="sans" style="text-align:center"><b>Wolkenjoch</b> — Kapitel VI</figcaption></figure>
     </div>
   </div>
