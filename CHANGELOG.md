@@ -1,5 +1,26 @@
 # Changelog - Gambit Rise
 
+## 1.89.2 - die Hofreihe auf dem Handy: Springer sichtbar, Tuerme dabei
+
+Besitzer (Handy-Foto der Landingpage): "mach die Pferde etwas besser
+sichtbar und den Turm noch rein ... dass rechts und links die Laeufer gerade
+noch drauf passen ... entzerren minimal". Alpha-genau gemessen (390 und 430
+px, echte Figurenbilder in z-Reihenfolge uebereinandergelegt):
+
+- URSACHE, warum die Springer verschwanden: die Inline-Werte der Reihe
+  (--h/--y/--b je Figur) ueberstimmen jede Media-Query - auf dem Handy
+  liessen sich Springer nie eigens groesser oder hoeher stellen. Jetzt gibt es
+  Handy-Werte (--hs/--ys/--bs), die nur unter 560 px greifen.
+- SPRINGER: 23 % sichtbar -> 48-50 % (groesser, hoeher, etwas weniger
+  Ueberlappung: --ue .134 -> .13, Reihe 29 statt 30 svh hoch).
+- TUERME: auf dem Handy waren sie ausgeblendet (rand2). Jetzt stehen sie als
+  Randfiguren der hinteren Reihe (51/45 % sichtbar), ueber den Schultern der
+  Laeufer; ab 561 px unveraendert vorn wie bisher.
+- LAEUFER bleiben ganz im Bild (100/96 %); die Reihe reicht bei 390 px von
+  -12 bis 402 px. Die hintere Reihe steht etwas hoeher (.36 statt .30),
+  sonst haetten die groesseren Springer Amazone und Waechter verdeckt
+  (gemessen 6-15 % statt 33-46 %).
+
 ## 1.89.1 - der Scharfschuss der Sonderfiguren, den es nie gab
 
 Der Besitzer wollte die Zugvarianten jeder Faehigkeit "sauber dargestellt
