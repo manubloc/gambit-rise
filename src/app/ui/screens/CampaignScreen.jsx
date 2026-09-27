@@ -120,6 +120,17 @@ const labelTint = (league) => LABEL_TINT[((Math.max(1, league) - 1) % 12) + 1] |
 export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTree }) {
   const en = profile.lang === "en";
   const league = profile.campaign?.league || 1;
+  /* v1.89.5 (Spieltest 27.9., P10 - gemessen): das Tor zum naechsten Kapitel
+     hing an nodeStatus(profile, "n22"). "n22" war die Kennung des Finales im
+     alten 51-Knoten-Graphen; im Zwoelf-Kapitel-Graphen gibt es sie nicht,
+     nodeStatus lieferte "hidden", und der Knopf mit advanceLeague wurde NIE
+     gerendert - nach dem Meister ging es nicht weiter. Jetzt zaehlt das
+     Finale des laufenden Kapitels (Flag `final`), dasselbe Kriterium, das
+     advanceLeague selbst prueft. Alle uebrigen "n22"-Stellen (Glyphe, Freund-
+     schaftskampf am Meister, Mischen der Meister-Reihe) haengen ebenfalls am
+     Flag. */
+  const finaleId = CAMPAIGN.find((n) => n.final && nodeInLeague(n, league))?.id || null;
+  const finaleGeschafft = !!finaleId && nodeStatus(profile, finaleId) === "cleared";
   /* v0.98: DER EINSTIEG. Betritt man ein Kapitel zum ERSTEN Mal, geht sein
      Land vollflaechig auf, mit einem Wort dazu; ein Druck fuehrt auf die
      Karte. Danach nie wieder - gemerkt wird das im Profil, damit der
@@ -261,7 +272,7 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
   // duel is yet to be won, or your OWN recruited champion holds the post —
   // then every rematch is a friendly (a little gold & XP). Fled champions
   // and slain monsters close their station for this league.
-  const friendly = status === "cleared" && ((!!unlockCh && known) || sel === "n22");
+  const friendly = status === "cleared" && ((!!unlockCh && known) || !!nodeById(sel)?.final);
   const closed = status === "cleared" && !friendly && profile.pausedMatch?.nodeId !== sel;
   const unlockedSet = useMemo(() => new Set(profile.campaign?.unlocked || []), [profile]);
   // who has actually been FACED on a board — a piece by its kind, a monster by
@@ -632,7 +643,7 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
                   if (!spec) return null;
                   const faced = viewing || facedNode(n);
                   if (!faced) return null;           // not yet fought: the post stands empty
-                  const finale = n.id === "n22";
+                  const finale = !!n.final;
                   /* v1.1.9 (Besitzer: "die Figuren, die man auf den Maps sieht, da
                      wuerde ich dich bitten, die noch ein bisschen groesser zu machen -
                      die sind zu klein, die sollten schon auch die Groesse haben wie der
@@ -652,7 +663,7 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
                   // beaten figures leave the map — UNLESS the champion joined
                   // your court: a recruit keeps his post in gold, ready for a
                   // friendly duel; the fled and the slain are gone
-                  const joinedHere = n.id === "n22" || (!!n.boss.piece && unlockedSet.has(n.boss.piece));
+                  const joinedHere = !!n.final || (!!n.boss.piece && unlockedSet.has(n.boss.piece));
                   if (beaten && !flee && !joinedHere) return null;
                   const painting = paintedForPiece({ kind: spec.kind, art: spec.art, bossId: spec.bossId });
                   return <div aria-hidden style={{ position: "absolute", left: "50%", bottom: 2,
@@ -676,7 +687,7 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
                 {!bm && <div aria-hidden style={{ position: "absolute", left: "50%", bottom: 24, transform: "translateX(-26%)",
                   zIndex: 0, pointerEvents: "none", opacity: st === "locked" ? 0.42 : 0.94,
                   filter: st === "locked" ? "grayscale(.6)" : "none" }}>
-                  <SiteGlyph type={siteTypeFor(n)} width={n.id === "n22" ? 54 : 44} />
+                  <SiteGlyph type={siteTypeFor(n)} width={n.final ? 54 : 44} />
                 </div>}
                 <button onClick={() => { try { klang("karteStation"); } catch {} setSel(n.id); setPanelOpen(true); if (!viewing) walkTo(n.id); }}
                   style={{ width: HIT, height: HIT, background: "none", border: "none", padding: 0, cursor: "pointer",
@@ -688,7 +699,7 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
                     const glow = st === "cleared" ? "#b8c98a" : st === "gated" ? "#d9a45c" : st === "locked" ? "#8a8474" : "#f2d98c";
                     const on = isCur || isSel;
                     return <div aria-hidden style={{ position: "absolute", left: "50%", bottom: -4, transform: "translateX(-50%)",
-                      width: (MEDAL + 10) * (n.id === "n22" ? 2 : 1.55), height: (MEDAL + 10) * (n.id === "n22" ? 1 : 0.8),
+                      width: (MEDAL + 10) * (n.final ? 2 : 1.55), height: (MEDAL + 10) * (n.final ? 1 : 0.8),
                       borderRadius: "50%", pointerEvents: "none",
                       background: `radial-gradient(ellipse at center, ${glow}${on ? "b8" : st === "locked" ? "2e" : "70"} 0%, ${glow}${on ? "66" : "30"} 45%, transparent 72%)`,
                       animation: isCur ? "ggPulse 2.2s ease-in-out infinite" : "none", willChange: isCur ? "transform, opacity" : "auto",
@@ -942,7 +953,7 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
             statt des Tores eine Tafel - sie sagt, was fehlt, und nicht
             einfach nichts (ein Knopf, der nichts tut, ist die schlechteste
             aller Antworten). */}
-        {!viewing && nodeStatus(profile, "n22") === "cleared" && hinterSchranke(profile, league + 1) && (
+        {!viewing && finaleGeschafft && hinterSchranke(profile, league + 1) && (
           <div style={{ pointerEvents: "auto", padding: "8px 13px", borderRadius: 999,
             background: "rgba(8, 11, 20, .62)", border: "1px solid rgba(233, 210, 150, .42)",
             backdropFilter: "blur(10px) saturate(1.1)", WebkitBackdropFilter: "blur(10px) saturate(1.1)",
@@ -952,7 +963,7 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
               {t("camp.schrankeSub")}</div>
           </div>
         )}
-        {!viewing && nodeStatus(profile, "n22") === "cleared" && !hinterSchranke(profile, league + 1) && (
+        {!viewing && finaleGeschafft && !hinterSchranke(profile, league + 1) && (
           <button onClick={() => dispatch({ type: "REPLACE", profile: advanceLeague(profile) })} title={t("camp.advance", { r: ROMAN[league] || league + 1 })}
             style={{ pointerEvents: "auto", cursor: "pointer", width: 40, height: 40, borderRadius: "50%",
               display: "grid", placeItems: "center", background: "rgba(8, 11, 20, .48)",
@@ -1347,7 +1358,7 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
           {/* the aftermath, told on the spot: joined the retinue, fled again (with tally), or simply done */}
           {status === "cleared" && (() => {
             const nm = unlockCh ? unlockCh[en ? "nameEn" : "nameDe"] : null;
-            const txt = node.id === "n22" ? t("camp.stKeepFriendly")
+            const txt = node.final ? t("camp.stKeepFriendly")
               : unlockCh
               ? (known ? t("camp.stFriendly", { name: nm })
                        : t("camp.stFled", { n: bossWinsFor(profile, unlockCh.id), name: nm }))

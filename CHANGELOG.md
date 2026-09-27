@@ -1,5 +1,35 @@
 # Changelog - Gambit Rise
 
+## 1.89.5 - nach dem Meister ging es nie weiter, und die Aufstiegsfeier gab es nie
+
+Zwei Funde des Spieltests vom 27.9. (Werkstatt, Playwright gegen den Bau,
+dann im Quelltext nachgewiesen), beide im Browser vor und nach dem Fix
+gemessen:
+
+- DAS TOR ZUM NAECHSTEN KAPITEL WURDE NIE GERENDERT. URSACHE: CampaignScreen
+  zeigte den Knopf "Weiter - Kapitel II" nur bei
+  nodeStatus(profile, "n22") === "cleared". "n22" war das Finale des ALTEN
+  51-Knoten-Graphen; der Zwoelf-Kapitel-Graph kennt die Kennung nicht,
+  nodeStatus lieferte "hidden", der einzige Aufrufer von advanceLeague
+  blieb unsichtbar. Wer den Meister von Kapitel I schlug, stand vor einer
+  Weltkarte mit lauter Schloessern. Jetzt zaehlt das Finale des laufenden
+  Kapitels (Flag `final`, dasselbe Kriterium wie in advanceLeague). Die
+  uebrigen "n22"-Stellen (Glyphe der Feste, Freundschaftskampf am Meister,
+  Mischen der Meister-Reihe im Gefecht, mapArt) haengen ebenfalls am Flag.
+  Gemessen (Profil Kapitel I zu 100 %): vorher kein Knopf; nachher
+  "Weiter - Kapitel II" bei (356, 24), ein Tipp -> Kapitel-II-Intro
+  "Kornmark", Spielstand league 2.
+- DIE AUFSTIEGSFEIER (v1.0.75, Besitzer: "megawichtig") WURDE NIE
+  GERENDERT: setFeier setzte den Zustand nach "Verbessern" und "Erlernen",
+  aber keine Stelle im Baum zeichnete die Komponente - seit ihrer Geburt.
+  Jetzt als Portal an document.body (kein transformierter Vorfahr faengt
+  das feste Fenster ein), `tier` des Rang-Ereignisses als gambitTier.
+  Gemessen: Gambit Stufe 3 -> 4 zeigt "STUFE ERREICHT - Der Gepruefte -
+  Stufe II", Kapitaen "Erlernen" zeigt "NEUE FAEHIGKEIT - Scharfschuss".
+- test_ui.jsx prueft beides am Quelltext (kein Vergleich mit "n22" mehr,
+  Tor am Finale, Portal vorhanden) und dass jedes der zwoelf Kapitel genau
+  ein Finale hat.
+
 ## 1.89.4 - die Uebergabe haelt der Pruefung stand: Proben laufen lokal, Blaetter stimmen
 
 Drei Pruefer (Vollstaendigkeit, Richtigkeit, Sicherheit) und je ein Skeptiker

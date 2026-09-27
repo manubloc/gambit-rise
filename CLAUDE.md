@@ -39,8 +39,8 @@ gambitrise.com zeigt darauf).
   pruefe-navigation, pruefe-textfluss, test_layout) lesen den Chromium-Pfad aus
   `PW_CHROMIUM`; ohne die Variable gilt der Pfad des Cloud-Containers. Lokal:
   `npx playwright install chromium` und `PW_CHROMIUM=<Pfad zur chrome-Datei>`.
-- `npm test` — volle Batterie. MUSS **28 Suiten / 2072 Prüfungen** melden
-  (Stand v1.89.1; der Runner stoppt nach der ersten roten Suite, also
+- `npm test` — volle Batterie. MUSS **28 Suiten / 2078 Prüfungen** melden
+  (Stand v1.89.5; der Runner stoppt nach der ersten roten Suite, also
   Suitenzahl prüfen, nicht nur Assertions! Zählweise: alle Zeilen
   `RESULT…: N passed` summieren — test_balance meldet zwei, darum stehen im
   Log 29 RESULT-Zeilen für 28 Suiten).
@@ -163,7 +163,8 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
 
 ## Offene Baustellen (Stand v1.89.1)
 
-**Einstieg für jede neue Sitzung: `design/UEBERGABE-2026-09-27.md`** — Stand,
+**Einstieg für jede neue Sitzung: `design/CHAT-EINSTIEG-2026-09-27.md`** (zehn
+Minuten, mit dem Startsatz für den Chat), dann **`design/UEBERGABE-2026-09-27.md`** — Stand,
 Deploy-Weg (der Push auf `main` IST der Deploy), wo die Geheimnisse liegen
 (nur Orte), was offen ist. Darunter: **`design/STAND-2026-09-26.md`**
 (technische Punkte T1–T11), **`design/PLAYSTORE-BACKLOG.md`** (Store),

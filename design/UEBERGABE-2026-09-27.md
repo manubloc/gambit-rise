@@ -121,6 +121,7 @@ Git-Historie — ohne Wirkung seit v1.88.0, kein Grund für ein History-Rewrite.
 | 1.89.2 | Hofreihe der Landingpage auf dem Handy (Besitzer-Foto): Springer 48–50 % statt 23 % sichtbar, Türme als Randfiguren der hinteren Reihe, Läufer bündig am Rand — Handy-Werte `--hs/--ys/--bs` in `public/landing.html`, alpha-genau gemessen | `CHANGELOG.md` |
 | 1.89.3 | Zweite Runde Hofreihe (nur Handy): Läufer, Springer, Turm je einmal, Erzbischof raus, Kanzler und Kapitän außen, Turm höher, Amazone dahinter — Klassen `handy-weg/handy-da/handy-o1..o5` in `public/landing.html` | `CHANGELOG.md` |
 | 1.89.4 | Die Übergabe nach der Prüfung (30 bestätigte Befunde): Proben lesen `PW_CHROMIUM`, `.gitignore` sperrt Schlüsseldateien, Blätter berichtigt, Fahrskript des Spieltests eingecheckt | `CHANGELOG.md` |
+| 1.89.5 | **Zwei Spieltest-Funde:** das Tor zum nächsten Kapitel wurde nie gerendert (hing an der alten Kennung `n22`) — nach dem Meister ging es nicht weiter; die Aufstiegsfeier wurde seit v1.0.75 nie gerendert. Beide im Browser vor/nach gemessen | `CHANGELOG.md`, `design/SPIELTEST-2026-09-27.md` |
 
 Dazu die Berichte, die in dieser Sitzung geschrieben wurden:
 
@@ -166,6 +167,9 @@ umgekehrt: kommt eine, ist etwas anderes kaputt (Start-URL `/spielen/`).
 ## 5. Offene Punkte (Stand am Ende der Sitzung)
 
 ### 5a. Die Sprachnachrichten vom 27.9. — alles gebaut (v1.89.0 / v1.89.1)
+
+Dazu aus dem Spieltest gebaut (v1.89.5): das Tor zum nächsten Kapitel und
+die Aufstiegsfeier — siehe `design/SPIELTEST-2026-09-27.md`, Abschnitt 3.
 
 - [x] Online-Duell-Kachel: „Als Gast nicht nutzbar" und der Verbindungsstand lagen übereinander (gemessen 56,8 × 12 px) — der Stand rückt beim Gast eine Zeile tiefer.
 - [x] Hinweis-Popups mittig, Hintergrund im Glas-Blur, Leuchtkontur läuft ums Fenster (sie lief bisher um den ganzen Schirm).
@@ -253,7 +257,7 @@ Store: `design/PLAYSTORE-BACKLOG.md`, S1–S14. Beim Besitzer: `.aab` mit Paket
    ältere, im Cloudflare-Dashboard unter *grand-gambit → Deployments*
    nachsehen, ob der Bau durchlief.
 1. Repo klonen bzw. den Connector auf `manubloc/gambit-rise` richten;
-   `git log --oneline -5` muss mit `v1.89.4 …` beginnen (bei einem
+   `git log --oneline -5` muss mit `v1.89.5 …` beginnen (bei einem
    bestehenden Klon vorher `git fetch --prune`).
 2. `npm ci`, dann `npm test` — es müssen **28 Suiten** laufen (Zahl der
    Prüfungen steht in `CLAUDE.md`).

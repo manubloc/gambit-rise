@@ -2,6 +2,7 @@ import { JewelIc } from "../board/PieceGlyph.jsx";
 import { FigurenIc, AufstellungIc } from "../RaumIcons.jsx";
 import { AbilityIcon, abilityTint } from "../AbilityIcons.jsx";
 import { useState, useEffect, useMemo, useRef } from "react";
+import { createPortal } from "react-dom";   /* v1.89.5: die Aufstiegsfeier als Portal */
 import { useMedia } from "../../App.jsx";
 import { GildedFrame, goldText, GoldShineButton } from "../Gilded.jsx";
 import { SP_SHARD_GOLD, SP_VAULT_MIN_CLEARED, spShardCap, bossLevelOf, bossUpgradeCost, bossSpecLeveled, BOSS_MAX_LEVEL, gambitWach,
@@ -1009,6 +1010,15 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
   const INK = "#cfc9b4"; // body text a notch brighter than T.dim — readability pass
   const fam = familyOf(char.kind);
   return <Panel style={{ opacity: unlocked ? 1 : 0.74, height: "100%", boxSizing: "border-box", display: "flex", flexDirection: "column" }}>
+    {/* v1.89.5 (Spieltest 27.9., P02b - gemessen): die AUFSTIEGSFEIER aus
+        v1.0.75 ("megawichtig") wurde nie gerendert - setFeier setzte den
+        Zustand, aber keine Stelle im Baum zeichnete die Komponente. Jetzt
+        als Portal an document.body, damit kein transformierter Vorfahr das
+        feste Fenster einfaengt. `tier` aus dem Rang-Ereignis wird als
+        gambitTier durchgereicht. */}
+    {feier && createPortal(<AufstiegsFeier art={feier.art} gambitTier={feier.tier || 1} bild={feier.bild || null}
+      chName={en ? char.nameEn : char.nameDe} ab={feier.ab || null} charId={feier.charId || char.id}
+      kind={feier.kind || char.kind} abId={feier.abId || null} t={t} onClose={() => setFeier(null)} />, document.body)}
     {/* THE DOSSIER HEAD: a wanted-poster masthead — portrait to the side, name
         and house up top, the game's own stat orbs for instant recognition, and
         the vital lines beneath in a ledger rhythm. */}

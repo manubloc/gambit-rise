@@ -5,7 +5,7 @@ import { musikBereich } from "../musik.js";
 import { geleitTauschbar, geleitCommand } from "../../../core/index.js";   /* v1.86.0: ueber das Barrel */
 import { WHITE, BLACK, createGame, reduce, moveCommand, potionCommand, shiftCommand, status, undo, encodeState, decodeState, HP_REMIS_HALBZUEGE, VALUE,
   SPERR_ARTEN, MAX_SPERREN, setzFelder as sperrFelder, setzeSperre, nimmSperre, sperrenAnzahl } from "../../../core/index.js";
-import { difficultyById, mapById, MAPS, campaignTag, chapterForRow, CHARACTERS as CHARACTERS_BY_ID, voiceFor, ITEMS, KIND_TO_CHAR } from "../../../content/index.js";
+import { difficultyById, mapById, MAPS, campaignTag, chapterForRow, CHARACTERS as CHARACTERS_BY_ID, voiceFor, ITEMS, KIND_TO_CHAR, nodeById } from "../../../content/index.js";
 import { buildArmy, buildAiArmyForMap, buildArmyFromFormation, hasForesight, applyResult, summarizeMatch, mapUnlocked, hpUnlocked, winGold, characterLevel, gambitTier, itemRevealed, clearedCount, SP_VAULT_MIN_CLEARED } from "../../../meta/index.js";
 import { chooseMove } from "../../../ai/index.js";
 import { T } from "../theme.js";
@@ -231,7 +231,7 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
     // THE GRANDMASTER REDEPLOYS: every attempt at the Keep meets a freshly
     // shuffled back rank — losing means facing a NEW array, and only the
     // Seeress's gaze reveals it before the first horn.
-    if (campaign && match.nodeId === "n22" && ai?.back?.length) {
+    if (campaign && nodeById(match.nodeId)?.final && ai?.back?.length) {   /* v1.89.5: jedes Kapitel-Finale, nicht die alte Kennung n22 */
       const arr = [...ai.back]; let sh = seed >>> 0;
       for (let i = arr.length - 1; i > 0; i--) {
         sh = (Math.imul(sh, 1664525) + 1013904223) >>> 0;

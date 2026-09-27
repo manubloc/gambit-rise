@@ -577,7 +577,7 @@ export function SiteGlyph({ type, width = 46 }) {
 /** Which kind of place is this station? Story overrides first, then the map. */
 export function siteTypeFor(node) {
   if (!node) return "village";
-  if (node.id === "n22") return "keep";
+  if (node.final) return "keep";   /* v1.89.5: das Finale jedes Kapitels, nicht die alte Kennung n22 */
   if (node.id === "z1") return "ferry";
   if (node.id === "z2") return "bridge";
   if (node.id === "w2") return "crystal";

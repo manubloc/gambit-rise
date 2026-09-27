@@ -2127,5 +2127,32 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
   ok("die Maske kommt aus sockelVerlauf(kante)", q.includes("sockelVerlauf(sockelKante, nurSockel)"));
 }
 
+/* ── v1.89.5: ZWEI FUNDE DES SPIELTESTS VOM 27.9. (gemessen im Browser) ──
+   P10: das Tor zum naechsten Kapitel hing an nodeStatus(profile, "n22") -
+   eine Kennung des alten 51-Knoten-Graphen, die CAMPAIGN12 nicht kennt.
+   nodeStatus lieferte "hidden", der Knopf mit advanceLeague wurde nie
+   gerendert: nach dem Meister ging es NICHT weiter. Jetzt zaehlt das
+   Finale des laufenden Kapitels (Flag `final`).
+   P02b: die Aufstiegsfeier (v1.0.75, "megawichtig") wurde nie gerendert -
+   setFeier setzte den Zustand, keine Stelle zeichnete die Komponente. */
+{
+  const camp = readFileSync("src/app/ui/screens/CampaignScreen.jsx", "utf8");
+  const game = readFileSync("src/app/ui/screens/GameScreen.jsx", "utf8");
+  const karte = readFileSync("src/app/ui/mapArt.jsx", "utf8");
+  const arm = readFileSync("src/app/ui/screens/ArmyScreen.jsx", "utf8");
+  const vergleichMitN22 = /===\s*"n22"|nodeStatus\(profile,\s*"n22"\)\s*===/;
+  ok("CampaignScreen vergleicht nirgends mehr mit der alten Kennung n22", !vergleichMitN22.test(camp));
+  ok("GameScreen vergleicht nirgends mehr mit n22 (Mischen der Meister-Reihe haengt am Flag final)", !vergleichMitN22.test(game) && game.includes("nodeById(match.nodeId)?.final"));
+  ok("mapArt: die Feste ist das Finale jedes Kapitels", !vergleichMitN22.test(karte) && karte.includes("if (node.final) return \"keep\""));
+  ok("das Tor haengt am Finale des laufenden Kapitels", camp.includes("const finaleId = CAMPAIGN.find((n) => n.final && nodeInLeague(n, league))?.id")
+    && camp.includes("finaleGeschafft && !hinterSchranke(profile, league + 1)") && camp.includes("finaleGeschafft && hinterSchranke(profile, league + 1)"));
+  ok("jedes Kapitel hat genau ein Finale, das advanceLeague findet", (() => {
+    const finals = CAMPAIGN.filter((n) => n.final);
+    return finals.length === 12 && new Set(finals.map((n) => n.league)).size === 12 && !CAMPAIGN.some((n) => n.id === "n22");
+  })());
+  ok("die Aufstiegsfeier wird gerendert (Portal an document.body, tier -> gambitTier)",
+    arm.includes("createPortal(<AufstiegsFeier art={feier.art} gambitTier={feier.tier || 1}") && arm.includes('import { createPortal } from "react-dom"'));
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
