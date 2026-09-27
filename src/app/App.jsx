@@ -79,14 +79,16 @@ export function useMedia(q) {
 }
 
 /** Sub-view header: a bold, unmissable back pill + serif title. */
-export function SubHeader({ title, onBack, t }) {
+/* v1.89.0 (Besitzer: "dieses Zurueck koennen wir komplett weglassen, schreib da
+   nur 'Schnelles Spiel' - man kommt ja unten ueber Spielen immer wieder zurueck;
+   bei der Akademie das Zurueck weg und die Chronik ganz nach oben"): der
+   goldene Zurueck-Knopf der Unterschirme (Schnelles Spiel, Online-Duell,
+   Akademie) ist fort. Der Reiter SPIELEN setzt die Ansicht ohnehin auf den Hub
+   zurueck (railItems: setTab + setView("hub")), die Zurueck-Geste ebenso.
+   onBack bleibt in der Signatur, damit die Aufrufer unveraendert stehen. */
+export function SubHeader({ title }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "2px 0 14px" }}>
-      <button onClick={onBack} style={{ display: "inline-flex", alignItems: "center", gap: 7, cursor: "pointer",
-        background: T.panel, border: `1.5px solid ${T.gold}88`, color: T.gold, borderRadius: 999,
-        padding: "9px 16px 9px 12px", fontFamily: "inherit", fontWeight: 800, fontSize: 14, boxShadow: T.shadow }}>
-        <span style={{ fontSize: 17, lineHeight: 1 }}>‹</span> {t("common.back")}
-      </button>
+    <div style={{ display: "flex", alignItems: "center", margin: "2px 0 12px" }}>
       <div className="gg-serif" style={{ fontSize: 21, letterSpacing: ".05em", color: T.text }}>{title}</div>
     </div>
   );
@@ -812,7 +814,15 @@ export default function App() {
         // the fixed dock (~76px) + Safari's home-bar safe-area float OVER the
         // scroll area: without this reserve the last buttons (e.g. sign-out on
         // the profile) end up UNDER the dock, which then swallows the tap
-        paddingBottom: immersive ? 0 : "calc(94px + min(30vh, 270px) + env(safe-area-inset-bottom))", // v0.60: Reserve in Bodenhoehe - das Unterste kann UEBER den Riss-Streifen scrollen
+        /* v1.89.0 (Besitzer: "warum kann ich in diesem Screen scrollen? Scrollen
+           muss man nur, wenn man wirklich was nicht darstellen kann"): GEMESSEN
+           kamen 378 px Bodenpolster (94 + min(30vh, 270px)) aus v0.60, damit
+           das Unterste UEBER den Riss-Streifen scrollen konnte - dadurch
+           scrollte selbst Schnelles Spiel (524 px Inhalt in 834 px) um 92 px.
+           Jetzt nur noch, was die Ausblendung oben braucht: die Maske ist bei
+           124 px ueber dem Rand voll, also 130 px + Safe-Area - damit steht der
+           letzte Knopf klar, und kurze Schirme stehen still. */
+        paddingBottom: immersive ? 0 : "calc(130px + env(safe-area-inset-bottom))",
         maxWidth: immersive ? "none" : 1020, // menus run as wide as the header bar
         ...(immersive ? { display: "flex", flexDirection: "column", flex: "1 1 auto", minHeight: 0 } : {}),
         ...(tab === "play" && view === "hub" && !inMatch && !immersive
@@ -912,7 +922,7 @@ export default function App() {
           menu). */}
       <main style={{ flex: 1, minHeight: 0, overflowY: immersive ? "hidden" : "auto", overflowX: "hidden", overscrollBehavior: "none",
         WebkitMaskImage: (immersive || inMatch) ? "none" : "linear-gradient(180deg, #000 0%, #000 calc(100% - 124px - env(safe-area-inset-bottom)), rgba(0,0,0,.4) calc(100% - 98px - env(safe-area-inset-bottom)), transparent calc(100% - 74px - env(safe-area-inset-bottom)))",
-        maskImage: (immersive || inMatch) ? "none" : "linear-gradient(180deg, #000 0%, #000 calc(100% - 124px - env(safe-area-inset-bottom)), rgba(0,0,0,.4) calc(100% - 98px - env(safe-area-inset-bottom)), transparent calc(100% - 74px - env(safe-area-inset-bottom)))", padding: immersive ? (mapView ? "0 6px calc(72px + env(safe-area-inset-bottom))" : "0 3px") : inMatch ? "8px 6px 12px" : "22px 10px calc(108px + min(30vh, 270px))",
+        maskImage: (immersive || inMatch) ? "none" : "linear-gradient(180deg, #000 0%, #000 calc(100% - 124px - env(safe-area-inset-bottom)), rgba(0,0,0,.4) calc(100% - 98px - env(safe-area-inset-bottom)), transparent calc(100% - 74px - env(safe-area-inset-bottom)))", padding: immersive ? (mapView ? "0 6px calc(72px + env(safe-area-inset-bottom))" : "0 3px") : inMatch ? "8px 6px 12px" : "22px 10px calc(130px + env(safe-area-inset-bottom, 0px))",   /* v1.89.0: kein Bodenpolster mehr (378 px) - siehe den breiten <main> oben */
         ...(tab === "play" && view === "hub" && !inMatch && !immersive
           ? { display: "flex", flexDirection: "column", justifyContent: "flex-start" } : {}),
         ...(immersive ? { display: "flex", flexDirection: "column" } : {}) }}>{screen}</main>

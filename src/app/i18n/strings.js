@@ -92,6 +92,7 @@ const DE = {
   "camp.reward": "Bonus", "camp.league": "Das Kapitel", "camp.boss": "Meister", "camp.rival": "Gegner", "camp.newPiece": "Neue Figur", "camp.unknown": "Bewegung unbekannt", "camp.back": "Zurück zur Kampagne", "game.stageCleared": "Etappe geschafft!",
   "army.formation": "Aufstellung", "army.planChess": "Schach", "army.planHp": "HP-Gefecht", "army.planHint": "Zwei Pläne: der Schach-Plan für die Schach-Stationen, der HP-Plan für jedes HP-Gefecht. Klassisch bleibt unberührt.", "army.mapPick": "Karte wählen", "army.classicHint": "Das klassische 8×8-Feld — hier darfst du deine Reihe genauso ordnen wie auf jeder Karte. (Im Schnellspiel bleibt Klassik immer die traditionelle Aufstellung.)", "army.formationHint": "Ordne deine Hinterreihe. Tippe ein Feld und wähle eine Figur.",
   "army.standard": "Standard", "army.flex": "Frei", "army.invalid": "Aufstellung unvollständig",
+  "army.limitHint": "Turm, Läufer und Springer höchstens zweimal — jede andere Figur nur einmal.", "army.limitFull": "Steht schon {n}× in der Reihe",
   /* v1.0.63: die Setzphase der Sperren - vor dem ersten Zug. */
   "sperre.title": "Sperren setzen",
   "sperre.hint": "Tippe ein leuchtendes Feld deiner dritten oder vierten Reihe. Höchstens {n} — nochmal antippen nimmt sie zurück.",
@@ -213,6 +214,7 @@ const EN = {
   "camp.reward": "Bonus", "camp.league": "The Chapter", "camp.boss": "Boss", "camp.rival": "Opponent", "camp.newPiece": "New piece", "camp.unknown": "Movement unknown", "camp.back": "Back to campaign", "game.stageCleared": "Stage cleared!",
   "army.formation": "Formation", "army.planChess": "Chess", "army.planHp": "HP Battle", "army.planHint": "Two plans: the chess plan for chess stations, the HP plan for every HP battle. Classic stays untouched.", "army.mapPick": "Choose a map", "army.classicHint": "The classic 8×8 field — arrange your rank here just like any board. (Quick-play classic always keeps the traditional setup.)", "army.formationHint": "Arrange your back rank. Tap a square and pick a piece.",
   "army.standard": "Standard", "army.flex": "Flex", "army.invalid": "Formation incomplete",
+  "army.limitHint": "Rook, bishop and knight at most twice — every other piece only once.", "army.limitFull": "Already fielded {n}× in this rank",
 };
 
 export function makeT(lang) {

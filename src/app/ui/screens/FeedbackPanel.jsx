@@ -14,17 +14,23 @@ import { T } from "../theme.js";
 import { Button } from "../primitives.jsx";
 import { fileReport } from "../../../meta/index.js";
 
+/* v1.89.0 (Besitzer: "bei Feedback oder Fehler melden die Rubriken ein
+   bisschen reduzieren, dass es nicht ganz so viele gibt"): vier statt sieben.
+   Balance, Darstellung und Online gehen in "Fehler im Spiel" bzw. "Vorschlag"
+   auf; alte Berichte mit den alten Schluesseln bleiben lesbar (RUBRIKEN_ALT). */
 export const RUBRIKEN = [
-  ["absturz",     "Absturz / hängt",        "Crash / freeze"],
-  ["fehler",      "Fehler im Spiel",        "Bug in the game"],
+  ["absturz",     "Absturz / hängt",   "Crash / freeze"],
+  ["fehler",      "Fehler im Spiel",   "Bug in the game"],
+  ["vorschlag",   "Vorschlag / Idee",  "Suggestion / idea"],
+  ["sonstiges",   "Sonstiges",         "Other"],
+];
+const RUBRIKEN_ALT = [
   ["balance",     "Schwierigkeit & Balance","Difficulty & balance"],
   ["darstellung", "Darstellung & Grafik",   "Visuals & layout"],
   ["online",      "Online & Halle",         "Online & Hall"],
-  ["vorschlag",   "Vorschlag / Idee",       "Suggestion / idea"],
-  ["sonstiges",   "Sonstiges",              "Other"],
 ];
 export const rubrikWort = (schluessel, en) => {
-  const r = RUBRIKEN.find((x) => x[0] === schluessel);
+  const r = RUBRIKEN.find((x) => x[0] === schluessel) || RUBRIKEN_ALT.find((x) => x[0] === schluessel);
   return r ? (en ? r[2] : r[1]) : schluessel;
 };
 
@@ -75,10 +81,15 @@ export function FeedbackPanel({ t, en, account }) {
     if (r.where === "hall") { setText(""); setBilder([]); }
   };
 
+  /* v1.89.0 (Besitzer: "die Farbgebung von Feedback finde ich nicht so
+     treffend wie 'Du spielst als Gast' - mach da lieber dieses Weiss/Lila"):
+     die Rubriken tragen die Farben des Gast-Hinweises - gewaehlt Lila mit
+     heller Schrift, sonst still mit lila Saum. */
   const chip = (an) => ({ cursor: "pointer", fontFamily: "inherit", fontSize: 12, fontWeight: 700,
-    color: an ? "#241a08" : T.text, borderRadius: 999, padding: "7px 12px",
-    background: an ? "linear-gradient(180deg,#f0d68f,#d3ae5c)" : T.bg2,
-    border: `1px solid ${an ? "#eac96b" : T.line}` });
+    color: an ? "#f7f3ff" : "#c3b8d4", borderRadius: 999, padding: "7px 12px",
+    background: an ? "linear-gradient(160deg, rgba(139,92,246,.85), rgba(109,60,220,.85))" : "rgba(22,16,34,.6)",
+    border: `1px solid ${an ? "rgba(196,181,253,.9)" : "rgba(167,139,250,.35)"}`,
+    boxShadow: an ? "0 0 10px rgba(124,58,237,.35)" : "none" });
 
   return <div>
     <div style={{ fontSize: 12.5, color: T.dim, lineHeight: 1.55, marginBottom: 10 }}>{t("profile.fbIntro")}</div>
@@ -90,8 +101,8 @@ export function FeedbackPanel({ t, en, account }) {
     <textarea value={text} onChange={(e) => setText(e.target.value)} rows={4}
       placeholder={t("profile.fbText")}
       style={{ width: "100%", boxSizing: "border-box", resize: "vertical", fontFamily: "inherit",
-        fontSize: 14, lineHeight: 1.5, color: T.text, background: T.bg2,
-        border: `1px solid ${T.line}`, borderRadius: 10, padding: "10px 12px", outline: "none" }} />
+        fontSize: 14, lineHeight: 1.5, color: "#e6dcff", background: "rgba(12,8,22,.6)",
+        border: "1px solid rgba(167,139,250,.35)", borderRadius: 10, padding: "10px 12px", outline: "none" }} />
     <div style={{ display: "flex", gap: 8, alignItems: "center", marginTop: 8, flexWrap: "wrap" }}>
       {bilder.map((b, i) => (
         <span key={i} style={{ position: "relative", display: "inline-block" }}>

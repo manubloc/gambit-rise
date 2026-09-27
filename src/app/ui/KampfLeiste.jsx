@@ -14,6 +14,8 @@ import { legalMovesFrom } from "../../core/index.js";
 import { ABILITIES, CHARACTERS, faehigkeitZustand } from "../../content/index.js";
 import { PASSIVE_TALENTE } from "../../core/index.js";   /* v1.38.0, v1.86.0 ueber das Barrel */
 import { paintedForPiece } from "./board/paintedArt.js";
+import { LockIc } from "./icons.jsx";   /* v1.89.0: das hauseigene Schloss statt des Emojis */
+import { AbilityIcon } from "./AbilityIcons.jsx";   /* v1.89.0: dasselbe Zeichen wie im Hofstaat */
 
 import { T } from "./theme.js";
 
@@ -32,14 +34,18 @@ const SONDER = {
 
 // Der Goldring aus v0.50 - unveraendert, nur als reiner Schmuck (kein
 // eigener Knopf mehr; die KARTE ist die Schaltflaeche).
+/* v1.89.0 (Besitzer: "dass die Faehigkeiten dann wirklich auch immer diese
+   viereckige Kachel haben"): der Ring ist ein abgerundetes Viereck wie die
+   Karte (12 aussen, 9 innen), und er traegt das hauseigene Zeichen
+   (AbilityIcon) statt eines Emojis. */
 function Ring({ icon, dry, gruen }) {
   return (
-    <span style={{ width: 42, height: 42, borderRadius: "50%", display: "grid", placeItems: "center", flex: "0 0 auto",
+    <span style={{ width: 42, height: 42, borderRadius: 12, display: "grid", placeItems: "center", flex: "0 0 auto",
       background: dry
         ? "radial-gradient(circle at 35% 28%, #6b6252 0%, #4a4438 55%, #2e2a22 100%)"
         : "radial-gradient(circle at 35% 28%, #f0d68a 0%, #d4af37 48%, #8a6a1f 100%)",
       boxShadow: "0 1px 2px rgba(0,0,0,.5), 0 3px 10px rgba(0,0,0,.45)" }}>
-      <span style={{ width: 34, height: 34, borderRadius: "50%", display: "grid", placeItems: "center",
+      <span style={{ width: 34, height: 34, borderRadius: 9, display: "grid", placeItems: "center",
         background: "radial-gradient(circle at 38% 30%, #4a3a6e 0%, #241a3a 100%)",
         border: "1px solid rgba(0,0,0,.45)",
         color: dry ? "#8d8674" : gruen ? "#9fe0b0" : "#f0d68a", fontSize: 17, lineHeight: 1 }}>{icon}</span>
@@ -51,20 +57,28 @@ function Ring({ icon, dry, gruen }) {
 // Name darunter - und bei der gesperrten Karte die Stufe als Untertitel.
 function Karte({ icon, label, unter, dry, gruen, active, lock, onTap, scharf = false, fuss = null }) {
   return (
-    <button onClick={onTap} title={label}
+    /* v1.89.0 (Besitzer: "Talent-Kacheln: Kontur Lila; wenn man eine auswaehlt,
+       ein animiertes leuchtendes Lila ... eine Kachel nur dann aktiv hervorheben,
+       wenn man sie auch druecken kann"): GEMESSEN ruhten die Kacheln in Gold
+       (rgba(233,210,150,.42)), die geoeffnete gesperrte Kachel bekam sogar eine
+       goldene Aktivkontur, und die scharfe Kachel leuchtete ohne Bewegung. Jetzt
+       ruhen alle in Riss-Lila, die Aktivkontur gibt es nur fuer Schaltbares, und
+       die scharfe Kachel traegt die laufende Kontur .gg-funkenkontur, dieselbe
+       wie der Verbessern-Knopf im Hofstaat. */
+    <button onClick={onTap} title={label} className={scharf ? "gg-funkenkontur" : undefined}
       style={{ width: 66, minHeight: 78, flex: "0 0 auto", cursor: "pointer", fontFamily: "inherit",
         display: "flex", flexDirection: "column", alignItems: "center", gap: 4, padding: "7px 3px 5px",
         borderRadius: 12,
         /* v1.38.0: SCHARF leuchtet violett - dieselbe Farbe, die das Brett fuer
-           die Zauberfelder nimmt; "offen" (Beschreibung) bleibt golden. */
+           die Zauberfelder nimmt. */
         border: scharf ? "1.5px solid #c4b5fd"
-          : active ? `1.5px solid ${T.goldBright}` : `1px solid ${lock ? "rgba(233,210,150,.2)" : "rgba(233,210,150,.42)"}`,
+          : active && !lock ? `1.5px solid ${T.riftBright}` : `1px solid ${lock ? "rgba(167,139,250,.22)" : "rgba(167,139,250,.5)"}`,
         background: lock
           ? "linear-gradient(180deg, rgba(20,16,32,.55), rgba(10,9,16,.6))"
           : "linear-gradient(180deg, rgba(38,28,64,.78), rgba(16,12,30,.9))",
-        boxShadow: scharf ? "0 0 14px rgba(167,139,250,.65)" : active ? "0 0 10px rgba(240,214,138,.35)" : "0 2px 8px rgba(0,0,0,.4)",
+        boxShadow: scharf ? "0 0 14px rgba(167,139,250,.65)" : active && !lock ? "0 0 10px rgba(167,139,250,.35)" : "0 2px 8px rgba(0,0,0,.4)",
         opacity: lock ? 0.78 : 1 }}>
-      <Ring icon={lock ? "🔒" : icon} dry={dry || lock} gruen={gruen} />
+      <Ring icon={lock ? <LockIc size={17} color="#a78bfa" /> : icon} dry={dry || lock} gruen={gruen} />
       <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: ".05em", textTransform: "uppercase",
         color: lock ? T.faint : gruen ? "#9fe0b0" : T.goldBright, lineHeight: 1.15, textAlign: "center",
         maxWidth: 60, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
@@ -155,28 +169,9 @@ export function KampfLeiste({ state, inspect, en, myColor = "w", banner = false,
             {" — "}{letztes.color === myColor ? (en ? "you" : "Du") : (en ? "foe" : "Gegner")}</span>
         </div>
       )}
-      {beschreibung && (
-        <div onClick={() => setOffen(null)} style={{ position: "absolute", left: 10, right: 10, bottom: "100%",
-          marginBottom: 6, zIndex: 8, borderRadius: 12, padding: "9px 12px 10px", cursor: "pointer",
-          background: "rgba(28, 19, 50, .95)", border: "1px solid rgba(167,139,250,.5)",
-          boxShadow: "0 8px 24px rgba(0,0,0,.55)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}>
-          <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 3, flexWrap: "wrap" }}>
-            <span className="gg-serif" style={{ fontSize: 14, color: T.goldBright, letterSpacing: ".04em" }}>
-              {en ? beschreibung.nameEn : beschreibung.nameDe}</span>
-            {offen.art === "ab" && ABILITIES[offen.id]?.once && (
-              <span style={{ fontSize: 10.5, fontWeight: 800, color: dry ? T.faint : "#cbbcf5" }}>
-                {dry ? (en ? "spell spent" : "Zauber verbraucht") : (en ? "once per battle" : "einmal pro Gefecht")}</span>)}
-            {offen.art === "sonder" && (
-              <span style={{ fontSize: 10.5, fontWeight: 800, color: "#9fe0b0" }}>
-                {en ? "available now" : "jetzt möglich"}</span>)}
-            {offen.art === "lock" && (
-              <span style={{ fontSize: 10.5, fontWeight: 800, color: "#e0b46a" }}>
-                {en ? `locked · unlock in the court from Lv ${offen.level}` : `gesperrt · freischaltbar im Hofstaat ab Lv ${offen.level}`}</span>)}
-          </div>
-          <div style={{ fontSize: 12, lineHeight: 1.5, color: T.text }}>
-            {en ? beschreibung.descEn : beschreibung.descDe}</div>
-        </div>
-      )}
+      {/* v1.89.0: die Beschreibung steht nicht mehr als Kasten UEBER der
+          Leiste (gemessen: sie lag ueber dem Hinweis unter dem Brett), sondern
+          IN der Leiste, mittig ueber den Karten - siehe unten bei den Karten. */}
 
       {/* v0.71.7 (Besitzer): KEINE Panel-Kachel mehr - die Leiste steht frei
           auf dem Schwarz: links die gewaehlte Figur FREIGESTELLT, daneben
@@ -209,6 +204,30 @@ export function KampfLeiste({ state, inspect, en, myColor = "w", banner = false,
         ) : null; })()}
         <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", justifyContent: "center", gap: 6 }}>
         {pc ? (<>
+          {beschreibung && (
+            /* v1.89.0 (Besitzer: "wenn ich Ausweichen klicke, moechte ich die
+               Erklaerung vielleicht haben, aber nicht eingekaestelt in so eine
+               Rundung mit Lila, sondern einfach schoen mittig ausgerichtete
+               Texte ... nicht uebertreiben mit Kacheln"): kein Kasten, kein
+               Rahmen - der Text steht mittig ueber den Karten, im Fluss. */
+            <div onClick={() => setOffen(null)} data-talent-text style={{ padding: "2px 4px 4px", cursor: "pointer", textAlign: "center" }}>
+              <div style={{ display: "flex", alignItems: "baseline", justifyContent: "center", gap: 8, marginBottom: 2, flexWrap: "wrap" }}>
+                <span className="gg-serif" style={{ fontSize: 14, color: T.goldBright, letterSpacing: ".04em" }}>
+                  {en ? beschreibung.nameEn : beschreibung.nameDe}</span>
+                {offen.art === "ab" && ABILITIES[offen.id]?.once && (
+                  <span style={{ fontSize: 10.5, fontWeight: 800, color: dry ? T.faint : "#cbbcf5" }}>
+                    {dry ? (en ? "spell spent" : "Zauber verbraucht") : (en ? "once per battle" : "einmal pro Gefecht")}</span>)}
+                {offen.art === "sonder" && (
+                  <span style={{ fontSize: 10.5, fontWeight: 800, color: "#9fe0b0" }}>
+                    {en ? "available now" : "jetzt möglich"}</span>)}
+                {offen.art === "lock" && (
+                  <span style={{ fontSize: 10.5, fontWeight: 800, color: "#cbbcf5" }}>
+                    {en ? `locked · unlock in the court from Lv ${offen.level}` : `gesperrt · freischaltbar im Hofstaat ab Lv ${offen.level}`}</span>)}
+              </div>
+              <div style={{ fontSize: 12, lineHeight: 1.5, color: T.text }}>
+                {en ? beschreibung.descEn : beschreibung.descDe}</div>
+            </div>
+          )}
           {/* v0.71.8 (Besitzer): kein Kopfzeilen-Balken mehr - der Name steht
               WINZIG in der besonderen Schrift oben links, nimmt keinen Platz
               und traegt keine Pille; die Kugeln haengen klein daneben. */}
@@ -223,7 +242,7 @@ export function KampfLeiste({ state, inspect, en, myColor = "w", banner = false,
             {abIds.map((id) => {
               const gezeigt = eigen || !!(pc.used && pc.used[id]);
               return (
-              <Karte key={id} icon={gezeigt ? ABILITIES[id].icon : "✦"}
+              <Karte key={id} icon={gezeigt ? <AbilityIcon id={id} size={28} /> : "✦"}
                 label={gezeigt ? (en ? ABILITIES[id].nameEn : ABILITIES[id].nameDe) : "???"}
                 dry={dry && ABILITIES[id].once} active={offen?.art === "ab" && offen.id === id}
                 scharf={scharf === id}
@@ -238,7 +257,7 @@ export function KampfLeiste({ state, inspect, en, myColor = "w", banner = false,
                 }} />
             ); })}
             {naechste && (
-              <Karte lock icon="🔒"
+              <Karte lock
                 label={en ? ABILITIES[naechste.ability].nameEn : ABILITIES[naechste.ability].nameDe}
                 unter={`Lv ${naechste.level}`}
                 active={offen?.art === "lock" && offen.id === naechste.ability}

@@ -286,7 +286,10 @@ ok("nine leagues of income cover the boat (" + income9 + " vs " + boat3.gold + "
   {
     const p = withProgressPct(defaultProfile(), 100, 5);
     const courtyard = mapById("courtyard");           // 8x8, same size as classic
-    const custom = courtyard.defaultFormation.map((id) => id === "rook" ? "knight" : id);
+    /* v1.89.0: vier Springer sind seit der lebenden Zweier-Grenze illegal -
+       zwei verschiedene Rekruten statt der Tuerme */
+    let nr = 0;
+    const custom = courtyard.defaultFormation.map((id) => id === "rook" ? ["hawk", "guardian"][nr++] : id);
     const p2 = { ...p, loadout: { ...p.loadout, formations: { courtyard: custom } } };
     const army = buildArmyForMap(p2, mapById("classic"), null, "hp");
     const kinds = army.back.filter((s) => s).map((s) => s.kind);
@@ -434,6 +437,18 @@ console.log("\n== EINE JE REKRUTIERTE FIGUR, die drei Offiziere frei (v1.1.6) ==
   ok("ZWEI derselben rekrutierten Figur sind verboten", !L.formationLegalOn(zweiHabichte, alle, brett, []));
   const zweiVerschieden = [...basis]; zweiVerschieden[1] = "hawk"; zweiVerschieden[6] = "amazon";
   ok("zwei VERSCHIEDENE rekrutierte sind erlaubt", L.formationLegalOn(zweiVerschieden, alle, brett, []));
+  /* v1.89.0 (Besitzer, 27.9.: "man darf sie maximal zweimal nehmen, aber nicht
+     viermal"): die Zweier-Grenze von v1.24.3 war tot - FREI_BESETZBAR warf die
+     drei Offiziere vor der Zaehlung hinaus. Gemessen galten sechs Tuerme als
+     gueltig. Diese vier Faelle halten die Grenze am Leben. */
+  const vierTuerme = [...basis]; vierTuerme[1] = "rook"; vierTuerme[2] = "rook";
+  ok("VIER Tuerme sind verboten (Besitzer 27.9.: maximal zweimal)", !L.formationLegalOn(vierTuerme, alle, brett, []));
+  const dreiSpringer = [...basis]; dreiSpringer[2] = "knight";
+  ok("DREI Springer sind verboten", !L.formationLegalOn(dreiSpringer, alle, brett, []));
+  const dreiLaeufer = [...basis]; dreiLaeufer[1] = "bishop";
+  ok("DREI Laeufer sind verboten", !L.formationLegalOn(dreiLaeufer, alle, brett, []));
+  ok("hoechstzahl: Offiziere 2, alles andere 1", L.hoechstzahl("rook") === 2 && L.hoechstzahl("knight") === 2
+    && L.hoechstzahl("bishop") === 2 && L.hoechstzahl("captain") === 1 && L.hoechstzahl("amazon") === 1);
 }
 
 console.log("\n== FREIE FASSUNG ODER VOLLE: ein Wert, keine Verzweigung (v1.1.10) ==");

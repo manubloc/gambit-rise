@@ -535,7 +535,12 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
     else if (lm.damaged && lm.hitKind) text = en ? `Hit — ${wer(lm.hitKind)} −${lm.dmg || 1}` : `Treffer — ${wer(lm.hitKind)} −${lm.dmg || 1}`;
     else if (lm.special === "castle") text = en ? "Castled" : "Rochade";
     else if (lm.promotion) text = en ? "Promoted!" : "Krönung!";
-    if (!text) return;
+    /* v1.89.0 (Spieltest, gemessen: "Rochade" stand sechs Zuege spaeter noch
+       in der Kopfzeile, "Laeufer gefallen" sogar zu Beginn der NEUEN Partie):
+       kam der naechste Zug vor Ablauf der 2,6 s, raeumte das Cleanup beide
+       Timer weg, und ein Zug OHNE Ereignis kehrte hier zurueck, ohne die alte
+       Meldung zu loeschen. Jetzt loescht jeder ereignislose Zug sie. */
+    if (!text) { setEreignis(null); return; }
     const dauer = zugDauerMs(lm, myColor, hotseat, state.w);
     const t1 = setTimeout(() => setEreignis(text), dauer);
     const t2 = setTimeout(() => setEreignis(null), dauer + 2600);
@@ -588,6 +593,7 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
   function reset(diff, m = map, rl = rules) {
     finished.current = false;
     setBanner(null);
+    setEreignis(null);   /* v1.89.0: die Meldung der alten Partie wandert nicht in die neue */
     setThinking(false);
     setClock(timer ? timer.seconds : null);
     const seed = freshSeed();
@@ -1058,18 +1064,17 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
   /* v1.40.0 (Besitzer): DIE ZUGMELDUNG - eine Plakette, oben in der Mitte
      zwischen Zurueck und Aufgeben. Definiert an EINER Stelle, damit sie nicht
      zweimal im Schirm steht (der alte Platz unter dem Brett ist fort). */
-  const zugMeldung = <div style={{ display: "inline-flex", alignItems: "center", gap: 7, maxWidth: "100%",
-            border: `1px solid ${st.check ? T.gold + "aa" : "rgba(167,139,250,.24)"}`,
-            background: st.check ? "linear-gradient(180deg, rgba(40,28,60,.8), rgba(18,12,30,.86))" : "rgba(14,10,26,.34)",
-            borderRadius: 999, padding: "5px 12px",
-            boxShadow: st.check ? "0 0 12px rgba(240,206,122,.28)" : "none" }}>
-            <span aria-hidden style={{ width: 7, height: 7, borderRadius: 999, flex: "0 0 auto",
-              background: st.check || ereignis ? T.goldBright : myTurn || (hotseat && state.turn === WHITE) ? T.gold : "#8b7bd8",
-              boxShadow: st.check ? `0 0 8px ${T.goldBright}` : "none" }} />
-            <span className="gg-serif" style={{ fontWeight: 700, fontSize: 12.5, letterSpacing: ".04em", minWidth: 0,
-              overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-              color: st.check ? T.goldBright : ereignis ? "#ded2b4" : "rgba(226,218,246,.66)" }}>{ereignis || statusText}</span>
-          </div>;
+  /* v1.89.0 (Besitzer: "'Du bist am Zug' ist eine andere Schriftart in Fett;
+     1:1 wie Zurueck und Aufgeben, aber die Kachel komplett weg, den komischen
+     Punkt davor weglassen, Farbe Lila"): GEMESSEN trug die Meldung dieselbe
+     Pille wie die zwei Knoepfe (130x27 px), einen 7-px-Goldpunkt und die
+     Serifenschrift (gg-serif 12.5 px) - die Knoepfe stehen im System-Sans
+     600/12 px. Jetzt schlichter Text im Kleid der Knoepfe, ohne Kachel und
+     Punkt, in Riss-Lila; Schach bleibt golden, Ereignisse hell. */
+  const zugMeldung = <span data-zugmeldung style={{ fontFamily: "inherit", fontWeight: 600, fontSize: 12, letterSpacing: ".02em",
+            padding: "6px 0", maxWidth: "100%", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+            color: st.check ? T.goldBright : ereignis ? "#ded2b4" : T.riftLine,
+            textShadow: st.check ? `0 0 8px ${T.goldBright}88` : "0 1px 3px rgba(0,0,0,.75)" }}>{ereignis || statusText}</span>;
   const clockLbl = clock != null ? `${Math.floor(Math.max(0, clock) / 60)}:${String(Math.max(0, clock) % 60).padStart(2, "0")}` : null;
   const clockHot = clock != null && (timer?.type === "move" ? clock <= 5 : clock <= 30);
   // DIE UHR DARF NICHT ZU UEBERSEHEN SEIN (Besitzer, v0.45): "man vergisst
@@ -1505,7 +1510,7 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
   const raus = fragtRaus ? <LeaveMatchAsk t={t} resumable={!!match && !pvp && !daily}
     onStay={() => setFragtRaus(false)}
     onLeave={() => { setFragtRaus(false); leave(); }} /> : null;
-  const bannerEl = banner ? <ResultBanner banner={banner} t={t} onNew={pvp ? onExit : newGame} campaign={campaign} onExit={onExit} boss={match?.boss || null}
+  const bannerEl = banner ? <ResultBanner banner={banner} t={t} onNew={pvp ? onExit : newGame} campaign={campaign} onExit={onExit} boss={match?.boss || null} profile={profile}
     onSettings={!campaign && !pvp ? onExit : null}
     pvpInfo={pvp ? { rated, rematch, onRematch: () => { pvp.net.send({ t: "rematch", matchId: pvp.matchId }); setRematch("wait"); } } : null}
     unlockName={match?.boss?.unlocks ? (profile.lang === "en" ? CHARACTERS_BY_ID[match.boss.unlocks]?.nameEn : CHARACTERS_BY_ID[match.boss.unlocks]?.nameDe) : null}
@@ -1761,7 +1766,11 @@ function StoryIntro({ node, boss, t, en, onBegin, timer = null, profile = null }
   );
 }
 
-function ResultBanner({ banner, t, onNew, campaign = false, onExit = null, onSettings = null, unlockName = null, unlockId = null, fledName = null, en = false, onArmy = null, pvpInfo = null, boss = null, newSkills = [] }) {
+/* v1.89.0 (Audit A4, gemessen): das Banner las `profile` fuer den Heldennamen
+   in der Stimme des Meisters (mitHeld), bekam es aber nie - ReferenceError
+   beim Rendern, bei JEDEM Kampagnensieg gegen einen Gegner mit Stimme, schon
+   in Kapitel I. Das ist ein Absturz genau im Moment des Sieges. */
+function ResultBanner({ banner, t, onNew, campaign = false, onExit = null, onSettings = null, unlockName = null, unlockId = null, fledName = null, en = false, onArmy = null, pvpInfo = null, boss = null, newSkills = [], profile = null }) {
   const win = banner.result === "win";
   const color = banner.hotseat ? T.gold : win ? T.lime : banner.result === "draw" ? T.gold : "#b4636c";
   const title = banner.hotseat

@@ -1,5 +1,6 @@
 // ── DIE FÄHIGKEITS-ZEICHEN ──────────────────────────────────────────────────
-// Jede Fähigkeit trägt ihr eigenes rundes Medaillon: eine Farbe nach ihrem
+// Jede Fähigkeit trägt ihr eigenes Medaillon (seit v1.89.0 ein abgerundetes
+// Viereck, kein Kreis - Besitzer: "überall die Vierecke mit Rundungen"): eine Farbe nach ihrem
 // WESEN, ein Zeichen nach ihrer WIRKUNG. Die Familien und ihre Farben:
 //
 //   SCHRITT   (grün)     — zusätzliche Wege: Ausweichen, Rückzug, Wachschritt …
@@ -83,7 +84,8 @@ const Z = {
   bulwark:             ["leben",   <g key="g"><path d="M12 5l6 2v5c0 4-2.6 6-6 7-3.4-1-6-3-6-7V7z" /><path d="M12 8v7" opacity=".7" /></g>],
 };
 
-/** Das runde Zeichen einer Fähigkeit. Unbekannte Kennungen tragen das Zeichen
+/** Das Zeichen einer Fähigkeit - ein abgerundetes Viereck wie die Kachel-Kästen
+ *  und die Gefechtskarte. Unbekannte Kennungen tragen das Zeichen
  *  des Risses — besser ein ehrliches Fragezeichen in Violett als ein Loch. */
 /* ── v1.26.6 (Besitzer): DIE FELDFARBE IST DIE SYMBOLFARBE ──────────────────
    "Wenn ich Faehigkeiten erlerne, werden die oben in der Felduebersicht
@@ -112,8 +114,14 @@ export function AbilityIcon({ id, size = 30 }) {
           <stop offset="100%" stopColor={f.tief} />
         </radialGradient>
       </defs>
-      <circle cx="12" cy="12" r="11" fill={`url(#${rid})`} />
-      <circle cx="12" cy="12" r="11" fill="none" stroke={f.ring} strokeWidth="1" opacity=".85" />
+      {/* v1.89.0 (Besitzer: "ueberall die Vierecke mit Rundungen, immer
+          gleich"): GEMESSEN war das Zeichen selbst an allen sieben Stellen ein
+          Kreis - nur auf Kachel und Karte steckte er in einem eckig-runden
+          Kasten, im Dropdown der Figurenkarte stand er nackt. Jetzt ist das
+          Zeichen selbst das abgerundete Viereck (rx 6/22 = Radius 7 bei
+          26 px, wie der gestrichelte Platzhalter daneben). */}
+      <rect x="1" y="1" width="22" height="22" rx="6" fill={`url(#${rid})`} />
+      <rect x="1" y="1" width="22" height="22" rx="6" fill="none" stroke={f.ring} strokeWidth="1" opacity=".85" />
       <g fill="none" stroke={f.strich} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" color={f.strich}>
         {glyph}
       </g>

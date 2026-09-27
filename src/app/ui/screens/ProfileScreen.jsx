@@ -2,13 +2,35 @@ import { useState, useEffect, useMemo } from "react";
 import { CAMPAIGN12 } from "../../../content/campaign12.gen.js";
 import { MAX_KAPITEL } from "../../config.js";
 import { hashPin } from "../../../platform/index.js";
-import { SPAR_POSTEN, sparsam } from "../sparmodus.js";
 import { animAn, setAnimAn } from "../anim.js";
 import { serializeSave, parseSave, listRestorePoints, readSnapshot, withProgressPct, listReports, clearLocalReports, getAdminToken, setAdminToken, deleteAccount , adminHasDefaultPass } from "../../../meta/index.js";
 import { CHARACTERS } from "../../../content/index.js";
 import { T } from "../theme.js";
-import { Panel, Button, Segmented, Stat, PanelTitle, Toggle } from "../primitives.jsx";
+import { Button, Segmented, Stat, Toggle } from "../primitives.jsx";
 import { GildedFrame, goldText, GoldRule } from "../Gilded.jsx";
+
+/* ── DER LILA-LOOK DES PROFILS (v1.89.0, Besitzer) ──────────────────────────
+   "Bei Profil finde ich dieses 'Du spielst als Gast'-Popup, was du erschaffen
+   hast - diesen Look, lila leuchtend, sehr clean und sauber - den haette ich
+   gerne fuer das Profil. Warum schreibst du Bilanz und Reise in
+   Grossbuchstaben und bei Feedback wieder so einen komischen Punkt davor? Das
+   ist nicht konstant. Diese Punkte vor der Ueberschrift lass einfach weg."
+   Also tragen ALLE Kaesten des Profils dasselbe Kleid wie der Gast-Hinweis
+   (Riss-Verlauf, lila Saum, leiser Schein), und alle Ueberschriften dieselbe
+   Zeile - Federschrift, hell, ohne Raute davor. Nur hier: die Kaesten der
+   anderen Schirme bleiben, wie sie sind (primitives.Panel). */
+function Panel({ style, children, ...p }) {
+  return <div style={{ padding: "13px 14px 14px", borderRadius: 14,
+    background: "radial-gradient(130% 120% at 50% -12%, rgba(124,58,237,.2) 0%, rgba(22,16,34,.92) 46%, rgba(10,8,16,.96) 100%)",
+    border: "1px solid rgba(167,139,250,.55)", boxShadow: "0 0 16px rgba(124,58,237,.22)", ...style }} {...p}>{children}</div>;
+}
+function PanelTitle({ children, tag, style }) {
+  return <div style={{ display: "flex", alignItems: "baseline", gap: 8, minWidth: 0, marginBottom: 8, ...style }}>
+    <span className="gg-quill" style={{ fontSize: 16.5, color: "#e6dcff", minWidth: 0, overflow: "hidden",
+      textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{children}</span>
+    {tag && <span style={{ color: "#a78bfa", fontSize: 11, fontWeight: 800, flex: "0 0 auto", letterSpacing: ".06em" }}>{tag}</span>}
+  </div>;
+}
 import { FeedbackPanel, rubrikWort } from "./FeedbackPanel.jsx";
 import { ZeitBalken } from "../ZeitBalken.jsx";
 import { lautVon, merkeLaut } from "../lautstaerke.js";   /* v1.26.2 */
@@ -233,8 +255,8 @@ export function ProfileScreen({ profile, dispatch, t, account, onSwitchSave, onL
     </Panel>
 
     <Panel>
-      <div className="gg-serif" style={{ fontSize: 15, letterSpacing: ".1em", textTransform: "uppercase", color: T.dim }}>{t("profile.record")}</div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginTop: 12 }}>
+      <PanelTitle>{t("profile.record")}</PanelTitle>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginTop: 6 }}>
         <Stat label={t("profile.wins")} value={s.wins || 0} />
         <Stat label={t("profile.losses")} value={s.losses || 0} />
         <Stat label={t("profile.draws")} value={s.draws || 0} />
@@ -247,8 +269,8 @@ export function ProfileScreen({ profile, dispatch, t, account, onSwitchSave, onL
     </Panel>
 
     <Panel>
-      <div className="gg-serif" style={{ fontSize: 15, letterSpacing: ".1em", textTransform: "uppercase", color: T.dim }}>{t("profile.journey")}</div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginTop: 12 }}>
+      <PanelTitle>{t("profile.journey")}</PanelTitle>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginTop: 6 }}>
         <Stat label={t("profile.stages")} value={s.stagesCleared || 0} />
         <Stat label={t("profile.bosses")} value={s.bossKills || 0} />
         <Stat label={t("profile.recruits")} value={s.recruits || 0} />
@@ -405,57 +427,22 @@ export function ProfileScreen({ profile, dispatch, t, account, onSwitchSave, onL
         Standardwort also gar nicht aendern, weshalb der Punkt seit Monaten
         offen stand. Jetzt darf jedes lokale Konto sein Passwort aendern, und
         solange das Standardwort steht, sagt es die Karte deutlich. */}
-    {/* ── DER SPARMODUS (v1.0.37) ─────────────────────────────────────────
-        Vier Zeichenposten, einzeln abschaltbar. Sie stehen hier, weil das
-        Ruckeln auf dem GERAET des Besitzers auftritt und nicht auf meinem
-        Messplatz - wer umlegt, sieht in Sekunden, welcher Posten es ist.
-        Die teuersten zuerst, damit der erste Versuch der beste ist. */}
-    <Panel>
-      <PanelTitle>{t("profile.sparTitle")}</PanelTitle>
-      <div style={{ fontSize: 12, color: T.dim, margin: "2px 0 12px", lineHeight: 1.5 }}>{t("profile.sparHint")}</div>
-      <div style={{ display: "grid", gap: 10 }}>
-        {SPAR_POSTEN.map((posten) => {
-          const an = !profile.spar?.[posten];   // AN heisst: der Posten wird gezeichnet
-          return <label key={posten} style={{ display: "flex", alignItems: "flex-start", gap: 10, cursor: "pointer" }}>
-            <input type="checkbox" checked={an} style={{ marginTop: 3, width: 18, height: 18, flex: "0 0 auto", accentColor: T.gold }}
-              onChange={() => dispatch({ type: "SET_SPAR", posten, an: an })} />
-            <span style={{ minWidth: 0 }}>
-              <span style={{ fontSize: 13.5, fontWeight: 700, color: T.ink }}>{t(`profile.spar.${posten}`)}</span>
-              <span style={{ display: "block", fontSize: 11.5, color: T.faint, lineHeight: 1.45, marginTop: 1 }}>
-                {t(`profile.spar.${posten}Hint`)}</span>
-            </span>
-          </label>;
-        })}
-      </div>
-      {sparsam() && <div style={{ fontSize: 11.5, color: "#f0c98a", marginTop: 12, padding: "8px 10px", borderRadius: 8,
-        background: "rgba(216,164,65,.12)", border: "1px solid rgba(216,164,65,.4)", lineHeight: 1.45 }}>
-        {t("profile.sparAktiv")}</div>}
-
-      {/* ── DIE SICHT AUF DEN GEGNER (v1.0.50 -> v1.0.62) ────────────────────
-          Der Besitzer hat gewaehlt: die TOENUNG (farbige Figur, lila
-          Sockel-Glut) ist der Standard fuer ALLE Spieler. Die drei Stile
-          zum Ausprobieren sieht nur noch der Admin - als Werkzeug, nicht
-          als Einstellung. Der klassische Satz bleibt immer unberuehrt. */}
-      {/* v1.0.83 (Besitzerentscheid): DIE WAHL IST FORT, weil es nichts mehr
-          zu waehlen gibt - "entferne diesen lila-gold Style, nur schwarz-weiss
-          beim Sockel ist interessant, die Option kann weg". Es bleibt der
-          Animationsschalter darunter. Die Sockelglut selbst bleibt: Gegner
-          schwarz, eigene Seite weiss, je Figur gemessen (v1.0.72/76/80). */}
-      {account?.isAdmin && <div style={{ marginTop: 18, paddingTop: 14, borderTop: `1px solid ${T.line}` }}>
-        {/* v1.0.67: DER EINE SCHALTER FUER ALLE ANIMATIONEN. Er schreibt in
-            den Geraetespeicher (gg:anim) - dieselbe Stelle, die Brett, Banner
-            und Figurenblatt zur Zeichenzeit lesen. Die Kammer (?animkammer)
-            fuehrt jede Bewegung einzeln vor. */}
-        <div style={{ marginTop: 14, paddingTop: 12, borderTop: `1px solid ${T.line}` }}>
-          <div style={{ fontSize: 13.5, fontWeight: 700, color: T.ink, marginBottom: 6 }}>Animationen</div>
-          <AnimSchalter />
-          <div style={{ fontSize: 11, color: T.faint, marginTop: 7, lineHeight: 1.45 }}>
-            Gilt fuer dieses Geraet und wirkt ueberall: Zugschweif, Schlagarten, Drachenfeuer,
-            lebende Aufstellung, Schachpuls, Koenigsfall, Muenzregen, gestaffelte Beute,
-            Verbessern-Glanz. Einzeln vorfuehren: die Animationskammer unter Verwaltung.</div>
-        </div>
-      </div>}
-    </Panel>
+    {/* ── DER SPARMODUS IST AUS DEM PROFIL VERSCHWUNDEN (v1.89.0) ───────────
+        Besitzer: "Darstellung und Leistung - Landschaft hinter dem Brett,
+        weiche Auswahl, Schatten hinter den Figuren und solche Sachen - das
+        muss alles weg. Das war einfach nur ein Thema, was ich wichtig fand."
+        Die Schalter (v1.0.37, sparmodus.js) bleiben im Code und stehen alle
+        auf AN; wer sie je gedreht hat, behaelt seinen Stand im Profil, sieht
+        ihn aber nicht mehr. Der Animationsschalter des Admins (v1.0.67)
+        bleibt als eigener Admin-Kasten. */}
+    {account?.isAdmin && <Panel>
+      <PanelTitle tag="Admin">Animationen</PanelTitle>
+      <AnimSchalter />
+      <div style={{ fontSize: 11, color: T.faint, marginTop: 7, lineHeight: 1.45 }}>
+        Gilt fuer dieses Geraet und wirkt ueberall: Zugschweif, Schlagarten, Drachenfeuer,
+        lebende Aufstellung, Schachpuls, Koenigsfall, Muenzregen, gestaffelte Beute,
+        Verbessern-Glanz. Einzeln vorfuehren: die Animationskammer unter Verwaltung.</div>
+    </Panel>}
 
     {account?.provider === "local" && <Panel>
       <PanelTitle>{t("profile.pwTitle")}</PanelTitle>

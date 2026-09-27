@@ -1,5 +1,99 @@
 # Changelog - Gambit Rise
 
+## 1.89.0 - die Wuensche des Besitzers vom 27.9., alle gemessen
+
+Zwei Sprachnachrichten, sechzehn Punkte. Jeder Punkt wurde vorher am
+lebenden DOM gemessen (Kundschafter-Berichte, Playwright gegen den Messbau)
+und hinterher noch einmal.
+
+- ONLINE-DUELL: "als Gast nicht nutzbar ... 'nutzbar' ist ueberschrieben".
+  Gasthinweis und Verbindungsstand lagen auf demselben Slot (56,8 x 12 px
+  Ueberlappung, alle Breiten). Beim Gast rueckt der Stand eine Zeile tiefer.
+- HINWEIS-POPUPS mittig, Grund im Glas-Blur, Leuchtkontur ums Fenster:
+  die Karte sass 204-246 px unter der Mitte, ohne Blur, und die Kontur lief
+  um den GANZEN Schirm (417x897 px), weil .gg-funkenkontur-innen kein eigenes
+  position hatte. Jetzt position relative, Glas wie die Reiterleiste, Kontur
+  4 px aussen mit Radius 18 um den 14-px-Rand. Nebenwirkung, gewollt: auch das
+  Auftaktfenster traegt die Kontur jetzt am Fenster.
+- AUFSTELLUNG: "maximal zweimal, wie standardmaessig erlaubt, nicht viermal".
+  Die Zweier-Grenze aus v1.24.3 war TOT: FREI_BESETZBAR (v1.1.6) warf Turm,
+  Laeufer und Springer per continue aus der Zaehlung, bevor die Grenze sie
+  sah - sechs Tuerme galten als gueltig und wurden gespeichert. Jetzt lebt sie
+  (hoechstzahl() im Kern), die Wischreihe daempft volle Figuren, eine
+  Regelzeile steht darueber, vier neue Proben halten es. Folge: ein alter
+  Spielstand mit drei gleichen Offizieren faellt still auf die Werksreihe
+  zurueck (loadFormation/buildArmyForMap ersetzen Ungueltiges).
+- GEFECHT: "Du bist am Zug" ohne Kachel und Punkt, im Kleid der Knoepfe, in
+  Riss-Lila (Schach bleibt golden); die Erklaerung einer angetippten
+  Faehigkeit ohne Lila-Kasten, mittig, jetzt IN der Leiste ueber den Karten
+  (als Kasten darueber lag sie ueber dem Hinweis unter dem Brett); das
+  Schloss ist das hauseigene LockIc statt des Emojis U+1F512 (Noto Color
+  Emoji); Talent-Kacheln ruhen in Lila, die Aktivkontur gibt es nur fuer
+  Schaltbares, die scharfe Kachel traegt die laufende Kontur .gg-funkenkontur;
+  der Ring in der Karte ist ein abgerundetes Viereck mit dem hauseigenen
+  Zeichen statt eines runden Goldrings mit Emoji.
+- FAEHIGKEITEN-ZEICHEN ueberall abgerundete Vierecke: gemessen war das
+  Zeichen selbst an allen sieben Stellen ein Kreis (AbilityIcons.jsx, zwei
+  <circle>), nur auf Kachel und Karte steckte er in einem eckig-runden Kasten
+  - im Dropdown der Figurenkarte stand er nackt. Jetzt rect rx 6.
+- HOFSTAAT-SLIDER: die Eckverzierung folgt der Kontur - Gold bei Goldrand,
+  Lila bei violettem Rand (vorher fest gold, nur der Grossmeister lila).
+- ZURUECK-KNOEPFE der Unterschirme (Schnelles Spiel, Online-Duell, Akademie)
+  fort - der Reiter SPIELEN setzt die Ansicht ohnehin auf den Hub zurueck,
+  die Zurueck-Geste ebenso.
+- KEIN SCROLLEN OHNE NOT: gemessen trug <main> 378 px Bodenpolster
+  (94 + min(30vh, 270px), v0.60), damit das Unterste ueber den Riss-Streifen
+  scrollen konnte - Schnelles Spiel scrollte um 92 px, der Hub um 155 px.
+  Jetzt 130 px + Safe-Area (die Maske ist bei 124 px voll). Gemessen danach:
+  Hub, Schnelles Spiel, Akademie ohne Ueberlauf; das Profil scrollt, weil es
+  lang ist.
+- AKADEMIE: Schnellkurs neu geschrieben - acht Lektionen, zwei bis drei
+  Saetze, ohne "Kugeln" (seit v1.25.4 Zahlen am Sockel), mit zwoelf Kapiteln,
+  Talentband, Haendler und Zweier-Grenze; die Bilder sind Vektor-Zeichen
+  (icons.jsx, PieceArt, AbilityIcons), die roemischen Ziffern reichen jetzt
+  bis X (ab der achten Lektion stand "undefined"). Lehren (lehren.js)
+  gekuerzt und auf heute gebracht (kein 10x10-Hausbrett, keine Energie-Kugel).
+  Spielweise mit gezeichnetem BRETTCHEN (neu: src/app/ui/Brettchen.jsx) fuer
+  Ziel, Rochade, En passant, Umwandlung. Chronik: nur Begegnetes (keine
+  "???"-Zeilen), zwei Spalten, aufgeschlagen ueber die ganze Breite,
+  Figurenbild 52x64 statt 40x50, Kulisse der Figur hinter jeder Kachel.
+- PROFIL im Lila-Look des Gast-Hinweises: alle Kaesten und Ueberschriften des
+  Profils im selben Kleid (lokales Panel/PanelTitle in ProfileScreen.jsx),
+  keine Raute vor Ueberschriften, Bilanz und Reise in derselben Zeile wie der
+  Rest. "Darstellung & Leistung" ist aus dem Profil fort (die Schalter bleiben
+  im Code auf AN; der Animationsschalter des Admins hat einen eigenen
+  Admin-Kasten). Feedback: vier Rubriken statt sieben (Balance, Darstellung,
+  Online gehen in Fehler/Vorschlag auf; alte Berichte bleiben lesbar), Chips
+  und Textfeld in Lila/Weiss.
+- KLANG (Besitzer: "manchmal ein lautes Klacken beim Druecken von
+  Menue-Knoepfen"): Summenspitzen, harte Einsaetze und Aussteuerung sind seit
+  v1.1.1 abgefangen; was zu "manchmal, nicht nachmachbar" passt, ist der
+  erste Ton nach einer Stille (Ausgabestrom/Verstaerker schlaeft ein; Kontext
+  suspended, Ton startete gleichzeitig mit resume()). Warmhalter in klang.js:
+  stiller Dauerpuffer (-100 dBFS), geweckt bei der ersten Beruehrung, Ton
+  erst nach resume(). HYPOTHESE - auf dem Handy zu bestaetigen.
+- ZWEI ABSTUERZE AUS DEM AUDIT behoben (design/AUDIT-2026-09-27.md, A3 und
+  A4 - beide vom Skeptiker bestaetigt, beide ReferenceError beim Rendern):
+  (1) das SIEGESBANNER las `profile` fuer den Heldennamen in der Stimme des
+  Meisters (mitHeld), bekam es aber nie uebergeben - Absturz bei JEDEM
+  Kampagnensieg gegen einen Gegner mit Stimme, schon in Kapitel I, genau im
+  Moment des Sieges. Das ist der wahrscheinlichste Kandidat fuer die vom
+  Besitzer gemeldeten Abstuerze "wenn ich in die Kapitel zurueckgehe": die
+  Navigationsprobe (v1.86.0) spielte nie bis zum Sieg. (2) das
+  RUECKBLICK-STATIONSFENSTER (ueber die Weltkarte eine Boss-Station eines
+  anderen Kapitels oeffnen) benutzte paintedById ohne Import.
+- SPIELTEST-FUND behoben: die Ereignis-Meldung ("Rochade", "Laeufer
+  gefallen") blieb in der Kopfzeile haengen, bis ins Aufgeben-Banner und in
+  die NEUE Partie (gemessen: 5 von 11 Meldungen standen nach 8 s noch). Kam
+  der naechste Zug vor Ablauf der 2,6 s, raeumte das Cleanup beide Timer weg
+  und ein Zug ohne Ereignis kehrte zurueck, ohne zu loeschen. Jetzt loescht
+  jeder ereignislose Zug, und reset() loescht beim Neustart.
+- DOKUMENTE: design/FAEHIGKEITEN-2026-09-27.md (alle 32 Faehigkeiten,
+  Leitern, Luecken, Ideen fuer neue), design/UEBERGABE-2026-09-27.md (die
+  Uebergabe aus der Cloud-Sitzung).
+- Proben nachgezogen: test_ui.jsx (Chronik ohne "???", Schnellkurs-Texte),
+  test_progression.mjs (Zweier-Grenze), test_zauber.mjs (AbilityIcon).
+
 ## 1.88.0 - der Riegel vor /spielen/ ist fort
 
 - Besitzer (27.9.): "wenn ich den Entwicklerzugang nehme, dann fehlt ja das

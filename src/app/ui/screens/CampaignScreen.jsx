@@ -35,7 +35,11 @@ import { T } from "../theme.js";
 import { Button, Chip } from "../primitives.jsx";
 import { GoldShineButton } from "../Gilded.jsx";
 import { PieceArt } from "../board/PieceArt.jsx";
-import { paintedForPiece, PAINTED, ENEMY_FILTER } from "../board/paintedArt.js";
+/* v1.89.0 (Audit A3, gemessen): paintedById wurde im Rueckblick-Stationsfenster
+   benutzt (Bild des Meisters), aber nie importiert - ReferenceError beim
+   Rendern, sobald man ueber die Weltkarte eine Boss-Station eines anderen
+   Kapitels oeffnete. Keine Probe fuhr den Zweig. */
+import { paintedForPiece, paintedById, PAINTED, ENEMY_FILTER } from "../board/paintedArt.js";
 import { livery } from "../livery.js";
 import { ItemIcon } from "../ItemIcon.jsx";
 import { ElementIcon, GoldCoin, SkullIc, BladesIc, LockIc, HeartIc, MapPinIc, BackIc, WaveIc, AnchorIc, BoatIc, CheckIc, BoxIc } from "../icons.jsx";

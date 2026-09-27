@@ -491,6 +491,12 @@ export const crownSlots = (size) => ({ king: Math.floor(size / 2), queen: Math.f
 
 export const formationSpec = (map) => ({ required: map.formation.required, flex: map.formation.flex, size: map.w });
 
+/** Wie oft eine Figur in EINER Aufstellung stehen darf: die drei alten
+ *  Offiziere zweimal (wie im Schach), jede andere Figur einmal. Eine Zahl,
+ *  ein Ort - Kern und Wischreihe lesen dieselbe. */
+export const HOECHSTZAHL_JE_FIGUR = { bishop: 2, rook: 2, knight: 2 };
+export const hoechstzahl = (id) => HOECHSTZAHL_JE_FIGUR[id] || 1;
+
 /** Map-aware legality: required composition + size come from the map. */
 export function formationLegalOn(formation, unlockedIds, map, ownedBosses = []) {
   const { required, flex, size } = formationSpec(map);
@@ -546,7 +552,6 @@ export function formationLegalOn(formation, unlockedIds, map, ownedBosses = []) 
      besetzbar ("man darf das Pferd, den Turm und auch den Laeufer immer frei
      besetzen"), und nur die REKRUTIERTEN sind auf eins begrenzt - das ist
      der Teil, der bisher ganz fehlte: man konnte vier Amazonen aufstellen. */
-  const FREI_BESETZBAR = new Set(["bishop", "rook", "knight"]);
   /* ── v1.24.3: DIE ZWEIER-GRENZE (Besitzerentscheid zum 8x8-Umbau) ────────
      Auf acht Plaetzen darf man Laeufer, Springer und Turm ZWEIMAL aufstellen -
      wie im Schach. Alles andere bleibt einmalig.
@@ -554,14 +559,19 @@ export function formationLegalOn(formation, unlockedIds, map, ownedBosses = []) 
      Grundstellung der Arena war zehn Felder breit und trug VIER Springer -
      eine Zweier-Grenze haette die eigene Startaufstellung verboten. Erst mit
      acht Plaetzen ist die Regel ueberhaupt widerspruchsfrei. */
-  const HOECHSTZAHL = { bishop: 2, rook: 2, knight: 2 };
+  /* ── v1.89.0 (Besitzer, zum dritten Mal: "man darf sie maximal zweimal
+     nehmen, so wie es standardmaessig erlaubt ist, aber nicht viermal"):
+     GEMESSEN war die Grenze von v1.24.3 TOT. Das Set FREI_BESETZBAR aus
+     v1.1.6 warf Turm, Laeufer und Springer mit `continue` aus der Zaehlung,
+     BEVOR die Zweier-Grenze darunter sie sehen konnte - sechs Tuerme galten
+     als gueltig, die Zaehlzeilen blieben gruen, der Stand wurde gespeichert.
+     Das Set ist gestrichen; die Grenze kommt aus hoechstzahl(). */
   const jeFigur = new Map();
   for (const id of formation) {
     if (id == null || isBossEntry(id) || id === "king" || id === "queen") continue;
-    if (FREI_BESETZBAR.has(id)) continue;
     jeFigur.set(id, (jeFigur.get(id) || 0) + 1);
   }
-  for (const [id, n] of jeFigur) if (n > (HOECHSTZAHL[id] || 1)) return false;
+  for (const [id, n] of jeFigur) if (n > hoechstzahl(id)) return false;
   if (bossN > 1) return false;                      // hoechstens EIN Kapitelmeister - er ersetzt die Dame
   // THE CROWN KEEPS ITS SQUARES: not merely adjacent — fixed. The king may sit
   // nowhere else, and the queen's square holds either the queen or the one

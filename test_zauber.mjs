@@ -194,7 +194,9 @@ console.log("\n== Die Oberflaeche zeigt die Talente ==");
   ok("die Karten unterscheiden Zauber und dauerhafte Talente", kl2.includes('"dauerhaft"') && kl2.includes('"antippen"'));
   ok("sie sagen, wenn das Buch geschlossen ist", kl2.includes("Das Buch ist geschlossen"));
   ok("und das Band zeigt keine Talente mehr (keine zweite Anzeige)", !bv.includes('"antippen"') && bv.includes("traegt die Kampfleiste alles"));
-  ok("die Karten tragen die Art-Farbe der Chronik im Zeichen", kl2.includes("ABILITIES[id].icon"));
+  /* v1.89.0: die Karte traegt das hauseigene Zeichen (AbilityIcon, Farbe nach
+     der Art) statt des Emojis aus dem Katalog */
+  ok("die Karten tragen die Art-Farbe der Chronik im Zeichen", kl2.includes("<AbilityIcon id={id}"));
   ok("es liest die Chronik, nicht eine zweite Liste", bv.includes('from "../../../content/abilities.js"'));
   ok("ZAUBER RUHEN, bis ihr Chip gewaehlt ist (scharf)", bv.includes("mv.consumes && mv.consumes !== scharf"));
   ok("Auswahlwechsel entschaerft", bv.includes("setScharf(null); }, [sel])"));

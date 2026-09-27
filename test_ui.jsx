@@ -424,7 +424,9 @@ const erloschen = (m) => m.includes("#2f2a3d");
   const veiled = (m) => (m.match(/>\?\?\?</g) || []).length;
   const named = (m) => CHARACTER_LIST.filter((c) => m.includes(">" + c.nameDe + "<")).length;
 
-  ok("a fresh player's chronicle still keeps its secrets", veiled(player) > 20);
+  /* v1.89.0 (Besitzer: "natuerlich darf man immer nur das sehen, was man schon
+     freigespielt hat"): keine "???"-Zeilen mehr - Unbekanntes fehlt ganz */
+  ok("a fresh player's chronicle shows only what was met - no veiled rows", veiled(player) === 0);
   ok("the admin's chronicle hides nothing", veiled(admin) === 0);
   ok("the admin sees every figure by name", named(admin) === CHARACTER_LIST.length);
   ok("the player does not", named(player) < CHARACTER_LIST.length);
@@ -434,9 +436,10 @@ const erloschen = (m) => m.includes("#2f2a3d");
   const chipMarks = [IC_COIN, IC_SKILL].map((u) => u.slice(40, 104));
   const chips = chipMarks.reduce((n, mark) => n + (admin.split(mark).length - 1), 0);
   const plates = (admin.match(/<img/g) || []).length - chips;
-  ok("every chronicle row carries a vector sigil", sigils >= CHARACTER_LIST.length);
+  /* v1.89.0: zugeklappt zeigt die Kachel nur das Gemaelde (zwei Spalten, groesseres
+     Bild); das Vektor-Zeichen erscheint erst in der aufgeschlagenen Kachel */
+  ok("closed chronicle rows show the painting only", sigils === 0);
   ok("the paintings are there too, one per row", plates >= CHARACTER_LIST.length);
-  ok("sigils and paintings pair up one for one", sigils === plates);
 }
 
 // ── 11. THE EMPTY MAP MUST STILL DRAW ───────────────────────────────────────
@@ -561,7 +564,8 @@ const erloschen = (m) => m.includes("#2f2a3d");
   // stepper, so every page gets rendered and searched
   const pages = Array.from({ length: 14 }, (_, n) =>
     html(<TutorialScreen t={t} en={false} onDone={() => {}} startAt={n} />)).join("");
-  ok("the academy teaches the two orbs", pages.includes("Die zwei Kugeln") && pages.includes("Kampfkraft"));
+  /* v1.89.0: die "zwei Kugeln" sind seit v1.25.4 Zahlen am Sockel - die Lehre heisst jetzt so */
+  ok("the academy teaches the two numbers", pages.includes("Die Zahlen am Sockel") && pages.includes("Kampfkraft"));
   ok("the academy teaches the rebound", pages.includes("Rückprall") && pages.includes("ZURÜCK"));
   ok("the academy shows the actual orbs, not a stand-in", pages.includes("data:image/webp"));
 }
@@ -894,9 +898,12 @@ const erloschen = (m) => m.includes("#2f2a3d");
   // and its campaign card must match the story as it stands today
   ok("the academy no longer speaks of a League Keep",
     !pages.includes("Ligafeste") && !pages.includes("League Keep"));
-  ok("it names the citadel and the grandmaster", pages.includes("Zitadelle") && pages.includes("Großmeister"));
-  ok("it teaches the one-spell rule", /pro Partie nur EINE/.test(pages));
-  ok("it names the four gambits", ["Quick Gambit", "Rush Gambit", "Prime Gambit", "Classic Gambit"].every((x) => pages.includes(x)));
+  /* v1.89.0 (Besitzer: "Texte wirklich kurz halten"): zwoelf Kapitel und der
+     Meister am Kapitelende statt Zitadelle/Grossmeister; die Ein-Zauber-Regel
+     in einem Satz; die vier Online-Tempi stehen nicht mehr im Schnellkurs */
+  ok("it names the twelve chapters and the master", pages.includes("Zwölf Kapitel") && pages.includes("Meister"));
+  ok("it teaches the one-spell rule", /nur einmal je Partie/.test(pages));
+  ok("it teaches quick play and two players on one device", pages.includes("zu zweit an einem Gerät"));
 }
 
 // ── 19. EVERY PIECE OF GEAR OPENS ITS SHEET ─────────────────────────────────

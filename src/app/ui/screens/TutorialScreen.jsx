@@ -6,62 +6,58 @@ import { T } from "../theme.js";
 import { Button } from "../primitives.jsx";
 import { PieceArt } from "../board/PieceArt.jsx";
 import { ItemIcon } from "../ItemIcon.jsx";
-import { SkullIc, BladesIc, HourglassIc, SkillStar, GoldCoin, HeartIc, GoldHeartIc, SwordsIc, HourglassGIc, GoldSkullIc, SkillIc, LevelIc, CoinIc } from "../icons.jsx";
-import { JewelIc } from "../board/PieceGlyph.jsx";
+import { GoldSkullIc, SkillIc, LevelIc, CoinIc } from "../icons.jsx";
+import { AbilityIcon } from "../AbilityIcons.jsx";
 
+/* ── v1.89.0 (Besitzer: "Der Schnellkurs muss vor allem ueberarbeitet werden.
+   Es sind noch alte Bilder drin - gerade diese Lebensbubbles und das Zeug.
+   Achte darauf, dass es selbst von dir gezeichnete Dinge sind, und versuch
+   die Texte wirklich kurz zu halten."): acht Lektionen statt neun, jede zwei
+   bis drei Saetze, auf dem Stand von heute (zwoelf Kapitel, Zahlen am Sockel
+   statt Kugeln, Talentband, Haendler, Zweier-Grenze der Aufstellung). Die
+   Bilder sind Vektor-Zeichen aus icons.jsx, PieceArt und AbilityIcons -
+   kein Juwel, kein Foto. Die Woerter "Kampfkraft", "Rueckprall" und "ZURUECK"
+   bleiben stehen: test_ui.jsx sucht sie. */
+const ZAHL = (farbe, n, gross = 26) => <span style={{ font: `800 ${gross}px/1 Georgia, serif`, color: farbe }}>{n}</span>;
 const STEPS = [
   {
-    de: { title: "Das Spiel", text: "Gambit ist Schach mit Herz: Jede Figur hat Lebenspunkte und Angriffsstärke. Wer eine Figur angreift, richtet Schaden an — erst wenn die Herzen fallen, verlässt sie das Brett. Der Gambit selbst, der goldene Bauer, ist der Held der Geschichte." },
-    en: { title: "The game", text: "Gambit is chess with a heartbeat: every piece carries life points and attack strength. Attacking deals damage — a piece only leaves the board once its hearts run out. The Gambit himself, the golden pawn, is the hero of the tale." },
+    de: { title: "Das Spiel", text: "Schach mit Lebenspunkten: Jede Figur trägt Leben und Kampfkraft. Wer angreift, macht Schaden — erst bei null verlässt die Figur das Brett. Der Gambit, der goldene Bauer, ist dein Held." },
+    en: { title: "The game", text: "Chess with life points: every piece carries life and attack strength. Attacking deals damage — a piece only leaves the board at zero. The Gambit, the golden pawn, is your hero." },
     art: <div style={{ width: 64, height: 64 }}><PieceArt kind="P" fill="#c9a45c" rim="#f0dfae" detail="#59421a" size="100%" level={1} hero /></div>,
   },
   {
-    de: { title: "Ziehen & Kämpfen", text: "Figuren ziehen wie im Schach. Ein Zug auf ein gegnerisches Feld ist ein Angriff: Deine Angriffsstärke trifft seine Lebenspunkte. Überlebt der Gegner, bleibst du stehen — überlege also, wen du wohin schickst. Der König muss immer geschützt bleiben." },
-    en: { title: "Move & fight", text: "Pieces move as in chess. Stepping onto an enemy square is an attack: your attack strikes their life points. If the defender survives, you hold your ground — so choose your targets well. The king must always be kept safe." },
-    art: <div style={{ display: "flex", gap: 12, alignItems: "center" }}><JewelIc kind="life" size={26} /><JewelIc kind="power" size={26} /></div>,
+    de: { title: "Die Zahlen am Sockel", text: "Unter jeder Figur stehen zwei Zahlen: ROT ihr Leben, BLAU ihre Kampfkraft. Beide wachsen mit den Stufen im Hofstaat." },
+    en: { title: "The numbers on the plinth", text: "Two numbers sit beneath every piece: RED its life, BLUE its attack strength. Both grow with the levels in your court." },
+    art: <div style={{ display: "flex", gap: 14, alignItems: "baseline" }}>{ZAHL("#ffb3aa", 5)}{ZAHL("#b6cdff", 3)}</div>,
   },
   {
-    de: { title: "Die zwei Kugeln", text: "Unter jeder Figur liegen zwei Juwelen. BLAU ist die Kampfkraft: so viele Lebenspunkte reißt sie dem Gegner bei einem Angriff herunter. ROT sind ihre Lebenspunkte: so viel hält sie selbst aus. Ein goldener Stern darüber heißt, dass ihre eine Fähigkeit für diese Partie noch frei ist." },
-    en: { title: "The two orbs", text: "Two jewels sit beneath every piece. BLUE is attack strength: that many life points it tears off an enemy when it strikes. RED is its own life: that much it endures. A golden star above them means its one ability is still unspent this match." },
-    /* v1.25.4: die Lehre zeigt die Zahlen in den Farben des Sockelbandes,
-       nicht mehr als Perlen (Besitzer: "die koennen raus, egal wo"). */
-    art: <div style={{ display: "flex", gap: 14, alignItems: "baseline" }}>
-      <span style={{ font: "800 26px/1 Georgia, serif", color: "#b6cdff" }}>3</span>
-      <span style={{ font: "800 26px/1 Georgia, serif", color: "#ffb3aa" }}>5</span></div>,
+    de: { title: "Angriff & Rückprall", text: "Ein Zug auf ein besetztes Feld ist ein Angriff: Deine Kampfkraft trifft sein Leben. Hält der Gegner stand, springt deine Figur ZURÜCK — erst wenn sein letzter Punkt fällt, rückst du vor. Mit 3 Kraft gegen 5 Leben brauchst du zwei Angriffe." },
+    en: { title: "Strike & rebound", text: "Moving onto an occupied square is an attack: your strength meets their life. If the defender holds, your piece springs BACK — only when their last point falls do you advance. With 3 strength against 5 life you need two strikes." },
+    art: <div style={{ display: "flex", gap: 8, alignItems: "baseline" }}>{ZAHL("#b6cdff", 3, 22)}<span style={{ color: "#8a6f4d", fontSize: 18 }}>→</span>{ZAHL("#ffb3aa", 5, 22)}<span style={{ color: "#8a6f4d", fontSize: 18 }}>→</span>{ZAHL("#ffb3aa", 2, 22)}</div>,
   },
   {
-    de: { title: "Angriff & Rückprall", text: "Ein Zug auf ein besetztes Feld ist ein Angriff: Deine Kampfkraft trifft seine Lebenspunkte. Hält der Gegner stand, springt deine Figur auf ihr Ausgangsfeld ZURÜCK — das ist kein Fehler, sondern die Regel. Erst wenn sein letzter Lebenspunkt fällt, rückst du auf sein Feld vor. Ein Angreifer mit 3 Kraft braucht gegen 5 Leben also zwei Angriffe." },
-    en: { title: "Strike & rebound", text: "Moving onto an occupied square is an attack: your force meets their life. If the defender holds, your piece springs BACK to where it came from — that is the rule, not a glitch. Only when their last life point falls do you advance onto their square. So a striker with 3 force needs two attacks to fell 5 life." },
-    art: <div style={{ display: "flex", gap: 8, alignItems: "baseline" }}>
-      <span style={{ font: "800 22px/1 Georgia, serif", color: "#b6cdff" }}>3</span>
-      <span style={{ color: "#8a6f4d", fontSize: 18 }}>→</span>
-      <span style={{ font: "800 22px/1 Georgia, serif", color: "#ffb3aa" }}>5</span>
-      <span style={{ color: "#8a6f4d", fontSize: 18 }}>→</span>
-      <span style={{ font: "800 22px/1 Georgia, serif", color: "#ffb3aa" }}>2</span></div>,
+    de: { title: "Talente & Zauber", text: "Im Hofstaat lernen Figuren Fähigkeiten. Im Gefecht liegt das Talentband unter dem Brett: Kachel antippen, leuchtendes Feld wählen. Jeder Zauber wirkt nur einmal je Partie." },
+    en: { title: "Talents & spells", text: "Pieces learn abilities in the court. In battle the talent band sits below the board: tap a tile, pick the glowing square. Each spell works only once per match." },
+    art: <div style={{ display: "flex", gap: 10, alignItems: "center" }}><AbilityIcon id="teleport" size={30} /><AbilityIcon id="ranged_shot" size={30} /><AbilityIcon id="knight_longleap" size={30} /></div>,
   },
   {
-    de: { title: "Tränke & Zeitenwender", text: "In der Vorratstruhe warten Helfer: Der Lebenstrank heilt im Kampf eine Figur um 2 Lebenspunkte (kostet den Zug). Der Zeitenwender nimmt deinen letzten Zug zurück — jede Umkehr verbrennt eine Sanduhr. Beides wird mit Gold gekauft und ist begrenzt." },
-    en: { title: "Draughts & time-turners", text: "The supply chest holds helpers: the healing draught restores 2 life points to a piece mid-battle (spends the turn). The time-turner takes back your last move — each reversal burns one hourglass. Both are bought with gold, both are scarce." },
-    art: <div style={{ display: "flex", gap: 10, alignItems: "center" }}><ItemIcon id="potion" size={34} /><ItemIcon id="hourglass" size={34} /></div>,
+    de: { title: "Die Kampagne", text: "Zwölf Kapitel, jedes eine Karte voller Stationen. Besiegte Herausforderer treten deinem Hofstaat bei; am Ende jedes Kapitels wartet ein Meister." },
+    en: { title: "The campaign", text: "Twelve chapters, each a map full of stations. Beaten challengers join your court; a master waits at the end of every chapter." },
+    art: <div style={{ display: "flex", gap: 12, alignItems: "center" }}><LevelIc size={26} /><GoldSkullIc size={26} /></div>,
   },
   {
-    de: { title: "Die Kampagne", text: "Jede Welt führt über vier Kapitel — Der Aufbruch, Die drei Pfade, Die Prüfungen, Der Aufstieg — bis zur Zitadelle, wo der Großmeister wartet. An den 51 Stationen stehen Herausforderer: Besiege sie, und sie treten deinem Hofstaat bei. Nur die Gegner mit dem Totenkopf sind reine Ungeheuer. Manche Pfade sind verschlossen und wollen Gold oder Ausrüstung. Und hinter der Zitadelle liegt die nächste Welt." },
-    en: { title: "The campaign", text: "Every world runs through four chapters — The Setting Out, The Three Paths, The Trials, The Ascent — up to the Citadel, where the Grandmaster waits. Challengers hold the 51 stations: beat them and they join your court. Only the skull-marked foes are pure monsters. Some paths are barred and demand gold or gear. And beyond the Citadel lies the next world." },
-    art: <div style={{ display: "flex", gap: 12, alignItems: "center" }}><JewelIc kind="power" size={26} /><GoldSkullIc size={26} /></div>,
-  },
-  {
-    de: { title: "Der Hofstaat", text: "Rekrutierte Figuren steigen mit Skillpunkten ✦ auf und lernen dabei Fähigkeiten. Eine Figur darf mehrere KÖNNEN — aber pro Partie nur EINE wirken; der goldene Stern über ihren Kugeln zeigt, dass sie ihren Zauber noch frei hat. In der Aufstellung wählst du deine Reihe und den Platz des Gambit; König und Dame stehen dabei immer auf denselben Feldern, und nur ein Meister darf den Platz der Dame einnehmen. Besiegst du einen Herausforderer erneut, tritt er als Abtrünniger gegen dich an — der Doppelsieg schenkt einen Stern ★." },
-    en: { title: "The court", text: "Recruited pieces rise with skill points ✦ and learn abilities along the way. A piece may KNOW several — but casts only ONE per match; the golden star above its orbs means its spell is still unspent. In the formation you choose your rank and the Gambit's file; king and queen always hold the same squares, and only a master may take the queen's place. Beat a challenger a second time and they face you as a turncoat — the double victory grants a star ★." },
+    de: { title: "Hofstaat & Aufstellung", text: "Skillpunkte ✦ heben deine Figuren auf neue Stufen. In der Aufstellung wählst du deine Reihe: Turm, Läufer und Springer höchstens zweimal, jede andere Figur einmal — und nur ein Meister darf den Platz der Dame nehmen." },
+    en: { title: "Court & formation", text: "Skill points ✦ raise your pieces to new levels. In the formation you pick your rank: rook, bishop and knight at most twice, every other piece once — and only a master may take the queen's place." },
     art: <div style={{ display: "flex", gap: 10, alignItems: "center" }}><SkillIc size={26} /><LevelIc size={26} /></div>,
   },
   {
-    de: { title: "Gold & Truhe", text: "Jeder Sieg füllt die Schatzkammer. Gold öffnet Zollbrücken, kauft Ausrüstung und Tränke. Die Truhe enthüllt ihre Gegenstände erst nach und nach — was die Reise noch nicht erreicht hat, bleibt versiegelt." },
-    en: { title: "Gold & chest", text: "Every victory fills the treasury. Gold opens toll bridges, buys gear and draughts. The chest reveals its wares one by one — whatever the journey has not reached stays under seal." },
-    art: <CoinIc size={30} />,
+    de: { title: "Gold & Händler", text: "Siege füllen die Schatzkammer. Beim Händler gibt es Lebenstränke, Zeitenwender, Mauern und Schlüssel — jeder Einsatz im Gefecht kostet den Zug." },
+    en: { title: "Gold & merchant", text: "Victories fill the treasury. The merchant sells life potions, time-turners, walls and keys — every use in battle costs your turn." },
+    art: <div style={{ display: "flex", gap: 10, alignItems: "center" }}><CoinIc size={30} /><ItemIcon id="potion" size={34} /><ItemIcon id="hourglass" size={34} /></div>,
   },
   {
-    de: { title: "Schnell & zu zweit", text: "Im Schnellen Spiel wartet die KI in drei Stufen — oder ihr spielt zu zweit an einem Gerät: Das Brett dreht sich nach jedem Zug zum Ziehenden. Online wählst du dein Tempo: Quick Gambit für pure Reflexe, Rush Gambit als schneller Wettkampf, Prime Gambit für ruhige Berechnung und Classic Gambit über Tage hinweg. Und nun: Ein Reich wartet auf seinen Strategen." },
-    en: { title: "Quick & together", text: "Quick play offers the AI in three tiers — or two players share one device: the board turns to face whoever moves. Online you pick your pace: Quick Gambit for pure reflex, Rush Gambit for a fast contest, Prime Gambit for calm calculation and Classic Gambit across days. And now: a realm awaits its strategist." },
+    de: { title: "Schnell & zu zweit", text: "Schnelles Spiel: sofort aufs Brett — klassisch oder mit Lebenspunkten, gegen die KI oder zu zweit an einem Gerät. Und nun: Ein Reich wartet auf seinen Strategen." },
+    en: { title: "Quick & together", text: "Quick play: straight onto the board — classic or with life points, against the AI or two players on one device. And now: a realm awaits its strategist." },
     art: <div style={{ width: 56, height: 56 }}><PieceArt kind="K" fill="#c9a45c" rim="#f0dfae" detail="#59421a" size="100%" level={1} /></div>,
   },
 ];
@@ -121,7 +117,8 @@ export function TutorialScreen({ t, en, onDone, startAt = 0 }) {
   const step = PAGES[page];
   const L = en ? step.en : step.de;
   const last = page === PAGES.length - 1;
-  const roman = ["I", "II", "III", "IV", "V", "VI", "VII"];
+  /* v1.89.0: zehn Ziffern - bei neun Lektionen stand ab der achten "undefined" */
+  const roman = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
   return (
     <div style={{ maxWidth: 460, margin: "0 auto" }}>
       <div style={{ display: "flex", gap: 6, justifyContent: "center", marginBottom: 12 }}>

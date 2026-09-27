@@ -15,8 +15,24 @@ import { hpUnlocked } from "../../../meta/index.js";
 import { LEHREN } from "../../../content/lehren.js";
 import { ChroniclePanel } from "./ArmyScreen.jsx";
 import { TutorialScreen } from "./TutorialScreen.jsx";
+import { Brettchen } from "../Brettchen.jsx";
+
+/* ── v1.89.0 (Besitzer: "bei der Spielweise visuell arbeiten mit diesen
+   Schachfelddarstellungen"): zu den Lehren, die einen ZUG erklaeren, steht
+   ein Brettchen - gezeichnet, nicht fotografiert. Koordinaten (x, y) mit
+   (0,0) oben links; Weiss unten. */
+const BRETTCHEN = {
+  ziel: { figuren: [{ x: 0, y: 0, kind: "K", dunkel: true }, { x: 1, y: 1, kind: "Q" }, { x: 1, y: 2, kind: "K" }],
+    schlaege: [[1, 0], [0, 1]] },
+  rochade: { figuren: [{ x: 1, y: 4, kind: "K" }, { x: 4, y: 4, kind: "R" }],
+    pfeile: [[1, 4, 3, 4], [4, 4, 2, 4]], geister: [{ x: 3, y: 4, kind: "K" }, { x: 2, y: 4, kind: "R" }] },
+  enpassant: { figuren: [{ x: 1, y: 2, kind: "P" }, { x: 2, y: 2, kind: "P", dunkel: true }],
+    pfeile: [[2, 0, 2, 2, "gestrichelt"], [1, 2, 2, 1]], schlaege: [[2, 2]], ziele: [[2, 1]] },
+  umwandlung: { figuren: [{ x: 2, y: 1, kind: "P" }], pfeile: [[2, 1, 2, 0]], geister: [{ x: 2, y: 0, kind: "Q" }] },
+};
 
 function Lehrtafel({ eintrag }) {
+  const brett = BRETTCHEN[eintrag.id];
   return (
     <div style={{ background: `linear-gradient(170deg, ${T.panel2}, ${T.panel})`,
       border: `1px solid ${T.line}`, borderRadius: T.radius, padding: "12px 14px" }}>
@@ -24,6 +40,7 @@ function Lehrtafel({ eintrag }) {
         {eintrag.sym ? <span style={{ marginRight: 8, fontSize: 18 }}>{eintrag.sym}</span> : null}
         {eintrag.titel}
       </div>
+      {brett && <div style={{ margin: "4px 0 10px" }}><Brettchen {...brett} /></div>}
       {eintrag.text.split("\n\n").map((abs, i) => (
         <div key={i} style={{ fontSize: 12.5, lineHeight: 1.62, color: T.text, marginTop: i ? 8 : 0 }}>{abs}</div>
       ))}

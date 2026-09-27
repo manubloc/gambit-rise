@@ -14,7 +14,7 @@ import { iconFarbe } from "../AbilityIcons.jsx";   /* v1.26.6 */
 import { BASE_HP, BASE_ATK, SHIELD_HP, HELD_PUNKTE, NORM_PUNKTE, werteBeiStufe, createGame, familyOf, crownHp, crownWallSoak, shadowRifts, shadowAtk } from "../../../core/index.js";
 import {
   characterLevel, resolveCharacter, isUnlocked, upgradeCost, canUpgrade, maxLevelFor, gambitTier, clearedCount,
-  formationKey, gespeicherteAufstellung, formationLegalOn, formationCounts, buildArmyFromFormation, buildArmyFrom, defaultFormation, buildAiArmyForMap, hpUnlocked, ownedLeagueBosses, isBossEntry, bossEntryId, crownSlots,
+  formationKey, gespeicherteAufstellung, formationLegalOn, formationCounts, hoechstzahl, buildArmyFromFormation, buildArmyFrom, defaultFormation, buildAiArmyForMap, hpUnlocked, ownedLeagueBosses, isBossEntry, bossEntryId, crownSlots,
   chosenAbilities, abilityCost, canUnlockAbility, faehigkeitsStufe, stufeBenoetigt, canUpgradeAbility, dupeCount, RESPEC_GOLD, heroColFor, mapUnlocked,
   itemRevealed, bossWinsFor, effectiveNodeBoss, nodeStatus, hpWach } from "../../../meta/index.js";
 import { CAMPAIGN } from "../../../content/index.js";
@@ -794,42 +794,55 @@ export function ChroniclePanel({ profile, t, en, account = null }) {
      (sein kind "P" waere durch jeden Bauern sofort "begegnet"). */
   /* v1.34.0: vor dem ersten Sieg ist der Gambit noch nicht erwacht und fehlt in
      der Chronik - ausser fuer den Admin, der alles sieht */
-  const figures = CHARACTER_LIST.filter((c) => c.id !== "gambit" || isAdmin || gambitWach(profile));
+  /* v1.89.0 (Besitzer: "natuerlich darf man immer nur das sehen, was man
+     schon freigespielt hat ... die Dropdowns zwei nebeneinander, aufgeklappt
+     ein grosses; das Bild der Figur minimal groesser; hinter die Kacheln den
+     Hintergrund der Karten"): die Chronik zeigt nur Begegnetes - keine
+     "???"-Zeilen mehr -, steht in zwei Spalten, eine aufgeschlagene Kachel
+     nimmt die ganze Breite, und jede Kachel traegt die Kulisse ihrer Figur
+     wie die Karten im Hofstaat. */
+  const figures = CHARACTER_LIST.filter((c) => c.id !== "gambit" || isAdmin || gambitWach(profile)).filter(seenChar);
   const FAM = { golem: ["Golems", "Golems"], beast: ["Bestien", "Beasts"], serpent: ["Schlangen", "Serpents"], wraith: ["Schemen", "Wraiths"], tyrant: ["Tyrannen", "Tyrants"] };
-  return <div style={{ display: "grid", gap: 8 }}>
-    <div className="gg-serif" style={{ fontSize: 12.5, color: "#a9a28a", fontStyle: "italic", lineHeight: 1.5, padding: "2px 4px" }}>
+  const kachel = (open, grund) => ({ borderRadius: 12, border: `1px solid ${open ? T.riftLine : "rgba(124,58,237,.4)"}`,
+    boxShadow: open ? `0 0 16px ${T.riftGlow}` : "0 0 7px rgba(124,58,237,.16)",
+    background: grund, overflow: "hidden", position: "relative", isolation: "isolate",
+    gridColumn: open ? "1 / -1" : "auto" });
+  const kopf = (open) => ({ display: "flex", flexDirection: open ? "row" : "column", alignItems: "center", gap: open ? 10 : 4,
+    width: "100%", padding: open ? "8px 10px" : "10px 8px 8px", background: "none", border: "none", cursor: "pointer",
+    textAlign: open ? "left" : "center", position: "relative" });
+  return <div data-chronik="1" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+    <div className="gg-serif" style={{ gridColumn: "1 / -1", fontSize: 12.5, color: "#a9a28a", fontStyle: "italic", lineHeight: 1.5, padding: "2px 4px" }}>
       {t("chron.law")}</div>
+    {figures.length === 0 && <div style={{ gridColumn: "1 / -1", fontSize: 12.5, color: "#8a856f", padding: "6px 4px" }}>
+      {en ? "No figure met yet — the chronicle fills as you play." : "Noch keiner Figur begegnet — die Chronik füllt sich beim Spielen."}</div>}
     {figures.map((ch) => {
       const open = openId === ch.id;
-      const seen = seenChar(ch);
+      const seen = true;
       const rungs = ch.ladder.filter((r) => r.ability);
+      const bild = !schlichtAn() ? bildnisVon(ch.id, characterLevel(profile, ch.id) || 1) : null;
       // Jede Figur kam durch den Riss - deshalb umfasst sie sein Licht:
       // ruhig im Regal, leuchtend sobald sie aufgeschlagen wird.
-      return <div key={ch.id} style={{ borderRadius: 12, border: `1px solid ${open ? T.riftLine : "rgba(124,58,237,.4)"}`,
-        boxShadow: open ? `0 0 16px ${T.riftGlow}` : "0 0 7px rgba(124,58,237,.16)",
-        background: "linear-gradient(180deg, rgba(30,18,58,.55), rgba(6,4,12,.7))", overflow: "hidden" }}>
-        <button onClick={() => seen && setOpenId(open ? null : ch.id)} style={{ display: "flex", alignItems: "center", gap: 10,
-          width: "100%", padding: "8px 10px", background: "none", border: "none", cursor: seen ? "pointer" : "default", textAlign: "left" }}>
+      return <div key={ch.id} style={kachel(open, "linear-gradient(180deg, rgba(30,18,58,.55), rgba(6,4,12,.7))")}>
+        <KulisseHinterGrund name={kulisseFuer({ charId: ch.id })} deckung={0.5} ton={bild ? figurFarbe(paintedIdOf(bild)) : null} tonStaerke={0.3} />
+        <button onClick={() => setOpenId(open ? null : ch.id)} style={kopf(open)}>
           {/* BOTH FACES OF A FIGURE: the painting as she appears in battle and,
               beside it, the plain vector sigil — the shape you read at a glance
               on the board. The chronicle is a reference, so it shows both. */}
           <span style={{ display: "flex", alignItems: "flex-end", gap: 6, flex: "0 0 auto" }}>
-            <span style={{ width: 40, height: 50, display: "grid", placeItems: "center" }}>
-              {(!schlichtAn() && bildnisVon(ch.id, characterLevel(profile, ch.id) || 1))
-                ? <img src={bildnisVon(ch.id, characterLevel(profile, ch.id) || 1)} alt="" style={{ width: 40, height: 50, objectFit: "contain", objectPosition: "bottom",
-                    filter: seen ? "none" : "grayscale(1) brightness(.4)" }} />
-                : <PieceArt kind={ch.kind} size={32} level={1} />}
+            <span style={{ width: 52, height: 64, display: "grid", placeItems: "center" }}>
+              {bild
+                ? <img src={bild} alt="" style={{ width: 52, height: 64, objectFit: "contain", objectPosition: "bottom",
+                    filter: "drop-shadow(0 3px 6px rgba(0,0,0,.6))" }} />
+                : <PieceArt kind={ch.kind} size={40} level={1} />}
             </span>
-            <span title={en ? "vector sigil" : "Vektor-Zeichen"} style={{ width: 30, height: 50, display: "grid", placeItems: "center",
-              opacity: seen ? 0.95 : 0.4, filter: seen ? "none" : "grayscale(1) brightness(.5)" }}>
+            {open && <span title={en ? "vector sigil" : "Vektor-Zeichen"} style={{ width: 30, height: 64, display: "grid", placeItems: "center", opacity: 0.95 }}>
               <PieceArt kind={ch.kind} size={28} level={1} />
-            </span>
+            </span>}
           </span>
-          <span style={{ flex: 1, minWidth: 0 }}>
-            <span className="gg-quill" style={{ display: "block", fontSize: 14.5, color: seen ? T.text : "#79735f" }}>{seen ? (en ? ch.nameEn : ch.nameDe) : "???"}</span>
-            {!seen && <span style={{ fontSize: 11, color: "#6c6653" }}><LockIc size={10} /> {en ? "not yet encountered" : "noch nicht begegnet"}</span>}
+          <span style={{ flex: open ? 1 : "0 0 auto", minWidth: 0, maxWidth: "100%" }}>
+            <span className="gg-quill" style={{ display: "block", fontSize: 14.5, color: T.text, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{en ? ch.nameEn : ch.nameDe}</span>
           </span>
-          {seen && <span style={{ color: "#c9b26a", fontSize: 12 }}>{open ? "▾" : "▸"}</span>}
+          <span style={{ color: "#c9b26a", fontSize: 12 }}>{open ? "▾" : "▸"}</span>
         </button>
         {open && seen && <div style={{ padding: "0 12px 11px", display: "grid", gap: 8 }}>
           <div>
@@ -871,33 +884,30 @@ export function ChroniclePanel({ profile, t, en, account = null }) {
       </div>; })}
 
     {/* ── THE BESTIARY: monsters of the rift, revealed once faced ── */}
-    <div className="gg-serif" style={{ fontSize: 11, letterSpacing: ".14em", color: "#c9b26a", textTransform: "uppercase",
-      marginTop: 10, marginBottom: 2, padding: "2px 4px" }}>{en ? "Bestiary" : "Bestiarium"}</div>
-    {BOSSES.map((b) => {
+    {BOSSES.some(seenBoss) && <div className="gg-serif" style={{ gridColumn: "1 / -1", fontSize: 11, letterSpacing: ".14em", color: "#c9b26a", textTransform: "uppercase",
+      marginTop: 10, marginBottom: 2, padding: "2px 4px" }}>{en ? "Bestiary" : "Bestiarium"}</div>}
+    {BOSSES.filter(seenBoss).map((b) => {
       const open = openId === "X:" + b.id;
-      const seen = seenBoss(b);
+      const seen = true;
       const fam = FAM_LABEL[b.art] ? (en ? FAM_LABEL[b.art][1] : FAM_LABEL[b.art][0]) : b.art;
-      return <div key={b.id} style={{ borderRadius: 12, border: `1px solid ${open ? T.riftLine : "rgba(124,58,237,.4)"}`,
-        boxShadow: open ? `0 0 16px ${T.riftGlow}` : "0 0 7px rgba(124,58,237,.16)",
-        background: "linear-gradient(180deg, rgba(46,24,40,.42), rgba(14,10,18,.6))", overflow: "hidden" }}>
-        <button onClick={() => seen && setOpenId(open ? null : "X:" + b.id)} style={{ display: "flex", alignItems: "center", gap: 10,
-          width: "100%", padding: "8px 10px", background: "none", border: "none", cursor: seen ? "pointer" : "default", textAlign: "left" }}>
-          <span style={{ width: 40, height: 50, flex: "0 0 auto", display: "grid", placeItems: "center" }}>
+      return <div key={b.id} style={kachel(open, "linear-gradient(180deg, rgba(46,24,40,.42), rgba(14,10,18,.6))")}>
+        <KulisseHinterGrund name={kulisseFuer({ bossId: b.id })} deckung={0.5} ton="#5b2f3f" tonStaerke={0.35} />
+        <button onClick={() => setOpenId(open ? null : "X:" + b.id)} style={kopf(open)}>
+          <span style={{ width: 52, height: 64, flex: "0 0 auto", display: "grid", placeItems: "center" }}>
             {(paintedById("boss-" + b.id))
-              ? <img src={paintedById("boss-" + b.id)} alt="" style={{ width: 40, height: 50, objectFit: "contain", objectPosition: "bottom",
-                  filter: seen ? "none" : "grayscale(1) brightness(.35)" }} />
-              : <span style={{ fontSize: 24, filter: seen ? "none" : "grayscale(1) brightness(.4)" }}>👁</span>}
+              ? <img src={paintedById("boss-" + b.id)} alt="" style={{ width: 52, height: 64, objectFit: "contain", objectPosition: "bottom",
+                  filter: "drop-shadow(0 3px 6px rgba(0,0,0,.6))" }} />
+              : <span style={{ fontSize: 24 }}>👁</span>}
           </span>
           {/* the monster's vector sigil beside its portrait, same as the court */}
-          <span title={en ? "vector sigil" : "Vektor-Zeichen"} style={{ width: 30, height: 50, flex: "0 0 auto", display: "grid", placeItems: "center",
-            opacity: seen ? 0.95 : 0.4, filter: seen ? "none" : "grayscale(1) brightness(.5)" }}>
+          {open && <span title={en ? "vector sigil" : "Vektor-Zeichen"} style={{ width: 30, height: 64, flex: "0 0 auto", display: "grid", placeItems: "center", opacity: 0.95 }}>
             <PieceArt kind={b.kind} art={b.art} size={28} level={1} fill="#5b2f3f" rim="#e7b7c9" detail="#c58fa6" />
+          </span>}
+          <span style={{ flex: open ? 1 : "0 0 auto", minWidth: 0, maxWidth: "100%" }}>
+            <span className="gg-quill" style={{ display: "block", fontSize: 14.5, color: "#e7b7c9", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{en ? b.nameEn : b.nameDe}</span>
+            <span style={{ fontSize: 11, color: "#a98ba0" }}>{fam}</span>
           </span>
-          <span style={{ flex: 1, minWidth: 0 }}>
-            <span className="gg-quill" style={{ display: "block", fontSize: 14.5, color: seen ? "#e7b7c9" : "#79735f" }}>{seen ? (en ? b.nameEn : b.nameDe) : "???"}</span>
-            <span style={{ fontSize: 11, color: seen ? "#a98ba0" : "#6c6653" }}>{seen ? fam : (en ? "a shadow on the road" : "ein Schemen auf der Straße")}</span>
-          </span>
-          {seen && <span style={{ color: "#c9b26a", fontSize: 12 }}>{open ? "▾" : "▸"}</span>}
+          <span style={{ color: "#c9b26a", fontSize: 12 }}>{open ? "▾" : "▸"}</span>
         </button>
         {open && seen && <div style={{ padding: "0 12px 11px", display: "grid", gap: 8 }}>
           <div>
@@ -1722,6 +1732,13 @@ function FormationEditor({ profile, dispatch, t, en }) {
               : c.id !== "queen" && c.id !== "king"))  // the crown never wanders
             .map((c) => {
             const on = draft[pick] === c.id;
+            /* v1.89.0 (Besitzer: "maximal zweimal, wie standardmaessig erlaubt -
+               aber nicht viermal"): steht die Figur auf ANDEREN Plaetzen schon so
+               oft, wie hoechstzahl() erlaubt, ist die Karte gedaempft und stumm -
+               wie die Monsterkarten weiter unten. So entsteht der ungueltige
+               Stand gar nicht erst (der Kern verbietet ihn seit v1.89.0 auch). */
+            const anderswo = draft.filter((d, j) => j !== pick && d === c.id).length;
+            const blocked = !on && anderswo >= hoechstzahl(c.id);
             /* Die Talente stehen nicht an der Figur, sondern in ihrer
                STUFENLEITER (ladder) - dort, wo sie erlernt werden. Gezeigt
                werden die ersten vier, in ihrer Artfarbe. Das ist die Auskunft,
@@ -1745,9 +1762,11 @@ function FormationEditor({ profile, dispatch, t, en }) {
             const alle = (c.ladder || []).map((st) => st.ability).filter((id) => id && ABILITIES[id]);
             const zeigen = alle.slice(0, AUFST_TALENT_MAX);
             const mehr = alle.length - zeigen.length;
-            return <button key={c.id} onClick={() => setSlot(pick, c.id)}
+            return <button key={c.id} disabled={blocked} onClick={() => setSlot(pick, c.id)} data-aufst-voll={blocked ? c.id : undefined}
+              title={blocked ? t("army.limitFull", { n: hoechstzahl(c.id) }) : undefined}
               style={{ flex: "0 0 auto", width: kartenBreite + "px", scrollSnapAlign: "center",   /* v1.52.0: groesser (war 124-156) */
-                padding: 0, border: "none", background: "none", cursor: "pointer", fontFamily: "inherit", textAlign: "center" }}>
+                padding: 0, border: "none", background: "none", cursor: blocked ? "default" : "pointer", fontFamily: "inherit", textAlign: "center",
+                opacity: blocked ? 0.45 : 1 }}>
               <HofKachel img={bildC} artId={c.id} kind={c.kind} hero={c.id === "gambit"} lvl={lvC}
                 stufe={lvC} werte={kachelWerteFuer(profile, c.id)} name={en ? c.nameEn : c.nameDe}
                 /* im Hofstaat tragen alle eigenen Karten den Goldrand - hier
@@ -1902,6 +1921,9 @@ function FormationEditor({ profile, dispatch, t, en }) {
       ))}
       <Chip color={flexCount === flexNeed - (dragonFielded ? 1 : 0) ? T.green : T.danger} bg={T.panel2}>{t("army.flex")} {flexCount}/{flexNeed - (dragonFielded ? 1 : 0)}</Chip>
     </div>
+    {/* v1.89.0 (Besitzer: "vielleicht schreibt man das auch noch dazu in
+        klein"): die Regel in einer Zeile, im Kleid des Bauern-Hinweises. */}
+    <div data-aufst-regel="1" style={{ fontSize: 11.5, color: T.faint, marginTop: -6, marginBottom: 12, textAlign: "center" }}>{t("army.limitHint")}</div>
 
     {/* v1.15.0: DIE DREI FAECHER. Tippen wechselt (ein ungespeicherter
         Entwurf verfaellt dabei - der Speichern-Knopf zeigt vorher, ob einer
@@ -2313,6 +2335,13 @@ const AUFST_TALENT_MAX = 4;
 export function HofKachel({ img, name, dim, dark, action, glow, origin, onOpen, sigil = null, sigilBig = null, stufe = null, kind = null, hero = false, lvl = 1,
     werte = null, xpAnteil = null, artId = null, bossId = null, talente = [], ton = null, meister = false,
     unten = null, gewaehlt = false }) {
+  /* v1.89.0 (Besitzer: "bei den lila Karten im Slider passt die kleine
+     Markierung in den Ecken nicht zu dem Lila - mach die dann auch lila bei
+     denen, die nicht ausgewaehlt sind"): die Eckverzierung folgt der KONTUR
+     der Kachel. Goldrand (eigene Karte im Hofstaat, gewaehlte Karte der
+     Aufstellung) -> Gold; violetter Rand (Grossmeister, nicht gewaehlt,
+     fremd) -> das weiche Lila der Kontur. */
+  const eckFarbe = meister ? "#c3aaf5" : (glow || gewaehlt) ? "#e9cf8a" : "#b9a4f7";
   return (
     /* v1.0.11 (Besitzer): die Kachel KLINGT beim Tippen. Der Klangfaenger
        hoert nur auf button/[role=button] — diese div blieb stumm. */
@@ -2407,12 +2436,12 @@ export function HofKachel({ img, name, dim, dark, action, glow, origin, onOpen, 
               wieder so duenn wie der Strich, und der Abstand zum Abzeichen
               laesst sich messen statt behaupten. Gezeichnet aendert sich
               nichts: gleiche Punkte, gleiche Staerke, runde Enden. */}
-          <path d="M1.5 9.5V5" fill="none" stroke={meister ? "#c3aaf5" : "#e9cf8a"} strokeWidth="0.85" strokeLinecap="round" />
-          <path d="M1.5 5A3.5 3.5 0 0 1 5 1.5" fill="none" stroke={meister ? "#c3aaf5" : "#e9cf8a"} strokeWidth="0.85" strokeLinecap="round" />
-          <path d="M5 1.5H9.5" fill="none" stroke={meister ? "#c3aaf5" : "#e9cf8a"} strokeWidth="0.85" strokeLinecap="round" />
-          <path d="M1.5 12.5c0 1.6 1 2.4 2.4 2.4" fill="none" stroke={meister ? "#c3aaf5" : "#e9cf8a"} strokeWidth="1" strokeLinecap="round" opacity=".8" />
-          <path d="M12.5 1.5c1.6 0 2.4 1 2.4 2.4" fill="none" stroke={meister ? "#c3aaf5" : "#e9cf8a"} strokeWidth="1" strokeLinecap="round" opacity=".8" />
-          <circle cx="4.6" cy="4.6" r="1.05" fill={meister ? "#c3aaf5" : "#e9cf8a"} />
+          <path d="M1.5 9.5V5" fill="none" stroke={eckFarbe} strokeWidth="0.85" strokeLinecap="round" />
+          <path d="M1.5 5A3.5 3.5 0 0 1 5 1.5" fill="none" stroke={eckFarbe} strokeWidth="0.85" strokeLinecap="round" />
+          <path d="M5 1.5H9.5" fill="none" stroke={eckFarbe} strokeWidth="0.85" strokeLinecap="round" />
+          <path d="M1.5 12.5c0 1.6 1 2.4 2.4 2.4" fill="none" stroke={eckFarbe} strokeWidth="1" strokeLinecap="round" opacity=".8" />
+          <path d="M12.5 1.5c1.6 0 2.4 1 2.4 2.4" fill="none" stroke={eckFarbe} strokeWidth="1" strokeLinecap="round" opacity=".8" />
+          <circle cx="4.6" cy="4.6" r="1.05" fill={eckFarbe} />
         </svg>)}
       {/* v1.15.1: DIE KOPFZEILE - fuer JEDE Kachel gleich (Besitzervorlage):
           links die Talente, in der Mitte das Lebensrohr, rechts die Stufe.
