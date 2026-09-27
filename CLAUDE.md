@@ -155,9 +155,15 @@ Die vollständige, gepflegte Liste steht in **`design/STAND-2026-09-26.md`**
 (technische Punkte als T1–T11) und **`design/PLAYSTORE-BACKLOG.md`** (alles zur
 Store-Einreichung). Hier nur der Überblick:
 
-- **Spiel:** Brett-Hintergrund je Liga · „Die Karte erzählt die Geschichte" ·
-  Name beim Anlegen verlangen · Ladeschirm (Komet/Funken näher an die Kontur) ·
-  Installationsknopf aus dem Profilfuß.
+- **Spiel:** Nur noch zwei Punkte sind wirklich offen — „Die Karte erzählt die
+  Geschichte" (großer Brocken, Besitzer 27.9.: **später**) und der
+  **Ladeschirm-Feinschliff** (Funken näher an die Siegel-Kontur; subjektiv, am
+  ersten Screen, braucht Live-Abnahme). Am 27.9. gemessen und als **erledigt
+  bzw. gegenstandslos** abgehakt: Brett-Hintergrund je Liga (12/12 Gemälde,
+  `BrettHintergrund.jsx`, im Match eingesetzt) · Name beim Anlegen (ist Pflicht
+  seit v1.0.6, `App.jsx:1318`) · Installationsknopf (Banner fort seit v1.0.6,
+  kein Profil-Knopf mehr gerendert — nur die `profile.install*`-Strings liegen
+  verwaist herum).
 - **Technik:** Deploy wiegt 743 MB, davon 692 MB Archiv für die Schaukammer
   (Schalter `OHNE_ARCHIV=1` liegt bereit, Standard unverändert) · `.git` 1 GB ·
   Layout-Erwartung „Brett zentriert" zu klären.
