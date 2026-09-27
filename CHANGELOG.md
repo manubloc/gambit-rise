@@ -1,5 +1,33 @@
 # Changelog - Gambit Rise
 
+## 1.88.0 - der Riegel vor /spielen/ ist fort
+
+- Besitzer (27.9.): "wenn ich den Entwicklerzugang nehme, dann fehlt ja das
+  Anmeldefenster, mit dem ich mich anmelden kann ... jetzt ist das komplett
+  gesperrt. Ist mega bloed ... ich moechte bei Entwicklerzugang einfach
+  Zugriff auf die App bekommen und mich dann einfach anmelden koennen, mit
+  meinem Account, als Admin."
+- URSACHE: der Riegel aus v1.42.0 fragte mit prompt() nach dem Passwort. In
+  einer installierten Seite (standalone) und in manchen WebViews ist prompt()
+  stumm und liefert sofort null - dann sprang der Riegel mit
+  location.replace("/") zurueck auf die Landingpage. Wer die Seite so
+  oeffnete, sah nie ein Fenster, nur die Landingpage: "komplett gesperrt".
+  Ein Riegel, der den Besitzer aussperrt und Neugierige nur mit einem
+  Klartext-Hash im Quelltext abhaelt, ist keiner. Er ist gestrichen
+  (tools/seite-bauen.mjs, Schritt 3); die Anmeldung der App ist die Tuer.
+  GAMBIT_ZUGANG wird nicht mehr gelesen, die TWA-Erkennung ueber
+  document.referrer entfaellt mit.
+- drive3 prueft im Auslieferungsstand jetzt das Gegenteil: taucht unter
+  /spielen/ noch ein Dialog auf, ist das ein Fehler ("ein Riegel fragt
+  wieder").
+- Doku nachgezogen: CLAUDE.md, PWABUILDER.md Abschnitte 7 und 9 (das
+  Ablehnungsrisiko "App-Zugriff nicht moeglich" ist damit vom Tisch),
+  PLAYSTORE-BACKLOG S6, STAND S5b (gegenstandslos).
+- Folge, die der Besitzer kennen sollte: das Browserspiel unter
+  gambitrise.com/spielen/ ist damit wieder fuer jeden erreichbar, der die
+  Adresse kennt - auch als Gast. Wer es verstecken will, braucht statt eines
+  Riegels eine Regel in der App (z. B. Gastspiel nur aus der Android-Huelle).
+
 ## 1.87.0 - die Landingpage nach dem Blick des Besitzers
 
 - Besitzer (27.9.): "zwoelf Laender, zwoelf Stimmungen, das ist einfach

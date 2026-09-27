@@ -78,9 +78,10 @@ Store installieren.
 **Beim ersten Start auf zwei Dinge achten** — beides entscheidet darüber, ob
 Google die App durchlässt:
 
-1. **Kommt eine Passwortabfrage?** Dann greift der Riegel (Abschnitt 9) nicht,
-   und ein Prüfer würde die App ablehnen. Sag es mir, dann nehme ich den Riegel
-   für die Einreichung heraus.
+1. **Kommt eine Passwortabfrage?** Darf seit v1.88.0 nicht mehr sein — der
+   Riegel ist fort (Abschnitt 9). Kommt trotzdem eine, zeigt die Hülle einen
+   alten Stand aus dem Zwischenspeicher: einmal die App-Daten löschen und neu
+   starten.
 2. **Ist oben eine graue Browserleiste?** Dann stimmt der Fingerprint nicht
    (Abschnitt 8).
 
@@ -109,32 +110,19 @@ es live.
 Prüfen kannst du es unter
 <https://gambitrise.com/.well-known/assetlinks.json>.
 
-## 9. Passwortriegel — vorgesehen ist er gelöst, geprüft ist er nicht
+## 9. Passwortriegel — seit v1.88.0 gibt es keinen mehr
 
-`/spielen/` liegt hinter einem Passwort. Die TWA öffnet die Seite mit dem
-Verweis `android-app://com.gambitrise.app`; daran erkennt der Riegel sie und
-lässt sie ohne Abfrage durch (seit v1.45.1, `tools/seite-bauen.mjs:65` —
-Paket und Startpfad passen zusammen, am 26.9. gegengeprüft).
+Bis v1.87.0 lag `/spielen/` hinter einem `prompt()`-Passwort, mit einem
+Durchlass für die TWA über `document.referrer`. Am 27.9. hat der Besitzer den
+Riegel gestrichen: er sperrte ihn selbst auf dem Handy aus (in installierten
+Seiten liefert `prompt()` stumm `null`, und der Riegel sprang zurück auf die
+Landingpage), und Neugierige hielt er nur mit einem Klartext-Hash im Quelltext
+ab. Die Anmeldung der App ist jetzt die Tür (`tools/seite-bauen.mjs`,
+Schritt 3).
 
-**Aber der Durchlass hängt an einem Verweis, den niemand garantiert** — und
-das ist das größte Ablehnungsrisiko des ganzen Weges, weil ein Prüfer, der vor
-einer Passwortabfrage steht, die App wegen „App-Zugriff nicht möglich" ablehnt:
-
-- `twa-manifest.json` setzt `fallbackType: "customtabs"`. Wo die TWA nicht
-  greift, öffnet ein Custom Tab — dort kann der Verweis fehlen.
-- Nach dem ersten Herein steht der Hash im `localStorage`. Wer ihn leert oder
-  das Gerät wechselt, steht wieder vor der Abfrage — ein Prüfer startet immer
-  frisch.
-
-**Deshalb: Schritt 7 ernst nehmen.** Startet das Spiel auf dem Handy ohne
-Abfrage, ist die Sache erledigt. Wenn nicht, gibt es zwei Auswege:
-
-- den Riegel für die Einreichung fallen lassen (`GAMBIT_ZUGANG` leer bauen
-  bzw. den Riegel-Einschub in `tools/seite-bauen.mjs` überspringen), oder
-- einen zweiten Durchlass einbauen: `?zugang=<Hash>` an die `startUrl` der
-  Hülle, den der Riegel zusätzlich akzeptiert. Der wirkt auch im Custom Tab.
-
-Sag mir, was das Handy zeigt — dann baue ich den passenden Weg ein.
+Für die Einreichung heißt das: **kein Ablehnungsrisiko „App-Zugriff nicht
+möglich"** mehr, kein Durchlass, der an einem Verweis hängt, nichts, was ein
+Prüfer mit leerem `localStorage` anders sähe als du.
 
 ## 10. Danach
 

@@ -6,8 +6,10 @@ deployt AUTOMATISCH bei jedem Push auf main, ~2–5 min). Der Worker "gg-hall"
 direkt zu echten Nutzern.**
 
 Stack: React 18, Vite 5, pure ESM, Node 22.
-Die Seite: **/** ist das Schaufenster (Landingpage), **/spielen/** die App
-hinter einem Riegel (Passwort, beim Bau über GAMBIT_ZUGANG).
+Die Seite: **/** ist das Schaufenster (Landingpage), **/spielen/** die App.
+Der Passwort-Riegel davor (v1.42.0–v1.87.0, ein `prompt()`) ist seit v1.88.0
+fort — er sperrte den Besitzer auf dem Handy aus (prompt() liefert in
+installierten Seiten stumm null). Die Anmeldung der App ist die Tür.
 Play Store: die App ist NICHT veröffentlicht; Paket **com.gambitrise.app**
 (neu, die alte Kennung war nie in Gebrauch). Ein neues Paket muss gebaut
 werden — Host und Startpfad haben sich geändert.
@@ -82,8 +84,8 @@ starten, sonst reißen Werkzeug-Zeitlimits den Lauf ab.
    nicht gibt („Anmeldung nicht möglich | kein Brett | kein Zug | kein
    Talentband"). `build:app` stellt die App an die Wurzel zurück, und die
    Proben greifen wieder. drive3 erkennt seit v1.86.0 BEIDE Stände und prüft im
-   Auslieferungsstand zusätzlich Landingpage, Riegel und den abmeldenden
-   Dienstarbeiter — der Umzug ist damit erstmals unter Aufsicht.
+   Auslieferungsstand zusätzlich Landingpage, den abmeldenden Dienstarbeiter
+   und dass KEIN Riegel mehr fragt — der Umzug ist damit unter Aufsicht.
 3. `node test_boot.mjs` (3/3) und `node scripts/verify-boot.mjs` (grün)
 4. `timeout 250 node drive3.mjs` (keine Fehler); bei Arbeit an Karte,
    Kampagne oder Navigation zusätzlich `node tools/pruefe-navigation.mjs`

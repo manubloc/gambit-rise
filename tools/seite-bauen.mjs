@@ -18,16 +18,15 @@
    "/" noch im Browser haben, legt dieser Schritt an der Wurzel ein sw.js ab,
    das sich selbst abmeldet und seine Zwischenspeicher raeumt.
 
-   DAS PASSWORT ist ein Riegel, keine Sicherheit: wer die Seite liest, findet
-   den Weg daran vorbei. Es haelt Neugierige ab, mehr soll es nicht.        */
-import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, renameSync, rmSync, writeFileSync } from "node:fs";
+   DAS PASSWORT war ein Riegel, keine Sicherheit: wer die Seite liest, findet
+   den Weg daran vorbei. Seit v1.88.0 gibt es ihn nicht mehr (Schritt 3).   */
+import { cpSync, existsSync, mkdirSync, readdirSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { createHash } from "node:crypto";
 
 const DIST = "dist";
 const SPIEL = join(DIST, "spielen");
-const PASSWORT = process.env.GAMBIT_ZUGANG || "rise2026";   // beim Bau setzbar: GAMBIT_ZUGANG=... npm run build
-const HASH = createHash("sha256").update(PASSWORT).digest("hex");
+/* GAMBIT_ZUGANG (das Passwort des Riegels bis v1.87.0) wird nicht mehr
+   gelesen - siehe Schritt 3. */
 
 /* was die Landingpage an der Wurzel braucht */
 const AN_DIE_WURZEL = ["landing", "og.png", "og.jpg", "favicon.ico", "favicon.svg", "icons", "fonts",
@@ -55,30 +54,26 @@ if (existsSync(join(SPIEL, "landing.html"))) {
   cpSync(join(SPIEL, "landing.html"), join(DIST, "landing.html"));    // alte Adresse bleibt
 }
 
-/* 3. der Riegel vor der App */
-const riegel = `<script>(function(){try{
-  /* v1.45.1: AUS DER ANDROID-APP KOMMT MAN OHNE PASSWORT HEREIN. Die TWA
-     oeffnet die Seite mit dem Verweis "android-app://<Paket>" - daran
-     erkennen wir sie. Sonst haetten Store-Pruefer (und spaeter jeder
-     Spieler) eine Passwortabfrage vor dem Spiel, und Google lehnt ab. Der
-     Riegel bleibt fuer den offenen Browser. */
-  if (document.referrer.indexOf("android-app://com.gambitrise.app") === 0) {
-    localStorage.setItem("gambit:zugang", "${HASH}"); return;
-  }
-  if (localStorage.getItem("gambit:zugang") === "${HASH}") return;
-  var p = prompt("Gambit Rise — Entwicklerzugang\\n\\nPasswort:");
-  if (p === null) { location.replace("/"); return; }
-  var enc = new TextEncoder().encode(p);
-  crypto.subtle.digest("SHA-256", enc).then(function(b){
-    var h = Array.from(new Uint8Array(b)).map(function(x){return x.toString(16).padStart(2,"0");}).join("");
-    if (h === "${HASH}") { localStorage.setItem("gambit:zugang", h); location.reload(); }
-    else { alert("Falsches Passwort."); location.replace("/"); }
-  });
-  document.documentElement.style.visibility = "hidden";
-}catch(e){}})();</script>`;
-const app = join(SPIEL, "index.html");
-const html = readFileSync(app, "utf8");
-writeFileSync(app, html.replace("<head>", "<head>\n" + riegel));
+/* 3. KEIN RIEGEL MEHR VOR DER APP (v1.88.0, Besitzer 27.9.2026):
+   "wenn ich den Entwicklerzugang nehme, dann fehlt ja das Anmeldefenster, mit
+   dem ich mich anmelden kann ... jetzt ist das komplett gesperrt ... ich
+   moechte bei Entwicklerzugang einfach Zugriff auf die App bekommen und mich
+   dann einfach anmelden koennen, mit meinem Account, als Admin."
+
+   Was der Riegel von v1.42.0 tat: ein prompt() mit Passwort vor der App. Was
+   der Besitzer sah: keine Anmeldemaske - denn prompt() ist auf dem Handy in
+   einer installierten Seite (standalone) und in manchen WebViews stumm und
+   liefert sofort null; dann sprang der Riegel mit location.replace("/")
+   zurueck auf die Landingpage. Wer die Seite so oeffnet, war ausgesperrt,
+   ohne je ein Fenster gesehen zu haben. Ein Riegel, der den Besitzer
+   aussperrt und Neugierige nur mit einem Klartext-Hash im Quelltext abhaelt,
+   ist kein Riegel - er ist fort. Die Anmeldung der App ist die Tuer.
+
+   Die TWA-Erkennung ueber document.referrer ("android-app://...") entfaellt
+   damit ebenso; sie war nur der Ausweg fuer die Store-Pruefer an eben diesem
+   Riegel vorbei (design/PWABUILDER.md, Abschnitte 7 und 9 - beide damit
+   gegenstandslos). Ein frueher gesetztes localStorage "gambit:zugang" stoert
+   nicht und wird nicht mehr gelesen. */
 
 /* 4. der alte Dienstarbeiter an der Wurzel meldet sich ab */
 writeFileSync(join(DIST, "sw.js"), `/* v1.42.0: die App wohnt jetzt unter /spielen/ - dieser Dienstarbeiter
@@ -94,4 +89,4 @@ self.addEventListener("activate", function (e) {
 });
 `);
 
-console.log(`Seite gebaut: / = Landingpage, /spielen/ = App (Riegel aktiv, Passwort aus GAMBIT_ZUGANG)`);
+console.log(`Seite gebaut: / = Landingpage, /spielen/ = App (ohne Riegel seit v1.88.0 - die Anmeldung der App ist die Tuer)`);

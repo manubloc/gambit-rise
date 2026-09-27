@@ -76,14 +76,10 @@
 
 - [ ] **S6 Erster Start auf dem Handy — der Prüfschritt, der über die Freigabe
   entscheidet.** Als Tester installieren und auf zwei Dinge achten:
-  1. **Kommt eine Passwortabfrage?** Dann greift der Riegel vor `/spielen/`
-     nicht, und ein Prüfer lehnt die App ab („App-Zugriff nicht möglich").
-     Der Durchlass hängt an `document.referrer`
-     (`tools/seite-bauen.mjs:65`), und `twa-manifest.json` setzt
-     `fallbackType: "customtabs"`, wo dieser Verweis fehlen kann; außerdem
-     startet ein Prüfer immer mit leerem `localStorage`. Zwei Auswege stehen
-     in `PWABUILDER.md` Abschnitt 9: `GAMBIT_ZUGANG` leer bauen, oder einen
-     zweiten Durchlass über `?zugang=<Hash>` in der `startUrl`.
+  1. **Kommt eine Passwortabfrage?** Seit v1.88.0 darf keine mehr kommen —
+     der Riegel vor `/spielen/` ist fort (Besitzer 27.9.; `PWABUILDER.md`
+     Abschnitt 9). Kommt doch eine, zeigt die Hülle einen alten Stand aus dem
+     Zwischenspeicher: App-Daten löschen, neu starten.
   2. **Graue Browserleiste oben?** Dann stimmt der Fingerabdruck nicht (S5).
 
 - [ ] **S7 Geschlossener Test.** Dieselbe `.aab` mit „Version hochstufen"

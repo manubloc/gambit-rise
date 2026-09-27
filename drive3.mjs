@@ -68,14 +68,17 @@ page.on("console", (m) => { if (m.type() === "error" && !EXPECTED_OFFLINE(m.text
 page.on("pageerror", (e) => errors.push(String(e).slice(0, 160)));
 /* ── DER AUSLIEFERUNGSSTAND, ZUERST ───────────────────────────────────────
    Nur wenn dist/ wirklich die Seite traegt. Geprueft wird, was der Besucher
-   als Erstes sieht: die Landingpage an der Wurzel, dann der Riegel, dann die
-   App. Der Riegel fragt mit prompt() - ohne Antwort haengt die Probe, deshalb
-   der Dialog-Horcher VOR dem Aufruf. Das Passwort muss dasselbe sein, mit dem
-   gebaut wurde (tools/seite-bauen.mjs: GAMBIT_ZUGANG, sonst "rise2026"). */
-const ZUGANG = process.env.GAMBIT_ZUGANG || "rise2026";
+   als Erstes sieht: die Landingpage an der Wurzel, dann die App unter
+   /spielen/. v1.88.0: der Riegel (prompt() mit Passwort, v1.42.0-v1.87.0)
+   ist fort - der Besitzer war damit auf dem Handy ausgesperrt, weil prompt()
+   dort stumm null liefert. Taucht trotzdem ein Dialog auf, ist das jetzt ein
+   Fehler: dann ist ein alter Riegel wieder im Bau. Der Horcher bleibt, damit
+   die Probe in dem Fall nicht haengt, sondern es meldet. */
+const dialoge = [];
 if (AUSLIEFERUNG) {
   page.on("dialog", async (d) => {
-    try { await (d.type() === "prompt" ? d.accept(ZUGANG) : d.accept()); } catch {}
+    dialoge.push(`${d.type()}: ${d.message().slice(0, 60)}`);
+    try { await d.dismiss(); } catch {}
   });
 
   await page.goto(`http://127.0.0.1:${port}/`, { waitUntil: "networkidle" });
@@ -105,12 +108,11 @@ if (AUSLIEFERUNG) {
 await page.goto(`http://127.0.0.1:${port}${EINSTIEG}`, { waitUntil: "networkidle" });
 await page.waitForTimeout(2500);
 if (AUSLIEFERUNG) {
-  /* Nach dem Riegel laedt die Seite neu - einmal nachfassen, damit die App
-     wirklich steht, bevor gemessen wird. */
   await page.waitForTimeout(1500);
   const versteckt = await page.evaluate(() => document.documentElement.style.visibility === "hidden");
-  if (versteckt) errors.push("der Riegel laesst die Probe nicht durch - Passwort stimmt nicht mit dem Bau ueberein");
-  else console.log(`   Riegel passiert, App unter ${EINSTIEG}`);
+  if (dialoge.length) errors.push(`ein Riegel fragt wieder (${dialoge.join(" | ")}) - v1.88.0 hat ihn entfernt`);
+  else if (versteckt) errors.push("die App unter /spielen/ bleibt versteckt (visibility hidden)");
+  else console.log(`   kein Riegel: App steht direkt unter ${EINSTIEG}`);
 }
 const hasLogin = await page.locator("input").count() > 0 || (await page.textContent("body"))?.includes("Spielstand");
 if (!hasLogin) errors.push("Login-/Startmaske nicht gefunden");
