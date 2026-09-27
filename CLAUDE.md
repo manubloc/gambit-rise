@@ -104,8 +104,11 @@ starten, sonst reißen Werkzeug-Zeitlimits den Lauf ab.
 6. `git fetch` + Punktprüfung: liegt auf origin ein fremder Commit, Inhalt
    verifizieren (`git diff --stat HEAD FETCH_HEAD`). Es können PARALLELE
    Sessions arbeiten. NIEMALS force-pushen.
-7. Push, dann `curl -sL -H "Cache-Control: no-cache" https://gambitrise.com/version.json`
-   pollen und Marker-Strings im Live-Bundle zählen:
+7. Push, dann `curl -sL -H "Cache-Control: no-cache" https://gambitrise.com/spielen/version.json`
+   pollen (**mit `/spielen/`** — `version.json` zieht seit v1.42.0 mit der
+   App um, `tools/seite-bauen.mjs` Schritt 1; die Wurzel-Adresse
+   `/version.json` liefert die Landingpage als HTML, gemessen 27.9.) und
+   Marker-Strings im Live-Bundle zählen:
    `grep -o "marker" bundle.js | wc -l` (`grep -c` zählt Zeilen — minifiziert
    ist alles EINE Zeile). Echtes Bundle via `ls -S dist/assets/index-*.js`
    (das erste Ergebnis ohne -S ist oft der 5-KB-Stub). Cloudflare-Hashes

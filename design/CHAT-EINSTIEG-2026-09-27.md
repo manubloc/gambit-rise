@@ -15,7 +15,7 @@ Du übernimmst Gambit Rise (Repo manubloc/gambit-rise, Zweig main).
 Lies zuerst CLAUDE.md, dann design/CHAT-EINSTIEG-2026-09-27.md, dann
 design/UEBERGABE-2026-09-27.md. Antworte auf Deutsch. Jeder Push auf main
 geht live. Vor jedem Push die eiserne Kette aus CLAUDE.md. Beginne mit der
-Live-Abnahme: version.json muss 1.89.5 zeigen.
+Live-Abnahme: /spielen/version.json muss 1.89.5 zeigen.
 ```
 
 ## 1. Wer und wie
@@ -70,7 +70,7 @@ Gegner riss-violett.
    Punktprüfung.
 2. Version in `package.json` hochzählen, Changelog-Eintrag mit Ursache.
 3. `git push origin main`. Cloudflare baut Pages **und** Worker in 2–5 min.
-4. Abnahme: `curl -sL -H "Cache-Control: no-cache" https://gambitrise.com/version.json`.
+4. Abnahme: `curl -sL -H "Cache-Control: no-cache" https://gambitrise.com/spielen/version.json`.
 5. **Nie force-pushen, nie Tags `v*` pushen** (der itch.io-Workflow feuert
    darauf und würde die Landingpage statt des Spiels schicken).
 
@@ -99,7 +99,11 @@ liegt beim Besitzer und **nie** im Repo.
 
 ## 6. Was offen ist — in dieser Reihenfolge
 
-1. **Live-Abnahme** von v1.89.5 (aus der Cloud nie möglich).
+1. ~~**Live-Abnahme** von v1.89.5~~ — **erledigt 27.9. abends** (Chrome des
+   Besitzers): `/spielen/version.json` zeigt 1.89.5, gebaut 20:25 UTC; sechs
+   Marker im Live-Bundle gleich dem lokalen Bau; `duell.gambitrise.com/design`
+   liefert JSON. Die Wurzel `/version.json` liefert die Landingpage — die
+   Adresse in den Blättern war seit v1.42.0 falsch und ist berichtigt.
 2. **Abnahme durch Manuel auf dem Handy:** Hofreihe der Landingpage,
    Klang-Knacken (Warmhalter ist eine Hypothese), Leuchtkontur der
    gewählten Talent-Kachel, Schnellkurs-Tafeln, Zugbild-Legenden,
@@ -130,6 +134,6 @@ liegt beim Besitzer und **nie** im Repo.
 1. `git log --oneline -5` — beginnt mit `v1.89.5`. Bei bestehendem Klon
    `git fetch --prune`.
 2. `npm ci && npm test` — 28 Suiten.
-3. `curl -sL https://gambitrise.com/version.json` — 1.89.5.
+3. `curl -sL https://gambitrise.com/spielen/version.json` — 1.89.5.
 4. `CLAUDE.md` und `design/UEBERGABE-2026-09-27.md` lesen.
 5. Mit Manuel die Punkte 2 und 3 aus Abschnitt 6 klären, dann arbeiten.

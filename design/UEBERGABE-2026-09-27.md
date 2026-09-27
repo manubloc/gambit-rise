@@ -51,7 +51,7 @@ im Chat bräuchte:
    erneut geprüft — bei Zweifel dort nachsehen). Der Worker teilt den Kern
    mit der App (`src/core`): nach einer Regeländerung müssen beide Seiten
    dieselbe Fassung fahren, sonst lehnt die Halle Züge ab.
-4. Abnahme: `curl -sL -H "Cache-Control: no-cache" https://gambitrise.com/version.json`
+4. Abnahme: `curl -sL -H "Cache-Control: no-cache" https://gambitrise.com/spielen/version.json`
    muss die neue Version zeigen; Marker im Bundle zählen wie in `CLAUDE.md`
    beschrieben. **Aus der Cloud-Sitzung ging das nie** (Domain in der
    Netzwerk-Richtlinie nicht freigegeben) — aus einem lokalen Chat geht es.
@@ -252,7 +252,7 @@ Store: `design/PLAYSTORE-BACKLOG.md`, S1–S14. Beim Besitzer: `.aab` mit Paket
 ## 6. Erste Schritte im neuen Chat
 
 0. Zuerst die Live-Abnahme nachholen, die aus der Cloud nie ging:
-   `curl -sL -H "Cache-Control: no-cache" https://gambitrise.com/version.json`
+   `curl -sL -H "Cache-Control: no-cache" https://gambitrise.com/spielen/version.json`
    muss die Fassung aus `package.json` auf `main` zeigen. Zeigt sie eine
    ältere, im Cloudflare-Dashboard unter *grand-gambit → Deployments*
    nachsehen, ob der Bau durchlief.
