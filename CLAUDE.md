@@ -31,9 +31,11 @@ Cloudflare-Projekt heißt weiterhin **grand-gambit**, das GitHub-Repo soll auf
 
 ## Befehle
 
-- `npm test` — volle Batterie. MUSS **27 Suiten / 1993 Prüfungen** melden
-  (Stand v1.86.0; der Runner stoppt nach der ersten roten Suite, also
-  Suitenzahl prüfen, nicht nur Assertions!).
+- `npm test` — volle Batterie. MUSS **28 Suiten / 2072 Prüfungen** melden
+  (Stand v1.89.1; der Runner stoppt nach der ersten roten Suite, also
+  Suitenzahl prüfen, nicht nur Assertions! Zählweise: alle Zeilen
+  `RESULT…: N passed` summieren — test_balance meldet zwei, darum stehen im
+  Log 29 RESULT-Zeilen für 28 Suiten).
 - `npm run ui` — nur die UI-Proben (test_ui.jsx läuft NIE direkt mit node;
   braucht esbuild-Vorlauf).
 - `npm run build` — Spielfassung + Schaukammer-Scan (Zeile
@@ -74,7 +76,7 @@ starten, sonst reißen Werkzeug-Zeitlimits den Lauf ab.
 
 ## EISERNE KETTE — Pflicht vor JEDEM Push, keine Ausnahmen
 
-1. `npm test` (27 Suiten, Assertionszahl notieren)
+1. `npm test` (28 Suiten, Assertionszahl notieren)
 2. `npm run build`, dann **`npm run build:app`**, dann `npm run build:single`
 
    **Warum `build:app` NACH `build` gehört** (v1.86.0, teuer gelernt):

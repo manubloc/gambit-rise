@@ -10,6 +10,7 @@ import { CHARACTER_LIST, CHARACTERS, ABILITIES, TAGS, SPERRGRUND, faehigkeitZust
 import LebensRohr from "../board/LebensRohr.jsx";
 import { rohrAnteile } from "../board/PieceGlyph.jsx";
 import { talentFarbe, maxStufe, stufenText } from "../../../content/abilities.js";
+import { ABILITY_MOVE, MOVE_LEGEND_ABILITY, zugbildLegende } from "../../../content/zugbilder.js";   /* v1.89.1: Zugbilder gegen den Kern pruefbar */
 import { iconFarbe } from "../AbilityIcons.jsx";   /* v1.26.6 */
 import { BASE_HP, BASE_ATK, SHIELD_HP, HELD_PUNKTE, NORM_PUNKTE, werteBeiStufe, createGame, familyOf, crownHp, crownWallSoak, shadowRifts, shadowAtk } from "../../../core/index.js";
 import {
@@ -514,7 +515,7 @@ function AbilityAccordion({ ab, tg, price, cost, owned, reach, can, kind, en, op
       <div style={{ borderTop: `1px solid ${tg.color}22`, paddingTop: 8 }}>{faehigkeitsText(ab, charId, en)}</div>
       {ABILITY_MOVE[ab.id] && <div style={{ marginTop: 9 }}>
         <MoveDiagram kind={kind} moveSpec={null} extra={ABILITY_MOVE[ab.id]} />
-        <div style={{ fontSize: 9.5, color: "#8a856f", marginTop: 3, fontStyle: "italic" }}>{en ? MOVE_LEGEND_ABILITY.en : MOVE_LEGEND_ABILITY.de}</div>
+        <div style={{ fontSize: 9.5, color: "#8a856f", marginTop: 3, fontStyle: "italic" }}>{zugbildLegende(ABILITY_MOVE[ab.id], en)}</div>
       </div>}
       {reach && !owned && can && onBuy && <button onClick={(e) => { e.stopPropagation(); onBuy(); }}
         style={{ marginTop: 10, display: "inline-flex", alignItems: "center", gap: 6, padding: "7px 13px", borderRadius: 9,
@@ -632,27 +633,9 @@ function specForKind(kind, ownSpec) {
     default: return null;
   }
 }
-// Which abilities CHANGE how a piece moves — and the squares they add. Only
-// these get their own little diagram; combat/sustain abilities do not. Deltas
-// are [file, rank] offsets from the piece; "spec" abilities extend slides.
-const ABILITY_MOVE = {
-  knight_longleap: { leaps: [[1, 3], [3, 1], [-1, 3], [-3, 1], [1, -3], [3, -1], [-1, -3], [-3, -1]] },
-  knight_outrider: { leaps: [[2, 2], [2, -2], [-2, 2], [-2, -2]] },
-  bishop_hop: { leaps: [[2, 2], [2, -2], [-2, 2], [-2, -2]] },       // hop over a neighbour
-  bishop_ortho_step: { leaps: [[1, 0], [-1, 0], [0, 1], [0, -1]] },
-  rook_diag_step: { leaps: [[1, 1], [1, -1], [-1, 1], [-1, -1]] },
-  rook_breach: { leaps: [[2, 0], [-2, 0], [0, 2], [0, -2]] },        // breach over an adjacent piece
-  queen_knightleap: { leaps: [[1, 2], [2, 1], [-1, 2], [-2, 1], [1, -2], [2, -1], [-1, -2], [-2, -1]] },
-  king_dash: { leaps: [[2, 0], [-2, 0], [0, 2], [0, -2]] },
-  pawn_sidestep: { leaps: [[1, 0], [-1, 0]] },
-  pawn_forward_capture: { leaps: [[0, 1]] },
-  pawn_charge: { leaps: [[0, 2]] },
-  pawn_backstep: { leaps: [[0, -1]] },
-  // v0.72.3 (Besitzer-Befund): der GROSSE Drache fliegt auf JEDES Feld im
-  // Umkreis seiner Schwinge (so rechnet es die Engine) - nicht nur ueber
-  // Achsen und Diagonalen.
-  dragon_flight: { leaps: [[-2, -2], [-2, -1], [-2, 0], [-2, 1], [-2, 2], [-1, -2], [-1, -1], [-1, 0], [-1, 1], [-1, 2], [0, -2], [0, -1], [0, 1], [0, 2], [1, -2], [1, -1], [1, 0], [1, 1], [1, 2], [2, -2], [2, -1], [2, 0], [2, 1], [2, 2]] },
-};
+/* Die Zugbild-Tabelle ABILITY_MOVE (welche Faehigkeit welche Felder
+   hinzufuegt) liegt seit v1.89.1 in src/content/zugbilder.js - importiert
+   oben - damit test_zugbilder.mjs sie gegen den Kern legen kann. */
 /* v1.1.17: das Diagramm nimmt jetzt eine Breite entgegen. In der Wischreihe
    der Aufstellung steht es in einer 132-px-Karte; die feste Breite von
    min(150px, 52vw) haette sie gesprengt. */
@@ -776,7 +759,7 @@ export function MoveDiagram({ kind, moveSpec, extra = null, breite = null, talen
   </div>;
 }
 const MOVE_LEGEND = { de: "Blau: Gleiten · Gelb: Sprung · ✦ die Figur", en: "Blue: slide · Yellow: leap · ✦ the piece" };
-const MOVE_LEGEND_ABILITY = { de: "Grün: neue Felder durch diese Fähigkeit", en: "Green: squares this ability adds" };
+/* MOVE_LEGEND_ABILITY und zugbildLegende kommen seit v1.89.1 aus zugbilder.js */
 
 export function ChroniclePanel({ profile, t, en, account = null }) {
   const [openId, setOpenId] = useState(null);
@@ -876,7 +859,7 @@ export function ChroniclePanel({ profile, t, en, account = null }) {
                     <LockIc size={10} /> <span>{en ? SPERRGRUND[zst].en : SPERRGRUND[zst].de}</span></div>}
                   {mv && <div style={{ marginTop: 5, marginBottom: 3 }}>
                     <MoveDiagram kind={ch.kind} moveSpec={ch.moveSpec} extra={mv} />
-                    <div style={{ fontSize: 9.5, color: "#7fb98f", marginTop: 3, fontStyle: "italic" }}>{en ? MOVE_LEGEND_ABILITY.en : MOVE_LEGEND_ABILITY.de}</div>
+                    <div style={{ fontSize: 9.5, color: "#7fb98f", marginTop: 3, fontStyle: "italic" }}>{zugbildLegende(mv, en)}</div>
                   </div>}</div>; })}
             </div>
           </div>}

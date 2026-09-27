@@ -1,5 +1,41 @@
 # Changelog - Gambit Rise
 
+## 1.89.1 - der Scharfschuss der Sonderfiguren, den es nie gab
+
+Der Besitzer wollte die Zugvarianten jeder Faehigkeit "sauber dargestellt
+und kontrolliert, ob die alle stimmen". Die Kontrolle (neue Suite
+`test_zugbilder.mjs`, 28. in der Kette) legte jedes Zugbild gegen den Kern
+und fand einen Fehler, der seit v0.38 im Regelwerk lag:
+
+- SCHARFSCHUSS BEI SONDERFIGUREN: zehn Helden mit eigener Gangart
+  (moveSpec - Kapitaen, Attentaeter, Magier, Hexerin, Vesna, Alchemist,
+  Warlock, Inquisitor, Techniker, Stratege) tragen den Scharfschuss auf
+  ihrer Leiter, konnten ihn im Gefecht aber NIE abfeuern. URSACHE:
+  `rules/moves.js` kehrte fuer Figuren mit moveSpec frueh zurueck, BEVOR der
+  Schuss-Block erreicht war. Ein Notnagel aus v0.38 hatte nur das Blinzeln
+  in den moveSpec-Block kopiert - der Schuss kam spaeter dazu und blieb
+  hinter dem return. Gemessen: Kapitaen mit Gegner auf Distanz 2 -> 0
+  Schuesse; derselbe Kapitaen ohne moveSpec-Feld -> 1 Schuss. Das fruehe
+  return ist fort, der doppelte Blinzel-Block auch; Schuss und Blinzeln
+  gelten nun fuer alle Figuren gleich. Der zweite Riegel (kein Schuss im
+  reinen Schach) bleibt und wird mitgeprueft.
+- ZUGBILDER (alle 13) stimmen mit dem Kern fuer Stufe I ueberein - Feld fuer
+  Feld gemessen, leer und umringt, im Gefecht und im Schach. Die Tabelle
+  ABILITY_MOVE liegt jetzt in `src/content/zugbilder.js` (vorher nicht
+  exportiert in ArmyScreen.jsx), damit die Probe sie importieren kann.
+- EHRLICHE LEGENDE: "Gruen: neue Felder durch diese Faehigkeit" sagte bei
+  Phase, Durchbruch, Koenigsflucht, Stossschlag, Sturmlauf und Fliegen die
+  Unwahrheit - die gruenen Felder sind auf leerem Brett laengst Grundzuege,
+  und der Kern erlaubt sie nur unter Bedingungen (ueber eine besetzte
+  Nachbarfigur, bei freiem Zwischenfeld, nur als Schlag, nur mit freiem
+  Weg, wachsend mit der Stufe). Diese sechs tragen jetzt einen `hinweis`
+  unter dem Raster (Hofstaat-Leiter und Chronik).
+- Bericht: `design/FAEHIGKEITEN-2026-09-27.md` (alle 32 Faehigkeiten, die
+  Luecken, Abschnitt 3 mit der Messung, Ideen fuer neue). Nicht geaendert,
+  nur festgehalten: Rueckzug (pawn_backstep) traegt niemand; Kettenblitz und
+  Enterhaken sind Attrappen (live:false); das Grundraster des Bauern zeigt
+  weder Doppelschritt noch Schraegschlag.
+
 ## 1.89.0 - die Wuensche des Besitzers vom 27.9., alle gemessen
 
 Zwei Sprachnachrichten, sechzehn Punkte. Jeder Punkt wurde vorher am

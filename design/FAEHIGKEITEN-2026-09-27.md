@@ -99,11 +99,75 @@ Gezählt, nicht geschätzt:
 5. **Die Monster haben es besser:** neun eigene Fähigkeiten mit eigener
    Sprache (Zehrung, Beute, Schrecken). Dasselbe Prinzip fehlt den Helden.
 
-## 3. Zugbilder gegen den Kern
+## 3. Zugbilder gegen den Kern — gemessen, nicht gelesen
 
-*(Wird nachgetragen, sobald die Prüfung der Bewegungs-Fähigkeiten — Zugbild
-in `ArmyScreen.jsx` gegen `moves.js` auf leerem Brett — durch ist; die
-Prüfung soll als Test `test_zugbilder.mjs` in die Kette.)*
+Die Prüfung ist seit v1.89.1 die 28. Suite der Kette: `test_zugbilder.mjs`
+(43 Prüfungen). Sie stellt jede Figur auf d4 eines 8×8-Bretts, einmal auf
+leerem Brett und einmal von acht Gegnern umringt, im Gefecht und im reinen
+Schach, in Stufe I bis III, und legt die Züge des Kerns (`rules/moves.js`)
+Feld für Feld gegen das Zugbild (`ABILITY_MOVE`, seit v1.89.1 in
+`src/content/zugbilder.js`, vorher unexportiert in `ArmyScreen.jsx`).
+Zusätzlich hat ein Kundschafter die Raster am lebenden DOM vermessen
+(Zellen 18,7–19,3 px, Raster 150/154 px; Hofstaat-Leiter und Chronik).
+
+### 3.1 Die 13 Zugbilder stimmen — für Stufe I
+
+| Fähigkeit | Zugbild | Kern Stufe I | Befund |
+|---|---|---|---|
+| Weitsprung `knight_longleap` | 8 Felder (±1,±3 / ±3,±1) | dieselben 8 | gleich |
+| Vorreiter `knight_outrider` | ±2,±2 | dieselben 4 | gleich; das Symbol steht in der Familie „Schritt" (grün), obwohl es ein Sprung ist |
+| Phase `bishop_hop` | ±2,±2 | dieselben 4 | gleich, aber **nur über eine besetzte Nachbarfigur** (leer: 0 Züge, umringt: 4) |
+| Wachschritt `bishop_ortho_step` | ±1,0 / 0,±1 | dieselben 4 | gleich |
+| Sturmschritt `rook_diag_step` | ±1,±1 | dieselben 4 | gleich |
+| Durchbruch `rook_breach` | ±2,0 / 0,±2 | dieselben 4 | gleich, aber **nur über eine besetzte Nachbarfigur** |
+| Hofsprung `queen_knightleap` | 8 Springerfelder | dieselben 8 | gleich |
+| Königsflucht `king_dash` | ±2,0 / 0,±2 | dieselben 4 | gleich, aber **nur bei freiem Zwischenfeld** (leer: 4, umringt: 0) |
+| Ausweichen `pawn_sidestep` | ±1,0 | dieselben 2 | gleich |
+| Stoßschlag `pawn_forward_capture` | 0,1 | 0,1 | gleich, aber das Feld ist der **Grundschritt** — die Fähigkeit macht daraus einen Schlag (leer: 0, Gegner davor: 1) |
+| Sturmlauf `pawn_charge` | 0,2 | 0,2 | gleich für Stufe I; **Stufe II ergänzt 0,3, Stufe III 0,4**; der Weg muss frei sein, es wird nie geschlagen; von der Grundreihe zählt +2 als Doppelschritt |
+| Rückzug `pawn_backstep` | 0,−1 | 0,−1 | gleich — trägt aber niemand |
+| Fliegen `dragon_flight` | 24 Felder Umkreis 2 | Reichweite 2 | gleich für Stufe I; **Stufe II Reichweite 3, Stufe III Reichweite 4** (auf 10×10 gemessen: 24 / 48 / 79 Ankerziele) |
+
+Ohne Zugbild, mit Absicht: **Blinzeln** (24 leere Felder im Umkreis 2 —
+ein Umkreis, kein Muster; 16 Figuren tragen es) und **Scharfschuss**
+(Distanz 2–3 in Sichtlinie, die Figur bleibt stehen — kein Zug). Beide
+werden im Kern trotzdem geprüft.
+
+### 3.2 Was die Prüfung gefunden hat
+
+1. **Der Scharfschuss der Sonderfiguren feuerte nie** (behoben in v1.89.1).
+   Zehn Helden mit eigener Gangart (`moveSpec`: Kapitän, Attentäter, Magier,
+   Hexerin, Vesna, Alchemist, Warlock, Inquisitor, Techniker, Stratege)
+   tragen `ranged_shot` auf der Leiter. `moves.js` kehrte für Figuren mit
+   `moveSpec` früh zurück, bevor der Schuss-Block erreicht war; ein Notnagel
+   aus v0.38 hatte nur das Blinzeln in diesen Block kopiert. Messung:
+   Kapitän mit Gegner auf Distanz 2 → 0 Schüsse; derselbe Kapitän ohne
+   `moveSpec`-Feld → 1 Schuss. Keine bestehende Suite fing das, weil alle
+   Schuss-Proben mit Bauer, Läufer oder Turm arbeiteten. Seit dem Fix
+   prüft Abschnitt 5 der Suite alle 22 Paare Figur/Fähigkeit.
+   **Folge für die Balance:** diese zehn Figuren sind im Gefecht erstmals
+   so stark, wie ihre Leiter verspricht — Kampagne, Schnelles Spiel und
+   Online-Duell (Worker und App teilen den Kern; beide Seiten müssen
+   dieselbe Fassung fahren). Kein Boss trägt den Schuss.
+2. **Die Legende log** (behoben in v1.89.1). „Grün: neue Felder durch diese
+   Fähigkeit" stimmte bei Phase, Durchbruch, Königsflucht, Stoßschlag,
+   Sturmlauf und Fliegen nicht — die grünen Felder sind auf leerem Brett
+   längst Gleit- oder Grundschritt-Felder, und der Kern erlaubt sie nur
+   unter Bedingungen, die kein Bild zeigen kann. Diese sechs tragen jetzt
+   einen `hinweis` unter dem Raster (Hofstaat-Leiter und Chronik), und die
+   Suite verlangt ihn.
+3. **Nur festgehalten, nicht geändert** (Besitzerentscheid):
+   - Das Grundraster des Bauern zeigt nur den Schritt 0,1 — weder
+     Doppelschritt noch Schrägschlag (`specForKind` in `ArmyScreen.jsx`,
+     Fall „P"). In der Chronik übermalt der Stoßschlag das Feld 0,1 rot,
+     weil das zuletzt eingetragene Talent gewinnt.
+   - Blinzeln könnte ein Zugbild bekommen (24 Felder). Nebenwirkung: die
+     Grundraster von 16 Figuren würden in der Chronik violett übermalt —
+     nur mit Filter in der Talente-Schleife sinnvoll, Bilder vorher zeigen.
+   - `knight_outrider` steht in der Zeichen-Familie „Schritt" statt
+     „Sprung"; `dragon_flight` hat den Tag `wing`, der in `TAGS` fehlt; die
+     neun Monster-Fähigkeiten haben kein Zeichen in `AbilityIcons.jsx`
+     (zeigen „?"); Unsterblich und Hofsprung teilen das Text-Glyph ✦.
 
 ## 4. Ideen für neue Fähigkeiten
 

@@ -12,9 +12,12 @@
 > durch Messung). **Kein Schlüssel, kein Token, kein Passwort steht in diesem
 > oder irgendeinem anderen Blatt** — hier steht nur, WO sie liegen.
 
-**Stand beim Schreiben:** v1.88.0 live auf `main`. Die UI-Wünsche vom
-27.9. (Abschnitt 5) laufen als v1.89.0. *(Dieser Absatz wird am Ende der
-Sitzung nachgeführt.)*
+**Stand am Ende der Sitzung (27.9.2026, abends):** v1.89.0 (alle
+UI-Wünsche vom 27.9.) ist auf `main` gepusht; v1.89.1 (der Scharfschuss der
+Sonderfiguren, Zugbild-Probe als 28. Suite) folgt in derselben Sitzung —
+siehe `CHANGELOG.md` und `git log`. Was danach noch offen ist, steht in
+Abschnitt 5. Die Live-Abnahme (`version.json` pollen) konnte aus der
+Cloud-Sitzung nie laufen und ist der erste Schritt im neuen Chat.
 
 ---
 
@@ -87,14 +90,19 @@ die Pflichtadresse in `privacy.html` bleiben bewusst).
 | — | 219 einzigartige Bilder aus den Juli-Zweigen gerettet, bevor die Zweige gelöscht wurden | `archiv/ausgemustert/zweige-juli-2026/LIESMICH.md` |
 | 1.87.0 | Landingpage nach dem Blick des Besitzers: Länderband fort, Bretter ohne Lila und Glut, Zugbilder in einer Sprache, Crowd hinter der ersten Reihe | `CHANGELOG.md`, `tools/landing_bilder.py` |
 | 1.88.0 | Der Riegel vor `/spielen/` ist fort (prompt() sperrte den Besitzer auf dem Handy aus) | `CHANGELOG.md`, `tools/seite-bauen.mjs` Schritt 3 |
-| 1.89.0 | Die UI-Wünsche vom 27.9. — siehe Abschnitt 5 | `CHANGELOG.md` |
+| 1.89.0 | Die UI-Wünsche vom 27.9. (sechzehn Punkte, jeder vorher und nachher am DOM gemessen) plus zwei Render-Abstürze aus dem Audit (`ResultBanner` ohne `profile`, `CampaignScreen` ohne `paintedById`) und der Ereignis-Hänger im Gefecht | `CHANGELOG.md` |
+| 1.89.1 | Der Scharfschuss der zehn Sonderfiguren mit eigener Gangart feuerte seit v0.38 nie (frühes `return` in `rules/moves.js`); Zugbilder gegen den Kern als 28. Suite `test_zugbilder.mjs`; ehrliche Legenden unter sechs Zugbildern | `CHANGELOG.md`, `design/FAEHIGKEITEN-2026-09-27.md` Abschnitt 3 |
 
 Dazu die Berichte, die in dieser Sitzung geschrieben wurden:
 
 - `design/AUDIT-2026-09-27.md` — das Challenging des ganzen Projekts (sechs
   Linsen, jede vom Skeptiker geprüft), mit Fragebogen am Ende.
 - `design/SPIELTEST-2026-09-27.md` — der Spieltest: Kern-Fahrprobe über alle
-  Stationen und sechs Browser-Szenarien; bestätigte Abstürze mit Ursache.
+  529 Stationen (3174 KI-Partien, 0 Abstürze) und Browser-Szenarien;
+  bestätigte Abstürze mit Ursache. **Wichtigster Befund:** die Fallen
+  (Spitzgrube, Bärenfalle) lösen im Kern nie aus — `loeseFalleAus` wird
+  importiert, aber nirgends aufgerufen. Nicht behoben (Regeländerung, erst
+  mit dem Besitzer klären).
 - `design/FAEHIGKEITEN-2026-09-27.md` — alle Fähigkeiten exportiert, Zugbilder
   gegen den Kern geprüft, Ideen für neue.
 - `design/PLAYSTORE-BACKLOG.md` — die Store-Liste (S1–S14), am 27.9. nachgeführt.
@@ -114,22 +122,63 @@ Artefakte (haltbare Links, weil Datei-Karten im Handy-Chat verloren gehen):
 | `OHNE_ARCHIV=1 npm run build` | Bau ohne die drei Archivordner (51 MB, Sekunden) — für Zwischenstände, nie für einen Release | — |
 | `drive3.mjs` (erweitert) | erkennt Auslieferungsstand und App-Bau; prüft Landingpage, Dienstarbeiter und dass kein Riegel fragt | `timeout 250 node drive3.mjs` |
 
-## 5. Offene Punkte (Stand beim Schreiben — am Ende nachgeführt)
+## 5. Offene Punkte (Stand am Ende der Sitzung)
 
-Aus der Sprachnachricht vom 27.9. (Reihenfolge = Bearbeitung):
+### 5a. Die Sprachnachrichten vom 27.9. — alles gebaut (v1.89.0 / v1.89.1)
 
 - [x] Online-Duell-Kachel: „Als Gast nicht nutzbar" und der Verbindungsstand lagen übereinander (gemessen 56,8 × 12 px) — der Stand rückt beim Gast eine Zeile tiefer.
 - [x] Hinweis-Popups mittig, Hintergrund im Glas-Blur, Leuchtkontur läuft ums Fenster (sie lief bisher um den ganzen Schirm).
-- [x] Klang-Knacken beim Drücken von Knöpfen: Warmhalter im Klangpfad (`src/app/ui/klang.js`) — **Hypothese, auf dem Handy zu bestätigen**.
-- [ ] Aufstellung: Standardfiguren höchstens so oft wie im Grundsatz (2 Türme, 2 Springer, 2 Läufer, 1 Dame).
-- [ ] Gefecht: „Du bist am Zug" ohne Kachel und Punkt, in Lila; gesperrte Fähigkeit als mittiger Text statt Lila-Kasten; Schloss selbst gezeichnet; Talent-Kacheln lila, gewählt animiert leuchtend.
-- [ ] Fähigkeiten-Zeichen überall als abgerundete Vierecke.
-- [ ] Hofstaat-Slider: Eckverzierungen der nicht gewählten Karten lila.
-- [ ] Fähigkeiten exportieren + Ideen + Zugbilder gegen den Kern prüfen (Test).
-- [ ] Zurück-Knöpfe auf Schnelles Spiel und Akademie weg, Chronik ganz nach oben; kein Scrollen ohne Überlauf.
-- [ ] Akademie glattziehen (Schnellkurs, Spielweise mit Brettdiagrammen, zwei Kacheln nebeneinander, Kulisse).
-- [ ] Profil im Lila-Look; „Darstellung & Leistung" raus; Feedback-Rubriken kürzen; Punkte vor Überschriften weg.
-- Geparkt (Besitzer): Info-Knopf in der Aufstellung · Reiter „Spielen" in „Hauptmenü" umbenennen · „Die Karte erzählt die Geschichte" (großer Brocken, später).
+- [x] Klang-Knacken beim Drücken von Knöpfen: Warmhalter im Klangpfad (`src/app/ui/klang.js`) — **Hypothese, auf dem Handy zu bestätigen**; wenn es weiter knackt, ist die nächste Spur der erste Ton nach `resume()` auf Android-Chrome.
+- [x] Aufstellung: Standardfiguren höchstens zweimal (`HOECHSTZAHL_JE_FIGUR` in `src/meta/leveling.js`), Hinweis in klein, Karte im Wischband gesperrt.
+- [x] Gefecht: „Du bist am Zug" ohne Kachel und Punkt in Lila; gesperrte Fähigkeit als mittiger Text; Schloss selbst gezeichnet (`LockIc`); Talent-Kacheln lila, gewählt mit Leuchtkontur.
+- [x] Fähigkeiten-Zeichen überall als abgerundete Vierecke.
+- [x] Hofstaat-Slider: Eckverzierungen der nicht gewählten Karten lila.
+- [x] Fähigkeiten exportiert (`design/FAEHIGKEITEN-2026-09-27.md`), Ideen für neue (Abschnitt 4 dort), Zugbilder gegen den Kern als Suite — **Fund: der Scharfschuss der Sonderfiguren feuerte nie** (v1.89.1).
+- [x] Zurück-Knöpfe auf Schnelles Spiel und Akademie weg, Chronik ganz nach oben; kein Scrollen ohne Überlauf (beide `<main>`-Polster).
+- [x] Akademie: Schnellkurs neu (acht Tafeln, selbst gezeichnet), Spielweise mit Brettchen (`src/app/ui/Brettchen.jsx`), Chronik-Kacheln zwei nebeneinander, nur Begegnetes, Kulisse dahinter.
+- [x] Profil im Lila-Look; „Darstellung & Leistung" raus; Feedback auf vier Rubriken; keine Punkte vor Überschriften.
+
+**Was der Besitzer selbst abnehmen muss (Sichtbares, Handy):** das Knacken
+(Hypothese), die Leuchtkontur der gewählten Talent-Kachel, die neuen
+Schnellkurs-Tafeln, die Legenden unter den Zugbildern, der Profil-Look.
+
+### 5b. Geparkt vom Besitzer
+
+- Info-Knopf in der Aufstellung öffnet das Figuren-Popup („behalten wir es mal so bei").
+- Reiter „Spielen" in „Hauptmenü" umbenennen („wir halten erstmal").
+- „Die Karte erzählt die Geschichte" (großer Brocken, „später").
+- Neue Fähigkeiten aus `design/FAEHIGKEITEN-2026-09-27.md` Abschnitt 4 auswählen — erst dann bauen.
+
+### 5c. Aus Audit und Spieltest — festgestellt, bewusst NICHT gebaut
+
+Alle Nummern beziehen sich auf `design/AUDIT-2026-09-27.md`. Gebaut wurden
+nur die zwei bestätigten Render-Abstürze (A3, A4) in v1.89.0.
+
+- **Fallen lösen nie aus** (Spieltest): `loeseFalleAus` in `src/core/rules/`
+  wird importiert, aber nie aufgerufen — Spitzgrube und Bärenfalle sind im
+  Gefecht wirkungslos. Regeländerung, deshalb erst mit dem Besitzer klären.
+- **A1/A2 Online-Halle:** der Worker leitet Züge weiter, ohne sie gegen den
+  Kern zu prüfen (Relay + Reducer ohne Validierung). Spielt nur eine Rolle,
+  wenn ein Duell-Gegner manipuliert.
+- **A5** Weißer Schirm ohne Fehlerschranke um die Reiter (ein Render-Fehler
+  in einem Reiter reißt die ganze App) · **A6** `trim()` beim Anlegen des
+  Kontos fehlt · **A7** die SQLite der Halle wächst ohne Grenze · **A8** der
+  Worker glaubt dem Client das Duell-Ergebnis.
+- Mittel, aber spielrelevant: **A9** die Bünde wirken im Gefecht nie
+  (kein `createGame`-Aufruf übergibt sie) · **A10** Sperren halten nur
+  Schritt, Gleiten und Bauern auf, Sonderzüge landen auf der Mauer ·
+  **A11** HP-Umwandlung setzt einen Helden auf Grundwerte zurück · **A13**
+  Tagespartie meldet das Ende nie · **A14** Rochade aus dem Schach heraus
+  wird angeboten. Alle mit Datei:Zeile im Audit; der Fragebogen am Ende
+  sortiert, was Besitzerentscheid ist.
+- **A16** Werkzeug `freie-bezeichner.mjs` (Scope-Scan mit acorn, findet
+  Bezeichner ohne Import — genau die Klasse der Abstürze A3/A4) liegt nur
+  unter `/tmp` der Cloud-Sitzung und ist damit **verloren**; nachbauen lohnt:
+  ~60 Zeilen, acorn ist über vite schon installiert, als
+  `tools/pruefe-bezeichner.mjs` in `npm test` (braucht die vite-Defines
+  `__GG_VERSION__`, `__APP_VERSION__` als bekannte Namen).
+- Doppelter Schlüssel `position` in einem Style-Objekt in `App.jsx`
+  (esbuild-Warnung, harmlos).
 
 Technik (aus `design/STAND-2026-09-26.md`): T6 erledigt (Zweige gelöscht), T9
 (Domain in der Cloud-Umgebung freigeben — mit dem Wechsel in den Chat
@@ -142,9 +191,14 @@ Store: `design/PLAYSTORE-BACKLOG.md`, S1–S14. Beim Besitzer: `.aab` mit Paket
 
 ## 6. Erste Schritte im neuen Chat
 
+0. Zuerst die Live-Abnahme nachholen, die aus der Cloud nie ging:
+   `curl -sL -H "Cache-Control: no-cache" https://gambitrise.com/version.json`
+   muss die Fassung aus `package.json` auf `main` zeigen. Zeigt sie eine
+   ältere, im Cloudflare-Dashboard unter *grand-gambit → Deployments*
+   nachsehen, ob der Bau durchlief.
 1. Repo klonen bzw. den Connector auf `manubloc/gambit-rise` richten;
-   `git log --oneline -5` muss mit `v1.8x.0 …` beginnen.
-2. `npm ci`, dann `npm test` — es müssen **27 Suiten** laufen (Zahl der
+   `git log --oneline -5` muss mit `v1.89.1 …` beginnen.
+2. `npm ci`, dann `npm test` — es müssen **28 Suiten** laufen (Zahl der
    Prüfungen steht in `CLAUDE.md`).
 3. `CLAUDE.md` lesen (Kette, Fallen, Live-Messung), dann dieses Blatt,
    dann die drei Berichte vom 27.9.
