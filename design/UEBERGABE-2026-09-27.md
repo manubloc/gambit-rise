@@ -14,7 +14,8 @@
 
 **Stand am Ende der Sitzung (27.9.2026, abends):** v1.89.0 (alle
 UI-Wünsche vom 27.9.) ist auf `main` gepusht; v1.89.1 (der Scharfschuss der
-Sonderfiguren, Zugbild-Probe als 28. Suite) folgt in derselben Sitzung —
+Sonderfiguren, Zugbild-Probe als 28. Suite) und v1.89.2 (Hofreihe auf dem
+Handy) folgen in derselben Sitzung —
 siehe `CHANGELOG.md` und `git log`. Was danach noch offen ist, steht in
 Abschnitt 5. Die Live-Abnahme (`version.json` pollen) konnte aus der
 Cloud-Sitzung nie laufen und ist der erste Schritt im neuen Chat.
@@ -92,6 +93,7 @@ die Pflichtadresse in `privacy.html` bleiben bewusst).
 | 1.88.0 | Der Riegel vor `/spielen/` ist fort (prompt() sperrte den Besitzer auf dem Handy aus) | `CHANGELOG.md`, `tools/seite-bauen.mjs` Schritt 3 |
 | 1.89.0 | Die UI-Wünsche vom 27.9. (sechzehn Punkte, jeder vorher und nachher am DOM gemessen) plus zwei Render-Abstürze aus dem Audit (`ResultBanner` ohne `profile`, `CampaignScreen` ohne `paintedById`) und der Ereignis-Hänger im Gefecht | `CHANGELOG.md` |
 | 1.89.1 | Der Scharfschuss der zehn Sonderfiguren mit eigener Gangart feuerte seit v0.38 nie (frühes `return` in `rules/moves.js`); Zugbilder gegen den Kern als 28. Suite `test_zugbilder.mjs`; ehrliche Legenden unter sechs Zugbildern | `CHANGELOG.md`, `design/FAEHIGKEITEN-2026-09-27.md` Abschnitt 3 |
+| 1.89.2 | Hofreihe der Landingpage auf dem Handy (Besitzer-Foto): Springer 48–50 % statt 23 % sichtbar, Türme als Randfiguren der hinteren Reihe, Läufer bündig am Rand — Handy-Werte `--hs/--ys/--bs` in `public/landing.html`, alpha-genau gemessen | `CHANGELOG.md` |
 
 Dazu die Berichte, die in dieser Sitzung geschrieben wurden:
 
@@ -121,6 +123,9 @@ Artefakte (haltbare Links, weil Datei-Karten im Handy-Chat verloren gehen):
 | `tools/landing_bilder.py` | Zugbilder, Gefechtsbretter und Crowd-Figuren der Landingpage aus Repo-Material | `python3 tools/landing_bilder.py [zugbilder|gefecht|crowd|alles]` |
 | `OHNE_ARCHIV=1 npm run build` | Bau ohne die drei Archivordner (51 MB, Sekunden) — für Zwischenstände, nie für einen Release | — |
 | `drive3.mjs` (erweitert) | erkennt Auslieferungsstand und App-Bau; prüft Landingpage, Dienstarbeiter und dass kein Riegel fragt | `timeout 250 node drive3.mjs` |
+| `test_zugbilder.mjs` | 28. Suite: jedes Zugbild gegen den Kern, alle Sonderfiguren mit ihren Fähigkeiten, Drache je Stufe | läuft in `npm test` |
+| `tools/pruefe-bezeichner.mjs` | freie Bezeichner im Bundle (die Klasse der Abstürze A3/A4) | nach `npm run ui`: `node tools/pruefe-bezeichner.mjs` |
+| `src/content/zugbilder.js` | die Zugbild-Tabelle `ABILITY_MOVE` mit `hinweis`-Texten, importierbar (vorher unexportiert in ArmyScreen.jsx) | — |
 
 ## 5. Offene Punkte (Stand am Ende der Sitzung)
 
@@ -171,12 +176,12 @@ nur die zwei bestätigten Render-Abstürze (A3, A4) in v1.89.0.
   Tagespartie meldet das Ende nie · **A14** Rochade aus dem Schach heraus
   wird angeboten. Alle mit Datei:Zeile im Audit; der Fragebogen am Ende
   sortiert, was Besitzerentscheid ist.
-- **A16** Werkzeug `freie-bezeichner.mjs` (Scope-Scan mit acorn, findet
-  Bezeichner ohne Import — genau die Klasse der Abstürze A3/A4) liegt nur
-  unter `/tmp` der Cloud-Sitzung und ist damit **verloren**; nachbauen lohnt:
-  ~60 Zeilen, acorn ist über vite schon installiert, als
-  `tools/pruefe-bezeichner.mjs` in `npm test` (braucht die vite-Defines
-  `__GG_VERSION__`, `__APP_VERSION__` als bekannte Namen).
+- **A16** ist als Werkzeug gerettet: `tools/pruefe-bezeichner.mjs`
+  (Scope-Scan mit acorn über das Bundle `.uitest.mjs`, das `npm run ui`
+  baut) meldet jeden Bezeichner ohne Deklaration — genau die Klasse der
+  Abstürze A3/A4. Stand v1.89.1: 0 unbekannte Namen. Noch NICHT in
+  `npm test` eingehängt (braucht den esbuild-Vorlauf); als Handgriff vor
+  jedem Release gedacht, siehe Abschnitt 4.
 - Doppelter Schlüssel `position` in einem Style-Objekt in `App.jsx`
   (esbuild-Warnung, harmlos).
 
@@ -197,7 +202,7 @@ Store: `design/PLAYSTORE-BACKLOG.md`, S1–S14. Beim Besitzer: `.aab` mit Paket
    ältere, im Cloudflare-Dashboard unter *grand-gambit → Deployments*
    nachsehen, ob der Bau durchlief.
 1. Repo klonen bzw. den Connector auf `manubloc/gambit-rise` richten;
-   `git log --oneline -5` muss mit `v1.89.1 …` beginnen.
+   `git log --oneline -5` muss mit `v1.89.2 …` beginnen.
 2. `npm ci`, dann `npm test` — es müssen **28 Suiten** laufen (Zahl der
    Prüfungen steht in `CLAUDE.md`).
 3. `CLAUDE.md` lesen (Kette, Fallen, Live-Messung), dann dieses Blatt,

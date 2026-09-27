@@ -153,11 +153,15 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
   Auswahl-Lichtspektakel.
 - Alles Optionale abschaltbar (Klang, Online).
 
-## Offene Baustellen (Stand v1.86.0)
+## Offene Baustellen (Stand v1.89.1)
 
-Die vollständige, gepflegte Liste steht in **`design/STAND-2026-09-26.md`**
-(technische Punkte als T1–T11) und **`design/PLAYSTORE-BACKLOG.md`** (alles zur
-Store-Einreichung). Hier nur der Überblick:
+**Einstieg für jede neue Sitzung: `design/UEBERGABE-2026-09-27.md`** — Stand,
+Deploy-Weg (der Push auf `main` IST der Deploy), wo die Geheimnisse liegen
+(nur Orte), was offen ist. Darunter: **`design/STAND-2026-09-26.md`**
+(technische Punkte T1–T11), **`design/PLAYSTORE-BACKLOG.md`** (Store),
+**`design/AUDIT-2026-09-27.md`** (76 Punkte, nur Liste, zwei davon gebaut),
+**`design/SPIELTEST-2026-09-27.md`**, **`design/FAEHIGKEITEN-2026-09-27.md`**.
+Hier nur der Überblick:
 
 - **Spiel:** Nur noch zwei Punkte sind wirklich offen — „Die Karte erzählt die
   Geschichte" (großer Brocken, Besitzer 27.9.: **später**) und der
@@ -175,8 +179,13 @@ Store-Einreichung). Hier nur der Überblick:
 
 **Erledigt und aus dieser Liste gestrichen** (die alte Fassung stand auf
 v1.0.62 und führte längst Gebautes als offen): Sperren kaufen/setzen
-(`core/rules/sperren.js`, eigene Suite) · Fallen (Spitzgrube, Bärenfalle) ·
-Schaukammer-Platzhalter (vorschauen vollzählig) · Animationen
-(`app/ui/anim.js` + `test_anim.mjs`) · Onboarding-Treppe (auf Tooltips
-umgestellt) · HP-Remis (120 Halbzüge in `core/domain/constants.js`) ·
-erste Aura.
+(`core/rules/sperren.js`, eigene Suite) · Schaukammer-Platzhalter
+(vorschauen vollzählig) · Animationen (`app/ui/anim.js` + `test_anim.mjs`) ·
+Onboarding-Treppe (auf Tooltips umgestellt) · HP-Remis (120 Halbzüge in
+`core/domain/constants.js`) · erste Aura.
+
+**NICHT erledigt, obwohl es hier bis v1.89.0 so stand** (Spieltest und Audit
+A32 vom 27.9., gemessen): die **Fallen** (Spitzgrube, Bärenfalle) lösen im
+Kern nie aus — `loeseFalleAus` aus `core/rules/sperren.js` wird in
+`core/sim/transitions.js` importiert, aber nirgends aufgerufen. Kaufen und
+Stellen geht, Wirkung gibt es keine. Regeländerung → Besitzerentscheid.
