@@ -1,5 +1,30 @@
 # Changelog - Gambit Rise
 
+## 1.89.7 - die Startseite erklaerte sich selbst fuer nicht-kanonisch
+
+Gefunden bei der Adressaenderung in der Google Search Console (28.9., 00:31):
+die URL-Pruefung fuer http://grandgambit.win/ meldete als "vom Nutzer
+angegebene kanonische URL" -> https://gambitrise.com/landing.html.
+
+- URSACHE: public/landing.html trug `<link rel="canonical">` und `og:url` auf
+  https://gambitrise.com/**landing.html**. Der Bau legt dieselbe Datei aber an
+  ZWEI Stellen ab (tools/seite-bauen.mjs Schritt 2: als index.html an der
+  Wurzel UND als landing.html daneben). Die Startseite https://gambitrise.com/
+  erklaerte damit eine ANDERE Adresse zur massgeblichen - Google fuehrt dann
+  /landing.html als das Original und die Wurzel als Dublette. Die sitemap.xml
+  nennt umgekehrt nur die Wurzel: die beiden Signale widersprachen sich seit
+  es die Landingpage gibt. Jetzt zeigen canonical und og:url auf
+  https://gambitrise.com/ - die Adresse, die auch in der Sitemap steht und auf
+  die die 301 von grandgambit.win fuehrt.
+
+- robots.txt: der Kommentar begruendete die Sperre von /spielen/ mit dem
+  "Riegel davor" - den gibt es seit v1.88.0 nicht mehr. Die SPERRE bleibt
+  (Besitzerentscheidung: der Weg ins Spiel fuehrt ueber den Play Store), nur
+  die Begruendung ist berichtigt und die offene Frage als S16 im
+  PLAYSTORE-BACKLOG notiert. Kein Verhalten geaendert.
+
+Kein Spielcode geaendert.
+
 ## 1.89.6 - eine eigene Seite zum Konto loeschen, weil der Play-Bogen sie verlangt
 
 Beim Ausfuellen des Datensicherheits-Bogens in der Play Console (27.9. abends)

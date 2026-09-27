@@ -1,7 +1,11 @@
 User-agent: *
 Allow: /
-# v1.43.1: die Spielseite ist bewusst versteckt (Riegel davor) - sie gehoert
-# nicht in die Suche. Der Weg ins Spiel fuehrt ueber den Play Store.
+# v1.43.1/v1.89.7: die Spielseite gehoert bewusst nicht in die Suche - der Weg
+# ins Spiel fuehrt ueber den Play Store. ACHTUNG, der urspruengliche Grund ist
+# entfallen: hier stand "(Riegel davor)", den Riegel gibt es seit v1.88.0 nicht
+# mehr. Die Regel bleibt trotzdem, weil sie eine Besitzerentscheidung ist und
+# keine Folge des Riegels - ob /spielen/ kuenftig indexiert werden soll, ist
+# offen (PLAYSTORE-BACKLOG S16).
 Disallow: /spielen/
 
 Sitemap: https://gambitrise.com/sitemap.xml

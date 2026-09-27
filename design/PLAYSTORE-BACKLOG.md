@@ -124,6 +124,12 @@
   bietet die Console das Werkzeug nicht an. Danach `sitemap.xml` für
   gambitrise.com einreichen (sie führt seit v1.89.6 auch `konto-loeschen.html`).
 
+- [ ] **S16 Soll /spielen/ in die Suche?** `robots.txt` sperrt die App seit
+  v1.43.1 mit der Begründung „Riegel davor" — den Riegel gibt es seit v1.88.0
+  nicht mehr. Die Sperre steht weiter (Besitzerentscheidung: der Weg ins Spiel
+  führt über den Play Store). Offen ist nur, ob das so bleiben soll, jetzt wo
+  die App frei zugänglich ist.
+
 ## Eine Entscheidung, die noch aussteht
 
 - [ ] **S14 Soll der automatische Absturzbericht abschaltbar sein?** Heute ist
