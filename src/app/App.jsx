@@ -736,11 +736,15 @@ export default function App() {
           notices: alle ? { ...(profile.notices || {}), hinweiseAus: true } : profile.notices } });
         return (
           /* v1.65.0 (Besitzer: "wie so eine Art Tooltips"): keine Wand mitten im
-             Bild mehr, sondern eine kompakte Karte ueber der Leiste; der Grund
-             bleibt sichtbar. */
-          <div style={{ position: "fixed", inset: 0, zIndex: 60, display: "flex", alignItems: "flex-end", justifyContent: "center",
-            background: "rgba(8,10,14,.32)", padding: "16px 10px calc(104px + env(safe-area-inset-bottom, 0px))" }}>
-            <div className="gg-funkenkontur-innen" style={{ background: `radial-gradient(125% 135% at 50% -10%, ${T.panel2} 0%, ${T.panel} 52%, ${T.bg2} 100%)`,
+             Bild mehr, sondern eine kompakte Karte.
+             v1.89.0 (Besitzer: "mittig im Bildschirm ... den Hintergrund komplett
+             in diesem Glas-Blur-Effekt"): GEMESSEN sass die Karte 204-246 px
+             unter der Bildmitte (flex-end + 104 px Boden), ohne Blur. Jetzt
+             mittig, der Grund im Glas wie die Reiterleiste. */
+          <div style={{ position: "fixed", inset: 0, zIndex: 60, display: "flex", alignItems: "center", justifyContent: "center",
+            background: "rgba(8,10,14,.45)", backdropFilter: `blur(${T.glassBlur})`, WebkitBackdropFilter: `blur(${T.glassBlur})`,
+            padding: "16px 10px" }}>
+            <div className="gg-funkenkontur-innen gg-hinweiskontur" style={{ background: `radial-gradient(125% 135% at 50% -10%, ${T.panel2} 0%, ${T.panel} 52%, ${T.bg2} 100%)`,
               border: `1px solid ${T.gold}55`, borderRadius: 14, padding: "13px 15px 11px", maxWidth: 400, width: "100%",
               boxShadow: "0 10px 34px rgba(0,0,0,.55)" }}>
               <div className="gg-serif" style={{ fontSize: 19, color: T.goldBright, letterSpacing: ".04em", marginBottom: 4 }}>{eintrag.titel}</div>
@@ -842,11 +846,15 @@ export default function App() {
           notices: alle ? { ...(profile.notices || {}), hinweiseAus: true } : profile.notices } });
         return (
           /* v1.65.0 (Besitzer: "wie so eine Art Tooltips"): keine Wand mitten im
-             Bild mehr, sondern eine kompakte Karte ueber der Leiste; der Grund
-             bleibt sichtbar. */
-          <div style={{ position: "fixed", inset: 0, zIndex: 60, display: "flex", alignItems: "flex-end", justifyContent: "center",
-            background: "rgba(8,10,14,.32)", padding: "16px 10px calc(104px + env(safe-area-inset-bottom, 0px))" }}>
-            <div className="gg-funkenkontur-innen" style={{ background: `radial-gradient(125% 135% at 50% -10%, ${T.panel2} 0%, ${T.panel} 52%, ${T.bg2} 100%)`,
+             Bild mehr, sondern eine kompakte Karte.
+             v1.89.0 (Besitzer: "mittig im Bildschirm ... den Hintergrund komplett
+             in diesem Glas-Blur-Effekt"): GEMESSEN sass die Karte 204-246 px
+             unter der Bildmitte (flex-end + 104 px Boden), ohne Blur. Jetzt
+             mittig, der Grund im Glas wie die Reiterleiste. */
+          <div style={{ position: "fixed", inset: 0, zIndex: 60, display: "flex", alignItems: "center", justifyContent: "center",
+            background: "rgba(8,10,14,.45)", backdropFilter: `blur(${T.glassBlur})`, WebkitBackdropFilter: `blur(${T.glassBlur})`,
+            padding: "16px 10px" }}>
+            <div className="gg-funkenkontur-innen gg-hinweiskontur" style={{ background: `radial-gradient(125% 135% at 50% -10%, ${T.panel2} 0%, ${T.panel} 52%, ${T.bg2} 100%)`,
               border: `1px solid ${T.gold}55`, borderRadius: 14, padding: "13px 15px 11px", maxWidth: 400, width: "100%",
               boxShadow: "0 10px 34px rgba(0,0,0,.55)" }}>
               <div className="gg-serif" style={{ fontSize: 19, color: T.goldBright, letterSpacing: ".04em", marginBottom: 4 }}>{eintrag.titel}</div>
@@ -1137,7 +1145,12 @@ export function PlayHub({ profile, t, onQuick, onCamp, onOnline, onTutorial = nu
           : <span title={hallenStand ? (profile.lang === "en" ? "Connected" : "Verbunden")
               : (profile.lang === "en" ? "Not connected" : "Nicht verbunden")}
               data-hallenstand
-              style={{ position: "absolute", top: 10, right: 12, // v0.71.1: rechts oben in der Kachel
+              /* v1.89.0 (Besitzer: "'als Gast nicht nutzbar' ... 'nutzbar' ist
+                 ueberschrieben mit irgendwas anderem, wahrscheinlich Offline"):
+                 GEMESSEN lagen Gasthinweis und Verbindungsstand auf demselben
+                 Slot (beide top 10 / right 12, 56,8 x 12 px Ueberlappung, in
+                 allen Breiten). Beim Gast rueckt der Stand eine Zeile tiefer. */
+              style={{ position: "absolute", top: profile.gast ? 26 : 10, right: 12, // v0.71.1: rechts oben in der Kachel
                 display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11, fontWeight: 800,
                 letterSpacing: ".05em", color: hallenStand ? "#cdbcf7" : T.faint }}>
               <span aria-hidden style={{ width: 8, height: 8, borderRadius: "50%",
@@ -1444,11 +1457,12 @@ function TeachPopup({ which, t, dispatch }) {
   const [tk, bk] = map[which];
   return (
     /* v1.65.0 (Besitzer: "wie so eine Art Tooltips ... man sollte bei jedem
-       Pop-up es auch deaktivieren koennen"): kompakte Karte ueber der Leiste,
-       leichter Grund, dazu "Hinweise ausschalten". */
-    <div style={{ position: "fixed", inset: 0, zIndex: 62, display: "flex", alignItems: "flex-end", justifyContent: "center",
-      background: "rgba(8,10,14,.32)", padding: "16px 10px calc(104px + env(safe-area-inset-bottom, 0px))" }}>
-      <div className="gg-funkenkontur-innen" style={{ width: "100%", maxWidth: 400, background: T.panel, border: `1px solid ${T.gold}55`,
+       Pop-up es auch deaktivieren koennen"): kompakte Karte, dazu "Hinweise
+       ausschalten". v1.89.0: mittig, Grund im Glas (siehe die Reiter-Hinweise). */
+    <div style={{ position: "fixed", inset: 0, zIndex: 62, display: "flex", alignItems: "center", justifyContent: "center",
+      background: "rgba(8,10,14,.45)", backdropFilter: `blur(${T.glassBlur})`, WebkitBackdropFilter: `blur(${T.glassBlur})`,
+      padding: "16px 10px" }}>
+      <div className="gg-funkenkontur-innen gg-hinweiskontur" style={{ width: "100%", maxWidth: 400, background: T.panel, border: `1px solid ${T.gold}55`,
         borderRadius: 14, boxShadow: "0 10px 34px rgba(0,0,0,.55)", padding: "13px 15px 11px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 4 }}>
           <span style={{ width: 8, height: 8, background: T.gold, transform: "rotate(45deg)", flex: "0 0 auto" }} />
@@ -1486,11 +1500,12 @@ function TeachPopup({ which, t, dispatch }) {
 function FreigabeFenster({ freigabe, en, dispatch }) {
   return (
     /* v1.65.0 (Besitzer: "wie so eine Art Tooltips ... man sollte bei jedem
-       Pop-up es auch deaktivieren koennen"): kompakte Karte ueber der Leiste,
-       leichter Grund, dazu "Hinweise ausschalten". */
-    <div style={{ position: "fixed", inset: 0, zIndex: 63, display: "flex", alignItems: "flex-end", justifyContent: "center",
-      background: "rgba(8,10,14,.32)", padding: "16px 10px calc(104px + env(safe-area-inset-bottom, 0px))" }}>
-      <div className="gg-funkenkontur-innen" style={{ width: "100%", maxWidth: 400, background: T.panel, border: `1px solid ${T.gold}55`,
+       Pop-up es auch deaktivieren koennen"): kompakte Karte, dazu "Hinweise
+       ausschalten". v1.89.0: mittig, Grund im Glas (siehe die Reiter-Hinweise). */
+    <div style={{ position: "fixed", inset: 0, zIndex: 63, display: "flex", alignItems: "center", justifyContent: "center",
+      background: "rgba(8,10,14,.45)", backdropFilter: `blur(${T.glassBlur})`, WebkitBackdropFilter: `blur(${T.glassBlur})`,
+      padding: "16px 10px" }}>
+      <div className="gg-funkenkontur-innen gg-hinweiskontur" style={{ width: "100%", maxWidth: 400, background: T.panel, border: `1px solid ${T.gold}55`,
         borderRadius: 14, boxShadow: "0 10px 34px rgba(0,0,0,.55)", padding: "13px 15px 11px" }}>
         <div className="gg-serif" style={{ fontSize: 10.5, letterSpacing: ".18em",
           color: "#a78bfa", textTransform: "uppercase", marginBottom: 7 }}>

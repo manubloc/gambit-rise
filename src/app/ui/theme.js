@@ -361,6 +361,15 @@ export const GLOBAL_CSS = `
     background-size: 200% 100%; animation: ggFunkenlauf 2.4s linear infinite;
     -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
     -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; z-index: 6; }
+  /* v1.89.0 (Besitzer: "die aussen laufende Kontur laeuft nicht in die Radien
+     unten rein, sondern wird davor abgeschnitten"), GEMESSEN: die Klasse setzte
+     kein eigenes position - Bezugsrahmen des ::after war der fixierte Overlay,
+     die Kontur lief um den GANZEN Schirm (417x897 px statt 395x278 px) und
+     verschwand unten hinter Leiste und Safe-Area. Jetzt ans Fenster gebunden. */
+  .gg-funkenkontur-innen { position: relative; }
+  /* Hinweisfenster: die Kontur laeuft 4 px AUSSEN um den Rand (inset -5 = 4 px
+     Luft + 1 px Rand) und nimmt den Fensterradius 14 mit: 14 + 4 = 18. */
+  .gg-hinweiskontur::after { inset: -5px; border-radius: 18px; }
   /* das Siegel am verschlossenen Weg atmet leise */
   /* box-shadow ist eine MAL-Eigenschaft: ihr Puls strich die ganze
      Weltschicht der Karte neu (gemessen). Jetzt fester Schein, Puls per

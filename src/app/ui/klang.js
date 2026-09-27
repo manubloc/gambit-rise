@@ -232,6 +232,66 @@ function wecke() {
   return ctx;
 }
 
+/* ── DER WARMHALTER (v1.89.0) ────────────────────────────────────────────────
+   Besitzer: "manchmal, wenn man einfach nur die Buttons im Menue drueckt,
+   kommt ein Soundfehler - ein lautes Klacken, krack. Ich kann es gar nicht
+   nachmachen ... der ist nicht von mir aufgenommen worden."
+
+   Was hier schon abgefangen ist (v1.0.11, v1.1.1): Summenspitzen (Begrenzer
+   mit 0,3 ms Attack), harte Einsaetze (4 ms Rampe), volle Aussteuerung
+   (-3 dB Kopfraum in den Dateien), harte Enden (gemessen unter 0,02). Was
+   uebrig bleibt und zu "manchmal, nicht nachmachbar" passt: der ERSTE Ton
+   nach einer Stille. Zwei Quellen, beide ausserhalb unserer Aufnahmen:
+     1. Der Ausgabestrom des Geraets schlaeft nach ein paar Sekunden ohne
+        Ton ein (Android schliesst den Audiopfad, der Lautsprecherverstaerker
+        geht in Ruhe). Der naechste Ton weckt ihn - und genau dieses Wecken
+        knackt auf vielen Telefonen hoerbar, unabhaengig vom Inhalt.
+     2. Der AudioContext ist "suspended" (Browser, Tab im Hintergrund,
+        Bildschirm aus). Bisher lief resume() und start() gleichzeitig; der
+        Ton begann mitten im Aufwachen des Kontexts.
+   Beides laesst sich hier nicht messen (kein Telefon in der Sitzung), aber
+   beides hat dieselbe Abhilfe, die Spiele im Netz seit Jahren benutzen: den
+   Ausgabestrom NIE einschlafen lassen. Ein stiller Dauerpuffer (-100 dBFS,
+   Rauschen weit unter jeder Hoerschwelle) haelt Kontext, Strom und
+   Verstaerker wach, solange die Klaenge an sind; geweckt wird schon bei der
+   ersten Beruehrung, nicht erst beim ersten Ton; und ein Ton startet erst,
+   wenn resume() durch ist. Kostet nichts Hoerbares und fast keinen Strom -
+   der Musikpfad (<audio>) tut fuer sich dasselbe, sobald Musik laeuft.
+   Bleibt das Knacken danach, ist die naechste Spur die Datei selbst
+   (KlangWerkstatt: jeden Klang einzeln, welcher es ist). */
+let warm = null;
+function warmhalten() {
+  if (!an || !ctx || warm || ctx.state !== "running") return;
+  try {
+    const sek = ctx.sampleRate;
+    const b = ctx.createBuffer(1, sek, sek);
+    const d = b.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * 1e-5;
+    const q = ctx.createBufferSource();
+    q.buffer = b; q.loop = true;
+    const g = ctx.createGain(); g.gain.value = 1;
+    q.connect(g); g.connect(ctx.destination);
+    q.start();
+    warm = q;
+  } catch { warm = null; }
+}
+/* Wecken bei der ersten Beruehrung - VOR dem ersten Ton. */
+export function klangWecken() {
+  if (!an) return;
+  const c = wecke();
+  if (!c) return;
+  if (c.state === "suspended") c.resume().then(warmhalten).catch(() => {});
+  else warmhalten();
+}
+if (typeof document !== "undefined" && !klangWecken._horcht) {
+  klangWecken._horcht = true;
+  const einmal = () => { klangWecken(); };
+  document.addEventListener("pointerdown", einmal, { capture: true, passive: true });
+  document.addEventListener("keydown", einmal, { capture: true, passive: true });
+  /* nach dem Zurueckkommen (Tab, Bildschirm) den Kontext gleich wieder wecken */
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") klangWecken(); });
+}
+
 async function hole(url) {
   if (puffer.has(url)) return puffer.get(url);
   const c = wecke();
@@ -253,7 +313,11 @@ export function klangVorwaermen() {
 
 /** Regler aus dem Profil uebernehmen. */
 export function klangEinstellen({ ein, lautstaerke }) {
-  if (typeof ein === "boolean") an = ein;
+  if (typeof ein === "boolean") {
+    an = ein;
+    /* Klaenge aus -> auch der Warmhalter schweigt (kein Strom fuer nichts) */
+    if (!an && warm) { try { warm.stop(); } catch {} warm = null; }
+  }
   if (typeof lautstaerke === "number") {
     staerke = Math.max(0, Math.min(1, lautstaerke));
     if (meister) meister.gain.value = staerke;
@@ -270,7 +334,6 @@ export function klang(art) {
   if (!an || !QUELLEN[art] || !QUELLEN[art].length) return;
   const c = wecke();
   if (!c) return;
-  if (c.state === "suspended") c.resume().catch(() => {});
   const liste = QUELLEN[art];
   // nie zweimal hintereinander dieselbe Aufnahme
   let i = Math.floor(Math.random() * liste.length);
@@ -295,7 +358,14 @@ export function klang(art) {
       q.start();
     } catch {}
   };
-  if (buf) spiele(buf); else hole(url).then(spiele);
+  /* v1.89.0: erst aufwachen, dann spielen (siehe Warmhalter). Ein schlafender
+     Kontext braucht auf dem Telefon einige Millisekunden - der Ton wartet
+     darauf, statt mitten ins Aufwachen zu fallen. */
+  const dann = (b) => {
+    if (c.state === "suspended") c.resume().then(() => { warmhalten(); spiele(b); }).catch(() => spiele(b));
+    else { warmhalten(); spiele(b); }
+  };
+  if (buf) dann(buf); else hole(url).then(dann);
 }
 
 /* ── DER KLANGFAENGER (v1.0.3, Besitzerwunsch) ──────────────────────────────
