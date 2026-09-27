@@ -169,10 +169,18 @@
        0,80 fh ueber die Fensterkante, die hinteren Gesichter beginnen bei
        0,86 fh - kein Gesicht steckt hinter einer Krone. */
     .hofreihe.hinten { bottom:calc(var(--fh) * .30); z-index:1; --ue:.05; }
-    .hofreihe.hinten img.turmhinten { display:none; }
+    /* v1.89.3 (Besitzer, nur Handy): eine andere Besetzung als auf dem Tablet -
+       Laeufer, Springer, Turm je einmal, kein Erzbischof, Kanzler und
+       Kapitaen ganz aussen, der Turm hoeher, die Amazone hinter dem Turm.
+       handy-weg/handy-da schalten Figuren, handy-o1..o5 ordnen die hintere
+       Reihe (flex order). Ab 561 px gilt nichts davon. */
     @media (max-width:560px){
-      .hofreihe.hinten { --ue:.09; bottom:calc(var(--fh) * .36); }
-      .hofreihe.hinten img.turmhinten { display:block; }
+      .hofreihe img.handy-weg { display:none; }
+      .hofreihe img.handy-da { display:block; }
+      .hofreihe.hinten { --ue:.06; bottom:calc(var(--fh) * .36); }
+      .hofreihe.hinten img.handy-o1 { order:1; } .hofreihe.hinten img.handy-o2 { order:2; }
+      .hofreihe.hinten img.handy-o3 { order:3; } .hofreihe.hinten img.handy-o4 { order:4; }
+      .hofreihe.hinten img.handy-o5 { order:5; }
     }
     /* v1.82.0: der Abdunkler bleibt, faellt aber flacher aus - er soll den
        Uebergang zum naechsten Abschnitt tragen, nicht die Beine schlucken. */
@@ -380,15 +388,19 @@
        dunkelt die hinteren ab. Am Rand verschwinden Figuren auf schmalen
        Geraeten (Klassen rand/rand2), damit die Reihe nie beschnitten wirkt. -->
   <!-- v1.87.0: die Crowd dahinter - sechs Menschen des Hofstaats, keine Bestie -->
+  <!-- v1.89.3 (Besitzer, Handy): "Läufer, Pferd und Turm nur einmal, nicht
+       doppelt, Erzbischof raus, Kanzler und Kapitän noch weiter raus, Turm
+       höher, Amazone hinter Turm - aber nur beim Handy". Die Klassen handy-*
+       gelten nur unter 560 px: handy-weg blendet aus, handy-da blendet ein,
+       handy-o1..o5 ordnet die hintere Reihe neu (Kanzler, Paladin, Waechter,
+       Amazone hinter dem Turm, Kapitaen). Ab 561 px steht alles wie bisher. -->
   <div class="hofreihe hinten" aria-hidden="true">
-    <img class="turmhinten" src="/landing/held-rook.webp" alt="" style="--h:.78;--z:1;--b:.55;--y:.06" loading="eager" />
-    <img class="rand2" src="/landing/held-chancellor.webp" alt="" style="--h:.66;--z:1;--b:.40;--y:.03" loading="eager" />
-    <img               src="/landing/held-amazon.webp"     alt="" style="--h:.70;--z:2;--b:.46;--y:.07" loading="eager" />
-    <img               src="/landing/held-paladin.webp"    alt="" style="--h:.74;--z:3;--b:.52;--y:0"   loading="eager" />
-    <img               src="/landing/held-archbishop.webp" alt="" style="--h:.72;--z:3;--b:.52;--y:.05" loading="eager" />
-    <img               src="/landing/held-guardian.webp"   alt="" style="--h:.70;--z:2;--b:.46;--y:.02" loading="eager" />
-    <img class="rand2" src="/landing/held-captain.webp"    alt="" style="--h:.66;--z:1;--b:.40;--y:.06" loading="eager" />
-    <img class="turmhinten" src="/landing/held-rook.webp" alt="" style="--h:.78;--z:1;--b:.55;--y:.06" loading="eager" />
+    <img class="rand2 handy-da handy-o1" src="/landing/held-chancellor.webp" alt="" style="--h:.66;--z:1;--b:.40;--y:.03;--hs:.76;--ys:.10;--bs:.50" loading="eager" />
+    <img class="handy-o4"                src="/landing/held-amazon.webp"     alt="" style="--h:.70;--z:2;--b:.46;--y:.07;--hs:.74;--ys:.14;--bs:.46" loading="eager" />
+    <img class="handy-o2"                src="/landing/held-paladin.webp"    alt="" style="--h:.74;--z:3;--b:.52;--y:0"   loading="eager" />
+    <img class="handy-weg"               src="/landing/held-archbishop.webp" alt="" style="--h:.72;--z:3;--b:.52;--y:.05" loading="eager" />
+    <img class="handy-o3"                src="/landing/held-guardian.webp"   alt="" style="--h:.70;--z:2;--b:.46;--y:.02" loading="eager" />
+    <img class="rand2 handy-da handy-o5" src="/landing/held-captain.webp"    alt="" style="--h:.66;--z:1;--b:.40;--y:.06;--hs:.76;--ys:.10;--bs:.50" loading="eager" />
   </div>
   <div class="hofreihe" aria-hidden="true">
     <img class="rand"  src="/landing/held-pawn.webp"   alt="" style="--h:.54;--z:1;--b:.38;--y:.11"  loading="eager" />
@@ -397,9 +409,9 @@
     <img               src="/landing/held-knight.webp" alt="" style="--h:.76;--z:3;--b:.68;--y:.10;--hs:.88;--ys:.16;--bs:.74" loading="eager" />
     <img               src="/landing/held-queen.webp"  alt="" style="--h:.96;--z:6;--b:1"            loading="eager" />
     <img               src="/landing/held-king.webp"   alt="" style="--h:1;--z:7;--b:1"              loading="eager" />
-    <img               src="/landing/held-knight.webp" alt="" style="--h:.76;--z:3;--b:.68;--y:.10;--hs:.88;--ys:.16;--bs:.74" loading="eager" />
-    <img               src="/landing/held-bishop.webp" alt="" style="--h:.87;--z:5;--b:.92"          loading="eager" />
-    <img class="rand2" src="/landing/held-rook.webp"   alt="" style="--h:.70;--z:2;--b:.54;--y:.082" loading="eager" />
+    <img class="handy-weg" src="/landing/held-knight.webp" alt="" style="--h:.76;--z:3;--b:.68;--y:.10" loading="eager" />
+    <img class="handy-weg" src="/landing/held-bishop.webp" alt="" style="--h:.87;--z:5;--b:.92"          loading="eager" />
+    <img class="rand2 handy-da" src="/landing/held-rook.webp" alt="" style="--h:.70;--z:2;--b:.54;--y:.082;--hs:.86;--ys:.22;--bs:.62" loading="eager" />
     <img class="rand"  src="/landing/held-pawn.webp"   alt="" style="--h:.54;--z:1;--b:.38;--y:.11"  loading="eager" />
   </div>
   <a class="runter" href="#spiel" aria-label="Weiter nach unten">&#9662;</a>

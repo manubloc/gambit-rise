@@ -14,8 +14,8 @@
 
 **Stand am Ende der Sitzung (27.9.2026, abends):** v1.89.0 (alle
 UI-Wünsche vom 27.9.) ist auf `main` gepusht; v1.89.1 (der Scharfschuss der
-Sonderfiguren, Zugbild-Probe als 28. Suite) und v1.89.2 (Hofreihe auf dem
-Handy) folgen in derselben Sitzung —
+Sonderfiguren, Zugbild-Probe als 28. Suite) v1.89.2 und v1.89.3 (Hofreihe auf
+dem Handy, zwei Runden nach Besitzer-Fotos) folgen in derselben Sitzung —
 siehe `CHANGELOG.md` und `git log`. Was danach noch offen ist, steht in
 Abschnitt 5. Die Live-Abnahme (`version.json` pollen) konnte aus der
 Cloud-Sitzung nie laufen und ist der erste Schritt im neuen Chat.
@@ -94,6 +94,7 @@ die Pflichtadresse in `privacy.html` bleiben bewusst).
 | 1.89.0 | Die UI-Wünsche vom 27.9. (sechzehn Punkte, jeder vorher und nachher am DOM gemessen) plus zwei Render-Abstürze aus dem Audit (`ResultBanner` ohne `profile`, `CampaignScreen` ohne `paintedById`) und der Ereignis-Hänger im Gefecht | `CHANGELOG.md` |
 | 1.89.1 | Der Scharfschuss der zehn Sonderfiguren mit eigener Gangart feuerte seit v0.38 nie (frühes `return` in `rules/moves.js`); Zugbilder gegen den Kern als 28. Suite `test_zugbilder.mjs`; ehrliche Legenden unter sechs Zugbildern | `CHANGELOG.md`, `design/FAEHIGKEITEN-2026-09-27.md` Abschnitt 3 |
 | 1.89.2 | Hofreihe der Landingpage auf dem Handy (Besitzer-Foto): Springer 48–50 % statt 23 % sichtbar, Türme als Randfiguren der hinteren Reihe, Läufer bündig am Rand — Handy-Werte `--hs/--ys/--bs` in `public/landing.html`, alpha-genau gemessen | `CHANGELOG.md` |
+| 1.89.3 | Zweite Runde Hofreihe (nur Handy): Läufer, Springer, Turm je einmal, Erzbischof raus, Kanzler und Kapitän außen, Turm höher, Amazone dahinter — Klassen `handy-weg/handy-da/handy-o1..o5` in `public/landing.html` | `CHANGELOG.md` |
 
 Dazu die Berichte, die in dieser Sitzung geschrieben wurden:
 
@@ -202,7 +203,7 @@ Store: `design/PLAYSTORE-BACKLOG.md`, S1–S14. Beim Besitzer: `.aab` mit Paket
    ältere, im Cloudflare-Dashboard unter *grand-gambit → Deployments*
    nachsehen, ob der Bau durchlief.
 1. Repo klonen bzw. den Connector auf `manubloc/gambit-rise` richten;
-   `git log --oneline -5` muss mit `v1.89.2 …` beginnen.
+   `git log --oneline -5` muss mit `v1.89.3 …` beginnen.
 2. `npm ci`, dann `npm test` — es müssen **28 Suiten** laufen (Zahl der
    Prüfungen steht in `CLAUDE.md`).
 3. `CLAUDE.md` lesen (Kette, Fallen, Live-Messung), dann dieses Blatt,

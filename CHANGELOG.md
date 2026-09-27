@@ -1,5 +1,25 @@
 # Changelog - Gambit Rise
 
+## 1.89.3 - die Hofreihe auf dem Handy, zweite Runde: jede Figur einmal
+
+Besitzer (zum Bild aus 1.89.2): "Fast perfekt. Turm muss hoeher und Kanzler
+und Kapitaen noch weiter raus. Amazone muss hinter Turm. Und mach es doch
+anders: Laeufer, Pferd und Turm nur einmal, nicht doppelt, und Erzbischof
+raus. Aber nur beim Handy - bei Tablet-Breite finde ich es top."
+
+- NUR UNTER 560 PX eine eigene Besetzung: vorn Laeufer (links, am Rand),
+  Springer (dahinter, erhoben), Dame, Koenig, Turm (rechts, erhoben und
+  groesser: .86 statt .70 Hoehe, .22 statt .08 gehoben - "Turm muss
+  hoeher"); hinten Kanzler ganz links, Paladin, Waechter, Amazone HINTER dem
+  Turm, Kapitaen ganz rechts. Der Erzbischof und die doppelten Laeufer,
+  Springer, Tuerme sind auf dem Handy ausgeblendet.
+- MECHANIK: Klassen handy-weg/handy-da schalten Figuren nur unter 560 px,
+  handy-o1..o5 ordnen die hintere Reihe per flex order um (die Amazone
+  wandert im DOM nicht - sie steht ab 561 px wie bisher an zweiter Stelle).
+- GEMESSEN (alpha-genau, 360/390/430 px): Reihe 2..388 px bei 390, Laeufer
+  100 %, Turm 78 %, Springer 47 %, Kanzler 66 %, Kapitaen 48 %, Amazone
+  42 % sichtbar. 820 und 1280 px bis aufs Pixel wie in 1.89.2.
+
 ## 1.89.2 - die Hofreihe auf dem Handy: Springer sichtbar, Tuerme dabei
 
 Besitzer (Handy-Foto der Landingpage): "mach die Pferde etwas besser
