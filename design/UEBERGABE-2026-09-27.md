@@ -26,10 +26,10 @@ Cloud-Sitzung nie laufen und ist der erste Schritt im neuen Chat.
 
 | Was | Wo |
 |---|---|
-| Quellcode | GitHub **manubloc/gambit-rise**, Zweig `main` (Arbeitszweig dieser Sitzung: `claude/friendly-hypatia-c1ncjt`, steht auf demselben Commit) |
+| Quellcode | GitHub **manubloc/gambit-rise**, Zweig `main` (das Repo ist **öffentlich**). Der Arbeitszweig dieser Sitzung `claude/friendly-hypatia-c1ncjt` wurde bei jedem Release mitgeschoben und darf gelöscht werden, sobald er mit `main` gleichauf ist (`git ls-remote --heads origin`). Bei einem bestehenden Klon `git fetch --prune`, sonst zeigt `git branch -a` noch drei gelöschte Juli-Zweige |
 | Live | <https://gambitrise.com> (Landingpage) · <https://gambitrise.com/spielen/> (App, seit v1.88.0 ohne Riegel) |
 | Hosting | Cloudflare Pages, Projekt **grand-gambit** (der alte Name; die Domain zeigt darauf) |
-| Online-Halle | Cloudflare Worker **gg-hall** (`worker/wrangler.jsonc`, Durable Object `Hall`) |
+| Online-Halle | Cloudflare Worker **gg-hall** (`worker/wrangler.jsonc`, Durable Object `Hall`), erreichbar unter `duell.gambitrise.com` (Custom Domain im Dashboard *gg-hall → Settings → Domains & Routes*, NICHT in `wrangler.jsonc`; die alte `duell.grandgambit.win` steht laut CHANGELOG v1.41.0 noch daneben). Abnahme: `curl -s https://duell.gambitrise.com/design` muss JSON liefern |
 | Play Store | Paket `com.gambitrise.app`, **nicht veröffentlicht** — Stand in `design/PLAYSTORE-BACKLOG.md` |
 | Bilder/Klänge | im Repo (`src/app/ui/assets/…`, `public/…`, Archiv unter `archiv/`) — keine externen Dienste nötig |
 
@@ -39,12 +39,18 @@ Cloud-Sitzung nie laufen und ist der erste Schritt im neuen Chat.
 im Chat bräuchte:
 
 1. Änderung auf `main` pushen (nach der eisernen Kette aus `CLAUDE.md`).
-2. Cloudflare Pages baut das Projekt **grand-gambit** selbst (Build-Befehl und
-   Ausgabeordner `dist/` stehen im Cloudflare-Dashboard unter *Workers &
-   Pages → grand-gambit → Settings → Builds*), ~2–5 Minuten, dann ist es
-   unter gambitrise.com live.
-3. Der Worker **gg-hall** wird ebenso beim Push gebaut (Cloudflare ist an das
-   Repo gekoppelt; Einstellungen unter *Workers & Pages → gg-hall → Settings*).
+2. Cloudflare Pages baut das Projekt **grand-gambit** selbst (Dashboard
+   *Workers & Pages → grand-gambit → Settings → Builds*; erwartete Werte laut
+   `README.md`: Build-Befehl `npm run build`, Output `dist`, Variable
+   `NODE_VERSION=22`), ~2–5 Minuten, dann ist es unter gambitrise.com live.
+   Pages-eigen im Repo: `functions/_middleware.js` (301 von grandgambit.win auf
+   gambitrise.com) und `public/_headers`.
+3. Der Worker **gg-hall** wird ebenso beim Push gebaut: Cloudflare Workers
+   Builds, Root `worker/`, Befehl `npx wrangler deploy`, Zweig `main`
+   (im Dashboard zu v1.27.3 verifiziert, `DEPLOY-WORKER.md`; seither nicht
+   erneut geprüft — bei Zweifel dort nachsehen). Der Worker teilt den Kern
+   mit der App (`src/core`): nach einer Regeländerung müssen beide Seiten
+   dieselbe Fassung fahren, sonst lehnt die Halle Züge ab.
 4. Abnahme: `curl -sL -H "Cache-Control: no-cache" https://gambitrise.com/version.json`
    muss die neue Version zeigen; Marker im Bundle zählen wie in `CLAUDE.md`
    beschrieben. **Aus der Cloud-Sitzung ging das nie** (Domain in der
@@ -53,7 +59,12 @@ im Chat bräuchte:
 Dazu läuft bei jedem Push auf `main` **GitHub Actions `CI`**
 (`.github/workflows/ci.yml`: `npm test`, `npm run build`, `build:single`,
 `verify-boot`, lädt `dist/` als Artefakt hoch — deployt aber NICHT).
-`release-itch.yml` läuft nur von Hand (itch.io).
+`release-itch.yml` läuft von Hand (workflow_dispatch) **oder bei jedem
+gepushten Tag `v*`** — deshalb keine Versions-Tags pushen, solange itch.io
+nicht gewollt ist (derzeit gibt es weder lokal noch auf origin Tags). Und es
+würde wegen `npm run build` die **Landingpage** statt des Spiels an itch.io
+schicken (Audit A65). Braucht `BUTLER_API_KEY` und die Repo-Variablen
+`ITCH_GAME`/`ITCH_USER` (Tabelle unten).
 
 ### Was der neue Chat braucht
 
@@ -65,23 +76,37 @@ Dazu läuft bei jedem Push auf `main` **GitHub Actions `CI`**
   Play-Console-Zugang. Die Cloud-Sitzung hatte ebenfalls nur den
   GitHub-Zugriff (über die Claude-GitHub-App) und einen Netz-Proxy, der
   gambitrise.com nicht durchließ.
-- Für die Live-Messung nach `CLAUDE.md` (Playwright gegen die Live-Seite)
-  braucht der Rechner Chromium; lokal ist das `npx playwright install chromium`.
+- **Node 22 und python3 mit Pillow** (`python3 -m pip install pillow`):
+  `npm test` bricht sonst in `test_zauber.mjs` ab (Sockelfarbe des Drachen
+  wird im Bild gemessen); `npm run build` läuft auch ohne Pillow (Vorschauen
+  kommen dann unverändert aus `public/`).
+- Für die Browser-Proben der Kette (drive3, pruefe-navigation,
+  pruefe-textfluss, test_layout) und die Live-Messung braucht der Rechner
+  Chromium: `npx playwright install chromium`, dann den Pfad der
+  `chrome`-Datei in `PW_CHROMIUM` setzen — ohne die Variable nehmen die Proben
+  den Pfad des Cloud-Containers (`/opt/pw-browsers/…`), den es lokal nicht gibt.
 
 ### Wo die Geheimnisse liegen (nur Orte, nie Werte)
 
 | Name | Wo er liegt | Wozu | Stand |
 |---|---|---|---|
 | `BUTLER_API_KEY` | GitHub → Repo → Settings → Secrets | itch.io-Release (`release-itch.yml`) | nur bei Bedarf |
-| `ADMIN_TOKEN` | Cloudflare → Worker gg-hall → Settings → Variables (Secret; gesetzt mit `npx wrangler secret put ADMIN_TOKEN`) | Admin-Aufrufe an die Halle: `scripts/admin.mjs` (stats, backup, pull …) und das Fehlerberichte-Feld im Profil des Admins (`src/meta/reports.js`) | in Gebrauch |
+| `ADMIN_TOKEN` | Cloudflare → Worker gg-hall → Settings → Variables (Secret; gesetzt mit `npx wrangler secret put ADMIN_TOKEN`) | Halle (Worker): Fehlerberichte-Feld im Profil des Admins (`src/meta/reports.js`, `GET /reports?token=`), Spielerbuch (`/spielerbuch?token=`), Schreiben von `/design`; per WebSocket kennt der Worker nur `stats` und `dump` (`worker/src/logic.mjs`). `scripts/admin.mjs` ist die Konsole des ALTEN Node-Servers `server/server.mjs` — `backup/pull/restore` gibt es in der Halle nicht. Der Token wandert als URL-Parameter (Audit A56: besser `Authorization: Bearer`) | in Gebrauch |
 | `GH_TOKEN` + `SITE_REPO` | nur in der Umgebung dessen, der `scripts/deploy-pages.mjs` aufruft | **Altweg** GitHub-Pages-Deploy aus der Zeit vor Cloudflare — heute nicht nötig, Push auf `main` genügt | ruhend |
-| `GAMBIT_ZUGANG` | Cloudflare → Pages grand-gambit → Build-Variablen | Passwort des alten Riegels | **seit v1.88.0 ohne Wirkung — darf gelöscht werden** |
-| Signaturschlüssel der Android-Hülle | beim Besitzer (Passwortmanager) — `design/PWABUILDER.md`, Abschnitt 5 | Store-Updates der Hülle | entsteht beim Bauen der `.aab` |
+| `GAMBIT_ZUGANG` | Cloudflare → Pages grand-gambit → Settings → Environment variables | Passwort des alten Riegels | **seit v1.88.0 ohne Wirkung — darf gelöscht werden.** Der Vorgabewert des Riegels stand ohnehin im Bauskript und in der Git-Historie (vor v1.88.0); ein eigener Wert im Dashboard war nie ein Geheimnis von Gewicht |
+| `VITE_SUPABASE_URL` + `VITE_SUPABASE_KEY` | Cloudflare → Pages grand-gambit → Settings → Environment variables (Production) — Anleitung `SUPABASE-SETUP.md` Abschnitt 3 | Cloud-Anmeldung (E-Mail, Google) über Supabase (`src/meta/cloudAuth.js`), Bestenliste und geteilter Speicher (`src/platform/storage.web.js`); der anon-Key ist per Design öffentlich, der Wert steht trotzdem nur dort | **in Gebrauch — NICHT löschen** (Google-Anmeldung live seit v1.64.0). Das Supabase-Projekt selbst (Dashboard, Provider, E-Mail-Bestätigung) liegt beim Besitzer |
+| `ITCH_GAME` + `ITCH_USER` | GitHub → Repo → Settings → Variables | Ziel des itch.io-Release (`release-itch.yml`; der Datei-Kopf und `RELEASE-ANLEITUNG.md` nennen noch das veraltete `ITCH_TARGET`) | nur bei Bedarf |
+| Signaturschlüssel der Android-Hülle (`*.keystore`, `signing-key-info.txt`) | beim Besitzer (Passwortmanager) — `design/PWABUILDER.md`, Abschnitt 5 | Store-Updates der Hülle | entsteht beim Bauen der `.aab`. **NIE ins Repo** (öffentlich!): `design/twa-manifest.json` erwartet ihn unter `./gg-upload.keystore` — deshalb immer außerhalb des Klons bauen (so steht es in `PWABUILDER.md` und `PLAYSTORE.md`); `.gitignore` sperrt `*.keystore`, `*.jks`, `signing-key-info.txt`, `*.aab` seit dem 27.9. (Audit A28) |
 | Google-Play-Fingerabdrücke | `public/.well-known/assetlinks.json` (öffentlich, das ist so gewollt) | TWA-Verknüpfung | zwei alte Einträge, gegen die Console abzugleichen (S5) |
 
-Im Repo selbst liegt nichts davon — geprüft am 26.9. (T5: die Klartext-
-Adressen aus `UEBERGABE.md` sind entfernt; `ADMIN_EMAILS` in `config.js` und
-die Pflichtadresse in `privacy.html` bleiben bewusst).
+Im Repo selbst liegt nichts davon — geprüft am 26.9. und 27.9. (grep nach
+Token-Mustern, E-Mails und Session-URLs über alle getrackten Textdateien
+inklusive `archiv/`: nur Code-Zitate, Platzhalter und Testwerte; keine
+`.env`, `.keystore`, `.pem` getrackt. T5: die Klartext-Adressen aus dem alten
+`UEBERGABE.md` sind entfernt; `ADMIN_EMAILS` in `config.js` und die
+Pflichtadresse in `privacy.html` bleiben bewusst). Der Vorgabewert des alten
+Riegels stand bis zum 27.9. im CHANGELOG-Eintrag 1.42.0 und bleibt in der
+Git-Historie — ohne Wirkung seit v1.88.0, kein Grund für ein History-Rewrite.
 
 ## 3. Was in dieser Sitzung entstanden ist (26.–27.9.2026)
 
@@ -95,17 +120,22 @@ die Pflichtadresse in `privacy.html` bleiben bewusst).
 | 1.89.1 | Der Scharfschuss der zehn Sonderfiguren mit eigener Gangart feuerte seit v0.38 nie (frühes `return` in `rules/moves.js`); Zugbilder gegen den Kern als 28. Suite `test_zugbilder.mjs`; ehrliche Legenden unter sechs Zugbildern | `CHANGELOG.md`, `design/FAEHIGKEITEN-2026-09-27.md` Abschnitt 3 |
 | 1.89.2 | Hofreihe der Landingpage auf dem Handy (Besitzer-Foto): Springer 48–50 % statt 23 % sichtbar, Türme als Randfiguren der hinteren Reihe, Läufer bündig am Rand — Handy-Werte `--hs/--ys/--bs` in `public/landing.html`, alpha-genau gemessen | `CHANGELOG.md` |
 | 1.89.3 | Zweite Runde Hofreihe (nur Handy): Läufer, Springer, Turm je einmal, Erzbischof raus, Kanzler und Kapitän außen, Turm höher, Amazone dahinter — Klassen `handy-weg/handy-da/handy-o1..o5` in `public/landing.html` | `CHANGELOG.md` |
+| 1.89.4 | Die Übergabe nach der Prüfung (30 bestätigte Befunde): Proben lesen `PW_CHROMIUM`, `.gitignore` sperrt Schlüsseldateien, Blätter berichtigt, Fahrskript des Spieltests eingecheckt | `CHANGELOG.md` |
 
 Dazu die Berichte, die in dieser Sitzung geschrieben wurden:
 
 - `design/AUDIT-2026-09-27.md` — das Challenging des ganzen Projekts (sechs
-  Linsen, jede vom Skeptiker geprüft), mit Fragebogen am Ende.
+  Linsen, jede vom Skeptiker geprüft), mit Fragebogen am Ende. Achtung: das
+  Repo ist öffentlich, der Bericht nennt die Lücken der Halle mit Zeile
+  (siehe 5c, erster Punkt).
 - `design/SPIELTEST-2026-09-27.md` — der Spieltest: Kern-Fahrprobe über alle
-  529 Stationen (3174 KI-Partien, 0 Abstürze) und Browser-Szenarien;
-  bestätigte Abstürze mit Ursache. **Wichtigster Befund:** die Fallen
-  (Spitzgrube, Bärenfalle) lösen im Kern nie aus — `loeseFalleAus` wird
-  importiert, aber nirgends aufgerufen. Nicht behoben (Regeländerung, erst
-  mit dem Besitzer klären).
+  529 Stationen (3174 KI-Partien, 0 Abstürze; das Fahrskript liegt als
+  `tools/spieltest-fahrprobe.mjs` bei) und Browser-Szenarien; bestätigte
+  Abstürze mit Ursache. **Wichtigster Befund (= Audit A32):** die Fallen
+  (Spitzgrube, Bärenfalle) lösen im Kern nie aus. Nicht behoben
+  (Regeländerung, erst mit dem Besitzer klären). Die Browser-Szenarien fuhren
+  gegen den Bau v1.87.0 — Aufstellungs-Funde wie „dritter Turm wählbar" sind
+  seit v1.89.0 behoben und gegen v1.89.1 nachgemessen (0 Funde).
 - `design/FAEHIGKEITEN-2026-09-27.md` — alle Fähigkeiten exportiert, Zugbilder
   gegen den Kern geprüft, Ideen für neue.
 - `design/PLAYSTORE-BACKLOG.md` — die Store-Liste (S1–S14), am 27.9. nachgeführt.
@@ -115,6 +145,11 @@ Artefakte (haltbare Links, weil Datei-Karten im Handy-Chat verloren gehen):
 
 - Store-Einreichung, Bogen zum Abhaken: <https://claude.ai/artifact/DgHAE4AGzxi2yaCEYbtq9a>
 - Android-Paket bauen (PWABuilder, Fassung 2 mit dem Paket-Hinweis): <https://claude.ai/artifact/TNKNcaNVnJiwGYQ6oWeydU>
+
+Beide Artefakte sind privat (nur dieses Konto) und enthalten keine Schlüssel.
+Sie stammen aus der Zeit VOR v1.88.0 und sprechen noch vom Passwortriegel —
+den gibt es nicht mehr; die Aufgabe „Kommt eine Passwortabfrage?" ist damit
+umgekehrt: kommt eine, ist etwas anderes kaputt (Start-URL `/spielen/`).
 
 ## 4. Werkzeuge, die es vorher nicht gab
 
@@ -160,16 +195,27 @@ Schnellkurs-Tafeln, die Legenden unter den Zugbildern, der Profil-Look.
 Alle Nummern beziehen sich auf `design/AUDIT-2026-09-27.md`. Gebaut wurden
 nur die zwei bestätigten Render-Abstürze (A3, A4) in v1.89.0.
 
-- **Fallen lösen nie aus** (Spieltest): `loeseFalleAus` in `src/core/rules/`
-  wird importiert, aber nie aufgerufen — Spitzgrube und Bärenfalle sind im
-  Gefecht wirkungslos. Regeländerung, deshalb erst mit dem Besitzer klären.
+- **A32 Fallen lösen nie aus** (Spieltest und Audit): `loeseFalleAus`
+  (`src/core/rules/sperren.js:99`) wird in `src/core/sim/transitions.js:6`
+  importiert, aber in `src/` nirgends aufgerufen (nur `test_sperren.mjs`) —
+  Spitzgrube und Bärenfalle sind im Gefecht wirkungslos. Regeländerung,
+  deshalb erst mit dem Besitzer klären.
+- **Zuerst entscheiden (öffentliches Repo):** das Audit beschreibt die
+  Lücken der Halle (A1/A2/A8/A21/A22/A56) mit Datei und Zeile — wer es liest,
+  kann sie nutzen. Die drei billigen Riegel wären: Teilnehmerprüfung aus
+  `result` auch in `cmd` und `scoutDone` (`worker/src/logic.mjs`),
+  `friendRespond` nur bei offener Anfrage, `result` nur als Niederlage/Remis
+  der meldenden Seite; dazu je eine Probe in `test_worker.mjs`. Der Worker
+  deployt beim Push — darum nicht ohne den Besitzer.
 - **A1/A2 Online-Halle:** der Worker leitet Züge weiter, ohne sie gegen den
   Kern zu prüfen (Relay + Reducer ohne Validierung). Spielt nur eine Rolle,
   wenn ein Duell-Gegner manipuliert.
-- **A5** Weißer Schirm ohne Fehlerschranke um die Reiter (ein Render-Fehler
-  in einem Reiter reißt die ganze App) · **A6** `trim()` beim Anlegen des
-  Kontos fehlt · **A7** die SQLite der Halle wächst ohne Grenze · **A8** der
-  Worker glaubt dem Client das Duell-Ergebnis.
+- **A5** unlesbarer oder fehlender Spielstand = weißer Schirm ohne Ausweg
+  (kein Abmelde-Knopf, keine Meldung; `saves.js`, `App.jsx`) · **A45** nur
+  eine Fehlergrenze an der Wurzel (`main.jsx`) — ein Render-Fehler in einem
+  Schirm ersetzt das ganze Haus · **A6** `trim()` beim Anlegen des Kontos
+  fehlt · **A7** die SQLite der Halle wächst ohne Grenze · **A8** der Worker
+  glaubt dem Client das Duell-Ergebnis.
 - Mittel, aber spielrelevant: **A9** die Bünde wirken im Gefecht nie
   (kein `createGame`-Aufruf übergibt sie) · **A10** Sperren halten nur
   Schritt, Gleiten und Bauern auf, Sonderzüge landen auf der Mauer ·
@@ -185,6 +231,10 @@ nur die zwei bestätigten Render-Abstürze (A3, A4) in v1.89.0.
   jedem Release gedacht, siehe Abschnitt 4.
 - Doppelter Schlüssel `position` in einem Style-Objekt in `App.jsx`
   (esbuild-Warnung, harmlos).
+- Die Commit-Nachrichten dieser Sitzungen tragen `Claude-Session:`-Zeilen
+  (Links, die nur der Kontoinhaber öffnen kann). Wer das im öffentlichen Repo
+  nicht will, setzt in `CLAUDE.md` unter „Zusammenarbeit" eine Regel „Commits
+  ohne Claude-Session-Zeile" — bestehende bleiben (kein History-Rewrite).
 
 Technik (aus `design/STAND-2026-09-26.md`): T6 erledigt (Zweige gelöscht), T9
 (Domain in der Cloud-Umgebung freigeben — mit dem Wechsel in den Chat
@@ -203,7 +253,8 @@ Store: `design/PLAYSTORE-BACKLOG.md`, S1–S14. Beim Besitzer: `.aab` mit Paket
    ältere, im Cloudflare-Dashboard unter *grand-gambit → Deployments*
    nachsehen, ob der Bau durchlief.
 1. Repo klonen bzw. den Connector auf `manubloc/gambit-rise` richten;
-   `git log --oneline -5` muss mit `v1.89.3 …` beginnen.
+   `git log --oneline -5` muss mit `v1.89.4 …` beginnen (bei einem
+   bestehenden Klon vorher `git fetch --prune`).
 2. `npm ci`, dann `npm test` — es müssen **28 Suiten** laufen (Zahl der
    Prüfungen steht in `CLAUDE.md`).
 3. `CLAUDE.md` lesen (Kette, Fallen, Live-Messung), dann dieses Blatt,

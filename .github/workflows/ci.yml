@@ -1,4 +1,4 @@
-# Runs the full deterministic test suite (220 checks), builds both release
+# Runs the full deterministic test suite (28 suites / 2072 checks as of v1.89.1, see CLAUDE.md), builds both release
 # artifacts, and boots the single-file build in a sandboxed DOM.
 name: CI
 on:

@@ -1,5 +1,38 @@
 # Changelog - Gambit Rise
 
+## 1.89.4 - die Uebergabe haelt der Pruefung stand: Proben laufen lokal, Blaetter stimmen
+
+Drei Pruefer (Vollstaendigkeit, Richtigkeit, Sicherheit) und je ein Skeptiker
+haben die Uebergabe-Dokumente gegen das Repo gelesen; 30 Befunde bestaetigt,
+alle hier eingearbeitet. Kein Spielcode geaendert.
+
+- URSACHE, warum die Kette lokal nie laufen konnte: drive3.mjs,
+  tools/pruefe-textfluss.mjs und test_layout.mjs hatten den Chromium-Pfad des
+  Cloud-Containers fest verdrahtet. Jetzt lesen sie PW_CHROMIUM (Rueckfall
+  bleibt der Container-Pfad), wie pruefe-navigation seit v1.86.0.
+- .gitignore sperrt *.keystore, *.jks, signing-key-info.txt, *.aab - das
+  Repo ist oeffentlich, twa-manifest.json erwartet den Schluessel neben sich
+  (Audit A28).
+- Der Vorgabewert des alten Passwortriegels stand im Eintrag 1.42.0 dieses
+  Changelogs im Klartext - Zeile umformuliert (der Riegel ist seit v1.88.0
+  fort, die Historie bleibt, kein Rewrite).
+- CLAUDE.md: Repo-Umbenennung ist erledigt (stand noch als offen); lokale
+  Voraussetzungen python3 + Pillow und PW_CHROMIUM benannt.
+- design/UEBERGABE-2026-09-27.md: Worker-Deploy (Root worker/, wrangler
+  deploy, Domain duell.gambitrise.com), Pages-Dashboard-Werte,
+  release-itch.yml feuert auch bei Tags v* (und wuerde die Landingpage
+  schicken, A65), Supabase-Variablen als Geheimnis-Ort (NICHT loeschen),
+  ITCH_GAME/ITCH_USER, ADMIN_TOKEN-Beschreibung (scripts/admin.mjs gehoert
+  zum alten Node-Server), A5/A45 richtig zugeordnet, A32 mit Datei:Zeile,
+  Hinweis auf die oeffentlichen Hallen-Befunde als erste Entscheidung.
+- STAND-2026-09-26: T6 erledigt, T9 gegenstandslos; Wurzel-UEBERGABE.md als
+  ueberholt markiert; README und ci.yml auf 28 Suiten / 2072; AUDIT "sechs
+  Linsen"; die beiden Artefakte (Store-Bogen, Android-Paket) sprechen nicht
+  mehr vom Riegel.
+- tools/spieltest-fahrprobe.mjs: das Fahrskript des Spieltests (529
+  Stationen, KI gegen KI) mit Repo-relativen Importen eingecheckt, damit die
+  Zahlen im Bericht nachpruefbar sind.
+
 ## 1.89.3 - die Hofreihe auf dem Handy, zweite Runde: jede Figur einmal
 
 Besitzer (zum Bild aus 1.89.2): "Fast perfekt. Turm muss hoeher und Kanzler
@@ -1208,7 +1241,7 @@ und hinterher noch einmal.
   das Browsergame verstecken wir erstmal, evtl. mit Passwort"):
     * /          das Schaufenster (Landingpage) mit Verweis auf den Play Store
     * /spielen/  die App, hinter einem Riegel (Passwort, per GAMBIT_ZUGANG
-                 beim Bau setzbar; Vorgabe rise2026)
+                 beim Bau setzbar; Vorgabe im Bauskript - Riegel seit v1.88.0 fort)
     * /landing   bleibt als alte Adresse bestehen
   Umgezogen statt umgeschrieben: der Build nutzt relative Pfade, deshalb
   laeuft die App in jedem Ordner, solange sie vollstaendig dort liegt - und

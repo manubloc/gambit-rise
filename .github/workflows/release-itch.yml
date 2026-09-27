@@ -1,7 +1,7 @@
 # Manual (or tag-triggered) publish of the web build to itch.io via butler.
 # One-time setup — see RELEASE-ANLEITUNG.md:
 #   1. Repository secret BUTLER_API_KEY  (itch.io → Settings → API keys)
-#   2. Repository variable ITCH_TARGET   (e.g.  deinname/grand-gambit:html5)
+#   2. Repository variables ITCH_USER and ITCH_GAME (the job reads vars.ITCH_USER / vars.ITCH_GAME)
 name: Release to itch.io
 on:
   workflow_dispatch:

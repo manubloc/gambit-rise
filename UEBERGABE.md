@@ -1,5 +1,11 @@
 # Gambit — Übergabe (Stand 3. August 2026, v0.75.2 live)
 
+> ⚠ **ÜBERHOLT.** Gültig ist `design/UEBERGABE-2026-09-27.md` plus `CLAUDE.md`.
+> Heute: Repo `manubloc/gambit-rise`, Pfad des Klons beliebig, 28 Suiten
+> (v1.89.x), der Push auf `main` ist der Deploy — kein PAT, kein FAL-Key,
+> kein ElevenLabs-Token im Chat; das Admin-Passwort steht seit v1.0.40 nicht
+> mehr im Quelltext. Dieses Blatt bleibt nur, weil ältere Berichte es zitieren.
+
 Für einen frischen Chat. Alles Nötige steht hier; das Repo liegt im Container
 unter `/home/claude/repo`.
 

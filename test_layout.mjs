@@ -71,7 +71,7 @@ const PROBE = `(() => {
     wide: Math.round(innerWidth - r.width) };
 })()`;
 
-const browser = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium-1194/chrome-linux/chrome" });
+const browser = await chromium.launch({ executablePath: process.env.PW_CHROMIUM || "/opt/pw-browsers/chromium-1194/chrome-linux/chrome" });   /* PW_CHROMIUM: lokaler Pfad, sonst der Cloud-Container (v1.89.4) */
 for (const [w, h, name] of [[390, 844, "iPhone"], [360, 800, "Android"], [414, 896, "large phone"], [768, 1024, "tablet"]]) {
   const page = await browser.newPage({ viewport: { width: w, height: h } });
   const errs = []; page.on("pageerror", (e) => errs.push(String(e).slice(0, 100)));

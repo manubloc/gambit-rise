@@ -8,7 +8,7 @@ rekrutiert — und ein einziger Bauer trägt das Wappen, um das sich alles dreht
 Zehn Ligen, zehn Klimazonen, Nebel des Krieges, optionaler Online-Modus.
 
 **Stack:** React 18 + Vite 5 · deterministischer, UI-freier Spielkern
-(Command/Event-Sim mit Replay) · 115 KB gzip · PWA · 228 automatisierte Checks
+(Command/Event-Sim mit Replay) · 115 KB gzip · PWA · 28 Suiten / 2072 automatisierte Prüfungen (Stand v1.89.1)
 
 ## Entwicklung
 

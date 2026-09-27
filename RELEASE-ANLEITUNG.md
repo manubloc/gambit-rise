@@ -19,7 +19,7 @@
 > nicht im Archiv, und deshalb verweisen `README.md`, `ACCOUNTS-ANLEITUNG.md`
 > und `.github/workflows/release-itch.yml` darauf:
 > - **Abschnitt 3**: die itch.io-Veröffentlichung über butler (die einmaligen
->   Secrets `BUTLER_API_KEY` und `ITCH_TARGET`).
+>   Secret `BUTLER_API_KEY` und die Variablen `ITCH_USER`/`ITCH_GAME`).
 > - **Abschnitt 6/7**: der Umgang mit `ADMIN_TOKEN` und dem
 >   Multiplayer-Server.
 >

@@ -41,3 +41,11 @@ __pycache__/
 # wie src/app/ui/assets/ bleiben unberuehrt.
 /*.webp
 /*.webm
+
+# Signaturschluessel der Android-Huelle - NIE ins Repo (es ist oeffentlich).
+# design/twa-manifest.json erwartet ihn neben sich; gebaut wird deshalb
+# ausserhalb des Klons (PWABUILDER.md, PLAYSTORE.md). Audit 27.9., A28.
+*.keystore
+*.jks
+signing-key-info.txt
+*.aab

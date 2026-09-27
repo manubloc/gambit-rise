@@ -20,7 +20,7 @@ const server = createServer(async (req, res) => {
   } catch { res.writeHead(404); res.end("nope"); }
 });
 await new Promise((r) => server.listen(4336, r));
-const browser = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium-1194/chrome-linux/chrome", args: ["--no-sandbox"] });
+const browser = await chromium.launch({ executablePath: process.env.PW_CHROMIUM || "/opt/pw-browsers/chromium-1194/chrome-linux/chrome",   /* PW_CHROMIUM: lokaler Pfad (v1.89.4) */ args: ["--no-sandbox"] });
 let gesamtFunde = 0, gemessen = 0;
 for (const [vw, vh] of [[320, 690], [412, 915], [1280, 860]]) {
 const page = await browser.newPage({ viewport: { width: vw, height: vh }, deviceScaleFactor: 2 });

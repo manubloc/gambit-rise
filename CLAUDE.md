@@ -13,8 +13,10 @@ installierten Seiten stumm null). Die Anmeldung der App ist die Tür.
 Play Store: die App ist NICHT veröffentlicht; Paket **com.gambitrise.app**
 (neu, die alte Kennung war nie in Gebrauch). Ein neues Paket muss gebaut
 werden — Host und Startpfad haben sich geändert.
-Cloudflare-Projekt heißt weiterhin **grand-gambit**, das GitHub-Repo soll auf
-**gambit-rise** umbenannt werden (nur der Besitzer darf das).
+GitHub-Repo: **manubloc/gambit-rise** (Umbenennung erledigt — `git remote -v`
+zeigt die neue Adresse; die alte `manubloc/grand-gambit` leitet bei GitHub
+weiter). Cloudflare-Pages-Projekt heißt weiterhin **grand-gambit** (die Domain
+gambitrise.com zeigt darauf).
 
 ## Zusammenarbeit
 
@@ -31,6 +33,12 @@ Cloudflare-Projekt heißt weiterhin **grand-gambit**, das GitHub-Repo soll auf
 
 ## Befehle
 
+- Lokal nötig: Node 22 und **python3 mit Pillow** (`python3 -m pip install
+  pillow`) — `npm test` bricht sonst in `test_zauber.mjs` ab (die
+  Drachensockel-Farbe wird im Bild gemessen). Die Browser-Proben (drive3,
+  pruefe-navigation, pruefe-textfluss, test_layout) lesen den Chromium-Pfad aus
+  `PW_CHROMIUM`; ohne die Variable gilt der Pfad des Cloud-Containers. Lokal:
+  `npx playwright install chromium` und `PW_CHROMIUM=<Pfad zur chrome-Datei>`.
 - `npm test` — volle Batterie. MUSS **28 Suiten / 2072 Prüfungen** melden
   (Stand v1.89.1; der Runner stoppt nach der ersten roten Suite, also
   Suitenzahl prüfen, nicht nur Assertions! Zählweise: alle Zeilen

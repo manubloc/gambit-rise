@@ -62,7 +62,7 @@ const errors = [];
 const EXPECTED_OFFLINE = (t) =>
   /duell\.gambitrise\.com/.test(t)
   || /^Failed to load resource: net::ERR_(FAILED|TUNNEL_CONNECTION_FAILED)/.test(t);
-const browser = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium-1194/chrome-linux/chrome" });
+const browser = await chromium.launch({ executablePath: process.env.PW_CHROMIUM || "/opt/pw-browsers/chromium-1194/chrome-linux/chrome" });   /* PW_CHROMIUM: lokaler Pfad, sonst der Cloud-Container (v1.89.4) */
 const page = await browser.newPage();
 page.on("console", (m) => { if (m.type() === "error" && !EXPECTED_OFFLINE(m.text())) errors.push(m.text().slice(0, 160)); });
 page.on("pageerror", (e) => errors.push(String(e).slice(0, 160)));
