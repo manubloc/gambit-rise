@@ -409,7 +409,7 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
     const wt = themeForLeague(intro);
     const lore = loreText(intro, en, profile?.name);   /* v1.0.13: die Chronik spricht den Helden an */
     return <KapitelIntro liga={intro} titel={en ? wt.nameEn : wt.nameDe}
-      text={lore} onWeiter={introFertig} />;
+      text={lore} onWeiter={introFertig} en={en} />;
   }
 
   return (

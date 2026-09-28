@@ -33,7 +33,11 @@ const BILD = {
 
 export function kapitelBildDa(liga) { return !!BILD[liga]; }
 
-export function KapitelIntro({ liga, titel, text, onWeiter }) {
+/* v1.90.0: der Auftakt sprach IMMER deutsch - "Kapitel I" und "Weiter zur
+   Karte" standen fest im Quelltext, obwohl Titel und Chronik laengst
+   uebersetzt hereinkamen. Gefunden am englischen Store-Rohbild
+   (en-6-kampagne), nicht beim Lesen. */
+export function KapitelIntro({ liga, titel, text, onWeiter, en = false }) {
   const [da, setDa] = useState(false);
   /* v1.0.3 (Besitzerwunsch): MEHR VOM LAND. Die Bilder sind 16:9 quer -
      am Hochformat-Telefon zeigte object-fit:cover nur den Mittelstreifen,
@@ -114,7 +118,7 @@ export function KapitelIntro({ liga, titel, text, onWeiter }) {
         opacity: da ? 1 : 0, transform: da ? "none" : "translateY(14px)",
         transition: "opacity 1s ease .5s, transform 1s ease .5s" }}>
         <div className="gg-serif" style={{ fontSize: 12, letterSpacing: ".26em", textTransform: "uppercase",
-          color: T.gold, marginBottom: 9 }}>Kapitel {["", "I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII"][liga] || liga}</div>
+          color: T.gold, marginBottom: 9 }}>{en ? "Chapter" : "Kapitel"} {["", "I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII"][liga] || liga}</div>
         <div className="gg-serif" style={{ fontSize: 30, lineHeight: 1.12, color: "#f4ecd6",
           textShadow: "0 2px 18px rgba(0,0,0,.8)", marginBottom: 12 }}>{titel}</div>
         {text && <div className="gg-serif" style={{ fontSize: 14.5, lineHeight: 1.6, color: "#d8cfbc",
@@ -123,7 +127,7 @@ export function KapitelIntro({ liga, titel, text, onWeiter }) {
           style={{ cursor: "pointer", fontFamily: "inherit", fontSize: 14, fontWeight: 800,
             color: "#241a08", background: "linear-gradient(180deg,#f0d68f,#d3ae5c)",
             border: "none", borderRadius: 12, padding: "12px 30px",
-            boxShadow: "0 6px 22px rgba(0,0,0,.5)" }}>Weiter zur Karte ›</button>
+            boxShadow: "0 6px 22px rgba(0,0,0,.5)" }}>{en ? "On to the map ›" : "Weiter zur Karte ›"}</button>
       </div>
     </div>
   );

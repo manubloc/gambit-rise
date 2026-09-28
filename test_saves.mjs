@@ -307,8 +307,15 @@ ok("full build counts ten league crowns", fullB.stats.leaguesWon === 10);
   const app = readFileSync("src/app/App.jsx", "utf8");
   ok("nach der Anmeldung wird der eine Spielstand geoeffnet oder angelegt",
     app.includes("if (!eintrag) eintrag = await createSave(account.id, null,") && app.includes('dispatch({ type: "HYDRATE", profile: prof })'));
-  /* v1.46.0: ein GAST beginnt auf dem eingefrorenen Schaustand. */
-  ok("... und ein Gast auf dem eingefrorenen Schaustand", app.includes('account.provider === "guest" ? gastProfil() : null'));
+  /* v1.46.0: ein GAST beginnt auf dem eingefrorenen Schaustand.
+     v1.90.0: der neue Stand traegt zusaetzlich die an der Anmeldung
+     gewaehlte Sprache - vorher ging sie verloren und jeder englische
+     Anfaenger stand in einem deutschen Haus. Beides wird geprueft. */
+  ok("... und ein Gast auf dem eingefrorenen Schaustand",
+    app.includes('account.provider === "guest"') && app.includes("...gastProfil(), lang: anmeldeSprache"));
+  ok("... und ein neuer Stand traegt die Sprache der Anmeldung",
+    app.includes("...defaultProfile(), lang: anmeldeSprache")
+    && app.includes("initialLang={anmeldeSprache}") && app.includes("onLang={setAnmeldeSprache}"));
   {
     const { gastProfil, GAST_STATIONEN, GAST_FIGUREN } = await import("./src/meta/gast.js");
     const { nodeStatus } = await import("./src/meta/campaign.js");

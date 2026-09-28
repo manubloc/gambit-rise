@@ -10,6 +10,7 @@ Die Schrift kommt aus public/fonts - dieselbe Cinzel, die die App traegt.
 Play nimmt PNG oder JPEG; hier PNG, weil das Repo die verlustfreie Quelle
 haelt. Fuer die Uebergabe aufs Handy baut das Paketskript JPEG daraus.
 """
+import json
 import os
 import sys
 from fontTools.ttLib import TTFont
@@ -46,6 +47,25 @@ TEXTE = {
 }
 REIHENFOLGE = ["1-gefecht", "2-klassik", "3-hofstaat", "4-karte",
                "5-aufstellung", "6-kampagne", "7-lager", "8-halle"]
+
+
+def schriften_bereitstellen():
+    """Legt die Schriften als TTF ab, die Pillow lesen kann.
+
+    Im Repo liegen sie als WOFF2 (public/fonts) - dieselben, die die App
+    traegt. Bis v1.90.0 erwartete dieses Skript sie fertig unter /tmp/schrift
+    und brach sonst ab; die Umwandlung stand nirgends, und der unbenutzte
+    TTFont-Import war der einzige Hinweis darauf. Jetzt wandelt es selbst um
+    (fontTools braucht dafuer brotli)."""
+    os.makedirs(SCHRIFT, exist_ok=True)
+    for name in ("cinzel-600", "cormorant-500i"):
+        ziel = os.path.join(SCHRIFT, name + ".ttf")
+        if os.path.exists(ziel):
+            continue
+        quelle = os.path.join("public/fonts", name + ".woff2")
+        f = TTFont(quelle)
+        f.flavor = None
+        f.save(ziel)
 
 
 def schrift(name, groesse):
@@ -95,7 +115,32 @@ def umbruch(d, text, font, breite):
     return zeilen
 
 
-def bild(roh_pfad, titel, unter, b, h):
+def eckenmass(name):
+    """Der Radius, bei dem der Rahmen TANGENTIAL um die inneren Menueelemente
+    laeuft - gemessen im lebenden DOM von tools/playstore-schirme.mjs.
+
+    Besitzer am 28.9.2026: "diesen Rahmen, den du nochmal komplett immer
+    drumherum setzt, mach doch da die Rundung so, dass sie tangential zu den
+    inneren Menuelementen ist. Weil so sieht es ein bisschen unschoen aus."
+
+    Vorher stand hier ein fester Wert (4,5 % der Schirmbreite). GEMESSEN war
+    er halb so gross wie noetig: die Kachelreihe sitzt 12 px vom Rand und
+    traegt selbst bis zu 28 px Radius - der Rahmen schnitt also INNERHALB
+    ihrer Rundung vorbei, und der Spalt lief in der Ecke auseinander. Der
+    Messwert liefert Abstand + eigener Radius je Ecke; ihr Mittel steht in
+    design/playstore/roh/geometrie.json. Fehlt die Datei, bleibt es beim
+    alten Verhaeltnis."""
+    try:
+        with open(os.path.join(ROH, "geometrie.json"), encoding="utf-8") as f:
+            g = json.load(f).get(name)
+        if g and g.get("radius") and g.get("breite"):
+            return g["radius"] / g["breite"]        # Anteil der Schirmbreite
+    except (OSError, ValueError):
+        pass
+    return None
+
+
+def bild(roh_pfad, titel, unter, b, h, anteil=None):
     g = grund(b, h).convert("RGBA")
     d = ImageDraw.Draw(g)
     # Ueberschrift
@@ -124,7 +169,7 @@ def bild(roh_pfad, titel, unter, b, h):
         zh = platz_u - platz_o
         zb = round(zh * roh.width / roh.height)
     s = roh.resize((zb, zh), Image.LANCZOS)
-    r = round(zb * 0.045)
+    r = round(zb * (anteil if anteil else 0.045))
     x = (b - zb) // 2
     schatten = Image.new("RGBA", g.size, (0, 0, 0, 0))
     ImageDraw.Draw(schatten).rounded_rectangle([x, platz_o + round(h * 0.004),
@@ -138,6 +183,7 @@ def bild(roh_pfad, titel, unter, b, h):
 
 
 def lauf(sprachen=("de", "en")):
+    schriften_bereitstellen()
     for sp in sprachen:
         ziel = f"design/playstore/{sp}"
         os.makedirs(ziel, exist_ok=True)
@@ -150,9 +196,12 @@ def lauf(sprachen=("de", "en")):
                 print("fehlt:", roh)
                 continue
             titel, unter = TEXTE[sp][name]
+            anteil = eckenmass(f"{sp}-{name}")
+            if anteil is None:
+                print("kein Eckenmass fuer", f"{sp}-{name}", "- fester Wert")
             for kurz, b, h in FORMATE:
                 z = f"{ziel}/{kurz}-{b}x{h}-{i}-{name.split('-', 1)[1]}.png"
-                bild(roh, titel, unter, b, h).save(z, "PNG", optimize=True)
+                bild(roh, titel, unter, b, h, anteil).save(z, "PNG", optimize=True)
         print(sp, "fertig:", len(os.listdir(ziel)), "Bilder")
 
 

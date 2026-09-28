@@ -242,6 +242,15 @@ export default function App() {
   useEffect(() => { profileRef.current = profile; }, [profile]);
   const [armyTab, setArmyTab] = useState({ tab: null, n: 0 }); // deep-link into the court (e.g. the skill tree)
   const [account, setAccount] = useState(null);     // signed-in account (null → login screen)
+  /* v1.90.0: DIE SPRACHE DER ANMELDUNG GING VERLOREN. Der Knopf "EN" auf dem
+     Anmeldeschirm schaltete nur den Anmeldeschirm um - LoginScreen bekam
+     initialLang nie, und die Wahl erreichte kein Profil. Wer auf Englisch
+     anfing, stand danach in einem deutschen Haus; nur Profil -> Sprache half.
+     GEMESSEN an den Store-Rohbildern: der komplette englische Durchlauf
+     (tools/playstore-schirme.mjs, acht Bilder) war deutsch. Die Wahl wird
+     jetzt gemerkt und in JEDES neu angelegte Profil geschrieben. Bestehende
+     Spielstaende behalten ihre eigene Sprache. */
+  const [anmeldeSprache, setAnmeldeSprache] = useState("de");
   const [slot, setSlot] = useState(null);           // active save slot (null → save select)
   const [authReady, setAuthReady] = useState(false);
   const playtimeRef = useRef(0);                    // unflushed seconds of visible play
@@ -311,7 +320,9 @@ export default function App() {
            Kapitel I, vier Stationen, drei Sonderfiguren. loginGuest hat den
            alten Gast-Stand vorher geraeumt, also entsteht er jedes Mal neu. */
         if (!eintrag) eintrag = await createSave(account.id, null,
-          account.provider === "guest" ? gastProfil() : null);
+          account.provider === "guest"
+            ? { ...gastProfil(), lang: anmeldeSprache }
+            : { ...defaultProfile(), lang: anmeldeSprache });
         const prof = await loadSave(account.id, eintrag.id);
         if (!lebt || !prof) return;
         dispatch({ type: "HYDRATE", profile: prof }); setLocked(!!prof.pin); setSlot(eintrag); setReady(true);
@@ -520,7 +531,7 @@ export default function App() {
   }
   if (adminPortal) return <AdminPortal />;
   if (!authReady) return null;
-  if (!account) return <LoginScreen onSignedIn={(acc) => setAccount(acc)} />;
+  if (!account) return <LoginScreen onSignedIn={(acc) => setAccount(acc)} initialLang={anmeldeSprache} onLang={setAnmeldeSprache} />;
   /* v1.29.1 (Besitzer): "In dem Moment, wo ich mich eingeloggt habe, bin ich
      einfach im Spiel." Es gibt nur EINEN Spielstand - also keinen Schirm mehr,
      der ihn zeigt oder wechseln laesst. Nach der Anmeldung wird er geoeffnet

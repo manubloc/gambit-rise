@@ -1,0 +1,166 @@
+{
+ "de-6-kampagne": {
+  "breite": 390,
+  "hoehe": 844,
+  "ecken": [
+   32,
+   32
+  ],
+  "radius": 32
+ },
+ "de-8-halle": {
+  "breite": 390,
+  "hoehe": 844,
+  "ecken": [
+   38,
+   38,
+   32,
+   32
+  ],
+  "radius": 35
+ },
+ "de-3-hofstaat": {
+  "breite": 390,
+  "hoehe": 844,
+  "ecken": [
+   38,
+   38,
+   32,
+   32
+  ],
+  "radius": 35
+ },
+ "de-4-karte": {
+  "breite": 390,
+  "hoehe": 844,
+  "ecken": [
+   38,
+   38,
+   32,
+   32
+  ],
+  "radius": 35
+ },
+ "de-5-aufstellung": {
+  "breite": 390,
+  "hoehe": 844,
+  "ecken": [
+   38,
+   38,
+   32,
+   32
+  ],
+  "radius": 35
+ },
+ "de-7-lager": {
+  "breite": 390,
+  "hoehe": 844,
+  "ecken": [
+   38,
+   38,
+   32,
+   32
+  ],
+  "radius": 35
+ },
+ "de-1-gefecht": {
+  "breite": 390,
+  "hoehe": 844,
+  "ecken": [
+   25,
+   25
+  ],
+  "radius": 25
+ },
+ "de-2-klassik": {
+  "breite": 390,
+  "hoehe": 844,
+  "ecken": [
+   25,
+   25
+  ],
+  "radius": 25
+ },
+ "en-6-kampagne": {
+  "breite": 390,
+  "hoehe": 844,
+  "ecken": [
+   32,
+   32
+  ],
+  "radius": 32
+ },
+ "en-8-halle": {
+  "breite": 390,
+  "hoehe": 844,
+  "ecken": [
+   38,
+   38,
+   32,
+   32
+  ],
+  "radius": 35
+ },
+ "en-3-hofstaat": {
+  "breite": 390,
+  "hoehe": 844,
+  "ecken": [
+   38,
+   38,
+   32,
+   32
+  ],
+  "radius": 35
+ },
+ "en-4-karte": {
+  "breite": 390,
+  "hoehe": 844,
+  "ecken": [
+   38,
+   38,
+   32,
+   32
+  ],
+  "radius": 35
+ },
+ "en-5-aufstellung": {
+  "breite": 390,
+  "hoehe": 844,
+  "ecken": [
+   38,
+   38,
+   32,
+   32
+  ],
+  "radius": 35
+ },
+ "en-7-lager": {
+  "breite": 390,
+  "hoehe": 844,
+  "ecken": [
+   38,
+   38,
+   32,
+   32
+  ],
+  "radius": 35
+ },
+ "en-1-gefecht": {
+  "breite": 390,
+  "hoehe": 844,
+  "ecken": [
+   25,
+   25
+  ],
+  "radius": 25
+ },
+ "en-2-klassik": {
+  "breite": 390,
+  "hoehe": 844,
+  "ecken": [
+   25,
+   25
+  ],
+  "radius": 25
+ }
+}

@@ -984,9 +984,16 @@ export function BoardView({ lang = "de", state, onMove, interactive, lastMove, m
         <div data-talent-hinweis="1" style={{ position: "relative", zIndex: 2, padding: "6px 10px", marginTop: 6,
           fontSize: 12.5, fontWeight: 500, fontStyle: "italic", lineHeight: 1.45, textAlign: "center",
           color: "rgba(226,218,246,.62)", textShadow: "0 1px 2px rgba(0,0,0,.6)" }}>
+          {/* v1.90.0: diese beiden Zeilen standen NUR auf Deutsch da - in der
+              englischen Fassung sprach das Brett ploetzlich deutsch. Gefunden
+              am englischen Store-Rohbild (en-1-gefecht), nicht im Quelltext. */}
           {state.rules === "chess" && (selPiece.level || 1) <= 1
-            ? "Klassisch — hier zählt nur Schach. Talente lernen die Figuren im Gambit-Modus."
-            : "Diese Figur hat noch keine Talente — im Hofstaat lernt sie welche."}
+            ? (lang === "en"
+              ? "Classic — only chess counts here. Pieces learn talents in the HP Battle."
+              : "Klassisch — hier zählt nur Schach. Talente lernen die Figuren im Gambit-Modus.")
+            : (lang === "en"
+              ? "This piece has no talents yet — it learns them in your court."
+              : "Diese Figur hat noch keine Talente — im Hofstaat lernt sie welche.")}
         </div>
       );
     }

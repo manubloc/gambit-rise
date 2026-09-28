@@ -56,7 +56,7 @@ function GoogleG() {
   );
 }
 
-export function LoginScreen({ onSignedIn, initialLang = "de" }) {
+export function LoginScreen({ onSignedIn, initialLang = "de", onLang = null }) {
   const [lang, setLang] = useState(initialLang);
   const [mode, setMode] = useState("signin");  // signin | signup
   const [email, setEmail] = useState("");
@@ -106,7 +106,10 @@ export function LoginScreen({ onSignedIn, initialLang = "de" }) {
       {/* Der Sprachknopf lag UNTER dem Titelbild und schluckte jeden Tipp -
           gemessen fing ein IMG die Klicks ab. Er sitzt jetzt fest am Schirm
           und ueber allem, mit lesbarer Schrift auf dunklem Grund. */}
-      <button onClick={() => setLang(lang === "de" ? "en" : "de")} style={{ position: "fixed", top: "calc(12px + env(safe-area-inset-top))", right: "calc(14px + env(safe-area-inset-right))", zIndex: 30,
+      {/* v1.90.0: die Wahl geht jetzt nach oben - App merkt sie sich und
+          schreibt sie in das Profil, das nach der Anmeldung entsteht. Vorher
+          schaltete dieser Knopf nur diesen einen Schirm um. */}
+      <button onClick={() => { const n = lang === "de" ? "en" : "de"; setLang(n); onLang && onLang(n); }} style={{ position: "fixed", top: "calc(12px + env(safe-area-inset-top))", right: "calc(14px + env(safe-area-inset-right))", zIndex: 30,
         background: "rgba(10,8,18,.72)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
         border: "1px solid rgba(167,139,250,.5)", color: "#e9e3d4", borderRadius: 999, padding: "6px 13px",
         fontFamily: "inherit", fontSize: 12, fontWeight: 700, letterSpacing: ".06em", cursor: "pointer",
@@ -135,7 +138,10 @@ export function LoginScreen({ onSignedIn, initialLang = "de" }) {
         <button disabled={busy} onClick={submit} style={{ position: "relative", overflow: "hidden",
           background: `linear-gradient(180deg, ${T.goldBright} 0%, ${T.gold} 46%, ${T.lime} 100%)`,
           border: `1px solid ${T.goldBright}`, color: T.limeInk,
-          boxShadow: `0 6px 18px rgba(0,0,0,.45), 0 0 14px ${T.gold}55`,
+          /* v1.90.0: "boxShadow" stand hier ZWEIMAL in derselben Klammer -
+             der zweite Wert gewann, der erste war tot. esbuild warnte bei
+             jedem Bau (duplicate-object-key), wie in App.jsx bis v1.89.9.
+             Es bleibt beim gemessenen Aussehen, der tote Wert faellt. */
           borderRadius: 12, padding: "11px 14px", fontFamily: "inherit", fontWeight: 800, fontSize: 14.5,
           cursor: "pointer", boxShadow: "0 0 16px rgba(201,164,92,.25)", opacity: busy ? 0.6 : 1 }}>
           <span aria-hidden style={{ position: "absolute", top: 0, bottom: 0, left: 0, width: "42%",

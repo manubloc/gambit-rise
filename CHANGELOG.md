@@ -1,5 +1,65 @@
 # Changelog - Gambit Rise
 
+## 1.90.0 - die englische Fassung war nie englisch, und die Store-Bilder waren vom vorletzten Stand
+
+- **DIE SPRACHE DER ANMELDUNG GING VERLOREN.** `LoginScreen` nimmt ein
+  `initialLang` entgegen - `App.jsx` hat es ihm NIE uebergeben. Der Knopf
+  "EN" auf dem Anmeldeschirm schaltete deshalb nur diesen einen Schirm um;
+  die Wahl erreichte kein Profil, und `defaultProfile()` steht auf
+  `lang: "de"`. Wer auf Englisch anfing, stand danach in einem deutschen
+  Haus und musste die Sprache unter Profil nachstellen. Gefunden nicht im
+  Quelltext, sondern an den Store-Rohbildern: der komplette englische
+  Durchlauf von `tools/playstore-schirme.mjs` (acht Bilder) war deutsch.
+  Die Wahl wird jetzt gemerkt (`anmeldeSprache`) und in JEDES neu angelegte
+  Profil geschrieben - Gast wie Konto. Bestehende Spielstaende behalten ihre
+  eigene Sprache.
+
+- **ZWEI STELLEN SPRACHEN FEST DEUTSCH**, beide am englischen Bild gefunden:
+  die Zeile unter dem Brett ("Klassisch - hier zaehlt nur Schach. Talente
+  lernen die Figuren im Gambit-Modus." und ihre Schwester ohne Talente,
+  `BoardView.jsx`) und der **Kapitel-Auftakt** ("Kapitel I", "Weiter zur
+  Karte", `KapitelIntro.jsx`) - dort kamen Titel und Chronik laengst
+  uebersetzt herein, die Huelle drumherum aber nicht. `KapitelIntro` bekommt
+  jetzt `en` von `CampaignScreen`.
+
+- **STORE-BILDER: DER GAST IST FORT.** Besitzer am 28.9.: "Da hast du
+  Online-Duell als Gast nicht nutzbar ... da steht da hinten dran irgendwas
+  anderes." Nachgemessen: im Bild stehen Gasthinweis und Verbindungsstand
+  tatsaechlich uebereinander - im HEUTIGEN Bau aber 17 px auseinander
+  (v1.89.0 hat das behoben). Die Bilder im Repo waren schlicht aelter als
+  der Code. `tools/playstore-schirme.mjs` legt jetzt statt des Gastzugangs
+  ein oertliches Konto an (Passwort wird je Lauf gewuerfelt und steht in
+  keiner Datei): damit steht die Online-Kachel in voller Farbe mit
+  "Verbinden" statt ausgegraut mit "Als Gast nicht nutzbar". Der Auftakt
+  wird in EINEM Durchgang erledigt - die erste Fassung drueckte endlos
+  "Detailreich" und kam nie zum Startknopf, der Auftakt stand im Bild.
+
+- **DER RAHMEN LAEUFT JETZT TANGENTIAL.** Besitzer: "mach doch da die
+  Rundung so, dass sie tangential zu den inneren Menuelementen ist. Weil so
+  sieht es ein bisschen unschoen aus." Der Radius war ein fester Wert
+  (4,5 % der Schirmbreite). GEMESSEN im lebenden DOM ist er etwa halb so
+  gross wie noetig: die Kachelreihe sitzt 12 px vom Rand und traegt bis zu
+  28 px eigenen Radius - der Rahmen schnitt innerhalb ihrer Rundung vorbei,
+  der Spalt lief in der Ecke auseinander. `playstore-schirme.mjs` misst nun
+  je Ecke Abstand + eigenen Radius und schreibt das Mittel nach
+  `design/playstore/roh/geometrie.json` (Menueschirme 35 px, Brettschirme
+  25 px); `playstore_gestell.py` rechnet es auf die Bildbreite hoch.
+
+- `playstore_gestell.py` **wandelt die Schriften selbst um.** Es erwartete
+  sie fertig als TTF unter `/tmp/schrift` und brach sonst ab; die Umwandlung
+  stand nirgends, und der unbenutzte `TTFont`-Import war der einzige Hinweis
+  darauf. Jetzt macht es sie aus `public/fonts/*.woff2` (braucht `brotli`).
+
+- `LoginScreen.jsx`: `boxShadow` stand ZWEIMAL in derselben Klammer - der
+  zweite Wert gewann, der erste war tot. Dieselbe Warnung, die in App.jsx
+  bis v1.89.9 stand. Es bleibt beim gemessenen Aussehen, der tote Wert faellt.
+
+- **Alle 48 Store-Bilder neu** (8 Motive x 3 Formate x 2 Sprachen), dazu
+  zwei Uebersichtsblaetter `design/playstore/UEBERSICHT-de.png` und
+  `-en.png`. OFFEN: die Online-Kachel meldet "offline", weil der Bau-Rechner
+  `duell.gambitrise.com` nicht erreichen darf (Netzsperre, gemessen).
+
+
 ## 1.89.9 - die Bezeichnerprobe haengt jetzt in der Kette, und sie fand ihre eigene Luecke
 
 - `tools/pruefe-bezeichner.mjs` LAEUFT JETZT IN `npm test` MIT, direkt hinter
