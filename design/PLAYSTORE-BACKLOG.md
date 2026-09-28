@@ -99,30 +99,23 @@
   Google meist einige Tage. Danach funktioniert der Link, auf den das
   Play-Abzeichen der Landingpage schon zeigt.
 
-- [ ] **S15 Löschseite live prüfen.** Seit v1.89.6 gibt es
-  `https://gambitrise.com/konto-loeschen.html` (Quelle `public/konto-loeschen.html`,
-  verlinkt aus Landingpage-Fußzeile, `privacy.html` und Sitemap). Sie ist die
-  Adresse im Datensicherheits-Bogen. Nach dem Deploy einmal aufrufen — liefert
-  sie die Landingpage statt der Seite, fehlt der Eintrag in `AN_DIE_WURZEL`
-  (`tools/seite-bauen.mjs`).
+- [x] **S15 Löschseite live geprüft.** `konto-loeschen.html` liegt an der
+  Wurzel und ist per einfachem HTTP-Abruf erreichbar (gegengeprüft, nachdem
+  der Browser Integrity Check aus ist). Seit v1.89.9 ohne die private
+  E-Mail-Adresse.
 
 ## Nebenher, unabhängig von der Einreichung
 
-- [ ] **S10 Search Console:** Adressänderung `grandgambit.win` →
-  `gambitrise.com` melden (die 301-Umleitung läuft seit v1.61.0).
-- [ ] **S11 Alten Console-Eintrag** mit der alten Paketkennung löschen oder
-  liegen lassen. Eine Paketkennung lässt sich nie ändern, auch nicht im
-  Entwurf — deshalb der neue Eintrag.
-- [ ] **S12 Store-Bild mit Lebenspunkten.** Gemessen: ein Gast kann das
-  HP-Gefecht gar nicht wählen (`hpWach: league > 2`), im Anpassen-Schirm ist
-  nur die Klassik-Karte frei. Es braucht einen vorbereiteten Spielstand ab
-  Kapitel III, kein Drehen am Schalter — der Kommentar in
-  `tools/playstore-schirme.mjs` hält das fest.
-- [ ] **S13 Monsterbilder freistellen** — der Besitzer nennt die Nummern
-  („lassen wir erstmal, kann man nachziehen").
-  Voraussetzung: **beide** Domains müssen als Property bestätigt sein, sonst
-  bietet die Console das Werkzeug nicht an. Danach `sitemap.xml` für
-  gambitrise.com einreichen (sie führt seit v1.89.6 auch `konto-loeschen.html`).
+- [x] **S10 Search Console: Adressänderung erledigt (28.9.2026).**
+  grandgambit.win → gambitrise.com, „Überprüfung bestanden", Startdatum
+  28.9.2026. URSACHE des wochenlangen Scheiterns: Cloudflares **Browser
+  Integrity Check** war auf grandgambit.win aktiv und wies Googles
+  Prüf-Abruf ab (er prüft die HTTP-Kopfzeilen und blockt alles, was nicht
+  wie ein Browser aussieht). Im Browser lief die Weiterleitung deshalb
+  einwandfrei, für Google war die Seite „nicht abrufbar". Schalter auf
+  BEIDEN Domains abgeschaltet — auf gambitrise.com hätte er sonst auch die
+  Play-Prüfung der Datenschutz- und Löschseite treffen können.
+  Die Sitemap war bereits eingereicht und erfolgreich gelesen.
 
 - [ ] **S16 Soll /spielen/ in die Suche?** `robots.txt` sperrt die App seit
   v1.43.1 mit der Begründung „Riegel davor" — den Riegel gibt es seit v1.88.0

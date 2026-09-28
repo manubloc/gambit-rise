@@ -1,5 +1,54 @@
 # Changelog - Gambit Rise
 
+## 1.89.9 - die Bezeichnerprobe haengt jetzt in der Kette, und sie fand ihre eigene Luecke
+
+- `tools/pruefe-bezeichner.mjs` LAEUFT JETZT IN `npm test` MIT, direkt hinter
+  `npm run ui` - dort entsteht das Bundle .uitest.mjs, das die Probe liest.
+  Sie meldet jeden Bezeichner im ausgelieferten Bundle, der nirgends
+  deklariert ist: genau die Klasse der Abstuerze A3/A4 (ResultBanner ohne
+  `profile`, CampaignScreen ohne `paintedById`), die esbuild und vite NICHT
+  melden, weil ein unaufgeloester Name gueltiges JavaScript ist und der
+  ReferenceError erst beim Rendern kommt. Die Probe gibt keine RESULT-Zeile
+  aus, die Zaehlung der Kette bleibt also bei 28 Suiten / 2078 Pruefungen;
+  sie bricht die Kette nur im Fehlerfall.
+
+- BEIM EINHAENGEN FIEL SIE SOFORT AUF DIE NASE - zu Recht, aber an sich
+  selbst: sie meldete `Buffer` als unbekannten freien Namen. `Buffer` ist ein
+  echtes Node-Global, das gebuendelte Abhaengigkeiten nutzen; die
+  Globals-Liste der Probe kannte es nur nicht. Jetzt stehen `Buffer`,
+  `setImmediate` und `clearImmediate` darin. Danach: 2 freie Namen, 0
+  unbekannt (`bundKrone` ist mit typeof geschuetzt, `__APP_VERSION__` setzt
+  vite per define).
+
+- DOPPELTER SCHLUESSEL IN App.jsx: `position: "relative"` stand in derselben
+  Style-Klammer zweimal, mit demselben Wert. Wirkungslos, aber esbuild warnte
+  bei jedem Bau (duplicate-object-key) - eine Warnung, die man irgendwann
+  nicht mehr liest. Entfernt.
+
+Ausserhalb des Repos (28.9., in Cloudflare und der Search Console erledigt,
+hier nur festgehalten):
+
+- ADRESSAENDERUNG grandgambit.win -> gambitrise.com LAEUFT. Sie war seit
+  gestern an derselben Stelle gescheitert ("Seite konnte nicht abgerufen
+  werden: http://grandgambit.win/"), obwohl die Weiterleitung im Browser
+  einwandfrei lief und Googles eigener Live-Test die Seite erreichte. URSACHE:
+  Cloudflares **Browser Integrity Check** war auf der alten Domain aktiv. Der
+  Schalter prueft die HTTP-Kopfzeilen und weist ab, was nicht wie ein echter
+  Browser aussieht - Googles Pruef-Abruf ist genau so ein schlichter Client.
+  Auf BEIDEN Domains abgeschaltet: auf gambitrise.com haette er auch die
+  Play-Pruefung treffen koennen, die Datenschutz- und Loeschseite genauso
+  schlicht abruft. Gegengeprueft: einfacher Abruf der Loeschseite kommt durch.
+- kontakt@gambitrise.com eingerichtet (Cloudflare Email Routing, MX und SPF
+  gesetzt, Weiterleitung aktiv). Die Adresse steht im Play-Store-Eintrag.
+- www.gambitrise.com als Pages-Domain angelegt - vorher gab es den Namen
+  nicht, wer ihn eintippte, landete im Leeren.
+- duell.grandgambit.win vom Worker gg-hall geloest; die Halle laeuft nur noch
+  unter duell.gambitrise.com (danach gegengeprueft: /design liefert JSON).
+- GAMBIT_ZUGANG: existierte weder in Production noch in Preview - der Punkt
+  war laengst erledigt, nur die Blaetter wussten es nicht.
+
+Kein Spielcode geaendert.
+
 ## 1.89.8 - die Landingpage hatte keine einzige Ueberschrift
 
 Besitzer am 28.9.: "wichtig ist mir aber vor allem dass man Gambit Rise sauber

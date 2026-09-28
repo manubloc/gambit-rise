@@ -1046,7 +1046,11 @@ export function PlayHub({ profile, t, onQuick, onCamp, onOnline, onTutorial = nu
         ? "#000"
         : `radial-gradient(125% 135% at 50% -10%, ${T.panel2} 0%, ${T.panel} 52%, ${T.bg2} 100%)`,
       border: `1px solid ${T.line}`, borderRadius: T.radius, boxShadow: T.shadow,
-      position: "relative", overflow: "hidden",
+      /* v1.89.9: "position: relative" stand hier ein zweites Mal - denselben
+         Wert wie oben in derselben Klammer. esbuild warnte bei jedem Bau
+         (duplicate-object-key). Wirkungslos, aber eine Warnung, die man
+         irgendwann nicht mehr liest. */
+      overflow: "hidden",
       // Das gemessene Mass reicht als Variable nach unten durch - der
       // Fortschrittsbalken wird ausserhalb dieser Huelle gebaut und kaeme
       // sonst nicht an die Zahl heran.
