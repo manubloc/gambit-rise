@@ -32,6 +32,7 @@
   <meta name="theme-color" content="#0c111e" />
   <meta property="og:title" content="Gambit Rise — Das Schach-RPG" />
   <meta property="og:description" content="Klassisches Schach oder Gefechte mit Lebenspunkten und Fähigkeiten. Zwölf Kapitel, 27 Helden, 25 Bestien, Online-Duelle. Kostenlos & werbefrei." />
+  <meta property="og:site_name" content="Gambit Rise" />
   <meta property="og:type" content="website" />
   <meta property="og:locale" content="de_DE" />
   <meta property="og:url" content="https://gambitrise.com/" />
@@ -43,12 +44,63 @@
   <meta name="twitter:description" content="Klassisches Schach oder Gefechte mit Lebenspunkten und Fähigkeiten — zwölf Kapitel, Online-Duelle, kostenlos & werbefrei." />
   <meta name="twitter:image" content="https://gambitrise.com/og.jpg" />
   <script type="application/ld+json">
-  {"@context":"https://schema.org","@type":"VideoGame","name":"Gambit Rise",
-   "url":"https://gambitrise.com/","image":"https://gambitrise.com/og.jpg",
-   "description":"Schach-RPG: klassisches Schach oder Gefechte mit Lebenspunkten und Fähigkeiten. Kampagne über zwölf Kapitel, Online-Duelle, kostenlos und werbefrei.",
-   "applicationCategory":"Game","operatingSystem":"Web, Android, iOS (PWA)",
-   "offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"},
-   "inLanguage":["de","en"],"genre":["Strategy","Chess","RPG"]}
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "Gambit Rise",
+    "alternateName": "Gambit Rise — Das Schach-RPG",
+    "url": "https://gambitrise.com/",
+    "image": "https://gambitrise.com/og.jpg",
+    "screenshot": [
+      "https://gambitrise.com/og.jpg",
+      "https://gambitrise.com/og.png"
+    ],
+    "description": "Gambit Rise ist ein Schach-RPG: klassisches Schach nach voller Regel oder Gefechte, in denen Figuren Lebenspunkte tragen, im Rang aufsteigen und echte Fähigkeiten lernen. Eine Kampagne über zwölf Kapitel mit 529 Stationen, 27 rekrutierbare Helden und 25 Bestien, Online-Duelle und Fernpartien. Kostenlos, ohne Werbung, ohne Käufe — im Browser und als App.",
+    "applicationCategory": "GameApplication",
+    "applicationSubCategory": "Brettspiel",
+    "gamePlatform": [
+      "Web-Browser",
+      "Android",
+      "iOS (PWA)"
+    ],
+    "operatingSystem": "Web, Android, iOS (PWA)",
+    "playMode": [
+      "SinglePlayer",
+      "MultiPlayer"
+    ],
+    "numberOfPlayers": {
+      "@type": "QuantitativeValue",
+      "minValue": 1,
+      "maxValue": 2
+    },
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "EUR",
+      "availability": "https://schema.org/InStock",
+      "url": "https://gambitrise.com/spielen/"
+    },
+    "isAccessibleForFree": true,
+    "inLanguage": [
+      "de",
+      "en"
+    ],
+    "genre": [
+      "Strategie",
+      "Schach",
+      "Rollenspiel",
+      "Brettspiel"
+    ],
+    "author": {
+      "@type": "Person",
+      "name": "Manuel Frey"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Gambit Rise",
+      "url": "https://gambitrise.com/"
+    }
+  }
   </script>
   <style>
     :root { color-scheme: dark;
@@ -206,6 +258,10 @@
     .wortmarke svg { display:block; overflow:visible; }
     .wortmarke { width:min(520px,84vw); margin:0 auto 14px;
       filter:drop-shadow(0 8px 30px rgba(0,0,0,.85)); }
+    .titel { font-size:inherit; font-weight:inherit; line-height:inherit; }
+    /* sichtbar nur fuer Vorleseprogramme und Suchmaschinen, nie am Schirm */
+    .nur-vorleser { position:absolute; width:1px; height:1px; padding:0; overflow:hidden;
+      clip:rect(0 0 0 0); clip-path:inset(50%); white-space:nowrap; border:0; }
     .claim { font-size:clamp(18px,2.6vw,23px); color:var(--goldhell); letter-spacing:.02em; }
     .unterclaim { color:var(--dim); max-width:640px; margin:10px auto 26px; font-size:16px; font-weight:300; }
     /* v1.78.0 (Besitzer): "Fliesstext feiner (extra light), weniger Wechsel
@@ -379,7 +435,15 @@
     width="1280" height="853" fetchpriority="high" /></div>
 
   <div class="buehne-inhalt">
-    <img class="wortmarke" src="/landing/wortmarke.webp" alt="Gambit Rise" width="1100" height="343" />
+    <!-- v1.89.8: DIE SEITE HATTE KEINE EINZIGE h1. Die Hauptueberschrift war ein
+         Bild in einem div - fuer Google stand damit nirgends, worum es auf der
+         Seite geht. Jetzt traegt die Wortmarke eine h1; der unsichtbare Zusatz
+         ergaenzt sie zu "Gambit Rise - das Schach-RPG", ohne dass sich am Bild
+         etwas aendert. -->
+    <h1 class="titel">
+      <img class="wortmarke" src="/landing/wortmarke.webp" alt="Gambit Rise" width="1100" height="343" />
+      <span class="nur-vorleser"> — das Schach-RPG: klassisches Schach und Gefechte mit Fähigkeiten</span>
+    </h1>
     <div class="claim">Schach, das Charaktere erhebt.</div>
   </div>
 

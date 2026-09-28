@@ -1,5 +1,47 @@
 # Changelog - Gambit Rise
 
+## 1.89.8 - die Landingpage hatte keine einzige Ueberschrift
+
+Besitzer am 28.9.: "wichtig ist mir aber vor allem dass man Gambit Rise sauber
+mit Metadaten und SEO/SEA technisch baldmoeglichst bei Google findet und dort
+natuerlich auf die Landingpage verweist." Beim Nachmessen kam heraus: das
+meiste war schon da (Titel, Beschreibung, Open Graph, Twitter-Karte,
+strukturierte Daten, Sitemap eingereicht, Startseite indexiert) - aber das
+Wichtigste fehlte.
+
+- KEINE h1 AUF DER GANZEN SEITE. Gemessen: `grep -c "<h1" public/landing.html`
+  -> 0. Die Hauptueberschrift war ein Bild (die Wortmarke) in einem schlichten
+  div. Fuer Google stand damit an der prominentesten Stelle der Seite NICHTS,
+  worum es geht - die h1 ist eines der staerksten Signale ueberhaupt. Jetzt
+  traegt die Wortmarke eine h1; ein per CSS ausgeblendeter Zusatz
+  (.nur-vorleser) ergaenzt sie zu "Gambit Rise - das Schach-RPG: klassisches
+  Schach und Gefechte mit Faehigkeiten". Am Schirm aendert sich nichts: .titel
+  erbt Schriftgroesse und -gewicht, und das globale `* { margin:0 }` verhindert
+  den Vorgabe-Abstand der h1.
+- STRUKTURIERTE DATEN AUSGEBAUT (JSON-LD, VideoGame): dazu gekommen sind
+  alternateName, screenshot, applicationSubCategory, gamePlatform, playMode,
+  numberOfPlayers, isAccessibleForFree, availability, author und publisher;
+  applicationCategory auf den gueltigen schema.org-Wert "GameApplication"
+  berichtigt (vorher "Game", den es dort nicht gibt). Die Angaben sind aus dem
+  Spiel belegt, nichts geraten - keine erfundene Bewertung.
+- og:site_name ergaenzt.
+
+Dazu, ohne SEO-Bezug:
+
+- LOESCHSEITE OHNE PRIVATADRESSE (Besitzerwunsch): der Weg "formlose E-Mail an
+  frey.manu@gmail.com" ist von public/konto-loeschen.html verschwunden, ebenso
+  die Strassenadresse im Kopf. Statt dessen verweist der Abschnitt "Wenn du
+  nicht mehr in die App kommst" auf das Impressum - die Loeschung bleibt damit
+  auch ohne App-Zugang beantragbar (Art. 17 DSGVO), die Adresse steht aber nur
+  noch dort, wo sie hingehoert. In privacy.html bleibt sie unveraendert.
+- README neu: er stand noch auf "zehn Ligen, zehn Klimazonen" (es sind zwoelf
+  Kapitel mit 529 Stationen) und auf 2072 Pruefungen (es sind 2078). Jetzt mit
+  Live-Verweis, vier Screenshots aus design/playstore/, Ordnerkarte, der
+  richtigen Abnahme-Adresse (/spielen/version.json) und dem Hinweis, dass jeder
+  Push auf main zugleich das Store-Update ist.
+
+Kein Spielcode geaendert.
+
 ## 1.89.7 - die Startseite erklaerte sich selbst fuer nicht-kanonisch
 
 Gefunden bei der Adressaenderung in der Google Search Console (28.9., 00:31):
