@@ -66,6 +66,26 @@
   Deutsch die Dateien aus `design/playstore/de/`, dann unter „Übersetzungen
   verwalten" Englisch anlegen und `…/en/` hochladen.
 
+  **Stand 28.9. abends:** Deutsch ist hochgeladen (Symbol, Vorstellungsgrafik,
+  8 Telefon-Screenshots). Englisch (en-US) ist **angelegt und gespeichert** —
+  App-Name, Kurz- und Langbeschreibung stehen drin; die Grafiken **erbt** der
+  englische Eintrag vom deutschen (Google zeigt sie mit generischem Namen an,
+  gegengeprüft: identische Bild-Adressen wie de-DE).
+  **Alle 48 Bilder sind seit v1.90.0 neu** (Rahmen tangential, Halle ohne
+  Gast, Englisch wirklich englisch) — beide Sprachen müssen also **noch
+  einmal hochgeladen** werden, Deutsch ersetzen und Englisch erstmals eigene
+  bekommen. Der Weg in der Console (gemessen, mehrfach im Kreis gelaufen):
+  *Assets hinzufügen* → in der Seitenleiste die Zeile **anfahren**, damit der
+  Pfeil „Details ansehen" erscheint → in der Detailansicht **Hinzufügen**.
+  Ein Hochladen allein legt das Bild NUR in die Bibliothek, nicht in den
+  Eintrag; gleiche Dateien werden dabei dedupliziert („Asset wurde
+  dedupliziert").
+
+  **Nebenbefund, erledigt:** unter den Übersetzungen stand versehentlich auch
+  **en-GB** — leer, und ein leerer Eintrag blockierte jedes Speichern
+  („Einige Sprachen sind fehlerhaft"). Entfernt; UK-Nutzer sehen ohnehin den
+  en-US-Eintrag.
+
 - [ ] **S4 Android-Paket bauen.** Nach `design/PWABUILDER.md`: Adresse
   `https://gambitrise.com/spielen/`, Paket `com.gambitrise.app`, App- und
   Launcher-Name „Gambit Rise", Signaturschlüssel **neu erzeugen lassen**.
@@ -117,11 +137,26 @@
   Play-Prüfung der Datenschutz- und Löschseite treffen können.
   Die Sitemap war bereits eingereicht und erfolgreich gelesen.
 
+  **Nachgezogen am 28.9. abends:** Startseite per URL-Prüfung eingereicht
+  („Indexierung wurde beantragt — URL wurde einer bevorzugten
+  Crawling-Warteschlange hinzugefügt"); die Seite ist bereits „auf Google".
+  Sitemap neu eingereicht, damit die vierte Adresse
+  (`konto-loeschen.html`) mitgelesen wird — der letzte Lesestand war der
+  26.9. mit drei Seiten. Gemessen in der Google-Suche: `gambitrise.com`
+  steht bei „Gambit Rise Schach" auf **Platz 1**, bei „Schach RPG Figuren
+  leveln" auf **Platz 2** (hinter chess.com).
+
 - [ ] **S16 Soll /spielen/ in die Suche?** `robots.txt` sperrt die App seit
   v1.43.1 mit der Begründung „Riegel davor" — den Riegel gibt es seit v1.88.0
   nicht mehr. Die Sperre steht weiter (Besitzerentscheidung: der Weg ins Spiel
   führt über den Play Store). Offen ist nur, ob das so bleiben soll, jetzt wo
   die App frei zugänglich ist.
+
+- [ ] **S17 „offline" an der Online-Kachel im Store-Bild.** Der Bau-Rechner
+  darf `duell.gambitrise.com` nicht erreichen (gemessen: „Host not in
+  allowlist"), darum meldet die Kachel im Bild ehrlich „offline". Auf einem
+  Gerät mit Netz steht dort „verbunden". Entweder so lassen oder den Zustand
+  für die Aufnahme setzen — **Besitzerentscheid**, nicht ungefragt gebaut.
 
 ## Eine Entscheidung, die noch aussteht
 

@@ -63,7 +63,7 @@ Gegner riss-violett.
 
 ## 4. Deploy = Push
 
-1. Eiserne Kette (`CLAUDE.md`): `npm test` (**28 Suiten / 2078 Prüfungen**),
+1. Eiserne Kette (`CLAUDE.md`): `npm test` (**28 Suiten / 2079 Prüfungen**),
    `npm run build`, `npm run build:app`, `npm run build:single`,
    `node test_boot.mjs`, `node scripts/verify-boot.mjs`,
    `timeout 250 node drive3.mjs`, Reinraum-Klon, `git fetch` +
