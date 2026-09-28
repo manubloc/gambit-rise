@@ -509,10 +509,26 @@ export class HallCore {
                       maps[0] || "classic");
       return me;
     }
+    /* ── v1.90.3 (Audit A1): NUR TEILNEHMER DUERFEN IN EINE PARTIE HINEIN ──
+       Bis hierher pruefte nur "result" (weiter unten), ob der Absender
+       ueberhaupt an dieser Partie beteiligt ist; "cmd" und "scoutDone" taten
+       es nicht. Die Partie-Kennungen sind fortlaufend (nextId liefert m1,
+       m2, ...), also konnte JEDER Angemeldete mit {t:"cmd", matchId:"m7"}
+       Zuege in eine fremde Partie schieben - und weil `opp` bei einem
+       Fremden auf Weiss faellt, landeten sie beim Weiss-Spieler. Dazu:
+       ueber scoutDone liessen sich vor dem ersten Zug Figuren vertauschen.
+       Die Zeile aus "result" gilt jetzt auch hier. */
     if (msg.t === "cmd") {
       const ms = this.matches;
-      const m = ms[msg.matchId]; if (!m) return me;
+      const m = ms[msg.matchId];
+      if (!m || (m.w !== me && m.b !== me)) return me;
       const opp = m.w === me ? m.b : m.w;
+      /* Der Befehl selbst wird nur als Objekt weitergereicht und in der
+         Groesse geklemmt - ein aufgeblasener Befehl soll weder den Gegner
+         noch den Speicher der Halle treffen. */
+      if (!msg.cmd || typeof msg.cmd !== "object" || Array.isArray(msg.cmd)) return me;
+      let roh; try { roh = JSON.stringify(msg.cmd); } catch { return me; }
+      if (!roh || roh.length > 2000) return me;
       m.n++; this.matches = ms;
       this.send(opp, { t: "cmd", matchId: msg.matchId, cmd: msg.cmd, n: msg.n, hash: msg.hash });
       return me;
@@ -520,7 +536,8 @@ export class HallCore {
     if (msg.t === "scoutDone") {
       // the seer finished reading the board — forward the final swaps so both
       // clients hold the identical position before the first move
-      const m = this.matches[msg.matchId]; if (!m) return me;
+      const m = this.matches[msg.matchId];
+      if (!m || (m.w !== me && m.b !== me)) return me;   // v1.90.3 (Audit A1)
       const opp = m.w === me ? m.b : m.w;
       this.send(opp, { t: "scoutDone", matchId: msg.matchId, swaps: Array.isArray(msg.swaps) ? msg.swaps.slice(0, 32) : [] });
       return me;
@@ -581,6 +598,18 @@ export class HallCore {
     if (msg.t === "result") {
       const m = this.matches[msg.matchId];
       if (!m || (m.w !== me && m.b !== me)) return me;
+      /* ── v1.90.3 (Audit A8): NIEMAND MELDET SEINEN EIGENEN SIEG ──────────
+         Die Halle glaubte dem Client jedes Ergebnis. Wer verlor, schickte
+         einfach zuerst {t:"result", winner:<ich>} und kassierte Elo; der
+         ehrliche zweite Bericht lief ins Leere, weil settle das Match
+         loescht. Ein Sieg entsteht ab jetzt nur noch aus der NIEDERLAGE des
+         Gegners, aus resign oder aus oppLeft - selbst melden darf man nur
+         die eigene Niederlage oder ein Remis. Das kostet nichts: der
+         Verlierer meldet ohnehin, und beide Clients rechnen dasselbe.
+         (Die vollstaendige Loesung ist das Nachspielen der Befehlsliste im
+         Kern - ARCHITECTURE.md:110; das bleibt offen.) */
+      const meineSeite = m.w === me ? "w" : "b";
+      if (msg.winner === meineSeite) return me;
       this.settle(msg.matchId, m, msg.winner === "w" ? 1 : msg.winner === "b" ? 0 : 0.5);
       return me;
     }

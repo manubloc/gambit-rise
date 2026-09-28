@@ -70,12 +70,34 @@ function mkHall(t0 = 1000) {
   hall.handle("a", { t: "cmd", matchId: mid, cmd: { mv: 1 }, n: 1, hash: "h1" });
   const relayed = last("cmd", "b");
   ok("moves relay to the opponent with sequence and hash", relayed && relayed.n === 1 && relayed.hash === "h1");
+  /* v1.90.3 (Audit A1): ein FREMDER kommt nicht an die Partie heran. Die
+     Kennungen sind fortlaufend (m1, m2, ...), also war "matchId raten" bis
+     hierher genug, um Zuege in das Brett des Weiss-Spielers zu schieben. */
+  hall.handle(null, { t: "hello", id: "c", secret: "s", name: "C", score: 100 });
+  const vorher = outbox.filter((o) => o._to === "b" && o.t === "cmd").length;
+  hall.handle("c", { t: "cmd", matchId: mid, cmd: { mv: 99 }, n: 2, hash: "boese" });
+  hall.handle("c", { t: "scoutDone", matchId: mid, swaps: [[0, 1]] });
+  const nachher = outbox.filter((o) => o._to === "b" && o.t === "cmd").length;
+  ok("ein Fremder kann keine Zuege in eine laufende Partie schieben", nachher === vorher);
+  ok("... und auch kein scoutDone", !outbox.some((o) => o.t === "scoutDone"));
+  /* v1.90.3 (Audit A1): ein aufgeblasener oder gar kein Befehl faellt aus. */
+  const vor2 = outbox.filter((o) => o._to === "b" && o.t === "cmd").length;
+  hall.handle("a", { t: "cmd", matchId: mid, cmd: "kein Objekt", n: 2 });
+  hall.handle("a", { t: "cmd", matchId: mid, cmd: { fuell: "x".repeat(3000) }, n: 3 });
+  ok("ein Befehl ohne Objekt und ein zu grosser werden nicht weitergereicht",
+    outbox.filter((o) => o._to === "b" && o.t === "cmd").length === vor2);
+
+  /* v1.90.3 (Audit A8): NIEMAND MELDET SEINEN EIGENEN SIEG. Wer verlor,
+     schickte bis hierher einfach zuerst seinen Sieg und kassierte Elo. */
   hall.handle(white, { t: "result", matchId: mid, winner: "w" });
+  ok("die eigene Siegmeldung wird verworfen",
+    hall.matches[mid] !== undefined && !hall.player(white).wins);
+  hall.handle(black, { t: "result", matchId: mid, winner: "w" });
   ok("the board result rates both players (Elo, zero-sum)",
     hall.player(white).rating === 1016 && hall.player(black).rating === 984 &&
     hall.player(white).wins === 1 && hall.player(black).losses === 1);
   ok("the match parks in the rematch window", hall.matches[mid] === undefined && hall.finished[mid] !== undefined);
-  hall.handle(white, { t: "result", matchId: mid, winner: "w" });
+  hall.handle(black, { t: "result", matchId: mid, winner: "w" });
   ok("a second result report is ignored", hall.player(white).rating === 1016);
 }
 

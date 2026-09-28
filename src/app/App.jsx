@@ -251,6 +251,10 @@ export default function App() {
      jetzt gemerkt und in JEDES neu angelegte Profil geschrieben. Bestehende
      Spielstaende behalten ihre eigene Sprache. */
   const [anmeldeSprache, setAnmeldeSprache] = useState("de");
+  /* v1.90.3 (Audit A5): der Stand liess sich nicht oeffnen - siehe die Karte
+     weiter unten. Traegt den Indexeintrag, damit der Neuanfang weiss, welchen
+     Platz er ersetzt. */
+  const [ladeFehler, setLadeFehler] = useState(null);
   const [slot, setSlot] = useState(null);           // active save slot (null → save select)
   const [authReady, setAuthReady] = useState(false);
   const playtimeRef = useRef(0);                    // unflushed seconds of visible play
@@ -324,9 +328,16 @@ export default function App() {
             ? { ...gastProfil(), lang: anmeldeSprache }
             : { ...defaultProfile(), lang: anmeldeSprache });
         const prof = await loadSave(account.id, eintrag.id);
-        if (!lebt || !prof) return;
+        if (!lebt) return;
+        /* v1.90.3 (Audit A5): KEIN WEISSER SCHIRM MEHR OHNE AUSWEG. Nennt der
+           Index einen Stand, dessen Blob fehlt oder kaputt ist, lieferte
+           loadSave null - und die Anzeige blieb dauerhaft leer: kein Hinweis,
+           kein Abmelden, kein Neuanfang. Einzige Abhilfe war, die
+           Website-Daten zu loeschen, also ALLE Konten. Jetzt gibt es eine
+           Karte mit zwei Wegen. */
+        if (!prof) { setLadeFehler(eintrag); return; }
         dispatch({ type: "HYDRATE", profile: prof }); setLocked(!!prof.pin); setSlot(eintrag); setReady(true);
-      } catch (e) { console.error("Spielstand konnte nicht geöffnet werden", e); }
+      } catch (e) { console.error("Spielstand konnte nicht geöffnet werden", e); setLadeFehler({ id: "?" }); }
     })();
     return () => { lebt = false; };
   }, [account, slot]);
@@ -537,6 +548,38 @@ export default function App() {
      der ihn zeigt oder wechseln laesst. Nach der Anmeldung wird er geoeffnet
      oder, beim allerersten Mal, angelegt; gesichert wird immer von selbst.
      Unter Profil kann man sich nur noch abmelden. */
+  /* v1.90.3 (Audit A5): die Karte statt des weissen Schirms. */
+  if (ladeFehler) {
+    const en = anmeldeSprache === "en";
+    const knopf = { fontFamily: "inherit", fontWeight: 800, fontSize: 14, padding: "11px 18px",
+      borderRadius: 10, cursor: "pointer", border: "1px solid rgba(255,240,200,.5)",
+      background: "linear-gradient(165deg, #e0b76c, #b78d43)", color: "#17110a" };
+    const leise = { ...knopf, background: "transparent", color: "#aab2c8", border: "1px solid #3a4258" };
+    return (
+      <div style={{ minHeight: "100dvh", display: "grid", placeItems: "center", background: "#0c111e",
+        color: "#e8e4d8", fontFamily: "Georgia, serif", padding: 24, textAlign: "center" }}>
+        <div style={{ maxWidth: 400, display: "grid", gap: 14 }}>
+          <div style={{ fontSize: 20, letterSpacing: 3, color: "#c9a45c" }}>GAMBIT RISE</div>
+          <div style={{ fontSize: 15, lineHeight: 1.55, color: "#c8c2b4" }}>
+            {en ? "This save could not be opened. It is either missing or damaged. Your other accounts are untouched."
+              : "Dieser Spielstand liess sich nicht oeffnen. Er fehlt oder ist besch\u00e4digt. Andere Konten sind davon nicht betroffen."}</div>
+          <button style={knopf} onClick={async () => {
+            /* Einen frischen Stand anlegen und den kaputten Eintrag vergessen. */
+            try {
+              const e2 = await createSave(account.id, null,
+                account.provider === "guest"
+                  ? { ...gastProfil(), lang: anmeldeSprache }
+                  : { ...defaultProfile(), lang: anmeldeSprache });
+              const p2 = await loadSave(account.id, e2.id);
+              if (p2) { setLadeFehler(null); dispatch({ type: "HYDRATE", profile: p2 }); setSlot(e2); setReady(true); }
+            } catch (err) { console.error("Neuer Spielstand misslungen", err); }
+          }}>{en ? "Start a new save" : "Neuen Spielstand anlegen"}</button>
+          <button style={leise} onClick={() => { setLadeFehler(null); hardLogout(); }}>
+            {en ? "Sign out" : "Abmelden"}</button>
+        </div>
+      </div>
+    );
+  }
   if (!slot) return null;   // wird von oeffneSpielstand geoeffnet
   if (!ready || !profile) return null;
   // The chosen piece style is announced to the gallery ONCE, here. Every screen

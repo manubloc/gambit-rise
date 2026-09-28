@@ -806,6 +806,7 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
   useEffect(() => {
     if (!pvp) return;
     return pvp.net.on("scoutDone", (m) => {
+      if (m.matchId && pvp.matchId && m.matchId !== pvp.matchId) return;   // v1.90.3 (A2)
       const swaps = Array.isArray(m.swaps) ? m.swaps : [];
       setState((s) => { const b = [...s.board];
         for (const [a, c] of swaps) if (b[a] !== undefined && b[c] !== undefined) [b[a], b[c]] = [b[c], b[a]];
@@ -818,10 +819,23 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
   useEffect(() => {
     if (!pvp) return;
     const u1 = pvp.net.on("cmd", (m) => {
+      /* v1.90.3 (Audit A2): NUR BEFEHLE AUS DIESER PARTIE, UND NIE UNGESICHERT.
+         Bis hierher wurde jeder "cmd" angewandt, ohne die Partie-Kennung zu
+         vergleichen und ohne Netz darunter - ein missgebildeter Befehl warf
+         beim Rendern und der ehrliche Spieler landete auf der Fehlerkarte
+         ("Neu laden"), die Partie war weg. Jetzt: fremde Kennung fliegt raus,
+         ein Fehler macht Desync statt Absturz. */
+      if (m.matchId && pvp.matchId && m.matchId !== pvp.matchId) return;
       setState((s) => {
-        const next = reduce(s, m.cmd).state;
-        if (m.hash && stateHash(encodeState(next)) !== m.hash) setDesync(true);
-        return next;
+        try {
+          const next = reduce(s, m.cmd).state;
+          if (m.hash && stateHash(encodeState(next)) !== m.hash) setDesync(true);
+          return next;
+        } catch (e) {
+          console.error("Netzbefehl nicht anwendbar", e);
+          setDesync(true);
+          return s;
+        }
       });
     });
     const u2 = pvp.net.on("oppResign", () => finish("win", "resign"));

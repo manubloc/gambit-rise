@@ -14,6 +14,29 @@ import { Ev } from "./events.js";
 export function reduce(state, command) {
   switch (command.type) {
     case COMMAND.MOVE: {
+      /* ── v1.90.3 (Audit A2): DER REDUCER PRUEFT DEN ZUG, EHE ER IHN TUT ──
+         Bis hierher war der einzige Riegel "wenn applyMove nichts aendert,
+         war der Zug illegal". Gemessen hat das Audit, was damit durchkam:
+         eine FREMDE Figur bei eigenem Zugrecht, Turm a1 x Koenig e8 mit
+         status "ongoing", `to: 999` (das Brett wuchs auf 1000 Felder) und
+         ein {type:"MOVE"} ganz ohne `move` warf beim Lesen von `from`. Im
+         Netzspiel rechnet der ehrliche Client denselben Befehl nach - die
+         Hash-Pruefung schlaegt also NICHT an, weil beide Seiten dasselbe
+         Falsche rechnen. Die Pruefung gehoert deshalb hierher, in den Kern,
+         und nicht in den Schirm.
+         Was hier NICHT geprueft wird: ob der Zug nach allen Regeln legal
+         ist. Das waere legalMoves(state) je Befehl - teuer im Verlauf einer
+         Partie und in der Kampagne unnoetig. Die Einlasskontrolle klemmt
+         das, was das Brett zerreisst: Unform, Felder ausserhalb, fremde
+         Figuren, leere Felder und den Fluegelmarker. */
+      const z = command.move;
+      if (!z || typeof z !== "object") return { state, events: [] };
+      const felder = Array.isArray(state.board) ? state.board.length : 0;
+      const ganz = (n) => Number.isInteger(n) && n >= 0 && n < felder;
+      if (!ganz(z.from) || !ganz(z.to)) return { state, events: [] };
+      const zieht = state.board[z.from];
+      if (!zieht || zieht.color !== state.turn) return { state, events: [] };
+      if (zieht.kind === "D+") return { state, events: [] };   // der Fluegelmarker zieht nie selbst
       const next = applyMove(state, command.move, { record: true });
       if (next === state) return { state, events: [] }; // illegal/no-op guard
       next.log = (state.log || []).concat([command]);

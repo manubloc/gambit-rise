@@ -1,5 +1,68 @@
 # Changelog - Gambit Rise
 
+## 1.90.3 - fuenf Punkte aus dem Audit: die Halle laesst keine Fremden mehr hinein, der Kern prueft Zuege, kein weisser Schirm mehr
+
+- **A1 — DIE HALLE PRUEFT JETZT, WER SPRICHT.** `cmd` und `scoutDone`
+  pruefen nicht, ob der Absender an der Partie beteiligt ist; nur `result`
+  tat es. Die Partie-Kennungen sind fortlaufend (`nextId` liefert m1, m2 …),
+  also konnte JEDER Angemeldete mit `{t:"cmd", matchId:"m7"}` Zuege in eine
+  fremde Partie schieben - und weil `opp` bei einem Fremden auf Weiss faellt,
+  landeten sie beim Weiss-Spieler (Desync oder erzwungenes Matt). Ueber
+  `scoutDone` liessen sich vor dem ersten Zug Figuren vertauschen. Die Zeile
+  aus `result` gilt jetzt auch dort, dazu: `cmd` wird nur als Objekt und nur
+  bis 2000 Zeichen weitergereicht. Drei Proben in test_worker.
+
+- **A8 — NIEMAND MELDET SEINEN EIGENEN SIEG.** Die Halle glaubte dem Client
+  jedes Ergebnis: wer verlor, schickte zuerst `{t:"result", winner:<ich>}`
+  und kassierte Elo (K=32); der ehrliche zweite Bericht lief ins Leere, weil
+  `settle` das Match loescht. Selbst melden darf man ab jetzt nur noch die
+  eigene Niederlage oder ein Remis - ein Sieg entsteht aus der
+  Niederlagemeldung des Gegners, aus `resign` oder aus `oppLeft`. Der
+  normale Ablauf aendert sich nicht: der Verlierer meldet ohnehin. Das
+  vollstaendige Nachspielen der Befehlsliste (ARCHITECTURE.md:110) bleibt
+  offen.
+
+- **A2 — DER KERN PRUEFT DEN ZUG, EHE ER IHN TUT.** Einziger Riegel war
+  bisher "wenn applyMove nichts aendert, war der Zug illegal". Gemessen kam
+  damit durch: eine FREMDE Figur bei eigenem Zugrecht, Turm x Koenig mit
+  Status "ongoing", `to: 999` (das Brett wuchs auf 1000 Felder) und ein
+  `{type:"MOVE"}` ganz ohne `move` (Absturz beim Lesen von `from`). Im
+  Netzspiel faellt so etwas nicht auf, weil der ehrliche Client denselben
+  Befehl nachrechnet - die Hash-Pruefung sieht auf beiden Seiten dasselbe
+  Falsche. Der Reducer weist jetzt Unform, Felder ausserhalb des Bretts,
+  fremde Figuren, leere Felder und den Fluegelmarker ab. Dazu im Schirm:
+  ein `cmd` mit fremder Partie-Kennung wird verworfen, und ein Fehler beim
+  Anwenden macht Desync statt Absturzkarte. Sechs Proben in test_core.
+
+- **A5 — KEIN WEISSER SCHIRM MEHR OHNE AUSWEG.** Nennt der Index einen
+  Stand, dessen Blob fehlt oder kaputt ist, lieferte `loadSave` stumm null -
+  und nach der Anmeldung blieb die Anzeige dauerhaft leer: kein Hinweis,
+  kein Abmelden, kein Neuanfang. Einzige Abhilfe war, die Website-Daten zu
+  loeschen, also ALLE Konten. Jetzt meldet `loadSave` den Grund auf der
+  Konsole (damit verify-boot und drive3 den Fall ueberhaupt sehen), und die
+  App zeigt eine Karte mit "Neuen Spielstand anlegen" und "Abmelden".
+
+- **A6 — DIE ANLEGE-TUER TRIMMT JETZT AUCH.** `login` trimmt seit v1.0.51
+  ("ein eingefuegtes Passwort bringt vom Telefon fast immer ein Leerzeichen
+  mit"), `mkAccount` und `changePassword` taten es nicht. Wer sein Wort beim
+  ANLEGEN mit Leerzeichen einfuegte, war nach der ersten Abmeldung
+  endgueltig ausgesperrt - die Anmeldung trimmte und traf den Hash nie.
+  Beide Tueren trimmen jetzt, und Bestandskonten mit rohem Hash kommen ueber
+  einen zweiten Versuch weiterhin hinein.
+
+- **A32 richtiggestellt (Doku).** Von den Fallen gibt es nur den Datentyp
+  und die reine Funktion; `state.fallen` wird nirgends gefuellt, es gibt
+  weder Gegenstand noch Setzen. Die Zeile in CLAUDE.md ("Kaufen und Stellen
+  geht") war zu freundlich und ist berichtigt.
+
+- `public/.well-known/assetlinks.json` traegt endlich die **echten**
+  Fingerabdruecke (Store-Punkt S5): Googles App-Signaturschluessel und der
+  Uploadschluessel, beide aus der Console abgelesen. Bis hierher standen dort
+  zwei Platzhalter. **Achtung fuer S4:** in der Console ist bereits ein
+  Uploadschluessel registriert - eine `.aab` mit einem neu erzeugten
+  Schluessel wird abgewiesen.
+
+
 ## 1.90.2 - der Absturzbericht ist abschaltbar, die lila Toenung faellt im klassischen Satz, und die Store-Bilder zeigen endlich das Spiel
 
 - **DER AUTOMATISCHE ABSTURZBERICHT LAESST SICH ABSCHALTEN** (Besitzerentscheid

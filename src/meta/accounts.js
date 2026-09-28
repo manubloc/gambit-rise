@@ -108,7 +108,15 @@ export async function mkAccount({ email, pass, name, provider = "local", isAdmin
        auf dem Spielstandsschirm und im Profil. Das Feld bleibt jetzt LEER;
        den Namen im Spiel vergibt der Spieler selbst (Profil bzw. Halle). */
     id: rid(8), email: normEmail(email), name: name || null,
-    salt, passHash: pass != null ? await hashPass(pass, salt) : null,
+    /* v1.90.3 (Audit A6): DIE ANLEGE-TUER TRIMMT JETZT AUCH. login() trimmt
+       seit v1.0.51 ("ein eingefuegtes Passwort bringt vom Telefon fast immer
+       ein Leerzeichen mit"), mkAccount tat es nicht - wer sein Wort beim
+       ANLEGEN mit Leerzeichen einfuegte, war nach der ersten Abmeldung
+       endgueltig ausgesperrt: die Anmeldung trimmte und traf den Hash nie.
+       Gemessen im Audit (trim.mjs): register("...","geheim123 ") -> login
+       mit UND ohne Leerzeichen "wrong-pass". Beide Tueren trimmen jetzt
+       wirklich. */
+    salt, passHash: pass != null ? await hashPass(String(pass).trim(), salt) : null,
     provider, isAdmin: !!isAdmin, createdAt: Date.now(),
   };
 }
@@ -254,8 +262,14 @@ export async function login(email, pass) {
   /* v1.0.51: GETRIMMT - dieselbe Falle wie beim Torschloss. Ein eingefuegtes
      Passwort bringt vom Telefon fast immer ein Leerzeichen mit; niemand
      tippt absichtlich eines an sein Wort. */
-  const h = await hashPass((pass || "").trim(), acc.salt);
-  if (h !== acc.passHash) throw new Error("wrong-pass");
+  /* v1.90.3 (Audit A6): ZWEITER VERSUCH FUER BESTANDSKONTEN. Wer sein Konto
+     vor dieser Fassung mit einem ungetrimmten Wort angelegt hat, traegt einen
+     Hash ueber genau dieses Wort - der getrimmte Versuch trifft ihn nie. Also
+     erst getrimmt, dann roh. Beides ist dasselbe Wort, nur anders geputzt;
+     ein fremdes Wort oeffnet dadurch keine Tuer. */
+  const roh = String(pass || "");
+  const h = await hashPass(roh.trim(), acc.salt);
+  if (h !== acc.passHash && (await hashPass(roh, acc.salt)) !== acc.passHash) throw new Error("wrong-pass");
   await setSession(acc.id);
   return acc;
 }
@@ -360,8 +374,16 @@ export async function changePassword(accountId, oldPass, newPass) {
   const list = await ensureAccounts();
   const acc = list.find((a) => a.id === accountId);
   if (!acc) throw new Error("not-found");
-  if (acc.passHash != null && (await hashPass(oldPass || "", acc.salt)) !== acc.passHash) throw new Error("wrong-pass");
-  acc.passHash = await hashPass(newPass, acc.salt);
+  /* v1.90.3 (Audit A6): auch hier getrimmt - und das ALTE Wort darf
+     ungetrimmt sein, weil Bestandskonten aus der Zeit vor dieser Fassung
+     einen Hash ueber das ungetrimmte Wort tragen koennen. */
+  if (acc.passHash != null) {
+    const alt = String(oldPass || "");
+    const passt = (await hashPass(alt.trim(), acc.salt)) === acc.passHash
+      || (await hashPass(alt, acc.salt)) === acc.passHash;
+    if (!passt) throw new Error("wrong-pass");
+  }
+  acc.passHash = await hashPass(String(newPass).trim(), acc.salt);
   acc.mustChangePass = false;
   await writeList(list);
   return acc;

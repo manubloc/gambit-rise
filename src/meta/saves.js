@@ -145,8 +145,17 @@ export async function loadSave(acc, slotId) {
   /* v1.28.1: auch das NORMALE Laden bringt einen Stand auf den heutigen Plan
      (Dauerfeuer -> Scharfschuss bzw. Erstattung). Es lief bisher an der
      Migration vorbei, die nur Sicherungen sahen. */
-  try { const r = await storage.get(SKEY(acc, slotId), false); if (r?.value) return ohneDauerfeuer(JSON.parse(r.value)); } catch {}
-  return null;
+  /* v1.90.3 (Audit A5): der Fehler wird jetzt LAUT. Bisher verschluckte das
+     leere catch jeden Parse-Fehler, und ein fehlender Blob sah genauso aus
+     wie ein kaputter - beide ergaben null, und die App zeigte danach einen
+     weissen Schirm ohne Ausweg. verify-boot und drive3 werten jeden
+     Konsolenfehler als Versagen; ab jetzt sehen sie diesen Fall. */
+  let roh = null;
+  try { const r = await storage.get(SKEY(acc, slotId), false); roh = r?.value || null; }
+  catch (e) { console.error("Spielstand nicht lesbar (Speicher)", e); return null; }
+  if (!roh) { console.error("Spielstand fehlt im Speicher:", SKEY(acc, slotId)); return null; }
+  try { return ohneDauerfeuer(JSON.parse(roh)); }
+  catch (e) { console.error("Spielstand unlesbar (kein gueltiges JSON)", e); return null; }
 }
 
 export async function writeSave(acc, slotId, profile, playtimeAdd = 0) {

@@ -42,7 +42,7 @@
   Console nachgesehen: „Einstufung des Inhalts" trägt im Dashboard den Haken,
   der Bogen ist also abgesendet und kein Entwurf mehr.
 
-- [ ] **S2 Datensicherheit eintragen.** Bogen in `PLAYSTORE.md`.
+- [x] **S2 Datensicherheit eintragen — ERLEDIGT 29.9.2026.** Bogen in `PLAYSTORE.md`.
   **⚠ Der Bogen wurde am 26.9. berichtigt — bitte die berichtigte Fassung
   nehmen.** Er wies an, Standort *nicht* anzukreuzen. Das ist unwahr, am Code
   gemessen: `worker/src/index.mjs:322` legt zu jedem Online-Spieler `land`,
@@ -55,18 +55,34 @@
   *erhoben* werden. Eine falsche Angabe ist Ablehnungs- und später Sperrgrund.
   *Falls der Bogen schon abgesendet wurde: nachtragen.*
 
-  **Stand 27.9. abends:** Schritt 1–3 ausgefüllt und als Entwurf gespeichert
-  (Erhebung ja, Verschlüsselung ja, Kontowege Passwort + OAuth, Lösch-Link,
-  alle zehn Datentypen). Offen ist Schritt 4 (zehn Fenster je Datentyp) und
-  das Absenden. Google hat den Bogen erweitert — die **zwei neuen Fragen**
-  (Methoden der Kontoerstellung, Link zum Löschen des Kontos) stehen jetzt mit
-  Antwort in `PLAYSTORE.md`.
+  **Abgeschlossen am 29.9.2026.** „App-Inhalte → Überprüfung erforderlich" ist
+  leer („Alles erledigt"), die Datensicherheit steht unter „Abgeschlossen",
+  zuletzt bearbeitet 29.9.2026. Zwei Dinge waren noch offen und sind jetzt
+  drin: **Standort → Ungefährer Standort** (die Berichtigung vom 26.9. — der
+  Worker legt Land/Region/Stadt an; Zweck **Analyse + Betrugsprävention**,
+  „Nutzer können entscheiden", nicht sitzungsspezifisch) und die Umstellung
+  der **Absturzprotokolle von „erforderlich" auf „Nutzer können
+  entscheiden"** — möglich geworden durch S14 (v1.90.2, live geprüft, ehe die
+  Angabe gemacht wurde). Die Vorschau zeigt: keine geteilten Daten, sechs
+  Kategorien erhoben, Lösch-Link und Datenschutzerklärung verlinkt.
 
-- [ ] **S3 Grafiken hochladen.** *Store-Präsenz → Hauptspeicher-Eintrag* für
+- [x] **S3 Grafiken hochgeladen — ERLEDIGT 29.9.2026.** *Store-Präsenz → Hauptspeicher-Eintrag* für
   Deutsch die Dateien aus `design/playstore/de/`, dann unter „Übersetzungen
   verwalten" Englisch anlegen und `…/en/` hochladen.
 
-  **Stand 28.9. abends:** Deutsch ist hochgeladen (Symbol, Vorstellungsgrafik,
+  **Erledigt 29.9.2026:** beide Sprachen tragen die NEUEN Bilder (v1.90.2) —
+  Deutsch wurde ersetzt (acht alte entfernt, acht neue in Reihenfolge), und
+  Englisch (en-US) hat erstmals eigene englische Screenshots statt der
+  geerbten deutschen. Beides gespeichert. **Zwei Fallen, die viel Zeit
+  gekostet haben und beim nächsten Mal Zeit sparen:** (1) Hochladen legt ein
+  Bild NUR in die Bibliothek — in den Eintrag kommt es erst über
+  *Zeile anfahren → Pfeil „Details ansehen" → Hinzufügen*. (2) Ein offenes
+  Menü („Übersetzungen verwalten") fängt still ALLE Klicks ab; daran sind acht
+  Löschversuche gescheitert, ohne eine Fehlermeldung. Dateien mit gleichem
+  Inhalt werden dedupliziert („Asset wurde dedupliziert"), darum die Kopien
+  für den Upload eindeutig benennen.
+
+  *Frühere Notiz (28.9., überholt):* Deutsch war hochgeladen (Symbol, Vorstellungsgrafik,
   8 Telefon-Screenshots). Englisch (en-US) ist **angelegt und gespeichert** —
   App-Name, Kurz- und Langbeschreibung stehen drin; die Grafiken **erbt** der
   englische Eintrag vom deutschen (Google zeigt sie mit generischem Namen an,
@@ -93,12 +109,21 @@
   ohne ihn ist nie wieder ein Update der Hülle möglich. Das ist der einzige
   Schritt auf dieser Liste, der sich nicht nachholen lässt.
 
-- [ ] **S5 Fingerabdrücke abgleichen.** *Testen und Veröffentlichen →
-  Einrichtung → App-Integrität → App-Signatur*: dort steht **Googles**
-  SHA-256 (bei Play App Signing signiert Google neu, der eigene aus der ZIP
-  genügt nicht). Beide Abdrücke an die Sitzung geben → sie kommen nach
-  `public/.well-known/assetlinks.json`. Prüfen:
-  <https://gambitrise.com/.well-known/assetlinks.json>
+- [x] **S5 Fingerabdrücke abgeglichen — ERLEDIGT 29.9.2026.**
+  `public/.well-known/assetlinks.json` trug bis heute zwei **Platzhalter**.
+  Jetzt stehen die echten Abdrücke aus *App-Signatur* darin: Googles
+  **App-Signaturschlüssel** (`D9:2D:FB:…:A8:F6` — genau der Block, den die
+  Console dort als fertiges Digital-Asset-Links-JSON anbietet) und der
+  **Uploadschlüssel** (`00:4B:29:…:E6:52`), damit auch eine selbst signierte
+  Installation desselben Pakets ohne Browserleiste startet. Prüfen nach dem
+  Deploy: <https://gambitrise.com/.well-known/assetlinks.json>
+
+  **WICHTIGER NEBENBEFUND FÜR S4:** in der Console ist bereits ein
+  **Uploadschlüssel registriert** (sein öffentliches Zertifikat steht auf der
+  Seite). Eine `.aab`, die mit einem NEU erzeugten Schlüssel signiert ist,
+  weist Google dann ab. Also vor dem Bau prüfen, ob der zugehörige private
+  Schlüssel noch vorliegt; wenn nicht, bei Google einen **Reset des
+  Uploadschlüssels** beantragen — nicht einfach einen neuen erzeugen.
 
 - [ ] **S6 Erster Start auf dem Handy — der Prüfschritt, der über die Freigabe
   entscheidet.** Als Tester installieren und auf zwei Dinge achten:
@@ -146,13 +171,13 @@
   steht bei „Gambit Rise Schach" auf **Platz 1**, bei „Schach RPG Figuren
   leveln" auf **Platz 2** (hinter chess.com).
 
-- [ ] **S16 Soll /spielen/ in die Suche?** `robots.txt` sperrt die App seit
+- [x] **S16 entschieden (Besitzer 28.9.): NEIN, weiter sperren.** `robots.txt` sperrt die App seit
   v1.43.1 mit der Begründung „Riegel davor" — den Riegel gibt es seit v1.88.0
   nicht mehr. Die Sperre steht weiter (Besitzerentscheidung: der Weg ins Spiel
   führt über den Play Store). Offen ist nur, ob das so bleiben soll, jetzt wo
   die App frei zugänglich ist.
 
-- [ ] **S17 „offline" an der Online-Kachel im Store-Bild.** Der Bau-Rechner
+- [x] **S17 entschieden (Besitzer 28.9.): „Bilder passen, lade sie so hoch." Bleibt so.** Der Bau-Rechner
   darf `duell.gambitrise.com` nicht erreichen (gemessen: „Host not in
   allowlist"), darum meldet die Kachel im Bild ehrlich „offline". Auf einem
   Gerät mit Netz steht dort „verbunden". Entweder so lassen oder den Zustand
@@ -160,10 +185,13 @@
 
 ## Eine Entscheidung, die noch aussteht
 
-- [ ] **S14 Soll der automatische Absturzbericht abschaltbar sein?** Heute ist
-  er „erforderlich"; abschaltbar wäre er im Datensicherheitsformular
-  „optional", was freundlicher aussieht. Kostet eine kleine Änderung im Client
-  und eine Zeile im Bogen.
+- [x] **S14 Absturzbericht abschaltbar — ERLEDIGT (v1.90.2, Besitzerentscheid
+  28.9.: „gerne abschaltbar machen").** Der Schalter steht im Profil unter
+  „Automatische Absturzberichte" und liegt am Gerät (`gg_absturzberichte`),
+  nicht im Spielstand — ein Absturz kann kommen, ehe ein Stand geladen ist.
+  Aus heißt: der Bericht bleibt im örtlichen Spiegel. Selbst geschickte
+  Rückmeldungen sind nie betroffen. Im Datensicherheitsbogen stehen die
+  Absturzprotokolle seither auf „Nutzer können entscheiden".
 
 ## Was nach der Veröffentlichung gilt
 

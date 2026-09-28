@@ -127,5 +127,46 @@ console.log("\n== DIE DREI SCHACH-SONDERZUEGE (v1.8.0) ==");
   }
 }
 
+/* ── v1.90.3 (Audit A2): DIE EINLASSKONTROLLE DES REDUCERS ────────────────
+   Gemessen hat das Audit, was ohne sie durchkam: eine fremde Figur bei
+   eigenem Zugrecht, Turm x Koenig mit status "ongoing", `to: 999` (das Brett
+   wuchs auf 1000 Felder) und ein MOVE ganz ohne `move` (Absturz beim Lesen
+   von `from`). Im Netzspiel faellt so etwas nicht auf, weil der ehrliche
+   Client denselben Befehl nachrechnet - die Hash-Pruefung sieht dasselbe
+   Falsche auf beiden Seiten. */
+{
+  const karte = mapById("classic");
+  const heer = buildArmyFromFormation(() => 1, karte.defaultFormation);
+  const g = createGame(heer, heer, { map: karte, rules: "chess", seed: 7 });
+  const gleich = (a, b) => JSON.stringify(a.board) === JSON.stringify(b.board) && a.turn === b.turn;
+
+  const ohne = reduce(g, { type: "MOVE" });
+  ok("ein Zugbefehl ohne Zug aendert nichts und stuerzt nicht ab", gleich(ohne.state, g));
+
+  const weit = reduce(g, moveCommand({ from: 8, to: 999 }));
+  ok("ein Ziel ausserhalb des Bretts wird abgewiesen",
+    gleich(weit.state, g) && weit.state.board.length === g.board.length);
+
+  const negativ = reduce(g, moveCommand({ from: -1, to: 16 }));
+  ok("ein Startfeld ausserhalb des Bretts wird abgewiesen", gleich(negativ.state, g));
+
+  /* eine Figur der Gegenseite ziehen, obwohl Weiss am Zug ist */
+  const schwarzFeld = g.board.findIndex((p) => p && p.color === BLACK);
+  const fremd = reduce(g, moveCommand({ from: schwarzFeld, to: schwarzFeld - 8 }));
+  ok("eine fremde Figur laesst sich nicht ziehen", gleich(fremd.state, g));
+
+  const leer = g.board.findIndex((p, i) => !p && i > 20);
+  const nichts = reduce(g, moveCommand({ from: leer, to: leer + 1 }));
+  ok("ein leeres Feld zieht nicht", gleich(nichts.state, g));
+
+  /* und ein ganz normaler Zug geht weiterhin durch */
+  const eigen = g.board.findIndex((p) => p && p.color === WHITE && p.kind === KIND.PAWN);
+  const zuege = legalMovesFrom(g, eigen);
+  if (zuege.length) {
+    const echt = reduce(g, moveCommand(zuege[0]));
+    ok("ein gueltiger Zug geht weiterhin durch", !gleich(echt.state, g));
+  }
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

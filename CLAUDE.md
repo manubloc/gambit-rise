@@ -39,14 +39,14 @@ gambitrise.com zeigt darauf).
   pruefe-navigation, pruefe-textfluss, test_layout) lesen den Chromium-Pfad aus
   `PW_CHROMIUM`; ohne die Variable gilt der Pfad des Cloud-Containers. Lokal:
   `npx playwright install chromium` und `PW_CHROMIUM=<Pfad zur chrome-Datei>`.
-- `npm test` — volle Batterie. MUSS **28 Suiten / 2084 Prüfungen** melden
-  (Stand v1.90.2; der Runner stoppt nach der ersten roten Suite, also
+- `npm test` — volle Batterie. MUSS **28 Suiten / 2103 Prüfungen** melden
+  (Stand v1.90.3; der Runner stoppt nach der ersten roten Suite, also
   Suitenzahl prüfen, nicht nur Assertions! Zählweise: alle Zeilen
   `RESULT…: N passed` summieren — test_balance meldet zwei, darum stehen im
   Log 29 RESULT-Zeilen für 28 Suiten). **Seit v1.89.9 läuft
   `tools/pruefe-bezeichner.mjs` in der Batterie mit**, direkt hinter
   `npm run ui` (dort entsteht das Bundle `.uitest.mjs`, das die Probe liest).
-  Sie gibt KEINE RESULT-Zeile aus — die Zählung bleibt also bei 28/2084 —,
+  Sie gibt KEINE RESULT-Zeile aus — die Zählung bleibt also bei 28/2103 —,
   bricht die Kette aber, sobald im Bundle ein freier Bezeichner auftaucht.
   Das ist die Klasse der Abstürze A3/A4: gültiges JavaScript, das erst beim
   Rendern als ReferenceError hochgeht.
@@ -202,8 +202,13 @@ v1.0.62 und führte längst Gebautes als offen): Sperren kaufen/setzen
 Onboarding-Treppe (auf Tooltips umgestellt) · HP-Remis (120 Halbzüge in
 `core/domain/constants.js`) · erste Aura.
 
-**NICHT erledigt, obwohl es hier bis v1.89.0 so stand** (Spieltest und Audit
-A32 vom 27.9., gemessen): die **Fallen** (Spitzgrube, Bärenfalle) lösen im
-Kern nie aus — `loeseFalleAus` aus `core/rules/sperren.js` wird in
-`core/sim/transitions.js` importiert, aber nirgends aufgerufen. Kaufen und
-Stellen geht, Wirkung gibt es keine. Regeländerung → Besitzerentscheid.
+**NICHT erledigt, obwohl es hier bis v1.89.0 so stand** (Audit A32, am
+29.9. nochmals am Code nachgemessen): von den **Fallen** (Spitzgrube,
+Bärenfalle) gibt es **nur den Datentyp und die reine Funktion**
+`loeseFalleAus` in `core/rules/sperren.js`. `core/sim/transitions.js`
+importiert sie, ruft sie aber nirgends auf — und `state.fallen` wird an
+keiner Stelle gefüllt: **es gibt weder einen Gegenstand im Lager noch ein
+Setzen auf dem Brett.** Die frühere Zeile hier („Kaufen und Stellen geht,
+Wirkung gibt es keine") war ebenfalls zu freundlich. Eine Store-Beschreibung
+darf Fallen deshalb nicht nennen. Bauen heißt: Gegenstand, Setzzug,
+Darstellung und Auslösen — Besitzerentscheid, Aufwand M.

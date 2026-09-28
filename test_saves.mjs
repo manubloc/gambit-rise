@@ -85,6 +85,35 @@ ok("first boot seeds exactly the built-in admin", seeded.length === 1 && seeded[
   await st2.delete("accounts:v1", false);
 }
 
+/* ── DIE ANLEGE-TUER TRIMMTE NICHT (v1.90.3, Audit A6) ─────────────────────
+   Die Probe darueber sichert nur die ANMELDUNG. Gemessen im Audit: wer sein
+   Wort beim ANLEGEN mit Leerzeichen einfuegte, war nach der ersten Abmeldung
+   endgueltig ausgesperrt - mkAccount hashte roh, login getrimmt, die beiden
+   trafen sich nie. Jetzt trimmen beide, und ein Bestandskonto mit rohem Hash
+   kommt ueber den zweiten Versuch weiterhin hinein. */
+{
+  const { storage: st3 } = await import("./src/platform/index.js");
+  const am = await import("./src/meta/accounts.js");
+  await st3.delete("accounts:v1", false);
+  await am.register("neu@example.com", "geheim123 ");     // Leerzeichen am Rand
+  let ohne = false, mit = false;
+  try { await am.login("neu@example.com", "geheim123"); ohne = true; } catch {}
+  try { await am.login("neu@example.com", "geheim123 "); mit = true; } catch {}
+  ok("ein beim Anlegen eingefuegtes Wort oeffnet auch ohne das Leerzeichen", ohne);
+  ok("... und mit dem Leerzeichen ebenso", mit);
+  let fremd = false;
+  try { await am.login("neu@example.com", "geheim124"); } catch { fremd = true; }
+  ok("... ein anderes Wort bleibt draussen", fremd);
+  /* Bestandskonto: Hash ueber das ROHE Wort, wie ihn Faassungen vor v1.90.3 anlegten */
+  const salz2 = "altsalz99", altWort = "Altes-Wort ";
+  await st3.set("accounts:v1", JSON.stringify([{ id: "t9", email: "alt@example.com",
+    name: "Alt", salt: salz2, passHash: await hashPass(altWort, salz2) }]), false);
+  let altOk = false;
+  try { await am.login("alt@example.com", altWort); altOk = true; } catch {}
+  ok("ein Bestandskonto mit rohem Hash kommt weiterhin hinein", altOk);
+  await st3.delete("accounts:v1", false);
+}
+
 const TESTWORT = "probe-wort-2026";
 {
   const liste = await ensureAccounts();
@@ -392,7 +421,10 @@ ok("full build counts ten league crowns", fullB.stats.leaguesWon === 10);
   ok("keine Figur traegt Dauerfeuer mehr im Aufstiegsplan",
     CHARACTER_LIST.every((c) => !c.ladder.some((r) => r.ability === "ranged_volley")));
   const { readFileSync } = await import("node:fs");
-  ok("auch das normale Laden stellt Dauerfeuer um", readFileSync("src/meta/saves.js", "utf8").includes("return ohneDauerfeuer(JSON.parse(r.value))"));
+  /* v1.90.3: die Zeile in loadSave ist mit Audit A5 umgebaut worden (der
+     Fehler wird jetzt gemeldet statt verschluckt) - die Probe haengt sich an
+     den Aufruf, nicht mehr an den genauen Wortlaut der alten Zeile. */
+  ok("auch das normale Laden stellt Dauerfeuer um", readFileSync("src/meta/saves.js", "utf8").includes("return ohneDauerfeuer(JSON.parse(roh))"));
   /* v1.29.0: eine gestrichene Faehigkeit (Blinzeln beim Springer) verschwindet
      samt Stufe, die Punkte kommen ueber denselben Weg zurueck */
   const q = pm.defaultProfile(); q.sp = 10;
@@ -455,6 +487,30 @@ ok("full build counts ten league crowns", fullB.stats.leaguesWon === 10);
   r.setzeAbsturzBerichte(true);
   ok("... wieder einschalten geht auch", r.absturzBerichteAn() === true);
   delete globalThis.localStorage;
+}
+
+/* v1.90.3 (Audit A5): FEHLT DER BLOB, MUSS ES AUFFALLEN. Vorher verschluckte
+   ein leeres catch beides - fehlender und kaputter Stand ergaben stumm null,
+   und die App blieb weiss. Jetzt meldet loadSave es auf der Konsole, und die
+   App zeigt eine Karte mit zwei Wegen (App.jsx, ladeFehler). */
+{
+  const { storage: st4 } = await import("./src/platform/index.js");
+  const sv = await import("./src/meta/saves.js");
+  const meldungen = [];
+  const alterFehler = console.error;
+  console.error = (...a) => meldungen.push(a.map(String).join(" "));
+  const leer = await sv.loadSave("kontoX", "slotX");            // gibt es nicht
+  await st4.set("save:kontoY:slotY", "{kein json", false);
+  const kaputt = await sv.loadSave("kontoY", "slotY");
+  console.error = alterFehler;
+  ok("ein fehlender Spielstand liefert null", leer === null);
+  ok("... und meldet sich auf der Konsole", meldungen.some((m) => /fehlt im Speicher/.test(m)));
+  ok("ein unlesbarer Spielstand liefert null", kaputt === null);
+  ok("... und nennt den Grund", meldungen.some((m) => /unlesbar/.test(m)));
+  const app = (await import("node:fs")).readFileSync("src/app/App.jsx", "utf8");
+  ok("... und die App zeigt statt eines weissen Schirms eine Karte",
+    app.includes("if (!prof) { setLadeFehler(eintrag); return; }") && app.includes("if (ladeFehler) {"));
+  await st4.delete("save:kontoY:slotY", false);
 }
 
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
