@@ -13,11 +13,29 @@ import { HALL_HTTP } from "../app/config.js";
 const LOCAL = "gg_reports_local";  // this device's filed reports (offline mirror)
 const ERRLOG = "gg_errlog";         // raw runtime error ring buffer (written in main.jsx)
 const TOKKEY = "gg_admin_token";    // admin's read token, this device only
+/* v1.90.2 (Besitzerentscheid zu S14, 28.9.): DER AUTOMATISCHE
+   ABSTURZBERICHT IST ABSCHALTBAR. Bis hierher ging jeder Absturz ungefragt
+   an die Halle; im Datensicherheitsformular von Google heisst das
+   "erforderlich". Abschaltbar heisst dort "optional" - und es ist schlicht
+   freundlicher. Der Schalter liegt am GERAET, nicht im Spielstand: er soll
+   auch dann gelten, wenn der Absturz vor dem Laden eines Standes kommt.
+   Aus heisst: der Bericht bleibt im oertlichen Spiegel (den liest nur der
+   Besitzer auf DIESEM Geraet), er verlaesst das Telefon nicht. Von Hand
+   geschickte Rueckmeldungen sind davon NICHT betroffen - wer den
+   Feedback-Knopf drueckt, will ja gerade etwas schicken. */
+const AUTOKEY = "gg_absturzberichte";   // "aus" schaltet das Senden ab
 
 const readLS = (k, fb) => { try { return JSON.parse(localStorage.getItem(k) || fb); } catch { return JSON.parse(fb); } };
 const writeLS = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
 
 export function recentErrors() { return readLS(ERRLOG, "[]"); }
+/** Duerfen automatische Absturzberichte die Halle erreichen? Standard: ja. */
+export function absturzBerichteAn() {
+  try { return localStorage.getItem(AUTOKEY) !== "aus"; } catch { return true; }
+}
+export function setzeAbsturzBerichte(an) {
+  try { an ? localStorage.removeItem(AUTOKEY) : localStorage.setItem(AUTOKEY, "aus"); } catch {}
+}
 export function getAdminToken() { try { return localStorage.getItem(TOKKEY) || ""; } catch { return ""; } }
 export function setAdminToken(tok) { try { tok ? localStorage.setItem(TOKKEY, tok) : localStorage.removeItem(TOKKEY); } catch {} }
 
@@ -49,6 +67,11 @@ export async function fileReport(opts = {}) {
      sonst waere der localStorage nach fuenf Meldungen voll. */
   const mine = readLS(LOCAL, "[]"); mine.push({ ...row, bilder: row.bilder ? row.bilder.length : null });
   writeLS(LOCAL, mine.slice(-50));
+  /* v1.90.2: ein AUTOMATISCHER Bericht (kind "crash") faehrt nur los, wenn
+     der Spieler es zulaesst. Der oertliche Spiegel oben ist schon
+     geschrieben - abgeschaltet heisst also "bleibt auf dem Geraet", nicht
+     "geht verloren". */
+  if (row.kind === "crash" && !absturzBerichteAn()) return { ok: true, where: "local" };
   if (HALL_HTTP) {
     try {
       const res = await fetch(HALL_HTTP + "/report", {

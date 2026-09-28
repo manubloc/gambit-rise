@@ -3,7 +3,7 @@ import { CAMPAIGN12 } from "../../../content/campaign12.gen.js";
 import { MAX_KAPITEL } from "../../config.js";
 import { hashPin } from "../../../platform/index.js";
 import { animAn, setAnimAn } from "../anim.js";
-import { serializeSave, parseSave, listRestorePoints, readSnapshot, withProgressPct, listReports, clearLocalReports, getAdminToken, setAdminToken, deleteAccount , adminHasDefaultPass } from "../../../meta/index.js";
+import { serializeSave, parseSave, listRestorePoints, readSnapshot, withProgressPct, listReports, clearLocalReports, getAdminToken, setAdminToken, deleteAccount , adminHasDefaultPass, absturzBerichteAn, setzeAbsturzBerichte } from "../../../meta/index.js";
 import { CHARACTERS } from "../../../content/index.js";
 import { T } from "../theme.js";
 import { Button, Segmented, Stat, Toggle } from "../primitives.jsx";
@@ -111,6 +111,10 @@ export function ProfileScreen({ profile, dispatch, t, account, onSwitchSave, onL
   }, []);
   const [devLg, setDevLg] = useState(profile.campaign?.league || 1); // workbench: league pick — applied together with the dial via SETZEN
   const [pin, setPin] = useState("");
+  /* v1.90.2: der Absturzbericht-Schalter liegt am Geraet (localStorage),
+     nicht im Spielstand - siehe die Begruendung am Schalter selbst. */
+  const [berichteAn, setBerichteAn] = useState(true);
+  useEffect(() => { setBerichteAn(absturzBerichteAn()); }, []);
   /* v1.0.17: steht beim Admin noch das mitgelieferte Standardwort? Die Antwort
      kommt asynchron (der Vergleich hasht), also wird sie einmal geholt und
      faellt auf "nein" zurueck - eine falsche Warnung waere schlimmer als
@@ -238,6 +242,22 @@ export function ProfileScreen({ profile, dispatch, t, account, onSwitchSave, onL
       <Segmented value={profile.notices?.hinweiseAus ? "aus" : "an"}
         onChange={(v) => dispatch({ type: "REPLACE", profile: { ...profile, notices: { ...(profile.notices || {}), hinweiseAus: v === "aus" } } })}
         options={[{ value: "an", label: profile.lang === "en" ? "On" : "An" }, { value: "aus", label: profile.lang === "en" ? "Off" : "Aus" }]} />
+      {/* v1.90.2 (Besitzerentscheid zu S14, 28.9.: "gerne abschaltbar
+          machen"): DER AUTOMATISCHE ABSTURZBERICHT. Aus heisst: der Bericht
+          bleibt auf dem Geraet und verlaesst es nicht. Von Hand geschickte
+          Rueckmeldungen (der Knopf weiter unten) gehen weiterhin raus - wer
+          ihn drueckt, will ja etwas schicken. Der Schalter liegt am GERAET,
+          nicht im Spielstand: ein Absturz kann kommen, ehe ein Stand geladen
+          ist. Darum eigener Zustand statt profile. */}
+      <div style={{ fontSize: 12, color: T.faint, margin: "14px 0 6px" }}>
+        {profile.lang === "en" ? "Automatic crash reports" : "Automatische Absturzberichte"}</div>
+      <Segmented value={berichteAn ? "an" : "aus"}
+        onChange={(v) => { setzeAbsturzBerichte(v === "an"); setBerichteAn(v === "an"); }}
+        options={[{ value: "an", label: profile.lang === "en" ? "On" : "An" }, { value: "aus", label: profile.lang === "en" ? "Off" : "Aus" }]} />
+      <div style={{ fontSize: 11, color: T.faint, lineHeight: 1.45, margin: "5px 2px 0" }}>
+        {profile.lang === "en"
+          ? "When on, a crash sends its technical details to the game's own hall so the fault can be found. Off keeps the report on this device. Feedback you send yourself is never affected."
+          : "An: Ein Absturz schickt seine technischen Angaben an die Halle des Spiels, damit der Fehler gefunden werden kann. Aus: Der Bericht bleibt auf diesem Ger\u00e4t. Selbst geschickte R\u00fcckmeldungen sind davon nie betroffen."}</div>
       <div style={{ fontSize: 12, color: T.faint, margin: "14px 0 6px" }}>{t("profile.lang")}</div>
       <Segmented value={profile.lang} onChange={(v) => dispatch({ type: "SET_LANG", lang: v })}
         options={[{ value: "de", label: "Deutsch" }, { value: "en", label: "English" }]} />

@@ -39,14 +39,14 @@ gambitrise.com zeigt darauf).
   pruefe-navigation, pruefe-textfluss, test_layout) lesen den Chromium-Pfad aus
   `PW_CHROMIUM`; ohne die Variable gilt der Pfad des Cloud-Containers. Lokal:
   `npx playwright install chromium` und `PW_CHROMIUM=<Pfad zur chrome-Datei>`.
-- `npm test` — volle Batterie. MUSS **28 Suiten / 2079 Prüfungen** melden
-  (Stand v1.90.0; der Runner stoppt nach der ersten roten Suite, also
+- `npm test` — volle Batterie. MUSS **28 Suiten / 2084 Prüfungen** melden
+  (Stand v1.90.2; der Runner stoppt nach der ersten roten Suite, also
   Suitenzahl prüfen, nicht nur Assertions! Zählweise: alle Zeilen
   `RESULT…: N passed` summieren — test_balance meldet zwei, darum stehen im
   Log 29 RESULT-Zeilen für 28 Suiten). **Seit v1.89.9 läuft
   `tools/pruefe-bezeichner.mjs` in der Batterie mit**, direkt hinter
   `npm run ui` (dort entsteht das Bundle `.uitest.mjs`, das die Probe liest).
-  Sie gibt KEINE RESULT-Zeile aus — die Zählung bleibt also bei 28/2079 —,
+  Sie gibt KEINE RESULT-Zeile aus — die Zählung bleibt also bei 28/2084 —,
   bricht die Kette aber, sobald im Bundle ein freier Bezeichner auftaucht.
   Das ist die Klasse der Abstürze A3/A4: gültiges JavaScript, das erst beim
   Rendern als ReferenceError hochgeht.

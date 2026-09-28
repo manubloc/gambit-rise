@@ -603,7 +603,16 @@ export function BoardView({ lang = "de", state, onMove, interactive, lastMove, m
               Also nur eine Toenung, kein Rahmen - die Kontur bleibt dem
               Anwaehlen vorbehalten und hebt sich dadurch deutlich ab. Die
               Gemaelde bleiben unangetastet: wer wem gehoert, sagt das Feld. */}
-          {piece && piece.color !== pov && <div aria-hidden data-gegnerfeld="" style={{ position: "absolute", inset: 0,
+          {/* v1.90.1 (Besitzer, 28.9.): "bei classic chess kannst du
+              grundsaetzlich auf die lila Faerbung der Felder verzichten. die
+              Figuren sind ja schon schwarz weiss." Richtig - im klassischen
+              Satz sagt schon die Figur, wem sie gehoert; die Toenung von
+              v1.24.4 half nur dort, wo beide Seiten DIESELBE Kunst tragen
+              (Kampagne, HP-Gefecht, gemalter und geschnitzter Satz). Genau
+              dort bleibt sie. `artStyle === "classic"` setzt GameScreen nur
+              fuer die echte klassische Partie (klassikOptik), Kampagne und
+              Gefecht sind davon nicht beruehrt. */}
+          {piece && piece.color !== pov && artStyle !== "classic" && <div aria-hidden data-gegnerfeld="" style={{ position: "absolute", inset: 0,
             pointerEvents: "none", zIndex: 1,
             /* v1.24.5 (Besitzer): "der Farbton Lila ist viel zu wenig, man sieht ja gar
                nichts" - die Toenung lag bei .34 im Kern und wurde durch

@@ -435,6 +435,28 @@ ok("full build counts ten league crowns", fullB.stats.leaguesWon === 10);
   ok("... und ein zweites Laden aendert nichts mehr", JSON.stringify(pm.parseSave(pm.serializeSave(b)).pieces.levels) === JSON.stringify(b.pieces.levels));
 }
 
+/* v1.90.2 (Besitzerentscheid S14): DER AUTOMATISCHE ABSTURZBERICHT IST
+   ABSCHALTBAR. Geprueft wird das Verhalten, nicht der Quelltext: mit einem
+   Speicher-Ersatz aus/an schalten und sehen, was zurueckkommt. */
+{
+  const speicher = new Map();
+  globalThis.localStorage = {
+    getItem: (k) => (speicher.has(k) ? speicher.get(k) : null),
+    setItem: (k, v) => speicher.set(k, String(v)),
+    removeItem: (k) => speicher.delete(k),
+  };
+  const r = await import("./src/meta/reports.js");
+  ok("Absturzberichte sind ab Werk an", r.absturzBerichteAn() === true);
+  r.setzeAbsturzBerichte(false);
+  ok("... und lassen sich abschalten", r.absturzBerichteAn() === false);
+  const abgelegt = await r.fileReport({ err: new Error("Probe") });
+  ok("... ein Absturz bleibt dann auf dem Geraet", abgelegt.where === "local");
+  ok("... und steht trotzdem im oertlichen Spiegel", JSON.parse(speicher.get("gg_reports_local") || "[]").length === 1);
+  r.setzeAbsturzBerichte(true);
+  ok("... wieder einschalten geht auch", r.absturzBerichteAn() === true);
+  delete globalThis.localStorage;
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 if (fail) process.exit(1);
 

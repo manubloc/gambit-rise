@@ -36,7 +36,7 @@ export {
   progressPct, withProgressPct, leagueOrder, summarize as summarizeSave, migrateLegacyInto, fmtPlaytime,
 } from "./saves.js";
 export { cloudConfigured, signInWithGoogle, signInWithProvider, signInEmailCloud, signUpEmailCloud, resumeCloudSession, signOutCloud } from "./cloudAuth.js";
-export { fileReport, listReports, recentErrors, clearLocalReports, getAdminToken, setAdminToken } from "./reports.js";
+export { fileReport, listReports, recentErrors, clearLocalReports, getAdminToken, setAdminToken, absturzBerichteAn, setzeAbsturzBerichte } from "./reports.js";
 export { emptyRecords, recordStage, totalBestMoves, fmtMs } from "./records.js";
 export { BOARDS, LB_MAX, mergeBoard, fetchBoard, submitScore } from "./leaderboard.js";
 

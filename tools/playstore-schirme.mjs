@@ -74,7 +74,7 @@ for (const sprache of ["de", "en"]) {
     for (let i = 0; i < 6; i++) {
       const weg = await page.evaluate(() => {
         const worte = ["Los geht's", "Verstanden", "Alle Vorstellungen überspringen",
-          "Got it", "Let's go", "Skip all", "Weiter", "Continue"];
+          "Got it", "Understood", "Let's go", "Skip all", "Skip all introductions", "Weiter", "Continue"];
         for (const w of worte) {
           const b = [...document.querySelectorAll("button")].find((x) =>
             (x.innerText || "").replace(/\s+/g, " ").trim() === w);
@@ -107,7 +107,7 @@ for (const sprache of ["de", "en"]) {
     return alle.filter((d) => Math.abs(d.getBoundingClientRect().width - k) < 2).length;
   });
   /** Eine eigene Figur antippen, damit das Talentband aufgeht. */
-  const figurWaehlen = () => page.evaluate(() => {
+  const figurWaehlen = (nr = 0) => page.evaluate((versatz) => {
     const alle = [...document.querySelectorAll("div")].filter((d) => {
       const r = d.getBoundingClientRect();
       return r.width > 24 && r.width < 90 && Math.abs(r.width - r.height) < 4;
@@ -115,8 +115,10 @@ for (const sprache of ["de", "en"]) {
     const k = Math.min(...alle.map((d) => d.getBoundingClientRect().width));
     const f = alle.filter((d) => Math.abs(d.getBoundingClientRect().width - k) < 2);
     const eigene = f.filter((d) => d.querySelector("img,svg") && d.getBoundingClientRect().top > innerHeight * 0.45);
-    eigene[Math.floor(eigene.length / 2)]?.click();
-  });
+    /* v1.90.1: bei jedem Versuch eine ANDERE Figur - die Schleife oben
+       sucht eine mit Talenten, und "immer die mittlere" fand nie eine neue. */
+    eigene[(Math.floor(eigene.length / 2) + versatz * 3) % Math.max(1, eigene.length)]?.click();
+  }, nr);
   /* GEMESSEN statt geraten (Diagnoselauf 26.9.): der Gast landet nicht im
      Hub, sondern im KAPITEL-INTRO - dort steht genau ein Knopf, "Weiter zur
      Karte ›". Der Hub kommt erst ueber den Reiter SPIELEN. Und der
@@ -193,9 +195,9 @@ for (const sprache of ["de", "en"]) {
       einen Namen hinein), und eine Schleife, die nur "Detailreich" drueckt,
       kommt nie zum Startknopf - der Auftakt stand im fertigen Bild. Der
       Auftakt wird deshalb in EINEM Durchgang erledigt: Name, Stil, Start. */
-  const einstieg = async () => {
+  const einstieg = async (figurenstil = "detailreich") => {
     for (let i = 0; i < 12; i++) {
-      const imAuftakt = await page.evaluate((n) => {
+      const imAuftakt = await page.evaluate(([n, st]) => {
         const feld = [...document.querySelectorAll("input")].find((x) =>
           /^(Dein Name|Your name)$/i.test(x.placeholder || ""));
         if (!feld) return false;
@@ -205,10 +207,11 @@ for (const sprache of ["de", "en"]) {
           feld.dispatchEvent(new Event("input", { bubbles: true }));
         }
         const txt = (x) => (x.innerText || "").replace(/\s+/g, " ").trim();
-        const stil = [...document.querySelectorAll("button")].find((x) => /^(Detailreich|Detailed)$/i.test(txt(x)));
+        const muster = st === "einfach" ? /^(Einfach|Simple)$/i : /^(Detailreich|Detailed)$/i;
+        const stil = [...document.querySelectorAll("button")].find((x) => muster.test(txt(x)));
         stil?.click();
         return true;
-      }, SPIELERNAME);
+      }, [SPIELERNAME, figurenstil]);
       if (imAuftakt) {
         await warte(500);
         await page.evaluate(() => {
@@ -223,7 +226,7 @@ for (const sprache of ["de", "en"]) {
       const weg = await page.evaluate(() => {
         const txt = (x) => (x.innerText || "").replace(/\s+/g, " ").trim();
         for (const w of ["Los geht's", "Verstanden", "Alle Vorstellungen \u00fcberspringen",
-          "Got it", "Let's go", "Skip all"]) {
+          "Got it", "Understood", "Let's go", "Skip all", "Skip all introductions"]) {
           const b = [...document.querySelectorAll("button")].find((x) => txt(x) === w);
           if (b) { b.click(); return w; }
         }
@@ -234,7 +237,7 @@ for (const sprache of ["de", "en"]) {
     }
   };
 
-  const kontoStart = async () => {
+  const kontoStart = async (figurenstil = "detailreich") => {
     await page.goto("http://127.0.0.1:4331/", { waitUntil: "load" });
     await warte(1500);
     const anmeldung = await page.evaluate(() => !!document.querySelector('input[type="email"]'));
@@ -247,7 +250,7 @@ for (const sprache of ["de", "en"]) {
       await knopf(sprache === "de" ? "Konto erstellen" : "Create account", 2600);
     }
     await warte(900);
-    await einstieg();
+    await einstieg(figurenstil);
     await warte(900);
     await weiter(2600);                 // "Weiter zur Karte \u203a" im Kapitel-Intro
     await aufraeumen();
@@ -255,6 +258,97 @@ for (const sprache of ["de", "en"]) {
        initialLang nie). Lieber laut scheitern als acht falsche Bilder. */
     const deutsch = await page.evaluate(() => /Kampagne|Schnelles Spiel/.test(document.body.innerText || ""));
     if (sprache === "en" && deutsch) console.log("ACHTUNG: englischer Lauf zeigt deutsche Texte");
+  };
+
+  /* DEN SPIELSTAND FUER EIN BILD ZURECHTLEGEN (v1.90.1).
+     Besitzer am 28.9.: "die normalen Figuren mit HP-Anzeige ... mach bei
+     beiden bitte nicht nur die Startstellung, sondern unterschiedliche Zuege."
+     Das HP-Gefecht ist erst ab Kapitel III wach (hpWach: league > 2) - ein
+     frisches Konto steht in Kapitel I und kann den Modus gar nicht waehlen
+     (gemessen am 26.9., darum trug das Bild bis v1.90.0 ein klassisches
+     Brett). Statt eine Kampagne durchzuspielen, legt der Lauf den Stand
+     direkt um: der Speicher haelt das Profil als JSON unter "save:<Konto>:<Slot>"
+     (src/platform/storage.web.js). Das ist ein AUFNAHME-Griff, kein
+     Spielcode - er lebt nur im Browser dieses Laufs. */
+  const standAnpassen = async (aenderung) => {
+    const wieviele = await page.evaluate((a) => {
+      let n = 0;
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        /* GEMESSEN im ersten Lauf: der Schluessel heisst NICHT "save:..." -
+           storage.web.js stellt jedem Schluessel "gambit:u::" voran
+           (pfx(shared)). Ohne das Praefix fand die Schleife nichts. */
+        if (!k || !/(^|:)save:[^:]+:[^:]+$/.test(k)) continue;
+        let p;
+        try { p = JSON.parse(localStorage.getItem(k)); } catch { continue; }
+        if (typeof p === "string") { try { p = JSON.parse(p); } catch { continue; } }
+        if (!p || typeof p !== "object") continue;
+        if (a.liga) p.campaign = { ...(p.campaign || {}), league: a.liga };
+        if (a.stil) p.pieceStyle = a.stil;
+        /* v1.90.1 (Besitzer: "zeige ein Bild, wo alle Figuren auf hoechster
+           Stufe sind und man diese blauen und roten Bereiche sieht ... ein
+           paar duerfen auch niedriger sein, dann sieht man noch schwarze
+           Bereiche"): die Stufen stehen unter pieces.levels je Figuren-Id
+           (meta/leveling.js, characterLevel). Hohe Stufe = langes Band. */
+        if (a.stufen) p.pieces = { ...(p.pieces || {}), levels: { ...((p.pieces || {}).levels || {}), ...a.stufen } };
+        /* v1.90.1: gelernte Talente stehen unter pieces.abilities je Figur
+           (leveling.js, chosenAbilities). Ohne sie stand unter dem Brett
+           "Diese Figur hat noch keine Talente" - genau unter der
+           Ueberschrift "Deine Figuren lernen dazu". */
+        if (a.talente) p.pieces = { ...(p.pieces || {}), abilities: { ...((p.pieces || {}).abilities || {}), ...a.talente } };
+        localStorage.setItem(k, JSON.stringify(p));
+        n++;
+      }
+      return n;
+    }, aenderung);
+    if (!wieviele) console.log(sprache, "ACHTUNG: kein Spielstand im Speicher gefunden");
+    await page.reload({ waitUntil: "load" });
+    await warte(2600);
+    await aufraeumen();
+    await weiter(2200);                 // Kapitel-Intro, falls es wieder kommt
+    await aufraeumen();
+    return wieviele;
+  };
+
+  /** Spielt n eigene Zuege, damit das Bild nicht die Startstellung zeigt. */
+  const zuege = async (n) => {
+    let gezogen = 0;
+    for (let k = 0; k < n; k++) {
+      const ok = await page.evaluate(async () => {
+        const felder = () => {
+          const alle = [...document.querySelectorAll("div")].filter((d) => {
+            const r = d.getBoundingClientRect();
+            return r.width > 28 && r.width < 90 && Math.abs(r.width - r.height) < 4;
+          });
+          if (!alle.length) return [];
+          const kl = Math.min(...alle.map((d) => d.getBoundingClientRect().width));
+          return alle.filter((d) => Math.abs(d.getBoundingClientRect().width - kl) < 2);
+        };
+        const eigene = felder().filter((d) => d.querySelector("img,svg")
+          && d.getBoundingClientRect().top > innerHeight * 0.42);
+        /* von hinten nach vorn, damit nicht immer derselbe Bauer zieht */
+        for (const d of eigene.sort(() => Math.random() - 0.5)) {
+          d.click(); await new Promise((r) => setTimeout(r, 300));
+          const ziele = felder().filter((z) => /ggZielAtem/.test(z.getAttribute("style") || "")
+            || z.querySelector('[style*="ggZielAtem"]'));
+          if (!ziele.length) continue;
+          /* v1.90.1: ANGRIFFE BEVORZUGEN. Im HP-Gefecht wird nicht
+             geschlagen, sondern Schaden gemacht - der Lebensbalken erscheint
+             erst an einer angeschlagenen Figur. Neun ruhige Zuege ergaben ein
+             Bild ohne eine einzige HP-Anzeige (gemessen). Ein Zielfeld MIT
+             Figur ist ein Treffer, also kommt es zuerst dran. */
+          const treffer = ziele.find((z) => z.querySelector("img,svg"));
+          (treffer || ziele[0]).click();
+          await new Promise((r) => setTimeout(r, 1500));
+          return true;
+        }
+        return false;
+      });
+      if (!ok) break;
+      gezogen++;
+      await warte(1600);                // Gegenzug abwarten
+    }
+    return gezogen;
   };
 
   /* DIE ECKEN MESSEN, NICHT RATEN (Besitzer 28.9.: "mach doch da die Rundung
@@ -327,39 +421,130 @@ for (const sprache of ["de", "en"]) {
   await warte(2000); await aufraeumen();
   if (kachel) await foto("4-karte");
 
-  await knopf(sprache === "de" ? "Zurück" : "Back", 900);
-  await warte(800);
+  /* v1.90.1 (Besitzer: "Field your own army musst du natuerlich auch den
+     Slider laden, indem du was oeffnest"): der Schirm zeigte zwei Reihen und
+     darunter eine halbe Seite Leere. URSACHE, am Code gemessen: die hintere
+     Reihe ist auf einem frischen Konto GESPERRT - `darfReiheStellen` gibt
+     erst ab Kapitel II frei (freigaben.js, reiheFuenfGeschafft). Jeder Platz
+     stand auf `disabled`, der Klick lief ins Leere, und der Slider
+     (data-aufst-slider) kam nie. Der Stand wird darum auf Kapitel III
+     gelegt - dann ist die Reihe frei, und ein Platz laesst sich oeffnen. */
+  await standAnpassen({ liga: 3 });
+  await reiter("FIGUREN"); await reiter("PIECES");
+  await warte(2500); await aufraeumen();
   await page.evaluate(() => {
     const b = [...document.querySelectorAll("button")].find((x) =>
       /^(Aufstellung|Formation)$/i.test((x.innerText || "").trim()));
     b?.click();
   });
   await warte(2200); await aufraeumen();
+  /* v1.90.1 (Besitzer: "Field your own army musst du natuerlich auch den
+     Slider laden, indem du was oeffnest"): der Schirm zeigte die zwei Reihen
+     und darunter eine halbe Seite Leere - die Auswahl geht erst auf, wenn man
+     einen Platz antippt. Also einen Platz der hinteren Reihe anwaehlen, damit
+     das Bild zeigt, worum es geht. */
+  const platz = await page.evaluate(() => {
+    /* die Plaetze sind BUTTONS mit Seitenverhaeltnis 5/6 (ArmyScreen 1603);
+       gesperrte tragen disabled - die hintere Reihe steht unter der
+       Bauernreihe, also nach y sortieren und einen freien nehmen. */
+    const kacheln = [...document.querySelectorAll("button")].filter((x) => {
+      const r = x.getBoundingClientRect();
+      return !x.disabled && r.width > 26 && r.width < 90 && r.height > 26 && r.height < 110
+        && Math.abs(r.height / r.width - 6 / 5) < 0.45;
+    });
+    if (!kacheln.length) return 0;
+    kacheln.sort((a, b) => (a.getBoundingClientRect().top - b.getBoundingClientRect().top)
+      || (a.getBoundingClientRect().left - b.getBoundingClientRect().left));
+    const untenY = kacheln[kacheln.length - 1].getBoundingClientRect().top;
+    const hintere = kacheln.filter((k) => Math.abs(k.getBoundingClientRect().top - untenY) < 6);
+    const z = hintere[Math.min(2, hintere.length - 1)] || kacheln[kacheln.length - 1];
+    z.click();
+    return kacheln.length;
+  });
+  await warte(2200); await aufraeumen();
+  const sliderDa = await page.evaluate(() => !!document.querySelector('[data-aufst-slider]'));
+  if (!sliderDa) console.log(sprache, "ACHTUNG: Aufstellungs-Slider blieb zu (Plaetze:", platz, ")");
   await foto("5-aufstellung");
 
   await reiter("LAGER"); await reiter("STORES");
   await warte(2000); await aufraeumen();
   await foto("7-lager");
 
-  /* DAS HP-GEFECHT kommt aus dem SCHNELLEN SPIEL, nicht aus der Kampagne:
-     gemessen spielt die Kampagne in Kapitel I klassisch, weil die
-     Lebenspunkte erst ab Kapitel III wach sind (hpWach: league > 2). Ein
-     Gast steht immer in Kapitel I - das Bild trug dann die Zeile
-     "Klassisch - hier zaehlt nur Schach" unter der Ueberschrift "Schach mit
-     Lebenspunkten". */
+  /* BILD 1 - DAS HP-GEFECHT, mit den normalen Figuren und Lebenspunkten.
+     Besitzer am 28.9.: "die normalen Figuren, uebrigens gerne auch mit
+     HP-Anzeige und unterschiedlichen Anzeigen ... nicht nur die
+     Startstellung, sondern unterschiedliche Zuege."
+     Bis v1.90.0 trug dieses Bild ein KLASSISCHES Brett: das HP-Gefecht ist
+     erst ab Kapitel III wach (hpWach: league > 2), ein frisches Konto steht
+     in Kapitel I, und der Modusknopf reagierte darum gar nicht. Jetzt legt
+     standAnpassen den Stand auf Kapitel V und den Figurenstil auf "svg" -
+     das ist der Satz, den die App "Einfach" nennt: schwarz-weisse Figuren
+     mit klarer Kontur, auf denen Lebensbalken und Stufenzahl lesbar sind. */
   await kontoStart();
+  /* v1.90.1, ZWEITER ANLAUF - GEMESSEN: mit dem Stil "Einfach" (svg) zeigt
+     das Brett GAR KEINE Lebenspunkte. Die Perlen "Angriff/Leben" sind seit
+     v1.25.4 fort (Besitzer: "die Bubbles will ich nicht sehen"), seither
+     traegt das SOCKELBAND der Figur die Zahlen - rot das Leben, blau die
+     Staerke. Ein Sockelband hat aber nur der gemalte/geschnitzte Satz; der
+     flache Satz hat keinen. Fuer ein Bild MIT HP-Anzeige bleibt also nur der
+     gemalte Satz. (Dass der flache Satz im HP-Gefecht ohne jede Lebensanzeige
+     spielt, ist ein eigener Befund - er steht im Bericht.) */
+  await standAnpassen({ liga: 5, stil: "painted", stufen: {
+    /* die meisten hoch, damit Blau und Rot voll durchlaufen - Bauer, Laeufer
+       und Koenig bewusst niedriger, damit auch schwarze Reste zu sehen sind */
+    gambit: 10, rook: 10, knight: 10, queen: 10, pawn: 9, king: 9,
+    bishop: 5,                       /* einer bewusst niedrig - kurzes Band */
+    amazon: 10, captain: 10, hawk: 9, mage: 10, guardian: 9 },
+    talente: {   /* die Leitern der Grundfiguren, characters.js */
+      knight: ["knight_longleap", "knight_outrider"],
+      rook: ["rook_diag_step", "rook_breach"],
+      bishop: ["bishop_hop"],
+      queen: ["queen_knightleap", "ranged_shot", "teleport"],
+      pawn: ["pawn_sidestep", "pawn_charge", "pawn_forward_capture"] } });
   await partie("hp");
   let n = await felder();
   if (n < 16) console.log(sprache, "kein Brett (HP):", n);
   const klassik = await page.evaluate(() => /nur Schach|only chess/i.test(document.body.innerText || ""));
   if (klassik) console.log(sprache, "ACHTUNG: HP-Bild zeigt ein klassisches Brett");
-  await figurWaehlen(); await warte(1000);
+  /* Mehr Zuege als beim klassischen Bild: im HP-Gefecht wird nicht
+     geschlagen, sondern Schaden gemacht - der Lebensbalken erscheint erst an
+     einer angeschlagenen Figur. Ohne Treffer sieht das Bild aus wie Schach. */
+  const z1 = await zuege(14);
+  if (z1 < 2) console.log(sprache, "ACHTUNG: HP-Bild zeigt fast die Startstellung,", z1, "Zuege");
+  /* Eine eigene Figur anwaehlen, damit unter dem Brett das Talentband steht
+     statt der Zeile "Tippe eine deiner Figuren an". Mehrere versuchen: nicht
+     jede Figur hat etwas zu zeigen. */
+  let band = false;
+  for (let v = 0; v < 6 && !band; v++) {
+    await figurWaehlen(v); await warte(900);
+    band = await page.evaluate(() => {
+      const t = document.body.innerText || "";
+      /* nicht nur "irgendetwas steht da": die Zeile "noch keine Talente"
+         waere unter der Ueberschrift "Deine Figuren lernen dazu" die
+         schlechteste aller Auskuenfte. */
+      return !/Tippe eine deiner Figuren|Tap one of your pieces/.test(t)
+        && !/noch keine Talente|no talents yet/.test(t);
+    });
+  }
+  if (!band) console.log(sprache, "ACHTUNG: HP-Bild ohne Talentband");
+  await warte(900);
   await foto("1-gefecht");
 
+  /* BILD 2 - KLASSISCHES SCHACH, ohne die violette Feldtoenung (die faellt
+     seit v1.90.1 im klassischen Satz von selbst weg) und ebenfalls mitten
+     im Spiel statt in der Startstellung. */
   await kontoStart();
+  /* GEMESSEN im ersten Lauf: der Stil "svg" aus dem HP-Bild blieb im Profil
+     stehen - das klassische Bild zeigte danach dieselben flachen Figuren und
+     behielt die violette Toenung (artStyle "svg", nicht "classic"). Also
+     zuruecksetzen; erst dann greift klassikOptik mit dem Turniersatz. */
+  await standAnpassen({ stil: "painted" });
   await partie("klassisch");
   n = await felder();
   if (n < 16) console.log(sprache, "kein Brett (klassisch):", n);
+  const z2 = await zuege(3);
+  if (z2 < 2) console.log(sprache, "ACHTUNG: Klassik-Bild zeigt fast die Startstellung,", z2, "Zuege");
+  await warte(900);
   await foto("2-klassik");
 
   console.log(sprache, "fertig");

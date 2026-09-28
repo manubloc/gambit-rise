@@ -1,5 +1,79 @@
 # Changelog - Gambit Rise
 
+## 1.90.2 - der Absturzbericht ist abschaltbar, die lila Toenung faellt im klassischen Satz, und die Store-Bilder zeigen endlich das Spiel
+
+- **DER AUTOMATISCHE ABSTURZBERICHT LAESST SICH ABSCHALTEN** (Besitzerentscheid
+  zu S14, 28.9.: "gerne abschaltbar machen"). Bis hierher ging jeder Absturz
+  ungefragt an die Halle - im Datensicherheitsformular von Google heisst das
+  "erforderlich"; abschaltbar heisst dort "optional". Der Schalter steht im
+  Profil unter "Automatische Absturzberichte" und liegt am GERAET
+  (localStorage `gg_absturzberichte`), nicht im Spielstand: ein Absturz kann
+  kommen, ehe ein Stand geladen ist. Aus heisst NICHT "geht verloren" - der
+  Bericht bleibt im oertlichen Spiegel, er verlaesst nur das Telefon nicht.
+  Von Hand geschickte Rueckmeldungen sind nie betroffen; wer den
+  Feedback-Knopf drueckt, will ja etwas schicken. Eigene Probe in
+  test_saves (fuenf Pruefungen, Verhalten statt Quelltext).
+
+## 1.90.1 - die lila Toenung faellt im klassischen Satz, und die Store-Bilder zeigen endlich das Spiel
+
+- **KEINE VIOLETTE TOENUNG MEHR IM KLASSISCHEN SATZ.** Besitzer am 28.9.:
+  "bei classic chess kannst du grundsaetzlich auf die lila Faerbung der
+  Felder verzichten. die Figuren sind ja schon schwarz weiss." Gemessen war
+  es nicht die Feldfarbe, sondern ein Verlauf, der seit v1.24.4 auf JEDEM
+  Feld mit einer Gegnerfigur liegt (`data-gegnerfeld`, damals ebenfalls
+  Besitzerwunsch: "markiere einfach die Gegnerfelder"). Er half dort, wo
+  beide Seiten dieselbe Kunst tragen - Kampagne, HP-Gefecht, gemalter und
+  geschnitzter Satz. Im Turniersatz sagt die Figur es selbst. Abgeschaltet
+  wird darum nur `artStyle === "classic"`, und den setzt GameScreen allein
+  fuer die echte klassische Partie (klassikOptik).
+
+- **DIE STORE-BILDER ZEIGEN JETZT DAS SPIEL, NICHT DIE STARTSTELLUNG.**
+  Besitzer: "mach bei beiden bitte nicht nur die Startstellung, sondern
+  unterschiedliche Zuege." Der Lauf spielt jetzt echte Zuege - im HP-Gefecht
+  neun und mit Vorzug auf Treffer, weil dort nicht geschlagen, sondern
+  Schaden gemacht wird und der Lebensbalken erst an einer angeschlagenen
+  Figur erscheint.
+
+- **DAS HP-GEFECHT IST ENDLICH EIN HP-GEFECHT.** Bis v1.90.0 trug Bild 1 ein
+  klassisches Brett: die Lebenspunkte sind erst ab Kapitel III wach
+  (`hpWach: league > 2`), ein frisches Konto steht in Kapitel I, und der
+  Modusknopf reagierte gar nicht (gemessen am 26.9.). Der Aufnahme-Lauf legt
+  den Spielstand jetzt direkt auf Kapitel V - ein Griff in den Browserspeicher
+  des Laufs, kein Spielcode.
+
+- **BEFUND, NICHT GEBAUT: der flache Satz zeigt im HP-Gefecht keine
+  Lebenspunkte.** Die Perlen "Angriff/Leben" sind seit v1.25.4 fort
+  (Besitzer: "die Bubbles will ich nicht sehen"), seither traegt das
+  SOCKELBAND der Figur die Zahlen - rot das Leben, blau die Staerke. Ein
+  Sockelband hat nur der gemalte/geschnitzte Satz. Wer mit "Einfach" spielt,
+  sieht im HP-Gefecht also nirgends, wie viel Leben eine Figur noch hat. Das
+  Store-Bild nimmt darum den gemalten Satz; ob der flache eine eigene
+  Anzeige bekommt, ist Besitzerentscheid.
+
+- **DER AUFSTELLUNGS-SLIDER WAR ZU, WEIL DIE REIHE GESPERRT WAR.** Besitzer:
+  "Field your own army musst du natuerlich auch den Slider laden, indem du
+  was oeffnest." Am Code gemessen: `darfReiheStellen` gibt die hintere Reihe
+  erst ab Kapitel II frei (freigaben.js, reiheFuenfGeschafft). Auf einem
+  frischen Konto stand jeder Platz auf `disabled`, der Klick lief ins Leere,
+  und `data-aufst-slider` kam nie. Der Lauf legt den Stand vor diesem Bild
+  auf Kapitel III und oeffnet dann einen Platz der hinteren Reihe.
+
+- **DER AUFRAEUMER KANNTE "Understood" NICHT.** Im englischen Lauf standen
+  zwei Erklaerfenster mitten im Bild ("A fight for life and force", "The
+  Gambit awakens") - die Wortliste fuehrte "Verstanden" und "Got it", aber
+  nicht "Understood". Ergaenzt, dazu "Skip all introductions".
+
+- **NEU: `tools/brett-hintergruende.mjs`** - zeigt auf Wunsch des Besitzers
+  ("ich moechte mal sehen, wie du jetzt jedes Kapitel die Spielfelder
+  designt hast mit Hintergrund") alle zwoelf Kapitel als echtes Bild: die
+  App spielt an, rendert das Brett, und der Lauf tauscht nur das Gemaelde
+  (`public/brett/*.webp`) UND den Feldstreifen des Kapitels
+  (`FELD_KAPITEL`, feldArt.js) durch - genau das, was die Kampagne im
+  jeweiligen Kapitel legt. Ergebnis in `design/brett-hintergruende/`.
+
+- Alle 48 Store-Bilder und die zwei Uebersichtsblaetter neu.
+
+
 ## 1.90.0 - die englische Fassung war nie englisch, und die Store-Bilder waren vom vorletzten Stand
 
 - **DIE SPRACHE DER ANMELDUNG GING VERLOREN.** `LoginScreen` nimmt ein
