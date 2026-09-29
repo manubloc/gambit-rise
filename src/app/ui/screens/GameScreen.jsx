@@ -158,7 +158,7 @@ const pill = (extra) => ({ display: "inline-flex", alignItems: "center", gap: 6,
 const leiserKnopf = (extra) => pill({ border: "1px solid rgba(167,139,250,.24)", color: "rgba(226,218,246,.66)",
   background: "rgba(14,10,26,.34)", boxShadow: "none", fontWeight: 600, fontSize: 12, padding: "6px 11px", ...extra });
 
-export function GameScreen({ profile, dispatch, t, match = null, onExit = null, pvp = null, quick = null, onArmy = null, daily = null }) {
+export function GameScreen({ profile, dispatch, t, match = null, onExit = null, pvp = null, quick = null, onArmy = null, daily = null, onGefechtSichern = null }) {
   /* ── v1.31.0: DIE ERSTE BEGEGNUNG MIT EINER MONSTERFAEHIGKEIT (Besitzer: "was
      passiert und darstellbar ist, gerne grundsaetzlich mehr andeuten"). Wirkt
      eine der neun Monsterfaehigkeiten zum ALLERERSTEN Mal im Spiel - an wem
@@ -1059,8 +1059,14 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
   function pauseNow() {
     if (!campaign || pvp || finished.current) return;
     const cur = pauseRef.current;
-    dispatch({ type: "PAUSE_MATCH", data: { v: 1, nodeId: match.nodeId, enc: encodeState(cur.state),
-      potionsUsed: potionsUsedRef.current, hourglassUsed: hourglassUsedRef.current, clock: cur.clock } });
+    const data = { v: 1, nodeId: match.nodeId, enc: encodeState(cur.state),
+      potionsUsed: potionsUsedRef.current, hourglassUsed: hourglassUsedRef.current, clock: cur.clock };
+    dispatch({ type: "PAUSE_MATCH", data });
+    /* v1.90.11 (Audit A19): und SOFORT in den Spielstand. Der Umweg ueber den
+       Persist-Effekt in App.jsx braucht einen weiteren React-Commit - beim
+       Entladen der Seite (Dienstarbeiter-Neuladen nach einem Push, pagehide)
+       kommt der nicht mehr, und das Gefecht war fort. */
+    if (onGefechtSichern) onGefechtSichern(data);
   }
   const [fragtRaus, setFragtRaus] = useState(false);
   // Eine LAUFENDE Partie verlaesst man nicht mit einem Fehlgriff - der
@@ -1077,12 +1083,34 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
     if (!campaign || pvp) return;
     const fn = () => { if (document.visibilityState === "hidden") pauseNow(); };
     document.addEventListener("visibilitychange", fn);
+    /* v1.90.11 (Audit A19): `visibilitychange` ist NICHT der letzte Halt.
+       Beim Neuladen durch einen frischen Dienstarbeiter und beim Schliessen
+       eines Tabs feuert auf manchen Browsern nur `pagehide`. Beides haengt
+       jetzt am selben Griff. */
+    const weg = () => pauseNow();
+    window.addEventListener("pagehide", weg);
     // AND ON THE WAY OUT: leaving through anything other than the back arrow —
     // the desktop menu, the browser's back gesture — used to drop the fight on
     // the floor. Unmounting now saves it exactly as the arrow does. A finished
     // match is ignored inside pauseNow, so a win is never resurrected.
-    return () => { document.removeEventListener("visibilitychange", fn); pauseNow(); };
+    return () => { document.removeEventListener("visibilitychange", fn); window.removeEventListener("pagehide", weg); pauseNow(); };
   }, []); // eslint-disable-line
+
+  /* ── v1.90.11 (Audit A19): DIE FAHNE FUER DEN DIENSTARBEITER ─────────
+     main.jsx laed die Seite neu, sobald ein frischer Dienstarbeiter
+     uebernimmt - bis hierher auch mitten im Bosskampf. Es liest diese Fahne
+     und schiebt das Neuladen auf, bis sie faellt. Ein Attribut am
+     <html>-Element, weil main.jsx bewusst nichts aus der App importiert:
+     es laeuft, bevor React ueberhaupt da ist.
+     Sie steht fuer JEDE Partie, nicht nur die Kampagne - ein Neuladen
+     kostet auch im Schnellen Spiel und im Duell die laufende Partie. */
+  useEffect(() => {
+    try {
+      if (banner) delete document.documentElement.dataset.imGefecht;
+      else document.documentElement.dataset.imGefecht = "1";
+    } catch {}
+    return () => { try { delete document.documentElement.dataset.imGefecht; } catch {} };
+  }, [banner]);
 
   const hsFlip = quick?.hotseatFlip !== false;        // optional: keep the board fixed (phone stays in hand)
   const viewColor = hotseat ? (hsFlip ? state.turn : WHITE) : myColor; // the board faces whoever moves

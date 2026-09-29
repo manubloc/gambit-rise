@@ -1,5 +1,97 @@
 # Changelog - Gambit Rise
 
+## 1.90.11 - zwei Fenster ueberschrieben sich, ein Gefecht ueberlebte den Deploy nicht, und der Rueckblick wurde nie gefahren
+
+**A17 — ZWEI FENSTER, EIN SPIELSTAND: DER AELTERE GEWANN.** `writeSave` las
+den Index, tauschte die eigene Zeile aus und schrieb blind zurueck - ohne je
+zu fragen, ob seit dem eigenen Oeffnen jemand anders dort geschrieben hat.
+Wer die installierte App und einen Browser-Tab desselben Kontos offen hatte,
+verlor damit alles, was das andere Fenster seither erspielt hatte: die
+30-Sekunden-Sicherung des aelteren Standes ueberschrieb den neueren,
+lautlos. Es gibt dafuer keinen Speicher-Wachhund - `localStorage` kennt kein
+"vergleiche und tausche" -, also merkt sich `saves.js` jetzt, auf welchem
+`updatedAt` es selbst aufsetzt. Steht beim naechsten Schreiben ein anderer
+Wert im Index, wird NICHT geschrieben, sondern gemeldet: eine Karte sagt
+"Du hast in einem anderen Fenster gespielt" und laedt neu.
+Dazu der Gast-Teilfall: hat das andere Fenster den Stand GELOESCHT, kam
+bisher dasselbe stille `null` wie bei einem Speicherfehler, und App.jsx
+verschluckte beides - das Fenster sicherte ab da gar nichts mehr.
+
+**A19 — EIN LAUFENDES GEFECHT UEBERLEBTE DEN DEPLOY NICHT.** `pauseNow`
+schickte nur ein PAUSE_MATCH los; geschrieben wurde erst im Persist-Effekt
+NACH dem naechsten React-Commit - und den gibt es beim Entladen der Seite
+nicht mehr. Jeder Push auf main schiebt binnen Minuten einen frischen
+Dienstarbeiter nach, der sofort neu lud: Bosskampf weg, auf jedem Geraet,
+das gerade offen war. Drei Aenderungen:
+- **Sofort schreiben.** `sichereStandSofort` geht ohne ein einziges `await`
+  davor in den Spielstand-Blob - was vor dem ersten await passiert, passiert
+  noch im `pagehide`-Handler selbst. Der Index zieht spaeter nach.
+- **Nicht mitten im Gefecht neu laden.** GameScreen setzt
+  `data-im-gefecht="1"` an das `<html>`-Element; main.jsx schiebt das
+  Neuladen auf, bis die Fahne faellt, und holt es dann nach. Ein Attribut
+  statt eines Moduls, weil main.jsx laeuft, bevor React da ist.
+- **Und `pagehide` dazu.** `visibilitychange` ist auf manchen Browsern nicht
+  der letzte Halt.
+Die Absturzkarte behauptet nicht mehr "Dein Spielstand ist sicher", sondern
+sagt, was stimmt: bis zur letzten Sicherung erhalten, ein laufendes Gefecht
+wird beim Verlassen und beim Wegschalten mitgesichert.
+
+**A15 — DER RUECKBLICK WURDE VON KEINER PROBE GEFAHREN.** Die
+Navigationsprobe behauptet im Kopf "das ganze Haus", und CLAUDE.md hat es
+uebernommen. Der Grund war banal: jede Fahrt beginnt mit einem frischen
+Konto auf Liga 1, und den ‹-Knopf gibt es dort gar nicht. Der Absturz A3
+(`paintedById` ohne Import) stand deshalb wochenlang genau in diesem
+Fenster, waehrend die Kette gruen war. Die Probe hebt den Stand jetzt vorher
+auf Liga 3 und faehrt den ganzen Weg: zurueckblaettern, ›, drei
+Rueckblickfenster, Freundschaftskampf betreten und verlassen, Weltkarte,
+"Hierhin reisen".
+
+**Beim Bauen dieser Erweiterung zweimal selbst in die Falle getappt**, die
+A15 beschreibt: der erste Lauf uebersprang den ›-Schritt stumm (nach dem
+Freundschaftskampf ist der Schirm neu aufgebaut und steht wieder auf der
+hoechsten Liga - dort gibt es kein › mehr), und der Reiseknopf heisst
+"Hierhin reisen", nicht "Reisen" - das Muster traf ihn nie. Beide Schritte
+liefen gruen durch, ohne stattzufinden. Jetzt meldet sich JEDER ausgefallene
+Schritt laut, und die Welten auf der Weltkarte werden im DOM gesucht statt
+an einer geratenen Bildschirmstelle angeklickt.
+
+**A24 — DIE DATENSCHUTZERKLAERUNG WAR VOM BETRIEB WEGGELAUFEN.** Gemessen,
+nicht vermutet: §8 versprach "inaktive Eintraege werden entfernt" und
+"Server-Sicherungskopien bis zu 14 Tage" - der Worker macht beides nicht.
+§5 nannte die Spielstatistik (neun Felder) und die Spracheinstellung nicht,
+die er sehr wohl speichert, und die Namenspruefung ueber `/name-frei` fehlte
+ganz. §2 fuehrte einen Install-Merker, den es seit v1.0.6 nicht mehr gibt.
+Alles nachgezogen, Stand-Datum auf den 29.9. Neu ist die PROBE dazu: sie
+liest `STAT_KEYS` und `DAILY_KEEP_MS` aus dem Worker und verlangt fuer jedes
+gespeicherte Feld einen Beleg im Text. Laeuft der Code weiter, wird sie rot,
+statt dass der Text still falsch wird.
+
+**A26 — DIE UMLEITUNGSFUNKTION FROR ALTE INSTALLATIONEN EIN.** In
+`_routes.json` stand `include: ["/*"]` mit einer Ausnahmeliste fuer
+Bilderordner - also lief auch `/sw.js` durch sie. Die
+Dienstarbeiter-Spezifikation holt das Skript mit redirect mode "error": ein
+301 ist fuer sie ein GESCHEITERTER Abgleich, die alte Registrierung bleibt
+stehen. Wer vor v1.61.0 auf grandgambit.win installiert hat - darunter das
+Testhandy des Besitzers -, bekam so nie wieder eine neue Fassung. Dazu
+belastete jeder Abgleich (alle 60 s je offenem Tab) das Kontingent der
+Pages-Funktionen. Jetzt eine ERLAUBNISLISTE mit fuenf Seiten, sw.js
+ausdruecklich ausgenommen. Sauber waere eine Redirect Rule in der
+Cloudflare-Zone und die Funktion geloescht - das braucht einen Griff im
+Dashboard.
+
+**A27 — DIE CI FUHR NUR EIN DRITTEL DER KETTE.** Es fehlten `test_boot.mjs`,
+`build:app`, `pruefe-sperrsitz` und beide Fahrproben - also genau die
+Proben, die Abstuerze im laufenden Spiel finden. Jetzt laeuft alles, was
+ohne den Cloud-Container geht; den Chromium holt sich der Runner selbst
+(`playwright-core install`, Pfad ueber `PW_CHROMIUM`). **Was sie weiterhin
+nicht kann, steht jetzt in ihr selbst und in CLAUDE.md: sie sperrt den
+Deploy NICHT.** Cloudflare baut bei jedem Push und fragt das Ergebnis nicht
+ab.
+
+**Gegengeprueft:** gegen v1.90.10 sind 19 Pruefungen in test_saves und 19 in
+test_worker rot - darunter der eigentliche Verlust ("der juengere
+Fortschritt steht unveraendert im Speicher").
+
 ## 1.90.10 - die Buende wirken jetzt wirklich im Gefecht, und Geleit und Faehrte kennen den Koenig
 
 **A9 — DIE BUENDE WIRKTEN IM GEFECHT NIE.** `state.buende` wurde von KEINER

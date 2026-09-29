@@ -39,14 +39,14 @@ gambitrise.com zeigt darauf).
   pruefe-navigation, pruefe-textfluss, test_layout) lesen den Chromium-Pfad aus
   `PW_CHROMIUM`; ohne die Variable gilt der Pfad des Cloud-Containers. Lokal:
   `npx playwright install chromium` und `PW_CHROMIUM=<Pfad zur chrome-Datei>`.
-- `npm test` — volle Batterie. MUSS **28 Suiten / 2284 Prüfungen** melden
-  (Stand v1.90.10; der Runner stoppt nach der ersten roten Suite, also
+- `npm test` — volle Batterie. MUSS **28 Suiten / 2333 Prüfungen** melden
+  (Stand v1.90.11; der Runner stoppt nach der ersten roten Suite, also
   Suitenzahl prüfen, nicht nur Assertions! Zählweise: alle Zeilen
   `RESULT…: N passed` summieren — test_balance meldet zwei, darum stehen im
   Log 29 RESULT-Zeilen für 28 Suiten). **Seit v1.89.9 läuft
   `tools/pruefe-bezeichner.mjs` in der Batterie mit**, direkt hinter
   `npm run ui` (dort entsteht das Bundle `.uitest.mjs`, das die Probe liest).
-  Sie gibt KEINE RESULT-Zeile aus — die Zählung bleibt also bei 28/2284 —,
+  Sie gibt KEINE RESULT-Zeile aus — die Zählung bleibt also bei 28/2333 —,
   bricht die Kette aber, sobald im Bundle ein freier Bezeichner auftaucht.
   Das ist die Klasse der Abstürze A3/A4: gültiges JavaScript, das erst beim
   Rendern als ReferenceError hochgeht.
@@ -71,6 +71,14 @@ gambitrise.com zeigt darauf).
   Spiel verlassen, inklusive der Rückfrage „Kampf verlassen?"), alle vier
   Reiter, Schnelles Spiel, Akademie, Online-Duell, die Unterreiter im
   Figuren-Schirm und die Zurück-Geste. `RUNDEN=5` für längere Läufe.
+  **Seit v1.90.11 (Audit A15) fährt sie auch den RÜCKBLICK** — vorher tat sie
+  es nicht, und dieser Text behauptete trotzdem „das ganze Haus". Der Grund
+  war banal: jede Fahrt beginnt mit einem frischen Konto auf Liga 1, und den
+  ‹-Knopf gibt es dort gar nicht (`viewLeague > 1`). Der Absturz A3
+  (`paintedById` ohne Import) stand deshalb wochenlang im Rückblickfenster,
+  während die Kette grün war. Jetzt hebt die Probe den Stand vorher auf
+  Liga 3 und fährt: zurückblättern, ›, Rückblickfenster öffnen,
+  Freundschaftskampf betreten und verlassen, Weltkarte, „Hierhin reisen".
   Braucht `dist/` mit der App, also **nach `npm run build:app`**
   (oder `npx vite build`).
   **Der Kopf der Datei ist Pflichtlektüre, bevor man sie ändert:** fünf
@@ -141,6 +149,13 @@ starten, sonst reißen Werkzeug-Zeitlimits den Lauf ab.
    ist alles EINE Zeile). Echtes Bundle via `ls -S dist/assets/index-*.js`
    (das erste Ergebnis ohne -S ist oft der 5-KB-Stub). Cloudflare-Hashes
    weichen von lokalen ab — NIE per Hash vergleichen, nur per Marker.
+
+**DIE CI SPERRT DEN DEPLOY NICHT** (Audit A27). Cloudflare Pages baut bei
+JEDEM Push auf main und fragt das Ergebnis von `.github/workflows/ci.yml`
+nicht ab — ein roter Lauf hält nichts auf. Seit v1.90.11 fährt die CI
+immerhin die ganze Kette (vorher fehlten `test_boot.mjs`, `build:app` und
+beide Fahrproben), aber sie ist ein Netz UNTER der Handarbeit, kein Tor
+davor. Die eiserne Kette bleibt Pflicht der jeweiligen Sitzung.
 
 Versionsnummer in package.json bei jedem inhaltlichen Release erhöhen;
 Changelog-Zeile deutsch, benennt die Ursache.

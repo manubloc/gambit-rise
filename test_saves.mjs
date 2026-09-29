@@ -2,7 +2,8 @@
 import { ensureAccounts, register, login, loginGuest, findAccount, hashPass, normEmail, validEmail, mkAccount,
   changePassword, adminHasDefaultPass, ADMIN_EMAIL, ADMIN_SALT, ADMIN_HASH, currentAccount, clearSession, deleteAccount } from "./src/meta/accounts.js";
 import { createSave, listSaves, loadSave, writeSave, deleteSave, renameSave,
-  progressPct, withProgressPct, leagueOrder, migrateLegacyInto, fmtPlaytime } from "./src/meta/saves.js";
+  progressPct, withProgressPct, leagueOrder, migrateLegacyInto, fmtPlaytime,
+  merkeStand, vergissStand, sichereStandSofort } from "./src/meta/saves.js";
 import { defaultProfile } from "./src/meta/profile.js";
 import { storage } from "./src/platform/index.js";
 import { hashPin, verifyPin } from "./src/platform/crypto.web.js";
@@ -640,6 +641,138 @@ const ohneSubtle = (() => {
   const frisch = await ensureAccounts();
   ok("A18: ein LEERER Speicher saet weiterhin den Admin", frisch.length === 1 && frisch[0].isAdmin);
   await storage.set("accounts:v1", JSON.stringify(vorherige), false);
+}
+
+/* ── v1.90.11 (Audit A17): ZWEI FENSTER, EIN SPIELSTAND ────────────────
+   Bis v1.90.10 las `writeSave` den Index, tauschte die eigene Zeile aus und
+   schrieb blind zurueck. Das aeltere Fenster ueberschrieb damit alles, was
+   das juengere seither erspielt hatte - lautlos, alle 30 Sekunden.
+
+   GEGENGEPRUEFT: gegen v1.90.10 bricht dieser Block schon beim IMPORT ab,
+   `merkeStand` gab es nicht. Und ohne den Riegel liefert der zweite Schreib-
+   vorgang den Eintrag statt `{fremd:true}`, und `gold` steht danach auf dem
+   ALTEN Wert - genau der Verlust, um den es geht.
+
+   Zwei Fenster werden hier so gespielt, wie es der Speicher sieht: dieselbe
+   Kontokennung, derselbe Stand, aber ein Merker, der nach dem Oeffnen nicht
+   mehr nachgezogen wird (`vergissStand` = "dieses Fenster hat gerade erst
+   geoeffnet und weiss vom anderen nichts"). */
+{
+  const konto = await mkAccount("a17@test.de", "wort1234");
+  const e = await createSave(konto.id, "A17", { ...defaultProfile(), gold: 10 });
+
+  /* Fenster A oeffnet den Stand - und setzt seinen Merker darauf. */
+  merkeStand(konto.id, e);
+  const nachA = await writeSave(konto.id, e.id, { ...defaultProfile(), gold: 100 });
+  ok("A17: das erste Fenster schreibt ganz normal", !!nachA && nachA.id === e.id);
+
+  /* Fenster B hat denselben Stand geoeffnet, BEVOR A schrieb: sein Merker
+     steht noch auf dem alten updatedAt. So sieht das zweite Fenster aus. */
+  const alt = (await listSaves(konto.id)).find((x) => x.id === e.id);
+  merkeStand(konto.id, { id: e.id, updatedAt: (alt.updatedAt || 0) - 1000 });
+  const nachB = await writeSave(konto.id, e.id, { ...defaultProfile(), gold: 7 });
+  ok("A17: das zweite Fenster schreibt NICHT, sondern meldet den fremden Stand",
+    !!nachB && nachB.fremd === true && !nachB.id);
+  ok("A17: und der juengere Fortschritt steht unveraendert im Speicher",
+    (await loadSave(konto.id, e.id)).gold === 100);
+  ok("A17: die Meldung traegt den fremden Eintrag mit, damit die App ihn zeigen kann",
+    !!nachB.eintrag && nachB.eintrag.id === e.id);
+
+  /* Nach dem Neuladen setzt B auf dem echten Stand auf und darf wieder. */
+  const jetzt = (await listSaves(konto.id)).find((x) => x.id === e.id);
+  merkeStand(konto.id, jetzt);
+  const nachC = await writeSave(konto.id, e.id, { ...defaultProfile(), gold: 250 });
+  ok("A17: wer neu aufsetzt, schreibt wieder", !!nachC && nachC.id === e.id
+    && (await loadSave(konto.id, e.id)).gold === 250);
+
+  /* Der GAST-Teilfall: das andere Fenster hat den Stand geloescht. Bisher kam
+     dasselbe `null` wie bei einem Speicherfehler zurueck, und App.jsx
+     verschluckte es - das Fenster sicherte ab da still gar nichts mehr. */
+  await deleteSave(konto.id, e.id);
+  const nachWeg = await writeSave(konto.id, e.id, { ...defaultProfile(), gold: 1 });
+  ok("A17: ein geloeschter Stand meldet sich als 'weg', nicht als stilles null",
+    !!nachWeg && nachWeg.weg === true);
+
+  /* Ohne Merker - etwa in einer Probe, die direkt schreibt - gilt der erste
+     Schreibvorgang als Uebernahme. Sonst waeren alle aelteren Proben rot. */
+  const e2 = await createSave(konto.id, "A17b", { ...defaultProfile(), gold: 5 });
+  vergissStand(konto.id, e2.id);
+  const ohne = await writeSave(konto.id, e2.id, { ...defaultProfile(), gold: 55 });
+  ok("A17: ohne Merker gilt der erste Schreibvorgang als Uebernahme",
+    !!ohne && ohne.id === e2.id && (await loadSave(konto.id, e2.id)).gold === 55);
+
+  /* Und die App verschluckt die beiden Meldungen nicht mehr. */
+  const app = await import("node:fs").then((fs) => fs.readFileSync("src/app/App.jsx", "utf8"));
+  ok("A17: App.jsx merkt sich beim Oeffnen, auf welchem Stand es aufsetzt",
+    app.includes("merkeStand(account.id, eintrag)"));
+  ok("A17: und wertet das Ergebnis jeder Sicherung aus, statt es zu verwerfen",
+    app.includes("const nachSicherung = (e) =>") && app.includes("setFremdesFenster(e.weg ? \"weg\" : \"fremd\")")
+    && !app.includes("writeSave(account.id, slot.id, profile, add).then((e) => e &&"));
+  ok("A17: es gibt eine Karte, die es dem Spieler sagt",
+    app.includes("if (fremdesFenster) {") && /anderen Fenster gespielt/.test(app));
+}
+
+/* ── v1.90.11 (Audit A19): DAS GEFECHT UEBERLEBT DAS ENTLADEN ──────────
+   Bis v1.90.10 lag ein laufendes Gefecht nur im React-Zustand. `pauseNow`
+   schickte PAUSE_MATCH los; geschrieben wurde erst im Persist-Effekt NACH
+   dem naechsten Commit - und den gibt es beim Entladen der Seite nicht mehr.
+   Jeder Push auf main schiebt binnen Minuten einen frischen Dienstarbeiter
+   nach, der sofort neu lud: Bosskampf weg, auf jedem offenen Geraet.
+
+   Hier wird der eine Weg geprueft, der ohne `await` auskommt, und die drei
+   Stellen, die ihn benutzen bzw. das Neuladen aufschieben.
+   GEGENGEPRUEFT: gegen v1.90.10 gibt es `sichereStandSofort` nicht - der
+   Block bricht beim Import ab; und alle Quelltext-Pruefungen sind rot. */
+{
+  const konto = await mkAccount("a19@test.de", "wort1234");
+  const e = await createSave(konto.id, "A19", { ...defaultProfile(), gold: 10 });
+  merkeStand(konto.id, e);
+
+  /* Der entscheidende Punkt: KEIN await davor. Was vor dem ersten await
+     passiert, passiert noch im pagehide-Handler selbst. */
+  const laufend = { ...defaultProfile(), gold: 10, pausedMatch: { v: 1, nodeId: "L02s03", enc: "XYZ" } };
+  const r = sichereStandSofort(konto.id, e.id, laufend);
+  ok("A19: die Sofortsicherung meldet Erfolg", r === true);
+  const roh = (await storage.get(`save:${konto.id}:${e.id}`, false))?.value;
+  ok("A19: und der Stand steht SCHON im Speicher, ohne dass jemand gewartet hat",
+    !!roh && JSON.parse(roh).pausedMatch?.nodeId === "L02s03");
+  ok("A19: er ist ueber den normalen Weg wieder lesbar",
+    (await loadSave(konto.id, e.id))?.pausedMatch?.enc === "XYZ");
+  ok("A19: ohne Konto, Stand oder Profil passiert gar nichts",
+    sichereStandSofort(null, e.id, laufend) === false
+    && sichereStandSofort(konto.id, null, laufend) === false
+    && sichereStandSofort(konto.id, e.id, null) === false);
+  /* Und sie stoert den Zwei-Fenster-Riegel aus A17 nicht: der Index blieb
+     unberuehrt, also darf das normale Schreiben danach weiterlaufen. */
+  const danach = await writeSave(konto.id, e.id, { ...laufend, gold: 44 });
+  ok("A19: der normale Schreibweg laeuft danach weiter (A17-Riegel bleibt zu)",
+    !!danach && danach.id === e.id);
+
+  const fs = await import("node:fs");
+  const gs = fs.readFileSync("src/app/ui/screens/GameScreen.jsx", "utf8");
+  const app = fs.readFileSync("src/app/App.jsx", "utf8");
+  const main = fs.readFileSync("src/app/main.jsx", "utf8");
+
+  ok("A19: pauseNow reicht den Pausenstand sofort nach draussen",
+    /dispatch\(\{ type: "PAUSE_MATCH", data \}\);/.test(gs) && gs.includes("if (onGefechtSichern) onGefechtSichern(data);"));
+  ok("A19: und haengt auch an pagehide, nicht nur an visibilitychange",
+    gs.includes('window.addEventListener("pagehide", weg)') && gs.includes('window.removeEventListener("pagehide", weg)'));
+  ok("A19: App.jsx schreibt den Pausenstand ohne Umweg ueber den Persist-Effekt",
+    app.includes("const sichereGefecht = (pausedMatch) =>") && app.includes("sichereStandSofort(account.id, slot.id,"));
+  ok("A19: und reicht ihn an JEDEN GameScreen durch",
+    (app.match(/onGefechtSichern=\{sichereGefecht\}/g) || []).length === (app.match(/<GameScreen /g) || []).length);
+  ok("A19: GameScreen setzt die Gefecht-Fahne, solange kein Ergebnis steht",
+    gs.includes('document.documentElement.dataset.imGefecht = "1"')
+    && gs.includes("delete document.documentElement.dataset.imGefecht"));
+  ok("A19: main.jsx laedt nicht neu, solange die Fahne steht",
+    main.includes("function ladeNeu(fn)") && main.includes("ladeNeu(() => window.location.reload())")
+    && !/controllerchange", \(\) => \{\n    if \(reloaded\) return; reloaded = true; window\.location\.reload\(\);/.test(main));
+  ok("A19: und holt das Neuladen nach, sobald sie faellt",
+    main.includes('attributeFilter: ["data-im-gefecht"]') && main.includes("if (nachholen && !imGefecht())"));
+  ok("A19: auch der Umweg ueber unregister wartet das Gefecht ab",
+    main.includes("r.unregister().then(() => ladeNeu(() => window.location.reload()))"));
+  ok("A19: und die Absturzkarte behauptet nicht mehr, der Spielstand sei sicher",
+    !main.includes("Dein Spielstand ist sicher") && main.includes("bis zur letzten Sicherung erhalten"));
 }
 
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);

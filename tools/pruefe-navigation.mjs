@@ -21,6 +21,14 @@
    weitergefahren. Eine Probe, die Erwartetes als Fehler meldet, wird
    ignoriert und ist dann wertlos.
 
+   SEIT v1.90.11 (Audit A15) FAEHRT SIE AUCH DEN RUECKBLICK. Vorher tat sie
+   es nicht, behauptete im Kopf aber "das ganze Haus" - und CLAUDE.md hat es
+   uebernommen. Der Grund war banal: jede Fahrt beginnt mit einem frischen
+   Konto auf Liga 1, und der ‹-Knopf existiert dort gar nicht. Der Absturz A3
+   (paintedById ohne Import) stand deshalb wochenlang im Rueckblickfenster,
+   waehrend die Kette gruen war. Jetzt wird der Stand vor der ersten Runde
+   auf Liga 3 gehoben.
+
    AUFRUF: node tools/pruefe-navigation.mjs   (RUNDEN=5 fuer laengere Laeufe)
    Vorher `npx vite build` oder `npm run build:app`, damit dist/ die APP
    traegt. Nach `npm run build` liegt dort die Landingpage - dann bricht die
@@ -183,6 +191,41 @@ for (let i = 0; i < 10; i++) {
 }
 await zustand("nach dem Einstieg");
 console.log("   Einstieg: im Hub");
+
+/* ── v1.90.11 (Audit A15): DER RUECKBLICK WURDE NIE GEFAHREN ────────────
+   Diese Probe behauptete im Kopf "das ganze Haus", und CLAUDE.md hat es
+   uebernommen. Sie faengt aber mit einem frischen Konto an, und ein frisches
+   Konto steht auf Liga 1 - dort gibt es den ‹-Knopf gar nicht
+   (CampaignScreen.jsx: `viewLeague > 1 && ...`). Der Rueckblick, in dem der
+   Absturz A3 wochenlang stand (`paintedById` ohne Import), lag damit
+   ausserhalb JEDER Probe: die Kette war gruen, das Fenster stuerzte ab.
+
+   Also wird der Stand hier angehoben - direkt im Speicher, wie es ein
+   Spieler nach zwei Kapiteln haette. Das Profil liegt unter
+   `gambit:u::save:<konto>:<stand>`; angefasst wird nur die Liga, alles
+   andere bleibt, wie die App es angelegt hat. Danach ein Neuladen, damit
+   die App den Stand frisch liest. */
+schritt = "Rueckblick vorbereiten";
+const liga = await page.evaluate(() => {
+  try {
+    const P = "gambit:u::save:";
+    const k = Object.keys(localStorage).filter((x) => x.startsWith(P));
+    if (!k.length) return { fehler: "kein Spielstand im Speicher" };
+    const prof = JSON.parse(localStorage.getItem(k[0]));
+    prof.campaign = prof.campaign || {};
+    prof.campaign.league = 3;
+    localStorage.setItem(k[0], JSON.stringify(prof));
+    return { liga: prof.campaign.league, schluessel: k.length };
+  } catch (e) { return { fehler: String(e && e.message || e) }; }
+});
+if (liga.fehler) melde("Rueckblick nicht vorbereitbar: " + liga.fehler);
+else {
+  await page.reload({ waitUntil: "networkidle" });
+  await page.waitForTimeout(2500);
+  for (let i = 0; i < 6; i++) { if (!(await klick("Los geht|Verstanden|Beginnen|Weiterspielen"))) break; await page.waitForTimeout(700); }
+  await zustand("nach dem Anheben auf Liga 3");
+  console.log(`   Spielstand steht auf Liga ${liga.liga} - der Rueckblick ist erreichbar`);
+}
 
 // ── Runden ─────────────────────────────────────────────────────────────────
 for (let runde = 1; runde <= RUNDEN; runde++) {
@@ -402,6 +445,142 @@ for (let runde = 1; runde <= RUNDEN; runde++) {
     }
   } else await wiederHinein();
 }
+
+/* ── v1.90.11 (Audit A15): DER RUECKBLICK, EINMAL GANZ DURCH ───────────
+   ‹ blaettert in ein frueheres Kapitel. Dort erscheint NICHT das gewoehnliche
+   Stationsfenster, sondern ein zweites, schlichtes - das Rueckblickfenster
+   (CampaignScreen.jsx um Z. 1180). Genau dort stand A3. Gefahren wird der
+   ganze Weg: zurueckblaettern, eine Station antippen, den Freundschaftskampf
+   betreten und wieder heraus, dann › nach vorn und ueber die Weltkarte
+   zurueck. Jeder Konsolenfehler unterwegs zaehlt wie ueberall in dieser
+   Probe als Absturz. */
+schritt = "Rueckblick";
+console.log("\n== RUECKBLICK (Audit A15) ==");
+if ((await stationen()) >= 4 || (await zurKarte())) {
+  /* Der ‹-Knopf traegt keinen Text, nur ein Zeichen - er wird ueber seine
+     Lage gefunden: runder Knopf oben links im Kartenrahmen, 40x40.
+     GEMESSEN, nicht geraten: daneben sitzen der lila Atlas-Knopf (Weltkarte)
+     und rechts der ›-Knopf, alle drei gleich gross. Unterschieden wird an
+     der x-Lage - der Atlas steht ganz links, ‹ direkt dahinter. */
+  const runde40 = async () => page.evaluate(() => [...document.querySelectorAll("button")]
+    .map((b, i) => { const r = b.getBoundingClientRect(); return { i, x: Math.round(r.x), y: Math.round(r.y), w: Math.round(r.width), h: Math.round(r.height) }; })
+    .filter((b) => b.w >= 36 && b.w <= 44 && b.h >= 36 && b.h <= 44 && b.y < 220)
+    .sort((a, b2) => a.x - b2.x));
+  const knoepfe = await runde40();
+  if (knoepfe.length < 2) melde(`der Rueckblick-Pfeil ist nicht zu finden (${knoepfe.length} runde Knoepfe oben)`);
+  else {
+    await page.evaluate((i) => { const b = [...document.querySelectorAll("button")][i]; b && b.click(); }, knoepfe[1].i);
+    await page.waitForTimeout(1800);
+    const z1 = await zustand("Rueckblick: ein Kapitel zurueck");
+    if (!z1.tot && !z1.draussen) {
+      console.log("   ein Kapitel zurueckgeblaettert");
+      /* › und wieder ‹ - beides SOFORT, solange der Schirm noch im
+         Rueckblick steht. Hinter dem Freundschaftskampf baut sich
+         CampaignScreen neu auf und steht wieder auf der hoechsten Liga:
+         dort gibt es kein › mehr, und die Pruefung uebersprang sich selbst,
+         ohne ein Wort zu sagen (gemessen im ersten Lauf). */
+      const vor = await runde40();
+      if (vor.length < 3) melde(`im Rueckblick fehlt der Vorwaerts-Pfeil (${vor.length} runde Knoepfe statt 3)`);
+      else {
+        await page.evaluate((i) => { const b = [...document.querySelectorAll("button")][i]; b && b.click(); }, vor[vor.length - 1].i);
+        await page.waitForTimeout(1500);
+        if (!(await zustand("Rueckblick: wieder nach vorn")).tot) console.log("   wieder nach vorn geblaettert");
+        const zur = await runde40();
+        if (zur.length >= 2) {
+          await page.evaluate((i) => { const b = [...document.querySelectorAll("button")][i]; b && b.click(); }, zur[1].i);
+          await page.waitForTimeout(1500);
+          await zustand("Rueckblick: erneut zurueck");
+        }
+      }
+      /* Stationen im frueheren Kapitel antippen - dort oeffnet das
+         Rueckblickfenster. Es hat KEIN Kreuz, es schliesst durch einen
+         Klick daneben; also wird nach jedem Fenster auf die Karte getippt. */
+      let gesehen = 0, gestartet = false;
+      for (let s2 = 0; s2 < 8 && gesehen < 3; s2++) {
+        if (!(await stationKlick(s2))) break;
+        await page.waitForTimeout(1000);
+        if ((await zustand(`Rueckblickfenster ${s2 + 1}`)).tot) break;
+        gesehen++;
+        /* Genau EINMAL auch hineingehen: "Freundschaftskampf" ist der einzige
+           Knopf des Rueckblickfensters, und er fuehrt in ein echtes Gefecht. */
+        if (!gestartet && (await klick("Freundschaftskampf|Friendly"))) {
+          gestartet = true;
+          await page.waitForTimeout(3200);
+          if (!(await zustand("Freundschaftskampf aus dem Rueckblick")).tot) {
+            console.log("   Freundschaftskampf aus dem Rueckblick betreten");
+            if (await klick("Zurück|Zurueck|Verlassen")) {
+              await page.waitForTimeout(700);
+              await klick("Pausieren & wechseln|Pausieren|Verlassen");
+            } else await page.goBack().catch(() => {});
+            await page.waitForTimeout(2200);
+            const zr = await zustand("zurueck aus dem Freundschaftskampf");
+            if (zr.draussen) { await wiederHinein(); break; }
+          }
+          /* GEMESSEN (erster Lauf dieser Erweiterung): nach dem Verlassen
+             des Freundschaftskampfs steht die Karte oft SCHON da. Wer dann
+             blind zurKarte() ruft, sucht den Knopf "Kampagne" im Hub und
+             meldet ihn als fehlend - ein Fehler, der keiner ist. Also erst
+             nachsehen, ob die Karte da ist. */
+          if ((await stationen()) < 4 && !(await zurKarte())) break;
+          await page.waitForTimeout(600);
+          continue;
+        }
+        await page.mouse.click(12, 400);       // daneben tippen schliesst es
+        await page.waitForTimeout(700);
+        if ((await zustand(`Karte nach Rueckblickfenster ${s2 + 1}`)).tot) break;
+      }
+      console.log(`   ${gesehen} Rueckblickfenster geoeffnet${gestartet ? ", eines bespielt" : ""}`);
+
+      /* Ueber die Weltkarte zurueck ins Kapitel. Der Knopf heisst
+         "Hierhin reisen" bzw. "Du bist hier - zur Karte" (strings.js:
+         camp.worldTravel / camp.worldHere) - GEMESSEN, nachdem ein Muster
+         auf "Reisen" ihn nicht traf und der Schritt sich stumm uebersprang.
+         Genau diese Stille ist der Befund von A15, also meldet jeder
+         ausgefallene Schritt sich ab jetzt laut. */
+      if ((await stationen()) < 4 && !(await zurKarte())) melde("nach dem Rueckblick fuehrt kein Weg zurueck auf die Karte");
+      else {
+        const k3 = await runde40();
+        if (!k3.length) melde("der Weltkarten-Knopf ist auf der Karte nicht zu finden");
+        else {
+          await page.evaluate((i) => { const b = [...document.querySelectorAll("button")][i]; b && b.click(); }, k3[0].i);
+          await page.waitForTimeout(1800);
+          const zw = await zustand("Weltkarte");
+          if (!zw.tot && !zw.draussen) {
+            console.log("   Weltkarte geoeffnet");
+            /* Eine erreichte Welt antippen, damit das Lore-Blatt mit dem
+               Reiseknopf erscheint. GEMESSEN, nachdem ein blinder Klick in
+               die Bildmitte nie traf: die zwoelf Welten sind absolut
+               gesetzte Punkte IM Querscroller (CampaignScreen.jsx:1083,
+               `left: x%, top: y%, translate(-50%,-50%)`, nur die erreichten
+               mit `cursor: pointer`). Sie werden im DOM gesucht und direkt
+               angeklickt, statt auf eine Bildschirmstelle zu hoffen. */
+            const welten = await page.evaluate(() => {
+              const w = [...document.querySelectorAll("div")].filter((d) => {
+                const st = d.getAttribute("style") || "";
+                return /cursor: ?pointer/.test(st) && /translate\(-50%, ?-50%\)/.test(st) && /left: ?[\d.]+%/.test(st);
+              });
+              w.forEach((d, i) => d.setAttribute("data-welt", String(i)));
+              return w.length;
+            });
+            if (!welten) melde("auf der Weltkarte ist keine erreichte Welt anklickbar");
+            for (let i = 0; i < Math.min(welten, 3); i++) {
+              await page.evaluate((n) => { const d = document.querySelector(`[data-welt="${n}"]`); d && d.click(); }, i);
+              await page.waitForTimeout(900);
+              if (await page.evaluate(() => /Hierhin reisen|Du bist hier|Travel here|You are here/.test(document.body.innerText || ""))) break;
+            }
+            if (!(await klick("Hierhin reisen|Du bist hier|Travel here|You are here")))
+              melde("auf der Weltkarte erscheint kein Reiseknopf - das Lore-Blatt oeffnet sich nicht");
+            else {
+              await page.waitForTimeout(1800);
+              const zr2 = await zustand("nach dem Reisen");
+              if (!zr2.tot && !zr2.draussen) console.log("   ueber die Weltkarte gereist");
+            }
+          }
+        }
+      }
+    }
+  }
+} else melde("die Karte liess sich fuer den Rueckblick nicht oeffnen");
 
 await browser.close(); srv.close();
 

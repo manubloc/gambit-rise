@@ -870,5 +870,109 @@ const hmac2 = async (key, data) => { const k = await subtle.importKey("raw", key
     (hall.handle("a", { t: "queue", maps: ["classic"], army: ["p"] }), hall.queue.length === 1));
 }
 
+/* ── v1.90.11 (Audit A24): DIE ERKLAERUNG AN DEN CODE BINDEN ───────────
+   Die Datenschutzerklaerung ist bis v1.90.10 vom Betrieb weggelaufen, weil
+   nichts sie festhielt: §8 versprach "inaktive Eintraege werden entfernt"
+   und "Server-Sicherungskopien bis zu 14 Tage" - beides macht der Worker
+   nicht. §5 nannte die Spielstatistik und die Sprache nicht, die er sehr
+   wohl speichert. §2 fuehrte einen Install-Merker, den es seit v1.0.6 nicht
+   mehr gibt.
+
+   Diese Probe ist kein Rechtsgutachten. Sie prueft genau das, was maschinell
+   pruefbar ist: JEDER Schluessel, den `savePlayer` ablegt, muss in §5 einen
+   Beleg haben - und die beiden gestrichenen Zusagen duerfen nicht
+   zurueckkommen. Laeuft der Code weiter, wird sie rot, nicht der Text still
+   falsch. */
+{
+  const fs = await import("node:fs");
+  const dse = fs.readFileSync("public/privacy.html", "utf8");
+  const wl = fs.readFileSync("worker/src/logic.mjs", "utf8");
+
+  /* Was legt der Worker am Spielereintrag wirklich ab? Aus dem Code gelesen,
+     nicht aus dem Gedaechtnis: die STAT_KEYS-Zeile. */
+  const statZeile = (wl.match(/const STAT_KEYS = \[([^\]]*)\]/) || [])[1] || "";
+  const stats = statZeile.split(",").map((x) => x.trim().replace(/"/g, "")).filter(Boolean);
+  ok("A24: die Statistikfelder lassen sich aus dem Worker lesen", stats.length === 9);
+  const belege = {
+    games: /Anzahl Partien/, wins: /Siege/, losses: /Niederlagen/, draws: /Remis/,
+    league: /Liga/, playtimeSec: /Spielzeit/, stagesCleared: /geklärte Stationen/,
+    bossKills: /besiegte Bosse/, xp: /Erfahrungspunkte/,
+  };
+  const fehlt = stats.filter((k) => !(belege[k] && belege[k].test(dse)));
+  ok("A24: jedes gespeicherte Statistikfeld steht auch in §5 der Erklärung",
+    fehlt.length === 0, fehlt.join(", "));
+
+  ok("A24: die Spracheinstellung wird gespeichert - und ist genannt",
+    /lang: msg\.lang === "en"/.test(wl) && /Spracheinstellung sowie deine Spielstatistik/.test(dse));
+  ok("A24: die Namensprüfung beim Spielserver ist genannt",
+    /name-frei/.test(fs.readFileSync("worker/src/index.mjs", "utf8")) && /ob der Name schon vergeben ist/.test(dse));
+
+  /* Die beiden Zusagen, die der Betrieb nicht einloest. */
+  ok("A24: §8 verspricht keine automatische Löschung inaktiver Konten mehr",
+    !/inaktive Einträge werden entfernt/.test(dse) && /nicht<\/em> statt/.test(dse));
+  ok("A24: und keine 14-tägigen Server-Sicherungskopien, die es nicht gibt",
+    !/Server-Sicherungskopien/.test(dse) && !/14 Tage/.test(dse));
+  /* Was §8 stattdessen sagt, MUSS stimmen: die 30 Tage stehen im Code. */
+  const keep = (wl.match(/const DAILY_KEEP_MS = (\d+) \* 24 \* 60 \* 60 \* 1000/) || [])[1];
+  ok("A24: die genannte Frist für beendete Fernpartien ist die aus dem Code",
+    keep === "30" && /Fernpartien werden nach 30 Tagen automatisch entfernt/.test(dse));
+
+  ok("A24: der Install-Merker aus §2 ist fort - es gibt ihn im Spiel nicht mehr",
+    !/Install-Hinweis ausgeblendet/.test(dse));
+  ok("A24: und das Stand-Datum ist nachgezogen", /Stand: 29\. September 2026/.test(dse));
+}
+
+/* ── v1.90.11 (Audit A26 + A27): AUSLIEFERUNG ──────────────────────────
+   Zwei Befunde, die kein Spielcode sind und trotzdem echte Nutzer treffen.
+
+   A26: In `public/_routes.json` stand `include: ["/*"]` mit einer
+   AUSNAHMELISTE fuer Bilderordner. Damit lief auch /sw.js durch die
+   Umleitungsfunktion - und ein 301 auf sw.js ist fuer die Spezifikation ein
+   GESCHEITERTER Abgleich (redirect mode "error"): die alte Registrierung auf
+   grandgambit.win blieb fuer immer stehen. Dazu belastete jeder
+   Dienstarbeiter-Abgleich (alle 60 s je Tab) das Kontingent der
+   Pages-Funktionen. Jetzt eine ERLAUBNISLISTE.
+
+   A27: Die CI fuhr nur einen Teil der EISERNEN KETTE - test_boot.mjs,
+   build:app und beide Fahrproben fehlten, also genau die Proben, die
+   Abstuerze im laufenden Spiel finden.
+
+   GEGENGEPRUEFT: gegen v1.90.10 sind alle diese Pruefungen rot. */
+{
+  const fs = await import("node:fs");
+  const routen = JSON.parse(fs.readFileSync("public/_routes.json", "utf8"));
+
+  ok("A26: _routes.json ist eine Erlaubnisliste, kein pauschales /*",
+    Array.isArray(routen.include) && !routen.include.includes("/*") && routen.include.length <= 8);
+  ok("A26: nur Seitenaufrufe laufen durch die Umleitungsfunktion",
+    routen.include.every((r) => /^\/(index\.html|landing\.html|spielen\/(index\.html)?)?$/.test(r)));
+  ok("A26: der Dienstarbeiter ist ausdruecklich ausgenommen - ein 301 auf sw.js friert alte Installationen ein",
+    (routen.exclude || []).includes("/sw.js") && (routen.exclude || []).includes("/spielen/sw.js"));
+  /* Und die Funktion selbst leitet weiterhin nur die alte Domain um. */
+  const mw = fs.readFileSync("functions/_middleware.js", "utf8");
+  ok("A26: die Umleitung gilt weiterhin genau den beiden alten Hostnamen",
+    /new Set\(\["grandgambit\.win", "www\.grandgambit\.win"\]\)/.test(mw) && /return ctx\.next\(\);/.test(mw));
+
+  const ci = fs.readFileSync(".github/workflows/ci.yml", "utf8");
+  for (const [was, muster] of [
+    ["npm test", /- run: npm test\b/],
+    ["npm run build", /- run: npm run build\n/],
+    ["npm run build:app", /- run: npm run build:app/],
+    ["npm run build:single", /- run: npm run build:single/],
+    ["test_boot.mjs", /- run: node test_boot\.mjs/],
+    ["verify-boot.mjs", /- run: node scripts\/verify-boot\.mjs/],
+    ["pruefe-sperrsitz.mjs", /- run: node tools\/pruefe-sperrsitz\.mjs/],
+    ["drive3.mjs", /- run: timeout \d+ node drive3\.mjs/],
+    ["pruefe-navigation.mjs", /- run: node tools\/pruefe-navigation\.mjs/],
+  ]) ok(`A27: die CI faehrt ${was}`, muster.test(ci));
+  ok("A27: build:app steht NACH build - sonst misst drive3 die Landingpage",
+    ci.indexOf("- run: npm run build\n") < ci.indexOf("- run: npm run build:app")
+    && ci.indexOf("- run: npm run build:app") < ci.indexOf("node drive3.mjs"));
+  ok("A27: die Fahrproben bekommen einen Browser, statt auf den Containerpfad zu hoffen",
+    /playwright-core install/.test(ci) && /PW_CHROMIUM=/.test(ci));
+  ok("A27: und die Datei sagt selbst, dass sie den Deploy NICHT sperrt",
+    /sperrt den Deploy NICHT/.test(ci));
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 if (fail) process.exit(1);

@@ -55,12 +55,36 @@ try {
   }).observe(document.documentElement, { childList: true, subtree: true });
 } catch {}
 
+/* ── v1.90.11 (Audit A19): NICHT MITTEN IM GEFECHT NEU LADEN ──────────
+   Jeder Push auf main schiebt binnen Minuten einen frischen Dienstarbeiter
+   nach. Er uebernimmt (skipWaiting + clientsClaim), `controllerchange`
+   feuert, und die Seite lud SOFORT neu - mitten in einem Bosskampf, auf
+   jedem Geraet, das gerade offen war.
+
+   Das Neuladen selbst ist richtig (sonst laufen alte und neue Dateien
+   durcheinander), nur der Zeitpunkt war es nicht. GameScreen setzt waehrend
+   eines Gefechts `data-im-gefecht="1"` an das <html>-Element; faellt die
+   Fahne, wird das aufgeschobene Neuladen nachgeholt. Ein
+   Attribut statt eines Moduls, weil main.jsx bewusst nichts aus der App
+   importiert - es laeuft, bevor React ueberhaupt da ist. */
+const imGefecht = () => { try { return document.documentElement.dataset.imGefecht === "1"; } catch { return false; } };
+let nachholen = null;
+try {
+  new MutationObserver(() => { if (nachholen && !imGefecht()) { const f = nachholen; nachholen = null; f(); } })
+    .observe(document.documentElement, { attributes: true, attributeFilter: ["data-im-gefecht"] });
+} catch {}
+/** Neu laden - aber nicht, solange ein Gefecht laeuft. */
+function ladeNeu(fn) {
+  if (!imGefecht()) { fn(); return; }
+  nachholen = fn;
+}
+
 // belt and braces for INSTALLED apps: the moment a new service worker takes
 // control, reload exactly once — even if the plugin's own hook were missed
 if ("serviceWorker" in navigator) {
   let reloaded = false;
   navigator.serviceWorker.addEventListener("controllerchange", () => {
-    if (reloaded) return; reloaded = true; window.location.reload();
+    if (reloaded) return; reloaded = true; ladeNeu(() => window.location.reload());
   });
 }
 registerSW({
@@ -77,7 +101,8 @@ registerSW({
     const kick = () => {
       if (!r.waiting || sessionStorage.getItem("gg-sw-kick")) return;
       sessionStorage.setItem("gg-sw-kick", "1");
-      r.unregister().then(() => window.location.reload()).catch(() => {});
+      /* v1.90.11 (A19): auch dieser Weg wartet ein laufendes Gefecht ab. */
+      r.unregister().then(() => ladeNeu(() => window.location.reload())).catch(() => {});
     };
     if (r.waiting) setTimeout(kick, 1500);     // stuck from a previous visit
     r.addEventListener("updatefound", () => {
@@ -243,7 +268,8 @@ class Boundary extends Component {
         <div style={{ maxWidth: 380 }}>
           <div style={{ fontSize: 20, letterSpacing: 3, color: "#c9a45c" }}>GAMBIT</div>
           <div style={{ fontSize: 13.5, color: "#8b90a3", margin: "10px 0 16px", lineHeight: 1.5 }}>
-            Da ist etwas schiefgelaufen. Dein Spielstand ist sicher — einmal neu laden hilft meistens.
+            Da ist etwas schiefgelaufen. Dein Fortschritt ist bis zur letzten Sicherung erhalten —
+            ein laufendes Gefecht wird beim Verlassen und beim Wegschalten mitgesichert.
             Der Fehler wurde automatisch vermerkt und hilft uns, die Ursache zu finden.</div>
           <button onClick={() => location.reload()} style={{ fontFamily: "inherit", fontWeight: 700, fontSize: 14,
             padding: "10px 22px", borderRadius: 10, border: "1px solid #c9a45c", background: "#c9a45c",

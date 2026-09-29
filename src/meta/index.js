@@ -33,7 +33,7 @@ export {
   renameAccount, nameFehler, NAME_MIN, NAME_MAX,
 } from "./accounts.js";
 export {
-  listSaves, createSave, loadSave, writeSave, deleteSave, renameSave,
+  listSaves, createSave, loadSave, writeSave, deleteSave, renameSave, merkeStand, vergissStand, sichereStandSofort,
   progressPct, withProgressPct, leagueOrder, summarize as summarizeSave, migrateLegacyInto, fmtPlaytime,
 } from "./saves.js";
 export { cloudConfigured, signInWithGoogle, signInWithProvider, signInEmailCloud, signUpEmailCloud, resumeCloudSession, signOutCloud } from "./cloudAuth.js";

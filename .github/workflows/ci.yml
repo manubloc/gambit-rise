@@ -1,5 +1,15 @@
-# Runs the full deterministic test suite (28 suites / 2072 checks as of v1.89.1, see CLAUDE.md), builds both release
-# artifacts, and boots the single-file build in a sandboxed DOM.
+# Die EISERNE KETTE, so weit sie ein Runner tragen kann (28 Suiten / 2333
+# Pruefungen, Stand v1.90.11 - siehe CLAUDE.md).
+#
+# ── v1.90.11 (Audit A27): WAS DIESE DATEI NICHT KANN ────────────────────
+# Sie sperrt den Deploy NICHT. Cloudflare Pages baut bei JEDEM Push auf main
+# und fragt das Ergebnis dieses Laufs nicht ab - eine rote Kette haelt nichts
+# auf. Der Lauf ist ein Netz unter der Handarbeit, kein Tor davor.
+# Bis v1.90.10 lief hier nur ein TEIL der Kette: test_boot.mjs, build:app und
+# beide Fahrproben fehlten - also genau die Proben, die Abstuerze im
+# laufenden Spiel finden. Jetzt laeuft alles, was ohne den Cloud-Container
+# geht; der Chromium kommt vom Runner selbst (PW_CHROMIUM, sonst greift der
+# fest verdrahtete Containerpfad ins Leere).
 name: CI
 on:
   push: { branches: [main] }
@@ -16,12 +26,28 @@ jobs:
       # Pillow. Lokal ist Pillow da, auf dem Runner nicht - daran ist die CI
       # seit v1.1.9 gescheitert, 52 Laeufe lang, waehrend lokal alles gruen
       # blieb. Die Probe wird NICHT uebersprungen: sie soll auch hier messen.
+      # pruefe-sperrsitz misst am selben Weg (Alphakanal statt Farbe).
       - name: Pillow fuer die Bildmessung
         run: python3 -m pip install --quiet --break-system-packages pillow || python3 -m pip install --quiet pillow
+      # Die Fahrproben brauchen einen echten Browser. Im Cloud-Container liegt
+      # er unter /opt/pw-browsers; hier holt ihn playwright-core selbst und
+      # sagt uns den Pfad, den die Proben ueber PW_CHROMIUM lesen.
+      - name: Chromium fuer die Fahrproben
+        run: |
+          npx playwright-core install --with-deps chromium
+          echo "PW_CHROMIUM=$(node -e "import('playwright-core').then(p => console.log(p.chromium.executablePath()))")" >> "$GITHUB_ENV"
       - run: npm test
       - run: npm run build
+      # build:app stellt die App an die Wurzel von dist/ zurueck - ohne diesen
+      # Schritt meldet drive3 vier Fehler, die es nicht gibt (die Landingpage
+      # hat kein Brett). Teuer gelernt in v1.86.0, siehe CLAUDE.md.
+      - run: npm run build:app
       - run: npm run build:single
+      - run: node test_boot.mjs
       - run: node scripts/verify-boot.mjs
+      - run: node tools/pruefe-sperrsitz.mjs
+      - run: timeout 250 node drive3.mjs
+      - run: node tools/pruefe-navigation.mjs
       - uses: actions/upload-artifact@v7
         with:
           name: grand-gambit-web

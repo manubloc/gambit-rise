@@ -138,6 +138,7 @@ export async function createSave(acc, name, profile = null) {
   list.push(entry);
   await storage.set(SKEY(acc, entry.id), JSON.stringify(prof), false);
   await writeIndex(acc, list);
+  merkeStand(acc, entry);   // v1.90.11 (A17): ein frisch angelegter Stand ist unserer
   return entry;
 }
 
@@ -158,10 +159,45 @@ export async function loadSave(acc, slotId) {
   catch (e) { console.error("Spielstand unlesbar (kein gueltiges JSON)", e); return null; }
 }
 
+/* ── v1.90.11 (Audit A17): ZWEI FENSTER, EIN SPIELSTAND ───────────────
+   `writeSave` las den Index, tauschte die eigene Zeile aus und schrieb
+   blind zurueck - ohne je zu fragen, ob seit dem eigenen Oeffnen jemand
+   anders dort geschrieben hat. Wer die installierte App und einen
+   Browser-Tab desselben Kontos offen hat, verliert damit alles, was das
+   andere Fenster seither erspielt hat: die 30-Sekunden-Sicherung des
+   aelteren Standes ueberschreibt den neueren, lautlos.
+
+   Es gibt dafuer keinen Speicher-Wachhund - `localStorage` kennt kein
+   "vergleiche und tausche". Also merkt sich dieses Modul, auf welchem
+   `updatedAt` es selbst zuletzt aufgesetzt hat. Steht beim naechsten
+   Schreiben ein ANDERER Wert im Index, war ein fremdes Fenster da:
+   dann wird NICHT geschrieben, sondern gemeldet.
+
+   Der Merker wird beim Oeffnen eines Standes gesetzt (`merkeStand`) und
+   bei jedem gelungenen Schreiben nachgezogen. Ist gar nichts gemerkt -
+   etwa in einer Probe, die direkt schreibt -, gilt der erste
+   Schreibvorgang als Uebernahme; geschuetzt sind ab dann alle weiteren. */
+const eigenerStand = new Map();
+const standSchluessel = (acc, slotId) => acc + "\u0000" + slotId;
+
+/** Beim Oeffnen eines Standes festhalten, auf welchem Stand wir aufsetzen. */
+export function merkeStand(acc, eintrag) {
+  if (eintrag && eintrag.id) eigenerStand.set(standSchluessel(acc, eintrag.id), eintrag.updatedAt || 0);
+}
+/** Nur fuer Proben: den Merker vergessen (z. B. um ein zweites Fenster zu spielen). */
+export function vergissStand(acc, slotId) { eigenerStand.delete(standSchluessel(acc, slotId)); }
+
 export async function writeSave(acc, slotId, profile, playtimeAdd = 0) {
   const list = await readIndex(acc);
   const i = list.findIndex((s) => s.id === slotId);
-  if (i < 0) return null;
+  /* v1.90.11 (Audit A17): der Stand ist FORT - ein anderes Fenster hat ihn
+     geloescht (beim Gast raeumt `loginGuest` alle Gast-Staende). Bisher
+     lieferte das dasselbe `null` wie ein Speicherfehler und App.jsx
+     verschluckte beides: das Fenster sicherte ab da still gar nichts mehr. */
+  if (i < 0) return { weg: true };
+  const sk = standSchluessel(acc, slotId);
+  const gemerkt = eigenerStand.get(sk);
+  if (gemerkt != null && (list[i].updatedAt || 0) !== gemerkt) return { fremd: true, eintrag: list[i] };
   list[i] = summarize(list[i], profile, playtimeAdd);
   /* ── v1.90.4 (Audit A51): EIN VERSCHLUCKTER SCHREIBFEHLER LUEGT ───────
      storage.set faengt QuotaExceeded und SecurityError ab und liefert dann
@@ -175,13 +211,38 @@ export async function writeSave(acc, slotId, profile, playtimeAdd = 0) {
   const gelungen = await storage.set(SKEY(acc, slotId), JSON.stringify(profile), false);
   if (!gelungen) { console.error("Spielstand nicht schreibbar (Speicher voll?):", SKEY(acc, slotId)); return null; }
   await writeIndex(acc, list);
+  eigenerStand.set(sk, list[i].updatedAt || 0);   // v1.90.11 (A17): ab hier ist DAS unser Stand
   return list[i];
+}
+
+/* ── v1.90.11 (Audit A19): DER EINE SCHREIBVORGANG, DER NICHT WARTEN DARF
+   Ein laufendes Gefecht lag bis hierher nur im React-Zustand. `pauseNow`
+   schickte ein PAUSE_MATCH los, geschrieben wurde erst im Persist-Effekt
+   NACH dem naechsten Commit - und der kommt beim Entladen der Seite nicht
+   mehr. Jeder Push auf main kann binnen Minuten einen Dienstarbeiter-Neuladen
+   ausloesen; ein Absturz ueber die Fehlergrenze wirkt genauso. Das Gefecht
+   war dann fort, auch ein Bosskampf.
+
+   Dieser Weg schreibt den BLOB direkt und ohne ein einziges `await` davor:
+   `storage.set` reicht fuer den lokalen Fall unmittelbar an
+   `localStorage.setItem` durch, und was VOR dem ersten await passiert,
+   passiert noch im `pagehide`-Handler selbst. Der INDEX (updatedAt,
+   Spielzeit) zieht beim naechsten normalen Schreiben nach - er ist nur
+   Beiwerk, der Stand selbst ist gerettet.
+
+   Absichtlich NICHT ueber `writeSave`: das liest zuerst den Index (ein
+   await), und genau dieses Warten ist beim Entladen nicht mehr sicher. */
+export function sichereStandSofort(acc, slotId, profile) {
+  if (!acc || !slotId || !profile) return false;
+  try { storage.set(SKEY(acc, slotId), JSON.stringify(profile), false); return true; }
+  catch (e) { console.error("Sofortsicherung misslungen", e); return false; }
 }
 
 export async function deleteSave(acc, slotId) {
   const list = (await readIndex(acc)).filter((s) => s.id !== slotId);
   await storage.delete(SKEY(acc, slotId), false);
   await writeIndex(acc, list);
+  vergissStand(acc, slotId);   // v1.90.11 (A17)
 }
 
 export async function renameSave(acc, slotId, name) {

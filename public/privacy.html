@@ -25,7 +25,7 @@
 <body>
 <main>
   <h1>Gambit Rise — Datenschutzerklärung</h1>
-  <p><em>Stand: 5. August 2026</em></p>
+  <p><em>Stand: 29. September 2026</em></p>
   <div class="nav">→ <a href="./terms.html">Nutzungsbedingungen</a> · <a href="./konto-loeschen.html">Konto löschen</a> · <a href="./">zurück zum Spiel</a></div>
 
   <div class="box"><b>Kurzfassung:</b> Gambit Rise läuft in deinem Browser.
@@ -50,7 +50,7 @@
   <ul>
     <li>Spielstände und Fortschritt,</li>
     <li>deinen gewählten Anzeigenamen und die Spracheinstellung,</li>
-    <li>Anzeige-Einstellungen und den Merker „Install-Hinweis ausgeblendet",</li>
+    <li>Anzeige-Einstellungen (Klang, Animationen, Hinweise),</li>
     <li>falls eingerichtet: einen <b>Hashwert</b> deines Spiel-Passworts (niemals das Passwort selbst),</li>
     <li>bei angemeldeten Konten: das Anmelde-Token deiner Sitzung sowie — nur beim Admin-Konto — ein selbst eingetragenes Lese-Token für Fehlerberichte.</li>
   </ul>
@@ -115,12 +115,18 @@
   <p>Der Mehrspieler-Modus ist standardmäßig <b>aus</b>. Erst wenn du dich aktiv
   verbindest (nach gesondertem Hinweis im Spiel), überträgt das Spiel an unseren
   Spielserver: deinen gewählten Anzeigenamen, deine Spielstärke-Punktzahl, deinen
-  zufällig erzeugten Freundes-Code, Freundschafts- und Herausforderungsanfragen sowie
-  die Spielzüge deiner Online-Partien. Am Spielereintrag wird zudem der Zeitpunkt der
+  zufällig erzeugten Freundes-Code, Freundschafts- und Herausforderungsanfragen, die
+  Spielzüge deiner Online-Partien, deine Spracheinstellung sowie deine Spielstatistik
+  (Anzahl Partien, Siege, Niederlagen, Remis, Liga, Spielzeit, geklärte Stationen,
+  besiegte Bosse, Erfahrungspunkte). Am Spielereintrag wird zudem der Zeitpunkt der
   ersten Verbindung („Beitritt") und der letzten Aktivität vermerkt — für die
   Betriebsstatistik des Betreibers, nicht öffentlich sichtbar. Rechtsgrundlage ist die Durchführung des von dir
   gewünschten Spiels (Art. 6 Abs. 1 lit. b DSGVO). Es werden dabei keine
   E-Mail-Adressen oder Klarnamen erhoben.</p>
+  <p>Beim Festlegen oder Ändern deines Anzeigenamens fragt das Spiel beim Spielserver
+  nach, ob der Name schon vergeben ist. Dabei wird nur der gewünschte Name und deine
+  Spielerkennung übertragen; es entsteht kein zusätzlicher Eintrag.</p>
+
   <p>Zusätzlich kannst du im Online-Modus bis zu fünf Spielstand-Sicherungen auf dem
   Server ablegen („Cloud-Sicherung", nur mit deinem Konto abrufbar). Der Spielserver
   läuft als Cloudflare Worker mit Durable Objects (Anbieter: Cloudflare, Inc., siehe
@@ -166,8 +172,10 @@
   <h2>8. Speicherdauer</h2>
   <ul>
     <li>Lokal auf deinem Gerät gespeicherte Daten bleiben, bis du sie selbst löschst.</li>
-    <li>Kontodaten und Cloud-Sicherungen bleiben, bis du sie oder dein Konto löschst; inaktive Einträge werden entfernt.</li>
-    <li>Server-Sicherungskopien zur Ausfallsicherheit werden bis zu 14 Tage aufbewahrt.</li>
+    <li>Kontodaten und Cloud-Sicherungen bleiben, bis du sie oder dein Konto löschst. Eine
+    automatische Löschung inaktiver Konten findet derzeit <em>nicht</em> statt; du kannst
+    dein Konto jederzeit selbst löschen (Abschnitt 10) oder uns darum bitten.</li>
+    <li>Beendete Fernpartien werden nach 30 Tagen automatisch entfernt.</li>
     <li>Verbindungs-Logfiles hält der Hosting-Anbieter nur kurzzeitig zur Absicherung vor.</li>
     <li>Fehlerberichte werden nur in begrenzter Zahl (neueste Einträge) vorgehalten.</li>
   </ul>

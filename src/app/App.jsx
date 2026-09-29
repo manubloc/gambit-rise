@@ -23,7 +23,7 @@ import { rollTag } from "./ui/namen.js";
 import { Wordmark } from "./ui/Brand.jsx";
 import { LoginScreen } from "./ui/screens/LoginScreen.jsx";
 import { GalerieScreen } from "./ui/screens/GalerieScreen.jsx";
-import { currentAccount, clearSession, signOutCloud, resumeCloudSession, writeSave, recordStage } from "../meta/index.js";
+import { currentAccount, clearSession, signOutCloud, resumeCloudSession, writeSave, merkeStand, sichereStandSofort, recordStage } from "../meta/index.js";
 import { OnlineScreen, buildStats } from "./ui/screens/OnlineScreen.jsx";
 import { createNet } from "../platform/net.web.js";
 import { NavIcon, HeartIc, SkillStar, MapIc } from "./ui/icons.jsx";
@@ -270,6 +270,11 @@ export default function App() {
      weiter unten. Traegt den Indexeintrag, damit der Neuanfang weiss, welchen
      Platz er ersetzt. */
   const [ladeFehler, setLadeFehler] = useState(null);
+  /* v1.90.11 (Audit A17): "fremd" = ein anderes Fenster desselben Kontos hat
+     seit unserem Oeffnen geschrieben, "weg" = es hat den Stand geloescht. In
+     beiden Faellen sichern wir NICHTS mehr (sonst geht der fremde Fortschritt
+     verloren) und sagen es - bisher verschluckte `e && ...` beides still. */
+  const [fremdesFenster, setFremdesFenster] = useState(null);
   const [slot, setSlot] = useState(null);           // active save slot (null → save select)
   const [authReady, setAuthReady] = useState(false);
   const playtimeRef = useRef(0);                    // unflushed seconds of visible play
@@ -360,6 +365,7 @@ export default function App() {
            Website-Daten zu loeschen, also ALLE Konten. Jetzt gibt es eine
            Karte mit zwei Wegen. */
         if (!prof) { setLadeFehler(eintrag); return; }
+        merkeStand(account.id, eintrag);   // v1.90.11 (A17): auf DIESEM Stand setzen wir auf
         dispatch({ type: "HYDRATE", profile: prof }); setLocked(!!prof.pin); setSlot(eintrag); setReady(true);
       } catch (e) { console.error("Spielstand konnte nicht geöffnet werden", e); setLadeFehler({ id: "?" }); }
     })();
@@ -389,10 +395,26 @@ export default function App() {
     return () => clearInterval(iv);
   }, []);
 
+  /* ── v1.90.11 (Audit A19): EIN LAUFENDES GEFECHT UEBERLEBT DAS ENTLADEN
+     GameScreen reicht den Pausenstand hier durch, BEVOR die Seite weg ist.
+     Der Umweg ueber den Persist-Effekt reicht dafuer nicht: der laeuft erst
+     nach dem naechsten React-Commit, und den gibt es beim Entladen nicht
+     mehr. Geschrieben wird darum direkt in den Spielstand-Blob - ohne ein
+     await davor, damit es noch im Handler selbst passiert. */
+  const sichereGefecht = (pausedMatch) => {
+    const p = profileRef.current;
+    if (!(account && slot && p)) return;
+    sichereStandSofort(account.id, slot.id, { ...p, pausedMatch: pausedMatch || null });
+  };
+  /* v1.90.11 (Audit A17): eine Stelle fuer das Ergebnis JEDER Sicherung. */
+  const nachSicherung = (e) => {
+    if (e && e.id) { setSlot((sl) => (sl && sl.id === e.id ? e : sl)); return; }
+    if (e && (e.fremd || e.weg)) setFremdesFenster(e.weg ? "weg" : "fremd");
+  };
   useEffect(() => { if (ready && profile && account && slot) {
     saveProfile(profile); takeRestorePoint(profile);
     const add = playtimeRef.current; playtimeRef.current = 0;
-    writeSave(account.id, slot.id, profile, add).then((e) => e && setSlot((sl) => (sl && sl.id === e.id ? e : sl)));
+    writeSave(account.id, slot.id, profile, add).then(nachSicherung);
   } }, [profile, ready]);
   // idle playtime flush (menus, reading): every 30 s without a profile change
   useEffect(() => {
@@ -400,7 +422,7 @@ export default function App() {
     const iv = setInterval(() => {
       const add = playtimeRef.current;
       if (add > 0 && profileRef.current) { playtimeRef.current = 0;
-        writeSave(account.id, slot.id, profileRef.current, add).then((e) => e && setSlot((sl) => (sl && sl.id === e.id ? e : sl))); }
+        writeSave(account.id, slot.id, profileRef.current, add).then(nachSicherung); }
     }, 30000);
     return () => clearInterval(iv);
   }, [account, slot]);
@@ -595,11 +617,38 @@ export default function App() {
                   ? { ...gastProfil(), lang: anmeldeSprache }
                   : { ...defaultProfile(), lang: anmeldeSprache });
               const p2 = await loadSave(account.id, e2.id);
-              if (p2) { setLadeFehler(null); dispatch({ type: "HYDRATE", profile: p2 }); setSlot(e2); setReady(true); }
+              if (p2) { merkeStand(account.id, e2); setLadeFehler(null); dispatch({ type: "HYDRATE", profile: p2 }); setSlot(e2); setReady(true); }
             } catch (err) { console.error("Neuer Spielstand misslungen", err); }
           }}>{en ? "Start a new save" : "Neuen Spielstand anlegen"}</button>
           <button style={leise} onClick={() => { setLadeFehler(null); hardLogout(); }}>
             {en ? "Sign out" : "Abmelden"}</button>
+        </div>
+      </div>
+    );
+  }
+  /* ── v1.90.11 (Audit A17): IN EINEM ANDEREN FENSTER GESPIELT ────────
+     Wir schreiben ab hier nichts mehr - der fremde Fortschritt ist juenger
+     und soll nicht ueberschrieben werden. Ein Neuladen holt ihn und macht
+     aus zwei auseinanderlaufenden Staenden wieder einen. */
+  if (fremdesFenster) {
+    const en = anmeldeSprache === "en";
+    const knopf = { fontFamily: "inherit", fontWeight: 800, fontSize: 14, padding: "11px 18px",
+      borderRadius: 10, cursor: "pointer", border: "1px solid rgba(255,240,200,.5)",
+      background: "linear-gradient(165deg, #e0b76c, #b78d43)", color: "#17110a" };
+    const weg = fremdesFenster === "weg";
+    return (
+      <div style={{ minHeight: "100dvh", display: "grid", placeItems: "center", background: "#0c111e",
+        color: "#e8e4d8", fontFamily: "Georgia, serif", padding: 24, textAlign: "center" }}>
+        <div style={{ maxWidth: 420, display: "grid", gap: 14 }}>
+          <div style={{ fontSize: 20, letterSpacing: 3, color: "#c9a45c" }}>GAMBIT RISE</div>
+          <div style={{ fontSize: 15, lineHeight: 1.55, color: "#c8c2b4" }}>
+            {weg
+              ? (en ? "This save was removed in another window. Nothing more is being written here."
+                    : "Dieser Spielstand wurde in einem anderen Fenster entfernt. Hier wird nichts mehr gesichert.")
+              : (en ? "You have played in another window. That progress is newer, so this window stopped saving \u2014 reload to continue from it."
+                    : "Du hast in einem anderen Fenster gespielt. Dieser Fortschritt ist neuer, darum sichert dieses Fenster nicht mehr \u2014 lade neu, um dort weiterzumachen.")}</div>
+          <button style={knopf} onClick={() => { try { location.reload(); } catch {} }}>
+            {en ? "Reload" : "Neu laden"}</button>
         </div>
       </div>
     );
@@ -647,14 +696,14 @@ export default function App() {
 
   const sub = (title, node) => <div><SubHeader title={title} onBack={() => setView("hub")} t={t} />{node}</div>;
   const screen = pvp
-    ? <GameScreen key={"pvp" + pvp.matchId} profile={profile} dispatch={dispatch} t={t} pvp={pvp} onExit={() => setPvp(null)} />
+    ? <GameScreen onGefechtSichern={sichereGefecht} key={"pvp" + pvp.matchId} profile={profile} dispatch={dispatch} t={t} pvp={pvp} onExit={() => setPvp(null)} />
     : match
-    ? <GameScreen key={"camp" + match.nodeId} profile={profile} dispatch={dispatch} t={t} match={match} onExit={() => setMatch(null)}
+    ? <GameScreen onGefechtSichern={sichereGefecht} key={"camp" + match.nodeId} profile={profile} dispatch={dispatch} t={t} match={match} onExit={() => setMatch(null)}
         onArmy={() => { setMatch(null); setTab("army"); }} />
     : quick
-    ? <GameScreen key={"q" + quick.n} profile={profile} dispatch={dispatch} t={t} quick={quick} onExit={() => setQuick(null)} />
+    ? <GameScreen onGefechtSichern={sichereGefecht} key={"q" + quick.n} profile={profile} dispatch={dispatch} t={t} quick={quick} onExit={() => setQuick(null)} />
     : dailyGame
-    ? <GameScreen key={"daily" + dailyGame.gameId} profile={profile} dispatch={dispatch} t={t}
+    ? <GameScreen onGefechtSichern={sichereGefecht} key={"daily" + dailyGame.gameId} profile={profile} dispatch={dispatch} t={t}
         daily={dailyGame} onExit={() => setDailyGame(null)} />
     : tab === "play" ? (
         view === "quick" ? sub(t("hub.quick"), <QuickSetup profile={profile} dispatch={dispatch} t={t} initial={lastQuick.current}

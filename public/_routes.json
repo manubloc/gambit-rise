@@ -1,10 +1,5 @@
 {
   "version": 1,
-  "include": ["/*"],
-  "exclude": [
-    "/assets/*", "/landing/*", "/icons/*", "/fonts/*",
-    "/spielen/assets/*", "/spielen/icons/*", "/spielen/fonts/*", "/spielen/brett/*",
-    "/spielen/kapitel/*", "/spielen/pieces/*", "/spielen/bildarchiv/*", "/spielen/bildarchiv-klein/*",
-    "/spielen/schau/*", "/spielen/schau-klein/*", "/spielen/klangarchiv/*"
-  ]
+  "include": ["/", "/index.html", "/landing.html", "/spielen/", "/spielen/index.html"],
+  "exclude": ["/sw.js", "/spielen/sw.js"]
 }
