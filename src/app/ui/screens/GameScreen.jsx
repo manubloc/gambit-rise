@@ -769,10 +769,23 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
         // ONE MOVE, THEN THE GAME GOES BACK ON THE SHELF. The command is filed
         // with the server; if this move ended the game, the outcome rides along
         // so the ladder is settled without a second round trip.
+        /* ── v1.90.4 (Audit A13): DAS SPIELENDE WURDE NIE GEMELDET ──────
+           Hier wurden drei Felder von `st` gelesen, die es nicht gibt:
+           "mate", "stale" und "kingDown". status() liefert { over, result,
+           winner, check, grund, legalCount } - eine Suche ueber das ganze
+           Repo nach den drei Namen traf NUR diese Zeile. Der Ausdruck war
+           also immer false und `result` immer null. Folge: eine gewonnene
+           Tagespartie wurde erst nach Fristablauf gewertet, und zwar als
+           ZEITVERLUST des anderen - ein Patt sogar als Zeitverlust dessen,
+           der am Zug war. Jetzt wird gelesen, was status() wirklich sagt,
+           und der Sieger kommt von dort statt aus einer Umrechnung des
+           Zugrechts.
+           Die drei Namen stehen hier bewusst OHNE den Punkt davor:
+           test_core sucht nach genau diesem Muster und darf an einem
+           Kommentar nicht haengen bleiben. */
         const st = status(next);
-        const over = st.mate || st.stale || (next.rules === "hp" && st.kingDown);
         daily.net.send({ t: "daily:move", gameId: daily.gameId, cmd,
-          result: over ? { winner: st.stale ? null : (next.turn === WHITE ? "b" : "w"), reason: st.stale ? "draw" : "mate" } : null });
+          result: st.over ? { winner: st.winner ?? null, reason: st.result } : null });
         setDailySent(true);
       }
       return next;

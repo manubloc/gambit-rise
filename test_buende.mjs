@@ -130,6 +130,26 @@ console.log("\n== GELEIT (Springer · Laeufer · Turm) ==");
   ok("GEGENPROBE: ohne Bund ist kein Tausch offen", geleitTauschbar(bau([]), "w") === null);
   const g3 = bau(["geleit"]); g3.board[30] = null;
   ok("und ohne den Turm auch mit Bund nicht", geleitTauschbar(g3, "w") === null);
+  /* ── v1.90.4 (Audit A34): KEINE HAND AM AUSGANGSZUSTAND ───────────
+     `board.slice()` ist eine FLACHE Kopie: die Figuren-Objekte sind
+     dieselben. `eins.hasMoved = true` veraenderte damit den Zustand VOR dem
+     Geleit und jeden history-Eintrag mit - obwohl reducer.js im Kopf
+     "Pure: never mutates state" verspricht. Folge: nach einem Zeitenwender
+     zurueck blieb hasMoved stehen, die Rochade war verloren, und ein Replay
+     wich ab. */
+  {
+    const vorher = bau(["geleit"]);
+    const turmVorher = vorher.board[30];
+    const nach = reduce(vorher, geleitCommand("w", 10, 30)).state;
+    ok("A34: der Turm im AUSGANGSzustand bleibt ungezogen",
+      turmVorher.hasMoved !== true && vorher.board[30].hasMoved !== true);
+    ok("A34: im neuen Zustand ist er gezogen", nach.board[10].hasMoved === true);
+    ok("A34: und es sind wirklich zwei verschiedene Objekte",
+      nach.board[10] !== turmVorher);
+    ok("A34: das Geleit dreht den Zugzaehler weiter",
+      nach.moveCount === (vorher.moveCount || 0) + 1);
+    ok("A34: und die HP-Remis-Uhr", nach.ohneSchaden === (vorher.ohneSchaden || 0) + 1);
+  }
   kulisse("geleit");
 }
 

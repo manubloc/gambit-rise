@@ -633,7 +633,29 @@ export class HallCore {
       rec.lastAt = this.now();
       rec.deadline = this.now() + DAILY_MS;
       rec.reminded = false;                               // a fresh move, a fresh clock, a fresh reminder
-      if (msg.result) rec.done = { winner: msg.result.winner || null, reason: msg.result.reason || "end" };
+      /* ── v1.90.4 (Audit A8, Fernpartie-Teil): DIE FORM WIRD GEPRUEFT ──
+         `rec.done` uebernahm `msg.result` roh - jede Zeichenkette als
+         `winner`, jeder Text als `reason`. Ein erfundener `winner` wie
+         "beide" kam in die Wertung (rateDaily rechnet dann Remis) und in
+         jede Anzeige.
+         WARUM HIER NICHT DERSELBE RIEGEL WIE IM LIVE-DUELL: dort meldet der
+         VERLIERER, also darf niemand seinen eigenen Sieg melden. In der
+         Fernpartie meldet der ZIEHENDE das Ergebnis seines eigenen Zuges -
+         wer mattsetzt, hat gewonnen, und ein "du darfst dich nicht selbst
+         zum Sieger erklaeren" wuerde jedes ehrliche Matt verschlucken. Die
+         Halle kann diesen Bericht nicht nachrechnen, weil sie kein Schach
+         versteht (Kopfkommentar bei `get daily`). Damit bleibt das
+         Nachspielen der Befehlsliste im Kern die eigentliche Loesung
+         (ARCHITECTURE.md:110) - Seed, beide Aufstellungen und die
+         vollstaendige Zugliste liegen dafuer bereits hier. So lange
+         beschraenkt sich diese Stelle darauf, keine Unform durchzulassen. */
+      if (msg.result) {
+        const wer = msg.result.winner;
+        const seite = wer === "w" || wer === "b" ? wer : null;
+        const GRUENDE = ["checkmate", "stalemate", "draw", "resign", "regicide", "time", "gone", "end"];
+        const grund = GRUENDE.includes(msg.result.reason) ? msg.result.reason : "end";
+        rec.done = { winner: seite, reason: grund };
+      }
       g[rec.id] = rec; this.daily = g;
       if (rec.done) this.rateDaily(rec);
       const oppId = rec.w === me ? rec.b : rec.w;

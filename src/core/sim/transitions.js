@@ -51,6 +51,15 @@ export function cloneState(state) {
     lastMove: state.lastMove,
     moveCount: state.moveCount,
     ohneSchaden: state.ohneSchaden || 0,
+    /* ── v1.90.4 (Audit A39): DAS ERGEBNIS UEBERLEBT DEN NAECHSTEN ZUG ──
+       cloneState kopierte `over` nicht mit. Ein MOVE nach dem Aufgeben wurde
+       angenommen (anders als POTION, GELEIT und SHIFT prueft er `state.over`
+       nicht) - und weil das Feld hier fehlte, war das Ergebnis danach fort.
+       Gemessen (Audit S5): "over gesetzt: true, MOVE danach angenommen: true,
+       over noch da: false". Ein Replay aus dem Log oder ein nach dem
+       Aufgeben eintreffender Netzbefehl spielte eine beendete Partie weiter.
+       Die Oberflaeche sperrte sich nur per finished.current. */
+    ...(state.over ? { over: state.over } : {}),
     log: state.log,
     seed: state.seed,
   };
@@ -646,11 +655,29 @@ export function legalMovesFrom(state, sqIndex) {
     const alle = hpSperren(state, pseudoMoves(state, piece.color));
     return pseudo.filter((m) => alle.some((a) => a.from === m.from && a.to === m.to && (a.special || null) === (m.special || null)));
   }
-  return pseudo.filter((m) => !inCheck(applyMove(state, m), piece.color));
+  /* ── v1.90.4 (Audit A14): DAS BRETT UND DIE KI MUESSEN DASSELBE ERLAUBEN
+     Hier stand nur die normale Schachprobe. Die beiden Sonderriegel der
+     Rochade, die legalMoves oben traegt - kein Rochieren AUS dem Schach und
+     kein Rochieren UEBER ein bedrohtes Kreuzfeld -, fehlten. Das Brett
+     zeichnet seine Punkte aber aus legalMovesFrom (BoardView), die KI zieht
+     aus legalMoves: gemessen hat das Audit (skeptiker.mjs S1/S2) Weiss im
+     Schach durch Turm e6 mit `legalMoves = 0`, aber EINER angebotenen
+     Rochade - und der Reducer nahm sie an, der Koenig stand auf g1. Ein
+     Regelverstoss, den die KI nicht darf, im Hotseat und im Klassik-Duell
+     ein unfairer Vorteil. Statt die Riegel ein zweites Mal hinzuschreiben
+     (und beim naechsten Sonderzug wieder auseinanderzulaufen) stuetzt sich
+     das Brett ab jetzt auf DIESELBE Quelle wie die KI. */
+  return legalMoves(state, piece.color).filter((m) => m.from === sqIndex);
 }
 
 export function status(state) {
   const color = state.turn;
+  /* v1.90.4 (Audit A39): ein aufgegebenes oder anders beendetes Spiel bleibt
+     beendet. status() las `over` bisher gar nicht und rechnete munter
+     weiter - wer nach dem Aufgeben noch einen Befehl schickte, bekam wieder
+     "ongoing" zu sehen. */
+  if (state.over) return { over: true, result: state.over.result || "over",
+    winner: state.over.winner ?? null, check: false, grund: state.over.grund };
   if (state.rules === "hp") {
     const wk = findKing(state.board, WHITE, state.w);
     const bk = findKing(state.board, BLACK, state.w);

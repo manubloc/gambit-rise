@@ -313,6 +313,18 @@ export function pieceMoves(state, sqIndex) {
           if (!frei) continue;
           const zf = f + 2 * richtung;
           if (!onBoard(zf, r, D)) continue;
+          /* ── v1.90.4 (Audit A35): ZWEI FELDER BRAUCHEN AUCH PLATZ ───────
+             Geprueft wurde nur, ob das Zielfeld auf dem Brett liegt - nicht,
+             ob der Koenig damit auf oder ueber seinen eigenen Turm rutscht.
+             Steht der Koenig auf c1 und der Turm auf a1, landete er nach der
+             Rochade AUF a1: b1 und c1 leer, der eigene Turm bei den
+             geschlagenen Figuren (Audit-Messung B1). Heute unerreichbar, weil
+             formationLegalOn den Koenig festnagelt - aber jede kuenftige
+             Mischaufstellung oder ein eingelesenes Profil koennte ihn dorthin
+             stellen, und dann verschwindet stumm ein Turm. Der Abstand muss
+             mindestens drei Felder betragen, damit Ziel- UND Kreuzfeld
+             zwischen Koenig und Turm liegen. */
+          if (Math.abs(rf - f) < 3) continue;
           push(moves, from, ix(zf, r, D), piece, false, null,
             { special: "castle", rookFrom: ix(rf, r, D), rookTo: ix(f + richtung, r, D), cross: ix(f + richtung, r, D) });
         }

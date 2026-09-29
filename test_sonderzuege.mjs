@@ -3,7 +3,9 @@
 // Engine: Angebot, Verweigerung (gezogen / blockiert / bedroht / verspaetet)
 // und Ausfuehrung (Turmsprung, Bauernverschwinden).
 import { createGame } from "./src/core/sim/state.js";
-import { legalMoves, applyMove } from "./src/core/sim/transitions.js";
+import { legalMoves, legalMovesFrom, applyMove, status, cloneState } from "./src/core/sim/transitions.js";
+import { reduce } from "./src/core/sim/reducer.js";
+import { moveCommand, resignCommand } from "./src/core/sim/commands.js";
 
 let passed = 0, failed = 0;
 const ok = (name, cond) => { if (cond) { passed++; console.log("  ok  - " + name); }
@@ -88,6 +90,90 @@ ok("der Schlag zaehlt als Schlag", g8.lastMove.capture === true && g8.captured.w
 const g9 = structuredClone(g7);
 g9.lastMove = { ...g9.lastMove, double: false };
 ok("einen Zug spaeter ist das Fenster geschlossen", legalMoves(g9, "w").filter((m) => m.special === "enpassant").length === 0);
+
+/* ── v1.90.4 (Audit A14): BRETT UND KI MUESSEN DASSELBE ERLAUBEN ───────
+   legalMoves trug die beiden Rochade-Riegel (nicht aus dem Schach, nicht
+   ueber ein bedrohtes Kreuzfeld), legalMovesFrom nicht - und das BRETT
+   zeichnet seine Punkte aus legalMovesFrom. Gemessen hat das Audit
+   (skeptiker.mjs S1/S2): Weiss im Schach -> legalMoves 0, legalMovesFrom 1,
+   und der Reducer nahm den Zug an. Geprueft wird ab jetzt BEIDES. */
+{
+  /* Weiss im Schach: gegnerischer Turm auf der Koenigsspalte. */
+  const gs = structuredClone(g1);
+  for (let r = 0; r < H; r++) if (r !== kR) gs.board[ix(kF, r)] = null;
+  gs.board[ix(kF, fernR)] = { id: 991, kind: "R", color: "b", level: 1, abilities: [], shield: 0, used: {} };
+  gs.turn = "w";
+  const vonKI = legalMoves(gs, "w").filter((m) => m.special === "castle");
+  const vomBrett = legalMovesFrom(gs, kIdx).filter((m) => m.special === "castle");
+  ok("A14: die KI rochiert nicht aus dem Schach", vonKI.length === 0);
+  ok("A14: und das Brett bietet es jetzt auch nicht mehr an", vomBrett.length === 0);
+}
+{
+  /* Kreuzfeld bedroht - derselbe Aufbau wie g4 oben, nun beidseitig. */
+  const gk = structuredClone(g1);
+  const kreuz = kF + 1;
+  for (let r = 0; r < H; r++) if (r !== kR) gk.board[ix(kreuz, r)] = null;
+  gk.board[ix(kreuz, fernR)] = { id: 992, kind: "R", color: "b", level: 1, abilities: [], shield: 0, used: {} };
+  gk.turn = "w";
+  ok("A14: die KI rochiert nicht ueber ein bedrohtes Kreuzfeld",
+    legalMoves(gk, "w").filter((m) => m.special === "castle").length === 0);
+  ok("A14: und das Brett bietet es nicht mehr an",
+    legalMovesFrom(gk, kIdx).filter((m) => m.special === "castle").length === 0);
+}
+{
+  /* Die Gegenprobe: ist alles in Ordnung, bieten BEIDE dieselbe Rochade an. */
+  const gf = structuredClone(g1); gf.turn = "w";
+  const a = legalMoves(gf, "w").filter((m) => m.special === "castle");
+  const b = legalMovesFrom(gf, kIdx).filter((m) => m.special === "castle");
+  ok("A14: im freien Fall bieten beide dieselbe Rochade an",
+    a.length === 1 && b.length === 1 && a[0].to === b[0].to);
+  ok("A14: und legalMovesFrom liefert nur Zuege DIESER Figur",
+    legalMovesFrom(gf, kIdx).every((m) => m.from === kIdx));
+}
+
+/* ── v1.90.4 (Audit A35): ZWEI FELDER BRAUCHEN AUCH PLATZ ─────────────
+   Geprueft wurde nur, ob das ZIELFELD auf dem Brett liegt. Stand der Koenig
+   zwei Felder vom Turm, landete er nach der Rochade AUF dem eigenen Turm -
+   der wanderte zu den geschlagenen Figuren (Audit-Messung B1). Heute
+   unerreichbar, weil formationLegalOn den Koenig festnagelt; ein kuenftiger
+   Mischer oder ein eingelesenes Profil koennte ihn aber dorthin stellen. */
+{
+  const gn = structuredClone(g0);
+  for (let f = 0; f < W; f++) gn.board[ix(f, kR)] = null;
+  /* Turm in der Ecke, Koenig zwei Felder daneben - Abstand 2, nicht 3. */
+  gn.board[ix(0, kR)] = { id: 993, kind: "R", color: "w", level: 1, abilities: [], shield: 0, used: {} };
+  gn.board[ix(2, kR)] = { id: 994, kind: "K", color: "w", level: 1, abilities: [], shield: 0, used: {} };
+  gn.turn = "w";
+  const z = legalMoves(gn, "w").filter((m) => m.special === "castle");
+  ok("A35: bei Abstand 2 gibt es keine Rochade mehr", z.length === 0);
+  const weit = structuredClone(gn);
+  weit.board[ix(2, kR)] = null;
+  weit.board[ix(3, kR)] = { id: 994, kind: "K", color: "w", level: 1, abilities: [], shield: 0, used: {} };
+  weit.turn = "w";
+  const zz = legalMoves(weit, "w").filter((m) => m.special === "castle" && m.to === ix(1, kR));
+  ok("A35: bei Abstand 3 geht sie weiterhin", zz.length === 1);
+  const nach = applyMove(weit, zz[0]);
+  ok("A35: und der eigene Turm ueberlebt sie",
+    nach.captured.w.length === 0 && nach.board.filter((p) => p && p.kind === "R" && p.color === "w").length === 1);
+}
+
+/* ── v1.90.4 (Audit A39): DAS ERGEBNIS UEBERLEBT DEN NAECHSTEN BEFEHL ──
+   cloneState kopierte `over` nicht, und MOVE prueste es nicht - anders als
+   POTION, GELEIT und SHIFT. Gemessen: nach RESIGN wurde ein MOVE angenommen
+   UND das Ergebnis war danach fort. */
+{
+  const gr = createGame();
+  const nachAufgabe = reduce(gr, resignCommand("w")).state;
+  ok("A39: Aufgeben setzt das Ergebnis", !!nachAufgabe.over);
+  ok("A39: und status() nennt es", status(nachAufgabe).over === true);
+  const einZug = legalMoves(gr, "w")[0];
+  const danach = reduce(nachAufgabe, moveCommand(einZug));
+  ok("A39: ein Zug nach dem Aufgeben wird abgewiesen", danach.state === nachAufgabe);
+  ok("A39: das Ergebnis steht immer noch da", !!danach.state.over);
+  /* Und cloneState traegt es jetzt mit - das war der eigentliche Verlust. */
+  ok("A39: ein Zustandsabbild verliert das Ergebnis nicht",
+    !!cloneState(nachAufgabe).over);
+}
 
 console.log(`RESULT: ${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

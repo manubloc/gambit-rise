@@ -1,5 +1,77 @@
 # Changelog - Gambit Rise
 
+## 1.90.5 - sechs Regelfehler aus dem Audit: die Rochade aus dem Schach, das Ergebnis das verschwand, die Tagespartie die ihr Ende nie meldete
+
+- **A14 — DAS BRETT BOT DIE ROCHADE AUS DEM SCHACH AN.** `legalMoves` traegt
+  seit v0.49 zwei Sonderriegel fuer die Rochade: nicht AUS dem Schach heraus
+  und nicht UEBER ein bedrohtes Kreuzfeld. `legalMovesFrom` trug sie nicht -
+  und das BRETT zeichnet seine Punkte aus `legalMovesFrom`, waehrend die KI
+  aus `legalMoves` zieht. Gemessen hat das Audit Weiss im Schach durch Turm
+  e6: `legalMoves` 0 Rochaden, `legalMovesFrom` EINE - und der Reducer nahm
+  sie an, der Koenig stand auf g1. Ein Regelverstoss, den die KI nicht darf;
+  im Hotseat und im Klassik-Duell ein unfairer Vorteil. Statt die Riegel ein
+  zweites Mal hinzuschreiben (und beim naechsten Sonderzug wieder
+  auseinanderzulaufen) stuetzt sich das Brett auf DIESELBE Quelle wie die KI.
+
+- **A13 — DIE TAGESPARTIE MELDETE IHR ENDE NIE.** In GameScreen wurden drei
+  Felder von `status()` gelesen, die es nicht gibt. Der Ausdruck war damit
+  immer false, `result` immer null. Folge: eine gewonnene Fernpartie wurde
+  erst nach Fristablauf gewertet - und zwar als ZEITVERLUST des anderen; ein
+  Patt sogar als Zeitverlust dessen, der am Zug war. Jetzt wird gelesen, was
+  `status()` wirklich sagt. Dazu eine Probe gegen die KLASSE dahinter:
+  gueltiges JavaScript, das stumm `undefined` liest - dieselbe Familie wie die
+  Abstuerze A3/A4, nur eine Stufe subtiler, weil kein ReferenceError fliegt.
+  Eine Suche ueber `src` und `worker/src` haelt die drei Namen ab jetzt fern.
+
+- **A39 — DAS ERGEBNIS UEBERLEBTE DEN NAECHSTEN BEFEHL NICHT.** `cloneState`
+  kopierte `over` nicht mit, und MOVE prueste es nicht - anders als POTION,
+  GELEIT und SHIFT. Gemessen: nach dem Aufgeben wurde ein Zug angenommen UND
+  das Ergebnis war danach fort. Ein Replay aus dem Log oder ein nach dem
+  Aufgeben eintreffender Netzbefehl spielte eine beendete Partie weiter; die
+  Oberflaeche sperrte sich nur per `finished.current`. Drei Stellen: das Feld
+  wird mitkopiert, MOVE lehnt ab, `status()` liest es zuerst.
+
+- **A34 — KEINE HAND AM AUSGANGSZUSTAND, UND DIE UHREN LAUFEN WEITER.**
+  `board.slice()` ist eine FLACHE Kopie: das GELEIT setzte `hasMoved` an den
+  Figuren-Objekten und veraenderte damit den Zustand VOR dem Tausch und jeden
+  `history`-Eintrag mit - obwohl reducer.js im Kopf "Pure: never mutates
+  state" verspricht. Nach einem Zeitenwender zurueck blieb `hasMoved` stehen
+  und die Rochade war verloren. Zweitens drehten TRANK und GELEIT keine der
+  Uhren weiter, die an jedem Halbzug haengen: `moveCount`, die HP-Remis-Uhr
+  `ohneSchaden` und den Zerfall der Sperren. Eine Mauer liess sich also durch
+  Traenketrinken ueber ihre Lebenszeit hinaus halten. Der Trank-Zweig ist
+  LIVE. Nicht uebernommen wurde der ganze `altern()`-Ausgang: der traegt auch
+  die Nachtwacht-Heilung und den Faehrten-Nachzug, und der rechnet eine
+  Richtung aus `lastMove` - bei einem Trank gibt es keine, beim Geleit sind es
+  zwei getauschte Felder. Die Uhren gehoeren zu jedem Halbzug, die
+  Bundwirkungen zu einem ZUG.
+
+- **A35 — ZWEI FELDER BRAUCHEN AUCH PLATZ.** Bei der Rochade wurde nur
+  geprueft, ob das Zielfeld auf dem Brett liegt - nicht, ob der Koenig damit
+  auf oder ueber seinen eigenen Turm rutscht. Koenig c1, Turm a1: nach der
+  Rochade stand der Koenig AUF a1, und der eigene Turm lag bei den
+  geschlagenen Figuren. Heute unerreichbar, weil `formationLegalOn` den
+  Koenig festnagelt - aber jede kuenftige Mischaufstellung oder ein
+  eingelesenes Profil koennte ihn dorthin stellen, und dann verschwindet
+  stumm ein Turm. Der Abstand muss mindestens drei Felder betragen.
+
+- **A8 (Fernpartie-Teil) — DIE FORM DES ERGEBNISSES WIRD GEPRUEFT.**
+  `rec.done` uebernahm `msg.result` roh: jede Zeichenkette als `winner`, jeder
+  Text als `reason`. **Warum hier NICHT derselbe Riegel wie im Live-Duell:**
+  dort meldet der Verlierer, also darf niemand seinen eigenen Sieg melden. In
+  der Fernpartie meldet der ZIEHENDE das Ergebnis seines eigenen Zuges - wer
+  mattsetzt, hat gewonnen, und ein Selbstmelde-Verbot wuerde jedes ehrliche
+  Matt verschlucken. Die Halle kann den Bericht nicht nachrechnen, weil sie
+  kein Schach versteht. Damit bleibt das Nachspielen der Befehlsliste im Kern
+  die eigentliche Loesung (ARCHITECTURE.md:110) - Seed, beide Aufstellungen
+  und die vollstaendige Zugliste liegen dafuer bereits in der Halle. So lange
+  laesst diese Stelle wenigstens keine Unform mehr durch.
+
+**Zu allen sechs Punkten wurde gegengeprueft:** die neuen Proben gegen den
+Stand von v1.90.4 laufen lassen. Sie fallen dort - sieben Mal in
+test_sonderzuege, vier in test_buende, drei in test_features, einmal in
+test_core. Eine Probe, die auch ohne den Fehler gruen ist, prueft nichts.
+
 ## 1.90.4 - sieben weitere Punkte aus dem Audit: das Fernpartien-Regal wird abgeraeumt, eine Mauer ist fuer jeden eine Mauer, der Gast erbt nichts
 
 - **A7 — DAS FERNPARTIEN-REGAL WAECHST NICHT MEHR OHNE ENDE.** Alle

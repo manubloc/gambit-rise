@@ -227,6 +227,29 @@ const heal = red2(hg, potionCommand(W2, pi));
 ok("potion heals toward max, spends a charge, passes the turn",
   heal.state.board[pi].hp === heal.state.board[pi].maxHp && heal.state.potions.w === 0 && heal.state.turn === "b");
 ok("without charges the command is a no-op", red2(heal.state, potionCommand("b", pi)).state === heal.state);
+/* ── v1.90.4 (Audit A34): EIN HALBZUG IST EIN HALBZUG ───────────────
+   Der Trank verbraucht den Zug der Seite - er setzte `turn` um, drehte aber
+   keine der Uhren weiter, die an jedem Halbzug haengen: moveCount, die
+   HP-Remis-Uhr `ohneSchaden` (120 Halbzuege) und den Zerfall der Sperren.
+   Damit liess sich eine Mauer ueber ihre Lebenszeit hinaus am Leben halten,
+   indem man Traenke trank, und die Remis-Uhr blieb stehen, obwohl kein
+   Schaden fiel. Der Trank-Zweig ist LIVE, nicht bloss latent. */
+ok("A34: der Trank dreht den Zugzaehler weiter",
+  heal.state.moveCount === (hg.moveCount || 0) + 1);
+ok("A34: und die HP-Remis-Uhr - Heilen ist kein Schaden",
+  heal.state.ohneSchaden === (hg.ohneSchaden || 0) + 1);
+{
+  /* Der Zerfall der Sperren haengt am selben Zaehler: eine Mauer, deren Takt
+     JETZT faellig ist, muss auch durch einen Trank broeckeln. */
+  const mg = cg2(undefined, undefined, { rules: "hp", seed: 4, potions: { w: 2, b: 0 } });
+  const mi = mg.board.findIndex((x) => x && x.color === "w" && x.kind === "P");
+  mg.board[mi] = { ...mg.board[mi], hp: 1 };
+  const leer = mg.board.findIndex((x) => !x);
+  mg.sperren = { [leer]: { art: "mauer", hp: 2, bis: (mg.moveCount || 0) + 1 } };
+  const nach = red2(mg, potionCommand(W2, mi)).state;
+  ok("A34: auch die Mauer altert durch einen Trank",
+    nach.sperren[leer] && nach.sperren[leer].hp === 1);
+}
 
 // ── Item-gated secret paths + the Captain/boat chain ─────────────────────────
 import { nodeStatus as nst, seaAccessible, dupeCount as dc2 } from "./src/meta/index.js";

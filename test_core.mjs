@@ -186,5 +186,71 @@ console.log("\n== DIE DREI SCHACH-SONDERZUEGE (v1.8.0) ==");
   ok("A33: andersherum genauso", status(ohneW).result === "regicide" && status(ohneW).winner === BLACK);
 }
 
+/* ── v1.90.4 (Audit A13): DER VERTRAG VON status() ─────────────────
+   In GameScreen stand `st.mate || st.stale || st.kingDown` - drei Felder, die
+   status() NIE geliefert hat. Eine Suche ueber das ganze Repo traf nur diese
+   eine Zeile, also war der Ausdruck immer false: eine gewonnene Tagespartie
+   wurde nicht gemeldet, sondern erst nach Fristablauf als Zeitverlust des
+   anderen gewertet - ein Patt sogar als Zeitverlust dessen, der am Zug war.
+   Diese Probe haelt fest, WAS status() sagt, damit ein Leser es nachschlagen
+   kann statt zu raten. Die Klasse selbst - ein Feld lesen, das es nicht
+   gibt - faengt zusaetzlich die Suche unten ab. */
+{
+  const g0 = createGame(undefined, undefined, { rules: "chess" });
+  const W = g0.w, H = g0.h, ix2 = (f, r) => r * W + f;
+  const fig = (id, kind, color) => ({ id, kind, color, level: 1, abilities: [], used: {}, hasMoved: true });
+  const matt = g0.board.map(() => null);
+  matt[ix2(0, H - 1)] = fig(1, "K", "b");
+  matt[ix2(1, H - 3)] = fig(2, "Q", "w");
+  matt[ix2(7, H - 1)] = fig(3, "R", "w");
+  matt[ix2(4, 0)] = fig(4, "K", "w");
+  const sm = status({ ...g0, board: matt, turn: "b" });
+  ok("A13: Matt heisst over/result/winner - nicht 'mate'",
+    sm.over === true && sm.result === "checkmate" && sm.winner === WHITE);
+  ok("A13: und status() erfindet kein Feld 'mate' oder 'kingDown'",
+    !("mate" in sm) && !("stale" in sm) && !("kingDown" in sm));
+  const patt = g0.board.map(() => null);
+  patt[ix2(0, H - 1)] = fig(1, "K", "b");
+  patt[ix2(2, H - 2)] = fig(2, "Q", "w");
+  patt[ix2(4, 0)] = fig(4, "K", "w");
+  const sp = status({ ...g0, board: patt, turn: "b" });
+  ok("A13: Patt heisst result 'stalemate' und winner null",
+    sp.over === true && sp.result === "stalemate" && sp.winner === null);
+  /* Und genau so muss die Tagespartie es melden: winner aus st.winner,
+     reason aus st.result. Vorher stand dort eine Umrechnung des Zugrechts,
+     die beim Patt den Falschen zum Verlierer machte. */
+  const melde = (st) => (st.over ? { winner: st.winner ?? null, reason: st.result } : null);
+  ok("A13: der Bericht der Tagespartie nennt beim Matt den Sieger",
+    JSON.stringify(melde(sm)) === JSON.stringify({ winner: "w", reason: "checkmate" }));
+  ok("A13: und beim Patt niemanden", JSON.stringify(melde(sp)) === JSON.stringify({ winner: null, reason: "stalemate" }));
+  ok("A13: eine laufende Partie meldet nichts", melde(status(createGame())) === null);
+}
+
+/* ── v1.90.4 (Audit A13, die KLASSE): KEIN ERFUNDENES STATUSFELD ──────
+   Das eigentliche Uebel war nicht die eine Zeile, sondern dass niemand sie
+   bemerkt hat: gueltiges JavaScript, das stumm `undefined` liest. Dieselbe
+   Klasse wie die Abstuerze A3/A4, gegen die seit v1.89.9
+   tools/pruefe-bezeichner.mjs laeuft - nur eine Stufe subtiler, weil hier
+   kein ReferenceError fliegt. Die Suche haelt die drei Namen fern. */
+{
+  const { readdirSync, readFileSync, statSync } = await import("node:fs");
+  const { join } = await import("node:path");
+  const treffer = [];
+  const lauf = (dir) => {
+    for (const n of readdirSync(dir)) {
+      const pfad = join(dir, n);
+      if (statSync(pfad).isDirectory()) { lauf(pfad); continue; }
+      if (!/\.(js|jsx|mjs)$/.test(n)) continue;
+      const txt = readFileSync(pfad, "utf8");
+      for (const m of txt.matchAll(/\b(?:st|status|zustand)\s*\.\s*(mate|stale|kingDown)\b/g))
+        treffer.push(pfad + ": " + m[0]);
+    }
+  };
+  lauf("src");
+  lauf("worker/src");
+  if (treffer.length) console.log("     gefunden:", treffer.join(" | "));
+  ok("A13: niemand liest mehr st.mate, st.stale oder st.kingDown", treffer.length === 0);
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

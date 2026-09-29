@@ -3,6 +3,7 @@ import { inCheck } from "../rules/attacks.js";
 import { applyMove, status } from "./transitions.js";
 import { COMMAND } from "./commands.js";
 import { geleitTauschbar } from "../rules/buende.js";
+import { zerfalleSperren } from "../rules/sperren.js";
 import { Ev } from "./events.js";
 
 /**
@@ -11,6 +12,31 @@ import { Ev } from "./events.js";
  * Pure: never mutates `state`. Appends the command to `state.log` on the new
  * state so the whole match can be replayed or sent online.
  */
+/* ── v1.90.4 (Audit A34): EIN HALBZUG IST EIN HALBZUG ───────────────
+   TRANK und GELEIT verbrauchen den Zug der Seite - sie setzten `turn` um,
+   drehten aber keine der Uhren weiter, die an jedem Halbzug haengen:
+   `moveCount`, `ohneSchaden` (die HP-Remis-Uhr, 120 Halbzuege) und der
+   Zerfall der Sperren. Beide liefen dadurch einen Halbzug nach: ein Spieler
+   konnte eine Mauer ueber ihre Lebenszeit hinaus stehen lassen, indem er
+   Traenke trank, und die Remis-Uhr blieb stehen, obwohl kein Schaden fiel.
+   Der Trank-Zweig ist LIVE, nicht bloss latent.
+
+   Was hier bewusst NICHT passiert: der ganze `altern()`-Ausgang aus
+   transitions.js. Der traegt neben den Uhren die Nachtwacht-Heilung und den
+   FAEHRTEN-Nachzug, und der rechnet eine Richtung aus `lastMove.from/to`.
+   Bei einem Trank gibt es keine Richtung, beim Geleit sind from und to zwei
+   getauschte Felder - die Faehrte wuerde daraus Unsinn machen. Die Uhren
+   gehoeren zu jedem Halbzug, die Bundwirkungen zu einem ZUG. */
+function halbzugUhren(state, next) {
+  next.moveCount = (state.moveCount || 0) + 1;
+  next.ohneSchaden = (state.ohneSchaden || 0) + 1;   // Heilen ist kein Schaden
+  if (next.sperren) {
+    const s = zerfalleSperren(next.sperren, next.moveCount);
+    if (s !== next.sperren) next.sperren = s;
+  }
+  return next;
+}
+
 export function reduce(state, command) {
   switch (command.type) {
     case COMMAND.MOVE: {
@@ -37,6 +63,12 @@ export function reduce(state, command) {
       const zieht = state.board[z.from];
       if (!zieht || zieht.color !== state.turn) return { state, events: [] };
       if (zieht.kind === "D+") return { state, events: [] };   // der Fluegelmarker zieht nie selbst
+      /* v1.90.4 (Audit A39): eine beendete Partie nimmt keinen Zug mehr an.
+         POTION, GELEIT und SHIFT pruefen das seit jeher, MOVE nicht - und
+         weil cloneState `over` nicht mitkopierte, loeschte der Zug das
+         Ergebnis auch gleich. Gemessen: nach RESIGN wurde MOVE angenommen
+         und `over` war danach fort. */
+      if (state.over) return { state, events: [] };
       const next = applyMove(state, command.move, { record: true });
       if (next === state) return { state, events: [] }; // illegal/no-op guard
       next.log = (state.log || []).concat([command]);
@@ -72,11 +104,11 @@ export function reduce(state, command) {
       const board = state.board.slice();
       const healedHp = Math.min(piece.maxHp, (piece.hp ?? 1) + 2);
       board[command.target] = { ...piece, hp: healedHp };
-      const next = { ...state, board,
+      const next = halbzugUhren(state, { ...state, board,
         potions: { ...state.potions, [command.color]: left - 1 },
         turn: other(state.turn),
         lastMove: null,
-        log: (state.log || []).concat([command]) };
+        log: (state.log || []).concat([command]) });
       return { state: next, events: [Ev.healed(command.color, piece.kind, command.target, healedHp)] };
     }
 
@@ -104,13 +136,21 @@ export function reduce(state, command) {
       const brett = state.board.slice();
       const eins = brett[a], zwei = brett[b];
       if (!eins || !zwei) return { state, events: [] };
-      brett[a] = zwei; brett[b] = eins;
-      eins.hasMoved = true; zwei.hasMoved = true;
-      const next = { ...state, board: brett,
+      /* ── v1.90.4 (Audit A34): KEINE HAND AM AUSGANGSZUSTAND ──────────
+         `board.slice()` ist eine FLACHE Kopie: die Figuren-Objekte sind
+         dieselben. `eins.hasMoved = true` veraenderte damit den Zustand VOR
+         dem Geleit und jeden Eintrag in `history` mit - obwohl der Kopf
+         dieser Datei "Pure: never mutates state" verspricht. Gemessen (Audit
+         C5): hasMoved am Original-Turm nach dem Geleit true. Folge: nach
+         einem Zeitenwender zurueck blieb hasMoved stehen und die Rochade war
+         verloren; ein Replay wich ab. */
+      brett[a] = { ...zwei, hasMoved: true };
+      brett[b] = { ...eins, hasMoved: true };
+      const next = halbzugUhren(state, { ...state, board: brett,
         geleitVerbraucht: { ...(state.geleitVerbraucht || {}), [command.color]: true },
         turn: command.color === "w" ? "b" : "w",
         lastMove: { from: a, to: b, color: command.color, geleit: true },
-        log: (state.log || []).concat([command]) };
+        log: (state.log || []).concat([command]) });
       return { state: next, events: [{ type: "geleit", von: a, nach: b }] };
     }
 
