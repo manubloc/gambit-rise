@@ -193,7 +193,9 @@ function mkHall(t0 = 1000) {
   hall.player("b").rating = 1200; hall.savePlayer({ ...hall.player("b"), rating: 1200 });
   hall.handle("a", { t: "leaderboard" });
   const lb = last("leaderboard", "a");
-  ok("the duel leaderboard sorts by rating and ranks me", lb.top[0].id === "b" && lb.me.rank === 2);
+  /* v1.90.13 (Audit A21, Rest): geprueft wird jetzt am NAMEN - die Zeilen
+     tragen keine fremden Kennungen mehr. Die Aussage bleibt dieselbe. */
+  ok("the duel leaderboard sorts by rating and ranks me", lb.top[0].name === "B" && lb.me.rank === 2);
   let threw = null;
   try { hall.handle("a", { t: "admin", cmd: "stats", token: "wrong-token-wrong-token-wrong" }); } catch (e) { threw = e.message; }
   ok("wrong admin tokens are denied", threw === "denied");
@@ -972,6 +974,73 @@ const hmac2 = async (key, data) => { const k = await subtle.importKey("raw", key
     /playwright-core install/.test(ci) && /PW_CHROMIUM=/.test(ci));
   ok("A27: und die Datei sagt selbst, dass sie den Deploy NICHT sperrt",
     /sperrt den Deploy NICHT/.test(ci));
+}
+
+/* ── v1.90.13 (Audit A21, Rest): DIE RANGLISTE GIBT KEINE FREMDEN
+   KENNUNGEN MEHR HERAUS. Bis v1.90.12 trug jede Zeile die interne
+   Spieler-ID - an ALLE. Damit hatte jeder die Kennungen der 20 Besten, und
+   die sind der Schluessel zu jedem gezielten Befehl an die Halle. Der
+   Riegel in `friendRespond` (v1.90.7) war richtig; die offene Tuer daneben
+   war diese Liste.
+   GEGENGEPRUEFT: gegen v1.90.12 ist die erste Pruefung rot - dort steht in
+   jeder Zeile eine `id`. */
+{
+  const { hall, last } = mkHall();
+  hall.handle(null, { t: "hello", id: "lb_a", secret: "s", name: "Anna", score: 0 });
+  hall.handle(null, { t: "hello", id: "lb_b", secret: "s", name: "Bert", score: 0 });
+  hall.handle("lb_a", { t: "leaderboard" });
+  const antwort = last("leaderboard", "lb_a");
+  ok("A21: die Rangliste antwortet", !!antwort && Array.isArray(antwort.top));
+  const oben = antwort.top;
+  ok("A21: beide Spieler stehen drin", oben.length >= 2);
+  ok("A21: KEINE Zeile traegt eine fremde Kennung",
+    oben.every((r) => r.id === undefined),
+    JSON.stringify(oben.map((r) => r.id)));
+  ok("A21: aber jede sagt, ob sie die eigene ist",
+    oben.filter((r) => r.ich).length === 1 && oben.find((r) => r.ich).name === "Anna");
+  ok("A21: Name, Wertung und Bilanz stehen weiterhin drin",
+    oben.every((r) => typeof r.name === "string" && typeof r.rating === "number"
+      && typeof r.wins === "number" && typeof r.losses === "number"));
+  ok("A21: die eigene Zeile traegt die eigene Kennung - die kennt man ohnehin",
+    antwort.me && antwort.me.id === "lb_a" && antwort.me.ich === true);
+  /* Und der Schirm kommt ohne fremde Kennungen aus. */
+  const os = (await import("node:fs")).readFileSync("src/app/ui/screens/OnlineScreen.jsx", "utf8");
+  ok("A21: der Rangliste-Schirm vergleicht nicht mehr mit fremden Kennungen",
+    os.includes("const isMe = !!r.ich;") && !os.includes("const isMe = r.id === o.id;"));
+}
+
+/* ── v1.90.13 (Audit A22, Rest): DIE OFFENEN HTTP-WEGE HABEN JETZT EINE
+   BREMSE. `/report` nimmt jeder entgegen, ohne Anmeldung, CORS *. Die
+   Tabelle haelt nur die neuesten 500 Berichte - 500 POSTs verdraengen also
+   JEDEN echten Absturzbericht, lautlos. Und `adminCheck` mit seiner Sperre
+   nach fuenf Fehlversuchen hing nur im WebSocket-Pfad: an /reports,
+   /design und /spielerbuch liess sich das Admin-Wort beliebig oft
+   durchprobieren.
+   GEGENGEPRUEFT: gegen v1.90.12 gibt es `rateOk` nicht - der Block bricht
+   beim ersten Aufruf ab; und die Quelltext-Pruefungen sind rot. */
+{
+  const { hall, tick } = mkHall();
+  /* Fuenf gehen durch, der sechste nicht - und eine ANDERE IP ist davon
+     nicht betroffen. */
+  const fuenf = [1, 2, 3, 4, 5].map(() => hall.rateOk("report", "1.2.3.4", 5, 60000));
+  ok("A22: die ersten fuenf Berichte je Minute gehen durch", fuenf.every(Boolean));
+  ok("A22: der sechste wird abgewiesen", hall.rateOk("report", "1.2.3.4", 5, 60000) === false);
+  ok("A22: eine andere IP ist davon nicht betroffen", hall.rateOk("report", "9.9.9.9", 5, 60000) === true);
+  ok("A22: und ein anderer Eimer ebenso wenig", hall.rateOk("anderer", "1.2.3.4", 5, 60000) === true);
+
+  /* Nach dem Fenster geht es weiter - die Bremse sperrt nicht dauerhaft. */
+  tick(61000);
+  ok("A22: nach dem Fenster nimmt sie wieder an", hall.rateOk("report", "1.2.3.4", 5, 60000) === true);
+
+  /* Und die Admin-Sperre greift fuer die HTTP-Pfade. */
+  const idx = (await import("node:fs")).readFileSync("worker/src/index.mjs", "utf8");
+  ok("A22: /report ist gedrosselt",
+    /rateOk\("report", anfragerIp, 5, 60000\)/.test(idx) && /status: 429/.test(idx));
+  const adminPfade = (idx.match(/this\.core\.adminCheck\(anfragerIp,/g) || []).length;
+  ok("A22: alle drei HTTP-Admin-Pfade laufen ueber adminCheck (Sperre nach 5 Fehlversuchen)",
+    adminPfade === 3, `gefunden: ${adminPfade}`);
+  ok("A22: und keiner vergleicht das Admin-Wort mehr von Hand",
+    !/if \(!admin \|\| (b\.)?token !== admin\)/.test(idx));
 }
 
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);

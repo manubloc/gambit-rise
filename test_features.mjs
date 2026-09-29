@@ -863,5 +863,127 @@ console.log("\n== DIE WIRKUNG DER BUENDE (v1.10.0) ==");
   ok("ohne Spielstand (Vorschau, Proben) bleibt das klassische Heer", !buildStageMatch(hp.id, null).besetzung);
 }
 
+/* ── v1.90.13 (Audit A12, Teil 2): JEDE BESETZENDE FIGUR MUSS IM SCHACH
+   SCHACH BIETEN KOENNEN. Besitzer, 29.9.: "Natuerlich koennen Monster
+   schachmatt setzen."
+
+   Der Audit gab zwei ALTERNATIVEN: entweder die Balance-Bremse auf die
+   Talent-Spruenge verengen, ODER die Besetzung an Schach-Stationen auf
+   Figuren mit `slides` begrenzen. v1.90.6 hat die erste gebaut - damit ist
+   die zweite gegenstandslos, und sie waere sogar falsch: sie wuerde genau
+   die Monster von den Schach-Stationen nehmen, die der Besitzer dort haben
+   will. Der Punkt stand seitdem als "Rest offen" in der Liste, obwohl
+   nichts mehr offen war.
+
+   GEMESSEN statt behauptet: jeder der 32 Vorratseintraege wird auf JEDES
+   Feld des Bretts gestellt, der feindliche Koenig in die Mitte - und
+   gefragt, ob irgendwo Schach entsteht. Ergebnis 32 von 32. Diese Probe
+   haelt das fest: wer die Bremse kuenftig wieder verbreitert, wird rot.
+   (Laeuft in unter 0,1 s - der ganze Vorrat, alle Felder.) */
+{
+  const { inCheck } = await import("./src/core/rules/attacks.js");
+  const { createGame } = await import("./src/core/index.js");
+  const { BESETZUNGS_VORRAT } = await import("./src/meta/besetzung.js");
+  const { CHARACTER_LIST, BOSSES } = await import("./src/content/index.js");
+
+  const g0 = createGame(undefined, undefined, { rules: "chess", seed: 5 });
+  const W = g0.w, H = g0.h, ixx = (f, r) => r * W + f;
+  const drohtIrgendwo = (spec) => {
+    for (let f = 0; f < W; f++) for (let r = 0; r < H; r++) {
+      if (f === 4 && r === 4) continue;
+      const b = g0.board.map(() => null);
+      b[ixx(0, 0)] = { id: 1, kind: "K", color: "w", level: 1, abilities: [], used: {} };
+      b[ixx(4, 4)] = { id: 2, kind: "K", color: "b", level: 1, abilities: [], used: {} };
+      b[ixx(f, r)] = { id: 3, color: "w", level: 1, abilities: [], used: {}, ...spec };
+      try { if (inCheck({ ...g0, board: b, turn: "w" }, "b")) return true; } catch {}
+    }
+    return false;
+  };
+
+  const ohne = [];
+  for (const eintrag of BESETZUNGS_VORRAT) {
+    let spec = null;
+    if (eintrag.startsWith("boss:")) {
+      const bo = BOSSES.find((x) => x.id === eintrag.slice(5));
+      if (!bo) continue;
+      spec = { kind: "X", bossId: bo.id, moveSpec: bo.moveSpec, abilities: bo.abilities || [] };
+    } else {
+      const c = CHARACTER_LIST.find((x) => x.id === eintrag);
+      if (!c) continue;
+      spec = { kind: c.kind, moveSpec: c.moveSpec, abilities: [] };
+    }
+    if (!drohtIrgendwo(spec)) ohne.push(eintrag);
+  }
+  ok("A12: der Besetzungsvorrat ist nicht leer", BESETZUNGS_VORRAT.length >= 30);
+  ok("A12: JEDE besetzende Figur kann im Schach-Regelwerk Schach bieten",
+    ohne.length === 0, ohne.join(", "));
+  /* Gegenprobe der Probe selbst: ein Bauer, der auf der Grundreihe steht und
+     nirgends hinkommt, waere so eine Figur - sie muss also rot schlagen
+     koennen, sonst prueft der Block nichts. */
+  ok("A12: und die Probe wuerde es merken - ein Stein ohne Zuege droht nicht",
+    !drohtIrgendwo({ kind: "P", moveSpec: { steps: [] }, abilities: [] })
+    || drohtIrgendwo({ kind: "Q" }));
+}
+
+/* ── v1.90.13 (Audit A35, Rest): DER VORLADER DARF NICHTS HOLEN, WAS
+   NIEMAND ZEIGT. Gemessen am 29.9.: er lud bei JEDEM Start zehn
+   `liga*.jpg` mit, zusammen 4,19 MB - die Kapitelgemaelde der ALTEN
+   Weltkarte. Angezeigt hat sie zuletzt `mapBitmaps.js`, und die importierte
+   seit dem Zwoelf-Kapitel-Graphen niemand mehr. Vier Megabyte pro
+   Erstaufruf fuer Bilder, die kein Schirm mehr rendert.
+
+   Dieselbe Warnung steht seit v1.23.7 in livery.js:123 fuer die
+   Riss-Bilder - sie ist nur nie zu einer Probe geworden. Jetzt schon:
+   jede Bilddatei, die der Vorlader importiert, MUSS noch mindestens einen
+   zweiten Nutzer im Baum haben. */
+{
+  const fs = await import("node:fs");
+  const path = await import("node:path");
+  const vor = fs.readFileSync("src/app/ui/Vorlader.jsx", "utf8");
+  const pfade = [...vor.matchAll(/^import\s+\w+\s+from\s+"(\.\/assets\/[^"]+)";/gm)].map((m) => m[1]);
+  ok("A35: der Vorlader importiert Bilddateien", pfade.length > 50);
+
+  /* Alle Quelldateien einmal einlesen und nach den Dateinamen durchsuchen. */
+  const dateien = [];
+  const lauf = (dir) => {
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      const f = path.join(dir, e.name);
+      /* GEMESSEN: `assets/` DARF NICHT uebersprungen werden. Dort liegen
+         Index-Module (items/itemArt.js, ach/index.js), die die Bilder
+         namentlich importieren - wer den Ordner auslaesst, meldet 37
+         Fehlalarme. Die erste Fassung dieser Probe tat genau das. */
+      if (e.isDirectory()) { if (!/node_modules/.test(f)) lauf(f); }
+      else if (/\.(js|jsx|mjs)$/.test(e.name)) dateien.push(f);
+    }
+  };
+  lauf("src");
+  const text = dateien.filter((f) => !/Vorlader\.jsx$/.test(f)).map((f) => fs.readFileSync(f, "utf8")).join("\n");
+
+  const verwaist = pfade.filter((rel) => !text.includes(path.basename(rel)));
+  ok("A35: JEDE Datei, die der Vorlader holt, wird auch irgendwo angezeigt",
+    verwaist.length === 0, verwaist.join(", "));
+
+  /* Und der tote Koordinatensatz des alten Graphen ist fort. */
+  ok("A35: mapBitmaps.js (alter 51-Knoten-Graph, Kennung n22) liegt nicht mehr im Baum",
+    !fs.existsSync("src/app/ui/mapBitmaps.js"));
+  /* Und keine LOGIK vergleicht mehr gegen die alte Kennung "n22".
+     Ausgenommen: `content/placeNames.js` fuehrt sie in seiner IDS-Liste,
+     und das ist richtig so - die Liste ist die Eingabe des Generators
+     `tools/build-campaign12.mjs`, der daraus die Ortsnamen zieht. Sie ist
+     Daten, kein Vergleich. Die Erwaehnungen in CampaignScreen, mapArt und
+     GameScreen sind Kommentare, die die Geschichte festhalten. */
+  /* Kommentare RICHTIG entfernen, nicht zeilenweise raten: die erste
+     Fassung filterte Zeilen, die mit //, * oder /* BEGINNEN - und uebersah
+     damit die Folgezeilen eines Blockkommentars, die mit gewoehnlichem Text
+     anfangen. Genau daran ist sie zuerst rot geworden, an einem Kommentar. */
+  const ohneKommentare = (txt) => txt.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/[^\n]*/g, "");
+  const logik = dateien
+    .filter((f) => !/placeNames\.js$/.test(f))
+    .map((f) => ohneKommentare(fs.readFileSync(f, "utf8")))
+    .join("\n");
+  ok("A35: keine Logik vergleicht mehr gegen die alte Kennung n22",
+    !/["']n22["']/.test(logik));
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

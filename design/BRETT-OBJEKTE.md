@@ -42,6 +42,18 @@ Genau so sind die vorhandenen 114 Figuren entstanden.
 
 ## Die fünfzehn Prompts
 
+> **v1.90.13 — WARUM DIE FLACHEN OBJEKTE ANDERS ENDEN.** Der gemeinsame
+> Stilsatz verlangte ursprünglich „the object resting on the BOTTOM edge of
+> the frame". Das ist richtig für die STEHENDEN Objekte (Mauer, Zaun,
+> Bollwerk) — sie stehen auf dem Feldboden wie eine Figur. Für die FLACH
+> LIEGENDEN (Trümmer, Fallgrube, Graben, Bärenfalle) widerspricht er dem
+> ersten Satz des Prompts („lying flat on the square"), und das Bild landet
+> am unteren Rand. `tools/pruefe-sperrsitz.mjs` würde so ein Bild als
+> „sitzt zu tief" melden — genau die Zusage des Besitzers vom 29.9.:
+> flache Sperren sitzen vertikal mittig. Deshalb tragen die flachen Prompts
+> jetzt „centred BOTH horizontally and vertically".
+
+
 ### Mauer · heil · `mauer-heil`
 
 **Zielmaß: 640 x 800 (portrait)**
@@ -69,7 +81,7 @@ Hand-carved painted folk-art style matching a carved wooden chess set. Visible c
 ```
 Seen from a steep angle looking down, lying flat on the square, no upright parts taller than a chess pawn's base. The remains of a broken stone wall: a low heap of tumbled grey blocks (#6b6258, #4a453e) with broken edges, dust and small chips scattered around, one splintered wood beam (#a06020) lying across the pile. Nothing standing taller than a hand's width. Ruined, cleared, passable.
 
-Hand-carved painted folk-art style matching a carved wooden chess set. Visible chisel facets, soft rounded edges, matte hand-painted surface, small honest imperfections. Soft warm light from the UPPER LEFT, soft shadow falling to the lower right, no cast shadow on the ground. Fully isolated on a PLAIN FLAT WHITE background with no gradient and no shadow touching the edges, centred horizontally, the object resting on the BOTTOM edge of the frame. No scene, no ground plane, no base plate, no text, no border. Painted illustration, matte, not photographic, not a 3D render.
+Hand-carved painted folk-art style matching a carved wooden chess set. Visible chisel facets, soft rounded edges, matte hand-painted surface, small honest imperfections. Soft warm light from the UPPER LEFT, soft shadow falling to the lower right, no cast shadow on the ground. Fully isolated on a PLAIN FLAT WHITE background with no gradient and no shadow touching the edges, centred BOTH horizontally and vertically in the frame with even margins on all four sides. No scene, no ground plane, no base plate, no text, no border. Painted illustration, matte, not photographic, not a 3D render.
 ```
 
 ### Zaun · heil · `zaun-heil`
@@ -99,7 +111,7 @@ Hand-carved painted folk-art style matching a carved wooden chess set. Visible c
 ```
 Seen from a steep angle looking down, lying flat on the square, no upright parts taller than a chess pawn's base. The remains of a broken palisade: three snapped wooden stakes (#a06020, #804000) lying crossed on the ground with splintered ends, a length of dark rope coiled loose, wood chips scattered. Nothing upright.
 
-Hand-carved painted folk-art style matching a carved wooden chess set. Visible chisel facets, soft rounded edges, matte hand-painted surface, small honest imperfections. Soft warm light from the UPPER LEFT, soft shadow falling to the lower right, no cast shadow on the ground. Fully isolated on a PLAIN FLAT WHITE background with no gradient and no shadow touching the edges, centred horizontally, the object resting on the BOTTOM edge of the frame. No scene, no ground plane, no base plate, no text, no border. Painted illustration, matte, not photographic, not a 3D render.
+Hand-carved painted folk-art style matching a carved wooden chess set. Visible chisel facets, soft rounded edges, matte hand-painted surface, small honest imperfections. Soft warm light from the UPPER LEFT, soft shadow falling to the lower right, no cast shadow on the ground. Fully isolated on a PLAIN FLAT WHITE background with no gradient and no shadow touching the edges, centred BOTH horizontally and vertically in the frame with even margins on all four sides. No scene, no ground plane, no base plate, no text, no border. Painted illustration, matte, not photographic, not a 3D render.
 ```
 
 ### Bollwerk · heil · `bollwerk-heil`
@@ -129,7 +141,7 @@ Hand-carved painted folk-art style matching a carved wooden chess set. Visible c
 ```
 Seen from a steep angle looking down, lying flat on the square, no upright parts taller than a chess pawn's base. A concealed pit trap covering one chess square: a shallow rectangular pit spanned by thin crossed branches and scattered dry leaves in muted brown and forest green (#804000, #204000, #406020), just a hint of darkness showing between the twigs. Deliberately subtle and easy to overlook - it must read as ordinary ground at a glance.
 
-Hand-carved painted folk-art style matching a carved wooden chess set. Visible chisel facets, soft rounded edges, matte hand-painted surface, small honest imperfections. Soft warm light from the UPPER LEFT, soft shadow falling to the lower right, no cast shadow on the ground. Fully isolated on a PLAIN FLAT WHITE background with no gradient and no shadow touching the edges, centred horizontally, the object resting on the BOTTOM edge of the frame. No scene, no ground plane, no base plate, no text, no border. Painted illustration, matte, not photographic, not a 3D render.
+Hand-carved painted folk-art style matching a carved wooden chess set. Visible chisel facets, soft rounded edges, matte hand-painted surface, small honest imperfections. Soft warm light from the UPPER LEFT, soft shadow falling to the lower right, no cast shadow on the ground. Fully isolated on a PLAIN FLAT WHITE background with no gradient and no shadow touching the edges, centred BOTH horizontally and vertically in the frame with even margins on all four sides. No scene, no ground plane, no base plate, no text, no border. Painted illustration, matte, not photographic, not a 3D render.
 ```
 
 ### Fallgrube · ausgelöst · `falle-ausgeloest`
@@ -139,7 +151,7 @@ Hand-carved painted folk-art style matching a carved wooden chess set. Visible c
 ```
 Seen from a steep angle looking down, lying flat on the square, no upright parts taller than a chess pawn's base. A sprung pit trap covering one chess square: the covering branches snapped inward and hanging into the hole, a dark open pit beneath with sharpened wooden stakes at the bottom, torn leaves and loose earth flung around the rim. Warm brown earth tones (#804000, #6b4a20) and deep shadow inside the pit.
 
-Hand-carved painted folk-art style matching a carved wooden chess set. Visible chisel facets, soft rounded edges, matte hand-painted surface, small honest imperfections. Soft warm light from the UPPER LEFT, soft shadow falling to the lower right, no cast shadow on the ground. Fully isolated on a PLAIN FLAT WHITE background with no gradient and no shadow touching the edges, centred horizontally, the object resting on the BOTTOM edge of the frame. No scene, no ground plane, no base plate, no text, no border. Painted illustration, matte, not photographic, not a 3D render.
+Hand-carved painted folk-art style matching a carved wooden chess set. Visible chisel facets, soft rounded edges, matte hand-painted surface, small honest imperfections. Soft warm light from the UPPER LEFT, soft shadow falling to the lower right, no cast shadow on the ground. Fully isolated on a PLAIN FLAT WHITE background with no gradient and no shadow touching the edges, centred BOTH horizontally and vertically in the frame with even margins on all four sides. No scene, no ground plane, no base plate, no text, no border. Painted illustration, matte, not photographic, not a 3D render.
 ```
 
 ### Graben · heil · `graben-heil`
@@ -149,7 +161,7 @@ Hand-carved painted folk-art style matching a carved wooden chess set. Visible c
 ```
 Seen from a steep angle looking down, lying flat on the square, no upright parts taller than a chess pawn's base. A narrow defensive ditch cutting straight across one chess square: dug earth with steep sides in warm brown (#804000, #6b4a20), a small heap of excavated soil along the near edge, a few tufts of muted green grass (#204000) on the rims, dark shadow in the trench.
 
-Hand-carved painted folk-art style matching a carved wooden chess set. Visible chisel facets, soft rounded edges, matte hand-painted surface, small honest imperfections. Soft warm light from the UPPER LEFT, soft shadow falling to the lower right, no cast shadow on the ground. Fully isolated on a PLAIN FLAT WHITE background with no gradient and no shadow touching the edges, centred horizontally, the object resting on the BOTTOM edge of the frame. No scene, no ground plane, no base plate, no text, no border. Painted illustration, matte, not photographic, not a 3D render.
+Hand-carved painted folk-art style matching a carved wooden chess set. Visible chisel facets, soft rounded edges, matte hand-painted surface, small honest imperfections. Soft warm light from the UPPER LEFT, soft shadow falling to the lower right, no cast shadow on the ground. Fully isolated on a PLAIN FLAT WHITE background with no gradient and no shadow touching the edges, centred BOTH horizontally and vertically in the frame with even margins on all four sides. No scene, no ground plane, no base plate, no text, no border. Painted illustration, matte, not photographic, not a 3D render.
 ```
 
 ### Graben · überbrückt · `graben-bruecke`
@@ -159,7 +171,7 @@ Hand-carved painted folk-art style matching a carved wooden chess set. Visible c
 ```
 Seen from a steep angle looking down, lying flat on the square, no upright parts taller than a chess pawn's base. The SAME narrow ditch, now crossed by a makeshift plank bridge: two rough boards of warm honey wood (#a06020) laid over the trench and lashed with dark rope, the dug earth (#804000, #6b4a20) and green grass tufts (#204000) unchanged. Passable.
 
-Hand-carved painted folk-art style matching a carved wooden chess set. Visible chisel facets, soft rounded edges, matte hand-painted surface, small honest imperfections. Soft warm light from the UPPER LEFT, soft shadow falling to the lower right, no cast shadow on the ground. Fully isolated on a PLAIN FLAT WHITE background with no gradient and no shadow touching the edges, centred horizontally, the object resting on the BOTTOM edge of the frame. No scene, no ground plane, no base plate, no text, no border. Painted illustration, matte, not photographic, not a 3D render.
+Hand-carved painted folk-art style matching a carved wooden chess set. Visible chisel facets, soft rounded edges, matte hand-painted surface, small honest imperfections. Soft warm light from the UPPER LEFT, soft shadow falling to the lower right, no cast shadow on the ground. Fully isolated on a PLAIN FLAT WHITE background with no gradient and no shadow touching the edges, centred BOTH horizontally and vertically in the frame with even margins on all four sides. No scene, no ground plane, no base plate, no text, no border. Painted illustration, matte, not photographic, not a 3D render.
 ```
 
 ### Bärenfalle · verdeckt · `baerenfalle-verdeckt`
@@ -169,7 +181,7 @@ Hand-carved painted folk-art style matching a carved wooden chess set. Visible c
 ```
 Seen from a steep angle looking down, lying flat on the square, no upright parts taller than a chess pawn's base. A concealed iron bear trap covering one chess square: dark iron jaws with blunt teeth held open in a ring, the mechanism mostly buried under scattered dry leaves and loose earth in muted brown and forest green (#804000, #204000, #406020), only a hint of dark metal showing through. Deliberately subtle - it must read as ordinary ground at a glance.
 
-Hand-carved painted folk-art style matching a carved wooden chess set. Visible chisel facets, soft rounded edges, matte hand-painted surface, small honest imperfections. Soft warm light from the UPPER LEFT, soft shadow falling to the lower right, no cast shadow on the ground. Fully isolated on a PLAIN FLAT WHITE background with no gradient and no shadow touching the edges, centred horizontally, the object resting on the BOTTOM edge of the frame. No scene, no ground plane, no base plate, no text, no border. Painted illustration, matte, not photographic, not a 3D render.
+Hand-carved painted folk-art style matching a carved wooden chess set. Visible chisel facets, soft rounded edges, matte hand-painted surface, small honest imperfections. Soft warm light from the UPPER LEFT, soft shadow falling to the lower right, no cast shadow on the ground. Fully isolated on a PLAIN FLAT WHITE background with no gradient and no shadow touching the edges, centred BOTH horizontally and vertically in the frame with even margins on all four sides. No scene, no ground plane, no base plate, no text, no border. Painted illustration, matte, not photographic, not a 3D render.
 ```
 
 ### Bärenfalle · zugeschnappt · `baerenfalle-zu`
@@ -179,7 +191,7 @@ Hand-carved painted folk-art style matching a carved wooden chess set. Visible c
 ```
 Seen from a steep angle looking down, lying flat on the square, no upright parts taller than a chess pawn's base. The SAME iron bear trap, now sprung: the dark iron jaws snapped shut in a tight closed ring, a short chain trailing to one side, leaves and earth flung outward around it, the ground scuffed where something struggled. Muted brown and forest green surroundings (#804000, #204000, #406020).
 
-Hand-carved painted folk-art style matching a carved wooden chess set. Visible chisel facets, soft rounded edges, matte hand-painted surface, small honest imperfections. Soft warm light from the UPPER LEFT, soft shadow falling to the lower right, no cast shadow on the ground. Fully isolated on a PLAIN FLAT WHITE background with no gradient and no shadow touching the edges, centred horizontally, the object resting on the BOTTOM edge of the frame. No scene, no ground plane, no base plate, no text, no border. Painted illustration, matte, not photographic, not a 3D render.
+Hand-carved painted folk-art style matching a carved wooden chess set. Visible chisel facets, soft rounded edges, matte hand-painted surface, small honest imperfections. Soft warm light from the UPPER LEFT, soft shadow falling to the lower right, no cast shadow on the ground. Fully isolated on a PLAIN FLAT WHITE background with no gradient and no shadow touching the edges, centred BOTH horizontally and vertically in the frame with even margins on all four sides. No scene, no ground plane, no base plate, no text, no border. Painted illustration, matte, not photographic, not a 3D render.
 ```
 
 ### Das Boot · `boot`

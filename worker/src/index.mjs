@@ -202,6 +202,9 @@ export class Hall extends DurableObject {
 
   async fetch(request) {
     const url = new URL(request.url);
+    /* v1.90.13 (Audit A22, Rest): die IP wird hier oben gebraucht - fuer die
+       Bremse an /report und fuer adminCheck an den HTTP-Admin-Pfaden. */
+    const anfragerIp = request.headers.get("cf-connecting-ip") || "?";
     if (url.pathname === "/health") {
       return new Response(JSON.stringify({ ok: true, online: this.core.online.size }),
         { headers: { "content-type": "application/json" } });
@@ -238,8 +241,12 @@ export class Hall extends DurableObject {
     }
     if (url.pathname === "/design" && request.method === "POST") {
       let b = {}; try { b = await request.json(); } catch {}
-      const admin = this.core.adminToken;
-      if (!admin || b.token !== admin) return new Response(JSON.stringify({ error: "unauthorized" }), { status: 401, headers: { "content-type": "application/json", ...cors } });
+      /* v1.90.13 (A22, Rest): ueber adminCheck statt von Hand vergleichen -
+         damit gilt hier dieselbe Sperre nach fuenf Fehlversuchen wie im
+         WebSocket-Pfad. Vorher liess sich das Admin-Wort an /design,
+         /reports und /spielerbuch beliebig oft durchprobieren. */
+      try { this.core.adminCheck(anfragerIp, b.token); }
+      catch { return new Response(JSON.stringify({ error: "unauthorized" }), { status: 401, headers: { "content-type": "application/json", ...cors } }); }
       const design = b.design === "carved" ? "carved" : "classic";
       this.sql.exec("INSERT INTO kv (k, v) VALUES ('design', ?) ON CONFLICT(k) DO UPDATE SET v = excluded.v", design);
       return new Response(JSON.stringify({ ok: true, design }), { headers: { "content-type": "application/json", ...cors } });
@@ -263,6 +270,19 @@ export class Hall extends DurableObject {
       return new Response(JSON.stringify({ ok: true }), { headers: { "content-type": "application/json", ...cors } });
     }
     if (url.pathname === "/report" && request.method === "POST") {
+      /* ── v1.90.13 (Audit A22, Rest): FUENF BERICHTE JE MINUTE UND IP.
+         Der Weg ist absichtlich offen (CORS *, keine Anmeldung) - ein
+         Absturzbericht soll auch dann ankommen, wenn sonst nichts mehr
+         geht. Die Tabelle haelt aber nur die neuesten 500: 500 POSTs
+         verdraengen JEDEN echten Bericht, lautlos. Fuenf je Minute reichen
+         fuer jeden ehrlichen Client (die App schickt einen je Absturz) und
+         nehmen dem Skript die Wirkung. Abgewiesen wird mit 429 und einer
+         ehrlichen Antwort - der Client wertet sie wie einen Fehlschlag und
+         behaelt den Bericht lokal. */
+      if (!this.core.rateOk("report", anfragerIp, 5, 60000)) {
+        return new Response(JSON.stringify({ error: "zu viele Berichte - bitte spaeter" }),
+          { status: 429, headers: { "content-type": "application/json", ...cors } });
+      }
       let b = {}; try { b = await request.json(); } catch {}
       const clip = (v, n) => (v == null ? null : String(v).slice(0, n));
       try {
@@ -285,9 +305,9 @@ export class Hall extends DurableObject {
       return new Response(JSON.stringify({ ok: true }), { headers: { "content-type": "application/json", ...cors } });
     }
     if (url.pathname === "/reports" && request.method === "GET") {
-      const token = url.searchParams.get("token") || "";
-      const admin = this.core.adminToken;
-      if (!admin || token !== admin) return new Response(JSON.stringify({ error: "unauthorized" }), { status: 401, headers: { "content-type": "application/json", ...cors } });
+      /* v1.90.13 (A22, Rest): dieselbe Sperre wie im WebSocket-Pfad. */
+      try { this.core.adminCheck(anfragerIp, url.searchParams.get("token") || ""); }
+      catch { return new Response(JSON.stringify({ error: "unauthorized" }), { status: 401, headers: { "content-type": "application/json", ...cors } }); }
       const limit = Math.min(200, Math.max(1, parseInt(url.searchParams.get("limit") || "100", 10) || 100));
       const rows = [...this.sql.exec("SELECT * FROM reports ORDER BY id DESC LIMIT ?", limit)].map((r) => ({
         ...r, log: (() => { try { return JSON.parse(r.log || "[]"); } catch { return []; } })(),
@@ -300,9 +320,9 @@ export class Hall extends DurableObject {
     // Wer spielt, wie weit ist er, woher kommt er - und ein paar Zahlen ueber
     // das Spiel im Ganzen. Nur mit Admin-Wort.
     if (url.pathname === "/spielerbuch" && request.method === "GET") {
-      const token = url.searchParams.get("token") || "";
-      const admin = this.core.adminToken;
-      if (!admin || token !== admin) return new Response(JSON.stringify({ error: "unauthorized" }), { status: 401, headers: { "content-type": "application/json", ...cors } });
+      /* v1.90.13 (A22, Rest): dieselbe Sperre wie im WebSocket-Pfad. */
+      try { this.core.adminCheck(anfragerIp, url.searchParams.get("token") || ""); }
+      catch { return new Response(JSON.stringify({ error: "unauthorized" }), { status: 401, headers: { "content-type": "application/json", ...cors } }); }
       const jetzt = Date.now();
       const alle = Object.values(this.core.store.dumpPlayers());
       const spieler = alle.map((p) => {

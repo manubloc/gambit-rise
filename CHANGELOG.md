@@ -1,5 +1,75 @@
 # Changelog - Gambit Rise
 
+## 1.90.13 - vier Megabyte, die niemand sieht; die Rangliste verriet jede Kennung; und A12 war laengst erledigt
+
+**4,5 MB BEI JEDEM ERSTAUFRUF FUER BILDER, DIE KEIN SCHIRM ZEIGT** (Audit
+A35, Rest). Der Vorlader holt vor dem ersten Bild alles ins Haus - und in
+seiner Liste standen noch zehn `liga*.jpg`, die Kapitelgemaelde der ALTEN
+Weltkarte (4,19 MB). Angezeigt hat sie zuletzt `mapBitmaps.js`, und die
+importiert seit dem Zwoelf-Kapitel-Graphen **niemand** mehr; die heutigen
+Karten nehmen `kap-01..12.webp`. Dieselbe Messung fand neun weitere:
+`marble-btn.webp` und die acht Dateien in `assets/stat/` - die Perlen sind
+seit v0.25.0 ueberholt (`statAssets.js` traegt die zwei verbliebenen INLINE
+als Data-URL, die Streifen gingen mit der Energie).
+
+Genau davor warnt `livery.js:123` seit v1.23.7: „werden vom Vorlader bei
+JEDEM Start geladen - gezeigt hat sie nie jemand." Die Warnung stand da,
+eine Probe gab es nie. **Jetzt schon:** jede Bilddatei, die der Vorlader
+importiert, muss noch mindestens einen zweiten Nutzer im Baum haben.
+
+Dabei ist die Probe zweimal selbst danebengegriffen, und beide Male hat sie
+es gesagt: sie uebersprang beim Durchlaufen den Ordner `assets/` - dort
+liegen aber die Index-Module (`items/itemArt.js`, `ach/index.js`), die die
+Bilder namentlich importieren, also 37 Fehlalarme. Und sie filterte
+Kommentare zeilenweise nach ihrem ANFANG, womit sie die Folgezeilen eines
+Blockkommentars fuer Code hielt. Beides behoben, beides im Kopf der Probe
+festgehalten.
+
+Mit `mapBitmaps.js` ist auch die letzte Stelle fort, an der die alte
+Kennung `n22` als CODE stand. Eine Probe haelt das fest - ausgenommen
+`content/placeNames.js`, das sie in seiner IDS-Liste fuehrt, und das ist
+richtig so: die Liste ist die Eingabe des Generators, Daten statt
+Vergleich. Alles liegt in `archiv/ausgemustert/v1.90.13/` mit einem WARUM.
+
+**A21 (Rest) — DIE RANGLISTE GAB JEDE FREMDE KENNUNG HERAUS.** Jede Zeile
+trug die interne Spieler-ID, an ALLE, die die Liste abriefen. Damit hatte
+jeder die Kennungen der 20 Besten in der Hand, und die sind der Schluessel
+zu jedem gezielten Befehl an die Halle: `friendRespond` (in v1.90.7
+geriegelt), `challenge`, `gift`. Der Riegel dort war richtig - die offene
+Tuer daneben war diese Liste. Der Client brauchte die Kennung nur, um die
+eigene Zeile hervorzuheben; dafuer genuegt ein `ich`, das der Server setzt.
+
+**A22 (Rest) — EINE BREMSE FUER DIE OFFENEN HTTP-WEGE.** `/report` nimmt
+jeder entgegen, ohne Anmeldung und mit CORS `*`, und die Tabelle haelt nur
+die neuesten 500 Berichte: **500 POSTs verdraengen JEDEN echten
+Absturzbericht**, lautlos. Jetzt fuenf je Minute und IP, abgewiesen mit 429
+(der Client behaelt den Bericht dann lokal). Und `adminCheck` mit seiner
+Sperre nach fuenf Fehlversuchen hing nur im WebSocket-Pfad - an `/reports`,
+`/design` und `/spielerbuch` liess sich das Admin-Wort beliebig oft
+durchprobieren. Alle drei laufen jetzt darueber.
+
+Die Bremse ist absichtlich einfach (ein Zaehler je Eimer und IP im
+Arbeitsspeicher, ueberlebt keinen Winterschlaf): sie soll ein Skript
+ausbremsen, nicht eine Belagerung abwehren. Eine Cloudflare-Regel vor der
+Halle bleibt im Backlog.
+
+**A12 (Teil 2) — GEMESSEN UND GEGENSTANDSLOS.** Der Punkt stand als „Rest
+offen" in der Liste, obwohl nichts mehr offen war. Der Audit gab zwei
+ALTERNATIVEN: die Balance-Bremse auf die Talent-Spruenge verengen, ODER die
+Besetzung an Schach-Stationen auf Figuren mit `slides` begrenzen. v1.90.6
+hat die erste gebaut - die zweite waere jetzt sogar falsch, sie naehme
+genau die Monster von den Schach-Stationen, die der Besitzer dort haben
+will („Natuerlich koennen Monster schachmatt setzen").
+
+Nachgemessen statt geglaubt: jeder der 32 Vorratseintraege wird auf JEDES
+Feld gestellt, der feindliche Koenig in die Mitte - **32 von 32 koennen
+Schach bieten**. Die Probe haelt es fest; wer die Bremse kuenftig wieder
+verbreitert, wird rot.
+
+**Gegengeprueft:** gegen v1.90.12 sind die A21-, A22- und A35-Pruefungen
+rot. Die A12-Probe ist es NICHT - sie dokumentiert, dass v1.90.6 das
+Problem bereits geloest hat, und das soll sie auch sagen.
+
 ## 1.90.12 - du waehlst jetzt, wozu dein Bauer gekroent wird - und der Kern liess sich vorher einen zweiten Koenig kroenen
 
 **A11 (Rest) — DIE KRONE HAT EINE WAHL** (Besitzer, 29.9.: „man sollte

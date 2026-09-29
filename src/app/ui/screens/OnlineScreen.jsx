@@ -580,9 +580,12 @@ export function OnlineScreen({ profile, dispatch, t, net, account, onDaily = nul
           {!lb ? <div style={{ fontSize: 12.5, color: T.faint }}>—</div> : <>
             <div style={{ display: "grid", gap: 5 }}>
               {lb.top.map((r, i) => {
-                const isMe = r.id === o.id;
+                /* v1.90.13 (Audit A21, Rest): die Halle schickt keine fremden
+                   Kennungen mehr mit - nur noch ein `ich` je Zeile. Der
+                   Schluessel ist darum der Platz, nicht die Kennung. */
+                const isMe = !!r.ich;
                 return (
-                  <div key={r.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 9px",
+                  <div key={`${i}:${r.name}`} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 9px",
                     borderRadius: T.radiusSm, background: isMe ? T.lime + "1e" : "transparent",
                     border: isMe ? `1px solid ${T.lime}66` : "1px solid transparent" }}>
                     <span style={{ width: 24, textAlign: "center", fontSize: 13 }}>{i < 3 ? <LaurelIc rank={i + 1} size={16} /> : <span style={{ color: T.faint, fontWeight: 800 }}>{i + 1}</span>}</span>

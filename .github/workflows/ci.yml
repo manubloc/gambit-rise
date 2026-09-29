@@ -1,5 +1,5 @@
-# Die EISERNE KETTE, so weit sie ein Runner tragen kann (28 Suiten / 2386
-# Pruefungen, Stand v1.90.12 - siehe CLAUDE.md).
+# Die EISERNE KETTE, so weit sie ein Runner tragen kann (28 Suiten / 2408
+# Pruefungen, Stand v1.90.13 - siehe CLAUDE.md).
 #
 # ── v1.90.11 (Audit A27): WAS DIESE DATEI NICHT KANN ────────────────────
 # Sie sperrt den Deploy NICHT. Cloudflare Pages baut bei JEDEM Push auf main

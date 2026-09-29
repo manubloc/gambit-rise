@@ -3,7 +3,6 @@
 // [charIds] }. A node is AVAILABLE when any predecessor is cleared (the start
 // node always is). Clearing a piece-boss node unlocks that piece — the only way
 // to gain new pieces. XP is a spendable currency for upgrades (leveling.js).
-import { PLACE_NAMES } from "../content/placeNames.js";
 import { placeEn } from "../content/placeNamesEn.js";
 import { CAMPAIGN, nodeById, difficultyById, mapById, bossById, bossSpec, CHARACTERS, leagueBossId } from "../content/index.js";
 import { buildArmyFromFormation, resolveCharacter, spForXpJump, isUnlocked, monsterStufen } from "./leveling.js";
@@ -151,9 +150,13 @@ export function nodeBossSpec(node, league = 1) {
  *  holds him from League II on. In League I the warm nest belongs to the
  *  BROODMOTHER — the ancient heart has not hatched yet. */
 
-/** The station's name in the given league — unique across the whole journey.
- *  League I uses the homeland names from CAMPAIGN; II–XI draw from PLACE_NAMES,
- *  each set hand-written from that biome's lore (see content/placeNames.js). */
+/** Der Name der Station - einmalig auf der ganzen Reise.
+ *  v1.90.13 (Audit A35, Rest): dieser Kopf sagte "II-XI draw from
+ *  PLACE_NAMES". Das stimmt seit den zwoelf Graphen nicht mehr: `placeFor`
+ *  liest `node.place`, und die Namen sind beim BAUEN eingesetzt worden
+ *  (tools/build-campaign12.mjs zieht sie aus PLACE_NAMES). Der Import hier
+ *  war entsprechend tot. PLACE_NAMES selbst bleibt - der Generator und
+ *  test_maps brauchen es. */
 /** Seit den zwoelf Graphen traegt jede Station ihren festen eigenen Namen -
  *  Weltdurchlaeufe benennen nichts mehr um. */
 export function placeFor(node, _lg, en = false) {

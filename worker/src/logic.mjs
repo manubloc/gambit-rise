@@ -81,6 +81,7 @@ export class HallCore {
     this.adminOn = this.adminToken.length >= 24;
     this.online = new Map();          // playerId → true (presence; sockets live in the adapter)
     this.adminFails = new Map();      // ip → { n, until } (best effort; resets on hibernation)
+    this.raten = new Map();           // v1.90.13 (A22): eimer|ip → { n, bis } - dieselbe Bauart, best effort
   }
 
   // ── live blobs (survive hibernation via KV) ────────────────────────────────
@@ -467,6 +468,29 @@ export class HallCore {
     }
   }
 
+  /* ── v1.90.13 (Audit A22, Rest): EINE BREMSE FUER DIE OFFENEN HTTP-WEGE
+     `/report` nimmt jeder entgegen, ohne Anmeldung und mit CORS *. Die
+     Tabelle haelt nur die neuesten 500 Berichte - 500 POSTs verdraengen
+     also JEDEN echten Absturzbericht, und niemand merkt es. Ebenso durften
+     `/reports`, `/design` und `/spielerbuch` das Admin-Wort beliebig oft
+     durchprobieren: `adminCheck` mit seiner Sperre nach fuenf Fehlversuchen
+     hing nur im WebSocket-Pfad, die HTTP-Pfade verglichen von Hand.
+
+     Diese Bremse ist ABSICHTLICH einfach: ein Zaehler je Eimer und IP im
+     Arbeitsspeicher des Durable Object. Sie ueberlebt keinen Winterschlaf -
+     das ist in Ordnung, denn sie soll ein Skript ausbremsen, nicht eine
+     Belagerung abwehren. Wer das will, setzt eine Cloudflare-Rate-Limiting-
+     Regel vor die Halle; das steht weiter im Backlog. */
+  rateOk(eimer, ip, max, fensterMs) {
+    const k = eimer + "|" + (ip || "?");
+    const jetzt = this.now();
+    const r = this.raten.get(k);
+    if (!r || r.bis <= jetzt) { this.raten.set(k, { n: 1, bis: jetzt + fensterMs }); return true; }
+    if (r.n >= max) return false;
+    r.n++;
+    return true;
+  }
+
   // ── admin ──────────────────────────────────────────────────────────────────
   adminCheck(ip, token) {
     const rec = this.adminFails.get(ip);
@@ -835,15 +859,28 @@ export class HallCore {
       // Only real contenders make the board: anyone who has finished at least
       // one rated duel, plus whoever is online right now. Idle test husks and
       // one-time visitors stay invisible.
+      /* ── v1.90.13 (Audit A21, Rest): DIE RANGLISTE GIBT KEINE FREMDEN
+         KENNUNGEN MEHR HERAUS. Bis hierher trug jede Zeile die interne
+         Spieler-ID - an ALLE, die die Liste abriefen. Damit hatte jeder die
+         Kennungen der 20 Besten in der Hand, und die sind der Schluessel zu
+         jedem gezielten Befehl an die Halle: `friendRespond` (in v1.90.7
+         geriegelt), `challenge`, `gift`. Der Riegel dort war richtig; die
+         OFFENE Tuer daneben ist diese Liste.
+
+         Der Client brauchte die Kennung nur, um die eigene Zeile
+         hervorzuheben - dafuer genuegt ein Ja/Nein, das der Server selbst
+         setzt. Die eigene Kennung kennt der Spieler ohnehin, sie bleibt an
+         der `me`-Zeile. */
       const rows = this.store.playerIds()
         .map((id) => { const pl = this.player(id); return { id, name: pl.name, rating: pl.rating ?? 1000, wins: pl.wins || 0, losses: pl.losses || 0, draws: pl.draws || 0, online: this.isOnline(id) }; })
         .filter((r) => r.wins + r.losses + (r.draws || 0) > 0 || r.online)
         .sort((a, b) => b.rating - a.rating);
       const rank = rows.findIndex((r) => r.id === me) + 1;
       const self = this.player(me);
-      const meRow = rank > 0 ? { rank, ...rows[rank - 1] }
-        : { rank: null, id: me, name: self?.name || "?", rating: self?.rating ?? 1000, wins: self?.wins || 0, losses: self?.losses || 0, online: true };
-      this.send(me, { t: "leaderboard", top: rows.slice(0, 20), me: meRow });
+      const ohneId = (r) => ({ name: r.name, rating: r.rating, wins: r.wins, losses: r.losses, draws: r.draws, online: r.online, ich: r.id === me });
+      const meRow = rank > 0 ? { rank, ...ohneId(rows[rank - 1]), id: me }
+        : { rank: null, id: me, name: self?.name || "?", rating: self?.rating ?? 1000, wins: self?.wins || 0, losses: self?.losses || 0, online: true, ich: true };
+      this.send(me, { t: "leaderboard", top: rows.slice(0, 20).map(ohneId), me: meRow });
       return me;
     }
     if (msg.t === "matchOver") return me; // legacy no-op

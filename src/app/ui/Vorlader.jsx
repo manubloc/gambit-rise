@@ -5,6 +5,26 @@
 // Sicherungen: 10 s je Datei, 25 s insgesamt - ein kaputter Pfad haelt das
 // Spiel NIE auf. In jsdom (drive3/test_boot) scheitert fetch relativer URLs
 // sofort, der Schirm schliesst sich dort also praktisch augenblicklich.
+/* ── v1.90.13 (Audit A35, Rest): VIER MEGABYTE, DIE NIEMAND SIEHT ──────
+   Hier standen zehn `liga*.jpg` - die Kapitelgemaelde der ALTEN Weltkarte,
+   zusammen 4,19 MB. Angezeigt hat sie zuletzt `mapBitmaps.js`, und die
+   importiert seit dem Zwoelf-Kapitel-Graphen niemand mehr (gemessen: kein
+   einziger Importeur im Baum). Die heutigen Karten nehmen
+   `assets/kap/kap-01..12.webp`.
+
+   Der Vorlader holt vor dem ersten Bild ALLES ins Haus - also lud er die
+   zehn bei jedem Erstaufruf mit, fuer Bilder, die kein Schirm mehr zeigt.
+   Beide sind nach `archiv/ausgemustert/v1.90.13/` gewandert.
+
+   Dieselbe Messung fand neun weitere: `marble-btn.webp` und die acht
+   Dateien in `assets/stat/`. Die Perlen sind seit v0.25.0 ueberholt
+   (statAssets.js traegt die zwei verbliebenen INLINE als Data-URL, und die
+   Streifen gingen mit der Energie) - die Dateien lagen nur noch hier.
+   Zusammen rund 4,5 MB bei jedem Erstaufruf.
+
+   Genau davor warnt livery.js:123 schon fuer die Riss-Bilder. Wer hier
+   etwas eintraegt, pruefe zuerst, ob es auch jemand ANZEIGT - test_features
+   misst das seit v1.90.13. */
 import { useEffect, useState } from "react";
 import { alleGemaeldeQuellen } from "./board/paintedArt.js";
 import { klangAlleQuellen } from "./klang.js";
@@ -28,20 +48,9 @@ import a31 from "./assets/ground-10.carved.webp";
 import a33 from "./assets/ground-11.carved.webp";
 import a35 from "./assets/ground-12.carved.webp";
 import a37 from "./assets/intro-riss.webp";
-import a38 from "./assets/liga-canyon.jpg";
-import a39 from "./assets/liga-herbst.jpg";
-import a40 from "./assets/liga-hochgebirge.jpg";
-import a41 from "./assets/liga-meer.jpg";
-import a42 from "./assets/liga-oedland.jpg";
-import a43 from "./assets/liga-sommer.jpg";
-import a44 from "./assets/liga-steppe.jpg";
-import a45 from "./assets/liga-winter.jpg";
-import a46 from "./assets/liga-wueste.jpg";
-import a47 from "./assets/liga1.jpg";
 import a48 from "./assets/logo-menu.carved.webp";
 import a50 from "./assets/logo.carved.webp";
 import a51 from "./assets/logo.jpg";
-import a53 from "./assets/marble-btn.webp";
 import a54 from "./assets/marble-d0.webp";
 import a55 from "./assets/marble-d1.webp";
 import a56 from "./assets/marble-d2.webp";
@@ -137,18 +146,10 @@ import a169 from "./assets/ach/ach-streak.carved.webp";
 import a171 from "./assets/ach/ach-upgrades.carved.webp";
 import a173 from "./assets/ach/ach-wins.carved.webp";
 import a175 from "./assets/ach/ach-xp.carved.webp";
-import a177 from "./assets/stat/orb-gold-energy.webp";
-import a178 from "./assets/stat/orb-gold-life.webp";
-import a179 from "./assets/stat/orb-gold-power.webp";
-import a180 from "./assets/stat/orb-steel-energy.webp";
-import a181 from "./assets/stat/orb-steel-life.webp";
-import a182 from "./assets/stat/orb-steel-power.webp";
-import a183 from "./assets/stat/strip-gold.webp";
-import a184 from "./assets/stat/strip-steel.webp";
 /* v1.77.0 (Besitzer: "bei dieser Ladeanimation bitte das bestehende
    Kreislogo mit der kreisenden Animation lassen, aber dort nicht noch on top
    dieses Logo - das wird dann zu viel"): der Vorlader zeigt nur das Siegel. */
-const WEITERE = [a0, a2, a4, a6, a8, a10, a11, a13, a15, a17, a19, a21, a23, a25, a27, a29, a31, a33, a35, a37, a38, a39, a40, a41, a42, a43, a44, a45, a46, a47, a48, a50, a51, a53, a54, a55, a56, a57, a58, a59, a60, a61, a62, a63, a64, a65, a66, a67, a68, a69, a70, a71, a72, a74, a75, a76, a77, a78, a79, a80, a81, a82, a83, a84, a85, a86, a87, a88, a89, a90, a91, a92, a93, a94, a95, a96, a97, a98, a99, a100, a101, a102, a103, a104, a105, a106, a108, a110, a112, a114, a116, a118, a120, a122, a124, a126, a128, a129, a131, a133, a134, a135, a136, a137, a138, a139, a140, a141, a142, a143, a144, a145, a146, a147, a148, a149, a151, a153, a155, a157, a159, a161, a163, a165, a167, a169, a171, a173, a175, a177, a178, a179, a180, a181, a182, a183, a184];
+const WEITERE = [a0, a2, a4, a6, a8, a10, a11, a13, a15, a17, a19, a21, a23, a25, a27, a29, a31, a33, a35, a37, a48, a50, a51, a54, a55, a56, a57, a58, a59, a60, a61, a62, a63, a64, a65, a66, a67, a68, a69, a70, a71, a72, a74, a75, a76, a77, a78, a79, a80, a81, a82, a83, a84, a85, a86, a87, a88, a89, a90, a91, a92, a93, a94, a95, a96, a97, a98, a99, a100, a101, a102, a103, a104, a105, a106, a108, a110, a112, a114, a116, a118, a120, a122, a124, a126, a128, a129, a131, a133, a134, a135, a136, a137, a138, a139, a140, a141, a142, a143, a144, a145, a146, a147, a148, a149, a151, a153, a155, a157, a159, a161, a163, a165, a167, a169, a171, a173, a175];
 
 function alleQuellen() {
   const out = new Set();
