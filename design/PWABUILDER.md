@@ -117,10 +117,31 @@ hochladen. Es gibt keinen Weg zurück — Google kann das nicht reparieren.
 
 Play Console → deine App → **Testen und Veröffentlichen** → **Interner Test**
 → **Neue Version erstellen** → `app-release-bundle.aab` hineinziehen →
-Versionshinweise (ein Satz genügt) → **Speichern** → **Überprüfen** →
+Versionshinweise → **Speichern** → **Überprüfen** →
 **Veröffentlichung starten**.
 
-Freigabe dauert Minuten, keine Prüfung.
+Freigabe dauert Minuten, **keine Prüfung durch Google**. Die Pflichtuhr
+„12 Tester, 14 Tage" gilt für den GESCHLOSSENEN Test (Backlog S8), nicht hier.
+
+**Versionshinweise zum Einsetzen** (Play verlangt sie je Sprache):
+
+*de-DE*
+```
+Erste Fassung für den internen Test. Vollständige Kampagne mit zwölf
+Kapiteln, Hofstaat, Ausrüstung und Online-Duell. Rückmeldungen bitte über
+Profil → Feedback & Fehler melden.
+```
+
+*en-US*
+```
+First build for internal testing. Full campaign across twelve chapters,
+court, equipment and online duels. Please report anything you find via
+Profile → Feedback.
+```
+
+**Was vorher vollständig sein muss** (Stand 29.9.2026 alles erledigt):
+App-Inhalte (Altersfreigabe S1, Datensicherheit S2), Store-Eintrag in
+beiden Sprachen (S3), Löschseite erreichbar (S15).
 
 ## 7. Auf dem eigenen Handy testen
 
