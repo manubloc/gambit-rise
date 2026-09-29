@@ -102,6 +102,39 @@
   („Einige Sprachen sind fehlerhaft"). Entfernt; UK-Nutzer sehen ohnehin den
   en-US-Eintrag.
 
+- [ ] **S4a UPLOADSCHLÜSSEL-RESET — ANGEFORDERT AM 29.9.2026, 22:30.**
+  Der erste Versuch lief genau in die Falle aus S4: PWABuilder hat einen
+  NEUEN Schlüssel erzeugt, und die Console hat das Bundle abgewiesen —
+  erwartet SHA-1 `0F:F9:2A:E5:…:C5:CF:CD`, geliefert
+  `AA:BE:6E:AD:…:1E:CE:19:83`. Der ursprüngliche Keystore ist nicht
+  auffindbar (in Downloads liegt er nicht).
+
+  **Gemacht:** neuer Uploadschlüssel erzeugt (RSA 2048, Alias `gg`, gültig
+  bis 14.2.2054), liegt mit Passwort und Zertifikat unter
+  `Downloads\gambit-schluessel\`. In der Console „Zurücksetzung des
+  Uploadschlüssels anfordern" → Grund „Mein Uploadschlüssel ist verloren
+  gegangen" → `upload_certificate.pem` hochgeladen → angefordert.
+  Stand: **ausstehende Anfrage**, Google meldet den Zeitpunkt per Mail
+  (typisch ~48 h).
+
+  **Neuer Uploadschlüssel:**
+  `SHA-1  FC:6A:75:B7:8E:22:D1:59:75:48:0A:FF:E5:52:24:DE:7C:1A:CF:BA`
+  `SHA-256 15:E8:30:D9:D7:72:A0:8A:00:37:41:D8:A8:AE:12:94:26:CA:D8:34:71:59:69:58:65:B2:EE:FF:FE:23:93:FE`
+
+  **DANACH NICHT VERGESSEN:** in `public/.well-known/assetlinks.json` den
+  ALTEN Uploadabdruck (`00:4B:29:FA:…`) durch den neuen SHA-256 ersetzen.
+  Googles App-Signaturschlüssel (`D9:2D:FB:2E:…`) bleibt unverändert — er
+  ist der, mit dem die ausgelieferte App signiert wird. **Erst ändern, wenn
+  Google den Reset bestätigt hat**, nicht vorher: wird die Anfrage
+  abgelehnt, stünde sonst ein Abdruck in der Datei, den es nicht gibt.
+
+  **Nützlicher Kniff, teuer gelernt:** das Uploadzertifikat lässt sich OHNE
+  Keystore-Passwort aus einer signierten APK ziehen —
+  `unzip -o APK "META-INF/*" -d x` und dann
+  `openssl pkcs7 -inform DER -print_certs -in x/META-INF/*.RSA -out cert.pem`.
+  Gegengeprüft: der so gewonnene Abdruck war exakt der, den Googles
+  Fehlermeldung nannte.
+
 - [ ] **S4 Android-Paket bauen — DER EINZIGE BLOCKER FÜR DEN INTERNEN TEST.**
   Nach `design/PWABUILDER.md` über <https://www.pwabuilder.com>: Adresse
   `https://gambitrise.com`, Paket `com.gambitrise.app`, App-Name
