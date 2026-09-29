@@ -76,7 +76,15 @@ export function summarize(session, result) {
  * of how the UI re-rendered during play.
  */
 export function summarizeMatch(playerArmy, aiArmy, seed, log, result, playerColor = WHITE, opts = {}) {
-  const { events, state: ende } = replay(createGame(playerArmy, aiArmy, { seed, map: opts.map, rules: opts.rules }), log);
+  /* ── v1.90.10 (Audit A9): DAS REPLAY BRAUCHT DIESELBEN BUENDE ────────
+     Diese Zusammenfassung spielt die Befehlsliste NOCH EINMAL nach, um an
+     den Ereignisstrom zu kommen. Solange `state.buende` nirgends gesetzt war,
+     fiel das nicht auf - jetzt schon: wirkt im Gefecht ein Paladin, der beim
+     Nachspielen fehlt, laufen die beiden Zustaende auseinander, und die
+     Belohnung faellt fuer eine Partie aus, die es so nie gab. Der Aufrufer
+     gibt darum mit, mit welchen Buenden gespielt wurde. */
+  const { events, state: ende } = replay(createGame(playerArmy, aiArmy,
+    { seed, map: opts.map, rules: opts.rules, buende: opts.buende }), log);
   const session = applyEvents(newSession(playerColor, playerArmy), events);
   /* v1.30.0: WEGELAGEREI - was jede Seite geraubt hat, steht im Endzustand;
      die Zusammenfassung traegt den Saldo aus Sicht des Spielers. */

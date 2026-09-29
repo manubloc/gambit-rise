@@ -3,7 +3,7 @@ import { cloneBoard, findKing } from "../domain/board.js";
 import { pseudoMoves, pieceMoves, talentWirkt, verbuche, zauberRest, stufeVon } from "../rules/moves.js";
 import { kroneFaengtAb, schildwachtDeckt, nachtwacheHeilt, faehrteFolgt, konzilLehntAb, sturmRuftZurueck, hinterstenBauern } from "../rules/buende.js";
 import { inCheck } from "../rules/attacks.js";
-import { schlageSperre, loeseFalleAus, zerfalleSperren } from "../rules/sperren.js";
+import { schlageSperre, loeseFalleAus, zerfalleSperren, versperrt } from "../rules/sperren.js";
 import { familyOf, familyCount, crownWallSoak } from "../rules/families.js";
 
 /* v1.32.0: DER GEIST (Geistwandel) - EINE Stelle fuer seine Zahlen. Kern,
@@ -156,10 +156,38 @@ function altern(ns) {
       const zf = pf + dr * W2 + df;
       const neueSpalte = (pf % W2) + df;
       if (df || dr) {
-        if (zf >= 0 && zf < ns.board.length && neueSpalte >= 0 && neueSpalte < W2 && !ns.board[zf]) {
+        if (zf >= 0 && zf < ns.board.length && neueSpalte >= 0 && neueSpalte < W2
+            && !ns.board[zf]
+            /* ── v1.90.10 (Audit A38): DER NACHZUG KENNT JETZT LOECHER UND
+               SPERREN ──────────────────────────────────────────────
+               Geprueft wurde nur `!ns.board[zf]` - ein leeres Feld. Ein LOCH
+               ist aber leer, und eine Mauer steht nicht im Brett-Verzeichnis:
+               der Partner rueckte also in ein Loch des Hofs oder mitten in
+               eine Sperre. Gefragt wird ab jetzt dasselbe wie im Zugangebot
+               (versperrt aus rules/sperren.js, holes aus dem Zustand). */
+            && !(ns.holes && ns.holes.has && ns.holes.has(zf))
+            && !versperrt({ sperren: ns.sperren }, zf)) {
           ns.board[zf] = ns.board[pf];
           ns.board[pf] = null;
-          ns.lastMove.bundFaehrte = { von: pf, nach: zf };
+          /* ── v1.90.10 (Audit A33, Rest): DER NACHZUG DARF DEN KOENIG NICHT
+             ENTBLOESSEN ────────────────────────────────────────────────
+             Bis v1.90.9 war das ohne Folgen, weil `state.buende` nie gefuellt
+             war - die Faehrte wirkte ueberhaupt nicht (Audit A9). Seit sie
+             verdrahtet ist, ist es scharf: legalMoves prueft die
+             Koenigssicherheit des ZUGES, nicht die des Nachzugs, der danach
+             von selbst passiert. Ein Partner, der aus der Deckung rueckt,
+             koennte damit den eigenen Koenig ins Schach stellen - ein
+             Zustand, den die Regeln nicht kennen und den der Spieler nicht
+             gewaehlt hat. Passiert das, bleibt der Partner stehen: der
+             Nachzug ist ohnehin "freiwillig" (siehe oben), er faellt eben
+             auch hier aus. Nur unter MATT-Regeln - im HP-Gefecht gibt es
+             kein Schach. */
+          if (ns.rules !== "hp" && inCheck(ns, ns.lastMove.color)) {
+            ns.board[pf] = ns.board[zf];
+            ns.board[zf] = null;
+          } else {
+            ns.lastMove.bundFaehrte = { von: pf, nach: zf };
+          }
         }
       }
     }

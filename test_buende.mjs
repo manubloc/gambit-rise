@@ -301,5 +301,144 @@ console.log("\n== OHNE BUND: Bauer, Gambit, Drache ==");
   ok("der Gambit traegt seine eigene (v1.14.2)", k("gambit") === "figur-gambit");
 }
 
+/* ══ v1.90.10 (Audit A9): DIE BUENDE KOMMEN JETZT WIRKLICH INS GEFECHT ═══
+   Bis v1.90.9 wurde `state.buende` von KEINER der neun createGame-Stellen
+   gesetzt - state.js:30 ist die einzige Setzstelle und bekam die Liste nie.
+   `hat(state, bund)` gab damit immer false zurueck: der Paladin fing nichts
+   ab, das Konzil lehnte nichts ab, der Geleit-Knopf erschien nie. Der
+   Spieler erweckte die Buende mit Skillpunkten, sah das Fenster "Der Bund
+   ist erwacht" - und merkte im Gefecht nichts.
+
+   UND DIESE SUITE HAT ES NICHT GEMERKT, weil sie `buende` von Hand
+   injiziert (leer(["geleit"]) und so weiter) - sie prueft die WIRKUNG, nicht
+   den WEG dorthin. Genau diese Luecke schliessen die Pruefungen hier: vom
+   Spielstand bis in den Zustand, ohne Handanlegen.
+   `hat` ist in core/rules/buende.js nicht exportiert (modulintern) - hier
+   wird darum dieselbe Frage gestellt, die es stellt. */
+console.log("\n== A9: DER WEG VOM SPIELSTAND IN DEN KERN ==");
+{
+  const hatBund = (st, b) => !!(st && st.buende && st.buende.includes(b));
+  const { buendeFuer, maxLevelFor } = await import("./src/meta/index.js");
+  const { defaultProfile } = await import("./src/meta/profile.js");
+  const { createGame: mkGame, legalMoves: zuege, applyMove: zieh } = await import("./src/core/index.js");
+  const { BUND_LISTE } = await import("./src/content/buende.js");
+
+  const frisch = defaultProfile();
+  ok("A9: ein frischer Stand hat keine erwachten Buende", buendeFuer(frisch).length === 0);
+
+  const erster = BUND_LISTE[0];
+  const gestuft = { ...frisch, pieces: { ...(frisch.pieces || {}),
+    levels: Object.fromEntries(erster.figuren.map((f) => [f, maxLevelFor(f)])) } };
+  const liste = buendeFuer(gestuft);
+  ok("A9: sind alle Figuren eines Bundes auf Hoechststufe, ist er erwacht", liste.includes(erster.id));
+  ok("A9: und nur er - nicht gleich alle", liste.length === 1);
+
+  /* DER WEG IN DEN KERN. Das war der eigentliche Fehler. */
+  const g = mkGame(undefined, undefined, { rules: "hp", buende: liste });
+  ok("A9: createGame nimmt die Liste an und legt sie in den Zustand",
+    Array.isArray(g.buende) && g.buende.includes(erster.id));
+  ok("A9: und der Kern SIEHT ihn dort", hatBund(g, erster.id) === true);
+  const ohne = mkGame(undefined, undefined, { rules: "hp" });
+  ok("A9: ohne Angabe bleibt es beim Nichts - kein Bund aus Versehen",
+    !ohne.buende || ohne.buende.length === 0);
+  ok("A9: und der Kern sieht dort auch keinen", hatBund(ohne, erster.id) === false);
+
+  /* Die Liste ueberlebt den Zug. */
+  let lauf = g;
+  for (let i = 0; i < 3; i++) {
+    const z = zuege(lauf, lauf.turn)[0];
+    if (!z) break;
+    lauf = zieh(lauf, z);
+  }
+  ok("A9: nach drei Zuegen steht der Bund noch im Zustand", (lauf.buende || []).includes(erster.id));
+}
+{
+  /* WO SIE NICHT GELTEN: Hotseat, PvP, Fernpartie und Klassik bleiben leer.
+     Das ist kein Zustand, den man hier messen kann - es ist eine Bedingung
+     im Schirm. Geprueft wird darum, dass sie dasteht UND welche vier Faelle
+     sie nennt; ohne sie waere ein Bund, der nur fuer eine Seite wirkt, ein
+     Betrug am Gegner. */
+  const { readFileSync } = await import("node:fs");
+  const gs = readFileSync("src/app/ui/screens/GameScreen.jsx", "utf8");
+  const stelle = gs.indexOf("const meineBuende = useMemo(");
+  ok("A9: der Schirm entscheidet die Buende an EINER Stelle", stelle > 0);
+  const bed = stelle > 0 ? gs.slice(stelle, stelle + 260) : "";
+  ok("A9: und sie schliesst PvP, Fernpartie, Hotseat und Klassik aus",
+    /!pvp/.test(bed) && /!daily/.test(bed) && /!hotseat/.test(bed) && /!classic/.test(bed));
+  ok("A9: der Kampagnen-Aufbau reicht sie durch", /seed, buende: meineBuende/.test(gs));
+  ok("A9: und das Replay bekommt dieselben", /buende: state\.buende/.test(gs));
+  const ses = readFileSync("src/meta/session.js", "utf8");
+  ok("A9: summarizeMatch gibt sie an createGame weiter", /buende: opts\.buende/.test(ses));
+}
+
+/* ══ v1.90.10 (Audit A33, Rest): DIE BUNDWIRKUNGEN KENNEN DEN KOENIG ════
+   Solange die Buende nie wirkten (A9), war das ohne Folgen. Seit v1.90.10
+   ist es scharf: Geleit und Faehrte laufen NICHT durch legalMoves und
+   gingen damit an jeder Koenigssicherheit vorbei. Das Audit hat gemessen,
+   dass ein Geleit IM Schach angenommen wurde und die Partie danach in einem
+   Zustand stand, den weder Kern noch Oberflaeche kennen. */
+console.log("\n== A33: GELEIT UND FAEHRTE ENTBLOESSEN DEN KOENIG NICHT ==");
+{
+  const { reduce: red } = await import("./src/core/index.js");
+  const { geleitCommand: gc } = await import("./src/core/sim/commands.js");
+  const { inCheck } = await import("./src/core/rules/attacks.js");
+  /* Brett 8x8 unter MATT-Regeln. Weisser Koenig auf e1 (Reihe 0), davor in
+     Reihe 1 der TURM des Bundes als einzige Deckung; ein schwarzer Turm
+     zielt die Spalte hinab. Nimmt das Geleit die Deckung weg, steht der
+     Koenig im Schach - genau das soll nicht angenommen werden. */
+  const bau = (mitGegner) => {
+    const g = leer(["geleit"]);
+    const b = g.board.map(() => null);
+    const spalte = 4;
+    b[0 * w + spalte] = fig("K", "king", "w", 20, 5);
+    b[1 * w + spalte] = fig("R", "rook", "w", 12);        // die Deckung
+    b[3 * w + 1] = fig("N", "knight", "w", 12);
+    b[3 * w + 2] = fig("B", "bishop", "w", 12);
+    b[7 * w + 0] = fig("K", "king", "b", 20, 5);
+    if (mitGegner) b[7 * w + spalte] = fig("R", "rookFoe", "b", 12);
+    return { ...g, board: b, rules: "chess", turn: "w" };
+  };
+  const drin = bau(true);
+  const tTurm = wo(drin, "rook"), tSpringer = wo(drin, "knight");
+  ok("A33: der Aufbau steht (Turm und Springer des Bundes gefunden)", tTurm >= 0 && tSpringer >= 0);
+  /* ── EIN BEFUND, DER DEN AUDIT KORRIGIERT ─────────────────────────
+     Die Empfehlung zu A33 lautet: "GELEIT ablehnen, wenn inCheck vorher
+     ODER NACHHER". Der zweite Fall ist nicht konstruierbar, und zwar aus
+     einem einfachen Grund: ein TAUSCH macht kein Feld leer. Zieht der
+     deckende Turm weg, steht an seiner Stelle der Springer - und fuer eine
+     gleitende Linie ist es gleich, WELCHE Figur davor steht. Ein Geleit
+     kann den eigenen Koenig also nur dann ins Schach stellen, wenn eine der
+     beiden getauschten Figuren der KOENIG selbst ist, und der gehoert dem
+     Geleit-Bund nicht (Springer, Laeufer, Turm).
+     Die Probe haelt darum genau das fest: der Tausch geht durch, UND der
+     Koenig steht danach nicht im Schach. Der zweite Riegel im Reducer bleibt
+     trotzdem stehen - ein kuenftiger Bund mit Koenig oder Dame waere sonst
+     die naechste Luecke, und er kostet nichts. */
+  const versuch = red(drin, gc("w", tTurm, tSpringer));
+  ok("A33: hier faellt kein Feld leer - der Tausch geht durch", versuch.state !== drin);
+  ok("A33: und der Koenig steht danach NICHT im Schach (darum ging er durch)",
+    inCheck(versuch.state, "w") === false);
+  const frei = bau(false);
+  const fTurm = wo(frei, "rook"), fSpringer = wo(frei, "knight");
+  const geht = red(frei, gc("w", fTurm, fSpringer));
+  ok("A33: ohne Schachgefahr tauschen sie weiterhin", geht.state !== frei);
+  /* Und aus dem Schach heraus gar nicht - auch wenn der Tausch selbst
+     unschaedlich waere. */
+  const imSchach = bau(true);
+  imSchach.board[1 * w + 4] = null;                        // Deckung entfernt -> Schach steht
+  const raus = red(imSchach, gc("w", wo(imSchach, "knight"), wo(imSchach, "bishop")));
+  ok("A33: und aus dem Schach heraus gibt es gar kein Geleit", raus.state === imSchach);
+}
+{
+  /* Der Faehrten-Nachzug kennt jetzt Loecher und Sperren (A38) und nimmt
+     sich zurueck, wenn er den Koenig entbloesst (A33). */
+  const { readFileSync } = await import("node:fs");
+  const tr = readFileSync("src/core/sim/transitions.js", "utf8");
+  ok("A38: der Nachzug fragt nach Loechern", /ns\.holes\.has\(zf\)/.test(tr));
+  ok("A38: und nach Sperren", /versperrt\(\{ sperren: ns\.sperren \}, zf\)/.test(tr));
+  ok("A33: und er nimmt sich zurueck, wenn er den Koenig entbloesst",
+    /inCheck\(ns, ns\.lastMove\.color\)/.test(tr));
+}
+
 console.log(`\nRESULT: ${passed} passed, ${failed} failed`);
 if (failed) process.exit(1);

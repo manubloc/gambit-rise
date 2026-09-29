@@ -6,7 +6,7 @@ import { createPortal } from "react-dom";   /* v1.89.5: die Aufstiegsfeier als P
 import { useMedia } from "../../App.jsx";
 import { GildedFrame, goldText, GoldShineButton } from "../Gilded.jsx";
 import { SP_SHARD_GOLD, SP_VAULT_MIN_CLEARED, spShardCap, bossLevelOf, bossUpgradeCost, bossSpecLeveled, BOSS_MAX_LEVEL, gambitWach,
-  darfHeldSetzen, darfReiheStellen, freigegeben } from "../../../meta/index.js";
+  darfHeldSetzen, darfReiheStellen, freigegeben, buendeFuer } from "../../../meta/index.js";
 import { CHARACTER_LIST, CHARACTERS, ABILITIES, TAGS, SPERRGRUND, faehigkeitZustand, MAPS, mapById, ITEM_LIST, bossById, BOSSES, ITEMS, itemPrice } from "../../../content/index.js";
 import LebensRohr from "../board/LebensRohr.jsx";
 import { rohrAnteile } from "../board/PieceGlyph.jsx";
@@ -1466,7 +1466,9 @@ function FormationEditor({ profile, dispatch, t, en }) {
       return { kind: "P", level: lvl, abilities: r.abilities, shield: r.shield, tier: gambitTier(lvl) };
     })() };
     const foe = buildAiArmyForMap("easy", map, 0);
-    return createGame(mine, foe, { map, rules: "hp", seed: 1 });
+    /* v1.90.10 (A9): auch die Vorschau im Hofstaat zeigt den eigenen Stand -
+       sonst sieht das Uebungsbrett anders aus als das echte. */
+    return createGame(mine, foe, { map, rules: "hp", seed: 1, buende: buendeFuer(profile) });
   }, [draft, mapId, legal, profile]); // eslint-disable-line
 
   return <>

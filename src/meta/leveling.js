@@ -1,6 +1,7 @@
 import { KIND, VALUE, BASE_HP, BASE_ATK } from "../core/index.js";
 import { DEFAULT_BACK_RANK, FLANK_SLOTS } from "../core/index.js";
 import { bossById, bossSpec, LEAGUE_BOSSES } from "../content/bosses.js";
+import { erwachteBuende } from "../content/buende.js";   /* v1.90.10 (A9) */
 import { CHARACTERS, CHARACTER_LIST, KIND_TO_CHAR } from "../content/index.js";
 import { difficultyById, mapById, MAPS } from "../content/index.js";
 import { ABILITIES, CAMPAIGN } from "../content/index.js";
@@ -133,6 +134,23 @@ export const MAX_PIECE_LEVEL = 10;
    Sechsfache eines Bauern. Ein Heldenaufschlag, keine Mauer. */
 export const GAMBIT_MAX_LEVEL = 20;
 export const maxLevelFor = (charId) => (charId === "gambit" ? GAMBIT_MAX_LEVEL : MAX_PIECE_LEVEL);
+
+/* ── v1.90.10 (Audit A9): WELCHE BUENDE SIND FUER DIESEN STAND ERWACHT? ───
+   Die Frage wurde bis hierher DREIMAL beantwortet: offenerBund in App.jsx
+   (fuer das Fenster "Der Bund ist erwacht"), BundTafel (fuer die Anzeige im
+   Blatt) und erwachteBuende in content/buende.js - die letzte hatte im ganzen
+   Haus KEINEN Aufrufer. Und der Kern bekam die Liste nie: state.buende blieb
+   leer, `hat(state, bund)` gab immer false zurueck, und damit wirkte kein
+   einziger Bund im Gefecht (Audit A9). Der Spieler erweckte sie mit
+   Skillpunkten, sah das Fenster - und merkte nichts.
+
+   Diese Funktion ist ab jetzt die EINE Stelle, die aus einem Spielstand die
+   Liste macht. Sie gehoert hierher und nicht in content/buende.js: dort
+   stehen die Buende, hier weiss man, was ein Profil ist. */
+export function buendeFuer(profile) {
+  if (!profile) return [];
+  return erwachteBuende((cid) => characterLevel(profile, cid) || 1, maxLevelFor);
+}
 export const gambitTier = (level) =>
   Math.min(6, Math.max(1, Math.ceil(Math.max(1, level) * 6 / GAMBIT_MAX_LEVEL)));
 export const GAMBIT_STEP_COST = [2, 2, 3, 3, 4, 4];

@@ -1,5 +1,65 @@
 # Changelog - Gambit Rise
 
+## 1.90.10 - die Buende wirken jetzt wirklich im Gefecht, und Geleit und Faehrte kennen den Koenig
+
+**A9 — DIE BUENDE WIRKTEN IM GEFECHT NIE.** `state.buende` wurde von KEINER
+der neun createGame-Stellen gesetzt; `state.js:30` ist die einzige
+Setzstelle und bekam die Liste nie. `hat(state, bund)` in
+core/rules/buende.js gab damit immer false zurueck: der Paladin fing nichts
+ab, das Konzil lehnte nichts ab, der Geleit-Knopf erschien nie. Der Spieler
+erweckte die Buende mit Skillpunkten, sah das Fenster "Der Bund ist erwacht"
+- und merkte im Gefecht nichts.
+
+Und die gruene Bund-Suite hat es nicht bemerkt, weil sie `buende` **von Hand
+injiziert** (test_buende.mjs:35): sie prueft die WIRKUNG, nicht den WEG
+dorthin. Genau diese Luecke schliessen die neuen Pruefungen - vom Spielstand
+bis in den Zustand, ohne Handanlegen.
+
+- **EINE Stelle statt drei.** Die Frage "welche Buende sind erwacht?" wurde
+  dreimal beantwortet: `offenerBund` in App.jsx (fuer das Fenster),
+  `BundTafel` (fuer das Blatt) und `erwachteBuende` in content/buende.js -
+  die letzte hatte im ganzen Haus KEINEN Aufrufer. Neu:
+  `buendeFuer(profile)` in meta/leveling.js, die eine Stelle, die aus einem
+  Spielstand die Liste macht.
+- **WO SIE GELTEN:** Kampagne, Schnelles Spiel, Akademie - es ist dein
+  Hofstaat. **Wo nicht:** Hotseat (zwei Spieler teilen ein Profil, ein Bund
+  nur fuer Weiss waere kein Duell), PvP und Fernpartie (der Netzcode traegt
+  sie nicht - einseitig gewirkte Buende waeren ein Betrug am Gegner), und
+  Klassisch (will ausdruecklich nichts als Schach sein). Dieselbe Grenze wie
+  bei den Sperren.
+- **DAS REPLAY BEKOMMT DIESELBEN.** `summarizeMatch` spielt die Befehlsliste
+  noch einmal nach. Solange `buende` nie gesetzt war, fiel das nicht auf -
+  jetzt schon: wirkt im Gefecht ein Paladin, der beim Nachspielen fehlt,
+  laufen die Zustaende auseinander und die Belohnung faellt fuer eine Partie
+  aus, die es so nie gab.
+
+**A33 (Rest) — GELEIT UND FAEHRTE LAUFEN NICHT DURCH `legalMoves`** und gingen
+damit an jeder Koenigssicherheit vorbei. Solange die Buende nie wirkten, war
+das ohne Folgen; seit v1.90.10 ist es scharf. Das Geleit wird jetzt aus dem
+Schach heraus abgewiesen, und der Faehrten-Nachzug nimmt sich zurueck, wenn
+er den eigenen Koenig entbloesst (beides nur unter Matt-Regeln - im
+HP-Gefecht gibt es kein Schach).
+
+**Ein Befund, der den Audit korrigiert:** die Empfehlung lautet "GELEIT
+ablehnen, wenn inCheck vorher ODER NACHHER". Der zweite Fall ist nicht
+konstruierbar - ein TAUSCH macht kein Feld leer. Zieht der deckende Turm
+weg, steht an seiner Stelle der Springer, und fuer eine gleitende Linie ist
+es gleich, welche Figur davor steht. Ein Geleit kann den eigenen Koenig nur
+ins Schach stellen, wenn eine der getauschten Figuren der KOENIG ist - und
+der gehoert dem Geleit-Bund nicht. Der Riegel bleibt trotzdem stehen: ein
+kuenftiger Bund mit Koenig oder Dame waere sonst die naechste Luecke, und er
+kostet nichts. Die Probe haelt fest, was WIRKLICH gilt, statt einen Fall zu
+behaupten, den es nicht gibt.
+
+**A38 — DER FAEHRTEN-NACHZUG KANNTE WEDER LOECHER NOCH SPERREN.** Geprueft
+wurde nur `!ns.board[zf]` - ein leeres Feld. Ein LOCH ist aber leer, und
+eine Mauer steht nicht im Brett-Verzeichnis: der Partner rueckte in ein Loch
+des Hofs oder mitten in eine Sperre. Gefragt wird jetzt dasselbe wie im
+Zugangebot.
+
+**Gegengeprueft:** gegen v1.90.9 bricht test_buende schon beim Import ab -
+`buendeFuer` gab es nicht.
+
 ## 1.90.9 - die Fallen sind gebaut: Spitzgrube und Baerenfalle liegen, schnappen zu und kosten den Gegner etwas
 
 **A32 — DIE FALLEN GAB ES NUR AUF DEM PAPIER.** Bis v1.90.8 standen in

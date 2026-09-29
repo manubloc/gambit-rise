@@ -146,6 +146,23 @@ export function reduce(state, command) {
          verloren; ein Replay wich ab. */
       brett[a] = { ...zwei, hasMoved: true };
       brett[b] = { ...eins, hasMoved: true };
+      /* ── v1.90.10 (Audit A33, Rest): KEIN GELEIT AUS DEM SCHACH UND KEINS
+         INS SCHACH ─────────────────────────────────────────────────
+         Der Platztausch ist KEIN Zug - er laeuft nicht durch legalMoves und
+         damit an jeder Koenigssicherheit vorbei. Bis v1.90.9 war das ohne
+         Folgen, weil `state.buende` nie gefuellt war und das Geleit
+         ueberhaupt nicht zustandekam (Audit A9). Seit es verdrahtet ist, ist
+         es scharf: das Audit hat gemessen, dass ein Geleit im Schach
+         angenommen wurde - und danach stand die Partie in einem Zustand,
+         den weder Kern noch Oberflaeche kennen (A33: "Geleit im Schach
+         angenommen, Turm x Koenig legal, danach status ongoing").
+         Zwei Riegel, beide nur unter MATT-Regeln (im HP-Gefecht gibt es kein
+         Schach): aus dem Schach heraus gar nicht, und nicht in ein Schach
+         hinein. Dieselbe Vorschrift, die fuer die Rochade gilt. */
+      if (state.rules !== "hp") {
+        if (inCheck(state, command.color)) return { state, events: [] };
+        if (inCheck({ ...state, board: brett }, command.color)) return { state, events: [] };
+      }
       const next = halbzugUhren(state, { ...state, board: brett,
         geleitVerbraucht: { ...(state.geleitVerbraucht || {}), [command.color]: true },
         turn: command.color === "w" ? "b" : "w",

@@ -8,7 +8,7 @@ import { WHITE, BLACK, createGame, reduce, moveCommand, potionCommand, shiftComm
   /* v1.90.9 (Audit A32): die Fallen. Dieselbe Setzphase, andere Regeln. */
   FALLEN_ARTEN, MAX_FALLEN, fallenFelder, legeFalle, nimmFalle, fallenAnzahl } from "../../../core/index.js";
 import { difficultyById, mapById, MAPS, campaignTag, chapterForRow, CHARACTERS as CHARACTERS_BY_ID, voiceFor, ITEMS, KIND_TO_CHAR, nodeById } from "../../../content/index.js";
-import { buildArmy, buildAiArmyForMap, buildArmyFromFormation, hasForesight, applyResult, summarizeMatch, mapUnlocked, hpUnlocked, winGold, characterLevel, gambitTier, itemRevealed, clearedCount, SP_VAULT_MIN_CLEARED } from "../../../meta/index.js";
+import { buildArmy, buildAiArmyForMap, buildArmyFromFormation, hasForesight, applyResult, summarizeMatch, mapUnlocked, hpUnlocked, winGold, characterLevel, gambitTier, itemRevealed, clearedCount, SP_VAULT_MIN_CLEARED, buendeFuer } from "../../../meta/index.js";
 import { chooseMove } from "../../../ai/index.js";
 import { T } from "../theme.js";
 import { groundArt, livery } from "../livery.js";
@@ -205,6 +205,29 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
   // exactly where it stood — board, potions, clock and burned time-turners.
   const resume = campaign && !pvp && profile.pausedMatch?.v === 1
     && profile.pausedMatch.nodeId === match.nodeId ? profile.pausedMatch : null;
+  /* ── v1.90.10 (Audit A9): DIE BUENDE KOMMEN INS GEFECHT ─────────────
+     `state.buende` wurde von KEINER der neun createGame-Stellen gesetzt -
+     state.js:30 ist die einzige Setzstelle, und sie bekam die Liste nie.
+     `hat(state, bund)` in core/rules/buende.js gab damit immer false zurueck:
+     der Paladin fing nichts ab, das Konzil lehnte nichts ab, der
+     Geleit-Knopf erschien nie. Der Spieler erweckte die Buende mit
+     Skillpunkten, sah das Fenster "Der Bund ist erwacht" - und merkte im
+     Gefecht nichts. Die gruene Bund-Suite taeuschte Sicherheit vor: sie
+     injizierte `buende` von Hand (test_buende.mjs:35).
+
+     WO SIE GELTEN und wo nicht:
+       - Kampagne, Schnelles Spiel, Akademie: ja. Es ist DEIN Hofstaat.
+       - HOTSEAT: nein. Zwei Spieler an einem Geraet teilen ein Profil; ein
+         Bund, der nur fuer Weiss wirkt, waere kein Duell.
+       - PvP und Fernpartie: nein, noch nicht. Der Netzcode traegt die Buende
+         nicht (dasselbe gilt fuer die Sperren, siehe sperrenErlaubt oben);
+         einseitig gewirkte Buende waeren ein Betrug am Gegner. Sobald das
+         Match-Paket sie mitschickt, kommt es hier dazu.
+       - KLASSISCH: nein - es will ausdruecklich nichts als Schach sein. */
+  const meineBuende = useMemo(
+    () => (!pvp && !daily && !hotseat && !classic ? buendeFuer(profile) : []),
+    [pvp, daily, hotseat, classic, profile]);   // eslint-disable-line
+
   const [state, setState] = useState(() => {
     if (daily) {
       // THE LONG GAME, REBUILT: the server keeps no board, only the seed, both
@@ -226,7 +249,7 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
       const side = () => buildArmyFromFormation(() => 1, map.defaultFormation);
       if (hotseat) return createGame(side(), side(), { map, rules, seed });
       const ai = buildArmyFromFormation(() => 1, map.defaultFormation);
-      return createGame(side(), ai, { map, rules, seed });
+      return createGame(side(), ai, { map, rules, seed, buende: meineBuende });
     }
     /* v1.0.22: auch der GEGNER im Klassischen ist der blanke Standardsatz. */
     let ai = campaign ? match.aiArmy : classic ? buildArmyFromFormation(() => 1, map.defaultFormation) : buildAiArmyForMap(difficulty, map, seed);
@@ -241,7 +264,8 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
       }
       ai = { ...ai, back: arr };
     }
-    return createGame(playerArmy, ai, { map, rules, seed, potions: rules === "hp" ? { w: profile.items?.potion || 0, b: 0 } : undefined });
+    return createGame(playerArmy, ai, { map, rules, seed, buende: meineBuende,
+      potions: rules === "hp" ? { w: profile.items?.potion || 0, b: 0 } : undefined });
   });
   /* v1.31.0: welche Monsterfaehigkeit hat in DIESEM Zug gewirkt? */
   useEffect(() => {
@@ -645,11 +669,12 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
     const seed = freshSeed();
     if (hotseat) {
       const side = () => buildArmyFromFormation(() => 1, m.defaultFormation);
-      setState(createGame(side(), side(), { map: m, rules: rl, seed }));
+      setState(createGame(side(), side(), { map: m, rules: rl, seed }));   /* Hotseat: keine Buende (A9) */
       return;
     }
     const ai = campaign ? match.aiArmy : classic ? buildArmyFromFormation(() => 1, m.defaultFormation) : buildAiArmyForMap(diff, m, seed);
-    setState(createGame(buildArmy(profile, m, campaign ? match.excludeId : null, rl, classic), ai, { map: m, rules: rl, seed }));
+    setState(createGame(buildArmy(profile, m, campaign ? match.excludeId : null, rl, classic), ai,
+      { map: m, rules: rl, seed, buende: meineBuende }));
   }
   function newGame() { reset(difficulty); }
 
@@ -675,7 +700,12 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
       return;
     }
     const foe = pvp ? pvp.oppArmy : campaign ? match.aiArmy : classic ? buildArmyFromFormation(() => 1, map.defaultFormation) : buildAiArmyForMap(difficulty, map, state.seed);
-    const summary = summarizeMatch(playerArmy, foe, state.seed, state.log, result, myColor, { map, rules });
+    /* v1.90.10 (A9): dieselben Buende wie beim Spielen - sonst spielt das
+       Replay eine andere Partie nach als die, die stattgefunden hat.
+       `state.buende` statt meineBuende: bei einer FORTGESETZTEN Partie kommt
+       der Zustand aus dem Spielstand, nicht aus dem Aufbau. */
+    const summary = summarizeMatch(playerArmy, foe, state.seed, state.log, result, myColor,
+      { map, rules, buende: state.buende });
     summary.hpRules = rules === "hp";
     summary.potionsUsed = potionsUsedRef.current;
     summary.hourglassUsed = hourglassUsedRef.current;

@@ -7,6 +7,7 @@ export {
   abilityCost, hpWach, gambitWach, GAMBIT_ERWACHT_AB, gambitStufe, GAMBIT_ERWACHT_AUF_STUFE,
   canUnlockAbility, unlockAbility, respecPiece, RESPEC_GOLD,
   MAX_PIECE_LEVEL, GAMBIT_MAX_LEVEL, maxLevelFor, gambitTier, upgradeCost, canUpgrade, upgradePiece,
+  buendeFuer,   /* v1.90.10 (Audit A9): die EINE Stelle, die aus einem Stand die erwachten Buende macht */
   isUnlocked, unlockedCharacterIds,
   buildArmyFrom, buildArmy, buildAiArmy, buildAiArmyScaled, buildArmyForMap, buildAiArmyForMap, hasForesight,
   formationKey, gespeicherteAufstellung, defaultFormation, formationLegal, formationLegalOn, formationSpec, crownSlots, formationCounts, hoechstzahl, HOECHSTZAHL_JE_FIGUR, buildArmyFromFormation, ownedLeagueBosses, isBossEntry, bossEntryId,
