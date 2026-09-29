@@ -729,5 +729,52 @@ const hmac2 = async (key, data) => { const k = await subtle.importKey("raw", key
     hall.challenges[cid] === undefined);
 }
 
+/* ── v1.90.7 (Audit A21): ZWANGSFREUNDSCHAFT ────────────────────
+   friendRespond prueste nie, ob ueberhaupt eine Anfrage vorlag. Wer eine
+   fremde Kennung kannte - und die Rangliste liefert sie an alle aus -,
+   trug sich mit {t:"friendRespond", id:<Opfer>, accept:true} einfach in die
+   Freundesliste des Opfers ein. Damit fielen auf einen Schlag
+   "Herausforderungen nur von Freunden", die Sichtbarkeit von Online-Status
+   und Punktzahl und das Verschenken von Gold. Die Datenschutzerklaerung
+   nennt diese Einstellung einen Schutz - dann muss sie einer sein. */
+{
+  const { hall } = mkHall();
+  hall.handle(null, { t: "hello", id: "opfer", secret: "s", name: "Opfer", score: 100 });
+  hall.handle(null, { t: "hello", id: "fremd", secret: "s", name: "Fremd", score: 100 });
+  hall.handle("opfer", { t: "set", privacy: "friends" });
+  /* Der Fremde antwortet auf eine Anfrage, die es nie gab. */
+  hall.handle("fremd", { t: "friendRespond", id: "opfer", accept: true });
+  ok("A21: ohne Anfrage entsteht keine Freundschaft",
+    !(hall.player("fremd").friends || []).includes("opfer")
+    && !(hall.player("opfer").friends || []).includes("fremd"));
+  let geworfen = null;
+  try { hall.handle("fremd", { t: "challenge", targetId: "opfer", maps: ["classic"], army: {} }); }
+  catch (e) { geworfen = e.message; }
+  ok("A21: und 'nur Freunde' haelt weiterhin", geworfen === "friends only");
+}
+{
+  /* Die Gegenprobe: mit echter Anfrage geht es weiterhin. */
+  const { hall } = mkHall();
+  hall.handle(null, { t: "hello", id: "a", secret: "s", name: "A", score: 100 });
+  hall.handle(null, { t: "hello", id: "b", secret: "s", name: "B", score: 100 });
+  hall.handle("a", { t: "friendRequest", code: "b" });
+  ok("A21: die Anfrage liegt beim Gefragten", (hall.player("b").pending || []).includes("a"));
+  hall.handle("b", { t: "friendRespond", id: "a", accept: true });
+  ok("A21: und die Annahme stiftet die Freundschaft",
+    (hall.player("a").friends || []).includes("b") && (hall.player("b").friends || []).includes("a"));
+  ok("A21: die Anfrage ist danach abgeraeumt", !(hall.player("b").pending || []).includes("a"));
+}
+{
+  /* Auch ABLEHNEN darf nur, wer gefragt wurde - sonst laesst sich eine
+     fremde Anfrageliste von aussen leerraeumen. */
+  const { hall } = mkHall();
+  hall.handle(null, { t: "hello", id: "a", secret: "s", name: "A", score: 100 });
+  hall.handle(null, { t: "hello", id: "b", secret: "s", name: "B", score: 100 });
+  hall.handle(null, { t: "hello", id: "c", secret: "s", name: "C", score: 100 });
+  hall.handle("a", { t: "friendRequest", code: "b" });
+  hall.handle("c", { t: "friendRespond", id: "a", accept: false });
+  ok("A21: ein Dritter kann die Anfrage nicht wegwerfen", (hall.player("b").pending || []).includes("a"));
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 if (fail) process.exit(1);

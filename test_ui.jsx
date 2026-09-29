@@ -2173,5 +2173,58 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
   ok("A50: ohne laufenden Stand wird nichts festgehalten", ohneStand.voll === true);
 }
 
+/* ── v1.90.7 (Audit A55): WENN NICHTS BLEIBT, MUSS ES JEMAND SAGEN ─────
+   Faellt der Speicher auf den Memory-Shim zurueck - WebView mit gesperrten
+   Website-Daten, manche privaten Fenster -, melden register, createSave und
+   writeSave weiterhin Erfolg. Ein Spieler legt ein Konto an, spielt
+   stundenlang, und beim naechsten Start ist alles fort, ohne Warnung.
+   Im Node-Lauf gibt es kein window.localStorage, der Shim ist also GENAU
+   die Lage, die die Warnung beschreibt - die Probe rendert die
+   Anmeldemaske und sieht nach, ob sie dasteht. */
+{
+  const { default: storage } = await import("./src/platform/storage.web.js");
+  ok("A55: der fluechtige Speicher ist ueberhaupt erkennbar", storage.fluechtig === true);
+  const { LoginScreen } = await import("./src/app/ui/screens/LoginScreen.jsx");
+  const m = html(<LoginScreen onSignedIn={() => {}} initialLang="de" onLang={() => {}} />);
+  ok("A55: die Anmeldemaske warnt, bevor jemand ein Konto anlegt",
+    m.includes("speichert nichts dauerhaft"));
+  const mEn = html(<LoginScreen onSignedIn={() => {}} initialLang="en" onLang={() => {}} />);
+  ok("A55: auf Englisch ebenso", mEn.includes("stores nothing permanently"));
+}
+
+/* ── v1.90.7: DAS SOCKELBAND IST IMMER ROT-SCHWARZ-BLAU ─────────────
+   Besitzer am 29.9.: "Dieses Band mit rot, grau, blau sollte es nicht geben.
+   Es ist immer rot, SCHWARZ, blau - das wollte ich nur sicherstellen, dass
+   es nicht so etwas spaeter im Spiel gibt."
+   Vorher reichte PieceGlyph `hell={!!white}` durch: die EIGENEN Figuren
+   trugen ein helles Mittelstueck, der Gegner ein schwarzes. Gemessen am
+   Koenig: eigen rgb(158,144,120), gegnerisch dunkel. Geprueft wird hier an
+   den Verlaufsstufen im gerenderten SVG - das helle Mittelstueck hat eigene
+   Farben (#f2efe8 / #cfc9bd / #6f6a60), die im Band einer Figur MIT Werten
+   nirgends vorkommen duerfen. */
+{
+  const { PieceGlyph: PG } = await import("./src/app/ui/board/PieceGlyph.jsx");
+  const { SockelBand: SB } = await import("./src/app/ui/SockelBand.jsx");
+  const HELL = ["#f2efe8", "#cfc9bd", "#6f6a60"];
+  const fig = (color) => ({ id: 1, kind: "K", color, level: 5, abilities: [], used: {}, hp: 6, maxHp: 10, atk: 4 });
+  const eigen = html(<PG piece={fig("w")} showLevel={false} />);
+  const gegner = html(<PG piece={fig("b")} showLevel={false} />);
+  ok("Band: die eigene Figur traegt kein helles Mittelstueck mehr",
+    HELL.every((c) => !eigen.includes(c)));
+  ok("Band: die gegnerische auch nicht", HELL.every((c) => !gegner.includes(c)));
+  const DUNKEL = "#15151b";
+  ok("Band: beide Seiten tragen dasselbe schwarze Mittelstueck",
+    eigen.includes(DUNKEL) && gegner.includes(DUNKEL));
+  /* Der Platzhalter im Figuren-Schirm bleibt: ein Band OHNE Werte darf hell
+     sein - aber nur zusammen mit `grau`, sonst entstuende wieder
+     rot-hell-blau. Dieser Riegel steht in SockelBand selbst. */
+  const platz = html(<SB paintedId="king" leben={0} kraft={0} grau hell id="t1" />);
+  ok("Band: der graue Platzhalter darf weiterhin hell sein",
+    HELL.some((c) => platz.includes(c)));
+  const versehen = html(<SB paintedId="king" leben={6} kraft={4} hell id="t2" />);
+  ok("Band: hell OHNE grau bleibt wirkungslos - der Riegel gegen rot-hell-blau",
+    HELL.every((c) => !versehen.includes(c)));
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

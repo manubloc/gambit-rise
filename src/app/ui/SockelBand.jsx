@@ -106,9 +106,18 @@ function segment(m, h, tA, tB, fuss = 0) {
    beiden, die wirklich keine Figuren sind. */
 const OHNE_BAND = new Set(["schatzkammer", "haendler"]);
 
-/* `hell`: die helle Graufassung fuer die EIGENEN Figuren (Besitzer: "meine
-   eigenen Figuren brauchen natuerlich die helle Variante"). Ohne sie wirken
-   beide Seiten gleich, weil das Brett den Gegner nur dunkler filtert. */
+/* `hell`: die helle Graufassung - NUR fuer ein Band OHNE Werte.
+   v1.90.7 (Besitzer, 29.9.): "Dieses Band mit rot, grau, blau sollte es
+   nicht geben. Es ist immer rot, SCHWARZ, blau - das wollte ich nur
+   sicherstellen, dass es nicht so etwas spaeter im Spiel gibt."
+   Damit ist die aeltere Aussage ("meine eigenen Figuren brauchen natuerlich
+   die helle Variante") zurueckgenommen. Auf dem BRETT ist das Mittelstueck
+   ab jetzt fuer beide Seiten schwarz; PieceGlyph reicht `hell` nicht mehr
+   durch.
+   Was bleibt, ist der Platzhalter im Figuren-Schirm: eine Figur, deren
+   Werte man noch nicht kennt, traegt ein durchgehend graues Band. Damit aus
+   Versehen nie wieder rot-hell-blau entsteht, wirkt `hell` NUR ZUSAMMEN mit
+   `grau` - ein Riegel, kein Hinweis. */
 /* `schaden`: der gerade verlorene Anteil, in derselben Einheit wie `leben`.
    Er wird dort gezeichnet, wo das Rot eben noch stand - also direkt hinter
    dem heutigen Rot - und glimmt aus (v1.24.9). */
@@ -208,7 +217,7 @@ export function SockelBand({ paintedId, leben = 0, kraft = 0, schaden = 0, grau 
         <stop offset="0" stopColor="#fff6c4" /><stop offset=".4" stopColor="#ffd84a" /><stop offset="1" stopColor="#b57f0c" />
       </linearGradient>
       <linearGradient id={u("dunkel")} x1="0" y1="0" x2="0" y2="1">
-        {hell
+        {(hell && grau)
           ? <><stop offset="0" stopColor="#f2efe8" /><stop offset=".4" stopColor="#cfc9bd" /><stop offset="1" stopColor="#6f6a60" /></>
           : <><stop offset="0" stopColor="#3a3a44" /><stop offset=".4" stopColor="#15151b" /><stop offset="1" stopColor="#050507" /></>}
       </linearGradient>

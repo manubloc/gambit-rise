@@ -1,5 +1,83 @@
 # Changelog - Gambit Rise
 
+## 1.90.7 - Mauer, Zaun und Bollwerk sitzen richtig, das Sockelband ist wieder rot-schwarz-blau; drei Luecken in Konten, Halle und Speicher
+
+- **DIE SPERREN SITZEN MITTIG** (Besitzer, 29.9.: "Mauer und Zaun, die bitte
+  wirklich mittig, vertikal mittig ausrichten ... die sind meines Wissens
+  immer noch so eher nach unten orientiert"). **Er hatte recht, und eine
+  Probe behauptete das Gegenteil.** In test_anim stand seit v1.2.3 "die
+  Sperren sitzen vertikal mittig im Feld", geprueft an den Zeichenketten
+  `top: "50%"` und `translate(-50%, calc(-50%` im Quelltext. Beide standen
+  da. Gemessen sass die Mauer 23,3 % der Feldhoehe zu tief, der Zaun 19,6 %.
+  Zentriert war der KASTEN; `alignItems: "flex-end"` und `objectPosition:
+  "bottom center"` schoben das Bild darin an die Unterkante - und bei einem
+  breiten flachen Bild (mauer-heil misst 210x94) ist das die halbe Miete.
+  Die Bilder selbst sind randlos beschnitten, nachgemessen: 0 % Luft oben wie
+  unten. Es lag wirklich nur am Ausrichten.
+
+- **DAS BOLLWERK STEHT AUF DER FUSSLINIE DER FIGUREN** (Besitzer, kurz
+  darauf: "das bollwerk kann auch noch etwas nach oben, mindestens so hoch
+  wie auch z. B. die figuren an ihrem untersten punkt"). Gemessen enden die
+  Figuren mit dem Fuss bei 89,6 % (Bauer) bis 90,6 % (Koenig, Turm) der
+  Feldhoehe; der Bergfried ragte bis 92,7 %, also tiefer als jede Figur. Er
+  wird jetzt um 5,6 % gehoben - ausgelegt auf seinen TIEFSTEN Zustand
+  ("angeschlagen", 210x186, das hoechste der vier Bilder), damit die Zusage
+  fuer alle vier gilt und nicht vier Regler einzeln nachgezogen werden
+  muessen.
+
+- **DAS SOCKELBAND IST IMMER ROT-SCHWARZ-BLAU** (Besitzer, 29.9.: "dieses
+  Band mit rot, grau, blau sollte es nicht geben. Es ist immer rot, SCHWARZ,
+  blau - das wollte ich nur sicherstellen, dass es nicht so etwas spaeter im
+  Spiel gibt"). PieceGlyph reichte `hell={!!white}` durch: die EIGENEN Figuren
+  trugen ein helles Mittelstueck, der Gegner ein schwarzes. Gemessen am
+  Koenig: eigen rgb(158,144,120), gegnerisch dunkel. Das ging auf eine
+  aeltere Aussage zurueck ("meine eigenen Figuren brauchen natuerlich die
+  helle Variante"), die damit zurueckgenommen ist.
+  Der Platzhalter im Figuren-Schirm - ein Band ohne bekannte Werte - bleibt
+  grau. Damit aus Versehen nie wieder rot-hell-blau entsteht, wirkt `hell`
+  ab jetzt NUR ZUSAMMEN mit `grau`: ein Riegel in SockelBand selbst, kein
+  Hinweis im Kommentar.
+
+- **NEU: `tools/pruefe-sperrsitz.mjs`** - die Probe, die es vorher nicht gab.
+  Sie fotografiert jede Sperre und sechs Figuren einzeln und misst am
+  ALPHAKANAL, wo Kopf, Fuss und Mitte liegen. Gegen den Stand von v1.90.6
+  meldet sie Fehler. Drei Messfallen stecken in ihrem Kopf, jede davon hat
+  mich einmal in die Irre gefuehrt: der Schlagschatten zaehlt nicht zur
+  Silhouette (2 px Versatz, bei kleinen Truemmern 7,8 % Messfehler);
+  Helligkeit ist nicht Form (der helle Zaunschutt fiel gegen Weiss durch);
+  und ohne Abstand zwischen den Feldern fotografiert man den Nachbarn mit,
+  weil die Sperrkaesten bis 114 % breit sind.
+
+- **A18 — EINE KAPUTTE KONTENLISTE WIRD NICHT MEHR NEU GESAET.** `readList`
+  lieferte fuer "leer" und fuer "unlesbar" dasselbe null, und
+  `ensureAccounts` schrieb daraufhin eine frische Liste mit nur dem Admin -
+  der kaputte Wert war damit UEBERSCHRIEBEN und alle oertlichen Konten samt
+  dem Zugang zu ihren Staenden endgueltig fort. Der Spieler las "Kein Konto
+  mit dieser E-Mail". Jetzt bleibt der Rohwert liegen, wird zusaetzlich unter
+  `accounts:v1:kaputt:<Zeitstempel>` gesichert, und die Anmeldemaske sagt,
+  was los ist.
+
+- **A21 — ZWANGSFREUNDSCHAFT.** `friendRespond` prueste nie, ob ueberhaupt
+  eine Anfrage vorlag. Wer eine fremde Kennung kannte - und die Rangliste
+  liefert sie an alle aus -, trug sich mit `{t:"friendRespond", id:<Opfer>,
+  accept:true}` einfach in die Freundesliste des Opfers ein. Damit fielen auf
+  einen Schlag "Herausforderungen nur von Freunden", die Sichtbarkeit von
+  Online-Status und Punktzahl und das Verschenken von Gold. Die
+  Datenschutzerklaerung nennt diese Einstellung einen Schutz - dann muss sie
+  einer sein.
+
+- **A55 — WENN NICHTS BLEIBT, SAGT ES JETZT JEMAND.** Faellt der Speicher auf
+  den fluechtigen Shim zurueck (WebView mit gesperrten Website-Daten, manche
+  privaten Fenster), melden `register`, `createSave` und `writeSave`
+  weiterhin Erfolg. Ein Spieler legt ein Konto an, spielt stundenlang, und
+  beim naechsten Start ist alles fort - ohne Warnung. Die Anmeldemaske warnt
+  jetzt VOR dem Anlegen; danach waere es eine Beileidsbekundung.
+
+**Gegengeprueft:** A18 und A21 fallen gegen v1.90.6, die Sperrenprobe
+ebenfalls, die Bandprobe mit drei Pruefungen. Bei A55 hat die eigene Probe einen eigenen Fehler gefangen: zwei
+Textzeilen waren stumm nicht eingefuegt worden, weil das Ersetzen ohne
+Pruefung lief - genau das, wogegen die Probe da ist.
+
 ## 1.90.6 - zwei Punkte, die das Spiel selbst betreffen: die Kroenung schwaechte die Figur, und Monster konnten im Schach nie mattsetzen
 
 - **A11 — DIE KROENUNG SCHWAECHTE DIE FIGUR.** `repromote` setzte die

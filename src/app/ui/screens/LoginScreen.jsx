@@ -11,6 +11,7 @@ import { RissBoden } from "../RissBoden.jsx";
    Wortmarke ist damit aus der App heraus. */
 import wortmarkeBild from "../assets/wortmarke.webp";
 import { loginGuest } from "../../../meta/index.js";   /* v1.46.0 */
+import storage from "../../../platform/storage.web.js";   /* v1.90.7 (A55): haelt dieses Geraet ueberhaupt etwas? */
 
 const STR = {
   de: {
@@ -19,9 +20,19 @@ const STR = {
     google: "Mit Google anmelden", apple: "Mit Apple anmelden", discord: "Mit Discord anmelden", guest: "Als Gast spielen", or: "oder",
     haveNo: "Noch kein Konto? Erstellen", have: "Schon ein Konto? Anmelden",
     cloudOff: "Google-, Apple- und Discord-Anmeldung werden freigeschaltet, sobald das Online-Konto eingerichtet ist — bis dahin gilt dein Konto auf diesem Gerät.",
+    /* v1.90.7 (Audit A55): der Rueckfall auf den fluechtigen Speicher war
+       unsichtbar - Konto anlegen, stundenlang spielen, beim naechsten Start
+       ist alles fort. Diese Zeile steht VOR dem Anlegen; danach waere sie
+       eine Beileidsbekundung. */
+    fluechtig: "Achtung: Dieses Gerät speichert nichts dauerhaft. Website-Daten sind gesperrt — Konto und Spielstand sind weg, sobald du die Seite schließt. Öffne das Spiel in einem normalen Fenster oder erlaube Website-Daten.",
     err: { "invalid-email": "Das sieht nicht nach einer E-Mail-Adresse aus.", "weak-pass": "Das Passwort braucht mindestens 6 Zeichen.",
       exists: "Dieses Konto gibt es schon — melde dich an.", "not-found": "Kein Konto mit dieser E-Mail. Erstelle eins!",
-      "wrong-pass": "Falsches Passwort.", unconfigured: "Online-Anmeldung ist noch nicht eingerichtet.", generic: "Das hat nicht geklappt. Versuch es noch einmal." },
+      "wrong-pass": "Falsches Passwort.", unconfigured: "Online-Anmeldung ist noch nicht eingerichtet.",
+      /* v1.90.7 (Audit A18): frueher wurde die Kontenliste in diesem Fall
+         still NEU GESAET - alle oertlichen Konten waren fort und der Spieler
+         las "Kein Konto mit dieser E-Mail". Jetzt bleibt sie liegen. */
+      "Kontenliste unlesbar": "Die Kontenliste auf diesem Gerät ist beschädigt. Sie wurde NICHT gelöscht — deine Konten sind noch da. Bitte melde das; ein Neustart des Browsers hilft hier nicht.",
+      generic: "Das hat nicht geklappt. Versuch es noch einmal." },
   },
   en: {
     tag: "A realm awaits its strategist.",
@@ -29,9 +40,12 @@ const STR = {
     google: "Sign in with Google", apple: "Sign in with Apple", discord: "Sign in with Discord", guest: "Play as guest", or: "or",
     haveNo: "No account yet? Create one", have: "Have an account? Sign in",
     cloudOff: "Google, Apple and Discord sign-in unlock once the online account is configured — until then your account lives on this device.",
+    fluechtig: "Warning: this device stores nothing permanently. Site data is blocked — your account and save will be gone once you close the page. Open the game in a normal window or allow site data.",
     err: { "invalid-email": "That doesn't look like an e-mail address.", "weak-pass": "Passwords need at least 6 characters.",
       exists: "That account already exists — sign in instead.", "not-found": "No account with this e-mail. Create one!",
-      "wrong-pass": "Wrong password.", unconfigured: "Online sign-in isn't configured yet.", generic: "That didn't work. Please try again." },
+      "wrong-pass": "Wrong password.", unconfigured: "Online sign-in isn't configured yet.",
+      "Kontenliste unlesbar": "The account list on this device is damaged. It has NOT been deleted — your accounts are still there. Please report this; restarting the browser will not help.",
+      generic: "That didn't work. Please try again." },
   },
 };
 
@@ -127,6 +141,14 @@ export function LoginScreen({ onSignedIn, initialLang = "de", onLang = null }) {
         <img src={wortmarkeBild} alt="Gambit Rise" draggable={false}
           style={{ width: "min(84vw, 420px)", height: "auto", display: "block", margin: "0 auto" }} /></div>
       <div className="gg-quill" style={{ color: T.dim, fontSize: 16, lineHeight: 1.6, margin: "12px 0 34px" }}>{s.tag}</div>
+
+      {/* v1.90.7 (Audit A55): keine Anmeldung ohne diese Warnung, wenn das
+          Geraet nichts behaelt. Sie steht bewusst hier und nicht erst nach
+          dem Anlegen - danach waere sie eine Beileidsbekundung. */}
+      {storage.fluechtig && (
+        <div style={{ width: "100%", maxWidth: 380, marginBottom: 16, padding: "10px 12px",
+          border: `1px solid ${T.errText}`, borderRadius: 10, color: T.errText,
+          fontSize: 13, lineHeight: 1.45, textAlign: "left" }}>{s.fluechtig}</div>)}
 
       <div style={{ width: "100%", maxWidth: 380, display: "flex", flexDirection: "column", gap: 10 }}>
         <input style={field} type="email" placeholder={s.email} value={email} autoComplete="username"

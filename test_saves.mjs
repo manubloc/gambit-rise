@@ -608,6 +608,40 @@ const ohneSubtle = (() => {
   ok("A53: und auch mit subtle laesst er sich weiterhin oeffnen", (await verifyPin("1234", schwach)) === true);
 }
 
+/* ── v1.90.7 (Audit A18): EINE KAPUTTE KONTENLISTE WIRD NICHT NEU GESAET ──
+   readList lieferte fuer "leer" und fuer "unlesbar" dasselbe null, und
+   ensureAccounts hat daraufhin eine frische Liste mit nur dem Admin
+   geschrieben - der kaputte Wert war damit UEBERSCHRIEBEN und alle
+   oertlichen Konten endgueltig fort. Der Spieler las "Kein Konto mit dieser
+   E-Mail". Geprueft mit einem echten kaputten Wert im Speicher. */
+{
+  const vorherige = await ensureAccounts();
+  ok("A18: vor dem Eingriff gibt es Konten", vorherige.length > 0);
+  await storage.set("accounts:v1", "{kaputt", false);
+  let gefangen = null;
+  try { await ensureAccounts(); } catch (e) { gefangen = e; }
+  ok("A18: die kaputte Liste wird gemeldet statt verschluckt", !!gefangen && gefangen.kaputt === true);
+  const nachher = (await storage.get("accounts:v1", false))?.value;
+  ok("A18: und NICHT ueberschrieben - der Rohwert steht noch da", nachher === "{kaputt");
+  ok("A18: er liegt zusaetzlich unter einem Zeitstempel zum Retten",
+    !!gefangen.gesichertUnter && /^accounts:v1:kaputt:\d+$/.test(gefangen.gesichertUnter)
+    && (await storage.get(gefangen.gesichertUnter, false))?.value === "{kaputt");
+  /* Eine Liste, die gar keine ist, zaehlt auch als kaputt. */
+  await storage.set("accounts:v1", '{"a":1}', false);
+  let zweiter = null;
+  try { await ensureAccounts(); } catch (e) { zweiter = e; }
+  ok("A18: auch gueltiges JSON, das keine Liste ist, gilt als kaputt", !!zweiter && zweiter.kaputt === true);
+  /* Aufraeumen: die echte Liste zurueck, sonst stolpern spaetere Proben. */
+  await storage.set("accounts:v1", JSON.stringify(vorherige), false);
+  const wieder = await ensureAccounts();
+  ok("A18: mit heiler Liste laeuft alles weiter wie zuvor", wieder.length === vorherige.length);
+  /* Und der LEERE Speicher saet weiterhin - das war nie der Fehler. */
+  await storage.delete("accounts:v1", false);
+  const frisch = await ensureAccounts();
+  ok("A18: ein LEERER Speicher saet weiterhin den Admin", frisch.length === 1 && frisch[0].isAdmin);
+  await storage.set("accounts:v1", JSON.stringify(vorherige), false);
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 if (fail) process.exit(1);
 

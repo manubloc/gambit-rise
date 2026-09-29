@@ -482,6 +482,17 @@ export class HallCore {
     }
     if (msg.t === "friendRespond") {
       const from = msg.id;
+      /* ── v1.90.7 (Audit A21): ES MUSS AUCH JEMAND GEFRAGT HABEN ───────
+         Hier wurde nie geprueft, ob `from` ueberhaupt in der eigenen
+         Anfrageliste stand. Wer eine fremde Kennung kannte - und die
+         Rangliste liefert sie an alle aus -, schickte einfach
+         {t:"friendRespond", id:<Opfer>, accept:true} und trug sich damit in
+         die Freundesliste des Opfers ein. Das hebelte auf einen Schlag
+         "Herausforderungen nur von Freunden" aus, dazu die Sichtbarkeit von
+         Online-Status und Punktzahl und das Verschenken von Gold. Die
+         Datenschutzerklaerung (privacy.html, Abschnitt 5) stellt diese
+         Einstellung als Schutz dar - dann muss sie einer sein. */
+      if (!(p.pending || []).includes(from)) return me;
       p.pending = (p.pending || []).filter((x) => x !== from);
       const other = this.player(from);
       if (msg.accept && other) {

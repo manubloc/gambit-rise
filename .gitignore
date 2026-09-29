@@ -31,6 +31,8 @@ __pycache__/
 .riss.mjs
 .balance.mjs
 .besetzung.mjs
+.sperrsitz.jsx
+.sperrsitz.js
 
 # Bildausgaben von esbuild, die im Wurzelverzeichnis landen (v1.86.0).
 # Der file-Loader von esbuild legt gehashte Kopien NEBEN die Ausgabedatei -

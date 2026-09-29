@@ -39,14 +39,14 @@ gambitrise.com zeigt darauf).
   pruefe-navigation, pruefe-textfluss, test_layout) lesen den Chromium-Pfad aus
   `PW_CHROMIUM`; ohne die Variable gilt der Pfad des Cloud-Containers. Lokal:
   `npx playwright install chromium` und `PW_CHROMIUM=<Pfad zur chrome-Datei>`.
-- `npm test` — volle Batterie. MUSS **28 Suiten / 2188 Prüfungen** melden
-  (Stand v1.90.6; der Runner stoppt nach der ersten roten Suite, also
+- `npm test` — volle Batterie. MUSS **28 Suiten / 2209 Prüfungen** melden
+  (Stand v1.90.7; der Runner stoppt nach der ersten roten Suite, also
   Suitenzahl prüfen, nicht nur Assertions! Zählweise: alle Zeilen
   `RESULT…: N passed` summieren — test_balance meldet zwei, darum stehen im
   Log 29 RESULT-Zeilen für 28 Suiten). **Seit v1.89.9 läuft
   `tools/pruefe-bezeichner.mjs` in der Batterie mit**, direkt hinter
   `npm run ui` (dort entsteht das Bundle `.uitest.mjs`, das die Probe liest).
-  Sie gibt KEINE RESULT-Zeile aus — die Zählung bleibt also bei 28/2188 —,
+  Sie gibt KEINE RESULT-Zeile aus — die Zählung bleibt also bei 28/2209 —,
   bricht die Kette aber, sobald im Bundle ein freier Bezeichner auftaucht.
   Das ist die Klasse der Abstürze A3/A4: gültiges JavaScript, das erst beim
   Rendern als ReferenceError hochgeht.
@@ -78,6 +78,18 @@ gambitrise.com zeigt darauf).
   (`about:blank` nach der Zurück-Geste, die ausgeblendete Reiterleiste auf der
   Karte, gesperrte Stationen, „‹ Zurück" mit Winkel, „Fortsetzen" statt
   „Herausforderung starten"). Alle fünf sind dort mit Messung festgehalten.
+- `node tools/pruefe-sperrsitz.mjs` — **wo sitzen Mauer, Zaun und Bollwerk
+  wirklich?** Fotografiert jede Sperre und sechs Figuren einzeln in ein Feld
+  und misst am ALPHAKANAL, wo Kopf, Fuß und Mitte liegen. Prüft zwei Zusagen
+  des Besitzers (29.9.): flache Sperren sitzen vertikal mittig, und keine
+  Sperre endet mit dem Fuß tiefer als die tiefststehende Figur. Braucht
+  python3 mit Pillow (wie test_zauber) — kein zweiter PNG-Leser für dieselbe
+  Arbeit. **Warum es sie gibt:** in test_anim stand drei Fassungen lang „die
+  Sperren sitzen vertikal mittig im Feld“, geprüft an zwei Zeichenketten im
+  Quelltext. Beide standen da, die Probe war grün — und die Mauer saß 23 %
+  zu tief. Drei Messfallen sind im Kopf der Datei festgehalten (Schlagschatten
+  zählt nicht zur Silhouette, Helligkeit ist nicht Form, und ohne Abstand
+  fotografiert man den Nachbarn mit).
 - `node test_layout.mjs` — echte Geometrie im Browser. Läuft wieder (v1.86.0:
   die Klang-Loader fehlten), hängt aber NICHT in der Kette: vier Proben
   erwarten ein vertikal zentriertes Brett, was seit dem Talentband nicht mehr

@@ -985,7 +985,16 @@ export function PieceGlyph({ piece, showLevel = true, pov = "w", artStyle = "pai
             userSelect: "none", pointerEvents: "none" }} />
           {bandDa && (() => { const { leben, kraft } = rohrAnteile(piece);
             return <SockelBand paintedId={paintedIdOf(painting)} leben={werteAn ? leben : 0} kraft={werteAn ? kraft : 0}
-              schaden={blitzAnteil} grau={!werteAn} hell={!!white} ausrichtung="unten"
+              /* v1.90.7 (Besitzer, 29.9.): "dieses Band mit rot, grau, blau
+                 sollte es nicht geben. Es ist immer rot, SCHWARZ, blau."
+                 Hier stand `hell={!!white}` - die eigenen Figuren bekamen
+                 damit ein helles Mittelstueck, der Gegner ein schwarzes
+                 (gemessen: eigener Koenig rgb(158,144,120), gegnerischer
+                 dunkel). Das geht auf eine aeltere Aussage zurueck ("meine
+                 eigenen Figuren brauchen natuerlich die helle Variante"),
+                 die der Besitzer damit ausdruecklich zuruecknimmt. Das
+                 Mittelstueck ist ab jetzt fuer BEIDE Seiten schwarz. */
+              schaden={blitzAnteil} grau={!werteAn} ausrichtung="unten"
               /* v1.55.0: EINE KENNUNG JE FIGUR. Vorher teilten alle Figuren ohne
                  charId die Kennung "sbb-x" - und doppelte Kennungen loest der
                  Browser auf das ERSTE Vorkommen auf, die schwarze Figur oben.

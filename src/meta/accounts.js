@@ -122,9 +122,39 @@ export async function mkAccount({ email, pass, name, provider = "local", isAdmin
 }
 
 // ── stored list ──────────────────────────────────────────────────────────────
+/* ── v1.90.7 (Audit A18): "NICHTS DA" UND "KAPUTT" SIND ZWEIERLEI ──────
+   readList lieferte fuer BEIDES null: fuer den leeren Speicher beim ersten
+   Start und fuer einen unlesbaren Wert. ensureAccounts hat daraufhin NEU
+   GESAET - die Kontenliste durch eine frische mit nur dem Admin ersetzt und
+   sie SOFORT ZURUECKGESCHRIEBEN. Ein einziges kaputtes Zeichen unter
+   `accounts:v1` loeschte damit alle oertlichen Konten samt dem Zugang zu
+   ihren Staenden, und der Spieler las "Kein Konto mit dieser E-Mail".
+
+   Der Unterschied steht jetzt im Rueckgabeweg: null heisst leer, ein
+   geworfener Fehler mit `kaputt` heisst unlesbar. Und Unlesbares wird NICHT
+   ueberschrieben, sondern unter einem Zeitstempel beiseitegelegt - wer die
+   Zeichenkette noch hat, kann seine Konten von Hand retten. */
+const KAPUTT_PRAEFIX = KEY + ":kaputt:";
 async function readList() {
-  try { const r = await storage.get(KEY, false); if (r?.value) return JSON.parse(r.value); } catch {}
-  return null;
+  let roh = null;
+  try { const r = await storage.get(KEY, false); roh = r?.value || null; }
+  catch (e) { console.error("Kontenliste nicht lesbar (Speicher)", e); return null; }
+  if (!roh) return null;
+  try {
+    const liste = JSON.parse(roh);
+    if (!Array.isArray(liste)) throw new Error("Kontenliste ist keine Liste");
+    return liste;
+  } catch (e) {
+    const fehler = new Error("Kontenliste unlesbar");
+    fehler.kaputt = true; fehler.roh = roh; fehler.grund = e.message;
+    throw fehler;
+  }
+}
+/** Den unlesbaren Rohwert beiseitelegen, statt ihn zu ueberschreiben. */
+async function beiseite(roh) {
+  const ziel = KAPUTT_PRAEFIX + Date.now();
+  try { await storage.set(ziel, roh, false); } catch { /* dann eben nicht - retten geht vor */ }
+  return ziel;
 }
 async function writeList(list) { try { await storage.set(KEY, JSON.stringify(list), false); } catch {} }
 
@@ -141,7 +171,17 @@ const VERBRANNT_PAARE = [
 
 /** Ensure the account list exists; seed the built-in admin exactly once. */
 export async function ensureAccounts() {
-  let list = await readList();
+  let list;
+  try { list = await readList(); }
+  catch (e) {
+    /* v1.90.7 (Audit A18): NICHT neu saeen. Der Rohwert wird gesichert, und
+       der Aufrufer bekommt den Fehler - die App zeigt eine Karte statt einer
+       Anmeldemaske, hinter der alle Konten verschwunden waeren. */
+    if (!e || !e.kaputt) throw e;
+    e.gesichertUnter = await beiseite(e.roh);
+    console.error("Kontenliste unlesbar - NICHT neu gesaet, Rohwert liegt unter", e.gesichertUnter, "-", e.grund);
+    throw e;
+  }
   if (!list) {
     list = [{ ...(await mkAccount({ email: ADMIN_EMAIL, pass: null, name: "Admin", isAdmin: true })),
       salt: ADMIN_SALT, passHash: ADMIN_HASH }];   /* v1.0.40: fertiger Pruefwert statt Klartext */

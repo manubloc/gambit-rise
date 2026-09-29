@@ -30,14 +30,26 @@ const memShim = () => {
     removeItem: (k) => { mem.delete(k); },
   };
 };
+/* ── v1.90.7 (Audit A55): WENN NICHTS BLEIBT, MUSS ES JEMAND SAGEN ─────
+   Faellt der Speicher auf den Memory-Shim zurueck - in einem WebView mit
+   gesperrten Website-Daten, im privaten Fenster mancher Browser -, dann
+   melden `register`, `createSave` und `writeSave` weiterhin Erfolg. Ein
+   Spieler legt ein Konto an, spielt stundenlang, und beim naechsten Start
+   ist alles fort, ohne dass je eine Warnung kam.
+   `fluechtig` ist das Merkmal dafuer. Es steht als Eigenschaft am storage,
+   damit die Oberflaeche einmalig warnen kann - und es wird HIER gesetzt,
+   wo der Rueckfall tatsaechlich passiert, nicht an einer zweiten Stelle
+   geraten. */
+let fluechtig = false;
 const LS = (() => {
   try {
     const l = typeof window !== "undefined" ? window.localStorage : null;
-    if (!l) return memShim();   // Node/SSR/tests: session-scoped memory
+    if (!l) { fluechtig = true; return memShim(); }   // Node/SSR/tests: session-scoped memory
     const probe = "gambit:probe";
     l.setItem(probe, "1"); l.removeItem(probe);
     return l;
   } catch {
+    fluechtig = true;
     return memShim();
   }
 })();
@@ -60,6 +72,8 @@ async function sbSet(k, v) {
 
 const storage = {
   async get(k, shared = false) { return shared ? sbGet(k) : lsGet(k, false); },
+  /* v1.90.7 (Audit A55): true, wenn dieses Geraet nichts dauerhaft behaelt. */
+  get fluechtig() { return fluechtig; },
   async set(k, v, shared = false) { return shared ? sbSet(k, v) : lsSet(k, v, false); },
   async delete(k, shared = false) { return shared ? (await sb() ? null : lsDel(k, true)) : lsDel(k, false); },
 };

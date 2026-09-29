@@ -225,9 +225,28 @@ console.log("\n== SCHATZKAMMER: Belohnung sichtbar, Muenzregen an der Leiste (v1
 
 console.log("\n== BRETTRAND: Sperren mittig, Band praesent, Summen nah (v1.2.3) ==");
 {
+  /* ── v1.90.7: DIESE PROBE HAT DREI FASSUNGEN LANG GELOGEN ──────────
+     Hier stand: "die Sperren sitzen vertikal mittig im Feld", geprueft an
+     den Zeichenketten `top: "50%"` und `translate(-50%, calc(-50%` im
+     Quelltext. Beide standen da, die Probe war gruen - und die Mauer sass
+     23,3 % der Feldhoehe ZU TIEF (Besitzer am 29.9.: "die sind meines
+     Wissens immer noch so eher nach unten orientiert"). Zentriert war der
+     KASTEN; `alignItems: "flex-end"` und `objectPosition: "bottom center"`
+     schoben das Bild darin an die Unterkante, und bei einem breiten flachen
+     Bild (mauer-heil misst 210x94) ist das die halbe Miete.
+
+     Wo der Sitz jetzt WIRKLICH geprueft wird: `tools/pruefe-sperrsitz.mjs`
+     rendert jede Sperre in ein 50-px-Feld und misst am lebenden DOM, wo die
+     Bildmitte gegenueber der Feldmitte liegt. Gegen den Stand von v1.90.6
+     meldet sie vier Fehler.
+
+     Was HIER bleibt, ist der Rueckfall-Riegel: die beiden CSS-Werte, die den
+     Fehler gemacht haben, duerfen in SperrGlyph nicht wieder auftauchen. Das
+     beweist keine Geometrie - es haelt nur den bekannten Weg zurueck zu. */
   const sg = readFileSync("src/app/ui/board/SperrGlyph.jsx", "utf8");
-  ok("die Sperren sitzen vertikal mittig im Feld",
-    sg.includes('top: "50%"') && sg.includes("translate(-50%, calc(-50%") && !sg.includes("bottom: `${sitz.unten * 100}%`"));
+  ok("die Sperren werden mittig gesetzt, nicht an die Unterkante geheftet",
+    sg.includes('alignItems: "center"') && !sg.includes('alignItems: "flex-end"')
+    && !sg.includes('objectPosition: "bottom'));
   const bv2 = readFileSync("src/app/ui/board/BoardView.jsx", "utf8");
   /* v1.38.0: die gefuellte Leiste ist fort - die Karten der Kampfleiste tragen
      die Talente (Besitzer: "die Faehigkeiten stehen doppelt"). Geprueft wird

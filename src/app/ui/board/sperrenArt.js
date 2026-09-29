@@ -100,12 +100,53 @@ export function fehlendeSperrBilder() {
 }
 
 
-/* WIE HOCH SITZT WAS. Die aufrechten Zustaende fuellen das Feld fast ganz und
-   stehen auf der Grundkante; die Truemmer liegen flach und breit im unteren
-   Drittel. Ohne diese Trennung schwebte der Schutt in der Feldmitte wie ein
-   Gegenstand, den jemand hochhaelt. */
+/* WIE GROSS DARF WAS WERDEN. `hoehe` und `breite` spannen den Kasten auf, in
+   dem das Bild Platz findet; MITTIG sitzt es seit v1.90.7 immer (SperrGlyph
+   zentriert den Kasten und das Bild darin).
+
+   Das Feld `unten` ist am 29.9.2026 GEFALLEN. Es hat zuletzt nichts mehr
+   getan, was man wollte: aus "zwei Prozent ueber dem Boden" war beim Umbau
+   auf die Mitte "zwei Prozent ueber die Mitte" geworden - also eine
+   Verschiebung nach OBEN, obwohl der Name das Gegenteil sagt. Gemessen
+   verschob es die Mauer um knapp einen Pixel, waehrend der eigentliche
+   Versatz von 23 % woanders sass (flex-end im Glyph). Ein Regler, der das
+   Falsche tut und dabei fast nichts bewirkt, kostet nur Verwirrung.
+   Wer die Truemmer wieder tiefer legen will, nimmt dafuer besser `hoehe`
+   und eine ehrlich benannte Verschiebung. */
 export const SPERR_SITZ = {
-  heil:         { hoehe: 0.96, unten: 0.02, breite: 1.02 },
-  angeschlagen: { hoehe: 0.94, unten: 0.02, breite: 1.04 },
-  truemmer:     { hoehe: 0.42, unten: 0.04, breite: 1.14 },
+  heil:         { hoehe: 0.96, breite: 1.02 },
+  angeschlagen: { hoehe: 0.94, breite: 1.04 },
+  truemmer:     { hoehe: 0.42, breite: 1.14 },
+};
+
+/* ── DIE FUSSLINIE (Besitzer, 29.9.2026) ─────────────────────────
+   "Das Bollwerk kann auch noch etwas nach oben, mindestens so hoch wie auch
+   z. B. die Figuren an ihrem untersten Punkt."
+
+   GEMESSEN (tools/pruefe-sperrsitz.mjs, 96-px-Feld, Silhouette gegen Weiss,
+   ohne Schlagschatten): die Figuren enden mit dem Fuss bei 91,7 % (Bauer)
+   bis 93,8 % (Koenig, Turm) der Feldhoehe. Mauer (76 %) und Zaun (79 %)
+   liegen darueber, der Bergfried aber bei 96,9 % - er ragte also gut drei
+   Prozent TIEFER als jede Figur und wirkte daneben wie abgesackt.
+
+   Warum nur er: er ist die einzige hohe Sperre (210x181, fast quadratisch).
+   Mittig im Feld fuellt er es fast ganz, und "fast ganz" endet tiefer als
+   eine Figur, die oben Luft laesst. Mauer und Zaun sind flach, die kommen
+   dem Rand gar nicht nahe.
+
+   Der Wert hebt das Bild in Prozent der FELDHOEHE aus der Mitte nach oben.
+   Er ist gemessen, nicht geschaetzt: 5,6 % bringt den TIEFSTEN der vier
+   Bergfried-Zustaende ("angeschlagen", 210x186 - das hoechste der Bilder)
+   genau auf die Fusslinie; die anderen drei stehen dann leicht darueber.
+   Auf einen Wert je Zustand wurde verzichtet - vier Regler, die man einzeln
+   nachziehen muss, gehen beim naechsten neuen Bild auseinander. Ein Wert je
+   ART, ausgelegt auf den ungeguenstigsten Zustand, haelt die Zusage
+   "mindestens so hoch wie die Figuren" fuer alle vier.
+
+   NACHGEMESSEN WIRD IMMER: tools/pruefe-sperrsitz.mjs fotografiert jede
+   Sperre und jede Figur einzeln und rechnet die Fusslinie aus dem, was
+   wirklich auf dem Schirm steht. Kommt neue Kunst dazu, faellt es dort auf
+   und nicht erst dem Besitzer. */
+export const SPERR_HEBUNG = {
+  bergfried: 0.056,
 };
