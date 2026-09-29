@@ -1,5 +1,51 @@
 # Changelog - Gambit Rise
 
+## 1.90.6 - zwei Punkte, die das Spiel selbst betreffen: die Kroenung schwaechte die Figur, und Monster konnten im Schach nie mattsetzen
+
+- **A11 — DIE KROENUNG SCHWAECHTE DIE FIGUR.** `repromote` setzte die
+  GRUNDwerte der neuen Art (BASE_HP/BASE_ATK), ohne jeden Bezug zur Stufe.
+  Beim Aufbau rechnet setup.js dagegen mit `werteBeiStufe`: ein Bauer auf
+  Stufe 10 steht mit 17/7 auf dem Brett, also 24 Punkten. Gekroent kam er als
+  **7/4 heraus - 11 Punkte**. Der Hoehepunkt des Gambit machte damit jede
+  aufgestufte Figur SCHWAECHER, waehrend die KI sie weiter als Dame bewertete
+  (VALUE Q 900). Gerechnet wird ab jetzt mit derselben Formel wie beim Aufbau,
+  Schritt fuer Schritt - beim Helden inklusive der Umskalierung auf
+  HELD_PUNKTE mit dem Angriff als Rest, damit die beiden Stellen nicht wieder
+  auseinanderlaufen. Gemessen: Stufe 10 ohne Held 14/10 (24), mit Held 21/15
+  (36), Stufe 1 unveraendert 7/4.
+  **Eine Entscheidung liegt beim Besitzer:** die Kroenung heilte bisher VOLL
+  (`hp = maxHp`). Das war eine Nebenwirkung des Zurueckwerfens auf Grundwerte,
+  keine Absicht - und eine geschenkte Vollheilung fuer jeden Bauern, der
+  durchkommt, ist im HP-Gefecht viel Geld. Uebertragen wird jetzt der ANTEIL:
+  wer mit einem Drittel Leben kroent, steht danach mit einem Drittel Leben
+  einer Dame da (nie unter 1). Wer die Vollheilung zurueck will, sagt es -
+  es ist eine Zeile.
+
+- **A12 — MONSTER KONNTEN IM SCHACH NIE MATTSETZEN.** In `pseudoMoves` steht
+  eine Balance-Bremse: im Schach zielt ein `leap` nie auf den Koenig ("kept
+  smother-mating the boxed-in starting king in 2-3 moves"). Gemeint waren die
+  TALENTE - nur trugen die ZUGBILDER der Sonderfiguren und Monster dasselbe
+  Etikett. Fuenf Sonderfiguren und neun Monster konnten im Schach deshalb nie
+  Schach bieten oder den Koenig schlagen, und der Koenig durfte gefahrlos in
+  ihre Reichweite ziehen; 81 Schach-Stationen ab Liga 3 sind mit solchen
+  Figuren besetzbar. Die Bremse gilt jetzt nur noch fuer die Talent-Spruenge
+  (neues Feld `weitsprung`). **Warum ein Zusatzfeld und kein neuer Name:**
+  `special: "leap"` wird an drei weiteren Stellen gelesen - der Halbschaden
+  aus der Ferne (`afar` in transitions.js), die Reichweiten-Anzeige im
+  Figuren-Schirm und drei Proben. Ein umbenanntes Etikett haette dort stumm
+  die Wirkung geaendert, allen voran den Halbschaden. Die Balance der Talente
+  bleibt unveraendert, auch beim Damen-Sprung: ob die Dame im Schach mit
+  Sprung mattsetzen darf, ist eine Frage, kein Fehler.
+
+**Zur Methode, weil es diesmal beinahe schiefging:** die erste Fassung der
+A12-Probe war gruen - auch gegen den FEHLERHAFTEN Stand. Sie gab der Figur die
+Art "N", und die gewoehnlichen Springerspruenge boten dann ohnehin Schach; vom
+Zugbild hing nichts ab. Mit der echten Monster-Art "X" (die in `pieceMoves`
+keinen Zweig hat und darum AUSSCHLIESSLICH nach dem Zugbild zieht) fallen drei
+Pruefungen gegen den alten Stand. Genau so ist der Fehler im Haus jahrelang
+unentdeckt geblieben. Auch die A11-Proben wurden gegengeprueft: vier fallen
+gegen v1.90.5.
+
 ## 1.90.5 - sechs Regelfehler aus dem Audit: die Rochade aus dem Schach, das Ergebnis das verschwand, die Tagespartie die ihr Ende nie meldete
 
 - **A14 — DAS BRETT BOT DIE ROCHADE AUS DEM SCHACH AN.** `legalMoves` traegt

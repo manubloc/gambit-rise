@@ -1038,5 +1038,52 @@ console.log("\n== STURM UND GELEIT (v1.11.2) ==");
     kl.includes('scharf={scharf === id}') && kl.includes('"1.5px solid #c4b5fd"') && kl.includes("bereit — tippe ein ✦-Feld"));
 }
 
+/* ── v1.90.4 (Audit A11): DIE KROENUNG SCHWAECHTE DIE FIGUR ───────────
+   repromote setzte die GRUNDwerte der neuen Art (BASE_HP/BASE_ATK), ohne
+   jeden Bezug zur Stufe. Beim Aufbau rechnet setup.js dagegen mit
+   werteBeiStufe: ein Bauer auf Stufe 10 steht mit 17/7 (24 Punkte) auf dem
+   Brett. Gekroent kam er als 7/4 heraus - 11 Punkte (Audit-Messung D1). Der
+   Hoehepunkt des Gambit schwaechte also jede aufgestufte Figur, waehrend die
+   KI sie weiter als Dame bewertete (VALUE Q 900). Alle drei bestehenden
+   Kroenungs-Proben im Haus pruefen nur das ZUGANGEBOT, nie den Zustand
+   danach - darum ist das nie aufgefallen. */
+{
+  const { werteBeiStufe, HELD_PUNKTE } = await import("./src/core/domain/constants.js");
+  const g0 = createGame(undefined, undefined, { rules: "hp", seed: 11 });
+  const W = g0.w, H = g0.h, ixx = (f, r) => r * W + f;
+  /* Einen Bauern auf der vorletzten Reihe kroenen und nachsehen, was
+     herauskommt. Das Brett wird leer gebaut, damit nur die Kroenung wirkt. */
+  const kroene = (piece) => {
+    const b = g0.board.map(() => null);
+    b[ixx(4, 0)] = { id: 90, kind: "K", color: "w", level: 1, abilities: [], used: {}, hp: 20, maxHp: 20, atk: 5 };
+    b[ixx(0, H - 1)] = { id: 91, kind: "K", color: "b", level: 1, abilities: [], used: {}, hp: 20, maxHp: 20, atk: 5 };
+    b[ixx(3, H - 2)] = { id: 92, kind: "P", color: "w", abilities: [], used: {}, ...piece };
+    const st = { ...g0, board: b, turn: "w" };
+    const z = legalMoves(st, "w").find((m) => m.from === ixx(3, H - 2) && m.promotion);
+    if (!z) return null;
+    return applyMove(st, z).board[z.to];
+  };
+  const zehn = kroene({ level: 10, hp: 17, maxHp: 17, atk: 7 });
+  const soll = werteBeiStufe("Q", 10);
+  ok("A11: die gekroente Figur ist eine Dame", zehn && zehn.kind === "Q");
+  ok("A11: mit den Werten IHRER Stufe, nicht mit Grundwerten",
+    zehn.maxHp === soll.hp && zehn.atk === soll.atk);
+  ok("A11: also 24 Punkte wie jede eigene Figur auf Stufe 10 - nicht 11",
+    zehn.maxHp + zehn.atk === 24);
+  const held = kroene({ level: 10, hero: true, hp: 25, maxHp: 25, atk: 11 });
+  ok("A11: der HELD behaelt sein eigenes Budget", held.maxHp + held.atk === HELD_PUNKTE);
+  const eins = kroene({ level: 1, hp: 2, maxHp: 2, atk: 1 });
+  ok("A11: auf Stufe 1 bleibt es bei den Grundwerten der Dame",
+    eins.maxHp === werteBeiStufe("Q", 1).hp && eins.atk === werteBeiStufe("Q", 1).atk);
+  /* Der Lebensanteil wandert mit. Vorher heilte die Kroenung voll - das war
+     eine Nebenwirkung des Zurueckwerfens auf Grundwerte, keine Absicht, und
+     im HP-Gefecht eine geschenkte Vollheilung fuer jeden Bauern, der
+     durchkommt. (Besitzer kann das anders wollen: dann hp = maxHp.) */
+  const wund = kroene({ level: 10, hp: 5, maxHp: 17, atk: 7 });
+  ok("A11: wer angeschlagen kroent, bleibt angeschlagen",
+    wund.hp === Math.round(wund.maxHp * 5 / 17) && wund.hp < wund.maxHp);
+  ok("A11: aber nie unter 1 Leben", kroene({ level: 10, hp: 1, maxHp: 17, atk: 7 }).hp >= 1);
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

@@ -247,5 +247,58 @@ console.log("\n== 6. WER TRAEGT WAS (characters.js) ==");
   console.log(`  Zugbilder ohne Traeger in characters.js (verwaist, nicht falsch): ${verwaist.join(", ") || "-"}`);
 }
 
+/* ── v1.90.4 (Audit A12): WELCHER SPRUNG DARF SCHACH BIETEN? ─────────
+   In pseudoMoves bremst eine Zeile den Sprung auf den Koenig: im Schach zielt
+   ein `leap` nie auf die Krone (gegen das Ersticken des eingebauten
+   Startkoenigs in 2-3 Zuegen). Gemeint waren die TALENTE - nur trugen die
+   ZUGBILDER der Sonderfiguren und Monster dasselbe Etikett. Fuenf
+   Sonderfiguren und neun Monster konnten im Schach deshalb nie Schach bieten
+   oder den Koenig schlagen, und der Koenig durfte gefahrlos in ihre
+   Reichweite ziehen (Audit-Messung E2: Geist e3, schwarzer Koenig e5 ->
+   inCheck false, obwohl ein Zug auf das Koenigsfeld existiert). */
+{
+  const { inCheck } = await import("./src/core/rules/attacks.js");
+  const { pseudoMoves } = await import("./src/core/rules/moves.js");
+  const W = 8, ixx = (f, r) => r * W + f;
+  const grund = (extra) => {
+    const b = new Array(64).fill(null);
+    b[ixx(0, 0)] = { id: 1, kind: "K", color: "w", level: 1, abilities: [], used: {}, hasMoved: true };
+    b[ixx(4, 4)] = { id: 2, kind: "K", color: "b", level: 1, abilities: [], used: {}, hasMoved: true };
+    Object.assign(b, extra(b));
+    return { board: b, w: W, h: 8, holes: new Set(), rules: "chess", turn: "w",
+      captured: { w: [], b: [] }, potions: { w: 0, b: 0 }, moveCount: 0, log: [], seed: 1 };
+  };
+  /* Ein Zugbild-Traeger mit Sprung (2,1) - er steht so, dass der Sprung genau
+     auf dem schwarzen Koenig landet. Die Art ist "X", die echte Monster-Art
+     (bosses.js: "Every boss brings ONE unique piece (kind 'X')"): sie hat im
+     switch von pieceMoves KEINEN Zweig, also zieht die Figur AUSSCHLIESSLICH
+     nach ihrem Zugbild. Mit einer gewoehnlichen Art daneben wuerde die Probe
+     nichts messen - die normalen Springerspruenge boten dann ohnehin Schach,
+     und der Fehler blieb unsichtbar. Genau so ist er im Haus jahrelang
+     unentdeckt geblieben. */
+  const zug = grund((b) => { b[ixx(2, 3)] = { id: 3, kind: "X", color: "w", level: 1, abilities: [], used: {},
+    hasMoved: true, moveSpec: { leaps: [[2, 1], [-2, -1], [1, 2], [-1, -2]] } }; return b; });
+  const trifft = pseudoMoves(zug, "w").some((m) => m.to === ixx(4, 4));
+  ok("A12: der Zugbild-Sprung landet auf dem Koenigsfeld", trifft);
+  ok("A12: und DAS ist jetzt Schach - der Koenig ist dort nicht mehr sicher",
+    inCheck(zug, "b") === true);
+  /* Die Gegenprobe: das TALENT bleibt gebremst. Das ist Balance, kein Fehler
+     (der Kommentar in moves.js nennt das Ersticken des Startkoenigs). */
+  const talent = grund((b) => { b[ixx(2, 3)] = { id: 4, kind: "N", color: "w", level: 1,
+    abilities: ["knight_outrider", "knight_longleap"], used: {}, hasMoved: true }; return b; });
+  const talentZuege = pseudoMoves(talent, "w");
+  ok("A12: das Talent bietet weiterhin Spruenge an", talentZuege.some((m) => m.weitsprung));
+  ok("A12: aber keinen auf den Koenig - die Balance-Bremse bleibt",
+    !talentZuege.some((m) => m.to === ixx(4, 4) && m.weitsprung));
+  /* Im HP-Gefecht war die Bremse nie aktiv und bleibt es nicht. */
+  const hp = { ...talent, rules: "hp" };
+  ok("A12: im HP-Gefecht darf das Talent den Koenig weiterhin treffen",
+    pseudoMoves(hp, "w").some((m) => m.to === ixx(4, 4)));
+  /* Und der Halbschaden aus der Ferne haengt weiter am `leap`-Etikett -
+     genau darum wurde ein Zusatzfeld genommen und nicht umbenannt. */
+  ok("A12: die Talent-Spruenge tragen weiterhin special 'leap' (Halbschaden)",
+    talentZuege.filter((m) => m.weitsprung).every((m) => m.special === "leap"));
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

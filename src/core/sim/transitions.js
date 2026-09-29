@@ -1,4 +1,4 @@
-import { other, WHITE, BLACK, BASE_HP, BASE_ATK, HP_REMIS_HALBZUEGE } from "../domain/constants.js";
+import { other, WHITE, BLACK, BASE_HP, BASE_ATK, HP_REMIS_HALBZUEGE, HELD_PUNKTE, werteBeiStufe } from "../domain/constants.js";
 import { cloneBoard, findKing } from "../domain/board.js";
 import { pseudoMoves, pieceMoves, talentWirkt, verbuche, zauberRest, stufeVon } from "../rules/moves.js";
 import { kroneFaengtAb, schildwachtDeckt, nachtwacheHeilt, faehrteFolgt, konzilLehntAb, sturmRuftZurueck, hinterstenBauern } from "../rules/buende.js";
@@ -124,9 +124,49 @@ function altern(ns) {
 }
 
 // In HP mode a promoting piece adopts the new kind's stats.
+/* ── v1.90.4 (Audit A11): DIE KROENUNG SCHWAECHTE DIE FIGUR ───────────
+   Hier standen BASE_HP und BASE_ATK - die GRUNDwerte der neuen Art, ohne
+   jeden Bezug zur Stufe. Beim Aufbau rechnet setup.js aber mit
+   werteBeiStufe(..., punkte: hero ? HELD_PUNKTE : null): ein Held auf Stufe
+   10 steht mit 17/7 auf dem Brett, 36 Punkte. Wurde derselbe Bauer zur Dame
+   gekroent, kam er mit 7/4 heraus - 11 Punkte (Audit-Messung D1). Der
+   Hoehepunkt des Gambit schwaechte also jede aufgestufte Figur, waehrend die
+   KI sie weiter als Dame bewertete (VALUE Q 900).
+
+   Gerechnet wird ab jetzt mit DERSELBEN Formel wie beim Aufbau - eine
+   Rechnung fuer Kern, Hofstaat und Blatt, so wie der Kopf von werteBeiStufe
+   es verlangt.
+
+   ZUR HEILUNG (der Besitzer kann das anders wollen): die Kroenung heilte
+   bisher voll, weil hp = maxHp gesetzt wurde. Das war im alten Code eine
+   NEBENWIRKUNG des Zurueckwerfens auf Grundwerte, keine Absicht - und eine
+   Gratis-Vollheilung fuer jeden Bauern, der die Grundreihe erreicht, ist im
+   HP-Gefecht viel Geld. Uebertragen wird darum der ANTEIL: wer mit halbem
+   Leben kroent, steht danach mit halbem Leben einer Dame da. Wer sie voll
+   heilen lassen will, ersetzt die letzte Zeile durch `piece.hp =
+   piece.maxHp`. */
 function repromote(piece, kind) {
+  const altAnteil = piece.maxHp ? (piece.hp ?? piece.maxHp) / piece.maxHp : 1;
   piece.kind = kind;
-  if (piece.maxHp != null) { piece.maxHp = BASE_HP[kind] || piece.maxHp; piece.hp = piece.maxHp; piece.atk = BASE_ATK[kind] || piece.atk; }
+  if (piece.maxHp == null) return;
+  /* GENAU DERSELBE WEG WIE IM AUFBAU (setup.js:133-158), Schritt fuer
+     Schritt - damit die beiden Stellen nicht wieder auseinanderlaufen:
+     werteBeiStufe, und beim HELDEN danach die Umskalierung auf HELD_PUNKTE
+     mit dem Angriff als REST (zwei Aufrundungen ergaeben 37 statt 36). */
+  const w = werteBeiStufe(kind, piece.level || 1, {
+    maxLevel: piece.maxLevel || undefined,
+    punkte: piece.hero ? HELD_PUNKTE : null });
+  if (piece.hero) {
+    const ganz = w.hp + w.atk;
+    piece.maxHp = Math.round(w.hp * HELD_PUNKTE / Math.max(1, ganz));
+    piece.atk = HELD_PUNKTE - piece.maxHp;
+  } else {
+    piece.maxHp = w.hp;
+    piece.atk = w.atk;
+  }
+  piece.maxHp = Math.max(1, piece.maxHp);
+  piece.atk = Math.max(1, piece.atk);
+  piece.hp = Math.max(1, Math.min(piece.maxHp, Math.round(piece.maxHp * altAnteil)));
 }
 
 /**

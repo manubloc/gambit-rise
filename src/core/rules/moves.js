@@ -353,11 +353,36 @@ export function pieceMoves(state, sqIndex) {
   }
 
   // ── Ability-granted moves ────────────────────────────────────────────────
+  /* ── v1.90.4 (Audit A12): WELCHER SPRUNG DARF SCHACH BIETEN? ────────
+     In pseudoMoves steht eine Bremse: im Schach zielt ein `leap` nie auf den
+     Koenig ("Extended-leap abilities kept smother-mating the boxed-in
+     starting king in 2-3 moves"). Gemeint waren die TALENTE. Nur trugen die
+     Zugbilder der Sonderfiguren und Monster (moveSpec.leaps) dasselbe
+     Etikett - fuenf Sonderfiguren und neun Monster konnten im Schach
+     deshalb NIE Schach bieten oder den Koenig schlagen, und der Koenig
+     durfte gefahrlos in ihre Reichweite ziehen. Gemessen (Audit E2): Geist
+     e3, schwarzer Koenig e5 -> inCheck false, obwohl ein Zug auf das
+     Koenigsfeld existiert. 81 Schach-Stationen ab Liga 3 sind mit solchen
+     Figuren besetzbar.
+
+     WARUM EIN ZUSATZFELD statt eines neuen `special`-Namens: `special:
+     "leap"` wird an drei weiteren Stellen gelesen - der Halbschaden aus der
+     Ferne (transitions.js `afar`), die Reichweiten-Anzeige im
+     Figuren-Schirm und drei Proben. Ein umbenanntes Etikett haette dort
+     stumm die Wirkung geaendert, allen voran den Halbschaden. `weitsprung`
+     markiert darum NUR, was die Bremse angeht.
+
+     Und warum alle DREI Talente, obwohl der Audit nur die beiden
+     Springer-Talente nennt: die Bremse bremst heute auch den Damen-Sprung,
+     und ob die Dame im Schach mit Sprung matt setzen darf, ist eine
+     Balance-Frage - kein Fehler. Sie bleibt, wie sie war. Frei wird allein
+     das, was ein Zugbild IST: die normale Gangart einer Figur, kein
+     Zusatz. */
   if (piece.kind === KIND.KNIGHT && hasAbility(piece, "knight_longleap"))
-    for (const [df, dr] of LONG_LEAPS) step(moves, from, f + df, r + dr, piece, board, D, { special: "leap" });
+    for (const [df, dr] of LONG_LEAPS) step(moves, from, f + df, r + dr, piece, board, D, { special: "leap", weitsprung: true });
 
   if (piece.kind === KIND.KNIGHT && hasAbility(piece, "knight_outrider"))
-    for (const [df, dr] of DIAG_LEAPS) step(moves, from, f + df, r + dr, piece, board, D, { special: "leap" });
+    for (const [df, dr] of DIAG_LEAPS) step(moves, from, f + df, r + dr, piece, board, D, { special: "leap", weitsprung: true });
 
   if ((piece.kind === KIND.ROOK || piece.kind === KIND.CHANCELLOR) && hasAbility(piece, "rook_diag_step"))
     for (const [df, dr] of DIAG) step(moves, from, f + df, r + dr, piece, board, D, { special: "step" });
@@ -375,7 +400,7 @@ export function pieceMoves(state, sqIndex) {
     }
 
   if (piece.kind === KIND.QUEEN && hasAbility(piece, "queen_knightleap"))
-    for (const [df, dr] of KNIGHT_JUMPS) step(moves, from, f + df, r + dr, piece, board, D, { special: "leap", consumes: "queen_knightleap" });
+    for (const [df, dr] of KNIGHT_JUMPS) step(moves, from, f + df, r + dr, piece, board, D, { special: "leap", weitsprung: true, consumes: "queen_knightleap" });
 
   if (piece.kind === KIND.KING && hasAbility(piece, "king_dash"))
     for (const [df, dr] of ORTHO) {
@@ -528,7 +553,12 @@ export function pseudoMoves(state, color) {
         // starting king in 2-3 moves; movement and normal captures stay,
         // but a leap never targets the king and thus never gives check.
         // HP duels are untouched — there the king has hit points and shields.
-        if (mateRules && m[j].special === "leap" && b[m[j].to]?.kind === KIND.KING) continue;
+        /* v1.90.4 (Audit A12): die Bremse gilt fuer die TALENT-Spruenge
+           (`weitsprung`), nicht mehr fuer jedes `leap`. Die Zugbilder der
+           Sonderfiguren und Monster tragen dasselbe Etikett - sie konnten
+           im Schach dadurch nie Schach bieten, und der Koenig durfte
+           gefahrlos in ihre Reichweite ziehen. */
+        if (mateRules && m[j].weitsprung && b[m[j].to]?.kind === KIND.KING) continue;
         out.push(m[j]);
       }
     }
