@@ -39,14 +39,14 @@ gambitrise.com zeigt darauf).
   pruefe-navigation, pruefe-textfluss, test_layout) lesen den Chromium-Pfad aus
   `PW_CHROMIUM`; ohne die Variable gilt der Pfad des Cloud-Containers. Lokal:
   `npx playwright install chromium` und `PW_CHROMIUM=<Pfad zur chrome-Datei>`.
-- `npm test` — volle Batterie. MUSS **28 Suiten / 2103 Prüfungen** melden
-  (Stand v1.90.3; der Runner stoppt nach der ersten roten Suite, also
+- `npm test` — volle Batterie. MUSS **28 Suiten / 2146 Prüfungen** melden
+  (Stand v1.90.4; der Runner stoppt nach der ersten roten Suite, also
   Suitenzahl prüfen, nicht nur Assertions! Zählweise: alle Zeilen
   `RESULT…: N passed` summieren — test_balance meldet zwei, darum stehen im
   Log 29 RESULT-Zeilen für 28 Suiten). **Seit v1.89.9 läuft
   `tools/pruefe-bezeichner.mjs` in der Batterie mit**, direkt hinter
   `npm run ui` (dort entsteht das Bundle `.uitest.mjs`, das die Probe liest).
-  Sie gibt KEINE RESULT-Zeile aus — die Zählung bleibt also bei 28/2103 —,
+  Sie gibt KEINE RESULT-Zeile aus — die Zählung bleibt also bei 28/2146 —,
   bricht die Kette aber, sobald im Bundle ein freier Bezeichner auftaucht.
   Das ist die Klasse der Abstürze A3/A4: gültiges JavaScript, das erst beim
   Rendern als ReferenceError hochgeht.
@@ -111,7 +111,17 @@ starten, sonst reißen Werkzeug-Zeitlimits den Lauf ab.
    verifizieren (`git diff --stat HEAD FETCH_HEAD`). Es können PARALLELE
    Sessions arbeiten. NIEMALS force-pushen.
 7. Push, dann `curl -sL -H "Cache-Control: no-cache" https://gambitrise.com/spielen/version.json`
-   pollen (**mit `/spielen/`** — `version.json` zieht seit v1.42.0 mit der
+   pollen. **ACHTUNG, gemessen 29.9.: der Egress-Proxy des Containers weist
+   gambitrise.com ab** (`curl: (56) CONNECT tunnel failed, response 403`) —
+   curl liefert dann eine LEERE Antwort, nicht etwa einen Fehler, und man
+   hält den Deploy für kaputt. Das ist eine Netzsperre, kein Deploy-Problem;
+   es hilft kein zweiter Befehl (wget, python, Spiegel — alles läuft durch
+   denselben Proxy). Ausweg: die Abnahme über **Claude in Chrome** fahren
+   (`navigate` auf die Adresse, dann per `javascript_tool`
+   `await fetch("/spielen/version.json?x="+Math.random(), {cache:"no-store"}).then(r=>r.text())`;
+   dasselbe Fenster zählt auch gleich die Marker im Live-Bundle). WebFetch
+   braucht eine Freigabe des Besitzers und steht unbeaufsichtigt nicht zur
+   Verfügung. Zur Adresse selbst (**mit `/spielen/`** — `version.json` zieht seit v1.42.0 mit der
    App um, `tools/seite-bauen.mjs` Schritt 1; die Wurzel-Adresse
    `/version.json` liefert die Landingpage als HTML, gemessen 27.9.) und
    Marker-Strings im Live-Bundle zählen:

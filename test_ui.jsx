@@ -23,7 +23,7 @@ import { ItemIcon } from "./src/app/ui/ItemIcon.jsx";
 import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { AchievementsScreen } from "./src/app/ui/screens/AchievementsScreen.jsx";
 import { GameScreen } from "./src/app/ui/screens/GameScreen.jsx";
-import { LeaveMatchAsk, GameIntro } from "./src/app/App.jsx";
+import { LeaveMatchAsk, GameIntro, reducer } from "./src/app/App.jsx";
 import { rissStufe } from "./src/app/ui/RissBoden.jsx";
 import { TutorialScreen } from "./src/app/ui/screens/TutorialScreen.jsx";
 import { buildStageMatch, withProgressPct } from "./src/meta/index.js";
@@ -2152,6 +2152,25 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
   })());
   ok("die Aufstiegsfeier wird gerendert (Portal an document.body, tier -> gambitTier)",
     arm.includes("createPortal(<AufstiegsFeier art={feier.art} gambitTier={feier.tier || 1}") && arm.includes('import { createPortal } from "react-dom"'));
+}
+
+/* ── v1.90.4 (Audit A50): RECHTE KOMMEN NICHT AUS EINER DATEI ─────────
+   REPLACE ersetzte den Stand komplett durch das uebergebene Objekt - auch
+   wenn es aus einer eingelesenen Sicherung kam ("Spielstand laden",
+   Wiederherstellungspunkt). Damit entschied eine DATEI ueber `voll` (die
+   Bezahlschranke, schranke.js), `gast`, `online` und `pin`. Heute Hygiene,
+   sobald Play Billing daran haengt eine Luecke. */
+{
+  const jetzt = { name: "Ich", gold: 10, voll: false, gast: true, online: { an: false }, pin: { salt: "s", hash: "h" } };
+  const datei = { name: "Aus der Datei", gold: 9999, voll: true, gast: false, online: { an: true }, pin: null };
+  const nach = reducer(jetzt, { type: "REPLACE", profile: datei });
+  ok("A50: der Inhalt der Datei kommt an", nach.name === "Aus der Datei" && nach.gold === 9999);
+  ok("A50: aber die Bezahlschranke nicht", nach.voll === false);
+  ok("A50: der Gast bleibt Gast", nach.gast === true);
+  ok("A50: die Online-Einstellung bleibt die des Geraets", nach.online.an === false);
+  ok("A50: und der Riegel laesst sich nicht wegladen", nach.pin && nach.pin.hash === "h");
+  const ohneStand = reducer(null, { type: "REPLACE", profile: datei });
+  ok("A50: ohne laufenden Stand wird nichts festgehalten", ohneStand.voll === true);
 }
 
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);

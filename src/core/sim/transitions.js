@@ -662,6 +662,19 @@ export function status(state) {
       return { over: true, result: "draw", winner: null, check: false, grund: "ohneSchaden" };
     return { over: false, result: "ongoing", winner: null, check: false, legalCount: legal.length };
   }
+  /* ── v1.90.4 (Audit A33): OHNE KOENIG IST DIE PARTIE AUS ───────────────
+     Der HP-Zweig kennt den Koenigsverlust seit jeher, der Schach-Zweig nicht:
+     dort gab es nur checkmate, stalemate und ongoing. Verschwand ein Koenig
+     trotzdem vom Brett, lief die Partie als "ongoing" weiter - inCheck gibt
+     ohne Koenig false zurueck (attacks.js: `if (!k) return false`), also war
+     nie Schach, nie matt, kein Banner, und die KI zog munter weiter.
+     Gemessen (Audit C1-C4) ueber Turm x Koenig und ueber Geleit. Seit v1.90.3
+     weist der Reducer solche Zuege zwar ab, aber ein Zustand kann auch aus
+     einem alten Spielstand oder aus einem Bund kommen - der letzte Riegel
+     gehoert deshalb hierher, wo das Ergebnis entsteht. */
+  const wk = findKing(state.board, WHITE, state.w);
+  const bk = findKing(state.board, BLACK, state.w);
+  if (!wk || !bk) return { over: true, result: "regicide", winner: wk ? WHITE : BLACK, check: false };
   const legal = legalMoves(state, color);
   const check = inCheck(state, color);
   if (legal.length === 0)

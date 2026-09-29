@@ -163,7 +163,17 @@ export async function writeSave(acc, slotId, profile, playtimeAdd = 0) {
   const i = list.findIndex((s) => s.id === slotId);
   if (i < 0) return null;
   list[i] = summarize(list[i], profile, playtimeAdd);
-  await storage.set(SKEY(acc, slotId), JSON.stringify(profile), false);
+  /* ── v1.90.4 (Audit A51): EIN VERSCHLUCKTER SCHREIBFEHLER LUEGT ───────
+     storage.set faengt QuotaExceeded und SecurityError ab und liefert dann
+     null (storage.web.js, lsSet). Das Ergebnis wurde hier nie angesehen:
+     der INDEX bekam trotzdem sein neues updatedAt geschrieben, der BLOB
+     blieb alt. Beim naechsten Start zeigte die Liste einen Fortschritt, den
+     der Spielstand nicht hat - Stunden weg, ohne einen einzigen Hinweis.
+     Jetzt wird zuerst der Stand geschrieben; nur wenn das gelingt, zieht
+     der Index nach. Schlaegt es fehl, meldet writeSave null - App.jsx sagt
+     es dem Spieler. */
+  const gelungen = await storage.set(SKEY(acc, slotId), JSON.stringify(profile), false);
+  if (!gelungen) { console.error("Spielstand nicht schreibbar (Speicher voll?):", SKEY(acc, slotId)); return null; }
   await writeIndex(acc, list);
   return list[i];
 }
@@ -183,7 +193,17 @@ export async function renameSave(acc, slotId, name) {
 // ── legacy migration: the single pre-account profile becomes slot #1 ─────────
 const LEGACY = "profile";
 const MIGRATED = "saves:migrated";
-export async function migrateLegacyInto(acc) {
+/* ── v1.90.4 (Audit A52): DER GAST ERBT NICHTS ────────────────────
+   Die Uebernahme lief fuer JEDES Konto - auch fuer den Gast. Wer vor der
+   Kontozeit gespielt hatte und dann "Als Gast spielen" waehlte, bekam seinen
+   alten Stand ins GAST-Konto gelegt. loginGuest raeumt beim naechsten
+   Gast-Einstieg aber alle Gast-Staende (accounts.js): der Fortschritt war
+   fort - UND der Merker stand auf "1", also kam er auch beim richtigen Konto
+   nie wieder an. Ein einziger Gast-Einstieg genuegte.
+   Der Riegel sitzt bewusst HIER und nicht nur im Aufrufer: die Funktion
+   weiss selbst am besten, dass ihr Ergebnis dauerhaft sein muss. */
+export async function migrateLegacyInto(acc, provider = null) {
+  if (provider === "guest") return null;
   try {
     const done = await storage.get(MIGRATED, false);
     if (done?.value) return null;

@@ -5,6 +5,7 @@ import { createSave, listSaves, loadSave, writeSave, deleteSave, renameSave,
   progressPct, withProgressPct, leagueOrder, migrateLegacyInto, fmtPlaytime } from "./src/meta/saves.js";
 import { defaultProfile } from "./src/meta/profile.js";
 import { storage } from "./src/platform/index.js";
+import { hashPin, verifyPin } from "./src/platform/crypto.web.js";
 import { CHARACTERS, BOSSES, ITEMS } from "./src/content/index.js";
 import { ownedLeagueBosses } from "./src/meta/leveling.js";
 
@@ -179,6 +180,24 @@ await storage.set("profile", JSON.stringify({ ...defaultProfile(), gold: 777 }),
 const mig = await migrateLegacyInto(A);
 ok("the pre-account profile becomes an imported slot", mig && (await loadSave(A, mig.id)).gold === 777);
 ok("migration runs only once", (await migrateLegacyInto(A)) === null);
+/* ── v1.90.4 (Audit A52): DER GAST ERBT NICHTS ───────────────────
+   Die Uebernahme lief fuer JEDES Konto. Der Gast bekam den Altstand - und
+   loginGuest raeumt beim naechsten Gast-Einstieg alle Gast-Staende: der
+   Fortschritt war fort UND der Merker gesetzt, der Altstand also fuer immer
+   verloren. Geprueft mit frischem Merker und frischem Altstand. */
+{
+  await storage.delete("saves:migrated", false);
+  await storage.set("profile", JSON.stringify({ ...defaultProfile(), gold: 4242 }), false);
+  const gast = await mkAccount("a52gast@test.de", "wort1234");
+  const versuch = await migrateLegacyInto(gast.id, "guest");
+  ok("A52: ein Gast bekommt den Altstand NICHT", versuch === null);
+  ok("A52: und er liegt noch da - der Merker wurde nicht gesetzt",
+    !!(await storage.get("profile", false))?.value && !(await storage.get("saves:migrated", false))?.value);
+  const echt = await mkAccount("a52echt@test.de", "wort1234");
+  const geerbt = await migrateLegacyInto(echt.id, "local");
+  ok("A52: ein richtiges Konto bekommt ihn danach immer noch",
+    geerbt && (await loadSave(echt.id, geerbt.id)).gold === 4242);
+}
 
 // ── records + leaderboards (v0.17) ───────────────────────────────────────────
 const { recordStage, totalBestMoves, fmtMs } = await import("./src/meta/records.js");
@@ -511,6 +530,82 @@ ok("full build counts ten league crowns", fullB.stats.leaguesWon === 10);
   ok("... und die App zeigt statt eines weissen Schirms eine Karte",
     app.includes("if (!prof) { setLadeFehler(eintrag); return; }") && app.includes("if (ladeFehler) {"));
   await st4.delete("save:kontoY:slotY", false);
+}
+
+/* ── v1.90.4 (Audit A51): EIN VERSCHLUCKTER SCHREIBFEHLER LUEGT ────────
+   storage.set faengt QuotaExceeded ab und liefert null. writeSave sah das
+   Ergebnis nie an: der Index bekam sein neues updatedAt, der Blob blieb alt -
+   beim naechsten Start fehlte Fortschritt, ohne einen Hinweis. Geprueft wird
+   mit einem Speicher, der den BLOB verweigert und den Index durchlaesst. */
+{
+  const kontoA51 = await mkAccount("a51@test.de", "wort1234");
+  const e = await createSave(kontoA51.id, "A51", { ...defaultProfile(), gold: 10 });
+  const echt = storage.set.bind(storage);
+  let indexGeschrieben = false;
+  storage.set = async (k, v, sh) => {
+    if (/(^|:)save:[^:]+:[^:]+$/.test(k)) return null;      // der Blob scheitert
+    if (/saves:index/.test(k)) indexGeschrieben = true;
+    return echt(k, v, sh);
+  };
+  const r = await writeSave(kontoA51.id, e.id, { ...defaultProfile(), gold: 999 });
+  storage.set = echt;
+  ok("A51: ein gescheiterter Schreibvorgang meldet null statt Erfolg", r === null);
+  ok("A51: und der Index behauptet keinen Fortschritt, den der Stand nicht hat", indexGeschrieben === false);
+  const nachher = await loadSave(kontoA51.id, e.id);
+  ok("A51: der alte Stand ist unveraendert erhalten", nachher && nachher.gold === 10);
+}
+
+/* ── v1.90.4 (Audit A51, Gegenprobe) ─────────────────────────── */
+{
+  const konto = await mkAccount("a51b@test.de", "wort1234");
+  const e = await createSave(konto.id, "A51b", { ...defaultProfile(), gold: 10 });
+  const r = await writeSave(konto.id, e.id, { ...defaultProfile(), gold: 42 });
+  ok("A51: der normale Schreibvorgang liefert weiterhin den Listeneintrag", !!r && r.id === e.id);
+  ok("A51: und der Stand traegt den neuen Wert", (await loadSave(konto.id, e.id)).gold === 42);
+}
+
+/* ── v1.90.4 (Audit A53): EIN PIN, DER NICHT PRUEFBAR IST, IST NICHT FALSCH
+   Ein starker Datensatz entsteht nur mit crypto.subtle - also unter https.
+   Wird dasselbe Spiel danach ueber http, im LAN oder als Einzeldatei
+   geoeffnet, fehlt subtle. Bis v1.90.3 lieferte verifyPin dann stumm false:
+   JEDE richtige PIN galt als falsch, der Riegel ging nie wieder auf.
+   Geprueft wird mit abgeschaltetem crypto.subtle. */
+const ohneSubtle = (() => {
+  const urspr = Object.getOwnPropertyDescriptor(globalThis, "crypto");
+  const echt = globalThis.crypto;
+  return {
+    an: () => Object.defineProperty(globalThis, "crypto",
+      { value: { getRandomValues: (a) => echt.getRandomValues(a) }, configurable: true, writable: true }),
+    aus: () => Object.defineProperty(globalThis, "crypto", urspr),
+  };
+})();
+{
+  const satz = await hashPin("1234");
+  ok("A53: unter https entsteht ein STARKER Datensatz", !satz.weak);
+  ok("A53: und die richtige PIN oeffnet ihn", (await verifyPin("1234", satz)) === true);
+  ok("A53: eine falsche bleibt falsch", (await verifyPin("9999", satz)) === false);
+  /* dieselbe Umgebung wie eine Einzeldatei auf manchen Telefonen:
+     getRandomValues ja, subtle nein. In Node 22 ist globalThis.crypto
+     schreibgeschuetzt, darum ueber den Eigenschafts-Beschreiber. */
+  ohneSubtle.an();
+  let grund = null, ergebnis = null;
+  try { ergebnis = await verifyPin("1234", satz); } catch (e) { grund = e.grund; }
+  ohneSubtle.aus();
+  ok("A53: ohne subtle gibt es kein stummes 'falsch' mehr", ergebnis === null);
+  ok("A53: sondern einen erkennbaren Grund", grund === "keinSubtle");
+  ok("A53: und danach greift die Pruefung wieder ganz normal", (await verifyPin("1234", satz)) === true);
+}
+{
+  /* Der SCHWACHE Datensatz (ohne subtle angelegt) bleibt ueberall pruefbar -
+     sonst haette der neue Riegel den Rueckfall mit erschlagen. */
+  ohneSubtle.an();
+  const schwach = await hashPin("1234");
+  const auf = await verifyPin("1234", schwach);
+  const zu = await verifyPin("4321", schwach);
+  ohneSubtle.aus();
+  ok("A53: ohne subtle entsteht der als schwach GEKENNZEICHNETE Datensatz", schwach.weak === true);
+  ok("A53: der bleibt pruefbar - richtig auf, falsch zu", auf === true && zu === false);
+  ok("A53: und auch mit subtle laesst er sich weiterhin oeffnen", (await verifyPin("1234", schwach)) === true);
 }
 
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);

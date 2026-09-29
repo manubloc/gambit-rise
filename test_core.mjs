@@ -3,7 +3,7 @@ import {
   createGame, legalMoves, legalMovesFrom,
   reduce, moveCommand, resignCommand, EVENT,
   encodeState, decodeState, replay,
-  applyMove,
+  applyMove, status,
 } from "./src/core/index.js";
 import { buildArmyFromFormation, defaultFormation } from "./src/meta/index.js";
 import { mapById } from "./src/content/index.js";
@@ -166,6 +166,24 @@ console.log("\n== DIE DREI SCHACH-SONDERZUEGE (v1.8.0) ==");
     const echt = reduce(g, moveCommand(zuege[0]));
     ok("ein gueltiger Zug geht weiterhin durch", !gleich(echt.state, g));
   }
+}
+
+/* ── v1.90.4 (Audit A33): OHNE KOENIG IST DIE PARTIE AUS ───────────────
+   Der HP-Zweig kannte den Koenigsverlust, der Schach-Zweig nicht: die Partie
+   lief als "ongoing" weiter, weil inCheck ohne Koenig false liefert - kein
+   Banner, kein Ende, die KI zog weiter. */
+{
+  const g = createGame();
+  const k = g.board.findIndex((p) => p && p.kind === KIND.KING && p.color === BLACK);
+  ok("A33: vor dem Eingriff steht die Partie normal", status(g).result === "ongoing" && k >= 0);
+  const ohne = { ...g, board: g.board.slice() };
+  ohne.board[k] = null;
+  const st = status(ohne);
+  ok("A33: ohne schwarzen Koenig ist die Partie aus", st.over === true && st.result === "regicide");
+  ok("A33: und Weiss hat gewonnen", st.winner === WHITE);
+  const ohneW = { ...g, board: g.board.slice() };
+  ohneW.board[g.board.findIndex((p) => p && p.kind === KIND.KING && p.color === WHITE)] = null;
+  ok("A33: andersherum genauso", status(ohneW).result === "regicide" && status(ohneW).winner === BLACK);
 }
 
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);

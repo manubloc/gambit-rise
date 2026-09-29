@@ -1,5 +1,6 @@
 // ── Mauern, Zaeune, Fallen (v0.90) ──────────────────────────────────────────
 import { createGame, legalMoves, applyMove } from "./src/core/index.js";
+import { pieceMoves } from "./src/core/rules/moves.js";
 import { buildArmyFromFormation } from "./src/meta/index.js";
 import { SPERR_ARTEN, FALLEN_ARTEN, stadium, loeseFalleAus, falleSichtbar,
   MAX_SPERREN, ZERFALL_TAKT, setzReihen, setzFelder, darfSetzen, setzeSperre, nimmSperre,
@@ -274,6 +275,79 @@ console.log("\n== DAS KAPITEL GEHOERT DER STATION, nicht dem Profil (v1.1.2) =="
   const rueck3 = kern(buildStageMatch("L03s00", { campaign: { league: 12, cleared: [] } }, 1));
   const normal = kern(bau(12, "L03s00"));
   ok("der Rueckblick skaliert weiterhin auf die uebergebene Liga", rueck3 !== normal);
+}
+
+/* ── v1.90.4 (Audit A10): EINE MAUER IST FUER JEDEN EINE MAUER ──────────
+   Bis v1.90.3 fragten nur step, slide und der Bauern-Vorwaertszug nach der
+   Sperre. Alles andere landete AUF der Mauer - und wer dort stand, war
+   unschlagbar, weil gegen ein versperrtes Feld nur der Schlag gegen die
+   MAUER angeboten wird, nie gegen die Figur darauf. Die Probe ist bewusst
+   nicht auf einzelne Faehigkeiten gemuenzt, sondern auf die REGEL: KEIN
+   Pseudozug darf ohne `schlag` auf einem versperrten Feld landen. Sie faengt
+   damit auch Zugbilder, die es heute noch gar nicht gibt. */
+{
+  const alleZuege = (st) => {
+    const out = [];
+    for (let i = 0; i < st.board.length; i++) {
+      const p = st.board[i];
+      if (!p || p.color !== st.turn) continue;
+      for (const z of pieceMoves(st, i)) out.push(z);
+    }
+    return out;
+  };
+  /* Ein Brett voller Sonderkoenner: jede Figur bekommt ALLE Faehigkeiten, die
+     ueberhaupt auf einem Feld landen koennen, dazu ein Zugbild mit Gleitern,
+     Spruengen und Brut. So sieht die Probe jeden Block auf einmal. */
+  const KUENSTE = ["pawn_sidestep", "pawn_charge", "pawn_backstep", "rook_breach",
+    "king_dash", "bishop_hop", "queen_knightleap", "rook_diag_step",
+    "bishop_ortho_step", "teleport", "pawn_forward_capture"];
+  const g0 = createGame(armee(), armee(), { rules: "chess" });
+  const brett = g0.board.map((p) => p && ({ ...p, abilities: [...KUENSTE],
+    moveSpec: { leaps: [[1, 2], [2, 1], [-1, 2], [2, -1]], slides: [[1, 0], [0, 1], [1, 1], [-1, 1], [-1, 0], [0, -1], [-1, -1], [1, -1]], range: 4, spawn: true },
+    spawnLeft: 3 }));
+  /* Sperren auf ALLE freien Felder: dann gibt es kein Feld mehr, auf dem ein
+     Zug ohne Schlag landen duerfte - ein einziger Durchrutscher faellt auf. */
+  const sperren = {};
+  for (let i = 0; i < brett.length; i++) if (!brett[i]) sperren[i] = { art: "mauer", hp: 2 };
+  const st = { ...g0, board: brett, sperren };
+  const z = alleZuege(st);
+  ok("A10: das Probenbrett bietet ueberhaupt Zuege an", z.length > 0);
+  const durch = z.filter((m) => sperren[m.to] && !m.schlag);
+  if (durch.length) console.log("     durchgerutscht:", JSON.stringify(durch.slice(0, 6)));
+  ok("A10: kein Zug landet ohne Schlag auf einer Mauer - kein Sonderzug, kein Zugbild, kein Blinzeln",
+    durch.length === 0);
+}
+{
+  /* Und die Gegenprobe: OHNE Sperren muessen dieselben Kuenste weiterhin
+     Zuege liefern - sonst haette der Riegel sie schlicht totgelegt. */
+  const g0 = createGame(armee(), armee(), { rules: "chess" });
+  const KUENSTE = ["pawn_sidestep", "pawn_charge", "pawn_backstep", "king_dash", "teleport"];
+  const brett = g0.board.map((p) => p && ({ ...p, abilities: [...KUENSTE] }));
+  const st = { ...g0, board: brett };
+  const mitKunst = legalMoves(st).filter((m) => ["side", "rush", "back", "dash", "blink"].includes(m.special));
+  ok("A10: ohne Mauer bleiben Seitschritt, Sturmlauf, Rueckschritt, Sprint und Blinzeln erhalten",
+    mitKunst.length > 0);
+}
+{
+  /* Der Drache: sein 2x2-Block darf sich nicht auf eine Mauer setzen. */
+  const g0 = createGame(armee(), armee(), { rules: "hp" });
+  const W = g0.w;
+  const leer = g0.board.map(() => null);
+  const drache = { id: 900, kind: "D", color: "w", big: true, hp: 30, maxHp: 30, atk: 9, abilities: [] };
+  const anker = 4 * W + 2;
+  leer[anker] = drache;
+  leer[anker + 1] = { id: 901, kind: "D+", color: "w", ref: anker };
+  leer[anker + W] = { id: 902, kind: "D+", color: "w", ref: anker };
+  leer[anker + W + 1] = { id: 903, kind: "D+", color: "w", ref: anker };
+  leer[0] = { id: 904, kind: "K", color: "w" };
+  leer[leer.length - 1] = { id: 905, kind: "K", color: "b" };
+  const ohne = { ...g0, board: leer, turn: "w" };
+  const frei = pieceMoves(ohne, anker).map((m) => m.to);
+  ok("A10: der Drache zieht ohne Mauer", frei.length > 0);
+  const ziel = frei.find((t) => t !== anker);
+  const mit = { ...ohne, sperren: { [ziel]: { art: "mauer", hp: 2 } } };
+  ok("A10: eine Mauer unter dem Drachenblock ist fuer ihn ein Loch - er setzt sich nicht darauf",
+    !pieceMoves(mit, anker).some((m) => m.to === ziel));
 }
 
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);

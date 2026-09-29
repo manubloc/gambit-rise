@@ -656,5 +656,78 @@ const hmac2 = async (key, data) => { const k = await subtle.importKey("raw", key
   ok("nameVergeben kennt die eigene Kennung", hall.nameVergeben("Der Graue", "p2") === false && hall.nameVergeben("Der Graue", "p1") === true);
 }
 
+/* ── v1.90.4 (Audit A7): DAS REGAL WIRD ABGERAEUMT ────────────────────
+   Alle Fernpartien liegen als EIN JSON-String unter "daily". Beendete
+   Partien blieben dort fuer immer stehen - bei rund 400 haette kein
+   Schreibvorgang mehr durchgepasst und ALLE Fernpartien waeren eingefroren.
+   Geprueft wird das VERHALTEN mit vorgestellter Uhr, nicht der Quelltext. */
+{
+  const { hall, last, tick } = mkHall();
+  hall.handle(null, { t: "hello", id: "a", secret: "s", name: "A", score: 100 });
+  hall.handle(null, { t: "hello", id: "b", secret: "s", name: "B", score: 100 });
+  hall.handle("a", { t: "queue", maps: ["classic"], army: ["p"], tc: "daily" });
+  hall.handle("b", { t: "queue", maps: ["classic"], army: ["q"], tc: "daily" });
+  const gid = last("daily:new", "a").gameId;
+  hall.handle("a", { t: "daily:resign", gameId: gid });
+  ok("A7: die beendete Partie bleibt zunaechst im Regal stehen", !!hall.daily[gid]);
+  tick(29 * 24 * 3600_000);
+  hall.sweepDaily();
+  ok("A7: nach 29 Tagen steht sie immer noch da - der Rueckblick bleibt lesbar", !!hall.daily[gid]);
+  tick(2 * 24 * 3600_000);
+  hall.sweepDaily();
+  ok("A7: nach 30 Tagen ist sie fort - das Regal waechst nicht mehr ohne Ende", hall.daily[gid] === undefined);
+}
+{
+  /* Eine LAUFENDE Partie darf der Besen niemals anfassen. */
+  const { hall, last, tick } = mkHall();
+  hall.handle(null, { t: "hello", id: "a", secret: "s", name: "A", score: 100 });
+  hall.handle(null, { t: "hello", id: "b", secret: "s", name: "B", score: 100 });
+  hall.handle("a", { t: "queue", maps: ["classic"], army: ["p"], tc: "daily" });
+  hall.handle("b", { t: "queue", maps: ["classic"], army: ["q"], tc: "daily" });
+  const gid = last("daily:new", "a").gameId;
+  tick(40 * 24 * 3600_000);
+  hall.sweepDaily();
+  ok("A7: eine laufende Partie wird nicht abgeraeumt, nur an der Uhr entschieden",
+    !!hall.daily[gid] && hall.daily[gid].done.reason === "time");
+}
+{
+  /* forget(): die Fernpartien des Geloeschten. */
+  const { hall, last } = mkHall();
+  hall.handle(null, { t: "hello", id: "weg", secret: "s", name: "Weg", score: 100 });
+  hall.handle(null, { t: "hello", id: "bleibt", secret: "s", name: "Bleibt", score: 100 });
+  hall.handle("weg", { t: "queue", maps: ["classic"], army: ["p"], tc: "daily" });
+  hall.handle("bleibt", { t: "queue", maps: ["classic"], army: ["q"], tc: "daily" });
+  const gid = last("daily:new", "weg").gameId;
+  const vorher = hall.player("bleibt").rating ?? 1000;
+  hall.forget("weg");
+  ok("A7: die Fernpartie eines Geloeschten wird geschlossen",
+    !!hall.daily[gid] && hall.daily[gid].done.reason === "gone");
+  ok("A7: und der Gegner gewinnt sie", hall.daily[gid].done.winner === (hall.daily[gid].w === "weg" ? "b" : "w"));
+  ok("A7: der Gegner erfaehrt davon", !!last("daily:over", "bleibt"));
+  ok("A7: aber ohne Wertung - ein Sieg gegen ein verschwundenes Konto ist keiner",
+    (hall.player("bleibt").rating ?? 1000) === vorher);
+}
+{
+  /* close(): offene Herausforderungen. */
+  const { hall, last } = mkHall();
+  hall.handle(null, { t: "hello", id: "a", secret: "s", name: "A", score: 100 });
+  hall.handle(null, { t: "hello", id: "b", secret: "s", name: "B", score: 100 });
+  hall.handle("a", { t: "challenge", targetId: "b", maps: ["classic"], army: {} });
+  const cid = last("challenge", "b").challengeId;
+  ok("A7: die Herausforderung liegt vor", !!hall.challenges[cid]);
+  hall.close("b");
+  ok("A7: wer die Seite zumacht, nimmt seine offenen Einladungen mit", hall.challenges[cid] === undefined);
+}
+{
+  const { hall, last } = mkHall();
+  hall.handle(null, { t: "hello", id: "a", secret: "s", name: "A", score: 100 });
+  hall.handle(null, { t: "hello", id: "b", secret: "s", name: "B", score: 100 });
+  hall.handle("a", { t: "challenge", targetId: "b", maps: ["classic"], army: {} });
+  const cid = last("challenge", "b").challengeId;
+  hall.close("a");
+  ok("A7: auch die Einladung eines Weggegangenen faellt - sonst startet sie eine Partie gegen ein geschlossenes Fenster",
+    hall.challenges[cid] === undefined);
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 if (fail) process.exit(1);

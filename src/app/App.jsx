@@ -94,7 +94,7 @@ export function SubHeader({ title }) {
   );
 }
 
-function reducer(state, a) {
+export function reducer(state, a) {
   switch (a.type) {
     case "HYDRATE": return a.profile;
     case "SET_NAME": return { ...state, name: a.name };
@@ -130,9 +130,24 @@ function reducer(state, a) {
     case "SET_ONLINE": return { ...state, online: { ...state.online, ...a.online } };
     case "PAUSE_MATCH": return { ...state, pausedMatch: a.data || null };
     case "SET_PIECE_ART": return { ...state, pieceArt: a.style };
-    case "REPLACE": if (state) takeRestorePoint(state, { force: true });
-      // eslint-disable-next-line no-fallthrough
- return a.profile;
+    /* ── v1.90.4 (Audit A50): RECHTE KOMMEN NICHT AUS EINER DATEI ───────
+       REPLACE ersetzte den Stand KOMPLETT durch das uebergebene Objekt -
+       auch dann, wenn es aus einer eingelesenen Sicherung stammt
+       (ProfileScreen "Spielstand laden", Wiederherstellungspunkt). Damit
+       entschied eine Datei ueber `gast`, `voll` (die Bezahlschranke,
+       schranke.js), `online` und `pin`. Heute ist das nur Hygiene - die
+       Store-Trennung soll spaeter ueber zwei Pakete laufen -, aber sobald
+       Play Billing daran haengt, darf `profile.voll` nicht mehr aus einer
+       Datei kommen. Diese vier Felder bleiben darum immer die des LAUFENDEN
+       Standes; alles andere wird ersetzt wie bisher. */
+    case "REPLACE": {
+      if (state) takeRestorePoint(state, { force: true });
+      if (!a.profile) return a.profile;
+      if (!state) return a.profile;
+      const eigen = {};
+      for (const k of ["gast", "voll", "online", "pin"]) if (k in state) eigen[k] = state[k];
+      return { ...a.profile, ...eigen };
+    }
     case "RESET": return { ...defaultProfile(), name: state.name, lang: state.lang };
     default: return state;
   }
@@ -317,7 +332,16 @@ export default function App() {
     let lebt = true;
     (async () => {
       try {
-        await migrateLegacyInto(account.id);
+        /* ── v1.90.4 (Audit A52): DER GAST ERBT NICHTS ─────────────────
+           migrateLegacyInto lief fuer JEDES Konto - auch fuer den Gast. Wer
+           vor der Kontozeit gespielt hatte und dann "Als Gast spielen"
+           waehlte, bekam seinen alten Stand ins GAST-Konto gelegt. Und
+           loginGuest raeumt beim naechsten Gast-Einstieg alle Gast-Staende
+           (accounts.js): der uebernommene Fortschritt war damit fort, und
+           der Uebernahme-Merker stand auf "1", also kam er auch beim
+           richtigen Konto nie wieder an. Der Altstand wartet ab jetzt auf
+           ein echtes Konto. */
+        await migrateLegacyInto(account.id, account.provider);
         let liste = await listSaves(account.id);
         let eintrag = liste && liste[0];
         /* v1.46.0: ein GAST beginnt immer auf dem eingefrorenen Schaustand -
@@ -1285,19 +1309,29 @@ export function PlayHub({ profile, t, onQuick, onCamp, onOnline, onTutorial = nu
 function Lock({ t, profile, onUnlock, onBack }) {
   const [pin, setPin] = useState("");
   const [wrong, setWrong] = useState(false);
+  /* v1.90.4 (Audit A53): ein starker PIN-Datensatz (PBKDF2) ist ohne
+     crypto.subtle - also ausserhalb von https - ueberhaupt nicht pruefbar.
+     Bisher sah das aus wie "falsches Passwort" und der Riegel ging nie auf.
+     verifyPin wirft dafuer jetzt; hier steht der Grund statt der Luege. */
+  const [grund, setGrund] = useState(null);
   async function tryUnlock() {
-    if (await verifyPin(pin, profile.pin)) onUnlock();
-    else { setWrong(true); setPin(""); }
+    try {
+      if (await verifyPin(pin, profile.pin)) onUnlock();
+      else { setWrong(true); setGrund(null); setPin(""); }
+    } catch (e) {
+      setWrong(true); setPin("");
+      setGrund(e && e.grund === "keinSubtle" ? "lock.keinSubtle" : null);
+    }
   }
   return <div style={{ minHeight: "100%", display: "grid", placeItems: "center", padding: 20 }}>
     <Panel style={{ width: "100%", maxWidth: 320, textAlign: "center" }}>
       <div style={{ display: "grid", placeItems: "center", marginBottom: 8 }}><LockIc size={34} color={"#d9b264"} /></div>
       <div style={{ fontWeight: 800, marginBottom: 14 }}>{t("lock.title")}</div>
       <input autoFocus value={pin} type="password" placeholder={t("lock.enter")}
-        onChange={(e) => { setWrong(false); setPin(e.target.value.slice(0, 64)); }}
+        onChange={(e) => { setWrong(false); setGrund(null); setPin(e.target.value.slice(0, 64)); }}
         onKeyDown={(e) => e.key === "Enter" && tryUnlock()}
         style={{ width: "100%", textAlign: "center", letterSpacing: 2, background: T.bg2, border: `1px solid ${wrong ? T.danger : T.line}`, borderRadius: 10, color: T.text, padding: "12px", fontSize: 18, outline: "none", marginBottom: 10 }} />
-      {wrong && <div style={{ color: T.danger, fontSize: 13, marginBottom: 10 }}>{t("lock.wrong")}</div>}
+      {wrong && <div style={{ color: T.danger, fontSize: 13, marginBottom: 10 }}>{t(grund || "lock.wrong")}</div>}
       <Button style={{ width: "100%" }} onClick={tryUnlock} disabled={pin.length < 4}>{t("lock.unlock")}</Button>
       {onBack && <button onClick={onBack} className="gg-serif" style={{ background: "none", border: "none",
         color: T.dim, textDecoration: "underline", fontFamily: "inherit", fontSize: 13, cursor: "pointer",

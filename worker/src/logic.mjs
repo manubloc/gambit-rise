@@ -39,6 +39,18 @@ const DAILY_MS = 3 * 24 * 60 * 60 * 1000;
 // One day before the deadline the absent player gets a last tap on the
 // shoulder — enough to save a game over a busy weekend.
 const REMIND_MS = 24 * 60 * 60 * 1000;
+/* ── v1.90.4 (Audit A7): DAS REGAL WIRD ABGERAEUMT ────────────────────────
+   Alle Fernpartien liegen als EIN JSON-String unter dem Schluessel "daily"
+   (siehe get daily()). Eine beendete Partie blieb dort fuer immer stehen -
+   mit beiden Aufstellungen und bis zu 600 Zuegen, gemessen rund 4,8 KB bei
+   80 Zuegen. Nach grob 400 beendeten Partien haette kein this.daily = g
+   mehr durchgepasst (der eigene Code kennt die Grenze: vaultPush klemmt bei
+   250 KB), und dann waeren ALLE Fernpartien ALLER Spieler eingefroren -
+   ohne Selbstheilung. Beendete Partien verschwinden darum 30 Tage nach dem
+   letzten Ereignis. 30 Tage, weil die Partie so lange im Regal sichtbar
+   bleibt ("gewonnen/verloren") und der Rueckblick nicht ueber Nacht
+   wegbricht; die Wertung ist ohnehin sofort verrechnet (rateDaily). */
+const DAILY_KEEP_MS = 30 * 24 * 60 * 60 * 1000;
 
 const normName = (n) => String(n || "").trim().toLowerCase().replace(/\s+/g, " ");
 
@@ -123,9 +135,36 @@ export class HallCore {
       this.savePlayer(q);
       this.pushFriends(anderer);
     }
+    this.vergissFernpartien(id);
     this.store.pushClear(id);
     this.store.vaultClear(id);
     this.store.deletePlayer(id);
+  }
+  /* ── v1.90.4 (Audit A7): AUCH DIE FERNPARTIEN GEHEN MIT ─────────────────
+     forget() raeumte Zeile, Tresor und Push ab, fasste `daily` aber nie an.
+     Die Zuege und die Aufstellung eines Geloeschten blieben also fuer immer
+     im Regal liegen - und der Gegner sass vor einer Partie, deren Gegenueber
+     es nicht mehr gibt: er kann ziehen, die Uhr laeuft, und am Ende gewinnt
+     er nach Zeit gegen einen Namen, den das Spielerbuch nicht mehr kennt
+     ("?"). Die offenen Partien werden darum hier geschlossen; das Abraeumen
+     selbst uebernimmt 30 Tage spaeter sweepDaily wie bei jeder anderen
+     beendeten Partie.
+     KEINE WERTUNG. Ein Punktgewinn gegen ein verschwundenes Konto ist kein
+     Ergebnis, und settle() braeuchte die geloeschte Zeile ohnehin noch. */
+  vergissFernpartien(id) {
+    const g = this.daily; let changed = false;
+    for (const rec of Object.values(g)) {
+      if (rec.w !== id && rec.b !== id) continue;
+      if (!rec.done) {
+        rec.done = { winner: rec.w === id ? "b" : "w", reason: "gone" };
+        const andere = rec.w === id ? rec.b : rec.w;
+        this.send(andere, { t: "daily:over", gameId: rec.id, winner: rec.done.winner, reason: "gone", lost: false });
+        if (!this.isOnline(andere)) this.notify(andere, { kind: "over", gameId: rec.id,
+          opp: this.player(id)?.name || "?", won: true, reason: "gone" });
+      }
+      rec.lastAt = this.now(); changed = true;
+    }
+    if (changed) this.daily = g;
   }
 
   // ── presence ───────────────────────────────────────────────────────────────
@@ -135,7 +174,25 @@ export class HallCore {
     this.online.delete(id);
     this.dropFromQueue(id);
     this.endMatchFor(id, "oppLeft");   // live matches only — daily games sleep on
+    this.raeumeHerausforderungen(id);
     this.notifyFriends(id);
+  }
+
+  /* ── v1.90.4 (Audit A7): HERAUSFORDERUNGEN UEBERLEBEN DEN WEGGANG NICHT ──
+     `challenges` wuchs genauso ohne Ende wie das Fernpartien-Regal: angelegt
+     wurde bei jedem "challenge", geloescht nur, wenn der Gerufene ANTWORTET.
+     Wer die Seite zumachte, liess seine Einladung fuer immer stehen.
+     Geloescht wird in BEIDE Richtungen, nicht nur `to === id`: eine
+     Einladung, deren Absender fort ist, laesst sich zwar noch annehmen -
+     startMatch baut dann eine Partie gegen ein geschlossenes Fenster, die
+     der Gegner nie sieht und die erst an der Uhr stirbt. */
+  raeumeHerausforderungen(id) {
+    const cs = this.challenges; let changed = false;
+    for (const [cid, c] of Object.entries(cs)) {
+      if (!c || (c.to !== id && c.from !== id)) continue;
+      delete cs[cid]; changed = true;
+    }
+    if (changed) this.challenges = cs;
   }
 
   // ── friends ────────────────────────────────────────────────────────────────
@@ -241,8 +298,16 @@ export class HallCore {
    *  has passed is decided against whoever owed the move. */
   sweepDaily() {
     const g = this.daily; let changed = false;
-    for (const rec of Object.values(g)) {
-      if (rec.done) continue;
+    for (const [gid, rec] of Object.entries(g)) {
+      if (rec.done) {
+        /* A7: abgeraeumt wird nach dem letzten Ereignis. Alte Zeilen aus der
+           Zeit vor v1.90.4 tragen manchmal kein lastAt - die bekommen hier
+           ihren Stempel und damit dieselben 30 Tage Frist wie alle anderen,
+           statt beim ersten Blick zu verschwinden. */
+        if (!rec.lastAt) { rec.lastAt = rec.createdAt || this.now(); changed = true; }
+        if (this.now() - rec.lastAt >= DAILY_KEEP_MS) { delete g[gid]; changed = true; }
+        continue;
+      }
       if (rec.deadline <= this.now()) {
         const loser = rec.turn === "w" ? rec.w : rec.b;
         rec.done = { winner: rec.turn === "w" ? "b" : "w", reason: "time" };

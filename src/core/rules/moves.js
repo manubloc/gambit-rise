@@ -107,6 +107,27 @@ function push(moves, from, to, piece, capture, captureKind, extra) {
   moves.push({ from, to, piece: piece.id, kind: piece.kind, color: piece.color, capture, captureKind, ...extra });
 }
 
+/* ── v1.90.4 (Audit A10): EINE MAUER IST FUER JEDEN EINE MAUER ──────────
+   Bis hierher fragten nur drei Stellen nach der Sperre: step, slide und der
+   Bauern-Vorwaertszug. Alles andere - Zugbild-Gleiter, Blinzeln, Koenigs-
+   sprint, Durchbruch, Huepfer, Seitschritt, Sturmlauf, Rueckschritt, Brut und
+   der ganze Drache - sah nur `board` und landete darum MITTEN AUF der Mauer.
+   Und wer auf der Mauer steht, war unschlagbar: step und slide bieten gegen
+   ein versperrtes Feld nur `{schlag:true}` an, also einen Schlag gegen die
+   MAUER, nie gegen die Figur darauf. Gemessen im Audit (regeln.mjs A1-A5):
+   der Kanonier-Gleiter zog durch die Mauer und darauf; stand dort eine Dame,
+   bot der Turm nur den Schlag gegen die Sperre an. Die gekaufte Sperre wurde
+   so zum Schutzschild des Gegners - bis zu 18 Zuege lang.
+
+   `betretbar` ist ab jetzt DIE eine Frage, die jeder Block stellt.
+   `mauerschlag` ist die Antwort fuer die Blocks, die - wie step - gegen die
+   Mauer schlagen duerfen; wer nur versetzt (Blinzeln, Brut, Drache), bekommt
+   gar nichts angeboten, denn ein Versatz ist kein Angriff. */
+function betretbar(D, i) { return !(D.sperren && versperrt(D.sperren, i)); }
+function mauerschlag(moves, from, i, piece, extra) {
+  push(moves, from, i, piece, false, null, { ...(extra || {}), schlag: true });
+}
+
 // Add a single non-sliding target (knight/king style). Skips own pieces + holes.
 function step(moves, from, f, r, piece, board, D, extra) {
   if (!onBoard(f, r, D)) return;
@@ -224,8 +245,10 @@ function pawnMoves(moves, from, f, r, piece, board, D, state) {
   if (hasAbility(piece, "pawn_sidestep")) {
     for (const df of [-1, 1]) {
       const sf = f + df;
-      if (onBoard(sf, r, D) && !board[ix(sf, r, D)])
-        push(moves, from, ix(sf, r, D), piece, false, null, { special: "side", consumes: "pawn_sidestep" });
+      if (!onBoard(sf, r, D)) continue;
+      const si = ix(sf, r, D);
+      if (!betretbar(D, si)) { mauerschlag(moves, from, si, piece, { special: "side", consumes: "pawn_sidestep" }); continue; }
+      if (!board[si]) push(moves, from, si, piece, false, null, { special: "side", consumes: "pawn_sidestep" });
     }
   }
   /* ABILITY: charge (passive) — v1.34.0: STAERKESTUFEN (Besitzer): Stufe I
@@ -238,7 +261,12 @@ function pawnMoves(moves, from, f, r, piece, board, D, state) {
     const weit = 1 + Math.max(1, Math.min(3, stufeVon(piece, "pawn_charge")));
     for (let d = 1; d <= weit; d++) {
       const rr = r + d * dir;
-      if (!onBoard(f, rr, D) || board[ix(f, rr, D)]) break;
+      if (!onBoard(f, rr, D)) break;
+      const ri = ix(f, rr, D);
+      /* Die Mauer haelt den Sturmlauf auf wie jede Figur - der Schlag gegen
+         sie bleibt erlaubt, danach ist der Lauf zu Ende. */
+      if (!betretbar(D, ri)) { if (d >= 2 && !(d === 2 && r === startR)) mauerschlag(moves, from, ri, piece, { special: "rush" }); break; }
+      if (board[ri]) break;
       if (d < 2 || (d === 2 && r === startR)) continue;
       push(moves, from, ix(f, rr, D), piece, false, null, { special: "rush", ...(isPromo(rr) ? { promotion: KIND.QUEEN } : {}) });
       if (isPromo(rr)) break;
@@ -247,8 +275,11 @@ function pawnMoves(moves, from, f, r, piece, board, D, state) {
   // ABILITY: backstep (once, non-capturing) — retreat one square
   if (hasAbility(piece, "pawn_backstep")) {
     const br = r - dir;
-    if (onBoard(f, br, D) && !board[ix(f, br, D)])
-      push(moves, from, ix(f, br, D), piece, false, null, { special: "back", consumes: "pawn_backstep" });
+    if (onBoard(f, br, D)) {
+      const bi = ix(f, br, D);
+      if (!betretbar(D, bi)) mauerschlag(moves, from, bi, piece, { special: "back", consumes: "pawn_backstep" });
+      else if (!board[bi]) push(moves, from, bi, piece, false, null, { special: "back", consumes: "pawn_backstep" });
+    }
   }
 }
 
@@ -323,9 +354,11 @@ export function pieceMoves(state, sqIndex) {
     for (const [df, dr] of ORTHO) {
       const af = f + df, ar = r + dr, lf = f + 2 * df, lr = r + 2 * dr;
       if (onBoard(lf, lr, D) && board[ix(af, ar, D)]) { // adjacent orthogonal occupied → breach over it
-        const land = board[ix(lf, lr, D)];
+        const li = ix(lf, lr, D);
+        if (!betretbar(D, li)) { mauerschlag(moves, from, li, piece, { special: "breach", consumes: "rook_breach" }); continue; }
+        const land = board[li];
         if (!land || land.color !== piece.color)
-          push(moves, from, ix(lf, lr, D), piece, !!land, land ? land.kind : null, { special: "breach", consumes: "rook_breach" });
+          push(moves, from, li, piece, !!land, land ? land.kind : null, { special: "breach", consumes: "rook_breach" });
       }
     }
 
@@ -336,9 +369,14 @@ export function pieceMoves(state, sqIndex) {
     for (const [df, dr] of ORTHO) {
       const mf = f + df, mr = r + dr, lf = f + 2 * df, lr = r + 2 * dr;
       if (onBoard(mf, mr, D) && onBoard(lf, lr, D) && !board[ix(mf, mr, D)]) {
-        const land = board[ix(lf, lr, D)];
+        /* Ueber eine Mauer sprintet niemand: das Zwischenfeld muss frei sein
+           UND unversperrt, sonst gibt es die Richtung gar nicht. */
+        if (!betretbar(D, ix(mf, mr, D))) continue;
+        const li = ix(lf, lr, D);
+        if (!betretbar(D, li)) { mauerschlag(moves, from, li, piece, { special: "dash", consumes: "king_dash" }); continue; }
+        const land = board[li];
         if (!land || land.color !== piece.color)
-          push(moves, from, ix(lf, lr, D), piece, !!land, land ? land.kind : null, { special: "dash", consumes: "king_dash" });
+          push(moves, from, li, piece, !!land, land ? land.kind : null, { special: "dash", consumes: "king_dash" });
       }
     }
 
@@ -346,9 +384,11 @@ export function pieceMoves(state, sqIndex) {
     for (const [df, dr] of DIAG) {
       const af = f + df, ar = r + dr, lf = f + 2 * df, lr = r + 2 * dr;
       if (onBoard(lf, lr, D) && board[ix(af, ar, D)]) { // adjacent diagonal occupied → hop over it
-        const land = board[ix(lf, lr, D)];
+        const li = ix(lf, lr, D);
+        if (!betretbar(D, li)) { mauerschlag(moves, from, li, piece, { special: "hop", consumes: "bishop_hop" }); continue; }
+        const land = board[li];
         if (!land || land.color !== piece.color)
-          push(moves, from, ix(lf, lr, D), piece, !!land, land ? land.kind : null, { special: "hop", consumes: "bishop_hop" });
+          push(moves, from, li, piece, !!land, land ? land.kind : null, { special: "hop", consumes: "bishop_hop" });
       }
     }
 
@@ -370,9 +410,13 @@ export function pieceMoves(state, sqIndex) {
       for (let k = 1; k <= R; k++) {
         const nf = f + df * k, nr = r + dr * k;
         if (!onBoard(nf, nr, D)) break;
-        const t = board[ix(nf, nr, D)];
-        if (!t) { push(moves, from, ix(nf, nr, D), piece, false, null, {}); continue; }
-        if (t.color !== piece.color) push(moves, from, ix(nf, nr, D), piece, true, t.kind, {});
+        const ni = ix(nf, nr, D);
+        /* wie slide: die Mauer beendet den Strahl, der Schlag gegen sie
+           bleibt der letzte angebotene Zug in dieser Richtung. */
+        if (!betretbar(D, ni)) { mauerschlag(moves, from, ni, piece, {}); break; }
+        const t = board[ni];
+        if (!t) { push(moves, from, ni, piece, false, null, {}); continue; }
+        if (t.color !== piece.color) push(moves, from, ni, piece, true, t.kind, {});
         break;
       }
     }
@@ -380,6 +424,9 @@ export function pieceMoves(state, sqIndex) {
       for (const [df, dr] of [[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]]) {
         const nf = f + df, nr = r + dr;
         if (!onBoard(nf, nr, D)) continue;
+        /* Brut setzt eine NEUE Figur - das ist kein Angriff, also gibt es
+           gegen die Mauer auch keinen Schlag, nur kein Feld. */
+        if (!betretbar(D, ix(nf, nr, D))) continue;
         if (!board[ix(nf, nr, D)]) push(moves, from, ix(nf, nr, D), piece, false, null, { special: "spawn" });
       }
     }
@@ -447,7 +494,7 @@ export function pieceMoves(state, sqIndex) {
     for (let dr = -R; dr <= R; dr++) for (let df = -R; df <= R; df++) {
       if (df === 0 && dr === 0) continue;
       const tf = f + df, tr = r + dr;
-      if (onBoard(tf, tr, D) && !board[ix(tf, tr, D)])
+      if (onBoard(tf, tr, D) && betretbar(D, ix(tf, tr, D)) && !board[ix(tf, tr, D)])
         push(moves, from, ix(tf, tr, D), piece, false, null, { special: "blink", consumes: "teleport" });
     }
   }
@@ -488,11 +535,17 @@ export const dragonAnchorOf = (board, i) => {
   if (pc.kind === "D+") return pc.ref;
   return pc.big && pc.kind === "D" ? i : -1;
 };
-function dragonBlockFree(board, holes, w, h, a, self, forColor, allowEnemies, noKing) {
+function dragonBlockFree(board, holes, w, h, a, self, forColor, allowEnemies, noKing, sperren) {
   const f = a % w, r = (a / w) | 0;
   if (f < 0 || f > w - 2 || r < 0 || r > h - 2) return false;
   for (const c of dragonBlock(a, w)) {
     if (holes && holes.has(c)) return false;
+    /* v1.90.4 (Audit A10): eine Mauer ist fuer den Drachen ein Loch. Sein
+       Block braucht VIER freie Felder - er setzt sich nicht auf die Sperre
+       und traegt sie auch nicht mit sich fort. Einen Schlag gegen die Mauer
+       gibt es hier nicht: der Drache zieht als Block, ein Teilschlag waere
+       ein Zug, den der Kern nicht abbilden kann. */
+    if (sperren && versperrt(sperren, c)) return false;
     const oc = board[c];
     if (!oc) continue;
     if (oc === self || (oc.kind === "D+" && oc.ref !== undefined && board[oc.ref] === self)) continue;
@@ -524,7 +577,7 @@ function bigDragonMoves(moves, from, piece, board, D) {
     const f2 = a2 % w;
     if (Math.abs(f2 - f0r) > 1) continue;
     if (f2 > w - 2) continue;
-    if (dragonBlockFree(board, holes, w, h, a2, piece, piece.color, true, rules !== "hp"))
+    if (dragonBlockFree(board, holes, w, h, a2, piece, piece.color, true, rules !== "hp", D.sperren))
       moves.push({ from, to: a2, special: "dragonStep" });
   }
   // FLIGHT: once per game, range grows with the unlocked wing. Landing on foes
@@ -538,7 +591,7 @@ function bigDragonMoves(moves, from, piece, board, D) {
       const a2 = from + df + dr * w;
       const f2 = f0 + df, r2 = r0 + dr;
       if (f2 < 0 || f2 > w - 2 || r2 < 0 || r2 > h - 2) continue;
-      if (dragonBlockFree(board, holes, w, h, a2, piece, piece.color, true, rules !== "hp"))
+      if (dragonBlockFree(board, holes, w, h, a2, piece, piece.color, true, rules !== "hp", D.sperren))
         moves.push({ from, to: a2, special: "dragonFly" });
     }
   }

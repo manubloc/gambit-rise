@@ -1,5 +1,85 @@
 # Changelog - Gambit Rise
 
+## 1.90.4 - sieben weitere Punkte aus dem Audit: das Fernpartien-Regal wird abgeraeumt, eine Mauer ist fuer jeden eine Mauer, der Gast erbt nichts
+
+- **A7 — DAS FERNPARTIEN-REGAL WAECHST NICHT MEHR OHNE ENDE.** Alle
+  Fernpartien liegen als EIN JSON-String unter dem Schluessel `daily`. Eine
+  beendete Partie blieb dort fuer immer stehen - mit beiden Aufstellungen und
+  bis zu 600 Zuegen, gemessen rund 4,8 KB bei 80 Zuegen. Nach grob 400
+  beendeten Partien haette kein `this.daily = g` mehr durchgepasst (der eigene
+  Code kennt die Grenze: `vaultPush` klemmt bei 250 KB) - und dann waeren ALLE
+  Fernpartien ALLER Spieler dauerhaft eingefroren, ohne Selbstheilung. Drei
+  Loecher gestopft: `sweepDaily` raeumt beendete Partien 30 Tage nach dem
+  letzten Ereignis ab (so lange bleibt der Rueckblick lesbar, die Wertung ist
+  ohnehin sofort verrechnet); `forget()` schliesst die Fernpartien eines
+  geloeschten Kontos und sagt dem Gegner Bescheid - aber OHNE Wertung, denn
+  ein Punktgewinn gegen ein verschwundenes Konto ist kein Ergebnis; und
+  `close()` nimmt offene Herausforderungen mit, in BEIDE Richtungen (eine
+  Einladung, deren Absender fort ist, liess sich sonst annehmen und baute eine
+  Partie gegen ein geschlossenes Fenster). Elf Proben in test_worker mit
+  vorgestellter Uhr.
+
+- **A10 — EINE MAUER IST FUER JEDEN EINE MAUER.** Nach der Sperre fragten nur
+  drei Stellen: Schritt, Gleiten und der Bauern-Vorwaertszug. Alles andere -
+  Zugbild-Gleiter, Blinzeln, Koenigssprint, Durchbruch, Huepfer, Seitschritt,
+  Sturmlauf, Rueckschritt, Brut und der ganze Drache - sah nur das Brett und
+  landete MITTEN AUF der Mauer. Und wer dort stand, war unschlagbar: gegen ein
+  versperrtes Feld wird nur der Schlag gegen die MAUER angeboten, nie gegen die
+  Figur darauf. Die gekaufte Sperre wurde so zum Schutzschild des Gegners, bis
+  zu 18 Zuege lang. Jetzt stellt jeder Block dieselbe Frage (`betretbar`); wer
+  wie der Schritt gegen die Mauer schlagen darf, tut das weiterhin, wer nur
+  versetzt (Blinzeln, Brut, Drache), bekommt gar kein Feld. Die Probe ist nicht
+  auf einzelne Faehigkeiten gemuenzt, sondern auf die REGEL - kein Pseudozug
+  ohne `schlag` auf einem versperrten Feld - und faengt damit auch Zugbilder,
+  die es noch gar nicht gibt. Gegen den Stand von v1.90.3 gemessen: sie faellt
+  dort zweimal.
+
+- **A33 — OHNE KOENIG IST DIE PARTIE AUS.** Der HP-Zweig kannte den
+  Koenigsverlust seit jeher, der Schach-Zweig nicht: dort gab es nur matt, patt
+  und laufend. Verschwand ein Koenig doch vom Brett, lief die Partie als
+  "ongoing" weiter - `inCheck` liefert ohne Koenig false, also war nie Schach,
+  nie matt, kein Banner, und die KI zog munter weiter. Seit v1.90.3 weist der
+  Reducer solche Zuege ab, aber ein Zustand kann auch aus einem alten
+  Spielstand oder aus einem Bund kommen; der letzte Riegel gehoert dorthin, wo
+  das Ergebnis entsteht.
+
+- **A50 — RECHTE KOMMEN NICHT AUS EINER DATEI.** `REPLACE` ersetzte den Stand
+  komplett durch das uebergebene Objekt - auch wenn es aus einer eingelesenen
+  Sicherung kam ("Spielstand laden", Wiederherstellungspunkt). Damit entschied
+  eine DATEI ueber `voll` (die Bezahlschranke), `gast`, `online` und `pin`.
+  Diese vier bleiben ab jetzt immer die des laufenden Standes. Heute Hygiene -
+  sobald Play Billing daran haengt, eine Luecke.
+
+- **A51 — EIN VERSCHLUCKTER SCHREIBFEHLER LUEGT.** `storage.set` faengt
+  QuotaExceeded und SecurityError ab und liefert dann null. `writeSave` sah das
+  Ergebnis nie an: der INDEX bekam trotzdem sein neues `updatedAt`, der BLOB
+  blieb alt. Beim naechsten Start zeigte die Liste einen Fortschritt, den der
+  Spielstand nicht hat - Stunden weg, ohne einen einzigen Hinweis. Jetzt wird
+  zuerst der Stand geschrieben; nur wenn das gelingt, zieht der Index nach.
+
+- **A52 — DER GAST ERBT NICHTS.** Die Uebernahme des Vor-Konto-Spielstandes
+  lief fuer JEDES Konto. Wer vorher gespielt hatte und dann "Als Gast spielen"
+  waehlte, bekam seinen alten Stand ins GAST-Konto gelegt - und `loginGuest`
+  raeumt beim naechsten Gast-Einstieg alle Gast-Staende. Der Fortschritt war
+  fort, UND der Uebernahme-Merker stand auf "1", also kam er auch beim
+  richtigen Konto nie wieder an. Ein einziger Gast-Einstieg genuegte. Der
+  Riegel sitzt jetzt in `migrateLegacyInto` selbst.
+
+- **A53 — EIN PIN, DER NICHT PRUEFBAR IST, IST NICHT FALSCH.** Ein starker
+  PIN-Datensatz (PBKDF2) entsteht nur, wo `crypto.subtle` da ist - also unter
+  https. Wurde dasselbe Spiel danach ueber http, im LAN oder als Einzeldatei
+  geoeffnet, fehlte subtle, und JEDE richtige PIN galt als falsch: ein Riegel
+  ohne Schluessel, ohne dass irgendwo stand, warum. Statt eines stummen
+  "falsch" nennt der Schirm jetzt den Grund. Ein nachtraeglicher Rueckfall auf
+  den schwachen Weg kommt NICHT in Frage - er wuerde den starken Datensatz
+  schwaechen.
+
+- **Doku:** Schritt 7 der Eisernen Kette nennt jetzt die Netzsperre des
+  Containers: `curl` auf gambitrise.com wird vom Egress-Proxy abgewiesen
+  (`CONNECT tunnel failed, response 403`) und liefert eine LEERE Antwort statt
+  eines Fehlers - man haelt den Deploy fuer kaputt. Die Live-Abnahme laeuft
+  ueber Claude in Chrome. Gemessen am 29.9.
+
 ## 1.90.3 - fuenf Punkte aus dem Audit: die Halle laesst keine Fremden mehr hinein, der Kern prueft Zuege, kein weisser Schirm mehr
 
 - **A1 — DIE HALLE PRUEFT JETZT, WER SPRICHT.** `cmd` und `scoutDone`
