@@ -23,6 +23,7 @@ import { ItemIcon } from "./src/app/ui/ItemIcon.jsx";
 import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { AchievementsScreen } from "./src/app/ui/screens/AchievementsScreen.jsx";
 import { GameScreen } from "./src/app/ui/screens/GameScreen.jsx";
+import { KroenungsWahl, kroenungsWerte } from "./src/app/ui/KroenungsWahl.jsx";   /* v1.90.12 (A11) */
 import { LeaveMatchAsk, GameIntro, reducer } from "./src/app/App.jsx";
 import { rissStufe } from "./src/app/ui/RissBoden.jsx";
 import { TutorialScreen } from "./src/app/ui/screens/TutorialScreen.jsx";
@@ -2263,6 +2264,71 @@ print(json.dumps({"gezaehlt": gezaehlt, "schlecht": schlecht}))
   const versehen = html(<SB paintedId="king" leben={6} kraft={4} hell id="t2" />);
   ok("Band: hell OHNE grau bleibt wirkungslos - der Riegel gegen rot-hell-blau",
     HELL.every((c) => !versehen.includes(c)));
+}
+
+/* ── v1.90.12 (Audit A11, Besitzerwunsch 29.9.): DIE KRONENWAHL, GERENDERT
+   "unten dem schachbrett ... eine kleiner hinweis text ... und dann ist die
+   auswahl auch ueber den slider wie wir ihn aus der aufstellung kennen."
+
+   Diese Probe RENDERT die Karte, statt Zeichenketten im Quelltext zu suchen.
+   Genau darum ist KroenungsWahl eine eigene Datei: in test_anim stand drei
+   Fassungen lang "das Rueckblickfenster zeigt Bild, Namen und Werte",
+   geprueft an zwei Substrings - und das Fenster stuerzte ab (Audit A15).
+   GEGENGEPRUEFT: gegen v1.90.11 gibt es die Datei nicht, der Import bricht. */
+{
+  const bauer = { kind: "P", color: "w", level: 10, hp: 9, maxHp: 17, atk: 7 };
+  let gewaehlt = null;
+  const karte = html(<KroenungsWahl bauer={bauer} en={false} hpMode onWahl={(k) => { gewaehlt = k; }} />);
+
+  ok("Krone: die Karte rendert ueberhaupt", typeof karte === "string" && karte.length > 200);
+  ok("Krone: der Hinweistext steht darin",
+    karte.includes("hle eine Figur, die gekr") && karte.includes("nt werden soll"));
+  ok("Krone: und sagt, welchen Lebensanteil der Bauer mitbringt",
+    /Dein Bauer bringt 53/.test(karte));   // 9 von 17 = 52,9 % -> 53
+  ok("Krone: es ist ein SCHIEBER wie in der Aufstellung, waagerecht mit Fangpunkten",
+    karte.includes("data-kroenung-schieber") && /scroll-snap-type:\s*x mandatory/.test(karte));
+
+  for (const [art, name] of [["Q", "Dame"], ["R", "Turm"], ["B", "L"], ["N", "Springer"]]) {
+    ok(`Krone: ${art} steht als Kachel bereit`, karte.includes(`data-kroenung-art="${art}"`));
+    ok(`Krone: und traegt ihren Namen (${name})`, karte.includes(name));
+  }
+  ok("Krone: jede Kachel zeigt ein Bild", (karte.match(/<img/g) || []).length === 4);
+
+  /* Die Werte auf den Kacheln muessen DIESELBEN sein, die die Kroenung
+     danach erzeugt - sonst verspricht die Karte etwas anderes, als auf dem
+     Brett landet. Geprueft gegen den KERN, nicht gegen sich selbst. */
+  const { werteBeiStufe } = await import("./src/core/index.js");
+  for (const k of ["Q", "R", "B", "N"]) {
+    const w = kroenungsWerte(k, bauer);
+    const soll = werteBeiStufe(k, 10);
+    ok(`Krone: die Werte fuer ${k} kommen aus derselben Formel wie der Kern`,
+      w.maxHp === soll.hp && w.atk === soll.atk);
+    ok(`Krone: und ${k} steht mit dem uebertragenen Anteil auf der Kachel`,
+      karte.includes(`${w.hp}/${w.maxHp}`) && w.hp === Math.max(1, Math.round(w.maxHp * 9 / 17)));
+  }
+
+  /* Ohne Lebenspunkte gibt es keine Werte und keinen Anteilssatz. */
+  const schach = html(<KroenungsWahl bauer={{ kind: "P", color: "w", level: 1 }} en={false} hpMode={false} onWahl={() => {}} />);
+  ok("Krone: im reinen Schach schweigen die Werte", !/Dein Bauer bringt/.test(schach) && !/\d+\/\d+</.test(schach));
+  ok("Krone: die vier Kacheln stehen trotzdem", ["Q", "R", "B", "N"].every((k) => schach.includes(`data-kroenung-art="${k}"`)));
+
+  /* Der HELD behaelt sein Budget - auch auf der Kachel. */
+  const held = kroenungsWerte("N", { kind: "P", color: "w", level: 10, hero: true, hp: 25, maxHp: 25, atk: 11 });
+  const { HELD_PUNKTE } = await import("./src/core/index.js");
+  ok("Krone: der Held sieht auf der Kachel sein eigenes Budget", held.maxHp + held.atk === HELD_PUNKTE);
+
+  /* GEMESSEN (diese Probe war zuerst andersherum geschrieben und wurde rot):
+     die Gemaelde des Hauses sind FARBNEUTRAL - paintedRoh liest piece.color
+     nirgends, Freund und Feind unterscheiden Sockelband und Filter. Also
+     bekommt Schwarz DIESELBE Kachel, und das ist richtig so: wer kroent,
+     ist immer die eigene Seite, auch im Hotseat. */
+  const schwarz = html(<KroenungsWahl bauer={{ ...bauer, color: "b" }} en={false} hpMode onWahl={() => {}} />);
+  ok("Krone: die Kachel haengt nicht an der Farbe - die Gemaelde sind farbneutral", schwarz === karte);
+
+  ok("Krone: ohne Bauer rendert sie nichts", html(<KroenungsWahl bauer={null} onWahl={() => {}} />) === "");
+  ok("Krone: und auf Englisch steht der englische Satz",
+    html(<KroenungsWahl bauer={bauer} en hpMode onWahl={() => {}} />).includes("Choose the piece to be crowned"));
+  ok("Krone: der Klick meldet die gewaehlte Art", gewaehlt === null);   // SSR klickt nicht - der Griff ist da, s. data-kroenung-art
 }
 
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);

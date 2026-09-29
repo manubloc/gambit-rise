@@ -194,6 +194,7 @@ function pawnMoves(moves, from, f, r, piece, board, D, state) {
   /* v1.37.0: FRUEHE KROENUNG nach Stufe - eine oder zwei Reihen frueher */
   const frueh = early ? Math.min(2, stufeVon(piece, "pawn_early_promo")) : 0;
   const isPromo = (rr) => rr === promoR || (frueh >= 1 && rr === promoR - dir) || (frueh >= 2 && rr === promoR - 2 * dir);
+  // dieselbe Frage beantwortet kroenungsReihe() unten fuer applyMove
 
   const fwd = r + dir;
   if (onBoard(f, fwd, D) && D.sperren && versperrt(D.sperren, ix(f, fwd, D))) {
@@ -644,4 +645,26 @@ function bigDragonMoves(moves, from, piece, board, D) {
         moves.push({ from, to: a2, special: "dragonFly" });
     }
   }
+}
+
+/* ── v1.90.12 (Audit A11): WANN MUSS GEKROENT WERDEN? ─────────────────
+   Bisher beantwortete das NUR das Zugangebot: `legalMoves` haengte
+   `promotion: "Q"` an, und `applyMove` fragte nur `if (move.promotion)`.
+   Solange der Zug immer aus dem Angebot kam, ging das gut. Es kam aber
+   nicht immer von dort: im Duell schickt der GEGNER den Befehl, und
+   `reduce` prueft Form und Zugrecht, nicht jedes Feld. Ein Client, der
+   `promotion: null` sendet, behielt seinen Bauern auf der Grundreihe -
+   eine Figur, die dort gar nichts mehr kann, aber auch nicht gekroent ist.
+   Gemessen, als die Kronen-Wahl gebaut wurde; die Luecke war schon vorher da.
+
+   Ab jetzt entscheidet die STELLUNG, ob gekroent wird, und der Zug nur noch,
+   WOZU. Dieselbe Rechnung wie im Angebot (samt frueher Kroenung nach
+   Stufe) - eine Formel, zwei Aufrufer. */
+export function kroenungsReihe(piece, to, D) {
+  if (!piece || piece.kind !== "P") return false;
+  const dir = dirOf(piece.color);
+  const promoR = promoRank(piece.color, D.h);
+  const frueh = hasAbility(piece, "pawn_early_promo") ? Math.min(2, stufeVon(piece, "pawn_early_promo")) : 0;
+  const rr = rankOf(to, D.w);
+  return rr === promoR || (frueh >= 1 && rr === promoR - dir) || (frueh >= 2 && rr === promoR - 2 * dir);
 }

@@ -110,6 +110,28 @@ export function werteBeiStufe(kind, lvl, { baseHp = null, baseAtk = null, maxLev
   }
   return { hp: Math.max(1, Math.round(basisHp + t * (zielHp - basisHp))), atk: Math.max(1, Math.round(basisAtk + t * (zielAtk - basisAtk))) };
 }
+/* ── v1.90.12 (Audit A11, Besitzerwunsch 29.9.): WOZU EIN BAUER GEKROENT
+   WERDEN DARF. "man sollte uebrigens auch andere figuren kroenen koennen."
+
+   Bis v1.90.11 stand in moves.js viermal `promotion: KIND.QUEEN` - die Dame
+   war die einzige Wahl, wie in keinem Schachregelwerk der Welt. Diese Liste
+   ist ab jetzt die EINE Stelle, die die Frage beantwortet; Kern, Oberflaeche
+   und Proben lesen sie, damit sie nicht auseinanderlaufen.
+
+   WARUM GENAU DIESE VIER: es sind die des Schachs. Sie tragen alle
+   BASE_HP/BASE_ATK und ZIEL_PROFIL, haben ein gemaltes Bild in jeder Stufe
+   und brauchen keinen `moveSpec` - `repromote` kann sie also vollstaendig
+   bauen, ohne dass eine Figur halb entsteht. Ein Monster oder ein Meister
+   waere KEINE blosse Kronen-Wahl: die bringen eigene Zugbilder, Faehigkeiten
+   und Bilder mit, und das Heer kennt fuer sie Hoechstzahlen. Wenn der
+   Besitzer das will, ist es ein eigener Bau, keine Zeile hier.
+
+   Die Dame steht ZUERST: sie bleibt die Vorgabe, wer nichts waehlt, bekommt
+   sie (und die Rechenmaschine kroent immer zur Dame - sie waehlt nicht). */
+export const KROENUNG_ARTEN = [KIND.QUEEN, KIND.ROOK, KIND.BISHOP, KIND.KNIGHT];
+/** Darf ein Bauer zu dieser Art gekroent werden? */
+export function kroenbar(kind) { return KROENUNG_ARTEN.includes(kind); }
+
 /* HP-Remis: bleiben so viele HALBZUEGE ohne jeden Schaden, endet die Partie
    unentschieden. 120 Halbzuege = 60 Zuege je Seite. Zaehler springt auf 0,
    sobald Schaden faellt, jemand stirbt oder ein Boss nachschafft. */

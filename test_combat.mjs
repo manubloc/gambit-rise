@@ -1085,5 +1085,94 @@ console.log("\n== STURM UND GELEIT (v1.11.2) ==");
   ok("A11: aber nie unter 1 Leben", kroene({ level: 10, hp: 1, maxHp: 17, atk: 7 }).hp >= 1);
 }
 
+/* ── v1.90.12 (Audit A11, Besitzerwunsch 29.9.): DIE KRONE HAT EINE WAHL
+   "man sollte uebrigens auch andere figuren kroenen koennen."
+
+   Bis v1.90.11 stand in moves.js viermal `promotion: KIND.QUEEN` - eine
+   Wahl gab es nicht. Das Zugangebot bleibt bei der Dame (die Rechenmaschine
+   waehlt nicht, und wer nichts waehlt, bekommt sie); der Spieler darf im Zug
+   eine andere Art mitgeben.
+
+   DER WICHTIGSTE PUNKT DIESER PROBE IST DER RIEGEL. `reduce` prueft Form und
+   Zugrecht, nicht jedes Feld des Zugs - `move.promotion` lief bis in
+   `repromote` durch. Ein fremder Client im Duell haette sich damit einen
+   ZWEITEN KOENIG kroenen koennen, oder ein Monster ohne Zugbild. Genau das
+   wird hier geschossen.
+   GEGENGEPRUEFT: gegen v1.90.11 gibt es KROENUNG_ARTEN nicht - der Block
+   bricht beim Import ab; und der Koenig-Fall waere durchgegangen. */
+{
+  const { KROENUNG_ARTEN, kroenbar, werteBeiStufe } = await import("./src/core/index.js");
+  const g0 = createGame(undefined, undefined, { rules: "hp", seed: 12 });
+  const W = g0.w, H = g0.h, ixx = (f, r) => r * W + f;
+  /* Derselbe Aufbau wie oben: ein leeres Brett, zwei Koenige, ein Bauer auf
+     der vorletzten Reihe - und diesmal eine WUNSCHART im Zug. */
+  const kroeneZu = (wunsch, piece = { level: 10, hp: 17, maxHp: 17, atk: 7 }) => {
+    const b = g0.board.map(() => null);
+    b[ixx(4, 0)] = { id: 90, kind: "K", color: "w", level: 1, abilities: [], used: {}, hp: 20, maxHp: 20, atk: 5 };
+    b[ixx(0, H - 1)] = { id: 91, kind: "K", color: "b", level: 1, abilities: [], used: {}, hp: 20, maxHp: 20, atk: 5 };
+    b[ixx(3, H - 2)] = { id: 92, kind: "P", color: "w", abilities: [], used: {}, ...piece };
+    const st = { ...g0, board: b, turn: "w" };
+    const z = legalMoves(st, "w").find((m) => m.from === ixx(3, H - 2) && m.promotion);
+    if (!z) return null;
+    const nach = reduce(st, moveCommand({ ...z, promotion: wunsch }));
+    return { feld: nach.state.board[z.to], lm: nach.state.lastMove, ev: nach.events };
+  };
+
+  ok("A11: es gibt vier Kronen-Arten, die Dame zuerst",
+    Array.isArray(KROENUNG_ARTEN) && KROENUNG_ARTEN.join("") === "QRBN");
+  ok("A11: und genau die gelten als kroenbar",
+    KROENUNG_ARTEN.every(kroenbar) && !kroenbar("K") && !kroenbar("X") && !kroenbar("P") && !kroenbar("D"));
+
+  for (const k of KROENUNG_ARTEN) {
+    const r = kroeneZu(k);
+    const soll = werteBeiStufe(k, 10);
+    ok(`A11: ein Bauer laesst sich zu ${k} kroenen`, !!r && r.feld && r.feld.kind === k);
+    ok(`A11: ${k} bekommt die Werte SEINER Art auf Stufe 10`,
+      r.feld.maxHp === soll.hp && r.feld.atk === soll.atk);
+  }
+
+  /* Der Anteil wandert mit - bei JEDER Art, nicht nur bei der Dame. */
+  const halb = kroeneZu("N", { level: 10, hp: 9, maxHp: 17, atk: 7 });
+  ok("A11: der Lebensanteil wandert auch zum Springer mit",
+    halb.feld.hp === Math.max(1, Math.round(halb.feld.maxHp * 9 / 17)) && halb.feld.hp < halb.feld.maxHp);
+
+  /* DER RIEGEL. */
+  const koenig = kroeneZu("K");
+  ok("A11: ein gewuenschter KOENIG wird abgewiesen - es bleibt die Dame",
+    !!koenig && koenig.feld.kind === "Q");
+  ok("A11: und der Vermerk luegt nicht: er nennt dieselbe Art wie die Figur",
+    koenig.lm.promotion === "Q");
+  ok("A11: auch der Ereignisstrom meldet die Dame, nicht den Wunsch",
+    (koenig.ev.find((e) => e.type === "promoted") || {}).kind === "Q"
+    || (koenig.ev.find((e) => e.type === "promoted") || {}).to != null);
+  for (const boese of ["X", "D", "P", "", null, 42, "QQ"]) {
+    const r = kroeneZu(boese);
+    ok(`A11: ${JSON.stringify(boese)} als Kronenart bleibt wirkungslos`,
+      !!r && r.feld && (boese ? r.feld.kind === "Q" : r.feld.kind === "Q"));
+  }
+  ok("A11: das ZUGANGEBOT bietet weiterhin die Dame an - die Rechenmaschine waehlt nicht",
+    (() => {
+      const b = g0.board.map(() => null);
+      b[ixx(4, 0)] = { id: 90, kind: "K", color: "w", level: 1, abilities: [], used: {}, hp: 20, maxHp: 20, atk: 5 };
+      b[ixx(0, H - 1)] = { id: 91, kind: "K", color: "b", level: 1, abilities: [], used: {}, hp: 20, maxHp: 20, atk: 5 };
+      b[ixx(3, H - 2)] = { id: 92, kind: "P", color: "w", level: 1, abilities: [], used: {}, hp: 2, maxHp: 2, atk: 1 };
+      const st = { ...g0, board: b, turn: "w" };
+      return legalMoves(st, "w").filter((m) => m.promotion).every((m) => m.promotion === "Q");
+    })());
+
+  /* Und der Schirm. Quelltext-Suche NUR fuer den Riegel am Brett - das
+     Aussehen der Karte prueft test_ui, indem es sie WIRKLICH rendert
+     (KroenungsWahl.jsx ist genau dafuer eine eigene Datei; eine Probe, die
+     nur Zeichenketten im Quelltext sucht, ist der Befund von A15). */
+  const gs = (await import("node:fs")).readFileSync("src/app/ui/screens/GameScreen.jsx", "utf8");
+  ok("A11: GameScreen faengt den Kroenungszug ab, statt ihn sofort zu spielen",
+    gs.includes("function spielerZug(move)") && gs.includes("if (move && move.promotion && !kroenung) { setKroenung(move); return; }")
+    && gs.includes("onMove={spielerZug}"));
+  ok("A11: das Brett ist gesperrt, solange die Wahl offen ist",
+    gs.includes("interactive={myTurn && !kroenung}"));
+  ok("A11: die Karte sitzt in BEIDEN Bauweisen ueber der Kampfleiste",
+    (gs.match(/\{kroenungsKarte\}/g) || []).length === 2);
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

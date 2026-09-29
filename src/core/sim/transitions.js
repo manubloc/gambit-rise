@@ -1,6 +1,6 @@
-import { other, WHITE, BLACK, BASE_HP, BASE_ATK, HP_REMIS_HALBZUEGE, HELD_PUNKTE, werteBeiStufe } from "../domain/constants.js";
+import { other, WHITE, BLACK, BASE_HP, BASE_ATK, HP_REMIS_HALBZUEGE, HELD_PUNKTE, werteBeiStufe, KIND, kroenbar } from "../domain/constants.js";
 import { cloneBoard, findKing } from "../domain/board.js";
-import { pseudoMoves, pieceMoves, talentWirkt, verbuche, zauberRest, stufeVon } from "../rules/moves.js";
+import { pseudoMoves, pieceMoves, talentWirkt, verbuche, zauberRest, stufeVon, kroenungsReihe } from "../rules/moves.js";
 import { kroneFaengtAb, schildwachtDeckt, nachtwacheHeilt, faehrteFolgt, konzilLehntAb, sturmRuftZurueck, hinterstenBauern } from "../rules/buende.js";
 import { inCheck } from "../rules/attacks.js";
 import { schlageSperre, loeseFalleAus, zerfalleSperren, versperrt } from "../rules/sperren.js";
@@ -227,7 +227,17 @@ function altern(ns) {
    Leben kroent, steht danach mit halbem Leben einer Dame da. Wer sie voll
    heilen lassen will, ersetzt die letzte Zeile durch `piece.hp =
    piece.maxHp`. */
-function repromote(piece, kind) {
+function repromote(piece, gewuenscht) {
+  /* ── v1.90.12 (Audit A11, Besitzerwunsch): DIE WAHL GEHOERT IN DEN KERN
+     Seit der Spieler die Kronenart waehlen darf, traegt der Zug sie mit -
+     und `reduce` reicht `move.promotion` ungeprueft bis hierher durch (es
+     prueft Form und Zugrecht, nicht jedes Feld des Zugs). Ein fremder
+     Client im Duell koennte damit `promotion: "K"` schicken und sich einen
+     zweiten Koenig kroenen, oder ein Monster ohne Zugbild. Der Riegel steht
+     deshalb HIER, an der einzigen Stelle, die eine Kroenung ausfuehrt, und
+     nicht im Schirm: was nicht in KROENUNG_ARTEN steht, wird zur Dame -
+     der Zug bleibt also gueltig, nur die Wunschart faellt weg. */
+  const kind = kroenbar(gewuenscht) ? gewuenscht : KIND.QUEEN;
   const altAnteil = piece.maxHp ? (piece.hp ?? piece.maxHp) / piece.maxHp : 1;
   piece.kind = kind;
   if (piece.maxHp == null) return;
@@ -597,7 +607,7 @@ export function applyMove(state, move, opts) {
           b[move.to] = null;
         } else {                                   // melee kill: attacker advances
           b[move.to] = piece; b[move.from] = null; piece.hasMoved = true;
-          if (move.promotion) repromote(piece, move.promotion);
+          if (move.promotion || kroenungsReihe(piece, move.to, ns)) repromote(piece, move.promotion);
         }
       } else {
         damaged = true;                            // bump / ranged hit: attacker stays, target wounded
@@ -621,7 +631,10 @@ export function applyMove(state, move, opts) {
     } else {                                       // quiet move
       b[move.to] = piece; b[move.from] = null; piece.hasMoved = true;
       if (move.consumes) verbuche(piece, move.consumes); // v1.28.0: ein Einsatz mehr - die Stufe entscheidet, wie viele
-      if (move.promotion) repromote(piece, move.promotion);
+      /* v1.90.12 (A11): die STELLUNG entscheidet, OB gekroent wird, der Zug
+         nur noch WOZU - ein Befehl mit `promotion: null` liess den Bauern
+         sonst auf der Grundreihe stehen (im Duell schickt ihn der Gegner). */
+      if (move.promotion || kroenungsReihe(piece, move.to, ns)) repromote(piece, move.promotion);
     }
     /* v1.37.0: REGENERATION nach Stufe - I heilt 1 je ZWEITEM eigenen Zug
        (der Takt haengt an der Figur und reist in used mit), II 1 je Zug,
@@ -701,6 +714,10 @@ export function applyMove(state, move, opts) {
   else ns.turn = other(state.turn);
   ns.moveCount = state.moveCount + 1;
   ns.ohneSchaden = (damaged || lethal || captured) ? 0 : (state.ohneSchaden || 0) + 1;
+  /* v1.90.12 (A11): WAS AUS DEM BAUERN WURDE - abgelesen am Brett, nicht am
+     Wunsch. War es vor dem Zug ein Bauer und steht jetzt etwas anderes auf
+     dem Zielfeld, wurde gekroent; die Art ist die, die WIRKLICH dort steht. */
+  const gekroentZu = (move.kind === "P" && b[move.to] && b[move.to].kind !== "P") ? b[move.to].kind : null;
   ns.lastMove = { consumed: (typeof move !== "undefined" && move && move.consumes) || null,
     from: move.from, to: move.to, color: piece.color, kind: move.kind, byHero: !!piece.hero,
     capture: captured, bounced, damaged, dmg, lethal,
@@ -717,7 +734,13 @@ export function applyMove(state, move, opts) {
        und Farbe, und der Gambit flog als gewoehnlicher Bauer vom Brett
        (Besitzerbefund), ein Kapitaen als Turm, ein Monster als Grundfigur. */
     hitPiece: target ? { ...target } : epOpfer ? { ...epOpfer } : null,
-    special: move.special || null, promotion: move.promotion || null,
+    /* v1.90.12 (A11): der VERMERK traegt dieselbe Art wie die FIGUR auf dem
+       Brett. Sonst meldete der Ereignisstrom "gekroent zu K", waehrend dort
+       eine Dame steht - Belohnung, Klang und Anzeige liefen auseinander.
+       Und wenn die Stellung die Kroenung erzwang, obwohl der Zug keine
+       nannte, muss der Vermerk sie trotzdem melden. */
+    special: move.special || null,
+    promotion: gekroentZu,
     double: !!move.double, epCapture: move.epCapture ?? null,
     rookFrom: move.rookFrom ?? null, rookTo: move.rookTo ?? null,
   };

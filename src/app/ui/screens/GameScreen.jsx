@@ -3,6 +3,7 @@ import { mitHeld } from "../namen.js";   /* v1.0.13: {held} in Erzaehltexten */
 import { klang, klangVorwaermen, klangEinstellen } from "../klang.js";
 import { musikBereich } from "../musik.js";
 import { geleitTauschbar, geleitCommand } from "../../../core/index.js";   /* v1.86.0: ueber das Barrel */
+import { KroenungsWahl } from "../KroenungsWahl.jsx";   /* v1.90.12 (A11): die Kronen-Wahl */
 import { WHITE, BLACK, createGame, reduce, moveCommand, potionCommand, shiftCommand, status, undo, encodeState, decodeState, HP_REMIS_HALBZUEGE, VALUE,
   SPERR_ARTEN, MAX_SPERREN, setzFelder as sperrFelder, setzeSperre, nimmSperre, sperrenAnzahl,
   /* v1.90.9 (Audit A32): die Fallen. Dieselbe Setzphase, andere Regeln. */
@@ -784,6 +785,30 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
     setBanner({ result, gained, reason });
   }
 
+  /* ── v1.90.12 (Audit A11, Besitzerwunsch 29.9.): WEN KROENST DU? ──────
+     "man sollte uebrigens auch andere figuren kroenen koennen. und dafuer
+     dann unten dem schachbrett in meinem bereich wo sonst die entsprechenden
+     popups aus dem haendershop oder faehigkeiten sind dort sollte dann eine
+     kleiner hinweis text kommen ... und dann ist die auswahl auch ueber den
+     slider wie wir ihn aus der aufstellung kennen. bloss halt in etwas
+     kleiner."
+
+     Bis v1.90.11 stand in moves.js viermal `promotion: KIND.QUEEN` - eine
+     Wahl gab es nicht. Der Kern bietet weiterhin die Dame an (die
+     Rechenmaschine waehlt nicht, und wer nichts waehlt, bekommt sie); der
+     Zug des SPIELERS wird hier abgefangen, bis er sich entschieden hat.
+
+     NUR FUER DEN MENSCHEN AM BRETT: die Rechenmaschine ruft `play` direkt
+     und laeuft an diesem Riegel vorbei. Im Duell reist die gewaehlte Art im
+     Zug mit (derselbe `cmd` geht ueber die Leitung), und der Kern laesst nur
+     zu, was in KROENUNG_ARTEN steht - ein fremder Client kann sich also
+     keinen zweiten Koenig kroenen. */
+  const [kroenung, setKroenung] = useState(null);   // der wartende Zug
+  function spielerZug(move) {
+    if (move && move.promotion && !kroenung) { setKroenung(move); return; }
+    play(move);
+  }
+
   // Advance the simulation with a single command (player or AI move).
   function play(move) {
     setState((s) => {
@@ -1408,7 +1433,7 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
               <span style={{ fontWeight: 400, fontSize: 11.5, color: "#a99bc6", marginLeft: 8 }}>{en ? "new" : "neu"}</span></div>
             <div className="gg-serif" style={{ fontSize: 12.5, lineHeight: 1.5, color: "#cfc4e2" }}>{en ? ab.descEn : ab.descDe}</div>
           </div>; })()}
-        <BoardView lang={profile.lang} state={state} onMove={play} interactive={myTurn} scharf={scharf} onScharf={setScharf} showCoords={klassikOptik} lastMove={state.lastMove} animateFor={null} hotseat={hotseat} feld={feld} feldDunkel={feldDunkel} feldKontur={!campaign && !hpMode} ruhig={armResign || !!banner} mattSeite={banner && (banner.reason === "checkmate" || banner.reason === "regicide") ? (banner.result === "win" ? (myColor === "w" ? "b" : "w") : myColor) : null} effekt={brettEffekt}
+        <BoardView lang={profile.lang} state={state} onMove={spielerZug} interactive={myTurn && !kroenung} scharf={scharf} onScharf={setScharf} showCoords={klassikOptik} lastMove={state.lastMove} animateFor={null} hotseat={hotseat} feld={feld} feldDunkel={feldDunkel} feldKontur={!campaign && !hpMode} ruhig={armResign || !!banner} mattSeite={banner && (banner.reason === "checkmate" || banner.reason === "regicide") ? (banner.result === "win" ? (myColor === "w" ? "b" : "w") : myColor) : null} effekt={brettEffekt}
           flip={viewColor === BLACK} theme={{ ...(map.theme || {}), ...boardPalette(profile, match) }} fitBox pick={scout && pvp ? myColor : potionArm ? WHITE : null}
           onPick={scout && pvp ? scoutTap : usePotion} pov={viewColor}
           /* v1.12.1: im Geleit-Modus dienen dieselben Regler der Figurenwahl.
@@ -1578,6 +1603,15 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
 </>);
 
 
+  /* v1.90.12 (Audit A11): die Kronenwahl steht in ihrer eigenen Datei -
+     dort laesst sie sich WIRKLICH rendern statt nur im Quelltext suchen
+     (das ist der Befund von A15). Sie sitzt zwischen Brett und Kampfleiste,
+     also dort, wo im Gefecht ohnehin die Karten aufgehen. */
+  const kroenungsKarte = kroenung
+    ? <KroenungsWahl bauer={state.board[kroenung.from]} en={en} hpMode={hpMode}
+        onWahl={(k) => { const z = kroenung; setKroenung(null); play({ ...z, promotion: k }); }} />
+    : null;
+
   // DIE AUSRUESTUNG GANZ UNTEN (Besitzer, v0.69): Trank, Zeitriss und
   // Zeitenwender sind figurunabhaengige Gegenstaende - sie bekommen ihre
   // eigene lila Zeile UNTER der Kampfleiste, am Fuss des Gefechts.
@@ -1701,6 +1735,7 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
             tiefer als in allen anderen Kapiteln (gemessen 384 px ab 259 statt
             283 px ab 154). Sie hat dort auch etwas zu sagen: Rochade und En
             passant sind Sonderzuege des Schachs. */}
+        {kroenungsKarte}
         {<KampfLeiste state={state} inspect={inspect} en={en} myColor={hotseat ? state.turn : WHITE} banner={!!banner} stil={profile.pieceStyle} scharf={scharf} onScharf={setScharf} />}
         {!schlichteRegeln && ruestungsZeile}
       </aside>
@@ -1745,6 +1780,7 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
             tiefer als in allen anderen Kapiteln (gemessen 384 px ab 259 statt
             283 px ab 154). Sie hat dort auch etwas zu sagen: Rochade und En
             passant sind Sonderzuege des Schachs. */}
+        {kroenungsKarte}
         {<KampfLeiste state={state} inspect={inspect} en={en} myColor={hotseat ? state.turn : WHITE} banner={!!banner} stil={profile.pieceStyle} scharf={scharf} onScharf={setScharf} />}
       {!schlichteRegeln && ruestungsZeile}
       {dailyDoneEl}

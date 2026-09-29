@@ -1,5 +1,64 @@
 # Changelog - Gambit Rise
 
+## 1.90.12 - du waehlst jetzt, wozu dein Bauer gekroent wird - und der Kern liess sich vorher einen zweiten Koenig kroenen
+
+**A11 (Rest) — DIE KRONE HAT EINE WAHL** (Besitzer, 29.9.: „man sollte
+uebrigens auch andere figuren kroenen koennen … dort sollte dann eine
+kleiner hinweis text kommen waehle eine figur aus die gekroent werden soll
+… und dann ist die auswahl auch ueber den slider wie wir ihn aus der
+aufstellung kennen. bloss halt in etwas kleiner.")
+
+Bis v1.90.11 stand in moves.js viermal `promotion: KIND.QUEEN` - eine Wahl
+gab es nicht, in keinem Schachregelwerk der Welt gibt es das so. Jetzt:
+- **Dame, Turm, Laeufer, Springer.** `KROENUNG_ARTEN` in constants.js ist die
+  EINE Stelle, die die Frage beantwortet; Kern, Schirm und Proben lesen sie.
+  Warum genau diese vier: sie tragen alle Grundwerte und Zielprofil, haben
+  ein Gemaelde in jeder Stufe und brauchen keinen `moveSpec` - `repromote`
+  kann sie vollstaendig bauen. Ein Monster oder ein Meister waere KEINE
+  blosse Kronen-Wahl (eigene Zugbilder, Faehigkeiten, Hoechstzahlen im Heer);
+  wenn der Besitzer das will, ist es ein eigener Bau.
+- **Die Karte unter dem Brett**, dort wo im Gefecht ohnehin die Karten
+  aufgehen: Hinweistext, darunter der Schieber aus der Aufstellung in klein -
+  waagerecht, mit Fangpunkten, je eine Kachel mit Bild, Namen und den beiden
+  Werten, die die Figur nach der Kroenung WIRKLICH haette. Gerechnet mit
+  derselben Formel wie die Kroenung selbst, sonst verspraeche die Kachel
+  etwas anderes als das Brett. Der uebertragene Lebensanteil steht dabei.
+- Das Brett ist gesperrt, solange die Wahl offen ist. Abbrechen geht nicht:
+  der Zug ist getan, sobald der Bauer die Grundreihe betritt - offen ist nur
+  die Art. Zuruecknehmen ist der Zeitenwender, nicht diese Karte.
+
+**UND DER BEFUND, DEN DAS AUFGEDECKT HAT: der Kern kroente zum KOENIG.**
+`reduce` prueft Form und Zugrecht, nicht jedes Feld des Zugs -
+`move.promotion` lief ungeprueft bis in `repromote` durch. Im Duell schickt
+der GEGNER den Befehl. Gemessen an v1.90.11: ein Zug mit `promotion: "K"`
+setzte einen zweiten Koenig aufs Brett; `"X"` ein Monster ohne Zugbild. Der
+Riegel steht jetzt an der einzigen Stelle, die eine Kroenung ausfuehrt: was
+nicht in `KROENUNG_ARTEN` steht, wird zur Dame - der Zug bleibt gueltig, nur
+die Wunschart faellt weg. Und der Vermerk im Zug nennt ab jetzt die Art, die
+WIRKLICH auf dem Brett steht, nicht die gewuenschte.
+
+**Zweiter Befund derselben Bauart: `promotion: null` liess den Bauern
+stehen.** `applyMove` fragte nur `if (move.promotion)`. Ein Befehl ohne
+Kronenart behielt den Bauern auf der Grundreihe - eine Figur, die dort
+nichts mehr kann und trotzdem nicht gekroent ist. Ab jetzt entscheidet die
+STELLUNG, ob gekroent wird (`kroenungsReihe`, dieselbe Rechnung wie im
+Zugangebot samt frueher Kroenung nach Stufe), und der Zug nur noch, WOZU.
+
+**Die Karte ist eine eigene Datei** (`KroenungsWahl.jsx`) - und zwar
+absichtlich: als Block in GameScreen waere sie nur ueber Zeichenketten im
+Quelltext pruefbar gewesen, und genau diese Art Probe ist der Befund von
+A15. So rendert test_ui sie wirklich und liest heraus, was darinsteht.
+
+**Dabei ist eine eigene Annahme durchgefallen, und das war gut so:** die
+Probe verlangte „Schwarz sieht andere Bilder" und wurde rot. Gemessen:
+`paintedRoh` liest `piece.color` an KEINER Stelle - die Gemaelde des Hauses
+sind farbneutral, Freund und Feind unterscheiden Sockelband und Filter
+(v1.0.49, Besitzerentscheid). Das Durchreichen der Farbe war totes Gewicht
+und ist fort; die Probe haelt jetzt fest, was stimmt.
+
+**Gegengeprueft:** gegen v1.90.11 sind 15 Pruefungen in test_combat rot -
+darunter „ein gewuenschter KOENIG wird abgewiesen".
+
 ## 1.90.11 - zwei Fenster ueberschrieben sich, ein Gefecht ueberlebte den Deploy nicht, und der Rueckblick wurde nie gefahren
 
 **A17 — ZWEI FENSTER, EIN SPIELSTAND: DER AELTERE GEWANN.** `writeSave` las
