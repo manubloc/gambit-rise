@@ -50,10 +50,25 @@ export async function signInWithProvider(provider) {
 }
 export const signInWithGoogle = () => signInWithProvider("google");
 
+/* ── v1.90.8 (Audit A20): OHNE SITZUNG WIRD NICHTS GESPIEGELT ────────
+   Hier stand `return data.user ? mirror(data.user, "email") : null;` -
+   geprueft wurde NUR, ob ein Nutzerobjekt zurueckkam. Supabase liefert bei
+   eingeschalteter E-Mail-Bestaetigung aber ein `user` OHNE `session`, und
+   zwar auch dann, wenn die Adresse laengst registriert ist (so verrraet die
+   Anmeldung nicht, welche Adressen es gibt). `mirror` fuehrt ueber
+   upsertCloudAccount und setzt die lokale SITZUNG auf das Konto mit dieser
+   Adresse.
+   Auf einem geteilten Geraet genuegte damit die E-Mail-Adresse eines
+   fremden Kontos, um ohne Passwort in dessen Spielstand zu gelangen. Ob die
+   Bestaetigung im Supabase-Projekt an ist, laesst sich aus dem Repo nicht
+   ablesen - also wird ab jetzt vorausgesetzt, dass sie an sein koennte.
+   Gespiegelt wird nur mit echter Sitzung; sonst kommt der Hinweis auf die
+   Bestaetigungsmail. */
 export async function signUpEmailCloud(email, pass) {
   const c = await sb(); if (!c) throw new Error("unconfigured");
   const { data, error } = await c.auth.signUp({ email, password: pass });
   if (error) throw error;
+  if (!data || !data.session) throw new Error("confirm-mail");
   return data.user ? mirror(data.user, "email") : null;
 }
 

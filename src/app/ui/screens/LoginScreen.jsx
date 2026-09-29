@@ -32,6 +32,12 @@ const STR = {
          still NEU GESAET - alle oertlichen Konten waren fort und der Spieler
          las "Kein Konto mit dieser E-Mail". Jetzt bleibt sie liegen. */
       "Kontenliste unlesbar": "Die Kontenliste auf diesem Gerät ist beschädigt. Sie wurde NICHT gelöscht — deine Konten sind noch da. Bitte melde das; ein Neustart des Browsers hilft hier nicht.",
+      /* v1.90.8 (Audit A20): Supabase liefert bei eingeschalteter
+         Bestätigung ein Nutzerobjekt OHNE Sitzung — auch für eine längst
+         registrierte Adresse. Vorher wurde daraufhin still die lokale
+         Sitzung auf das Konto mit dieser Adresse gesetzt: auf einem
+         geteilten Gerät genügte die fremde E-Mail. */
+      "confirm-mail": "Fast geschafft: Wir haben dir eine Bestätigungsmail geschickt. Öffne den Link darin und melde dich danach hier an.",
       generic: "Das hat nicht geklappt. Versuch es noch einmal." },
   },
   en: {
@@ -45,6 +51,7 @@ const STR = {
       exists: "That account already exists — sign in instead.", "not-found": "No account with this e-mail. Create one!",
       "wrong-pass": "Wrong password.", unconfigured: "Online sign-in isn't configured yet.",
       "Kontenliste unlesbar": "The account list on this device is damaged. It has NOT been deleted — your accounts are still there. Please report this; restarting the browser will not help.",
+      "confirm-mail": "Almost there: we sent you a confirmation e-mail. Open the link in it, then sign in here.",
       generic: "That didn't work. Please try again." },
   },
 };

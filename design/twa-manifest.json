@@ -16,7 +16,7 @@
   "maskableIconUrl": "https://gambitrise.com/spielen/icons/maskable-512.png",
   "splashScreenFadeOutDuration": 300,
   "signingKey": {
-    "path": "./gg-upload.keystore",
+    "path": "~/.gambit/gg-upload.keystore",
     "alias": "gg"
   },
   "appVersionName": "1",

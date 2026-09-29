@@ -54,6 +54,15 @@ Landingpage statt im Spiel.
 
 ## 5. DEN SCHLÜSSEL SICHERN — jetzt sofort
 
+> **NIEMALS IN DEN REPO-ORDNER LEGEN.** Das Repo ist öffentlich. Entpacke das
+> ZIP außerhalb, und lege den Schlüssel nach `~/.gambit/gg-upload.keystore` —
+> genau dorthin zeigt `design/twa-manifest.json` seit v1.90.8 (vorher stand
+> dort `./gg-upload.keystore`, also **im Repo**, direkt neben der
+> Konfiguration). `.gitignore` sperrt `*.keystore`, `*.jks`, `*.p12` und
+> `signing-key-info.txt` zusätzlich ab — aber ein Riegel ersetzt keine
+> Gewohnheit. Ein geleakter Uploadschlüssel muss bei Google zurückgesetzt
+> werden, und in der Console ist bereits einer registriert.
+
 `signing.keystore` und `signing-key-info.txt` (darin stehen Passwort, Alias
 und Fingerprint) in den Passwortmanager und zusätzlich an einen zweiten Ort.
 

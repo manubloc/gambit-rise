@@ -13,11 +13,27 @@ import { DurableObject } from "cloudflare:workers";
 import { HallCore } from "./logic.mjs";
 import { generateVapid, deliverPushes, pushText } from "./webpush.mjs";
 
-// kurzer, nicht rueckrechenbarer Fingerabdruck einer IP (FNV-1a, 8 Zeichen)
-function kurzHash(v) {
-  let h = 0x811c9dc5;
-  for (let i = 0; i < v.length; i++) { h ^= v.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
-  return h.toString(16).padStart(8, "0");
+/* ── v1.90.8 (Audit A23): DER IP-PRUEFWERT WAR RUECKRECHENBAR ─────────
+   Hier stand FNV-1a, 32 Bit, OHNE Geheimnis - und die Datenschutzerklaerung
+   versprach in Abschnitt 5 "einen kurzen, nicht rueckrechenbaren Pruefwert
+   (Hash) deiner IP-Adresse". Der IPv4-Raum hat 4,3 Milliarden Adressen; eine
+   vollstaendige Tabelle FNV-1a -> IP rechnet ein Telefon in Minuten. Der Wert
+   war damit ein IP-BEZUG im Sinne von Art. 4 Nr. 5 DSGVO, und die Aussage in
+   §5 schlicht unzutreffend - angreifbar bei einer Beschwerde beim LfDI BW,
+   den §12 selbst nennt.
+   Jetzt HMAC-SHA-256 mit einem Geheimnis aus der Wrangler-Umgebung
+   (IP_PEPPER). Ohne den Pfeffer laesst sich keine Tabelle vorrechnen; mit
+   Rotation des Pfeffers verfaellt auch die alte Zuordnung.
+   FEHLT DER PFEFFER, WIRD NICHT GEHASHT, SONDERN GAR NICHTS GESPEICHERT.
+   Ein Rueckfall auf den alten Weg waere genau das Versprechen, das nicht
+   gehalten wurde - lieber kein Geraetezaehler als ein falsches Versprechen. */
+async function ipPruefwert(ip, pfeffer) {
+  if (!ip || ip === "?" || !pfeffer) return null;
+  const enc = new TextEncoder();
+  const key = await crypto.subtle.importKey("raw", enc.encode(pfeffer),
+    { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const sig = await crypto.subtle.sign("HMAC", key, enc.encode(ip));
+  return [...new Uint8Array(sig)].slice(0, 6).map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
 export default {
@@ -99,6 +115,10 @@ export class Hall extends DurableObject {
       vaultClear: (owner) => { sql.exec("DELETE FROM vault WHERE owner = ?", owner); },
     };
     this.store = store;
+    /* v1.90.8 (A23): der Pfeffer fuer den IP-Pruefwert. Nicht im Repo, nicht
+       im Bundle - `npx wrangler secret put IP_PEPPER`. Fehlt er, bleibt der
+       Pruefwert leer (siehe ipPruefwert). */
+    this.ipPfeffer = env.IP_PEPPER || "";
     // nudges queue here; kick() drains them AFTER the handler returns, so the
     // synchronous protocol core never waits on crypto or the network
     this.pushJobs = [];
@@ -159,6 +179,11 @@ export class Hall extends DurableObject {
   /** The Hall wakes itself: sweep deadlines & reminders, push, sleep again. */
   async alarm() {
     try { this.core.sweepDaily(); } catch {}
+    /* v1.90.8 (A25): abgelaufene Gnadenfristen. Ohne diese Zeile bliebe eine
+       verlassene Partie stehen, bis zufaellig jemand die Halle anspricht -
+       und der Gegner saesse beliebig lange vor einem Brett, das nicht mehr
+       gespielt wird. nextAlarmAt weckt uns dafuer. */
+    try { this.core.sweepAbwesende(); } catch {}
     this._alarmAt = null;
     await this.flushPush().catch(() => {});
     this.armAlarm();
@@ -318,7 +343,14 @@ export class Hall extends DurableObject {
     // Region kommen von Cloudflare, die IP wird NUR GEHASHT gemerkt (kurzer
     // Fingerabdruck zum Zaehlen von Geraeten, nicht rueckrechenbar).
     const cf = request.cf || {};
-    server.serializeAttachment({ id: null, ip: request.headers.get("cf-connecting-ip") || "?",
+    /* v1.90.8 (A23): der Pruefwert entsteht HIER, wo gewartet werden darf -
+       webSocketMessage ist synchron und koennte kein HMAC rechnen. Die IP
+       aendert sich waehrend einer Verbindung ohnehin nicht. Die rohe IP
+       bleibt nur im Arbeitsspeicher der Verbindung (fuer den Admin-Pfad),
+       gespeichert wird allein der Pruefwert. */
+    const ip = request.headers.get("cf-connecting-ip") || "?";
+    server.serializeAttachment({ id: null, ip,
+      ipHash: await ipPruefwert(ip, this.ipPfeffer),
       herkunft: { land: cf.country || null, region: cf.region || null, stadt: cf.city || null, knoten: cf.colo || null } });
     return new Response(null, { status: 101, webSocket: client });
   }
@@ -330,7 +362,7 @@ export class Hall extends DurableObject {
     // pushes) are delivered by id, so the socket must already carry it.
     const preSeat = msg.t === "hello" && msg.id && att.id !== msg.id;
     if (preSeat) ws.serializeAttachment({ ...att, id: msg.id });
-    if (msg && msg.t === "hello") msg.__herkunft = { ...(att.herkunft || {}), ipHash: kurzHash(att.ip || "") };
+    if (msg && msg.t === "hello") msg.__herkunft = { ...(att.herkunft || {}), ipHash: att.ipHash || null };
     try {
       const id = this.core.handle(att.id, msg, att.ip || "?");
       if (id && id !== att.id) ws.serializeAttachment({ ...att, id });

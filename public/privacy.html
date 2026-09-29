@@ -128,7 +128,10 @@
 
   <p><strong>Grobe Herkunft &amp; Geräte-Fingerabdruck.</strong> Beim Verbinden mit dem Spielserver
   vermerken wir am Spielerkonto die von Cloudflares Netz bereitgestellte <em>grobe</em> Herkunft
-  (Land, Region, Stadt) sowie einen kurzen, nicht rückrechenbaren Prüfwert (Hash) deiner IP-Adresse.
+  (Land, Region, Stadt) sowie einen kurzen Prüfwert deiner IP-Adresse, der mit einem <em>geheimen,
+  nur uns bekannten Schlüssel</em> gebildet wird (HMAC-SHA-256). Ohne diesen Schlüssel lässt sich
+  aus dem Prüfwert keine IP-Adresse zurückrechnen; wir behandeln ihn dennoch als Personenbezug
+  im Sinne von Art. 4 Nr. 5 DSGVO. Fehlt der Schlüssel, wird gar kein Prüfwert gebildet.
   Die IP-Adresse selbst wird von uns <em>nicht im Klartext gespeichert</em>. Zweck ist die
   Betriebsstatistik (aus welchen Regionen wird gespielt), das Erkennen von Missbrauch und das Zählen
   von Geräten; Rechtsgrundlage ist unser berechtigtes Interesse an einem sicheren, missbrauchsfreien

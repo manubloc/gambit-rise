@@ -492,7 +492,18 @@
            goldenen Knopfes - so erkennt jeder sofort, was passiert. Eingebunden
            wie Googles Badge-Generator es ausgibt (Bild von Googles Server,
            unveraendert, mit Mindestabstand). -->
-      <a class="playbadge" href="https://play.google.com/store/apps/details?id=com.gambitrise.app"><img
+      <!-- v1.90.8 (Audit A30): DAS ABZEICHEN BLEIBT, DAS ZIEL NICHT.
+           Der Eintrag existiert noch nicht (CLAUDE.md: "die App ist NICHT
+           veroeffentlicht") - jeder Tipp landete auf Googles 404-Seite,
+           direkt neben dem Satz "bald fuer Android". Googles
+           Badge-Richtlinien verlangen ausserdem einen echten Zieleintrag;
+           das kann bei der Store-Pruefung der Website auffallen. Das
+           Abzeichen wollte der Besitzer (v1.59.0), es bleibt also stehen
+           und zeigt bis zur Veroeffentlichung auf das Spiel selbst.
+           UMSTELLEN BEI S9: die drei Vorkommen von "/spielen/" in
+           playbadge-Links zurueck auf die Store-Adresse - und drive3 prueft
+           es dann wieder scharf (STORE_LIVE=1). -->
+      <a class="playbadge" href="/spielen/"><img
         alt="Jetzt bei Google Play" width="646" height="250" loading="lazy"
         src="https://play.google.com/intl/en_us/badges/static/images/badges/de_badge_web_generic.png" /></a>
     </div>
@@ -727,7 +738,7 @@
   <div class="hof">
     <h2>Die Halle steht offen.</h2>
     <p class="h2u sans">Bald im Play Store — kostenlos bis Kapitel III, ohne Werbung.</p>
-    <div class="knopfzeile sans"><a class="playbadge" href="https://play.google.com/store/apps/details?id=com.gambitrise.app"><img
+    <div class="knopfzeile sans"><a class="playbadge" href="/spielen/"><img
       alt="Jetzt bei Google Play" width="646" height="250"
       src="https://play.google.com/intl/en_us/badges/static/images/badges/de_badge_web_generic.png" /></a></div>
     <div class="zeile-frei sans">Für Android, bald im Google Play Store.</div>
@@ -736,7 +747,7 @@
 
 <footer class="sans">
   <nav>
-    <a href="https://play.google.com/store/apps/details?id=com.gambitrise.app">Play Store</a>
+    <a href="/spielen/">Play Store (bald)</a>
     <a href="/privacy.html">Datenschutz &amp; Impressum</a>
     <a href="/terms.html">Nutzungsbedingungen</a>
     <a href="/konto-loeschen.html">Konto löschen</a>

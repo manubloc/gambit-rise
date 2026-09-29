@@ -201,5 +201,35 @@ console.log("\n== DIE KARTEN KOMMEN NACH UND NACH (v1.13.0) ==");
     CAMPAIGN.every((n) => !n.boss?.pure || n.final || !istKapitelmeister(n.boss.pure)));
 }
 
+/* ── v1.90.8 (Audit A29): DIE MEER-SCHRANKE SCHICKTE INS LEERE ────────
+   Die Tafel vor dem Endlosen Meer sagte, der Kapitaen warte "als Endboss des
+   Wuesten-Kapitels (IX)" und sei der "Meister von Kapitel X" - in beiden
+   Sprachen, mit zwei verschiedenen Kapitelnummern. Gemessen gibt es genau
+   EINE Station mit dem Kapitaen: L06s48 "Zwoelf Tueren", Liga 6, weder
+   Hauptpfad noch Finale. Und Kapitel IX ist "Die Wunde", die Wueste
+   ("Sonnenschlund") ist Kapitel X. Wer Kapitel XII ohne die Nebenstation
+   erreichte, suchte den Kapitaen also an zwei Orten, an denen er nie war -
+   Spielstopp durch falsche Wegweisung.
+   Diese Probe haelt Text und Daten aneinander: wo der Kapitaen WIRKLICH
+   steht, muss auch dastehen. */
+{
+  const { CAMPAIGN12 } = await import("./src/content/campaign12.gen.js");
+  const { makeT } = await import("./src/app/i18n/strings.js");
+  const tDe = makeT("de"), tEn = makeT("en");
+  const mitKapitaen = CAMPAIGN12.filter((n) => n.boss && n.boss.piece === "captain");
+  ok("A29: es gibt genau eine Station mit dem Kapitaen", mitKapitaen.length === 1);
+  const st = mitKapitaen[0];
+  ok("A29: sie liegt in Kapitel VI", st && st.league === 6);
+  ok("A29: und auf einem Nebenweg, nicht im Finale", st && !st.haupt && !st.final);
+  const de = tDe("camp.seaNeedCaptain"), deText = tDe("camp.seaLockedText");
+  const en = tEn("camp.seaNeedCaptain"), enText = tEn("camp.seaLockedText");
+  ok("A29: der deutsche Text nennt Kapitel VI, nicht IX oder X",
+    /\bVI\b/.test(de + deText) && !/\bIX\b/.test(de + deText) && !/Kapitel X\b/.test(de + deText));
+  ok("A29: der englische Text ebenso",
+    /\bVI\b/.test(en + enText) && !/\bIX\b/.test(en + enText));
+  ok("A29: und beide nennen die Station beim Namen",
+    /Zw\u00f6lf T\u00fcren/.test(de + deText) && /Twelve Doors/.test(en + enText));
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

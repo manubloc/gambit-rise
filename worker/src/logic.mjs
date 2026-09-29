@@ -51,6 +51,19 @@ const REMIND_MS = 24 * 60 * 60 * 1000;
    bleibt ("gewonnen/verloren") und der Rueckblick nicht ueber Nacht
    wegbricht; die Wertung ist ohnehin sofort verrechnet (rateDaily). */
 const DAILY_KEEP_MS = 30 * 24 * 60 * 60 * 1000;
+/* ── v1.90.8 (Audit A25): DIE GNADENFRIST ────────────────────────
+   Bis hierher war JEDER Verbindungsabbruch im Live-Duell sofort eine
+   gewertete Niederlage: close() rief endMatchFor(id, "oppLeft"), das
+   verrechnete Elo (K=32) und loeschte die Partie. Ein Wechsel von WLAN auf
+   Mobilfunk, ein Tunnel, die App drei Sekunden weggedrueckt - Niederlage.
+   Zugleich war es der einfachste Weg, eine verlorene Partie zu vermeiden:
+   Stecker ziehen kostete dasselbe wie Aufgeben, aber der Gegner wartete
+   nicht. Fuer Fernpartien gibt es DAILY_MS, fuer Revanchen REMATCH_MS - nur
+   fuer den haeufigsten Fall gab es nichts.
+   30 Sekunden: lang genug fuer einen Netzwechsel und das Zurueckholen der
+   App aus dem Hintergrund, kurz genug, dass niemand vor einem leeren Brett
+   sitzt und sich fragt, ob noch etwas kommt. */
+const GNADE_MS = 30000;
 
 const normName = (n) => String(n || "").trim().toLowerCase().replace(/\s+/g, " ");
 
@@ -89,6 +102,21 @@ export class HallCore {
   // player replays the list instead of the server having to understand chess.
   get daily() { return this._blob("daily", {}); }
   set daily(v) { this._put("daily", v); }
+  /* ── v1.90.8 (Audit A22): EIN EINTRAG DARF DAS REGAL NICHT SPRENGEN ──
+     `queue` und `challenges` liegen je als EIN JSON-String in einer Zeile -
+     dieselbe Bauweise wie das Fernpartien-Regal aus A7. maps, army und
+     armies gingen dort ungeprueft hinein. Ein einziger uebergrosser Eintrag
+     laesst danach JEDEN Schreibvorgang auf diese Zeile scheitern: das
+     Matchmaking waere fuer ALLE blockiert, und nichts heilt sich selbst
+     (der eigene Code kennt die Grenze, vaultPush klemmt bei 250 KB).
+     20000 Zeichen sind reichlich: eine Aufstellung misst gemessen rund 575
+     Bytes, ein Heer mit allen Feldern selten ueber 4 KB. */
+  pruefePaket(teile) {
+    let n = 0;
+    try { n = JSON.stringify(teile).length; } catch { throw new Error("bad payload"); }
+    if (n > 20000) throw new Error("payload too large");
+  }
+
   nextId(prefix) { const n = (Number(this.store.kvGet("seq")) || 0) + 1; this.store.kvSet("seq", String(n)); return prefix + n; }
 
   player(id) { return this.store.getPlayer(id); }
@@ -168,12 +196,18 @@ export class HallCore {
   }
 
   // ── presence ───────────────────────────────────────────────────────────────
-  connect(id) { this.online.set(id, true); }
+  connect(id) {
+    this.online.set(id, true);
+    /* v1.90.8 (A25): war er nur kurz weg, laeuft seine Partie weiter. Das
+       gehoert hierher und nicht in den hello-Zweig: connect() ist die eine
+       Stelle, an der jemand wieder da ist. */
+    this.kommtZurueck(id);
+  }
   close(id) {
     if (!id) return;
     this.online.delete(id);
     this.dropFromQueue(id);
-    this.endMatchFor(id, "oppLeft");   // live matches only — daily games sleep on
+    this.gehtWeg(id);                  // v1.90.8 (A25): Gnadenfrist statt sofortiger Niederlage
     this.raeumeHerausforderungen(id);
     this.notifyFriends(id);
   }
@@ -282,7 +316,13 @@ export class HallCore {
       if (!this.isOnline(w.id)) this.notify(w.id, { kind: "new", gameId: gid, opp: this.player(bl.id)?.name || "?" });
       return gid;
     }
-    ms[matchId] = { w: w.id, b: bl.id, armyW, armyB, map, n: 0, mode };
+    /* v1.90.8 (A25): seed, rules und tc gehoeren IN die Partie. Bis hierher
+       standen sie nur im Match-Paket, das beim Start verschickt wurde - die
+       Halle konnte die Partie danach nicht mehr beschreiben, die sie doch
+       selbst weiterreicht. Fuer die Rueckkehr nach einem Abbruch braucht es
+       genau das. */
+    ms[matchId] = { w: w.id, b: bl.id, armyW, armyB, map, n: 0, mode,
+      seed, rules: mode === "classic" ? "chess" : "hp", tc: a.tc || b.tc || "rush" };
     this.matches = ms;
     // classic rooms play pure mate chess; duels keep the HP arena
     // the clock both sides asked for travels with the match, so neither can
@@ -338,6 +378,11 @@ export class HallCore {
    *  adapter turns this into a Durable Object alarm; null means sleep on. */
   nextAlarmAt() {
     let at = null;
+    /* v1.90.8 (A25): auch eine laufende Gnadenfrist muss die Halle wecken -
+       sonst bliebe eine verlassene Partie stehen, bis zufaellig jemand
+       vorbeikommt, und der Gegner saesse beliebig lange davor. */
+    for (const m of Object.values(this.matches))
+      if (m.away && (at == null || m.away.until < at)) at = m.away.until;
     for (const rec of Object.values(this.daily)) {
       if (rec.done) continue;
       const t = rec.reminded ? rec.deadline : rec.deadline - REMIND_MS;
@@ -364,6 +409,53 @@ export class HallCore {
     }
     out.sort((x, y) => (y.yourTurn ? 1 : 0) - (x.yourTurn ? 1 : 0) || y.lastAt - x.lastAt);
     return out;
+  }
+
+  /* ── v1.90.8 (Audit A25): WER GEHT, IST ERST EINMAL NUR ABWESEND ─────
+     Die Partie bleibt stehen und bekommt eine Frist. Der Gegner erfaehrt es
+     sofort (oppAway mit dem Zeitpunkt), damit er nicht ins Leere schaut. */
+  gehtWeg(id) {
+    const ms = this.matches; let geaendert = false;
+    for (const [mid, m] of Object.entries(ms)) {
+      if (m.w !== id && m.b !== id) continue;
+      m.away = { id, until: this.now() + GNADE_MS };
+      geaendert = true;
+      this.send(m.w === id ? m.b : m.w, { t: "oppAway", matchId: mid, until: m.away.until });
+    }
+    if (geaendert) this.matches = ms;
+  }
+  /* Kommt er innerhalb der Frist wieder, laeuft die Partie weiter - und er
+     bekommt sein Match-Paket erneut, damit der Schirm wieder aufsetzen kann
+     (Seed und Zugliste hat der Client selbst). */
+  kommtZurueck(id) {
+    const ms = this.matches; let geaendert = false;
+    for (const [mid, m] of Object.entries(ms)) {
+      if (!m.away || m.away.id !== id) continue;
+      if (m.away.until <= this.now()) continue;          // zu spaet - der Besen holt sie gleich
+      delete m.away; geaendert = true;
+      const meineSeite = m.w === id ? "w" : "b";
+      const gegner = m.w === id ? m.b : m.w;
+      this.send(gegner, { t: "oppBack", matchId: mid });
+      this.send(id, { t: "match", matchId: mid, seed: m.seed, map: m.map, rules: m.rules,
+        youAre: meineSeite, tc: m.tc || "rush", mode: m.mode,
+        oppArmy: meineSeite === "w" ? m.armyB : m.armyW,
+        opp: { name: this.player(gegner)?.name || "?", score: this.player(gegner)?.score || 0 },
+        fortsetzung: true });
+    }
+    if (geaendert) this.matches = ms;
+  }
+  /* Der Besen: abgelaufene Fristen werden zur Niederlage - genau das, was
+     frueher sofort passierte. Wer ihn anstoesst, ist egal; wie bei den
+     Fernpartien raeumt jeder auf, der vorbeikommt. */
+  sweepAbwesende() {
+    const ms = this.matches;
+    for (const [mid, m] of Object.entries(ms)) {
+      if (!m.away || m.away.until > this.now()) continue;
+      const weg = m.away.id;
+      const gegner = m.w === weg ? m.b : m.w;
+      this.send(gegner, { t: "oppLeft", matchId: mid });
+      this.settle(mid, m, m.w === weg ? 0 : 1);
+    }
   }
 
   endMatchFor(id, reason) {
@@ -421,6 +513,15 @@ export class HallCore {
     if (msg.t === "hello") {
       const { id, secret, name, score, privacy } = msg;
       if (!id || !secret || !name) throw new Error("bad hello");
+      /* ── v1.90.8 (Audit A22): GROESSEN SIND GRENZEN ─────────────────
+         `id` und `secret` gingen ungekuerzt in die Spielerzeile. Ein Skript
+         konnte damit beliebig viele Zeilen mit beliebig langen Kennungen
+         anlegen und die SQLite der Halle fuellen - eine Verbindung genuegt,
+         denn nach jedem hello sitzt eine neue Kennung. Der Name war mit 20
+         Zeichen laengst begrenzt, die beiden anderen nicht.
+         Die Masse sind grosszuegig gewaehlt: die App vergibt Kennungen von
+         rund 8 und Geheimnisse von rund 24 Zeichen (accounts.js). */
+      if (String(id).length > 64 || String(secret).length > 128) throw new Error("bad hello");
       const ex = this.player(id);
       if (ex && ex.secret !== secret) throw new Error("identity taken");
       /* Traegt ein ANDERER Spieler den Namen schon, bekommt dieser Spieler eine
@@ -513,6 +614,7 @@ export class HallCore {
       return me;
     }
     if (msg.t === "queue") {
+      this.pruefePaket({ maps: msg.maps, army: msg.army, armies: msg.armies });   // v1.90.8 (A22)
       this.dropFromQueue(me);
       const q = this.queue;
       q.push({ id: me, since: this.now(), maps: msg.maps || ["classic"], army: msg.army, armies: msg.armies || null, score: p.score, mode: msg.mode || "duel", tc: msg.tc || "rush" });
@@ -563,6 +665,7 @@ export class HallCore {
       if (!target || !this.isOnline(msg.targetId)) throw new Error("not online");
       const isFriend = (target.friends || []).includes(me);
       if (target.privacy === "friends" && !isFriend) throw new Error("friends only");
+      this.pruefePaket({ maps: msg.maps, army: msg.army, armies: msg.armies });   // v1.90.8 (A22)
       const challengeId = this.nextId("c");
       const cs = this.challenges;
       // the clock travels WITH the challenge: without it, a friend asking for a
@@ -579,6 +682,7 @@ export class HallCore {
       delete cs[msg.challengeId]; this.challenges = cs;
       if (!c || c.to !== me) return me;
       if (!msg.accept) { this.send(c.from, { t: "challengeDeclined" }); return me; }
+      this.pruefePaket({ maps: msg.maps, army: msg.army, armies: msg.armies });   // v1.90.8 (A22)
       const maps = c.maps.filter((m) => (msg.maps || ["classic"]).includes(m));
       this.startMatch({ id: c.from, army: c.army, armies: c.armies, score: this.player(c.from).score, mode: c.mode, tc: c.tc },
                       { id: me, army: msg.army, armies: msg.armies || null, score: p.score, mode: c.mode, tc: c.tc },

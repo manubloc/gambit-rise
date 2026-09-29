@@ -1264,23 +1264,62 @@ import { PAINTED, PAINTED_KLEIN } from "./src/app/ui/board/paintedArt.js";   /* 
     const glyph = _rf3("src/app/ui/board/PieceGlyph.jsx", "utf8");
     ok("der Hofstaat verschiebt nicht mehr", !/sockelVersatz\(/.test(armee));
     ok("das Brett verschiebt nicht mehr", !/sockelVersatz\(/.test(glyph) && !/sockelX/.test(glyph));
-    const { PngLeser: _x } = {};
-    // Stichprobe an den drei alten Suendern: Sockelfuss wirklich mittig?
-    const { default: sharp } = await import("sharp").catch(() => ({ default: null }));
-    if (sharp) {
-      for (const n of ["bishop", "guardian", "queen"]) {
-        const { data, info } = await sharp(`src/app/ui/assets/painted/painted-${n}.webp`)
-          .ensureAlpha().raw().toBuffer({ resolveWithObject: true });
-        let unten = -1;
-        for (let y = info.height - 1; y >= 0 && unten < 0; y--)
-          for (let x = 0; x < info.width; x++) if (data[(y * info.width + x) * 4 + 3] > 60) { unten = y; break; }
-        let mi = 1e9, ma = -1;
-        for (let y = Math.max(0, unten - 4); y <= unten; y++)
-          for (let x = 0; x < info.width; x++) if (data[(y * info.width + x) * 4 + 3] > 60) { if (x < mi) mi = x; if (x > ma) ma = x; }
-        const dx = (mi + ma + 1) / 2 - info.width / 2;
-        ok(`der Sockelfuss von ${n} steht mittig (|${dx.toFixed(1)}| < 3px)`, Math.abs(dx) < 3);
+    /* ── v1.90.8 (Audit A31): DIESE PROBE LIEF NIE ───────────────────
+       Hier stand eine Stichprobe an drei Bildern, die `sharp` brauchte -
+       ein Paket, das weder in package.json noch in node_modules liegt. Der
+       Zweig lief also NIE, und statt dessen meldete eine Ersatzzeile
+       "sharp fehlt - uebersprungen" als BESTANDEN. Drei angebliche
+       Pruefungen, null Messungen, und CLAUDE.md behauptete derweil, Proben
+       erzwingen die Bildmitte. Genau dieselbe Klasse wie die Sperrenprobe,
+       die gruen war, waehrend die Mauer 23 % danebensass.
+
+       Jetzt: python3 mit Pillow - dasselbe Werkzeug wie test_zauber, in
+       CLAUDE.md ohnehin Voraussetzung, in der CI ohnehin installiert. Und
+       nicht drei Bilder, sondern ALLE in painted/ und painted/klein/.
+       FEHLT das Werkzeug, ist die Probe ROT. Eine Probe, die sich selbst
+       ueberspringt, ist keine.
+
+       BEIM ERSTEN ECHTEN LAUF gefunden: painted-queen.webp sass 37 px
+       rechts in ihrer Leinwand - nicht nur der Fuss, die ganze Figur, also
+       rund 7 % neben der Feldmitte; die Kleinfassung genauso. Beide Dateien
+       wurden verschoben (v1.90.8), nichts neu gemalt.
+
+       AUSNAHME schatzkammer: kein Sockel, kein Fuss - ein Gebaeude, das die
+       Leinwand von Rand zu Rand fuellt (Inhalt x 0..575). Es laesst sich gar
+       nicht schieben, ohne abzuschneiden, und es steht nie auf einem Feld
+       (SockelBand fuehrt es in OHNE_BAND). */
+    {
+      const { execFileSync: _exec } = await import("node:child_process");
+      const PY = `
+import sys, json, glob, os
+from PIL import Image
+AUSNAHMEN = {"painted-schatzkammer.webp"}
+schlecht, gezaehlt = [], 0
+for ordner in ("src/app/ui/assets/painted", "src/app/ui/assets/painted/klein"):
+    for f in sorted(glob.glob(os.path.join(ordner, "painted-*.webp"))):
+        if os.path.basename(f) in AUSNAHMEN: continue
+        im = Image.open(f).convert("RGBA"); W, H = im.size; px = im.load()
+        unten = None
+        for y in range(H - 1, -1, -1):
+            if any(px[x, y][3] > 60 for x in range(W)): unten = y; break
+        if unten is None: continue
+        gezaehlt += 1
+        xs = [x for y in range(max(0, unten - 4), unten + 1) for x in range(W) if px[x, y][3] > 60]
+        dx = (min(xs) + max(xs) + 1) / 2 - W / 2
+        if abs(dx) >= 3: schlecht.append([f, round(dx, 1)])
+print(json.dumps({"gezaehlt": gezaehlt, "schlecht": schlecht}))
+`;
+      let ergebnis = null, werkzeugFehlt = null;
+      try { ergebnis = JSON.parse(_exec("python3", ["-c", PY], { encoding: "utf8" })); }
+      catch (e) { werkzeugFehlt = String(e.message || e).slice(0, 160); }
+      ok("A31: das Messwerkzeug ist da (python3 mit Pillow) - ohne es wird NICHT uebersprungen",
+        !werkzeugFehlt || (console.log("     ", werkzeugFehlt), false));
+      if (ergebnis) {
+        ok(`A31: es wurden wirklich Bilder gemessen (${ergebnis.gezaehlt})`, ergebnis.gezaehlt > 100);
+        if (ergebnis.schlecht.length) console.log("     schief:", ergebnis.schlecht.map((x) => x[0].split("assets/")[1] + " " + x[1] + "px").join(", "));
+        ok("A31: jeder Sockelfuss steht mittig im Bild (|dx| < 3px)", ergebnis.schlecht.length === 0);
       }
-    } else ok("sharp fehlt - Sockel-Stichprobe uebersprungen", true);
+    }
   }
   const { readFileSync: _rfA } = await import("node:fs");
   const art = _rfA("src/app/ui/board/paintedArt.js", "utf8");

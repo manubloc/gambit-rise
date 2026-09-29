@@ -1,5 +1,97 @@
 # Changelog - Gambit Rise
 
+## 1.90.8 - der Signaturschluessel, der IP-Pruefwert, die Gnadenfrist - und eine Dame, die 37 px daneben stand
+
+**ZUM SELBST ERLEDIGEN (Besitzer):** `npx wrangler secret put IP_PEPPER` mit
+einer langen Zufallszeichenkette. Ohne diesen Pfeffer bildet die Halle KEINEN
+IP-Pruefwert mehr - das Spielerbuch zaehlt dann keine Geraete, alles andere
+laeuft. Lieber kein Zaehler als ein Versprechen, das nicht gehalten wird.
+
+- **A28 — DER SIGNATURSCHLUESSEL HATTE KEINEN SCHUTZ.** Das Repo ist
+  OEFFENTLICH, und `design/twa-manifest.json` erwartete den Uploadschluessel
+  direkt neben sich (`./gg-upload.keystore`). Sobald Bubblewrap laeuft oder
+  ein PWABuilder-ZIP dort entpackt wird, liegt der Schluessel samt Passwort im
+  Klartext im Arbeitsbaum - und `git add -A` nimmt ihn mit. `.gitignore`
+  kannte keine einzige Regel dafuer. Jetzt sperren `*.keystore`, `*.jks`,
+  `*.p12` und `signing-key-info.txt`, der Pfad zeigt nach `~/.gambit/`, und
+  PWABUILDER.md §5 sagt es in einem Kasten. **In der Console ist bereits ein
+  Uploadschluessel registriert** - ein Leck waere teuer.
+
+- **A23 — DER IP-PRUEFWERT WAR RUECKRECHENBAR.** Die Halle bildete ihn mit
+  FNV-1a, 32 Bit, OHNE Geheimnis - waehrend die Datenschutzerklaerung in §5
+  "einen kurzen, nicht rueckrechenbaren Pruefwert (Hash) deiner IP-Adresse"
+  versprach. Der IPv4-Raum hat 4,3 Milliarden Adressen; eine vollstaendige
+  Tabelle rechnet ein Telefon in Minuten. Jetzt HMAC-SHA-256 mit dem
+  Geheimnis `IP_PEPPER`; §5 sagt, was wirklich passiert, und nennt den
+  Personenbezug nach Art. 4 Nr. 5 DSGVO ausdruecklich.
+
+- **A25 — JEDER ABBRUCH WAR SOFORT EINE GEWERTETE NIEDERLAGE.** Ein Wechsel
+  von WLAN auf Mobilfunk, ein Tunnel, die App drei Sekunden weggedrueckt -
+  `close()` rief `endMatchFor("oppLeft")`, das verrechnete Elo (K=32) und
+  loeschte die Partie. Zugleich war es der bequemste Weg, ein verlorenes
+  Duell zu vermeiden. Fuer Fernpartien gibt es eine Frist, fuer Revanchen
+  eine Frist - nur fuer den haeufigsten Fall gab es keine. Jetzt haelt die
+  Partie **30 Sekunden**: der Gegner bekommt `oppAway` und wartet, die Halle
+  weckt sich per Alarm, und wer zurueckkommt, bekommt sein Match-Paket erneut
+  (dafuer stehen Seed, Regelwerk und Bedenkzeit ab jetzt IN der Partie).
+  Damit das etwas nuetzt, versucht auch der Socket-Client von selbst
+  zurueckzukommen - im Kopf von net.web.js stand "no auto-reconnect (the UI
+  owns that)", und die Oberflaeche tat es nirgends. Im Duell steht solange
+  eine Zeile am Schirm.
+  **Eine bestehende Probe wurde bewusst umgedreht:** "a dropped connection
+  ends the match for the opponent" hielt genau den Fehler fest.
+
+- **A22 — GROESSEN SIND GRENZEN.** `id` und `secret` gingen ungekuerzt in die
+  Spielerzeile: ein Skript konnte die SQLite der Halle mit beliebig langen
+  Kennungen fuellen. Und `queue`/`challenge` legten `maps`, `army` und
+  `armies` ungeprueft in EINEN Blob - ein uebergrosser Eintrag laesst danach
+  jeden Schreibvorgang darauf scheitern und blockiert das Matchmaking fuer
+  ALLE (dieselbe Bauweise wie das Fernpartien-Regal aus A7). Offen bleibt die
+  Ratenbegrenzung fuer `/report` und die HTTP-Admin-Pfade.
+
+- **A20 — CLOUD-REGISTRIEREN OHNE PASSWORT.** Supabase liefert bei
+  eingeschalteter E-Mail-Bestaetigung ein `user`-Objekt OHNE Sitzung - auch
+  fuer eine laengst registrierte Adresse. Geprueft wurde nur auf `user`, und
+  danach setzte `mirror` die lokale Sitzung auf das Konto mit dieser Adresse:
+  auf einem geteilten Geraet genuegte die fremde E-Mail. Jetzt wird nur mit
+  echter Sitzung gespiegelt, und ein oertliches Konto MIT Passwort wird nicht
+  mehr still auf einen Anbieterweg umgeschrieben.
+
+- **A31 — DIE SOCKELFUSS-PROBE LIEF NIE.** Sie brauchte `sharp`, das weder in
+  package.json noch in node_modules liegt; der Zweig wurde uebersprungen und
+  eine Ersatzzeile meldete BESTANDEN. Drei angebliche Pruefungen, null
+  Messungen - waehrend CLAUDE.md behauptete, Proben erzwingen die Bildmitte.
+  Jetzt python3 mit Pillow, ueber ALLE 123 Bilder, und ROT wenn das Werkzeug
+  fehlt. **Beim ersten echten Lauf gefunden:** `painted-queen.webp` sass
+  37 px rechts in der Leinwand - nicht nur der Fuss, die ganze Figur, also
+  rund 7 % neben der Feldmitte; die Kleinfassung genauso. Beide Dateien sind
+  verschoben, nichts neu gemalt (auf der Figur weicht das neu geschriebene
+  Bild im Mittel 3/255 ab, der Alphakanal gar nicht).
+
+- **A30 — DREI LINKS AUF EINEN EINTRAG, DEN ES NICHT GIBT.** Die Landingpage
+  verwies dreimal auf den Play Store, direkt neben dem Satz "bald fuer
+  Android"; jeder Tipp landete auf Googles 404-Seite. Googles
+  Badge-Richtlinien verlangen ausserdem einen echten Zieleintrag. Das
+  Abzeichen bleibt (Besitzerwunsch v1.59.0), die Ziele zeigen bis zur
+  Veroeffentlichung auf `/spielen/` - und drive3 erzwang genau diesen
+  falschen Link, prueft ihn jetzt nur noch mit `STORE_LIVE=1`.
+
+- **A29 — DIE MEER-SCHRANKE SCHICKTE INS LEERE.** Die Tafel sagte, der
+  Kapitaen warte "als Endboss des Wuesten-Kapitels (IX)" und sei der "Meister
+  von Kapitel X" - zwei verschiedene Nummern, beide falsch. Er steht auf
+  einem Nebenweg in Kapitel VI, Station "Zwoelf Tueren", weder Hauptpfad noch
+  Finale. Wer Kapitel XII ohne die Nebenstation erreichte, suchte ihn an zwei
+  Orten, an denen er nie war.
+
+- **T7 entschieden** (Besitzer: "T7 entfaellt"): es gilt "Brett oben, Band
+  darunter". test_layout prueft das jetzt statt der Zentrierung - und dabei
+  kam heraus, dass v1.86.0 die fehlenden esbuild-Loader nur am ERSTEN der
+  drei Harness-Baue nachgezogen hat; die beiden anderen brachen weiter ab,
+  die Suite starb auf halbem Weg, nachdem die Brett-Pruefungen schon gruen
+  gemeldet hatten. Geflickt. Drei Pruefungen im Hofstaat-Abschnitt zaehlen
+  jetzt NULL statt falsch - abgewanderte Selektoren, im Dateikopf als
+  ungemessen festgehalten statt behauptet.
+
 ## 1.90.7 - Mauer, Zaun und Bollwerk sitzen richtig, das Sockelband ist wieder rot-schwarz-blau; drei Luecken in Konten, Halle und Speicher
 
 - **DIE SPERREN SITZEN MITTIG** (Besitzer, 29.9.: "Mauer und Zaun, die bitte

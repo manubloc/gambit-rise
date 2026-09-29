@@ -103,7 +103,7 @@ function mkHall(t0 = 1000) {
 
 // ── resign / disconnect ──────────────────────────────────────────────────────
 {
-  const { hall, last } = mkHall();
+  const { hall, last, tick } = mkHall();   /* tick seit v1.90.8 (A25) */
   hall.handle(null, { t: "hello", id: "a", secret: "s", name: "A", score: 0 });
   hall.handle(null, { t: "hello", id: "b", secret: "s", name: "B", score: 0 });
   hall.handle("a", { t: "queue", maps: ["classic"] });
@@ -115,7 +115,16 @@ function mkHall(t0 = 1000) {
   hall.handle("a", { t: "queue", maps: ["classic"] });
   hall.handle("b", { t: "queue", maps: ["classic"] });
   hall.close("b");
-  ok("a dropped connection ends the match for the opponent", last("oppLeft", "a") !== undefined && hall.player("b").losses === 1 && hall.player("a").wins === 1);
+  /* v1.90.8 (Audit A25): DIESE ERWARTUNG IST BEWUSST GEAENDERT. Bis hierher
+     stand hier "a dropped connection ends the match for the opponent" - und
+     genau das war der Fehler: ein Netzwechsel oder drei Sekunden im
+     Hintergrund kosteten eine gewertete Niederlage. Ein Abbruch beendet die
+     Partie jetzt erst NACH der Gnadenfrist; der Besen erledigt das. */
+  ok("ein Abbruch beendet die Partie NICHT sofort - erst nach der Frist",
+    last("oppLeft", "a") === undefined && hall.player("a").wins === 0);
+  tick(31000); hall.sweepAbwesende();
+  ok("nach der Frist bekommt der Gegner seinen Sieg",
+    last("oppLeft", "a") !== undefined && hall.player("b").losses === 1 && hall.player("a").wins === 1);
 }
 
 // ── rematch: seats swap ──────────────────────────────────────────────────────
@@ -774,6 +783,91 @@ const hmac2 = async (key, data) => { const k = await subtle.importKey("raw", key
   hall.handle("a", { t: "friendRequest", code: "b" });
   hall.handle("c", { t: "friendRespond", id: "a", accept: false });
   ok("A21: ein Dritter kann die Anfrage nicht wegwerfen", (hall.player("b").pending || []).includes("a"));
+}
+
+/* ── v1.90.8 (Audit A25): DIE GNADENFRIST ──────────────────────
+   Jeder Verbindungsabbruch im Live-Duell war sofort eine gewertete
+   Niederlage: close() rief endMatchFor("oppLeft"), das verrechnete Elo und
+   loeschte die Partie. Netzwechsel, Tunnel, App drei Sekunden weggedrueckt -
+   verloren. Und zugleich der einfachste Weg, ein verlorenes Duell zu
+   vermeiden. Jetzt haelt die Partie 30 Sekunden. */
+{
+  const { hall, last, tick } = mkHall();
+  hall.handle(null, { t: "hello", id: "a", secret: "s", name: "A", score: 100 });
+  hall.handle(null, { t: "hello", id: "b", secret: "s", name: "B", score: 100 });
+  hall.handle("a", { t: "queue", maps: ["classic"], army: ["p"] });
+  hall.handle("b", { t: "queue", maps: ["classic"], army: ["q"] });
+  const mid = last("match", "a").matchId;
+  const eloVor = hall.player("b").rating ?? 1000;
+  hall.close("a");
+  ok("A25: die Partie lebt nach dem Abbruch weiter", !!hall.matches[mid]);
+  ok("A25: und ist als abwesend vermerkt", hall.matches[mid].away && hall.matches[mid].away.id === "a");
+  ok("A25: der Gegner erfaehrt es sofort", !!last("oppAway", "b"));
+  ok("A25: aber gewinnt noch nichts", (hall.player("b").rating ?? 1000) === eloVor && !last("oppLeft", "b"));
+  ok("A25: die Halle weckt sich dafuer", hall.nextAlarmAt() === hall.matches[mid].away.until);
+  tick(10000);
+  hall.handle(null, { t: "hello", id: "a", secret: "s", name: "A", score: 100 });
+  ok("A25: wer zurueckkommt, findet seine Partie vor", !!hall.matches[mid] && !hall.matches[mid].away);
+  const wieder = last("match", "a");
+  ok("A25: und bekommt sein Match-Paket erneut - mit Seed, Karte und Seite",
+    wieder && wieder.fortsetzung === true && typeof wieder.seed === "number"
+    && wieder.map === "classic" && (wieder.youAre === "w" || wieder.youAre === "b"));
+  ok("A25: der Gegner erfaehrt die Rueckkehr", !!last("oppBack", "b"));
+}
+{
+  /* Und wer NICHT zurueckkommt, verliert wie zuvor - nur eben spaeter. */
+  const { hall, last, tick } = mkHall();
+  hall.handle(null, { t: "hello", id: "a", secret: "s", name: "A", score: 100 });
+  hall.handle(null, { t: "hello", id: "b", secret: "s", name: "B", score: 100 });
+  hall.handle("a", { t: "queue", maps: ["classic"], army: ["p"] });
+  hall.handle("b", { t: "queue", maps: ["classic"], army: ["q"] });
+  const mid = last("match", "a").matchId;
+  hall.close("a");
+  tick(31000);
+  hall.sweepAbwesende();
+  ok("A25: nach der Frist ist die Partie beendet", hall.matches[mid] === undefined);
+  ok("A25: und der Gegner bekommt seinen Sieg", !!last("oppLeft", "b"));
+  ok("A25: samt Wertung", (hall.player("b").rating ?? 1000) > 1000);
+}
+{
+  /* Zu spaet zurueck heisst zu spaet. */
+  const { hall, last, tick } = mkHall();
+  hall.handle(null, { t: "hello", id: "a", secret: "s", name: "A", score: 100 });
+  hall.handle(null, { t: "hello", id: "b", secret: "s", name: "B", score: 100 });
+  hall.handle("a", { t: "queue", maps: ["classic"], army: ["p"] });
+  hall.handle("b", { t: "queue", maps: ["classic"], army: ["q"] });
+  const mid = last("match", "a").matchId;
+  hall.close("a");
+  tick(31000);
+  hall.handle(null, { t: "hello", id: "a", secret: "s", name: "A", score: 100 });
+  ok("A25: eine abgelaufene Frist laesst sich nicht nachtraeglich retten",
+    hall.matches[mid] && hall.matches[mid].away && hall.matches[mid].away.id === "a");
+}
+
+/* ── v1.90.8 (Audit A22): GROESSEN SIND GRENZEN ────────────────── */
+{
+  const { hall } = mkHall();
+  let geworfen = null;
+  try { hall.handle(null, { t: "hello", id: "x".repeat(200), secret: "s", name: "Lang" }); }
+  catch (e) { geworfen = e.message; }
+  ok("A22: eine uebergrosse Kennung wird abgewiesen", geworfen === "bad hello");
+  geworfen = null;
+  try { hall.handle(null, { t: "hello", id: "y", secret: "s".repeat(500), name: "Lang" }); }
+  catch (e) { geworfen = e.message; }
+  ok("A22: ein uebergrosses Geheimnis ebenso", geworfen === "bad hello");
+  ok("A22: und ein normales hello geht weiterhin durch",
+    hall.handle(null, { t: "hello", id: "z", secret: "kurz", name: "Z" }) === "z");
+}
+{
+  const { hall } = mkHall();
+  hall.handle(null, { t: "hello", id: "a", secret: "s", name: "A", score: 100 });
+  let geworfen = null;
+  try { hall.handle("a", { t: "queue", maps: ["classic"], army: { x: "z".repeat(30000) } }); }
+  catch (e) { geworfen = e.message; }
+  ok("A22: ein uebergrosses Heer kommt nicht in die Warteschlange", geworfen === "payload too large");
+  ok("A22: und die Schlange bleibt heil", hall.queue.length === 0);
+  ok("A22: ein normales Heer geht weiterhin hinein",
+    (hall.handle("a", { t: "queue", maps: ["classic"], army: ["p"] }), hall.queue.length === 1));
 }
 
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);

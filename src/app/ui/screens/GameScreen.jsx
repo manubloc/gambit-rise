@@ -265,6 +265,11 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
     return () => clearTimeout(t);
   }, [erstHinweis]);
   const [desync, setDesync] = useState(false);
+  /* v1.90.8 (Audit A25): "" | "weg" | "ichWeg". Der Gegner ist kurz fort,
+     oder man selbst haengt an einer gerissenen Leitung. Bis hierher war
+     beides derselbe Zustand wie "verloren" - die Halle wertete jeden
+     Abbruch sofort. */
+  const [abwesend, setAbwesend] = useState("");
   const [potionArm, setPotionArm] = useState(false);
   /* v1.0.70: der Brett-Effekt des Augenblicks (Trank-Heilglanz). Transient:
      gesetzt beim Einsatz, nach 1,3 s geraeumt - der Glyph startet ihn ueber
@@ -852,10 +857,18 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
       });
     });
     const u2 = pvp.net.on("oppResign", () => finish("win", "resign"));
-    const u3 = pvp.net.on("oppLeft", () => finish("win", "left"));
+    const u3 = pvp.net.on("oppLeft", () => { setAbwesend(""); finish("win", "left"); });
+    /* v1.90.8 (A25): der Gegner ist WEG, aber nicht fort - die Halle haelt
+       die Partie 30 Sekunden offen. Vorher kam hier sofort oppLeft. */
+    const u6 = pvp.net.on("oppAway", () => setAbwesend("weg"));
+    const u7 = pvp.net.on("oppBack", () => setAbwesend(""));
+    /* Und andersherum: reisst die EIGENE Leitung, versucht der Client von
+       selbst zurueckzukommen (net.web.js). Solange steht es am Schirm. */
+    const u8 = pvp.net.on("close", () => setAbwesend((a) => (a === "weg" ? a : "ichWeg")));
+    const u9 = pvp.net.on("wiederda", () => setAbwesend(""));
     const u4 = pvp.net.on("rated", (m) => { setRated(m); dispatch({ type: "SET_ONLINE", online: { rating: m.rating } }); });
     const u5 = pvp.net.on("rematchOffer", () => setRematch((r) => (r === "wait" ? r : "offer")));
-    return () => { u1(); u2(); u3(); u4(); u5(); };
+    return () => { u1(); u2(); u3(); u4(); u5(); u6(); u7(); u8(); u9(); };
   }, [pvp, state.seed]); // eslint-disable-line
 
   // Undo is no free lunch anymore (v0.19): each take-back burns a
@@ -1143,6 +1156,7 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
               <Chip color={T.gold} bg={T.sel}><JewelIc kind="power" size={12} /> {pvp.oppName}</Chip>
               <Chip color={T.dim} bg={T.sel}>{pvp.oppScore}</Chip>
               {desync && <Chip color={"#b4636c"} bg={T.sel}>{t("online.desync")}</Chip>}
+              {abwesend && <Chip color={"#d9b264"} bg={T.sel}>{t(abwesend === "weg" ? "online.oppAway" : "online.selfAway")}</Chip>}
             </>
             : campaign ? <>
               {/* Stationsname-Pille gestrichen (Besitzer, v0.70.3): die

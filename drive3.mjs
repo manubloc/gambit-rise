@@ -92,7 +92,14 @@ if (AUSLIEFERUNG) {
   }));
   if (seite.zeichen < 200) errors.push(`Landingpage fast leer (${seite.zeichen} Zeichen)`);
   if (!/Gambit/i.test(seite.titel)) errors.push(`Landingpage ohne Titel: "${seite.titel}"`);
-  if (!seite.store) errors.push("Landingpage ohne Verweis auf den Play Store");
+  /* v1.90.8 (Audit A30): der Play-Store-Eintrag existiert noch nicht. Diese
+     Probe erzwang bis hierher genau den Link, der auf Googles 404-Seite
+     fuehrte - eine Probe, die einen Fehler festhaelt. Sie haengt jetzt an
+     einem Schalter: erst wenn der Eintrag live ist (STORE_LIVE=1, Schritt S9
+     im Store-Backlog), wird wieder scharf geprueft. Solange muss statt
+     dessen der Weg ins Spiel da sein - und der wird unten ohnehin geprueft. */
+  if (process.env.STORE_LIVE === "1" && !seite.store)
+    errors.push("Landingpage ohne Verweis auf den Play Store (STORE_LIVE=1)");
   if (!seite.spielen) errors.push("Landingpage ohne Weg nach /spielen/");
   if (!errors.length) console.log(`   Landingpage steht: "${seite.titel.slice(0, 40)}", ${seite.zeichen} Zeichen`);
 

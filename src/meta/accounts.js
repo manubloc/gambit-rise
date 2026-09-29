@@ -352,7 +352,16 @@ export async function upsertCloudAccount({ email, name, provider, isAdmin }) {
     const frei = freierName(list, name || String(email || "").split("@")[0]);
     acc = await mkAccount({ email, pass: null, name: frei, provider }); list.push(acc);
   }
-  acc.provider = provider; acc.isAdmin = acc.isAdmin || !!isAdmin;
+  /* ── v1.90.8 (Audit A20): EIN KONTO MIT PASSWORT BLEIBT EIN KONTO MIT
+     PASSWORT ──────────────────────────────────────────────────────
+     `acc.provider = provider` schrieb ein bestehendes oertliches Konto still
+     auf "email" oder "google" um - und damit die Tuer, durch die man
+     hineinkommt. Wer sein Konto mit Passwort angelegt hat, soll es nicht
+     dadurch verlieren, dass jemand mit derselben Adresse einen Anbieterweg
+     waehlt. Die Kennung als Admin darf weiterhin dazukommen, die ist nicht
+     die Tuer. */
+  if (!acc.passHash) acc.provider = provider;
+  acc.isAdmin = acc.isAdmin || !!isAdmin;
   await writeList(list); await setSession(acc.id);
   return acc;
 }

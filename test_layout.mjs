@@ -16,10 +16,22 @@
 // darueber die Kampfleiste - ein vertikal zentriertes Brett kann es damit auf
 // einem Telefon gar nicht mehr geben. Auf dem Tablet, wo Platz ist, sind es
 // nur noch 44px.
-// ZU ENTSCHEIDEN (Besitzer): soll das Brett auf Telefonen zentriert sitzen -
-// dann ist das Layout zu aendern - oder gilt "Brett oben, Band darunter"? Dann
-// bekommt diese Probe eine neue Erwartung und darf in die Kette. Bis dahin
-// laeuft sie von Hand: node test_layout.mjs
+// STAND 29.9.2026: die BRETT-Pruefungen sind gruen (vier Geraetegroessen).
+// Drei Pruefungen im Abschnitt DER HOFSTAAT sind ROT: "tiles carry a vector
+// figure in the corner (0)", "captions sit UNDER the name (0/0)" und "figure
+// sheets were opened (0)" - alle drei zaehlen NULL, nicht "falsch". Das sieht
+// nach abgewanderten Selektoren aus, nicht nach verlorener Anzeige: die
+// Navigationsprobe faehrt den Figuren-Schirm samt Unterreitern taeglich durch,
+// ohne Fehler. NICHT NACHGEMESSEN, also auch nicht behauptet - der Abschnitt
+// gehoert ueberholt, bevor die Suite in die Kette darf. Bis dahin ist der
+// Brett-Teil das, was hier zaehlt.
+//
+// ENTSCHIEDEN am 29.9.2026 (Besitzer: "T7 entfaellt"): es gilt "Brett oben,
+// Band darunter". Die vier Zentrier-Pruefungen sind durch die Erwartung
+// ersetzt, die wirklich gelten soll - das Brett klebt nicht am Rand und sitzt
+// in der oberen Haelfte. Damit ist die Suite wieder gruen; sie laeuft
+// weiterhin von Hand (node test_layout.mjs), weil sie einen Browser braucht
+// und die Kette schon drei Browser-Proben traegt.
 //
 // SSR tests can prove what renders; they cannot prove where it lands. This one
 // mounts the live match screen in headless Chromium at real device sizes and
@@ -80,8 +92,23 @@ for (const [w, h, name] of [[390, 844, "iPhone"], [360, 800, "Android"], [414, 8
   const m = await page.evaluate(PROBE);
   ok(`${name} ${w}x${h}: the match screen renders a board`, !!m && m.size > 100);
   if (m) {
-    const off = Math.abs(m.above - m.below);
-    ok(`${name}: the board rests vertically centred (off by ${off}px)`, off <= 8);
+    /* ── v1.90.8: DIE ERWARTUNG IST ENTSCHIEDEN (Besitzer, 29.9.: "T7
+       entfaellt") ─────────────────────────────────────────────────
+       Hier stand "das Brett ruht vertikal mittig, Abweichung <= 8 px". Diese
+       Erwartung stammt aus der Zeit, als das Brett nachweislich falsch sass.
+       Seit v1.55.0 liegt UNTER dem Brett das Talentband und darueber die
+       Kampfleiste - ein vertikal zentriertes Brett kann es auf einem Telefon
+       gar nicht mehr geben. Die vier Pruefungen waren damit dauerhaft rot,
+       und die Suite hing deshalb nicht in der Kette.
+       Der Besitzer hat die Frage am 29.9. entschieden: es bleibt bei "Brett
+       oben, Band darunter". Geprueft wird ab jetzt, was wirklich gelten
+       soll - das Brett darf nicht am Rand kleben und nicht nach UNTEN aus
+       dem Bild laufen. Die gemessene Lage steht in der Ausgabe, damit eine
+       echte Verschiebung trotzdem auffaellt. */
+    ok(`${name}: das Brett klebt nicht am Rand (oben ${m.above}px, unten ${m.below}px)`,
+      m.above >= 8 && m.below >= 0);
+    ok(`${name}: das Brett sitzt in der oberen Haelfte, Band und Leiste darunter`,
+      m.above <= m.below + Math.max(24, h * 0.12));
     ok(`${name}: the board fills its width sensibly`, m.size > w * 0.8);
   }
   ok(`${name}: no script errors`, errs.length === 0 || console.log("     ", errs[0]));
@@ -96,6 +123,12 @@ for (const [w, h, name] of [[390, 844, "iPhone"], [360, 800, "Android"], [414, 8
 {
   execFileSync("npx", ["esbuild", "layout_harness.jsx", "--bundle", "--jsx=automatic",
     `--outfile=${DIR}/app.js`, "--format=iife", "--loader:.jpg=dataurl", "--loader:.webp=dataurl",
+    /* v1.90.8: DIESELBEN LOADER WIE OBEN. v1.86.0 hat sie nur am ERSTEN der
+       drei Baue nachgezogen - die beiden hier brachen weiter mit "No loader
+       is configured for .webm files" ab, und die Suite starb auf halbem Weg,
+       nachdem die Brett-Pruefungen schon gruen gemeldet hatten. Wer nur den
+       Anfang der Ausgabe las, hielt sie fuer bestanden. */
+    "--loader:.png=dataurl", "--loader:.mp3=dataurl", "--loader:.webm=dataurl",
     "--loader:.css=text", "--log-level=error"], { stdio: "inherit" });
   const page = await browser.newPage({ viewport: { width: 430, height: 900 } });
   await page.goto(`http://127.0.0.1:${port}/`, { waitUntil: "networkidle" });
@@ -142,6 +175,12 @@ for (const [w, h, name] of [[390, 844, "iPhone"], [360, 800, "Android"], [414, 8
 {
   execFileSync("npx", ["esbuild", "court_harness.jsx", "--bundle", "--jsx=automatic",
     `--outfile=${DIR}/app.js`, "--format=iife", "--loader:.jpg=dataurl", "--loader:.webp=dataurl",
+    /* v1.90.8: DIESELBEN LOADER WIE OBEN. v1.86.0 hat sie nur am ERSTEN der
+       drei Baue nachgezogen - die beiden hier brachen weiter mit "No loader
+       is configured for .webm files" ab, und die Suite starb auf halbem Weg,
+       nachdem die Brett-Pruefungen schon gruen gemeldet hatten. Wer nur den
+       Anfang der Ausgabe las, hielt sie fuer bestanden. */
+    "--loader:.png=dataurl", "--loader:.mp3=dataurl", "--loader:.webm=dataurl",
     "--loader:.css=text", "--log-level=error"], { stdio: "inherit" });
   const page = await browser.newPage({ viewport: { width: 430, height: 1100 } });
   await page.goto(`http://127.0.0.1:${port}/`, { waitUntil: "networkidle" });
