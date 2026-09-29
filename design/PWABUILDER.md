@@ -4,6 +4,8 @@ Kurzfassung für den Tag, an dem du es machst. Die lange Fassung mit allem
 Drumherum steht in `PLAYSTORE.md`; hier steht nur, was du klickst.
 
 Du brauchst: einen Rechner mit Browser. Kein Android-SDK, kein Java.
+**Und den Uploadschlüssel, der in der Console schon registriert ist** —
+siehe Abschnitt 3a, bevor du auf Generate klickst.
 
 ---
 
@@ -38,10 +40,52 @@ Im Dialog auf **All Settings** / **Advanced** klappen und gegenprüfen:
 | Icon URL | `https://gambitrise.com/spielen/icons/maskable-512.png` |
 | Maskable icon URL | dieselbe |
 | Notifications | an |
-| Signing key | **Create new** |
+| Signing key | **NICHT einfach Create new** — erst Abschnitt 3a lesen |
 
 **Start URL `/spielen/` ist Pflicht.** Steht dort `/`, landet die App auf der
 Landingpage statt im Spiel.
+
+> **Gemessen am 29.9.2026 (dist nach `npm run build`):** die Wurzel liefert
+> `/site.webmanifest` mit `start_url: "/spielen/"` — PWABuilder füllt den
+> Startpfad also von selbst richtig aus. Die Icons (`/icons/icon-192.png`,
+> `…/maskable-512.png`) liegen an der Wurzel UND unter `/spielen/icons/`,
+> beide Wege tragen. Der einzige Unterschied: das Wurzel-Manifest hat
+> `scope: "/"`, das App-Manifest `scope: "./"` (also `/spielen/`). Mit
+> Scope `/` öffnet die Hülle auch die Landingpage in der App statt im
+> Browser — unschädlich, aber wissen sollte man es.
+
+## 3a. DER SCHLÜSSEL — hier wird es unumkehrbar
+
+**In der Play Console ist bereits ein Uploadschlüssel registriert** (S5,
+gemessen am 29.9.: unter *App-Integrität → App-Signatur* stehen BEIDE
+Zertifikate — Googles App-Signaturschlüssel `D9:2D:FB:…:A8:F6` und der
+Uploadschlüssel `00:4B:29:…:E6:52`). Eine `.aab`, die mit einem NEU
+erzeugten Schlüssel signiert ist, weist Google beim Hochladen ab.
+
+Bis v1.90.12 stand in der Tabelle oben „Create new". Das war falsch und
+hätte einen halben Tag gekostet — die Zeile ist berichtigt. Drei Fälle:
+
+1. **Der alte Keystore liegt noch vor** (Passwortmanager, alter Rechner,
+   altes ZIP): in PWABuilder **Use mine** wählen und ihn samt Passwort und
+   Alias hochladen. Das ist der schnelle Weg.
+2. **Er ist fort:** bei Google einen **Reset des Uploadschlüssels**
+   beantragen (Play Console → App-Integrität → App-Signatur). Dauert ein paar
+   Tage. Danach mit dem NEUEN Schlüssel bauen — und `assetlinks.json`
+   nachziehen, denn der Abdruck ändert sich.
+3. **Unklar:** erst in der Console nachsehen, NICHT auf gut Glück bauen.
+
+Gemessen am 29.9.: unter `~/.gambit/` liegt auf dem Cloud-Rechner **kein**
+Keystore, und im Repo (richtigerweise) auch keiner. Wo der alte liegt, weiß
+nur der Besitzer.
+
+> **Warum das Paket nicht aus der Cloud-Sitzung kommen kann** (gemessen
+> 29.9.): Bubblewrap braucht das Android-SDK von `dl.google.com`, ein JDK von
+> `api.adoptium.net` und Gradle von `services.gradle.org`. Alle drei weist
+> der Egress-Proxy des Containers ab (die Verbindung kommt gar nicht zustande,
+> während `github.com` und die Paketregister antworten). Java 21 und
+> `keytool` sind zwar da, das SDK nicht. Der Weg über **pwabuilder.com im
+> Browser** braucht genau deshalb keinen Werkzeugkasten — er baut auf deren
+> Rechnern.
 
 ## 4. Herunterladen
 

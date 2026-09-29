@@ -102,12 +102,39 @@
   („Einige Sprachen sind fehlerhaft"). Entfernt; UK-Nutzer sehen ohnehin den
   en-US-Eintrag.
 
-- [ ] **S4 Android-Paket bauen.** Nach `design/PWABUILDER.md`: Adresse
-  `https://gambitrise.com/spielen/`, Paket `com.gambitrise.app`, App- und
-  Launcher-Name „Gambit Rise", Signaturschlüssel **neu erzeugen lassen**.
+- [ ] **S4 Android-Paket bauen — DER EINZIGE BLOCKER FÜR DEN INTERNEN TEST.**
+  Nach `design/PWABUILDER.md` über <https://www.pwabuilder.com>: Adresse
+  `https://gambitrise.com`, Paket `com.gambitrise.app`, App-Name
+  „Gambit Rise", Launcher „Gambit", Startpfad `/spielen/`.
+
+  **⚠ Der Signaturschlüssel darf NICHT neu erzeugt werden** (berichtigt
+  29.9.2026). Hier stand „neu erzeugen lassen", und in PWABUILDER.md stand
+  „Create new" — beides falsch: in der Console ist bereits ein
+  **Uploadschlüssel registriert** (S5, sein Zertifikat steht dort). Eine
+  `.aab` mit einem neuen Schlüssel wird beim Hochladen abgewiesen. Liegt der
+  alte Keystore vor → in PWABuilder „Use mine". Ist er fort → bei Google
+  einen **Reset des Uploadschlüssels** beantragen (ein paar Tage) und danach
+  `assetlinks.json` nachziehen. Siehe `PWABUILDER.md` Abschnitt 3a.
+
   **Den Schlüssel sofort doppelt sichern** (Passwortmanager + zweiter Ort) —
   ohne ihn ist nie wieder ein Update der Hülle möglich. Das ist der einzige
   Schritt auf dieser Liste, der sich nicht nachholen lässt.
+
+  **Aus einer Cloud-Sitzung geht das nicht** (gemessen 29.9.): Bubblewrap
+  braucht das Android-SDK von `dl.google.com`, ein JDK von `api.adoptium.net`
+  und Gradle von `services.gradle.org` — alle drei weist der Egress-Proxy des
+  Containers ab. Java 21 und `keytool` sind da, das SDK nicht. Darum der Weg
+  über pwabuilder.com im Browser; der braucht keinen Werkzeugkasten.
+
+- [ ] **S4b Interner Test starten** — nach S4 eine Sache von Minuten und
+  **ohne Google-Prüfung**: Play Console → Testen und Veröffentlichen →
+  *Interner Test* → Neue Version erstellen → `.aab` hineinziehen →
+  Versionshinweise → Veröffentlichung starten. Dann unter *Tester* die
+  eigene Google-Adresse eintragen und den Opt-in-Link am Handy öffnen.
+  Alles dafür Nötige steht: App-Inhalte vollständig (S1, S2),
+  Store-Eintrag beide Sprachen (S3), Löschseite live (S15).
+  Die Pflichtuhr „12 Tester, 14 Tage" (S8) gilt für den GESCHLOSSENEN
+  Test — der interne Test ist davon frei und kann sofort laufen.
 
 - [x] **S5 Fingerabdrücke abgeglichen — ERLEDIGT 29.9.2026.**
   `public/.well-known/assetlinks.json` trug bis heute zwei **Platzhalter**.
