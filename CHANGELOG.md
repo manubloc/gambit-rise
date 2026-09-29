@@ -1,5 +1,62 @@
 # Changelog - Gambit Rise
 
+## 1.90.9 - die Fallen sind gebaut: Spitzgrube und Baerenfalle liegen, schnappen zu und kosten den Gegner etwas
+
+**A32 — DIE FALLEN GAB ES NUR AUF DEM PAPIER.** Bis v1.90.8 standen in
+`core/rules/sperren.js` der Datentyp `FALLEN_ARTEN` und die reine Funktion
+`loeseFalleAus`. `transitions.js` importierte sie - und rief sie NIRGENDS
+auf. `state.fallen` wurde an keiner Stelle gefuellt: weder Gegenstand noch
+Setzen noch Wirkung. CLAUDE.md fuehrte sie jahrelang als gebaut; erst am
+27.9. fiel es im Audit auf, am 29.9. ist es behoben. Besitzerentscheid:
+"Die Fallen koennen und sollten wir noch bauen."
+
+Was jetzt steht:
+
+- **BEIM KRAEMER.** Die **Baerenfalle** liegt frueh im Laden (ab 5 geklaerten
+  Stationen, also Kapitel II/III - ausdruecklicher Besitzerwunsch), die
+  **Spitzgrube** spaeter (ab 7): sie macht Schaden, und Schaden gehoert in
+  eine Hand, die schon weiss, was er anrichtet. Die Preise stehen NUR in
+  `FALLEN_ARTEN`, nicht zweimal - dieselbe Regel wie bei den Sperren.
+
+- **GELEGT WIRD VOR DEM ERSTEN ZUG**, in derselben Setzphase wie die Sperren:
+  dritte und vierte eigene Reihe, nochmal antippen nimmt zurueck. Aber mit
+  **eigener Grenze** (`MAX_FALLEN = 2`) - wer zwei Mauern stehen hat, darf
+  trotzdem zwei Fallen legen. Eine Sperre und eine Falle teilen kein Feld:
+  eine Falle unter einer Mauer betritt nie jemand.
+
+- **VERDECKT SIEHT SIE NUR, WER SIE LEGTE** - die Regel dafuer (`falleSichtbar`)
+  gab es seit v0.90, jetzt fragt das Brett sie auch. Nach dem Zuschnappen
+  liegt sie offen fuer alle.
+
+- **AUSGELOEST WIRD IN `altern()`**, dem gemeinsamen Ausgang JEDES Zuges - nicht
+  in applyMove. Eine Falle, die nur beim gewoehnlichen Zug ausloest, waere
+  beim Drachenschritt, beim Durchbruch und beim Blinzeln wirkungslos, und
+  genau diese Zuege traegt das Spiel zuhauf. Ausloesen kann nur der **Gegner**
+  dessen, der sie legte: ueber die eigene laeuft man hinweg, sonst waere es
+  kein Hinterhalt, sondern ein Minenfeld im Wohnzimmer.
+
+- **WAS SIE TUN.** Spitzgrube: 2 Schaden; ist es toedlich, zaehlt die Figur wie
+  jede geschlagene (sonst verschwaende sie spurlos aus dem Material), und die
+  HP-Remis-Uhr springt auf 0 - Schaden ist Schaden, auch aus dem Boden.
+  Baerenfalle: kein Schaden, die Figur sitzt fest und setzt ihren naechsten
+  Zug aus. Der Marker sitzt an der FIGUR (`fesselBis`), nicht am Feld - sie
+  schleppt das Eisen ja mit -, und `pieceMoves` bietet ihr dann gar nichts an,
+  fuer jede Gangart.
+
+- **NUR IM HP-GEFECHT.** Schaden und Fessel brauchen Lebenspunkte und einen
+  Zugzaehler; im reinen Schach gibt es beides nicht. Dieselbe Grenze, die
+  schon fuer die Sperren gilt.
+
+- **GEMALT GIBT ES SIE NOCH NICHT.** `FalleGlyph` zeichnet sie bis dahin in
+  derselben Hand wie Zaun und Bollwerk (mattes Holz, Erde, Laub, dunkles
+  Eisen), flach liegend und unter der Figur. Die vier Prompts liegen fertig
+  in `design/BRETT-OBJEKTE.md` - im wortgleichen Stilblock wie Mauer und
+  Zaun, damit die Optik zwangslaeufig gleich bleibt.
+
+**Gegengeprueft:** 27 neue Pruefungen in test_sperren, gegen den Stand von
+v1.90.8 bricht die Datei schon beim Import ab - die Funktionen gab es
+einfach nicht. Das ist die deutlichste Gegenprobe der ganzen Reihe.
+
 ## 1.90.8 - der Signaturschluessel, der IP-Pruefwert, die Gnadenfrist - und eine Dame, die 37 px daneben stand
 
 **ZUM SELBST ERLEDIGEN (Besitzer):** `npx wrangler secret put IP_PEPPER` mit

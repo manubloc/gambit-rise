@@ -4,7 +4,9 @@ import { klang, klangVorwaermen, klangEinstellen } from "../klang.js";
 import { musikBereich } from "../musik.js";
 import { geleitTauschbar, geleitCommand } from "../../../core/index.js";   /* v1.86.0: ueber das Barrel */
 import { WHITE, BLACK, createGame, reduce, moveCommand, potionCommand, shiftCommand, status, undo, encodeState, decodeState, HP_REMIS_HALBZUEGE, VALUE,
-  SPERR_ARTEN, MAX_SPERREN, setzFelder as sperrFelder, setzeSperre, nimmSperre, sperrenAnzahl } from "../../../core/index.js";
+  SPERR_ARTEN, MAX_SPERREN, setzFelder as sperrFelder, setzeSperre, nimmSperre, sperrenAnzahl,
+  /* v1.90.9 (Audit A32): die Fallen. Dieselbe Setzphase, andere Regeln. */
+  FALLEN_ARTEN, MAX_FALLEN, fallenFelder, legeFalle, nimmFalle, fallenAnzahl } from "../../../core/index.js";
 import { difficultyById, mapById, MAPS, campaignTag, chapterForRow, CHARACTERS as CHARACTERS_BY_ID, voiceFor, ITEMS, KIND_TO_CHAR, nodeById } from "../../../content/index.js";
 import { buildArmy, buildAiArmyForMap, buildArmyFromFormation, hasForesight, applyResult, summarizeMatch, mapUnlocked, hpUnlocked, winGold, characterLevel, gambitTier, itemRevealed, clearedCount, SP_VAULT_MIN_CLEARED } from "../../../meta/index.js";
 import { chooseMove } from "../../../ai/index.js";
@@ -320,9 +322,14 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
      Schach sein will) bleibt das Brett leer. Und eine fortgesetzte Partie
      hat ihre Sperren laengst stehen. */
   const sperrenErlaubt = !pvp && !daily && !hotseat && !classic && !resume;
+  /* v1.90.9 (Audit A32): Fallen liegen im SELBEN Vorrat wie die Sperren -
+     es ist dieselbe Setzphase vor dem ersten Zug, und zwei getrennte Waehler
+     waeren zwei Bedienungen fuer eine Handlung. Unterschieden wird an der
+     Art: was in FALLEN_ARTEN steht, ist eine Falle. */
+  const istFalle = (art) => !!FALLEN_ARTEN[art];
   const [vorrat, setVorrat] = useState(() => {
     const v = {};
-    if (sperrenErlaubt) for (const art of Object.keys(SPERR_ARTEN)) {
+    if (sperrenErlaubt) for (const art of [...Object.keys(SPERR_ARTEN), ...Object.keys(FALLEN_ARTEN)]) {
       const n = profile.items?.[art] || 0;
       if (n > 0) v[art] = n;
     }
@@ -337,12 +344,19 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
   const sperrenVerbrauchtRef = useRef((() => {
     const z = {};
     for (const sp of Object.values(state.sperren || {})) if (sp?.von === WHITE) z[sp.art] = (z[sp.art] || 0) + 1;
+    for (const f of Object.values(state.fallen || {})) if (f?.von === WHITE) z[f.art] = (z[f.art] || 0) + 1;
     return z;
   })());
   const vorratLeer = Object.values(vorrat).every((n) => !n);
   /* Die Felder kommen aus dem Regelwerk, nicht aus dem Schirm: dieselbe
      Wahrheit, die auch der Netzcode spaeter lesen wird. */
-  const setzbar = useMemo(() => (setzen && !vorratLeer ? sperrFelder(state, WHITE) : []), [setzen, state, vorratLeer]);
+  /* Welche Felder JETZT in Frage kommen, haengt davon ab, WAS gewaehlt ist:
+     eine Falle darf auch dort liegen, wo schon zwei Sperren stehen, und
+     umgekehrt. Beide Listen kommen aus dem Regelwerk. */
+  const setzbar = useMemo(() => {
+    if (!setzen || vorratLeer || !sperrWahl) return [];
+    return istFalle(sperrWahl) ? fallenFelder(state, WHITE) : sperrFelder(state, WHITE);
+  }, [setzen, state, vorratLeer, sperrWahl]);   // eslint-disable-line
   useEffect(() => {
     const stand = Object.entries(state.sperren || {})
       .map(([i, sp]) => `${i}:${sp?.art}:${sp?.hp}`).sort().join("|");
@@ -366,6 +380,30 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
   }, [state.sperren]);   // eslint-disable-line
 
   function setzeOderNimm(i) {
+    /* v1.90.9 (A32): erst nachsehen, ob dort schon eine FALLE liegt - eine
+       gelegte, noch nicht ausgeloeste nimmt man genauso zurueck wie eine
+       Mauer. Eine fremde oder bereits zugeschnappte bleibt liegen. */
+    const liegt = state.fallen?.[i];
+    if (liegt && !liegt.offen) {
+      if (liegt.von !== WHITE) return;
+      setState((s) => ({ ...s, fallen: nimmFalle(s.fallen, i) }));
+      setVorrat((v) => ({ ...v, [liegt.art]: (v[liegt.art] || 0) + 1 }));
+      if (!sperrWahl) setSperrWahl(liegt.art);
+      try { klang("wahl"); } catch {}
+      return;
+    }
+    if (sperrWahl && istFalle(sperrWahl)) {
+      if (!(vorrat[sperrWahl] > 0)) return;
+      setState((s) => {
+        const neu = legeFalle(s, i, sperrWahl, WHITE);
+        if (neu === s.fallen) return s;              // Regel sagt nein
+        setVorrat((v) => ({ ...v, [sperrWahl]: v[sperrWahl] - 1 }));
+        return { ...s, fallen: neu };
+      });
+      /* Eine Falle wird LEISE gelegt - kein Stein auf Holz. */
+      try { klang("wahl"); } catch {}
+      return;
+    }
     const steht = state.sperren?.[i];
     if (steht) {
       if (steht.von !== WHITE) return;                 // fremde Mauer bleibt stehen
@@ -393,6 +431,9 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
   function setzenFertig() {
     const zaehlung = {};
     for (const s of Object.values(state.sperren || {})) if (s?.von === WHITE) zaehlung[s.art] = (zaehlung[s.art] || 0) + 1;
+    /* v1.90.9 (A32): gelegte Fallen kosten genauso - wer nichts legt, zahlt
+       nichts, aber was liegt, ist verbraucht. */
+    for (const f of Object.values(state.fallen || {})) if (f?.von === WHITE) zaehlung[f.art] = (zaehlung[f.art] || 0) + 1;
     sperrenVerbrauchtRef.current = zaehlung;
     setSetzen(false);
   }
@@ -1367,8 +1408,21 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
             Balken zeigt, was im Bündel liegt, und gibt das Brett erst frei,
             wenn der Spieler es sagt. */}
         {setzPhase && (() => {
-          const gesetzt = sperrenAnzahl(state.sperren, WHITE);
-          const arten = Object.keys(SPERR_ARTEN).filter((a) => (vorrat[a] || 0) > 0 || state.sperren && Object.values(state.sperren).some((s) => s?.von === WHITE && s.art === a));
+          const gesetzt = sperrenAnzahl(state.sperren, WHITE) + fallenAnzahl(state.fallen, WHITE);
+          /* v1.90.9 (A32): Sperren UND Fallen stehen in derselben Leiste -
+             es ist dieselbe Handlung vor demselben Zug. Gezeigt wird eine
+             Art, wenn sie im Vorrat liegt ODER schon auf dem Brett steht
+             (sonst verschwaende der Waehler, sobald man die letzte setzt und
+             sie wieder aufnehmen will). */
+          const artVorhanden = (a, wo) => (vorrat[a] || 0) > 0
+            || (wo && Object.values(wo).some((x) => x?.von === WHITE && x.art === a));
+          const arten = [
+            ...Object.keys(SPERR_ARTEN).filter((a) => artVorhanden(a, state.sperren)),
+            ...Object.keys(FALLEN_ARTEN).filter((a) => artVorhanden(a, state.fallen)),
+          ];
+          const nameVon = (a) => (istFalle(a)
+            ? (en ? FALLEN_ARTEN[a].nameEn : FALLEN_ARTEN[a].nameDe)
+            : (en ? SPERR_ARTEN[a].nameEn : SPERR_ARTEN[a].nameDe));
           /* GEMESSEN (v1.0.63): als der Balken noch IM Brettkasten hing
              (position:absolute, bottom 6), verdeckte er auf einem 390er
              Telefon 128 px des Bretts - darunter zwei Drittel der dritten
@@ -1382,7 +1436,12 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
             <div className="gg-serif" style={{ fontSize: 11.5, letterSpacing: ".14em", textTransform: "uppercase",
               color: T.goldBright, textAlign: "center" }}>{t("sperre.title")}</div>
             <div className="gg-serif" style={{ fontSize: 11, color: T.dim, lineHeight: 1.45, textAlign: "center", marginTop: 2 }}>
-              {t("sperre.hint", { n: MAX_SPERREN })}</div>
+              {t("sperre.hint", { n: MAX_SPERREN })}
+              {/* v1.90.9 (A32): die Fallen haben ihre EIGENE Grenze - wer
+                  zwei Mauern stehen hat, darf trotzdem zwei Fallen legen.
+                  Steht nur da, wenn ueberhaupt eine im Buendel liegt. */}
+              {Object.keys(FALLEN_ARTEN).some((a) => (vorrat[a] || 0) > 0) && (
+                <div style={{ marginTop: 2 }}>{t("falle.hint", { n: MAX_FALLEN })}</div>)}</div>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 8, flexWrap: "wrap" }}>
               {arten.map((a) => {
                 const n = vorrat[a] || 0;
@@ -1394,7 +1453,7 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
                     border: `1.5px solid ${an ? T.gold : `${T.gold}44`}` }}>
                   <ItemIcon id={a} size={20} />
                   <span style={{ fontSize: 12, fontWeight: 800, color: an ? T.goldBright : T.dim }}>
-                    {en ? SPERR_ARTEN[a].nameEn : SPERR_ARTEN[a].nameDe} · {n}</span>
+                    {nameVon(a)} · {n}</span>
                 </button>;
               })}
             </div>

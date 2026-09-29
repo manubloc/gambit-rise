@@ -76,6 +76,60 @@ function altern(ns) {
     const s = zerfalleSperren(ns.sperren, ns.moveCount || 0);
     if (s !== ns.sperren) ns.sperren = s;
   }
+  /* ── DIE FALLE SCHNAPPT ZU (v1.90.9, Audit A32) ─────────────────
+     loeseFalleAus gab es seit v0.90 - aufgerufen hat sie niemand. Sie steht
+     hier und nicht in applyMove, aus demselben Grund wie die Buende
+     darunter: altern() ist der gemeinsame Ausgang JEDES Zuges. Eine Falle,
+     die nur beim gewoehnlichen Zug ausloest, waere beim Drachenschritt, beim
+     Durchbruch und beim Blinzeln wirkungslos - und genau diese Zuege traegt
+     das Spiel zuhauf.
+
+     WER AUSLOEST: nur der GEGNER dessen, der sie gelegt hat. Ueber die
+     eigene Falle laeuft man hinweg; sonst muesste man sich seine eigene
+     dritte Reihe merken, und das waere kein Hinterhalt, sondern ein
+     Minenfeld im Wohnzimmer.
+
+     WAS SIE TUT: die Spitzgrube macht Schaden (2), die Baerenfalle fesselt.
+     Beides braucht Lebenspunkte bzw. einen Zugzaehler - im REINEN Schach
+     gibt es weder das eine noch das andere, darum loest dort nichts aus.
+     Dieselbe Grenze wie bei den Sperren.
+
+     GEFESSELT heisst: DIESE Figur setzt einen Zug aus. Der Marker sitzt an
+     der Figur (fesselBis), nicht am Feld - sie schleppt die Falle ja mit,
+     und moves.js liest ihn beim Zugangebot. */
+  if (ns.rules === "hp" && ns.fallen && ns.lastMove && ns.lastMove.to != null) {
+    const zielF = ns.lastMove.to;
+    const f = ns.fallen[zielF];
+    const opfer = ns.board[zielF];
+    if (f && !f.offen && opfer && opfer.color !== f.von) {
+      const { fallen, wirkung } = loeseFalleAus(ns.fallen, zielF);
+      if (wirkung) {
+        ns.fallen = fallen;
+        if (wirkung.schaden > 0 && opfer.maxHp != null) {
+          const neuHp = (opfer.hp ?? opfer.maxHp) - wirkung.schaden;
+          if (neuHp > 0) {
+            ns.board[zielF] = { ...opfer, hp: neuHp };
+          } else {
+            /* Toedlich: die Figur bleibt in der Grube. Sie zaehlt wie jede
+               andere geschlagene Figur - sonst verschwaende sie spurlos aus
+               dem Material. */
+            ns.board[zielF] = null;
+            ns.captured = { ...ns.captured,
+              [opfer.color]: [...(ns.captured?.[opfer.color] || []), opfer.kind] };
+          }
+          ns.ohneSchaden = 0;   // Schaden ist Schaden, auch aus dem Boden
+        }
+        if (wirkung.fessel > 0 && ns.board[zielF]) {
+          /* +2 Halbzuege: der naechste eigene Zug dieser Seite faellt fuer
+             diese Figur aus, der uebernaechste geht wieder. */
+          ns.board[zielF] = { ...ns.board[zielF], fesselBis: (ns.moveCount || 0) + 2 };
+        }
+        ns.lastMove = { ...ns.lastMove, falle: { art: wirkung.art, feld: zielF,
+          schaden: wirkung.schaden || 0, fessel: wirkung.fessel || 0 } };
+      }
+    }
+  }
+
   /* ── WAS NACH JEDEM ZUG GESCHIEHT (v1.10.3) ──────────────────────────────
      altern() ist der gemeinsame Ausgang JEDES Zuges - Schlag, Gleiten,
      Sonderzug, alle laufen hier durch. Deshalb stehen die Buende hier, die

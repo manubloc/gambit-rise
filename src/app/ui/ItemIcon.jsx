@@ -7,7 +7,7 @@ import { ICON_ART } from "./art.generated.js";
 import { itemArt } from "./assets/items/itemArt.js";
 import { schlichtAn } from "./board/paintedArt.js";
 import { sperrBild } from "./board/sperrenArt.js";
-import { SperrVektor } from "./board/sperrenVektor.jsx";
+import { SperrVektor, FalleVektor } from "./board/sperrenVektor.jsx";
 import { ITEMS } from "../../content/index.js";
 
 export function ItemIcon({ id, size = 22, style = null }) {
@@ -29,6 +29,13 @@ export function ItemIcon({ id, size = 22, style = null }) {
         filter: "drop-shadow(0 1px 2px rgba(0,0,0,.45))", ...style }} />;
   }
   if (sperrArt) return <SperrVektor art={sperrArt} zustand="heil" size={size} style={style} />;
+  /* v1.90.9 (Audit A32): dasselbe fuer die Fallen. Sie zeigen ihre VERDECKTE
+     Fassung - das ist es, was der Spieler kauft und aufs Brett legt; die
+     aufgerissene sieht er erst, wenn jemand hineingetreten ist. Ein Emoji
+     im Buendel waere die einzige Stelle im Haus, an der ein Systemzeichen
+     fuer ein Spielstueck steht (siehe oben). */
+  const fallenArt = ITEMS[id]?.falle || null;
+  if (fallenArt) return <FalleVektor art={fallenArt} offen={false} size={size} style={style} />;
   const art = ICON_ART[id];
   if (!art) return <span style={{ fontSize: size * 0.86, ...style }}>{ITEMS[id]?.emoji || "❔"}</span>;
   return <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden="true"

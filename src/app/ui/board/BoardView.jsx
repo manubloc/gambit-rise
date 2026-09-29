@@ -6,10 +6,10 @@ const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : use
 import { T } from "../theme.js";
 import { FILES, RANKS, idx, legalMovesFrom, inCheck, findKing } from "../../../core/index.js";
 import { gespart } from "../sparmodus.js";
-import { SperrGlyph } from "./SperrGlyph.jsx";
+import { SperrGlyph, FalleGlyph } from "./SperrGlyph.jsx";
 import { animAn, schlagArt } from "../anim.js";
 import { ABILITIES, TAGS } from "../../../content/abilities.js";
-import { PASSIVE_TALENTE, stadium } from "../../../core/index.js";   /* v1.86.0: ueber das Barrel, nicht in die Innereien */
+import { PASSIVE_TALENTE, stadium, falleSichtbar } from "../../../core/index.js";   /* v1.86.0: ueber das Barrel, nicht in die Innereien */
 import { PieceGlyph, StatTriad } from "./PieceGlyph.jsx";
 import { BrettRahmen, lageAusBrett } from "./BrettRahmen.jsx";
 import { PieceArt } from "./PieceArt.jsx";
@@ -583,6 +583,11 @@ export function BoardView({ lang = "de", state, onMove, interactive, lastMove, m
       /* v1.0.46: was auf DIESEM Feld an Sperre steht. Aus dem Zustand gelesen,
          nicht gehalten - so kann sie nicht veralten. */
       const sperreHier = state?.sperren ? state.sperren[i] : null;
+      /* v1.90.9 (Audit A32): die Falle sieht nur, wer sie legte - bis sie
+         zuschnappt. Die Regel steht in core/rules/sperren.js und wird hier
+         GEFRAGT, nicht nachgebaut: `falleSichtbar(f, pov)`. */
+      const falleRoh = state?.fallen ? state.fallen[i] : null;
+      const falleHier = falleRoh && falleSichtbar(falleRoh, pov) ? falleRoh : null;
       cells.push(
         <div key={i} data-zelle={i} onClick={() => tap(i)} style={{ position: "relative",
           // the flat colour + a soft diagonal light stand INSTANTLY — no loading
@@ -806,6 +811,7 @@ export function BoardView({ lang = "de", state, onMove, interactive, lastMove, m
               es Bilder gibt. Steht hier VOR der Figur, damit Truemmer unter
               ihr liegen; eine heile Mauer und eine Figur teilen sich ohnehin
               nie ein Feld, weil die Mauer den Zug aufhaelt. */}
+          {falleHier && <FalleGlyph art={falleHier.art} offen={!!falleHier.offen} ruhig={ruhig} />}
           {sperreHier && <SperrGlyph art={sperreHier.art} zustand={stadium(sperreHier)} ruhig={ruhig} />}
           {hpMode && <Zustaende piece={piece} feld={i} state={state} ruhig={ruhig} en={lang === "en"} />}
           {/* v1.0.14 (Besitzer): DER SPRINGER LANDET HOERBAR SICHTBAR - ein

@@ -39,14 +39,14 @@ gambitrise.com zeigt darauf).
   pruefe-navigation, pruefe-textfluss, test_layout) lesen den Chromium-Pfad aus
   `PW_CHROMIUM`; ohne die Variable gilt der Pfad des Cloud-Containers. Lokal:
   `npx playwright install chromium` und `PW_CHROMIUM=<Pfad zur chrome-Datei>`.
-- `npm test` — volle Batterie. MUSS **28 Suiten / 2236 Prüfungen** melden
-  (Stand v1.90.8; der Runner stoppt nach der ersten roten Suite, also
+- `npm test` — volle Batterie. MUSS **28 Suiten / 2263 Prüfungen** melden
+  (Stand v1.90.9; der Runner stoppt nach der ersten roten Suite, also
   Suitenzahl prüfen, nicht nur Assertions! Zählweise: alle Zeilen
   `RESULT…: N passed` summieren — test_balance meldet zwei, darum stehen im
   Log 29 RESULT-Zeilen für 28 Suiten). **Seit v1.89.9 läuft
   `tools/pruefe-bezeichner.mjs` in der Batterie mit**, direkt hinter
   `npm run ui` (dort entsteht das Bundle `.uitest.mjs`, das die Probe liest).
-  Sie gibt KEINE RESULT-Zeile aus — die Zählung bleibt also bei 28/2236 —,
+  Sie gibt KEINE RESULT-Zeile aus — die Zählung bleibt also bei 28/2263 —,
   bricht die Kette aber, sobald im Bundle ein freier Bezeichner auftaucht.
   Das ist die Klasse der Abstürze A3/A4: gültiges JavaScript, das erst beim
   Rendern als ReferenceError hochgeht.
@@ -224,13 +224,24 @@ v1.0.62 und führte längst Gebautes als offen): Sperren kaufen/setzen
 Onboarding-Treppe (auf Tooltips umgestellt) · HP-Remis (120 Halbzüge in
 `core/domain/constants.js`) · erste Aura.
 
-**NICHT erledigt, obwohl es hier bis v1.89.0 so stand** (Audit A32, am
-29.9. nochmals am Code nachgemessen): von den **Fallen** (Spitzgrube,
-Bärenfalle) gibt es **nur den Datentyp und die reine Funktion**
-`loeseFalleAus` in `core/rules/sperren.js`. `core/sim/transitions.js`
-importiert sie, ruft sie aber nirgends auf — und `state.fallen` wird an
-keiner Stelle gefüllt: **es gibt weder einen Gegenstand im Lager noch ein
-Setzen auf dem Brett.** Die frühere Zeile hier („Kaufen und Stellen geht,
-Wirkung gibt es keine") war ebenfalls zu freundlich. Eine Store-Beschreibung
-darf Fallen deshalb nicht nennen. Bauen heißt: Gegenstand, Setzzug,
-Darstellung und Auslösen — Besitzerentscheid, Aufwand M.
+**Die Fallen sind seit v1.90.9 GEBAUT** (Audit A32, Besitzerentscheid vom
+29.9.: „Die Fallen können und sollten wir noch bauen"). Vorher gab es nur den
+Datentyp und die reine Funktion `loeseFalleAus`, die niemand aufrief — und
+`state.fallen` wurde nirgends gefüllt; CLAUDE.md führte sie trotzdem
+jahrelang als fertig. Was jetzt steht:
+- **Gegenstand:** `baerenfalle` (ab 5 geklärten Stationen, also Kapitel II/III
+  — Besitzerwunsch) und `grube` (ab 7, weil sie Schaden macht). Preise stehen
+  NUR in `FALLEN_ARTEN`, nicht zweimal.
+- **Legen:** dieselbe Setzphase wie die Sperren, dritte und vierte eigene
+  Reihe, **eigene Grenze** `MAX_FALLEN = 2` (zwei Mauern und zwei Fallen gehen
+  also zusammen). Zurücknehmen wie bei einer Mauer.
+- **Auslösen:** in `altern()`, dem gemeinsamen Ausgang JEDES Zuges — sonst
+  wäre die Falle beim Drachenschritt, Durchbruch und Blinzeln wirkungslos.
+  Nur der **Gegner** löst aus, nur im **HP-Gefecht** (Schaden und Fessel
+  brauchen Lebenspunkte). Grube: 2 Schaden, tödlich zählt als Schlag.
+  Bärenfalle: `fesselBis` an der Figur, `pieceMoves` bietet dann nichts an.
+- **Darstellung:** `FalleGlyph` (liegt flach, unter der Figur); verdeckt sieht
+  sie nur, wer sie legte (`falleSichtbar`). **Gemalt gibt es sie noch nicht**
+  — die Prompts liegen in `design/BRETT-OBJEKTE.md` (`falle-verdeckt`,
+  `falle-ausgeloest`, `baerenfalle-verdeckt`, `baerenfalle-zu`), bis dahin
+  zeichnet `FalleVektor`.

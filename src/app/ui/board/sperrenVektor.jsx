@@ -88,6 +88,71 @@ const RISSE = {
   },
 };
 
+/* ══ DIE FALLEN (v1.90.9, Audit A32) ════════════════════════════
+   Gemalt gibt es sie noch nicht - die Prompts liegen in
+   design/BRETT-OBJEKTE.md (falle-verdeckt, falle-ausgeloest,
+   baerenfalle-verdeckt, baerenfalle-zu), im selben Stilblock wie Mauer und
+   Zaun. Bis die Bilder da sind, zeichnet dieselbe Hand.
+
+   ZWEI ZUSTAENDE, nicht drei: eine Falle broeckelt nicht, sie schnappt zu.
+   "verdeckt" sieht nur, wer sie legte (falleSichtbar in core/rules/
+   sperren.js) - darum darf sie unauffaellig sein, aber nicht unsichtbar:
+   der eigene Spieler muss sein Feld wiederfinden.
+
+   SIE LIEGEN FLACH. Anders als Mauer und Zaun stehen sie nicht auf der
+   Feldkante, sondern liegen in der Mitte - wie die Truemmer. */
+const ERDE = "#7a5a34", ERDE_D = "#4a3620", LAUB = "#4e6b33", LAUB_H = "#6d8a49";
+const EISEN = "#6a6a72", EISEN_D = "#3a3a42", EISEN_H = "#9a9aa6";
+
+const FALLEN_RISSE = {
+  grube: {
+    verdeckt: `
+      <ellipse cx="16" cy="18" rx="12" ry="7" fill="${ERDE_D}" opacity=".45"/>
+      <path d="M5 15.5l22 1.6M6.4 20.6l19.4-4.2M8 12.6l16.6 8.4" stroke="${ERDE}" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M9.6 14.2l4.6-1.2.8 2.2-4.8 1z" fill="${LAUB}"/>
+      <path d="M18.6 19.6l4.4-1.4 1 2-4.6 1.4z" fill="${LAUB_H}" opacity=".9"/>
+      <path d="M13 20.8l3.6-.8.6 1.8-3.8.8z" fill="${LAUB}" opacity=".8"/>`,
+    offen: `
+      <ellipse cx="16" cy="18" rx="12" ry="7" fill="${ERDE_D}"/>
+      <ellipse cx="16" cy="17.4" rx="9.6" ry="5.2" fill="#1a1208"/>
+      <path d="M10.6 18.4l1.4-4.6 1.6 4.2zM14.6 19.4l1.4-5.4 1.6 5zM18.6 18.6l1.4-4.4 1.5 4.1z" fill="#c9b184"/>
+      <path d="M5.4 15.2l3.6-1.4.8 1.8-3.8 1.4zM23.4 20.2l3.6 1.2-.8 1.8-3.6-1.4z" fill="${ERDE}"/>`,
+  },
+  baerenfalle: {
+    verdeckt: `
+      <ellipse cx="16" cy="19" rx="11" ry="6" fill="${ERDE_D}" opacity=".4"/>
+      <path d="M8.6 18.6a7.4 7.4 0 0 1 14.8 0" stroke="${EISEN_D}" stroke-width="1.6" fill="none" opacity=".75"/>
+      <path d="M9.8 15.6l3.8-1.2.7 2-3.9 1.2z" fill="${LAUB}"/>
+      <path d="M17.8 20.4l4.2-1.2.8 1.9-4.3 1.2z" fill="${LAUB_H}" opacity=".9"/>
+      <path d="M12.6 21.2l4-.9.5 1.7-4.1.9z" fill="${LAUB}" opacity=".8"/>`,
+    offen: `
+      <ellipse cx="16" cy="19.6" rx="10" ry="5" fill="${ERDE_D}" opacity=".5"/>
+      <circle cx="16" cy="18" r="6.2" fill="none" stroke="${EISEN}" stroke-width="2.4"/>
+      <circle cx="16" cy="18" r="6.2" fill="none" stroke="${EISEN_H}" stroke-width=".8" opacity=".6"/>
+      <path d="M11.4 15.4l1.6 2.6-1.8 2.4M14.2 13.6l1 3.2-1.2 3M18 13.6l-1 3.2 1.2 3M20.6 15.4l-1.6 2.6 1.8 2.4"
+            stroke="${EISEN_D}" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <path d="M22.4 19.8l4.4 2.6" stroke="${EISEN_D}" stroke-width="1.6" stroke-linecap="round"/>
+      <circle cx="27.2" cy="22.8" r="1.5" fill="none" stroke="${EISEN_D}" stroke-width="1.2"/>`,
+  },
+};
+
+/** Gibt es fuer diese Falle eine Zeichnung? */
+export const hatFallenVektor = (art) => !!FALLEN_RISSE[art];
+
+/** Eine Falle als Zeichnung. `offen` = zugeschnappt bzw. aufgerissen. */
+export function FalleVektor({ art, offen = false, size = 24, fuellt = false, style = null }) {
+  const satz = FALLEN_RISSE[art];
+  if (!satz) return null;
+  return (
+    <svg viewBox="0 0 32 32" aria-hidden="true"
+      width={fuellt ? "100%" : size} height={fuellt ? "100%" : size}
+      /* Fallen LIEGEN - mittig, nicht auf der Feldkante wie Mauer und Zaun. */
+      preserveAspectRatio="xMidYMid meet"
+      style={{ display: "block", filter: "drop-shadow(0 1px 2px rgba(0,0,0,.45))", ...style }}
+      dangerouslySetInnerHTML={{ __html: offen ? satz.offen : satz.verdeckt }} />
+  );
+}
+
 /** Gibt es fuer diese Art ueberhaupt eine Zeichnung? */
 export const hatVektor = (art) => !!RISSE[art];
 

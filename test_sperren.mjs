@@ -350,5 +350,126 @@ console.log("\n== DAS KAPITEL GEHOERT DER STATION, nicht dem Profil (v1.1.2) =="
     !pieceMoves(mit, anker).some((m) => m.to === ziel));
 }
 
+/* ══ DIE FALLEN, JETZT WIRKLICH GEBAUT (v1.90.9, Audit A32) ═══════════
+   Bis v1.90.8 gab es nur den Datentyp FALLEN_ARTEN und die reine Funktion
+   loeseFalleAus - transitions.js importierte sie, rief sie aber NIRGENDS
+   auf, und `state.fallen` wurde an keiner Stelle gefuellt: weder Gegenstand
+   noch Setzen noch Wirkung. CLAUDE.md fuehrte sie jahrelang als gebaut.
+   Besitzerentscheid vom 29.9.2026: bauen. */
+{
+  const { legeFalle, nimmFalle, darfFalleLegen, fallenFelder, fallenAnzahl, MAX_FALLEN,
+          feldGanzFrei, falleSichtbar } = await import("./src/core/index.js");
+  const g = createGame(armee(), armee(), { rules: "hp" });
+  const W = g.w;
+  const reiheW = 2;                       // dritte Reihe von Weiss (setzReihen)
+  const leerFeld = () => {
+    const b = [...g.board];
+    for (let f = 0; f < W; f++) b[reiheW * W + f] = null;
+    return { ...g, board: b };
+  };
+  const st = leerFeld();
+  const ziel = reiheW * W + 3;
+  ok("A32: auf der dritten eigenen Reihe darf eine Falle liegen", darfFalleLegen(st, ziel, "w"));
+  ok("A32: in der eigenen Grundreihe nicht", !darfFalleLegen(st, 3, "w"));
+  ok("A32: und nicht auf einem besetzten Feld", !darfFalleLegen(st, 3 + W, "w"));
+  const mitFalle = { ...st, fallen: legeFalle(st, ziel, "baerenfalle", "w") };
+  ok("A32: die Falle liegt", mitFalle.fallen[ziel] && mitFalle.fallen[ziel].art === "baerenfalle");
+  ok("A32: verdeckt - nur wer sie legte, sieht sie",
+    falleSichtbar(mitFalle.fallen[ziel], "w") === true && falleSichtbar(mitFalle.fallen[ziel], "b") === false);
+  ok("A32: eine Sperre und eine Falle teilen kein Feld",
+    !feldGanzFrei(mitFalle, ziel) && !darfFalleLegen(mitFalle, ziel, "w"));
+  /* Die Grenze zaehlt getrennt von den Sperren. */
+  let voll = mitFalle;
+  voll = { ...voll, fallen: legeFalle(voll, ziel + 1, "grube", "w") };
+  ok("A32: zwei Fallen gehen", fallenAnzahl(voll.fallen, "w") === MAX_FALLEN);
+  const dritte = legeFalle(voll, ziel + 2, "grube", "w");
+  ok("A32: eine dritte nicht", dritte === voll.fallen);
+  ok("A32: und es werden keine Felder mehr angeboten", fallenFelder(voll, "w").length === 0);
+  ok("A32: zurueckgenommen wird sie wieder frei", nimmFalle(voll.fallen, ziel + 1)[ziel + 1] === undefined);
+}
+{
+  /* DIE WIRKUNG. Das war der eigentliche Punkt: loeseFalleAus wurde nie
+     aufgerufen. Geprueft wird am echten Zug, nicht an der Funktion. */
+  const { legeFalle } = await import("./src/core/index.js");
+  const g0 = createGame(armee(), armee(), { rules: "hp" });
+  const W = g0.w, H = g0.h;
+  const bau = (art) => {
+    const b = g0.board.map(() => null);
+    b[4] = { id: 90, kind: "K", color: "w", level: 1, abilities: [], used: {}, hp: 20, maxHp: 20, atk: 5 };
+    b[(H - 1) * W + 0] = { id: 91, kind: "K", color: "b", level: 1, abilities: [], used: {}, hp: 20, maxHp: 20, atk: 5 };
+    /* Ein schwarzer Turm steht direkt UEBER der Falle und zieht hinein. */
+    const falleFeld = 3 * W + 4;
+    b[falleFeld + W] = { id: 92, kind: "R", color: "b", level: 5, abilities: [], used: {}, hp: 8, maxHp: 8, atk: 4 };
+    const st = { ...g0, board: b, turn: "b" };
+    return { st: { ...st, fallen: legeFalle({ ...st, board: b.map((x, i) => (i === falleFeld ? null : x)) }, falleFeld, art, "w") }, falleFeld };
+  };
+  {
+    const { st, falleFeld } = bau("grube");
+    ok("A32: die Grube liegt vor dem Zug", !!st.fallen[falleFeld] && !st.fallen[falleFeld].offen);
+    const zug = legalMoves(st, "b").find((m) => m.to === falleFeld);
+    ok("A32: der Turm darf auf das Feld ziehen - eine Falle sperrt nicht", !!zug);
+    const nach = applyMove(st, zug);
+    ok("A32: sie schnappt zu und liegt danach offen", nach.fallen[falleFeld].offen === true);
+    ok("A32: der Turm hat 2 Leben verloren", nach.board[falleFeld] && nach.board[falleFeld].hp === 6);
+    ok("A32: und der Zug ist im lastMove vermerkt",
+      nach.lastMove.falle && nach.lastMove.falle.art === "grube" && nach.lastMove.falle.schaden === 2);
+    ok("A32: die Remis-Uhr springt auf 0 - Schaden ist Schaden", nach.ohneSchaden === 0);
+  }
+  {
+    const { st, falleFeld } = bau("baerenfalle");
+    const zug = legalMoves(st, "b").find((m) => m.to === falleFeld);
+    const nach = applyMove(st, zug);
+    ok("A32: die Baerenfalle nimmt kein Leben", nach.board[falleFeld].hp === 8);
+    ok("A32: aber die Figur sitzt fest", nach.board[falleFeld].fesselBis > nach.moveCount);
+    ok("A32: und bietet keinen einzigen Zug an", pieceMoves(nach, falleFeld).length === 0);
+    /* Zwei Halbzuege spaeter geht es weiter. */
+    const spaeter = { ...nach, moveCount: nach.board[falleFeld].fesselBis };
+    ok("A32: nach dem ausgesetzten Zug zieht sie wieder", pieceMoves(spaeter, falleFeld).length > 0);
+  }
+  {
+    /* Ueber die EIGENE Falle laeuft man hinweg. */
+    const g = createGame(armee(), armee(), { rules: "hp" });
+    const W2 = g.w, H2 = g.h;
+    const b = g.board.map(() => null);
+    b[4] = { id: 90, kind: "K", color: "w", level: 1, abilities: [], used: {}, hp: 20, maxHp: 20, atk: 5 };
+    b[(H2 - 1) * W2] = { id: 91, kind: "K", color: "b", level: 1, abilities: [], used: {}, hp: 20, maxHp: 20, atk: 5 };
+    const feld = 2 * W2 + 4;
+    b[feld + W2] = { id: 92, kind: "R", color: "w", level: 5, abilities: [], used: {}, hp: 8, maxHp: 8, atk: 4 };
+    const st = { ...g, board: b, turn: "w", fallen: { [feld]: { art: "grube", von: "w", offen: false } } };
+    const zug = legalMoves(st, "w").find((m) => m.to === feld);
+    const nach = applyMove(st, zug);
+    ok("A32: die eigene Falle loest nicht aus",
+      nach.board[feld].hp === 8 && nach.fallen[feld].offen === false);
+  }
+  {
+    /* Im REINEN SCHACH loest nichts aus - dort gibt es keine Lebenspunkte. */
+    const g = createGame(armee(), armee(), { rules: "chess" });
+    const W2 = g.w, H2 = g.h;
+    const b = g.board.map(() => null);
+    b[4] = { id: 90, kind: "K", color: "w", level: 1, abilities: [], used: {} };
+    b[(H2 - 1) * W2] = { id: 91, kind: "K", color: "b", level: 1, abilities: [], used: {} };
+    const feld = 3 * W2 + 4;
+    b[feld + W2] = { id: 92, kind: "R", color: "b", level: 1, abilities: [], used: {} };
+    const st = { ...g, board: b, turn: "b", fallen: { [feld]: { art: "grube", von: "w", offen: false } } };
+    const zug = legalMoves(st, "b").find((m) => m.to === feld);
+    const nach = applyMove(st, zug);
+    ok("A32: im reinen Schach schnappt keine Falle zu", nach.fallen[feld].offen === false);
+  }
+}
+{
+  /* Und im Laden: beide Fallen sind kaufbar, die Baerenfalle FRUEH
+     (Besitzer: "gerne auch schon die Baerenfalle z. B. in einem Kapitel
+     2-3 oder so"). */
+  const { ITEMS } = await import("./src/content/index.js");
+  const { FALLEN_ARTEN } = await import("./src/core/index.js");
+  ok("A32: beide Fallen liegen beim Kraemer", !!ITEMS.baerenfalle && !!ITEMS.grube);
+  ok("A32: die Baerenfalle kommt frueh - Kapitel II/III", ITEMS.baerenfalle.minCleared <= 6);
+  ok("A32: die Spitzgrube spaeter, sie macht Schaden", ITEMS.grube.minCleared > ITEMS.baerenfalle.minCleared);
+  ok("A32: die Preise stehen NUR im Regelwerk, nicht zweimal",
+    ITEMS.baerenfalle.gold === FALLEN_ARTEN.baerenfalle.gold && ITEMS.grube.gold === FALLEN_ARTEN.grube.gold);
+  ok("A32: und jede traegt ihre Art, damit das Bild sie findet",
+    ITEMS.baerenfalle.falle === "baerenfalle" && ITEMS.grube.falle === "grube");
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

@@ -192,6 +192,98 @@ export function nimmSperre(sperren, i) {
   return neu;
 }
 
+/* ══ DIE FALLEN (v1.90.9, Audit A32) ════════════════════════════
+
+   Bis v1.90.8 gab es von den Fallen NUR den Datentyp oben und die reine
+   Funktion loeseFalleAus. transitions.js importierte sie, rief sie aber
+   nirgends auf, und `state.fallen` wurde an keiner Stelle gefuellt: weder
+   Gegenstand noch Setzen noch Wirkung. CLAUDE.md fuehrte sie trotzdem
+   jahrelang als gebaut. Besitzerentscheid vom 29.9.2026: "Die Fallen koennen
+   und sollten wir noch bauen."
+
+   WAS EINE FALLE VON EINER SPERRE UNTERSCHEIDET - und warum sie nicht
+   dieselben Funktionen benutzen kann:
+     - Eine Sperre STEHT sichtbar und haelt auf. Eine Falle LIEGT verborgen
+       und straft das Betreten (Entscheidung 4 im Kopf dieser Datei: "Fallen
+       sieht nur, wer sie legte").
+     - Eine Sperre zerfaellt von selbst (ZERFALL_TAKT). Eine Falle wartet,
+       so lange es dauert - sie kostet den Gegner ja nichts, solange er sie
+       meidet. Ein Zerfall wuerde bedeuten: aussitzen genuegt.
+     - Eine Sperre blockiert das Feld. Eine Falle nicht - sonst waere sie
+       sichtbar, sobald jemand daran haengenbleibt.
+   Gemeinsam bleibt, WO gesetzt werden darf: dritte und vierte eigene Reihe
+   (setzReihen), vor dem ersten Zug. Eine Falle in der eigenen Grundreihe
+   waere ein Selbstschuss, eine im gegnerischen Lager kein Hinterhalt mehr.
+
+   NUR IM HP-GEFECHT. Die Spitzgrube macht SCHADEN, und Schaden gibt es im
+   reinen Schach nicht - dort haben Figuren keine Lebenspunkte. Dieselbe
+   Grenze, die schon fuer die Sperren gilt (GameScreen: sperrenErlaubt
+   schliesst "classic" aus). */
+
+/** Wie viele Fallen eine Seite gleichzeitig auf dem Brett haben darf. Zwei,
+ *  wie bei den Sperren - aus demselben Grund (Entscheidung 6 oben: die
+ *  dritte waere nur noch Gewohnheit). */
+export const MAX_FALLEN = 2;
+
+/** Wie viele Fallen dieser Farbe liegen gerade? Ausgeloeste zaehlen mit:
+ *  sie liegen noch da, offen, und das Feld ist verbraucht. */
+export function fallenAnzahl(fallen, farbe) {
+  if (!fallen) return 0;
+  let n = 0;
+  for (const f of Object.values(fallen)) if (f && f.von === farbe) n++;
+  return n;
+}
+
+/** Ist das Feld frei von allem - Figur, Loch, Sperre UND Falle? Zwei Fallen
+ *  auf einem Feld waeren eine zu viel, und eine Falle unter einer Mauer
+ *  betritt nie jemand. */
+export function feldGanzFrei(state, i) {
+  if (!feldFrei(state, i)) return false;
+  return !falleAuf(state, i);
+}
+
+/** Darf diese Farbe hier eine Falle legen? */
+export function darfFalleLegen(state, i, farbe) {
+  if (!feldGanzFrei(state, i)) return false;
+  if (fallenAnzahl(state?.fallen, farbe) >= MAX_FALLEN) return false;
+  const w = state?.w ?? 10;
+  return setzReihen(state, farbe).includes((i / w) | 0);
+}
+
+/** Alle Felder, auf die diese Farbe JETZT eine Falle legen duerfte. */
+export function fallenFelder(state, farbe) {
+  const felder = [];
+  if (fallenAnzahl(state?.fallen, farbe) >= MAX_FALLEN) return felder;
+  const w = state?.w ?? 10;
+  for (const r of setzReihen(state, farbe)) {
+    if (r < 0 || r >= (state?.h ?? 10)) continue;
+    for (let f = 0; f < w; f++) {
+      const i = r * w + f;
+      if (feldGanzFrei(state, i)) felder.push(i);
+    }
+  }
+  return felder;
+}
+
+/** Eine Falle legen. Liefert das NEUE Verzeichnis (oder dasselbe, wenn die
+ *  Regel nein sagt) - wie setzeSperre vergleicht der Aufrufer per ===. */
+export function legeFalle(state, i, art, farbe) {
+  if (!FALLEN_ARTEN[art] || !darfFalleLegen(state, i, farbe)) return state?.fallen || null;
+  return { ...(state.fallen || {}), [i]: { art, von: farbe, offen: false } };
+}
+
+/** Eine noch nicht ausgeloeste Falle wieder aufnehmen (nur beim Setzen). */
+export function nimmFalle(fallen, i) {
+  if (!fallen || !fallen[i] || fallen[i].offen) return fallen;
+  const neu = { ...fallen };
+  delete neu[i];
+  return neu;
+}
+
+/* Wer die Falle SIEHT, sagt `falleSichtbar` weiter oben - die gibt es seit
+   v0.90 und sie tut genau das. Eine zweite Fassung hier waere die zweite
+   Wahrheit, vor der der Kopf dieser Datei an drei Stellen warnt. */
+
 /** DER ZERFALL. Nach jedem Halbzug aufgerufen: was faellig ist, verliert
  *  einen Punkt; was leer laeuft, verschwindet. Steht nichts an, kommt das
  *  UNVERAENDERTE Verzeichnis zurueck - die KI-Suche legt diesen Weg

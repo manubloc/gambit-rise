@@ -97,7 +97,7 @@ const DE = {
   "army.limitHint": "Turm, Läufer und Springer höchstens zweimal — jede andere Figur nur einmal.", "army.limitFull": "Steht schon {n}× in der Reihe",
   /* v1.0.63: die Setzphase der Sperren - vor dem ersten Zug. */
   "sperre.title": "Sperren setzen",
-  "sperre.hint": "Tippe ein leuchtendes Feld deiner dritten oder vierten Reihe. Höchstens {n} — nochmal antippen nimmt sie zurück.",
+  "sperre.hint": "Tippe ein leuchtendes Feld deiner dritten oder vierten Reihe. Höchstens {n} — nochmal antippen nimmt sie zurück.", "falle.hint": "Fallen zählen getrennt: höchstens {n}. Nur du siehst sie — bis sie zuschnappen.",
   "sperre.none": "Keine Sperre gewählt",
   "sperre.go": "Los geht's",
   "sperre.skip": "Ohne Sperren beginnen",
@@ -105,7 +105,7 @@ const DE = {
 };
 const EN = {
   "sperre.title": "Set your barriers",
-  "sperre.hint": "Tap a glowing square on your third or fourth rank. At most {n} — tap again to take one back.",
+  "sperre.hint": "Tap a glowing square on your third or fourth rank. At most {n} — tap again to take one back.", "falle.hint": "Traps count separately: at most {n}. Only you can see them — until they spring.",
   "sperre.none": "No barrier chosen",
   "sperre.go": "Begin",
   "sperre.skip": "Begin without barriers",

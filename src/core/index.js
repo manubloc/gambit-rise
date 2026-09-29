@@ -20,6 +20,9 @@ export {
   SPERR_ARTEN, FALLEN_ARTEN, MAX_SPERREN, ZERFALL_TAKT,
   stadium, versperrt, sperreAuf, sperrenAnzahl,
   setzReihen, setzFelder, feldFrei, darfSetzen, setzeSperre, nimmSperre, zerfalleSperren,
+  /* v1.90.9 (Audit A32): die Fallen sind gebaut - Legen, Aufnehmen, Grenzen. */
+  MAX_FALLEN, fallenAnzahl, feldGanzFrei, darfFalleLegen, fallenFelder, legeFalle, nimmFalle,
+  falleSichtbar, falleAuf,
 } from "./rules/sperren.js";
 
 // Simulation: state, transitions, commands, events, reducer

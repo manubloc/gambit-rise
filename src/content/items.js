@@ -1,4 +1,4 @@
-import { SPERR_ARTEN } from "../core/index.js";
+import { SPERR_ARTEN, FALLEN_ARTEN } from "../core/index.js";
 
 // Equipment & expedition gear — bought with gold in the court's supply
 // chest. Two flavors: CONSUMABLES burn per use (draughts), KEYS are owned
@@ -146,6 +146,36 @@ export const ITEMS = {
     textEn: "A barrier for your third or fourth rank — it holds three blows.",
     loreDe: "Der teuerste Stein im Bündel und der zäheste: drei Schläge, also drei verlorene Züge für den, der hindurchwill. Auch er hält nicht ewig — alle sechs Züge bröckelt eine Schicht ab, nach achtzehn Zügen liegt er. Gesetzt wird er vor dem ersten Zug auf deine dritte oder vierte Reihe; höchstens zwei Sperren stehen gleichzeitig auf deiner Seite.",
     loreEn: "The dearest stone in the bundle and the toughest: three blows, so three lost moves for whoever wants through. It does not last either — a layer crumbles every six moves, and after eighteen it lies flat. Set before the first move on your third or fourth rank; at most two barriers stand on your side at once.",
+  },
+
+  /* ── DIE FALLEN (v1.90.9, Audit A32 — Besitzerentscheid 29.9.2026) ─────
+     "Die Fallen können und sollten wir noch bauen … gerne auch schon die
+     Bärenfalle z. B. in einem Kapitel 2–3 oder so."
+     Die Bärenfalle steht darum früh im Laden (minCleared 5 — das fällt in
+     Kapitel II/III), die Spitzgrube etwas später: sie macht SCHADEN, und
+     Schaden gehört in eine Hand, die schon weiß, was er anrichtet.
+     Wie bei den Sperren stehen die Preise NICHT hier, sondern in
+     core/rules/sperren.js bei der Wirkung, zu der sie gehören — zwei Zahlen
+     an zwei Orten wären zwei Wahrheiten.
+     Zwei je Partie dürfen aufs Brett (MAX_FALLEN), drei dürfen im Vorrat
+     liegen. */
+  baerenfalle: {
+    id: "baerenfalle", emoji: "🩤", kind: "consumable", gold: FALLEN_ARTEN.baerenfalle.gold, max: 3, minCleared: 5,
+    falle: "baerenfalle",
+    nameDe: "Bärenfalle", nameEn: "Bear trap",
+    textDe: "Verborgen auf deiner dritten oder vierten Reihe — wer hineintritt, setzt einen Zug aus.",
+    textEn: "Hidden on your third or fourth rank — whoever steps in loses a turn.",
+    loreDe: "Vor dem ersten Zug legst du sie auf ein freies Feld deiner dritten oder vierten Reihe. Du siehst sie, der Gegner nicht — bis sie zuschnappt. Sie nimmt kein Leben: die Figur sitzt fest und setzt ihren nächsten Zug aus, während alles andere weiterzieht. Danach liegt das Eisen offen da. Nur im Gefecht mit Lebenspunkten, nicht im reinen Schach. Höchstens zwei Fallen liegen gleichzeitig auf deiner Seite.",
+    loreEn: "Before the first move you lay it on a free square of your third or fourth rank. You see it, your opponent does not — until it snaps shut. It takes no life: the piece is held fast and loses its next move while everything else marches on. Afterwards the iron lies open. Only in HP battles, not in pure chess. At most two traps lie on your side at once.",
+  },
+  grube: {
+    id: "grube", emoji: "🕳️", kind: "consumable", gold: FALLEN_ARTEN.grube.gold, max: 3, minCleared: 7,
+    falle: "grube",
+    nameDe: "Spitzgrube", nameEn: "Pit trap",
+    textDe: "Verborgen auf deiner dritten oder vierten Reihe — wer hineintritt, nimmt 2 Schaden.",
+    textEn: "Hidden on your third or fourth rank — whoever steps in takes 2 damage.",
+    loreDe: "Zweige, Laub, darunter nichts. Vor dem ersten Zug legst du sie auf ein freies Feld deiner dritten oder vierten Reihe; nur du weißt, wo. Wer hineintritt, nimmt zwei Schaden — für einen Bauern kann das schon das Ende sein. Danach bleibt die Grube offen liegen, für alle sichtbar. Nur im Gefecht mit Lebenspunkten, nicht im reinen Schach. Höchstens zwei Fallen liegen gleichzeitig auf deiner Seite.",
+    loreEn: "Branches, leaves, and nothing beneath. Before the first move you lay it on a free square of your third or fourth rank; only you know where. Whoever steps in takes two damage — for a pawn that can be the end. Afterwards the pit stays open for all to see. Only in HP battles, not in pure chess. At most two traps lie on your side at once.",
   },
 
   boat: {

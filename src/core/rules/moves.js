@@ -288,6 +288,13 @@ export function pieceMoves(state, sqIndex) {
   const board = state.board;
   const piece = board[sqIndex];
   if (!piece) return [];
+  /* ── v1.90.9 (Audit A32): WER IN DER BAERENFALLE SITZT, ZIEHT NICHT ────
+     Die Falle macht keinen Schaden - sie kostet den Zug DIESER Figur. Der
+     Marker sitzt an der Figur und nicht am Feld: sie schleppt das Eisen ja
+     mit, und ein Marker am Feld waere beim naechsten Schritt verloren.
+     Hier, ganz vorn, weil es fuer JEDE Gangart gilt - Zugbild, Sprung,
+     Blinzeln und Drache eingeschlossen. */
+  if (piece.fesselBis != null && piece.fesselBis > (state.moveCount || 0)) return [];
   const D = dimsOf(state);
   const f = fileOf(sqIndex, D.w), r = rankOf(sqIndex, D.w), from = sqIndex, moves = [];
 

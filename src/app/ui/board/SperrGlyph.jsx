@@ -15,7 +15,7 @@
 // Fehler.
 import { useEffect, useRef, useState } from "react";
 import { sperrBild, SPERR_SITZ, SPERR_HEBUNG } from "./sperrenArt.js";
-import { SperrVektor, hatVektor } from "./sperrenVektor.jsx";
+import { SperrVektor, hatVektor, FalleVektor, hatFallenVektor } from "./sperrenVektor.jsx";
 
 const VOLL_MS = 2000;      // so lange bleibt der Schutt voll sichtbar
 const BLASS_MS = 1500;     // so lange dauert das Sinken
@@ -92,6 +92,37 @@ export function SperrGlyph({ art, zustand, ruhig = false }) {
            darf erst recht nicht teuer sein. */
         filter: "drop-shadow(0 2px 3px rgba(0,0,0,.6))",
       }} />}
+    </div>
+  );
+}
+
+/* ══ EINE FALLE AUF EINEM FELD (v1.90.9, Audit A32) ══════════════════
+   Eigene Komponente statt eines Zweigs in SperrGlyph: eine Falle hat andere
+   Zustaende (zwei statt drei, "verdeckt/offen" statt heil/angeschlagen/
+   Truemmer), liegt flach statt zu stehen, und gehoert unter die Figur statt
+   neben sie. Ein gemeinsamer Glyph waere eine Funktion mit zwei Koepfen.
+
+   SIE LIEGT IMMER UNTEN (zIndex 0). Eine Falle, die ueber der Figur laege,
+   verdeckte genau die Figur, die hineingetreten ist.
+
+   GEMALT GIBT ES SIE NOCH NICHT - die Prompts liegen in
+   design/BRETT-OBJEKTE.md. Sobald die vier Bilder da sind, kommen sie wie
+   bei den Sperren ueber sperrenArt.js dazu; bis dahin zeichnet der Vektor.
+   Die verdeckte Fassung ist bewusst blass: sie soll dem, der sie legte, das
+   Feld zeigen, ohne das Brett zu beherrschen. */
+export function FalleGlyph({ art, offen = false, ruhig = false }) {
+  void ruhig;
+  if (!hatFallenVektor(art)) return null;
+  return (
+    <div style={{
+      position: "absolute", left: "50%", top: "50%",
+      transform: "translate(-50%, -50%)",
+      width: "88%", height: "88%",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      zIndex: 0, pointerEvents: "none",
+      opacity: offen ? 1 : 0.62,
+    }}>
+      <FalleVektor art={art} offen={offen} fuellt />
     </div>
   );
 }
