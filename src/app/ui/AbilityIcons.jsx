@@ -82,6 +82,21 @@ const Z = {
   regen:               ["leben",   <g key="g"><path d="M12 8v8M8 12h8" /><circle cx="12" cy="12" r="7" opacity=".55" /></g>],
   lifesteal:           ["leben",   <g key="g"><path d="M12 17c-3-2.4-5.5-4.4-5.5-7A3 3 0 0 1 12 8a3 3 0 0 1 5.5 2c0 2.6-2.5 4.6-5.5 7z" /><path d="M15.5 5.5L18 3" opacity=".8" /></g>],
   bulwark:             ["leben",   <g key="g"><path d="M12 5l6 2v5c0 4-2.6 6-6 7-3.4-1-6-3-6-7V7z" /><path d="M12 8v7" opacity=".7" /></g>],
+  /* ── v1.90.15: DIE NEUN FAEHIGKEITEN DER MONSTER ─────────────────────────
+     Sie hatten kein Zeichen (FAEHIGKEITEN-2026-09-27.md, "zeigen ?"): zeigte
+     sich eine im Gefecht, stand in der Kampfleiste das violette Fragezeichen
+     des Risses. Jede traegt jetzt eines in der Familie ihres Wesens -
+     Zehrung und Gift gruen/rot, Kontrolle violett, Beute gold, Zaehigkeit
+     smaragd. */
+  gift:                ["leben",   <g key="g"><path d="M12 4c-2.4 3.4-5 6.4-5 9.4a5 5 0 0 0 10 0c0-3-2.6-6-5-9.4z" /><circle cx="10.4" cy="13.6" r="1" fill="currentColor" stroke="none" /><circle cx="13.6" cy="13.6" r="1" fill="currentColor" stroke="none" /><path d="M10.5 16.4h3" /></g>],
+  aderlass:            ["schlag",  <g key="g"><path d="M12 4.5c-1.9 3-4 5.2-4 7.8a4 4 0 0 0 8 0c0-2.6-2.1-4.8-4-7.8z" /><path d="M12 18.5v2" /><path d="M8 20.5h8" opacity=".7" /></g>],
+  blenden:             ["riss",    <g key="g"><path d="M3.5 12s3.2-4.6 8.5-4.6 8.5 4.6 8.5 4.6-3.2 4.6-8.5 4.6-8.5-4.6-8.5-4.6z" /><circle cx="12" cy="12" r="2" /><path d="M5 19L19 5" /></g>],
+  schrecken:           ["riss",    <g key="g"><rect x="6" y="6" width="12" height="12" rx="2" /><path d="M9.2 9.2l5.6 5.6M14.8 9.2l-5.6 5.6" /></g>],
+  wegelagerei:         ["krone",   <g key="g"><ellipse cx="12" cy="8" rx="5.5" ry="2" /><path d="M6.5 8v4c0 1.1 2.5 2 5.5 2s5.5-.9 5.5-2V8" /><path d="M6.5 12v4c0 1.1 2.5 2 5.5 2s5.5-.9 5.5-2v-4" /></g>],
+  steinhaut:           ["leben",   <g key="g"><path d="M12 4l6.9 4v8L12 20l-6.9-4V8z" /><path d="M12 4v7.8l6.9 4.2M12 11.8L5.1 16" opacity=".7" /></g>],
+  widerhall:           ["leben",   <g key="g"><path d="M17.2 9.5A6 6 0 1 0 18 13" /><path d="M17.6 5.4v4.4h-4.4" /></g>],
+  unsterblich:         ["krone",   <g key="g"><path d="M12 4.2l2.1 4.6 5 .5-3.8 3.4 1.1 4.9L12 15l-4.4 2.6 1.1-4.9L4.9 9.3l5-.5z" /><path d="M9.5 20h5" opacity=".7" /></g>],
+  geistwandel:         ["riss",    <g key="g"><path d="M7 19.5V11a5 5 0 0 1 10 0v8.5l-1.7-1.3-1.6 1.3-1.7-1.3-1.7 1.3-1.6-1.3z" /><circle cx="10.2" cy="11" r=".9" fill="currentColor" stroke="none" /><circle cx="13.8" cy="11" r=".9" fill="currentColor" stroke="none" /></g>],
 };
 
 /** Das Zeichen einer Fähigkeit - ein abgerundetes Viereck wie die Kachel-Kästen

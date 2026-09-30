@@ -37,9 +37,15 @@ const MOVE_METAL = {
 // (the very slot where it now shows among the taken). We measure the real
 // on-screen tray at flight time (querying [data-gg-tray=<victim colour>]), so
 // it lands true whether the layout is portrait, landscape or flipped.
-function DeathFlyer({ death, disp, W, H, pov, artStyle }) {
+function DeathFlyer({ death, disp, box, W, H, pov, artStyle }) {
   const ref = useRef(null);
   const d = disp(death.at);
+  /* v1.90.15: derselbe Kasten wie die Zelle (zelleBox) statt Prozenten - und
+     die innere Ebene absolut auf inset 0 statt als Raster mit width 100 %
+     (das wuchs mit der Figur und schob sie gemessen 6 px nach rechts: das
+     Opfer ruckte beim Schlag zur Seite, bevor es flog). */
+  const pos = box ? { left: box.left, top: box.top, width: box.width, height: box.height }
+    : { left: `${d.l}%`, top: `${d.t}%`, width: `${100 / W}%`, height: `${100 / H}%` };
   useIsoLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
@@ -74,16 +80,17 @@ function DeathFlyer({ death, disp, W, H, pov, artStyle }) {
     const player = el.animate(kf, { duration: 1200, delay: death.holdMs || 0, easing: "cubic-bezier(.34,.06,.6,1)", fill: "both" });
     return () => { try { player.cancel(); } catch {} };
   }, [death.id]); // eslint-disable-line
-  return <div ref={ref} style={{ position: "absolute", left: `${d.l}%`, top: `${d.t}%`,
-    width: `${100 / W}%`, height: `${100 / H}%`, pointerEvents: "none", zIndex: 8,
-    display: "grid", placeItems: "center", willChange: "transform, opacity" }}>
+  return <div ref={ref} style={{ position: "absolute", ...pos, pointerEvents: "none", zIndex: 8,
+    willChange: "transform, opacity" }}>
     {/* same lift/size/origin as the cell piece, so while it waits on its square
         it sits exactly where the real piece stood */}
-    <div style={{ width: "100%", height: "100%", display: "grid", placeItems: "center",
+    <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center",
       transform: `translateY(${death.lift || "-10%"})`, transformOrigin: "50% 72%",
       fontSize: death.font || "1.16em",
       filter: "drop-shadow(0 0.09em 0.13em rgba(0,0,0,.6))" }}>
-      <PieceGlyph aufsBrett piece={death.piece} showLevel={false} pov={pov} artStyle={artStyle} />
+      {/* fliegt: kein sanftes Einblenden (ggSanft) - gemessen war das Opfer
+          beim Schlag sonst erst unsichtbar und blendete ueber 250 ms ein */}
+      <PieceGlyph aufsBrett fliegt piece={death.piece} showLevel={false} pov={pov} artStyle={artStyle} />
     </div>
   </div>;
 }
@@ -146,7 +153,10 @@ export function zugDauerMs(lastMove, pov, hotseat, w) {
   const fF = lastMove.from % W, fR = (lastMove.from / W) | 0;
   const tF = lastMove.to % W, tR = (lastMove.to / W) | 0;
   const dF = Math.abs(tF - fF), dR = Math.abs(tR - fR);
-  const leaps = !lastMove.bounced && (lastMove.kind === "N" || !!(dF && dR && dF !== dR));
+  /* v1.90.15: ein Treffer, der nicht toetet, ist ein ABPRALL (der Angreifer
+     stoesst zu und kehrt heim) - auch fuer den Springer kein Bogensprung. */
+  const prall = lastMove.bounced || (lastMove.damaged && !lastMove.lethal && !lastMove.capture && lastMove.special !== "shot");
+  const leaps = !prall && (lastMove.kind === "N" || !!(dF && dR && dF !== dR));
   return Math.round((leaps ? (foe ? 1.25 : 0.95) : (foe ? 0.9 : 0.52)) * 1000);
 }
 
@@ -304,9 +314,26 @@ export function BoardView({ lang = "de", state, onMove, interactive, lastMove, m
     if (!lastMove || lastMove.from === lastMove.to) { setAnim(null); return; }
     // hotseat animates both; otherwise only the side we're told to animate
     if (animateFor && lastMove.color !== animateFor) { setAnim(null); return; }
-    const piece = state.board[lastMove.to];
-    if (!piece && !lastMove.bounced) { setAnim(null); return; }
-    const glider = piece || { kind: lastMove.kind, color: lastMove.color };
+    /* ── v1.90.15: WER FLIEGT, IST DER, DER GEZOGEN HAT (gemessen,
+       tools/pruefe-animation.mjs) ─────────────────────────────────────────
+       Hier stand `const piece = state.board[lastMove.to]` - "was jetzt auf dem
+       Zielfeld steht, ist der Zieher". Das stimmt nur, wenn der Zieher dort
+       ANKOMMT. Bei einem Treffer, der nicht toetet (HP-Gefecht, der haeufigste
+       Schlag ueberhaupt), und bei einem Schild, der im Schach abprallen laesst,
+       bleibt der Angreifer stehen - und auf dem Zielfeld steht das OPFER.
+       Gemessen flog darum das Bild des Opfers aus dem Feld des Angreifers in
+       sein eigenes zurueck, der Angreifer rührte sich nicht, und das Opfer
+       selbst war bis zu 1,1 s unsichtbar (sein Wackeln damit auch).
+       Jetzt: steht auf dem Ziel eine eigene Figur, gleitet sie dorthin. Steht
+       der Zieher noch auf seinem Feld, stoesst ER zu und kehrt heim (wie der
+       Schild-Abprall immer gedacht war). Ein Fernschuss zieht gar nicht. */
+    const eigen = (p) => !!p && p.kind !== "D+" && p.color === lastMove.color;
+    const amZiel = state.board[lastMove.to], amStart = state.board[lastMove.from];
+    let glider = null, prall = !!lastMove.bounced;
+    if (eigen(amZiel) && !lastMove.bounced) glider = amZiel;
+    else if (eigen(amStart) && lastMove.special !== "shot") { glider = amStart; prall = true; }
+    else if (lastMove.bounced) glider = { kind: lastMove.kind, color: lastMove.color };
+    if (!glider) { setAnim(null); return; }
     // is this the OPPONENT moving? A foe move (vs AI or online, not hotseat)
     // glides noticeably slower so the eye can clearly follow what it does.
     const foe = !hotseat && lastMove.color !== pov;
@@ -315,14 +342,24 @@ export function BoardView({ lang = "de", state, onMove, interactive, lastMove, m
     const fF = lastMove.from % W, fR = (lastMove.from / W) | 0;
     const tF = lastMove.to % W, tR = (lastMove.to / W) | 0;
     const dF = Math.abs(tF - fF), dR = Math.abs(tR - fR);
-    const leaps = !lastMove.bounced && (glider.kind === "N" || !!(dF && dR && dF !== dR));
+    const leaps = !prall && (glider.kind === "N" || !!(dF && dR && dF !== dR));
     // leaps read slower AND higher — a real jump takes its time in the air.
     // own leap a touch longer than before so the hop feels complete (the foe's
     // is already well-paced), plain glides quick.
     const durS = zugDauerMs(lastMove, pov, hotseat, W) / 1000;
     const animId = ++animSeq.current;
+    /* v1.90.15: der Turm der ROCHADE fliegt mit (vorher verschwand er auf h1
+       und blendete auf f1 ein - gemessen), und der GROSSE Drache fliegt als
+       Block (vorher stand er sofort am Ziel, waehrend darunter ein kleiner,
+       anders gemalter Drache glitt). */
+    const turm = lastMove.special === "castle" && lastMove.rookFrom != null && lastMove.rookTo != null
+      && state.board[lastMove.rookTo] ? { from: lastMove.rookFrom, to: lastMove.rookTo, piece: state.board[lastMove.rookTo] } : null;
     const a = { from: lastMove.from, to: lastMove.to, piece: glider, phase: 0,
-      bounced: !!lastMove.bounced, foe, leaps, dur: durS, id: animId };
+      bounced: prall, foe, leaps, dur: durS, id: animId,
+      /* welches Feld waehrend des Fluges leer aussieht: beim Abprall das
+         eigene (der Angreifer steckt im Gleiter), sonst das Ziel */
+      hide: prall ? lastMove.from : lastMove.to,
+      gross: !!(glider.big && glider.kind === "D"), turm };
     setAnim(a);
     // a struck piece is hurled off toward its captor's tray. It fires on ANY
     // capture — in chess rules a taken piece has capture=true but lethal=false
@@ -330,7 +367,10 @@ export function BoardView({ lang = "de", state, onMove, interactive, lastMove, m
     // meant the flight never played in normal games. Never on a blocked hit.
     if ((lastMove.capture || lastMove.lethal) && lastMove.hitKind && !lastMove.bounced) {
       const iWon = lastMove.color === pov;            // did MY side make this capture?
-      setDeath({ at: lastMove.to, id: a.id + 100000,
+      /* v1.90.15: EN PASSANT - das Opfer stand NICHT auf dem Zielfeld, sondern
+         auf seinem eigenen (lastMove.epCapture). Gemessen fiel es vom falschen
+         Feld, waehrend es auf dem richtigen sofort verschwand. */
+      setDeath({ at: lastMove.special === "enpassant" && lastMove.epCapture != null ? lastMove.epCapture : lastMove.to, id: a.id + 100000,
         /* v1.57.0: der Geist ist die ECHTE Figur (Gambit, Sonderfigur, Monster,
            Stufe). Die Maskerade gilt weiter: PieceGlyph zeigt einen maskierten
            Gambit dem Gegner als Bauern, dem eigenen Blick aber als Gambit. */
@@ -757,8 +797,14 @@ export function BoardView({ lang = "de", state, onMove, interactive, lastMove, m
           {checkSq === i && animAn() && <div aria-hidden style={{ position: "absolute", inset: "4%",
             borderRadius: 8, border: "2.5px solid rgba(255,92,92,.9)", pointerEvents: "none",
             animation: "ggSchachPuls 1.05s ease-in-out infinite" }} />}
-          {piece && <div style={{ opacity: anim && anim.phase < 2 && i === anim.to ? 0 : 1, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none",
+          {piece && <div style={{ opacity: anim && anim.phase < 2 && (i === anim.hide || (anim.turm && i === anim.turm.to)) ? 0 : 1, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none",
             transform: `translateY(${pieceLift})` + ((isSel || isSpy) && !piece.big ? (artStyle === "svg" ? " scale(1.4)" : " scale(1.58)") : ""),
+            /* v1.90.15: der HUB fuer die Keyframes, die dieselbe transform-
+               Eigenschaft animieren (ggShake beim Treffer, ggKoenigFall beim
+               Matt). Eine Animation ersetzt die transform des Elements ganz -
+               gemessen sackte die getroffene Figur waehrend des Wackelns um
+               den Hub (8 px) ab. Die Keyframes setzen ihn jetzt selbst voran. */
+            "--hub": pieceLift,
             /* v1.0.67: KOENIGSFALL. Beim Matt kippt der geschlagene Koenig
                langsam um seinen Fuss zur Seite, statt einfach hinter dem
                Banner zu verschwinden - das Banner ist durchscheinend, der
@@ -783,7 +829,15 @@ export function BoardView({ lang = "de", state, onMove, interactive, lastMove, m
                man eine Figur antippt - Auswahl heisst Groesse und Hub aendern.
                Im Sparmodus schaltet er ab: die Auswahl sitzt dann sofort
                statt zu gleiten. */
-            transition: gespart("uebergang") ? "none" : "transform .16s ease, opacity .18s ease, filter .45s ease",
+            /* v1.90.15: OHNE opacity. Das sanfte Einblenden war gut gemeint
+               ("never pops after the glide"), bewirkte aber das Gegenteil -
+               gemessen: (1) bei jedem SCHLAG stand der Angreifer 150 ms doppelt,
+               weil die Zelle des Opfers mit ihm darin erst ausblendete, waehrend
+               der Gleiter schon am Start stand; (2) nach JEDEM Zug verschwand
+               die Figur bei der Uebergabe fuer ein Bild ganz und blendete ueber
+               180 ms wieder ein. Der Gleiter endet deckungsgleich mit der Zelle
+               (siehe zelleBox) - also wird im selben Takt getauscht, hart. */
+            transition: gespart("uebergang") ? "none" : "transform .16s ease, filter .45s ease",
             // EVERY FIGURE STANDS SHARP. The opening used to soften the whole
             // board for two seconds to spotlight an unknown foe — but since a
             // champion stands in the QUEEN'S square, the effect read as "only
@@ -804,7 +858,11 @@ export function BoardView({ lang = "de", state, onMove, interactive, lastMove, m
             /* v1.0.14: WER EINEN SCHLAG UEBERSTEHT, WACKELT. Nicht die Zelle,
                die FIGUR - und sie faellt nicht, sie fasst sich wieder. */
             ...(lastMove && lastMove.damaged && !lastMove.lethal && lastMove.to === i && !ruhig
-              ? { animation: "ggShake .5s ease-in-out" } : {}) }}><PieceGlyph aufsBrett piece={{ ...piece, selected: isSel || isSpy, justMoved: !!lastMove && lastMove.to === i && !ruhig }} showLevel={showLevel} pov={pov} artStyle={artStyle} effekt={effekt && effekt.at === i ? effekt : null} /></div>}
+              ? { animation: "ggShake .5s ease-in-out" } : {}) }}><PieceGlyph aufsBrett piece={{ ...piece, selected: isSel || isSpy,
+              /* v1.90.15: "gerade gezogen" heisst die Figur DES ZIEHENDEN - nach
+                 einem Treffer ohne Fall steht sie auf ihrem Startfeld, und auf
+                 dem Zielfeld steht das Opfer, das nicht aufblitzen soll */
+              justMoved: !!lastMove && !ruhig && piece.color === lastMove.color && (lastMove.to === i || (lastMove.from === i && lastMove.from !== lastMove.to)) }} showLevel={showLevel} pov={pov} artStyle={artStyle} effekt={effekt && effekt.at === i ? effekt : null} /></div>}
           {/* v1.0.46: DIE SPERRE AUF DIESEM FELD. Die Regeln dazu gibt es seit
               v0.90, gezeichnet wurde sie nie - sperren.js hing allein an
               transitions.js. stadium() liefert genau die drei Worte, zu denen
@@ -930,6 +988,24 @@ export function BoardView({ lang = "de", state, onMove, interactive, lastMove, m
     const f = i % W, r = Math.floor(i / W);
     const c = flip ? W - 1 - f : f, row = flip ? r : H - 1 - r;
     return { x: ((c + 0.5) / W) * 100, y: ((row + 0.5) / H) * 100, l: (c / W) * 100, t: (row / H) * 100 };
+  };
+  /* ── v1.90.15: DER KASTEN EINES FELDES, PIXELGENAU WIE IM RASTER ──────────
+     disp() rechnet in Prozent des Brettkastens und kennt weder die Fuge (GAP)
+     noch den 1-px-Saum des Rasters. Fuer Linien und Sterne reicht das; fuer
+     alles, was eine Figur DECKUNGSGLEICH mit ihrer Zelle zeigen muss (Gleiter,
+     fallendes Opfer, Einschlag), nicht. Gemessen stand der Gleiter ohne
+     Kapitelbrett bis zu 7 px neben der Zelle - und sprang bei der Uebergabe.
+     n = 2 liefert den Block des grossen Drachen (i = sein Anker). */
+  const RAND = feld ? 0 : 1;
+  const zelleBox = (i, n = 1) => {
+    const f = i % W, r = Math.floor(i / W);
+    const c = n === 2 ? (flip ? W - 2 - f : f) : (flip ? W - 1 - f : f);
+    const row = n === 2 ? (flip ? r : H - 2 - r) : (flip ? r : H - 1 - r);
+    if (cell) {
+      const k = n * cell + (n - 1) * GAP;
+      return { c, row, left: RAND + c * (cell + GAP), top: RAND + row * (cell + GAP), width: k, height: k, schritt: cell + GAP };
+    }
+    return { c, row, left: `${(c / W) * 100}%`, top: `${(row / H) * 100}%`, width: `${(n / W) * 100}%`, height: `${(n / H) * 100}%`, schritt: null };
   };
 
   /* ── DAS BRETT SCHWEBT (v1.0.48, Besitzerwunsch) ─────────────────────────
@@ -1113,9 +1189,17 @@ export function BoardView({ lang = "de", state, onMove, interactive, lastMove, m
         {/* ── THE BIG DRAGON: one sprite over four squares ── */}
         {state.board.map((pc, a) => {
           if (!pc || !pc.big || pc.kind !== "D") return null;
-          const f0 = a % W, r0 = (a / W) | 0;
-          const dc = flip ? W - 2 - f0 : f0;
-          const dr = flip ? r0 : H - 2 - r0;
+          /* v1.90.15: waehrend der Block fliegt, traegt ihn der Gleiter - sonst
+             stand der Drache schon am Ziel, waehrend er noch unterwegs war */
+          /* NICHT aushaengen (return null): beim Wiedereinhaengen spielte die
+             Figur ihr Auftauchen ab - gemessen blendete der Drache nach der
+             Landung ueber 170 ms ein und rutschte dabei 12 px. Unsichtbar
+             stehen lassen, im selben Takt wieder zeigen. */
+          const fliegtGerade = !!(anim && anim.gross && anim.phase < 2 && a === (anim.bounced ? anim.from : anim.to));
+          /* v1.90.15: derselbe Kasten wie der fliegende Block (zelleBox), damit
+             die Uebergabe nach dem Flug nicht springt. Dieser Kasten liegt IM
+             Raster, also ohne dessen Saum (RAND). */
+          const zb = zelleBox(a, 2);
           const selHere = sel === a;
           // once the dragon is chosen, let taps fall THROUGH to the squares
           // beneath (his step-forward target sits under his own block), so the
@@ -1123,10 +1207,11 @@ export function BoardView({ lang = "de", state, onMove, interactive, lastMove, m
           // the wing cells underneath.
           return (
             <div key={"drg" + a} onClick={selHere ? undefined : () => tap(a)} style={{ position: "absolute", zIndex: 2,
-              left: `calc(${(dc / W) * 100}% )`, top: `calc(${(dr / H) * 100}% )`,
-              width: `${(2 / W) * 100}%`, height: `${(2 / H) * 100}%`,
+              left: zb.schritt ? zb.left - RAND : zb.left, top: zb.schritt ? zb.top - RAND : zb.top,
+              width: zb.width, height: zb.height,
               display: "grid", placeItems: "center", cursor: interactive ? "pointer" : "default",
               pointerEvents: selHere ? "none" : "auto",
+              opacity: fliegtGerade ? 0 : 1,
               borderRadius: 10,
               /* v1.0.62 (Besitzer): der aeussere Auswahl-Schein war "besonders
                  krass" - gestrichen. Der Innenring sagt alles Noetige. */
@@ -1300,6 +1385,17 @@ export function BoardView({ lang = "de", state, onMove, interactive, lastMove, m
         // plain move leans, a blocked strike lunges and returns — every one ends
         // neutral, so when the overlay hands off to the cell nothing shifts,
         // grows or blinks. (The old ghost sat centred and smaller, then jumped.)
+        /* v1.90.15 (GEMESSEN, tools/pruefe-animation.mjs): "pixel-identical"
+           stimmte nicht. Die mittlere und innere Ebene waren Raster-Elemente mit
+           width 100% - ein Raster-Element darf aber nicht schmaler werden als
+           sein Inhalt (min-width: auto), und die Figur ist 1,16 em breit. Der
+           Kasten wuchs auf 63 statt 49 px, lag buendig LINKS, und der Hub
+           (translateY in Prozent der Kastenhoehe) wurde groesser: der Turm flog
+           7 px rechts und 3 px tiefer als er stand und sprang bei der Landung
+           zurueck. Genau diesen Fehler hatte die Zelle schon einmal (siehe
+           "MEASURED, then nailed" unten) - der Gleiter hat die Loesung nie
+           bekommen. Jetzt liegen beide Ebenen absolut auf inset 0, wie die
+           Zelle, und der Kasten kommt aus zelleBox() statt aus Prozenten. */
         const a = disp(anim.from), b = disp(anim.to);
         const dur = anim.dur || (anim.foe ? 0.9 : 0.52);
         const ease = "cubic-bezier(.34,.72,.28,1)";
@@ -1308,18 +1404,52 @@ export function BoardView({ lang = "de", state, onMove, interactive, lastMove, m
         const dxSign = Math.sign(b.l - a.l);
         const dir = dxSign || (Math.sign(b.t - a.t) || 1);
         const tilt = dir * 7;
-        // BASE cell: normal move/leap → destination (slide in from origin);
-        // a bounce → origin (lunge toward the foe and spring back).
-        const base = anim.bounced ? a : b;
-        // offset that plants the piece at FROM while its base cell is TO, in %
-        // of one cell (translate(-100%) == exactly one cell). Same disp() maths
-        // as the grid, so origin and destination line up to the pixel.
-        const txStart = (a.l - b.l) * W, tyStart = (a.t - b.t) * H;
-        const bx = (b.l - a.l) * W * 0.42, by = (b.t - a.t) * H * 0.42; // lunge vector
         const glideOn = !anim.bounced && anim.phase >= 1;
         const leapNow = anim.leaps && anim.phase === 1 && !anim.bounced;
         const leanNow = !anim.leaps && anim.phase === 1 && !anim.bounced;
         const bounceNow = anim.bounced && anim.phase === 1;
+        const gleiter = (von, nach, stueck, gross, schluessel) => {
+          const n = gross ? 2 : 1;
+          const za = zelleBox(von, n), zb = zelleBox(nach, n);
+          // BASE: normal move/leap → destination (slide in from origin);
+          // a bounce → origin (lunge toward the foe and spring back).
+          const base = anim.bounced ? za : zb;
+          // Versatz, der die Figur beim Start auf VON stellt, waehrend ihr Kasten
+          // auf NACH liegt - in Pixeln, sobald das Raster vermessen ist.
+          const tx = zb.schritt ? `${(za.c - zb.c) * zb.schritt}px` : `${(za.c - zb.c) * 100}%`;
+          const ty = zb.schritt ? `${(za.row - zb.row) * zb.schritt}px` : `${(za.row - zb.row) * 100}%`;
+          const bx = `${(zb.c - za.c) * 100 * 0.42}%`, by = `${(zb.row - za.row) * 100 * 0.42}%`;   // lunge vector
+          return (
+            <div key={schluessel} style={{ position: "absolute", left: base.left, top: base.top,
+              width: base.width, height: base.height, zIndex: 7,
+              // OUTER = board glide. Destination-based, so transform 0 lands the
+              // piece dead-centre on its cell. No transition in phase 0 (planted
+              // at FROM); phase 1 switches it on and carries it home.
+              transform: anim.bounced ? "none" : (glideOn ? "translate(0px,0px)" : `translate(${tx}, ${ty})`),
+              transition: anim.bounced ? "none" : (glideOn ? `transform ${dur}s ${anim.leaps ? leapEase : ease}` : "none") }}>
+              {/* MIDDLE = the hop arc / lean / lunge — all end neutral */}
+              <div style={{ position: "absolute", inset: 0,
+                ...(leapNow ? { animation: `ggLeapArc ${dur}s cubic-bezier(.4,.12,.5,1) forwards` }
+                  : leanNow ? { ["--tilt"]: `${tilt}deg`, animation: `ggLean ${dur}s ${ease} forwards` }
+                  : bounceNow ? { ["--bx"]: bx, ["--by"]: by, animation: `ggBounce ${dur}s ease-in-out forwards` }
+                  : {}) }}>
+                {/* INNER = the piece, IDENTICAL geometry to the cell version
+                    (grosser Drache: wie der 2x2-Kasten ueber dem Raster) */}
+                {gross
+                  ? <div style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center",
+                      fontSize: `calc(${typeof glyph === "string" ? glyph : glyph + "px"} * 1.88)` }}>
+                      <PieceGlyph piece={stueck} showLevel={showLevel} pov={pov} artStyle={artStyle} big fliegt />
+                    </div>
+                  : <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center",
+                      transform: `translateY(${pieceLift})`, transformOrigin: PIECE_ORIGIN,
+                      fontSize: pieceFont(stueck.kind),
+                      filter: gespart("schatten") ? "none" : "drop-shadow(0 0.06em 0.09em rgba(0,0,0,.5))" }}>
+                      <PieceGlyph aufsBrett piece={stueck} showLevel={showLevel} pov={pov} artStyle={artStyle} fliegt />
+                    </div>}
+              </div>
+            </div>
+          );
+        };
         return (
           <div key={anim.id} style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
             <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none"
@@ -1332,36 +1462,14 @@ export function BoardView({ lang = "de", state, onMove, interactive, lastMove, m
               <circle cx={b.x} cy={b.y} r="3.1" fill={T.gold} opacity="0.16" />
               <circle cx={b.x} cy={b.y} r="1.5" fill={T.gold} opacity="0.55" />
             </svg>
-            {anim.phase < 2 && <div key={`g${anim.id}`} style={{ position: "absolute",
-              left: `${base.l}%`, top: `${base.t}%`,
-              width: `${100 / W}%`, height: `${100 / H}%`, zIndex: 7,
-              // OUTER = board glide. Destination-based, so transform 0 lands the
-              // piece dead-centre on its cell. No transition in phase 0 (planted
-              // at FROM); phase 1 switches it on and carries it home.
-              transform: anim.bounced ? "none" : (glideOn ? "translate(0%,0%)" : `translate(${txStart}%, ${tyStart}%)`),
-              transition: anim.bounced ? "none" : (glideOn ? `transform ${dur}s ${anim.leaps ? leapEase : ease}` : "none"),
-              display: "grid", placeItems: "center" }}>
-              {/* MIDDLE = the hop arc / lean / lunge — all end neutral */}
-              <div style={{ width: "100%", height: "100%", display: "grid", placeItems: "center",
-                ...(leapNow ? { animation: `ggLeapArc ${dur}s cubic-bezier(.4,.12,.5,1) forwards` }
-                  : leanNow ? { ["--tilt"]: `${tilt}deg`, animation: `ggLean ${dur}s ${ease} forwards` }
-                  : bounceNow ? { ["--bx"]: `${bx}%`, ["--by"]: `${by}%`, animation: `ggBounce ${dur}s ease-in-out forwards` }
-                  : {}) }}>
-                {/* INNER = the piece, IDENTICAL geometry to the cell version */}
-                <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center",
-                  transform: `translateY(${pieceLift})`, transformOrigin: PIECE_ORIGIN,
-                  fontSize: pieceFont(anim.piece.kind),
-                  filter: gespart("schatten") ? "none" : "drop-shadow(0 0.06em 0.09em rgba(0,0,0,.5))" }}>
-                  <PieceGlyph aufsBrett piece={anim.piece} showLevel={showLevel} pov={pov} artStyle={artStyle} fliegt />
-                </div>
-              </div>
-            </div>}
+            {anim.phase < 2 && gleiter(anim.from, anim.to, anim.piece, anim.gross, `g${anim.id}`)}
+            {anim.phase < 2 && anim.turm && gleiter(anim.turm.from, anim.turm.to, anim.turm.piece, false, `t${anim.id}`)}
           </div>
         );
       })()}
 
       {/* the FALLEN: spins off and lands exactly on its captor's tray */}
-      {death && <DeathFlyer death={death} disp={disp} W={W} H={H} pov={pov} artStyle={artStyle} />}
+      {death && <DeathFlyer death={death} disp={disp} box={zelleBox(death.at)} W={W} H={H} pov={pov} artStyle={artStyle} />}
       {sterne && sterne.list.map((e, i) => {
         const d = disp(e.at);
         return (

@@ -2396,5 +2396,52 @@ print(json.dumps({"gezaehlt": gezaehlt, "schlecht": schlecht}))
   ok("A41: BrettHintergrund rendert", html(<BH liga={3} />).length > 50);
 }
 
+/* ── v1.90.15: DIE AUFSTELLUNGSKAMMER (?aufstellung) ─────────────────────────
+   Besitzerauftrag 30.9.: "gib mir die ganzen ersten Spiele ... dass ich
+   wirklich genau sehe, wie das aussieht". Die Kammer baut jede Schluessel-
+   station mit demselben buildStageMatch/createGame wie das Gefecht. Geprueft
+   wird, dass sie das fuer ALLE kann (nicht nur fuer die, die man anklickt),
+   dass jedes Brett beide Koenige und den Gegner traegt - und dass der Drache
+   dort steht, wo die Seite fuer den Besitzer es beschreibt. */
+{
+  const { schluesselStationen, aufstellungFuer, AufstellungKammerScreen } = await import("./src/app/ui/AufstellungKammerScreen.jsx");
+  const liste = schluesselStationen();
+  ok(`Aufstellungskammer: ${liste.length} Schluesselstationen (alle Boss-Stationen und Finale)`,
+    liste.length === CAMPAIGN.filter((n) => n.boss || n.final).length && liste.length >= 40);
+  let heil = 0, mitGegner = 0, fehlerText = "";
+  for (const n of liste) {
+    try {
+      const a = aufstellungFuer(n.id);
+      const b = a.state.board;
+      const koenige = b.filter((p) => p && p.kind === "K").length;
+      if (koenige === 2) heil++; else fehlerText ||= `${n.id}: ${koenige} Koenige`;
+      if (b.some((p) => p && p.color === "b" && p.bossId)) mitGegner++; else fehlerText ||= `${n.id}: kein Gegner am Brett`;
+    } catch (e) { fehlerText ||= `${n.id}: ${e.message}`; }
+  }
+  ok(`Aufstellungskammer: alle ${liste.length} Bretter bauen mit zwei Koenigen ${fehlerText}`, heil === liste.length);
+  ok(`Aufstellungskammer: auf jedem steht der Gegner (${mitGegner}/${liste.length})`, mitGegner === liste.length);
+  const drache = liste.map((n) => aufstellungFuer(n.id)).filter((a) => a.state.board.some((p) => p && p.kind === "D" && p.big));
+  ok(`Aufstellungskammer: der grosse Drache steht an genau einer Schluesselstation (${drache.map((a) => a.node.id).join(", ")})`, drache.length === 1);
+  if (drache[0]) {
+    const w = drache[0].state.w, anker = drache[0].state.board.findIndex((p) => p && p.kind === "D" && p.big);
+    const koenig = drache[0].state.board.findIndex((p) => p && p.kind === "K" && p.color === "b");
+    const block = [anker, anker + 1, anker + w, anker + w + 1];
+    ok(`Aufstellungskammer: der Drachenblock beruehrt den Koenig nicht (Anker ${anker}, Koenig ${koenig})`, !block.includes(koenig));
+  }
+  const kopf = html(<AufstellungKammerScreen />);
+  ok("Aufstellungskammer: die Liste rendert (ohne Parameter)", kopf.includes("AUFSTELLUNGSKAMMER") && (kopf.match(/aufstellung=/g) || []).length === liste.length);
+}
+
+/* ── v1.90.15: JEDE WIRKENDE FAEHIGKEIT HAT EIN ZEICHEN ──────────────────────
+   Die neun Monster-Faehigkeiten fielen auf das Ersatzzeichen (violettes "?")
+   zurueck, sobald sie sich im Gefecht zeigten - die Kampfleiste zeigt dort
+   AbilityIcon. Geprueft an der Ausgabe, nicht an der Tabelle. */
+{
+  const { AbilityIcon } = await import("./src/app/ui/AbilityIcons.jsx");
+  const ohne = Object.entries(ABILITIES).filter(([, a]) => a.live).map(([id]) => id)
+    .filter((id) => html(<AbilityIcon id={id} />).includes(">?</text>"));
+  ok(`jede wirkende Faehigkeit hat ein eigenes Zeichen (ohne: ${ohne.join(", ") || "keine"})`, ohne.length === 0);
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

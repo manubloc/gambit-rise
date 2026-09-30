@@ -37,7 +37,10 @@ Drei Aufgaben, alle aus Material, das schon im Repo liegt - kein Bild-API:
               wie die held-*.webp seit v1.78.0: painted/ auf 460 px, seitlich
               auf die Figur beschnitten.
 
-Aufruf: python3 tools/landing_bilder.py [zugbilder|gefecht|crowd|alles]
+  galerie     Die zwoelf Galerie-Kacheln: Sockel in die Bildmitte (v1.90.15);
+              "galerie-pruefen" misst nur und scheitert bei Abweichung.
+
+Aufruf: python3 tools/landing_bilder.py [zugbilder|gefecht|crowd|galerie|galerie-pruefen|alles]
 """
 import sys
 from pathlib import Path
@@ -156,8 +159,61 @@ def crowd():
         print("crowd", name, r - l)
 
 
+# ── GALERIE: DER SOCKEL IN DIE MITTE (v1.90.15) ──────────────────────────────
+# Die zwoelf Kacheln "Was du erspielst" zeigen jedes Bild mittig in seiner
+# Karte (height 150 px, width auto). Die Bilder sind aber seitlich auf die
+# FIGUR beschnitten, nicht auf den Sockel - wer eine Lanze, einen Fluegel oder
+# eine Schriftrolle zur Seite haelt, stand deshalb mit dem Sockel neben der
+# Kartenmitte. Gemessen (Alphakanal, unterste 5 Zeilen, Alpha > 60): Kapitaen
+# 0,448, Amazone 0,462, Schatten 3 0,608, Schatten 4 0,589 - bei 150 px Hoehe
+# bis zu 11 px daneben. Dieselbe Regel wie im Spiel ("der Sockelfuss sitzt in
+# der Bildmitte", CLAUDE.md): Ausrichtung IM Bild, nicht per CSS. Das Bild
+# wird nur um durchsichtige Spalten ergaenzt, nichts an der Figur aendert sich.
+GALERIE_TOLERANZ = 0.015
+
+def fussmitte(im):
+    a = im.split()[3]; w, h = im.size; px = a.load()
+    bb = a.point(lambda v: 255 if v > 60 else 0).getbbox()
+    xs = [x for y in range(bb[3] - 5, bb[3]) for x in range(w) if px[x, y] > 60]
+    return (min(xs) + max(xs)) / 2, w
+
+# v1.90.15 (Audit A76): die Kachel "Waechter - Bestie aus dem Riss" zeigte den
+# HELDEN Schildtraeger (painted-guardian, gruener Mantel, Wappenschild). Der
+# Waechter ist die Bestie b01 aus Stein - dieselbe, die im Gefechtsbild weiter
+# unten in der eigenen Reihe steht ("dem Waechter" im Alt-Text dort stimmt).
+# Die Kachel bekommt die Bestie, im Format der uebrigen: auf die Figur
+# beschnitten, 300 px hoch.
+def galerie_waechter():
+    im = Image.open(PAINTED / "painted-boss-b01.webp").convert("RGBA")
+    im = im.crop(im.split()[3].point(lambda v: 255 if v > 20 else 0).getbbox())
+    im = im.resize((round(im.width * 300 / im.height), 300), Image.LANCZOS)
+    im.save(LANDING / "gal-waechter.webp", quality=90)
+    print("galerie gal-waechter.webp", im.size)
+
+def galerie(nur_pruefen=False):
+    if not nur_pruefen and not (LANDING / "gal-waechter.webp").exists(): galerie_waechter()
+    schief = []
+    for pfad in sorted(LANDING.glob("gal-*.webp")):
+        im = Image.open(pfad).convert("RGBA")
+        fx, w = fussmitte(im)
+        lage = fx / w
+        if abs(lage - 0.5) <= GALERIE_TOLERANZ:
+            print("galerie", pfad.name, f"{lage:.3f}", "mittig"); continue
+        if nur_pruefen:
+            schief.append(f"{pfad.name} {lage:.3f}"); continue
+        rand = int(round(abs(w - 2 * fx)))
+        neu = Image.new("RGBA", (w + rand, im.height), (0, 0, 0, 0))
+        neu.paste(im, (rand if fx < w / 2 else 0, 0))
+        neu.save(pfad, quality=90)
+        print("galerie", pfad.name, f"{lage:.3f} -> {fussmitte(neu)[0] / neu.width:.3f}", f"(+{rand} px {'links' if fx < w / 2 else 'rechts'})")
+    if schief:
+        print("SCHIEF:", ", ".join(schief)); sys.exit(1)
+
+
 if __name__ == "__main__":
     was = sys.argv[1] if len(sys.argv) > 1 else "alles"
+    if was == "galerie-pruefen": galerie(nur_pruefen=True); sys.exit(0)
+    if was in ("galerie", "alles"): galerie()
     if was in ("zugbilder", "alles"): zugbilder()
     if was in ("gefecht", "alles"):
         for name in BRETTER: gefecht(name)

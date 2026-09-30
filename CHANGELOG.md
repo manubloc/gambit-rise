@@ -1,5 +1,76 @@
 # Changelog - Gambit Rise
 
+## 1.90.15 - die Zuege am echten Brett gemessen: sieben Animationsfehler, die Startseite und die Aufstellungskammer
+
+Besitzer, 30.9.: "dass man nochmal die Animation alle sauber geprueft hat,
+weil da sind immer wieder Fehler zu erkennen. Auch auf der Landingpage ...
+nicht perfekt ... von den Positionen der Figuren." Und: "gib mir die ganzen
+ersten Spiele raus ... gerade der Drache".
+
+**WARUM DIE FEHLER SO LANGE LEBTEN.** Die Animationskammer fuehrt jede
+Bewegung auf einer NACHGEBAUTEN Buehne vor, test_anim prueft Register und
+Quelltext-Stellen. Keins von beiden sah, was die echte BoardView tut, wenn
+der Kern einen echten Zug liefert. Neu: `tools/pruefe-animation.mjs` mit
+`tools/anim-pruefstand.jsx` - zehn Zuege (Zug, Gleiten, Schlag, HP-Treffer,
+HP-Schlag, Schild, Rochade, en passant, Umwandlung, Drache) in drei Lagen
+(Schnelles Spiel mit Fugen, Kampagne fugenlos, gedreht als Schwarz), jedes
+Bild mitgeschrieben: welche Figur ist wo und wie deckend. Gegen v1.90.14
+gefahren: **67 von 132 Pruefungen rot**, jetzt 132/132. Haengt am Ende der
+Batterie.
+
+**1. HP-TREFFER OHNE FALL - DAS OPFER FLOG.** Der Gleiter nahm "was jetzt
+auf dem Zielfeld steht" als Zieher. Beim Treffer, der nicht toetet (der
+haeufigste Schlag im Gefecht), steht dort das OPFER: sein Bild flog aus dem
+Feld des Angreifers in sein eigenes, der Angreifer ruehrte sich nicht, und
+das Opfer war bis 1,1 s unsichtbar - sein Wackeln damit auch. Jetzt stoesst
+der Angreifer zu und kehrt heim; das Opfer bleibt stehen und wackelt.
+**2. SCHILD-ABPRALL im Schach: dieselbe Ursache**, dasselbe falsche Bild.
+**3. SCHLAG: der Angreifer stand 150 ms doppelt** - die Zelle des Opfers
+blendete ihn per `opacity .18s` erst aus, waehrend der Gleiter schon am Start
+stand. **4. NACH JEDEM ZUG ein Blinken:** bei der Uebergabe verschwand die
+Figur fuer ein Bild und blendete 180 ms ein - dieselbe Uebergangszeile. Dazu
+**ein Ruck von bis zu 7 px**: mittlere und innere Ebene des Gleiters waren
+Raster-Elemente mit width 100 %, und ein Raster-Element wird nie schmaler als
+sein Inhalt - der Kasten wuchs auf 63 statt 49 px, lag links buendig, der Hub
+wurde groesser. Genau diesen Fehler hatte die Zelle schon einmal ("MEASURED,
+then nailed"); der Gleiter hat die Loesung nie bekommen. Jetzt `inset: 0`
+und ein pixelgenauer Kasten aus `zelleBox()` (Fuge und Saum eingerechnet).
+**5. EN PASSANT:** das Opfer verschwand auf d5 sofort und fiel von d6.
+**6. ROCHADE:** der Turm glitt nicht, er verschwand auf h1 und blendete auf f1
+ein - jetzt fliegt er mit. **7. DER GROSSE DRACHE** stand sofort am Ziel,
+waehrend darunter ein kleiner, ANDERS GEMALTER Drache glitt; jetzt fliegt der
+2x2-Block selbst. Nebenbei: **das getroffene Opfer sackte beim Wackeln 8 px
+ab** und **der mattgesetzte Koenig beim Fallen** - ggShake und ggKoenigFall
+ersetzten die transform der Zelle samt Hub; die Keyframes tragen ihn jetzt
+ueber `--hub`. Das fallende Opfer blendete ausserdem erst ein (ggSanft) und
+stand 6 px daneben.
+
+**DIE STARTSEITE.** Gemessen an 13 Fenstergroessen: auf hohen, schmalen
+Schirmen (Tablet hochkant) war die vordere Figurenreihe breiter als das
+Fenster - bei 600 px ragten beide Tuerme je 69 px hinaus. Die Figurenhoehe
+hing nur an der Fensterhoehe; jetzt `min(30svh, 35vw)`, das Handy bleibt wie
+es ist. Die Galerie-Bilder waren auf die FIGUR beschnitten, nicht auf den
+Sockel: Kapitaen und Schatten standen bis 11 px neben der Kartenmitte - jetzt
+sitzt der Sockel im Bild in der Mitte (`tools/landing_bilder.py galerie`,
+dieselbe Regel wie im Spiel). Die Kachel "Waechter - Bestie aus dem Riss"
+zeigte den HELDEN Schildtraeger (A76) - jetzt die Bestie aus Stein. 19 Bilder
+(850 KB), die keine Zeile der Seite mehr ansprach, liegen im Archiv. Neue
+Probe `tools/pruefe-landing.mjs` am Anfang der Batterie (gegen v1.90.14: 7
+Zusagen gebrochen).
+
+**DIE AUFSTELLUNGSKAMMER** (`?aufstellung`, hinter dem Werkzeug-Schloss):
+jede der 44 Schluesselstationen so, wie sie beim ersten Zug steht - mit
+demselben buildStageMatch/createGame wie das Gefecht, Kapitelbrett und
+-gemaelde dahinter. `tools/foto-aufstellungen.mjs` fotografiert alle.
+Befunde fuer den Besitzer (nichts davon geaendert): der Drache steht in der
+Ecke a7-b8 und ist der einzige Boss, der die Dame behaelt; 31 von 32 Bossen
+stehen gleich (d8); Brutmutter, Schleicher, Bollwerk und Fluesterin kommen
+nirgends vor; der Hetzer besetzt 101 von 172 Stationen.
+
+**DIE NEUN MONSTER-FAEHIGKEITEN HABEN ZEICHEN.** Zeigte sich Gift, Blenden,
+Aderlass, Schrecken, Wegelagerei, Steinhaut, Widerhall, Unsterblich oder
+Geistwandel im Gefecht, stand in der Kampfleiste das violette Ersatz-"?".
+
 ## 1.90.14 - der Drachenblock verschluckte den Helden, und zwei Komponenten kehrten ueber ihren Hooks zurueck
 
 **A36 — DER DRACHENBLOCK VERSCHLUCKTE DEN HELDEN.** Beim Entfalten raeumte

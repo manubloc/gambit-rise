@@ -39,15 +39,17 @@ gambitrise.com zeigt darauf).
   pruefe-navigation, pruefe-textfluss, test_layout) lesen den Chromium-Pfad aus
   `PW_CHROMIUM`; ohne die Variable gilt der Pfad des Cloud-Containers. Lokal:
   `npx playwright install chromium` und `PW_CHROMIUM=<Pfad zur chrome-Datei>`.
-- `npm test` — volle Batterie. MUSS **28 Suiten / 2422 Prüfungen** melden
-  (Stand v1.90.14; der Runner stoppt nach der ersten roten Suite, also
+- `npm test` — volle Batterie. MUSS **29 Suiten / 2561 Prüfungen** melden
+  (Stand v1.90.15; der Runner stoppt nach der ersten roten Suite, also
   Suitenzahl prüfen, nicht nur Assertions! Zählweise: alle Zeilen
   `RESULT…: N passed` summieren — test_balance meldet zwei, darum stehen im
-  Log 29 RESULT-Zeilen für 28 Suiten). **Seit v1.89.9 läuft
-  `tools/pruefe-bezeichner.mjs` in der Batterie mit**, direkt hinter
+  Log 30 RESULT-Zeilen für 29 Suiten; die 29. ist seit v1.90.15
+  `tools/pruefe-animation.mjs` mit 132 Prüfungen, ~130 s). **Seit v1.89.9
+  läuft `tools/pruefe-bezeichner.mjs` in der Batterie mit**, direkt hinter
   `npm run ui` (dort entsteht das Bundle `.uitest.mjs`, das die Probe liest).
-  Sie gibt KEINE RESULT-Zeile aus — die Zählung bleibt also bei 28/2422 —,
-  bricht die Kette aber, sobald im Bundle ein freier Bezeichner auftaucht.
+  Sie gibt KEINE RESULT-Zeile aus — ebenso wenig `tools/pruefe-landing.mjs`
+  (seit v1.90.15 an dritter Stelle) —, bricht die Kette aber, sobald im
+  Bundle ein freier Bezeichner auftaucht.
   Das ist die Klasse der Abstürze A3/A4: gültiges JavaScript, das erst beim
   Rendern als ReferenceError hochgeht.
 - `npm run ui` — nur die UI-Proben (test_ui.jsx läuft NIE direkt mit node;
@@ -98,6 +100,30 @@ gambitrise.com zeigt darauf).
   zu tief. Drei Messfallen sind im Kopf der Datei festgehalten (Schlagschatten
   zählt nicht zur Silhouette, Helligkeit ist nicht Form, und ohne Abstand
   fotografiert man den Nachbarn mit).
+- `node tools/pruefe-animation.mjs [ordner]` — **DIE ANIMATIONEN AM ECHTEN
+  BRETT** (v1.90.15, letzte Suite der Batterie, ~130 s). Baut
+  `tools/anim-pruefstand.jsx` (die echte BoardView, echte Züge aus
+  `applyMove`) und schreibt bei zehn Zügen in drei Lagen (Schnelles Spiel
+  mit Fugen, Kampagne fugenlos, gedreht als Schwarz) JEDES Bild mit: welche
+  Figur wo, wie deckend. Regeln R1–R8 (Opfer bleibt sichtbar, niemand
+  doppelt, kein Blinken, kein Ruck bei der Übergabe, Turm fliegt mit, Drache
+  als Block …). Legt Bildstreifen je Zug ab (Screencast mit Zeitstempel).
+  **Warum:** die Animationskammer zeigt NACHGEBAUTE Bühnen, test_anim liest
+  Quelltext — gegen v1.90.14 waren 67 von 132 Prüfungen rot, u. a. flog beim
+  HP-Treffer das OPFER statt des Angreifers. Wer BoardView, PieceGlyph oder
+  die Keyframes in theme.js anfasst: diese Probe VORHER und NACHHER.
+- `node tools/pruefe-landing.mjs` — die Startseite (v1.90.15, zweite Stelle
+  der Batterie, **ohne RESULT-Zeile** wie pruefe-bezeichner): angesprochene
+  Bilder ↔ vorhandene (keine Waisen), Galerie-Sockel in der Bildmitte
+  (python3 + Pillow über `tools/landing_bilder.py galerie-pruefen`), vordere
+  Figurenreihe in 13 Fenstergrößen nie breiter als das Fenster.
+- **Aufstellungskammer** `?aufstellung` bzw. `?aufstellung=<Station>` (hinter
+  dem Werkzeug-Schloss, v1.90.15): jede der 44 Schlüsselstationen, wie sie
+  beim ersten Zug steht — dasselbe buildStageMatch/createGame wie das
+  Gefecht. `node tools/foto-aufstellungen.mjs <ordner>` fotografiert alle
+  (braucht `npx vite build`). Die Befunde vom 30.9. (Drache in der Ecke,
+  31/32 Bosse auf d8, vier Bestien nie im Spiel, Hetzer auf 101/172
+  Besetzungen) stehen im Changelog v1.90.15.
 - `node test_layout.mjs` — echte Geometrie im Browser. Läuft wieder (v1.86.0:
   die Klang-Loader fehlten), hängt aber NICHT in der Kette: vier Proben
   erwarten ein vertikal zentriertes Brett, was seit dem Talentband nicht mehr
@@ -110,7 +136,7 @@ starten, sonst reißen Werkzeug-Zeitlimits den Lauf ab.
 
 ## EISERNE KETTE — Pflicht vor JEDEM Push, keine Ausnahmen
 
-1. `npm test` (28 Suiten, Assertionszahl notieren)
+1. `npm test` (29 Suiten, Assertionszahl notieren)
 2. `npm run build`, dann **`npm run build:app`**, dann `npm run build:single`
 
    **Warum `build:app` NACH `build` gehört** (v1.86.0, teuer gelernt):

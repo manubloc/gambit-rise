@@ -42,6 +42,7 @@ import { setGegnerStil } from "./ui/gegnerstil.js";
 import { MENUE_LEHREN } from "../content/lehren.js";
 import { SchaukammerScreen } from "./ui/SchaukammerScreen.jsx";
 import { AnimKammerScreen } from "./ui/AnimKammerScreen.jsx";
+import { AufstellungKammerScreen } from "./ui/AufstellungKammerScreen.jsx";   /* v1.90.15: Besitzerauftrag 30.9. */
 import { WerkzeugTuer } from "./ui/WerkzeugTuer.jsx";
 import { torOffen } from "./ui/torschloss.js";
 import { KlangWerkstattScreen } from "./ui/KlangWerkstattScreen.jsx";
@@ -578,6 +579,14 @@ export default function App() {
     if (!authReady) return null;
     return werkzeugFrei ? <AnimKammerScreen />
       : <WerkzeugTuer was="Animationskammer" onOffen={() => setTorAuf(true)} />;
+  }
+  /* DIE AUFSTELLUNGSKAMMER (Besitzer, v1.90.15): jede Schluesselstation so,
+     wie sie beim ersten Zug steht - mit dem echten Brett, nicht nachgebaut.
+     ?aufstellung zeigt die Liste, ?aufstellung=L07s41 die Station. */
+  if (typeof location !== "undefined" && new URLSearchParams(location.search).has("aufstellung")) {
+    if (!authReady) return null;
+    return werkzeugFrei ? <AufstellungKammerScreen />
+      : <WerkzeugTuer was="Aufstellungskammer" onOffen={() => setTorAuf(true)} />;
   }
   // DAS ADMIN-PORTAL (Besitzer, v0.57): eine Tuer zu allen Unterseiten.
   // DAS SPIELERBUCH (Besitzer, v0.73): Liste, Fortschritt, Herkunft.

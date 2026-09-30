@@ -126,7 +126,15 @@
     header.buehne { position:relative; overflow:hidden; text-align:center;
       min-height:100vh; min-height:100svh; display:flex; flex-direction:column;
       align-items:center; justify-content:center; padding:0 18px;
-      --fh:clamp(146px,30svh,330px); background:
+      /* v1.90.15 (gemessen): die Figurenhoehe haengt an der FENSTERHOEHE -
+         auf hohen, schmalen Schirmen (Tablet hochkant, 561-900 px) wurde die
+         Reihe breiter als das Fenster: bei 600 px ragten beide Tuerme je
+         69 px hinaus (54 % abgeschnitten), bei 768 px je 36 px. Dabei sagt
+         der Kommentar an der Reihe, am Rand verschwinden Figuren, "damit die
+         Reihe nie beschnitten wirkt". min(30svh, 35vw) haelt die Reihe im
+         Fenster; wo die Hoehe ohnehin kleiner ist (Querformat, Rechner),
+         aendert sich nichts. Das Handy (<= 560 px) hat seine eigene Zeile. */
+      --fh:clamp(146px,min(30svh,35vw),330px); background:
         radial-gradient(1000px 460px at 50% -140px, rgba(124,58,237,.20), transparent 65%),
         radial-gradient(800px 380px at 50% 108%, rgba(201,164,92,.10), transparent 70%),
         linear-gradient(180deg,#0a0e18,var(--night)); }
@@ -548,7 +556,12 @@
         <div class="sockel"><img src="/landing/gal-archbishop.webp" alt="Der Erzbischof" loading="lazy" /><div class="n">Erzbischof</div><div class="r">Läufer &amp; Springer</div></div>
         <div class="sockel"><img src="/landing/gal-mage.webp" alt="Der Magier" loading="lazy" /><div class="n">Magier</div><div class="r">wirkt Zauber</div></div>
         <div class="sockel"><img src="/landing/gal-paladin.webp" alt="Der Paladin" loading="lazy" /><div class="n">Paladin</div><div class="r">hält die Reihe</div></div>
-        <div class="sockel riss"><img src="/landing/gal-guardian.webp" alt="Der Wächter" loading="lazy" /><div class="n">Wächter</div><div class="r">Bestie aus dem Riss</div></div>
+        <!-- v1.90.15 (Audit A76): hier stand das Bild des HELDEN Schildtraeger
+             (gruener Mantel, Wappenschild) unter dem Namen der Bestie. Der
+             Waechter ist die Bestie b01 aus Stein - dieselbe wie im Gefechtsbild
+             weiter unten. Alle Galeriebilder tragen ihren Sockel seit v1.90.15
+             in der Bildmitte (tools/landing_bilder.py galerie). -->
+        <div class="sockel riss"><img src="/landing/gal-waechter.webp" alt="Der Wächter, eine Bestie aus Stein" loading="lazy" /><div class="n">Wächter</div><div class="r">Bestie aus dem Riss</div></div>
         <div class="sockel"><img src="/landing/gal-schatten-1.webp" alt="" loading="lazy" /><div class="n">???</div><div class="r">noch verborgen</div></div>
         <div class="sockel"><img src="/landing/gal-schatten-2.webp" alt="" loading="lazy" /><div class="n">???</div><div class="r">noch verborgen</div></div>
         <div class="sockel"><img src="/landing/gal-schatten-3.webp" alt="" loading="lazy" /><div class="n">???</div><div class="r">noch verborgen</div></div>

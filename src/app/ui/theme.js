@@ -393,10 +393,13 @@ export const GLOBAL_CSS = `
   @keyframes rise { from { opacity: 0; } to { opacity: 1; } }
   @keyframes glow { 0%,100% { box-shadow: 0 0 0 2px ${T.danger}; } 50% { box-shadow: 0 0 0 2px ${T.danger}66; } }
   @keyframes hit { 0% { opacity: .8; } 100% { opacity: 0; } }
-  @keyframes ggShake { 0%,100% { transform: translateX(0) rotate(0); }
-    15% { transform: translateX(-9%) rotate(-5deg); } 30% { transform: translateX(8%) rotate(4deg); }
-    45% { transform: translateX(-6%) rotate(-3deg); } 60% { transform: translateX(5%) rotate(2deg); }
-    75% { transform: translateX(-3%) rotate(-1deg); } }
+  /* v1.90.15: translateY(var(--hub)) vorn - die Zelle traegt ihren Hub als
+     transform, und eine Animation ersetzt die transform ganz (siehe
+     BoardView, "--hub"). Ohne Variable (andere Nutzer) gilt 0. */
+  @keyframes ggShake { 0%,100% { transform: translateY(var(--hub, 0px)) translateX(0) rotate(0); }
+    15% { transform: translateY(var(--hub, 0px)) translateX(-9%) rotate(-5deg); } 30% { transform: translateY(var(--hub, 0px)) translateX(8%) rotate(4deg); }
+    45% { transform: translateY(var(--hub, 0px)) translateX(-6%) rotate(-3deg); } 60% { transform: translateY(var(--hub, 0px)) translateX(5%) rotate(2deg); }
+    75% { transform: translateY(var(--hub, 0px)) translateX(-3%) rotate(-1deg); } }
   @keyframes ggFallAway {
     0% { transform: translate(0,0) rotate(0) scale(1); opacity: 1; }
     18% { transform: translate(calc(var(--fdir) * 20%), -34%) rotate(calc(var(--fdir) * 130deg)) scale(1.06); opacity: 1; }
@@ -546,12 +549,12 @@ export const GLOBAL_CSS = `
      volle Deckkraft, kein Verschwinden. Der Fall dauert laenger (Traegheit
      eines schweren Stuecks) und beginnt langsam. */
   @keyframes ggKoenigFall {
-    0% { transform: rotate(0deg) translate(0, 0); }
-    18% { transform: rotate(9deg) translate(1%, 0); }
-    62% { transform: rotate(88deg) translate(15%, 8%); }
-    74% { transform: rotate(80deg) translate(14%, 7%); }
-    86% { transform: rotate(94deg) translate(16%, 9%); }
-    100% { transform: rotate(92deg) translate(16%, 9%); } }
+    0% { transform: translateY(var(--hub, 0px)) rotate(0deg) translate(0, 0); }
+    18% { transform: translateY(var(--hub, 0px)) rotate(9deg) translate(1%, 0); }
+    62% { transform: translateY(var(--hub, 0px)) rotate(88deg) translate(15%, 8%); }
+    74% { transform: translateY(var(--hub, 0px)) rotate(80deg) translate(14%, 7%); }
+    86% { transform: translateY(var(--hub, 0px)) rotate(94deg) translate(16%, 9%); }
+    100% { transform: translateY(var(--hub, 0px)) rotate(92deg) translate(16%, 9%); } }
   @keyframes ggStufenStern { 0% { opacity: 0; transform: scale(.2) rotate(0deg); }
     30% { opacity: 1; transform: scale(1.15) rotate(18deg); }
     100% { opacity: 0; transform: scale(1.7) rotate(40deg); } }
