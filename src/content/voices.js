@@ -145,8 +145,8 @@ export const VOICES = {
     afterEn: "Relief … at last. You hold the lantern now, {held}. I have stood long enough.",
   },
   b02: {
-    heraldDe: "Der Springbock sprang durch den Riss, weil drüben etwas hinter ihm her war — es ist ihm gefolgt.",
-    heraldEn: "The Springbok leapt through the rift because something over there was chasing it — and it followed.",
+    heraldDe: "Der Hetzer sprang durch den Riss, weil drüben etwas hinter ihm her war — es ist ihm gefolgt.",
+    heraldEn: "The Harrier leapt through the rift because something over there was chasing him — and it followed.",
     afterDe: "…es rennt noch… lauf, {held}… es rennt IMMER noch…",
     afterEn: "…it still runs… run, {held}… it is STILL running…",
   },
@@ -163,8 +163,8 @@ export const VOICES = {
     afterEn: "Your shadow sits tight at your heels, {held}. Enviable. Hold on to it.",
   },
   b05: {
-    heraldDe: "Das Zebra trägt die Streifen beider Welten — und findet in keiner mehr eine Herde.",
-    heraldEn: "The Zebra wears the stripes of both worlds — and finds a herd in neither.",
+    heraldDe: "Der Streuner trägt die Streifen beider Welten — und findet in keiner mehr eine Herde.",
+    heraldEn: "The Stray wears the stripes of both worlds — and finds a herd in neither.",
     afterDe: "…Herde…? …du riechst nicht nach Riss, {held}… gut… gut…",
     afterEn: "…herd…? …you do not smell of rift, {held}… good… good…",
   },
@@ -223,8 +223,8 @@ export const VOICES = {
     afterEn: "I move aside, {held}. What lives in the well is your watch now.",
   },
   b15: {
-    heraldDe: "Die Sturmkrähe nistet im Gewitter über dem Riss und trägt Nachrichten, die niemand abgeschickt hat.",
-    heraldEn: "The Stormcrow nests in the thunder above the rift, carrying messages no one ever sent.",
+    heraldDe: "Die Sturmklaue nistet im Gewitter über dem Riss und trägt Nachrichten, die niemand abgeschickt hat.",
+    heraldEn: "The Stormclaw nests in the thunder above the rift, carrying messages no one ever sent.",
     afterDe: "Eine Nachricht für dich, {held} — ungezeichnet, wie immer: ‚Komm nicht ans Meer.'",
     afterEn: "A message for you, {held} — unsigned, as always: 'Do not come to the sea.'",
   },

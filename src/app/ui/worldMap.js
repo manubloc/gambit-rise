@@ -48,7 +48,7 @@ export const LEAGUE_LORE = {
   },
   4: {
     de: "Wo der Eichwald dünner wird, wachsen die Bäume krumm — der Wind erlaubt kein aufrechtes Stehen mehr. Hirten sagen, an der Baumgrenze hört man den Riss zum ersten Mal: nicht als Laut, sondern als Stille zwischen zwei Glockenschlägen. Der Hetzer jagt dort von Fels zu Fels, als suche er einen Namen, den ihm keine Weide je gab. Horch an der Baumgrenze, {held} — die Stille kennt dich schon.",
-    en: "Where the Eichwald thins, the trees grow crooked — the wind no longer permits standing upright. Herders say the treeline is where you first hear the rift: not as a sound, but as the silence between two bell strokes. The Springbok leaps there from rock to rock, as if searching for a name it found on no pasture. Listen at the treeline, {held} — the silence knows you already.",
+    en: "Where the Eichwald thins, the trees grow crooked — the wind no longer permits standing upright. Herders say the treeline is where you first hear the rift: not as a sound, but as the silence between two bell strokes. The Harrier hunts there from rock to rock, as if searching for a name no pasture ever gave him. Listen at the treeline, {held} — the silence knows you already.",
   },
   5: {
     de: "In einem Winter vor Jahren kam jemand aus dem Riss zurück — barfuß, ohne Namen, mit dem Gedächtnis eines ganzen Hofes. Der Schnee bewahrte die Spur, die Kälte hielt sie still. Der Schattenfürst folgte ihr drei Nächte und sah zu lange hin; seither ist er halb Mensch, halb das, was der Riss aus Menschen macht. Die Spur endete am Archiv. Die Kälte wird auch deine Spur bewahren, {held}.",

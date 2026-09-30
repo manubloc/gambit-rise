@@ -76,6 +76,19 @@ function loneBoss(boss) {
 // 5) campaign wiring
 {
   ok("at least 25 bosses exist", BOSSES.length >= 25);
+  /* v1.90.17: Streuner und Schleicher hiessen auf Englisch beide "The
+     Prowler", und drei Herolds-Stimmen riefen Monster bei Namen, die sie
+     laengst nicht mehr tragen (Springbock, Zebra, Sturmkraehe). Beim Umbenennen
+     der Bestien waren nur bosses.js nachgezogen worden, nicht voices.js. */
+  ok("every boss has its own English name", new Set(BOSSES.map((b) => b.nameEn)).size === BOSSES.length);
+  {
+    const { VOICES } = await import("./src/content/voices.js");
+    const falsch = BOSSES.filter((b) => VOICES[b.id]).filter((b) => {
+      const de = b.nameDe.split(",")[0].replace(/^(Der|Die|Das) /, ""), en = b.nameEn.split(",")[0].replace(/^The /, "");
+      return !VOICES[b.id].heraldDe.includes(de) || !VOICES[b.id].heraldEn.includes(en);
+    }).map((b) => b.id);
+    ok(`every herald names its boss by its current name (wrong: ${falsch.join(", ") || "none"})`, falsch.length === 0);
+  }
   ok("every boss has a unique move spec", new Set(BOSSES.map((b) => JSON.stringify(b.moveSpec))).size === BOSSES.length);
   const bossStages = CAMPAIGN.filter((st) => st.boss);
   // v0.77: Die ERWACHENS-Station wandert mit der Schachhaelfte von Kapitel I -

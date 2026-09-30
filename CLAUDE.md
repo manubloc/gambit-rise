@@ -39,8 +39,8 @@ gambitrise.com zeigt darauf).
   pruefe-navigation, pruefe-textfluss, test_layout) lesen den Chromium-Pfad aus
   `PW_CHROMIUM`; ohne die Variable gilt der Pfad des Cloud-Containers. Lokal:
   `npx playwright install chromium` und `PW_CHROMIUM=<Pfad zur chrome-Datei>`.
-- `npm test` — volle Batterie. MUSS **29 Suiten / 2575 Prüfungen** melden
-  (Stand v1.90.16; der Runner stoppt nach der ersten roten Suite, also
+- `npm test` — volle Batterie. MUSS **29 Suiten / 2577 Prüfungen** melden
+  (Stand v1.90.17; der Runner stoppt nach der ersten roten Suite, also
   Suitenzahl prüfen, nicht nur Assertions! Zählweise: alle Zeilen
   `RESULT…: N passed` summieren — test_balance meldet zwei, darum stehen im
   Log 30 RESULT-Zeilen für 29 Suiten; die 29. ist seit v1.90.15

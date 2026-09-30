@@ -1,5 +1,22 @@
 # Changelog - Gambit Rise
 
+## 1.90.17 - drei Herolde riefen Monster bei alten Namen, zwei Monster hiessen gleich; die Monster-Prompts
+
+**DIE NAMEN.** Beim Umbenennen der Bestien war nur bosses.js nachgezogen
+worden, nicht voices.js: die Herolds-Stimmen kuendigten den Hetzer als
+"Springbock", den Streuner als "Zebra" und die Sturmklaue als "Sturmkraehe"
+an (deutsch und englisch), und die englische Kapitelkarte IV sprach vom
+"Springbok". Dazu hiessen Streuner und Schleicher auf Englisch beide "The
+Prowler" - der Streuner heisst jetzt "The Stray". test_boss prueft beides
+fuer alle 25 Bosse.
+
+**DIE MONSTER-PROMPTS** (Besitzer, 30.9.: "fuer jedes Monster ... Prompt-
+Vorschlaege ... mehr in Farbe"): design/MONSTER-PROMPTS-2026-09-30.md, 25
+Prompts, sortiert nach gemessener Groesse am Brett. Die Ursache der kleinen
+Monster steht dort mit Zahlen: das Brett macht jeden Sockel gleich breit, also
+entscheidet das Verhaeltnis Hoehe zu Sockel-Halbbreite (Figuren 3,8-4,4,
+Monster 2,3-3,8). Nichts davon ist eingebaut.
+
 ## 1.90.16 - Monster in Offiziersgroesse, die Dame wieder mittig, der Drache auf dem Damenplatz, die Brutmutter vor ihm; Audit-Reste
 
 Besitzer, 30.9., mit vier Bildern aus der Aufstellungskammer: "diese Monster
