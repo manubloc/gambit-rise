@@ -1123,7 +1123,8 @@ export const CAMPAIGN12 = [
     "b02"
    ]
   },
-  "tier": 1
+  "tier": 1,
+  "erwachen": true
  },
  {
   "id": "L02s08",

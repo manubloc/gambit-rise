@@ -228,8 +228,13 @@ else {
 }
 
 // ── Runden ─────────────────────────────────────────────────────────────────
+/* v1.90.18 (Audit A42): der VERLAUF wird mitgezaehlt. Zwei Zurueck-Hooks
+   legten je Partie zwei Eintraege an und nach jedem Zurueck einen weiteren -
+   die Probe mass `history` nie. Jetzt: Laenge zu Beginn jeder Runde. */
+const verlauf = [];
 for (let runde = 1; runde <= RUNDEN; runde++) {
   console.log(`\n== RUNDE ${runde} von ${RUNDEN} ==`);
+  verlauf.push(await page.evaluate(() => history.length).catch(() => null));
 
   // 1. Hub -> Kampagne -> Kapitelschirm -> Karte
   schritt = `R${runde} Hub->Karte`;
@@ -581,6 +586,18 @@ if ((await stationen()) >= 4 || (await zurKarte())) {
     }
   }
 } else melde("die Karte liess sich fuer den Rueckblick nicht oeffnen");
+
+verlauf.push(await page.evaluate(() => history.length).catch(() => null));
+console.log(`\n   Verlauf je Runde: ${verlauf.join(" -> ")}`);
+/* GEMESSEN (1.10.2026): mit den zwei Zurueck-Hooks bis v1.90.17 wuchs der
+   Verlauf um 8, 8 und 11 Eintraege je Runde, danach um 4, 3 und 4. Der Rest
+   ist gewollt: jeder Schritt TIEFER legt einen Eintrag an (damit die
+   Zurueck-Geste ihn nehmen kann), ein Schritt zurueck PER KNOPF verbraucht
+   keinen - wie auf jeder Webseite. Die Grenze liegt darum bei 6 je Runde:
+   sie faengt einen zweiten Hook (Verdopplung), nicht das gewollte Wachstum.
+   Chromium deckelt die Laenge bei 50, darum zaehlt das Wachstum. */
+const wachstum = verlauf.slice(1).map((v, i) => (v != null && verlauf[i] != null ? v - verlauf[i] : 0));
+if (wachstum.slice(1).some((d) => d > 6)) melde(`der Verlauf waechst je Runde um ${wachstum.join(", ")} - legt ein Zurueck-Hook doppelt an?`);
 
 await browser.close(); srv.close();
 

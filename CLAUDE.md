@@ -39,17 +39,19 @@ gambitrise.com zeigt darauf).
   pruefe-navigation, pruefe-textfluss, test_layout) lesen den Chromium-Pfad aus
   `PW_CHROMIUM`; ohne die Variable gilt der Pfad des Cloud-Containers. Lokal:
   `npx playwright install chromium` und `PW_CHROMIUM=<Pfad zur chrome-Datei>`.
-- `npm test` — volle Batterie. MUSS **29 Suiten / 2577 Prüfungen** melden
-  (Stand v1.90.17; der Runner stoppt nach der ersten roten Suite, also
-  Suitenzahl prüfen, nicht nur Assertions! Zählweise: alle Zeilen
-  `RESULT…: N passed` summieren — test_balance meldet zwei, darum stehen im
-  Log 30 RESULT-Zeilen für 29 Suiten; die 29. ist seit v1.90.15
-  `tools/pruefe-animation.mjs` mit 132 Prüfungen, ~130 s). **Seit v1.89.9
-  läuft `tools/pruefe-bezeichner.mjs` in der Batterie mit**, direkt hinter
-  `npm run ui` (dort entsteht das Bundle `.uitest.mjs`, das die Probe liest).
-  Sie gibt KEINE RESULT-Zeile aus — ebenso wenig `tools/pruefe-landing.mjs`
-  (seit v1.90.15 an dritter Stelle) —, bricht die Kette aber, sobald im
-  Bundle ein freier Bezeichner auftaucht.
+- `npm test` — volle Batterie. MUSS **31 Suiten / 2607 Prüfungen** melden
+  (Stand v1.90.18; der Runner stoppt nach der ersten roten Suite, also
+  Suitenzahl prüfen, nicht nur Assertions! **Zählweise seit v1.90.18
+  (Audit A74): JEDE Suite der Kette meldet eine RESULT-Zeile** — alle Zeilen
+  `RESULT…: N passed` summieren; test_balance meldet zwei, darum stehen im
+  Log **32 RESULT-Zeilen für 31 Suiten**. Vorher meldeten pruefe-buttons,
+  pruefe-landing und pruefe-bezeichner keine, und wer RESULT-Zeilen zählte,
+  zählte an ihnen vorbei. test_net.mjs ist seit v1.90.18 ausgemustert (es
+  fuhr den alten Node-Server, nicht die Halle). Die letzte Suite ist
+  `tools/pruefe-animation.mjs` mit 132 Prüfungen, ~130 s.) **`tools/pruefe-bezeichner.mjs`**
+  läuft direkt hinter `npm run ui` (dort entsteht das Bundle `.uitest.mjs`,
+  das die Probe liest) und bricht die Kette, sobald im Bundle ein freier
+  Bezeichner auftaucht.
   Das ist die Klasse der Abstürze A3/A4: gültiges JavaScript, das erst beim
   Rendern als ReferenceError hochgeht.
 - `npm run ui` — nur die UI-Proben (test_ui.jsx läuft NIE direkt mit node;
@@ -64,7 +66,10 @@ gambitrise.com zeigt darauf).
 - `npm run build:single` — Ein-Datei-Fassung (~49 MB).
 - `node test_boot.mjs` — Boot-Proben (3/3).
 - `node scripts/verify-boot.mjs` — DAS CI-SKRIPT (JSDOM; wertet jeden
-  Konsolenfehler als Boot-Versagen). Lokal grün heißt CI grün.
+  Konsolenfehler als Boot-Versagen). Lokal grün heißt CI grün. Seit v1.90.18
+  wartet es, bis React den Ladeschirm `#gg-boot` ERSETZT hat, und nennt die
+  Zeit — vorher bestand es auch, wenn React nie aufbaute (der Ladeschirm allein
+  hat 4010 Zeichen, geprüft wurde „≥ 1000“).
 - `timeout 250 node drive3.mjs` — Kampagnen-Fahrprobe ("== KEINE FEHLER ==").
 - `npm run pruefe:fluss` — Playwright-Textfluss/Popup-Messung.
 - `node tools/pruefe-navigation.mjs` — die NAVIGATIONSPROBE (v1.86.0): fährt in
@@ -118,8 +123,8 @@ gambitrise.com zeigt darauf).
   (python3 + Pillow über `tools/landing_bilder.py galerie-pruefen`), vordere
   Figurenreihe in 13 Fenstergrößen nie breiter als das Fenster.
 - **Aufstellungskammer** `?aufstellung` bzw. `?aufstellung=<Station>` (hinter
-  dem Werkzeug-Schloss, v1.90.15): jede der 44 Schlüsselstationen, wie sie
-  beim ersten Zug steht — dasselbe buildStageMatch/createGame wie das
+  dem Werkzeug-Schloss, v1.90.15): jede der 45 Schlüsselstationen, wie sie
+  beim ersten Zug steht, mit der BOSSFORMATION im Kopf (v1.90.18) — dasselbe buildStageMatch/createGame wie das
   Gefecht. `node tools/foto-aufstellungen.mjs <ordner>` fotografiert alle
   (braucht `npx vite build`). Die Befunde vom 30.9. (Drache in der Ecke,
   31/32 Bosse auf d8, vier Bestien nie im Spiel, Hetzer auf 101/172
@@ -128,9 +133,11 @@ gambitrise.com zeigt darauf).
   auf dem ECHTEN Brett?** (v1.90.16) Fährt die Aufstellungskammer
   (`?aufstellung=<Station>`) für alle 45 Schlüsselstationen und misst an
   jeder Figur im lebenden DOM Band (Breite, Mitte, Unterkante) und Sockelfuß
-  (Alphakanal). Fünf Zusagen: kein Band breiter als das des breitesten
+  (Alphakanal). Sechs Zusagen: kein Band breiter als das des breitesten
   Offiziers +3 % (der große Drache höchstens doppelt), Band mittig ±2 px,
-  Unterkante auf der Linie der Klasse (Bauern/Gambit eigene Linie), Fuß auf
+  Unterkante auf der Offizierslinie — seit v1.90.18 AUCH Bauern und Gambit
+  (Z6, ±1,5 px; vorher lagen sie 4,4 px höher, BoardView gibt dem Bauern
+  darum einen eigenen Hub `BAUERN_SENKUNG`), Fuß auf
   dem Band ≤ 2 px — und der große Drache steht mit der MASSE seiner
   Silhouette auf der Mitte seiner vier Felder ±1,5 px (Besitzer 30.9.: „ein
   bisschen weiter nach oben … mehr in der Mitte von den vier Feldern"). **Warum es sie gibt:** der Besitzer sah am 30.9. auf vier
@@ -139,6 +146,30 @@ gambitrise.com zeigt darauf).
   Gegen v1.90.15 gefahren: 16 rot, danach 0. `--nur=L07s41,…` für einzelne
   Stationen, `WURZEL=/tmp/rr/dist` gegen einen anderen Bau. Braucht `dist/`
   mit der App (**nach `build:app`**).
+- `node tools/pruefe-duell.mjs` — **DAS ONLINE-DUELL VON BEIDEN SEITEN**
+  (v1.90.18, Audit A73, ~10 s). Zwei Browser-Kontexte der gebauten App legen
+  lokale Konten an, verbinden (MIT Zustimmungsfenster), spielen im Modus
+  Klassisch aus der Zufalls-Warteschlange e2-e4/e7-e5 per Klick, geben auf,
+  sehen Sieg/Niederlage und Wertung und verlangen Revanche. Die Halle ist die
+  ECHTE Logik (`worker/src/logic.mjs`, HallCore mit memoryStore) im
+  Probenprozess; Playwrights `routeWebSocket` leitet
+  wss://duell.gambitrise.com/ws dorthin um wie die Durable-Object-Huelle.
+  **Warum:** ein umbenanntes Protokollfeld blieb in jeder Suite gruen und
+  braeche live das Duell (Worker und Seite deployen mit jedem Push).
+  Gleich beim ersten Lauf gefunden: „Verbinden“ uebersprang die Zustimmung
+  (das Klick-Ereignis landete als `force`), und die Hub-Kachel reichte ihr
+  Klick-Ereignis als Partiekennung weiter — beim welcome warf JSON.stringify,
+  Rangliste und Tresor wurden nie angefragt. Braucht `dist/` mit der App
+  (**nach `build:app`**), `WURZEL=` fuer einen anderen Bau, `ZEIGEN=1`
+  schreibt jede Hallen-Nachricht mit.
+- `node tools/formationen-messen.mjs 20 --duell --alle` — **macht eine
+  Bossformation eine Station leichter?** (v1.90.18) Die Station spielt gegen
+  SICH SELBST, einmal in der alten Aufstellung, einmal in der Szene (KI gegen
+  KI, Farben abwechselnd); 50 % heißt „gleich stark“. Stand 1.10.: mauer 49,3,
+  Leibwache 49,8, vorgeschoben 51,5, leicht 54,7 %. Ohne `--duell` spielt ein
+  Spielerheer gegen die Station — das gewinnt die Station fast immer, daran
+  lässt sich nichts ablesen. Nicht in der Kette (~80 s); bei jeder Änderung an
+  `formiereBoss` (meta/campaign.js) laufen lassen.
 - `node test_layout.mjs` — echte Geometrie im Browser. Läuft wieder (v1.86.0:
   die Klang-Loader fehlten), hängt aber NICHT in der Kette: vier Proben
   erwarten ein vertikal zentriertes Brett, was seit dem Talentband nicht mehr
@@ -151,7 +182,7 @@ starten, sonst reißen Werkzeug-Zeitlimits den Lauf ab.
 
 ## EISERNE KETTE — Pflicht vor JEDEM Push, keine Ausnahmen
 
-1. `npm test` (29 Suiten, Assertionszahl notieren)
+1. `npm test` (31 Suiten, Assertionszahl notieren)
 2. `npm run build`, dann **`npm run build:app`**, dann `npm run build:single`
 
    **Warum `build:app` NACH `build` gehört** (v1.86.0, teuer gelernt):
@@ -164,8 +195,9 @@ starten, sonst reißen Werkzeug-Zeitlimits den Lauf ab.
    Auslieferungsstand zusätzlich Landingpage, den abmeldenden Dienstarbeiter
    und dass KEIN Riegel mehr fragt — der Umzug ist damit unter Aufsicht.
 3. `node test_boot.mjs` (3/3) und `node scripts/verify-boot.mjs` (grün)
-4. `timeout 250 node drive3.mjs` (keine Fehler) und
-   `node tools/pruefe-figurenmass.mjs` (0 Befunde); bei Arbeit an Karte,
+4. `timeout 250 node drive3.mjs` (keine Fehler),
+   `node tools/pruefe-figurenmass.mjs` (0 Befunde) und
+   `node tools/pruefe-duell.mjs` (RESULT ohne failed); bei Arbeit an Karte,
    Kampagne oder Navigation zusätzlich `node tools/pruefe-navigation.mjs`
 5. REINRAUM: `git clone . /tmp/rr && cp -r node_modules /tmp/rr/` und dort
    Schritte 1–4 wiederholen
@@ -249,29 +281,33 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
   Auswahl-Lichtspektakel.
 - Alles Optionale abschaltbar (Klang, Online).
 
-## Offene Baustellen (Stand v1.89.1)
+## Offene Baustellen (Stand v1.90.18, 1.10.2026)
 
 **Einstieg für jede neue Sitzung: `design/CHAT-EINSTIEG-2026-09-27.md`** (zehn
 Minuten, mit dem Startsatz für den Chat), dann **`design/UEBERGABE-2026-09-27.md`** — Stand,
 Deploy-Weg (der Push auf `main` IST der Deploy), wo die Geheimnisse liegen
 (nur Orte), was offen ist. Darunter: **`design/STAND-2026-09-26.md`**
 (technische Punkte T1–T11), **`design/PLAYSTORE-BACKLOG.md`** (Store),
-**`design/AUDIT-2026-09-27.md`** (76 Punkte, nur Liste, zwei davon gebaut),
-**`design/SPIELTEST-2026-09-27.md`**, **`design/FAEHIGKEITEN-2026-09-27.md`**.
+**`design/AUDIT-2026-09-27.md`** (76 Punkte; was gebaut ist, steht in der
+Tabelle „STAND DER ABARBEITUNG“ oben — erst dort nachsehen),
+**`design/SPIELTEST-2026-09-27.md`**, **`design/FAEHIGKEITEN-2026-09-27.md`**,
+**`design/MONSTER-PROMPTS-2026-09-30.md`** (Neuzeichnung der Monster).
 Hier nur der Überblick:
 
-- **Spiel:** Nur noch zwei Punkte sind wirklich offen — „Die Karte erzählt die
-  Geschichte" (großer Brocken, Besitzer 27.9.: **später**) und der
-  **Ladeschirm-Feinschliff** (Funken näher an die Siegel-Kontur; subjektiv, am
-  ersten Screen, braucht Live-Abnahme). Am 27.9. gemessen und als **erledigt
-  bzw. gegenstandslos** abgehakt: Brett-Hintergrund je Liga (12/12 Gemälde,
-  `BrettHintergrund.jsx`, im Match eingesetzt) · Name beim Anlegen (ist Pflicht
-  seit v1.0.6, `App.jsx:1318`) · Installationsknopf (Banner fort seit v1.0.6,
-  kein Profil-Knopf mehr gerendert — nur die `profile.install*`-Strings liegen
-  verwaist herum).
+- **Beim Besitzer:** Brandstifter umfärben (Vorschau Blau/Grün gezeigt,
+  Empfehlung Blau) oder mit der Neuzeichnung erledigen · die Monster neu
+  zeichnen (Prompts; neue Bilder erst messen — Höhe/Sockel-Halbbreite ≥ 3,7 —
+  und am Brett zeigen) · Play-Abzeichen als Datei für die Startseite (A58).
+- **Spiel:** „Die Karte erzählt die Geschichte" (Besitzer 27.9.: **später**) ·
+  **Ladeschirm-Feinschliff** (subjektiv, braucht Live-Abnahme).
+- **Audit offen:** A7-Rest (daily:<gid>, Speicherumbau der Halle) · A8-Rest
+  (Befehlsliste in der Halle nachspielen) · A9-Rest (Bünde im Netz — braucht
+  eine Protokollfassung, sonst entzweien sich alte und neue Geräte) · A57-Rest
+  (CSP, braucht Live-Messung) · A72-Rest (Schlafzeiten in drive3/Navigation) ·
+  A75-Rest (107 Schlüssel ohne
+  wörtliches Vorkommen prüfen) · A22/A26/A27 (Cloudflare-Dashboard, Besitzer).
 - **Technik:** Deploy wiegt 743 MB, davon 692 MB Archiv für die Schaukammer
-  (Schalter `OHNE_ARCHIV=1` liegt bereit, Standard unverändert) · `.git` 1 GB ·
-  Layout-Erwartung „Brett zentriert" zu klären.
+  (Schalter `OHNE_ARCHIV=1` liegt bereit, Standard unverändert) · `.git` 1 GB.
 - **Store:** siehe `design/PLAYSTORE-BACKLOG.md`.
 
 **Erledigt und aus dieser Liste gestrichen** (die alte Fassung stand auf

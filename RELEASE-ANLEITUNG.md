@@ -152,7 +152,7 @@ Loop „bauen → pushen → live" in einer Chat-Nachricht. Einmalige Vorbereitu
 **2. Route wählen:**
 - **Route A — GitHub Pages (null Dashboards, sofort):** Ein zweites,
   **öffentliches** Repo `grand-gambit-site` anlegen (leer). Dorthin pusht
-  `npm run deploy:site` nur den gebauten Spielordner (dein Quellcode bleibt
+  `npm run deploy:site` *(seit v1.90.18 gestrichen — der Push auf `main` ist der Deploy, das Skript liegt in `archiv/ausgemustert/v1.90.18/`)* nur den gebauten Spielordner (dein Quellcode bleibt
   im privaten Repo). Live-URL: `https://DEINNAME.github.io/grand-gambit-site/`.
 - **Route B — Cloudflare Pages (eigene Domain, unlimitiert):** Einmalig im
   CF-Dashboard „Connect to Git" mit dem privaten Repo (Build `npm run build`,
@@ -201,7 +201,7 @@ eine Umgebungsvariable mit mindestens 24 Zeichen:
 node -e "console.log(require('crypto').randomBytes(24).toString('base64url'))"
 
 # Server damit starten:
-ADMIN_TOKEN=DEIN_TOKEN node server/server.mjs
+ADMIN_TOKEN=DEIN_TOKEN node server/server.mjs   # ÜBERHOLT seit v1.90.18: Server ausgemustert, siehe DEPLOY-WORKER.md
 ```
 
 Schutzmaßnahmen: SHA-256 + timing-sicherer Vergleich, 5 Fehlversuche →

@@ -29,8 +29,13 @@ const SPIEL = join(DIST, "spielen");
    gelesen - siehe Schritt 3. */
 
 /* was die Landingpage an der Wurzel braucht */
+/* v1.90.18 (Audit A61): hier stand auch "impressum.html" - eine Datei, die es
+   nie gab (kopiert wird nur, was existiert, also still nichts). Die
+   Anbieterkennzeichnung nach § 5 DDG steht in privacy.html (Abschnitt
+   "Impressum", Anker #impressum), und die Startseite verlinkt sie im Fuss als
+   "Datenschutz & Impressum". */
 const AN_DIE_WURZEL = ["landing", "og.png", "og.jpg", "favicon.ico", "favicon.svg", "icons", "fonts",
-  "terms.html", "privacy.html", "konto-loeschen.html", "site.webmanifest", "_routes.json", "impressum.html", "_headers", ".well-known", "robots.txt", "sitemap.xml"];
+  "terms.html", "privacy.html", "konto-loeschen.html", "site.webmanifest", "_routes.json", "_headers", ".well-known", "robots.txt", "sitemap.xml"];
 
 if (!existsSync(join(DIST, "index.html"))) {
   console.error("dist/index.html fehlt - erst 'vite build' laufen lassen"); process.exit(1);

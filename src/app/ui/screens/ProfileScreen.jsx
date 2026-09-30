@@ -3,6 +3,7 @@ import { CAMPAIGN12 } from "../../../content/campaign12.gen.js";
 import { MAX_KAPITEL } from "../../config.js";
 import { hashPin } from "../../../platform/index.js";
 import { animAn, setAnimAn } from "../anim.js";
+import { listSaves, deleteSave, waehleStand, fmtPlaytime } from "../../../meta/index.js";
 import { serializeSave, parseSave, listRestorePoints, readSnapshot, withProgressPct, takeRestorePoint, listReports, clearLocalReports, getAdminToken, setAdminToken, deleteAccount , adminHasDefaultPass, absturzBerichteAn, setzeAbsturzBerichte } from "../../../meta/index.js";
 import { CHARACTERS } from "../../../content/index.js";
 import { T } from "../theme.js";
@@ -106,13 +107,13 @@ function NamenFeld({ profile, dispatch, account, en }) {
    gleichen Staenden und schoben die aelteren hinaus. Erzwungen gesichert wird
    jetzt nur dort, wo wirklich ein GANZER Stand ersetzt wird: Laden aus Datei,
    Zurueckholen einer Sicherung, die Werkbank des Admins. */
-async function ersetze(dispatch, jetzt, next) {
-  if (jetzt) await takeRestorePoint(jetzt, { force: true });
+async function ersetze(dispatch, jetzt, next, acc) {
+  if (jetzt) await takeRestorePoint(jetzt, { force: true, acc });   /* v1.90.18 (A48): je Konto */
   dispatch({ type: "REPLACE", profile: next });
 }
 
 export function ProfileScreen({ profile, dispatch, t, account, onSwitchSave, onLogout }) {
-  const ersetzeMitSicherung = (next) => ersetze(dispatch, profile, next);
+  const ersetzeMitSicherung = (next) => ersetze(dispatch, profile, next, account?.id);
   const en = profile.lang === "en";
   const [devPct, setDevPct] = useState(0); // workbench: journey progress slider
   /* v1.0.97: die Kapitelliste der Werkbank faellt aus der Kampagne heraus. */
@@ -210,6 +211,7 @@ export function ProfileScreen({ profile, dispatch, t, account, onSwitchSave, onL
           {onLogout && <Button kind="ghost" onClick={onLogout}>{t("profile.signout")}</Button>}
         </div>
       )}
+      {account && account.provider !== "guest" && <WeitereStaende t={t} account={account} />}
     </GildedFrame>
     <Panel>
       <div style={{ fontSize: 12, color: T.faint, marginBottom: 6 }}>{t("profile.name")}</div>
@@ -435,7 +437,7 @@ export function ProfileScreen({ profile, dispatch, t, account, onSwitchSave, onL
     {account?.isAdmin && <Panel>
       <PanelTitle tag="Admin">{t("profile.rpTitle")}</PanelTitle>
       <div style={{ fontSize: 12, color: T.dim, margin: "2px 0 10px" }}>{t("profile.rpHint")}</div>
-      <RestorePoints t={t} dispatch={dispatch} profile={profile} />
+      <RestorePoints t={t} dispatch={dispatch} profile={profile} acc={account?.id} />
     </Panel>}
 
     {/* v1.0.3: JEDER darf melden - Absturz, Balance, Wunsch, mit Bild.
@@ -665,10 +667,42 @@ function ErrorReports({ t }) {
   </div>;
 }
 
-function RestorePoints({ t, dispatch, profile }) {
-  const ersetzeMitSicherung = (next) => ersetze(dispatch, profile, next);
+/* ── v1.90.18 (Audit A54): DIE ANDEREN SPIELSTAENDE DIESES KONTOS ──────────────
+   Nur sichtbar, wenn es mehr als einen gibt (Konten aus der Zeit vor v1.29.1).
+   "Oeffnen" merkt sich die Wahl und laedt neu - die App oeffnet dann diesen;
+   "Loeschen" fragt erst im Knopf selbst nach. */
+function WeitereStaende({ t, account }) {
+  const [liste, setListe] = useState(null);
+  const [frage, setFrage] = useState(null);
+  const laden = () => listSaves(account.id).then(setListe).catch(() => setListe([]));
+  useEffect(() => { laden(); }, [account.id]);   // eslint-disable-line
+  if (!liste || liste.length < 2) return null;
+  const knopf = { fontSize: 12, padding: "5px 10px" };
+  return (
+    <div data-weitere-staende="1" style={{ marginTop: 14, textAlign: "left" }}>
+      <div style={{ fontSize: 12, color: T.faint, marginBottom: 6 }}>{t("profile.otherSaves")}</div>
+      <div style={{ fontSize: 12, color: T.dim, marginBottom: 8, lineHeight: 1.45 }}>{t("profile.otherSavesHint")}</div>
+      {liste.slice(1).map((s) => (
+        <div key={s.id} style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", padding: "6px 0",
+          borderTop: `1px solid ${T.line || "rgba(255,255,255,.08)"}` }}>
+          <div style={{ flex: "1 1 160px", minWidth: 0, fontSize: 13 }}>
+            <b>{s.name}</b> <span style={{ color: T.faint }}>· {t("profile.otherSavesInfo", { liga: s.league || 1, zeit: fmtPlaytime(s.playtimeSec) })}</span></div>
+          <Button kind="ghost" style={knopf} onClick={() => { waehleStand(account.id, s.id); try { location.reload(); } catch {} }}>
+            {t("profile.otherSavesOpen")}</Button>
+          {frage === s.id
+            ? <Button kind="ghost" style={{ ...knopf, color: "#ff8a80" }} onClick={async () => { await deleteSave(account.id, s.id); setFrage(null); laden(); }}>
+                {t("profile.otherSavesDeleteSure", { name: s.name })}</Button>
+            : <Button kind="ghost" style={knopf} onClick={() => setFrage(s.id)}>{t("profile.otherSavesDelete")}</Button>}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function RestorePoints({ t, dispatch, profile, acc }) {
+  const ersetzeMitSicherung = (next) => ersetze(dispatch, profile, next, acc);
   const [points, setPoints] = useState(null);
-  useEffect(() => { let on = true; listRestorePoints().then((l) => on && setPoints(l)); return () => { on = false; }; }, []);
+  useEffect(() => { let on = true; listRestorePoints(acc).then((l) => on && setPoints(l)); return () => { on = false; }; }, [acc]);
   if (!points) return <div style={{ fontSize: 12, color: T.faint }}>…</div>;
   if (!points.length) return <div style={{ fontSize: 12.5, color: T.faint }}>{t("profile.rpNone")}</div>;
   const fmt = (ts) => new Date(ts).toLocaleString(undefined, { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });

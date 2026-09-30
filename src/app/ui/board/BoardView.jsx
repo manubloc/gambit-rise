@@ -398,7 +398,7 @@ export function BoardView({ lang = "de", state, onMove, interactive, lastMove, m
         // hold the victim in place until the attacker actually arrives, THEN
         // fling it — so you read the strike, not a piece leaving early.
         holdMs: Math.round(durS * 1000),
-        lift: pieceLift, font: pieceFont(lastMove.hitKind),
+        lift: liftFuer(lastMove.hitKind), font: pieceFont(lastMove.hitKind),
         fly: iWon ? -1 : 1 });   // -1 up (foe's tray up top), +1 down (my tray below)
     }
     // arm the glide: phase 0 paints the ghost at FROM, then the next frame(s)
@@ -568,6 +568,22 @@ export function BoardView({ lang = "de", state, onMove, interactive, lastMove, m
      mehr Hub ruecken sie zur Mitte, ohne dass der Fuss den Bezug zum Feld
      verliert. */
   const pieceLift = artStyle === "svg" ? "-4%" : bigScreen ? "-14%" : "-17%";
+  /* ── v1.90.18: DIE BAUERN STEHEN AUF DERSELBEN LINIE WIE DIE OFFIZIERE ─────
+     Besitzer, zweimal (v1.24.4 und v1.25.8): "Turm, Pferd, Laeufer, Dame,
+     Koenig ... bitte gleicher Abstand wie Gambit und Bauer." Damals
+     angeglichen - am 30.9. gemessen (tools/pruefe-figurenmass.mjs) lag die
+     Bandunterkante der Bauern aber wieder 4,4 px HOEHER als die der
+     Offiziere (12,6 gegen 8,2 px ueber der Feldkante). Die Ursache sitzt
+     hier: der Bauer zeichnet in 1,17 em statt 1,37 em. Sein Kasten ist
+     kleiner und steht mittig im Feld, seine Unterkante also hoeher - und der
+     Hub in Prozent seiner eigenen Hoehe gleicht das nicht aus. Der Bauer
+     bekommt deshalb seinen eigenen Hub; die Offiziere (und mit ihnen Monster
+     und Drache, die der Besitzer am 30.9. abgenommen hat) bleiben stehen.
+     Gilt ueberall, wo eine Figur gezeichnet wird: im Feld, im Gleiter, beim
+     Fallen - sonst springt sie bei der Uebergabe (pruefe-animation, R4). */
+  const BAUERN_SENKUNG = artStyle === "svg" ? 0 : 8;   /* Prozentpunkte weniger Hub, gemessen */
+  const liftFuer = (kind) => (kind === "P" && BAUERN_SENKUNG
+    ? `${parseFloat(pieceLift) + BAUERN_SENKUNG}%` : pieceLift);
   /* v1.0.9 (Besitzer): "alle Figuren bitte wieder groesser" - der
      Brett-Umbau hatte sie optisch schrumpfen lassen. +9 % auf beide Stile
      und beide Klassen; gilt fuers Gefecht UND das klassische Schach, denn
@@ -825,13 +841,13 @@ export function BoardView({ lang = "de", state, onMove, interactive, lastMove, m
             borderRadius: 8, border: "2.5px solid rgba(255,92,92,.9)", pointerEvents: "none",
             animation: "ggSchachPuls 1.05s ease-in-out infinite" }} />}
           {piece && <div style={{ opacity: anim && anim.phase < 2 && (i === anim.hide || (anim.turm && i === anim.turm.to)) ? 0 : 1, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none",
-            transform: `translateY(${pieceLift})` + ((isSel || isSpy) && !piece.big ? (artStyle === "svg" ? " scale(1.4)" : " scale(1.58)") : ""),
+            transform: `translateY(${liftFuer(piece.kind)})` + ((isSel || isSpy) && !piece.big ? (artStyle === "svg" ? " scale(1.4)" : " scale(1.58)") : ""),
             /* v1.90.15: der HUB fuer die Keyframes, die dieselbe transform-
                Eigenschaft animieren (ggShake beim Treffer, ggKoenigFall beim
                Matt). Eine Animation ersetzt die transform des Elements ganz -
                gemessen sackte die getroffene Figur waehrend des Wackelns um
                den Hub (8 px) ab. Die Keyframes setzen ihn jetzt selbst voran. */
-            "--hub": pieceLift,
+            "--hub": liftFuer(piece.kind),
             /* v1.0.67: KOENIGSFALL. Beim Matt kippt der geschlagene Koenig
                langsam um seinen Fuss zur Seite, statt einfach hinter dem
                Banner zu verschwinden - das Banner ist durchscheinend, der
@@ -1471,7 +1487,7 @@ export function BoardView({ lang = "de", state, onMove, interactive, lastMove, m
                       <PieceGlyph piece={stueck} showLevel={showLevel} pov={pov} artStyle={artStyle} big fliegt />
                     </div>
                   : <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center",
-                      transform: `translateY(${pieceLift})`, transformOrigin: PIECE_ORIGIN,
+                      transform: `translateY(${liftFuer(stueck.kind)})`, transformOrigin: PIECE_ORIGIN,
                       fontSize: pieceFont(stueck.kind),
                       filter: gespart("schatten") ? "none" : "drop-shadow(0 0.06em 0.09em rgba(0,0,0,.5))" }}>
                       <PieceGlyph aufsBrett piece={stueck} showLevel={showLevel} pov={pov} artStyle={artStyle} fliegt />

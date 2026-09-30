@@ -167,6 +167,9 @@ for (const f of dateien) {
   }
 }
 
+/* v1.90.18 (Audit A74): eine RESULT-Zeile wie jede Suite der Kette - die
+   Probe zaehlt als EINE Pruefung (alle Knoepfe sauber oder nicht) */
+console.log(`RESULT pruefe-buttons: ${funde.length ? 0 : 1} passed, ${funde.length ? 1 : 0} failed`);
 if (funde.length) {
   console.log("KNOPF-BEFUNDE:\n" + funde.map((f) => "  - " + f).join("\n"));
   process.exit(1);

@@ -27,8 +27,8 @@ import { chromium } from "playwright-core";
 
 const WURZEL = "public";
 const html = await readFile(join(WURZEL, "landing.html"), "utf8");
-let fehler = 0;
-const ok = (n, c, info = "") => { console.log(c ? "  ok  -" : " FAIL -", n, c ? "" : info); if (!c) fehler++; };
+let fehler = 0, gut = 0;
+const ok = (n, c, info = "") => { console.log(c ? "  ok  -" : " FAIL -", n, c ? "" : info); if (!c) fehler++; else gut++; };
 
 /* 1 + 2: angesprochen <-> vorhanden */
 const genannt = new Set([...html.matchAll(/\/landing\/([A-Za-z0-9_.-]+)/g)].map((m) => m[1]));
@@ -72,5 +72,8 @@ for (const [w, h] of [[360, 780], [390, 844], [430, 932], [600, 900], [700, 1000
   await page.close();
 }
 await browser.close(); srv.close();
-if (fehler) { console.error(`\npruefe-landing: ${fehler} Zusage(n) gebrochen`); process.exit(1); }
-console.log("\npruefe-landing: alle Zusagen gehalten");
+/* v1.90.18 (Audit A74): jede Suite der Kette meldet eine RESULT-Zeile -
+   sonst zaehlt, wer RESULT-Zeilen zaehlt, an ihr vorbei */
+console.log(`\nRESULT pruefe-landing: ${gut} passed, ${fehler} failed`);
+if (fehler) { console.error(`pruefe-landing: ${fehler} Zusage(n) gebrochen`); process.exit(1); }
+console.log("pruefe-landing: alle Zusagen gehalten");

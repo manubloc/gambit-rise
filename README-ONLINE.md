@@ -1,6 +1,10 @@
 # Gambit — Online-Duell einrichten
 
-Das Spiel bringt seinen eigenen Multiplayer-Server mit (`server/server.mjs`).
+> **Überholt (v1.90.18):** Der Node-Server `server/server.mjs` ist ausgemustert
+> (`archiv/ausgemustert/v1.90.18/`). Die Online-Halle läuft als Cloudflare Worker —
+> siehe **DEPLOY-WORKER.md**. Der Rest dieser Datei beschreibt den alten Weg.
+
+Das Spiel brachte seinen eigenen Multiplayer-Server mit (`server/server.mjs`).
 
 ## Starten (lokal testen)
     npm install          # einmalig (installiert u.a. "ws")

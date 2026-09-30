@@ -34,7 +34,11 @@ function placeBack(board, rank, color, specs, w, holes) {
     board[i] = makePiece({ ...specs[f], color });
   }
 }
-function placePawns(board, rank, color, spec, w, holes, hero = null) {
+/* v1.90.18: `front` - eine Liste je Spalte fuer die Bauernreihe, fuer die
+   Bossformationen (meta/campaign.js). undefined = der gewoehnliche Bauer,
+   null = das Feld bleibt leer, eine Figurbeschreibung = sie steht dort statt
+   des Bauern. Ohne `front` ist alles wie vorher (Netz, Proben, Schnellspiel). */
+function placePawns(board, rank, color, spec, w, holes, hero = null, front = null) {
   // hero: { col, spec } — ONE pawn of this side is the Gambit: own spec
   // (level/abilities/shield) and a `hero` flag the renderer and AI can read.
   // If his chosen file is a hole, he steps to the nearest open square.
@@ -47,6 +51,10 @@ function placePawns(board, rank, color, spec, w, holes, hero = null) {
   for (let f = 0; f < w; f++) {
     const i = idx(f, rank, w);
     if (holes.has(i)) continue;
+    if (front && front[f] !== undefined && f !== heroCol) {
+      if (front[f]) board[i] = makePiece({ ...front[f], color });
+      continue;
+    }
     board[i] = f === heroCol ? makePiece({ ...hero.spec, color, hero: true }) : makePiece({ ...spec, color });
   }
 }
@@ -61,8 +69,8 @@ export function createInitialState(whiteArmy = defaultArmy(), blackArmy = defaul
   const holes = new Set((map.holes || []).map(([f, r]) => idx(f, r, w)));
   const board = emptyBoard(w * h);
   placeBack(board, map.back.whiteBack, WHITE, whiteArmy.back, w, holes);
-  placePawns(board, map.back.whitePawn, WHITE, whiteArmy.pawn, w, holes, whiteArmy.hero || null);
-  placePawns(board, map.back.blackPawn, BLACK, blackArmy.pawn, w, holes, blackArmy.hero || null);
+  placePawns(board, map.back.whitePawn, WHITE, whiteArmy.pawn, w, holes, whiteArmy.hero || null, whiteArmy.front || null);
+  placePawns(board, map.back.blackPawn, BLACK, blackArmy.pawn, w, holes, blackArmy.hero || null, blackArmy.front || null);
   placeBack(board, map.back.blackBack, BLACK, blackArmy.back, w, holes);
 
   // ── THE BIG DRAGON unfolds: a spec with `big` claims a 2x2 block. The

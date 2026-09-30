@@ -1070,7 +1070,9 @@ import { readFileSync as _lies } from "node:fs";
 {
   const roh = _lies("src/app/i18n/strings.js", "utf8");
   const schnitt = roh.indexOf("const EN = {");
-  const schluessel = (x) => new Set([...x.matchAll(/"([a-zA-Z]+\.[a-zA-Z0-9]+)":/g)].map((m) => m[1]));
+  /* v1.90.18 (Audit A75): mit Unterstrich - die drei profile.campDiffElo_*
+     fielen durch das alte Muster [a-zA-Z0-9]+ und wurden nie verglichen */
+  const schluessel = (x) => new Set([...x.matchAll(/"([a-zA-Z]+\.[a-zA-Z0-9_]+)":/g)].map((m) => m[1]));
   const de = schluessel(roh.slice(0, schnitt)), en = schluessel(roh.slice(schnitt));
   const fehltEn = [...de].filter((k) => !en.has(k));
   const fehltDe = [...en].filter((k) => !de.has(k));
@@ -1078,6 +1080,19 @@ import { readFileSync as _lies } from "node:fs";
   if (fehltEn.length) console.log("   ohne Englisch:", fehltEn.slice(0, 12).join(", "));
   ok("and no english key stands alone", fehltDe.length === 0);
   if (fehltDe.length) console.log("   ohne Deutsch:", fehltDe.slice(0, 12).join(", "));
+  /* v1.90.18 (Audit A75): jeder t("...")-Schluessel im Code existiert. makeT
+     liefert bei einem fehlenden den Schluessel selbst - ein Tippfehler stand
+     dann als "profile.foo" im Spiel. Dynamische Praefixe (t("x." + y)) zaehlen
+     nicht; verwaiste Schluessel werden nur genannt, nicht gewertet (manche
+     entstehen erst zur Laufzeit). */
+  const { readdirSync: rd, statSync: st } = await import("node:fs");
+  const alleDateien = (d) => rd(d).flatMap((n) => { const q = d + "/" + n; return st(q).isDirectory() ? alleDateien(q) : /\.(jsx?|mjs)$/.test(n) ? [q] : []; });
+  const code = alleDateien("src").filter((f) => !f.endsWith("i18n/strings.js")).map((f) => _lies(f, "utf8")).join("\n");
+  const benutzt = new Set([...code.matchAll(/\bt\(\s*"([a-zA-Z]+\.[a-zA-Z0-9_]+)"\s*[,)]/g)].map((m) => m[1]));
+  const fehlend = [...benutzt].filter((k) => !de.has(k));
+  ok(`every t("...") key used in the code exists (${benutzt.size} used, missing: ${fehlend.join(", ") || "none"})`, fehlend.length === 0);
+  const verwaist = [...de].filter((k) => !code.includes(k));
+  console.log(`   i18n: ${de.size} Schluessel, ${verwaist.length} ohne woertliches Vorkommen im Code (dynamisch gebaut oder verwaist)`);
 }
 
 
@@ -2203,6 +2218,14 @@ print(json.dumps({"gezaehlt": gezaehlt, "schlecht": schlecht}))
   const kampagneMeta = readFileSync("src/meta/campaign.js", "utf8");
   ok("GameScreen vergleicht nirgends mehr mit n22 (Mischen der Meister-Reihe haengt am Flag final)", !vergleichMitN22.test(game)
     && game.includes("finaleGrundreihe(nodeById(match.nodeId)") && kampagneMeta.includes("if (!node?.final ||"));
+  /* v1.90.18: Aufbau, Neustart und das Nachspielen fuer die Auswertung nehmen
+     DASSELBE Gegnerheer. Vorher spielte finish() die Partie mit dem
+     ungemischten Heer nach (gemessen: anderer Endstand am Kapitelfinale), und
+     reset() mischte gar nicht. */
+  const roheHeere = (game.match(/\? match\.aiArmy/g) || []).length;
+  ok(`GameScreen: Aufbau, Neustart und Auswertung fragen kampagnenGegner (${(game.match(/kampagnenGegner\(/g) || []).length} Aufrufe, match.aiArmy ${roheHeere}x)`,
+    game.includes("campaign ? kampagnenGegner(state.seed)") && (game.match(/campaign \? kampagnenGegner\(seed\)/g) || []).length === 2
+    && roheHeere === 0);
   ok("mapArt: die Feste ist das Finale jedes Kapitels", !vergleichMitN22.test(karte) && karte.includes("if (node.final) return \"keep\""));
   ok("das Tor haengt am Finale des laufenden Kapitels", camp.includes("const finaleId = CAMPAIGN.find((n) => n.final && nodeInLeague(n, league))?.id")
     && camp.includes("finaleGeschafft && !hinterSchranke(profile, league + 1)") && camp.includes("finaleGeschafft && hinterSchranke(profile, league + 1)"));
@@ -2233,14 +2256,17 @@ print(json.dumps({"gezaehlt": gezaehlt, "schlecht": schlecht}))
   ok("A50: ohne laufenden Stand wird nichts festgehalten", ohneStand.voll === true);
   /* v1.90.16 (Audit A43): der Reducer ist rein - REPLACE schreibt keinen
      Wiederherstellungspunkt mehr (das tut ProfileScreen vor dem Ersetzen). */
-  const { listRestorePoints } = await import("./src/meta/backups.js");
-  const vorRP = (await listRestorePoints()).length;
+  /* v1.90.18: gezaehlt an der ROHEN Liste - listRestorePoints zeigt seit A48
+     nur noch die Sicherungen eines Kontos */
+  const { storage: sp } = await import("./src/platform/index.js");
+  const roh = async () => { const r = await sp.get("gambit:restorepoints", false); return r?.value ? JSON.parse(r.value).length : 0; };
+  const vorRP = await roh();
   reducer({ ...jetzt, pieces: {} }, { type: "REPLACE", profile: { ...datei, pieces: {} } });
   await new Promise((r) => setTimeout(r, 30));
-  ok("A43: REPLACE im Reducer legt keine Sicherung an", (await listRestorePoints()).length === vorRP);
+  ok("A43: REPLACE im Reducer legt keine Sicherung an", (await roh()) === vorRP);
   const prof = _lies("src/app/ui/screens/ProfileScreen.jsx", "utf8");
   ok("A43: Laden, Zurueckholen und Werkbank sichern vorher selbst",
-    (prof.match(/ersetzeMitSicherung\(/g) || []).length >= 5 && prof.includes("await takeRestorePoint(jetzt, { force: true })"));
+    (prof.match(/ersetzeMitSicherung\(/g) || []).length >= 5 && prof.includes("await takeRestorePoint(jetzt, { force: true, acc })"));
 }
 
 /* ── v1.90.7 (Audit A55): WENN NICHTS BLEIBT, MUSS ES JEMAND SAGEN ─────
@@ -2479,6 +2505,64 @@ print(json.dumps({"gezaehlt": gezaehlt, "schlecht": schlecht}))
   const ohne = Object.entries(ABILITIES).filter(([, a]) => a.live).map(([id]) => id)
     .filter((id) => html(<AbilityIcon id={id} />).includes(">?</text>"));
   ok(`jede wirkende Faehigkeit hat ein eigenes Zeichen (ohne: ${ohne.join(", ") || "keine"})`, ohne.length === 0);
+}
+
+/* ── v1.90.18 (Audit A45): DIE ZWEITE FEHLERGRENZE ─────────────────────────────
+   Der Server-Renderer kennt keine Fehlergrenzen - geprueft wird darum die
+   Klasse selbst: sie faengt, zeigt die Karte mit "Zurueck ins Hauptmenue",
+   vergisst den Fehler beim Schirmwechsel, und die App setzt sie um BEIDE
+   Schirm-Stellen (breit und schmal). */
+{
+  const { SchirmGrenze } = await import("./src/app/ui/SchirmGrenze.jsx");
+  const zustand = SchirmGrenze.getDerivedStateFromError(new Error("Probe"));
+  const g = new SchirmGrenze({ en: false, schluessel: "play|hub|-", children: null });
+  g.state = zustand;
+  const karte = html(g.render());
+  ok("Schirmgrenze: faengt und zeigt den Weg zurueck ins Hauptmenue", !!zustand.err && karte.includes("Zurück ins Hauptmenü") && karte.includes("data-schirm-grenze"));
+  let neu = null; g.setState = (x) => { neu = x; };
+  g.props = { ...g.props, schluessel: "army|hub|-" };
+  g.componentDidUpdate({ schluessel: "play|hub|-" });
+  ok("Schirmgrenze: ein Schirmwechsel vergisst den Fehler", neu && neu.err === null);
+  const appQ = readFileSync("src/app/App.jsx", "utf8");
+  ok("App: beide Schirm-Stellen stehen hinter der Grenze", (appQ.match(/\}\}>\{schirmGesichert\}<\/main>/g) || []).length === 2 && !appQ.includes("}}>{screen}</main>"));
+}
+
+/* ── v1.90.18 (Audit A65): SCHRIFTEN RELATIV ────────────────────────────────────
+   Absolute "/fonts/..." zeigten unter /spielen/ auf die Kopie an der Wurzel,
+   in der Ein-Datei-Fassung (file://) auf nichts - und der Dienstarbeiter hat
+   die Schriften unter /spielen/fonts/ vorgeladen, also offline an der
+   falschen Adresse. */
+{
+  const quellen = readFileSync("index.html", "utf8") + readFileSync("src/app/ui/theme.js", "utf8");
+  const absolut = quellen.match(/(url\(['"]?|href=")\/fonts\//g) || [];
+  ok(`Schriften: kein absoluter /fonts/-Pfad in index.html und theme.js (${absolut.length})`, absolut.length === 0);
+}
+
+/* ── v1.90.18 (Audit A57): SUPABASE ANGEHEFTET ─────────────────────────────── */
+{
+  const quellen = ["src/platform/storage.web.js", "src/meta/cloudAuth.js"].map((f) => readFileSync(f, "utf8"));
+  const versionen = quellen.map((q) => (q.match(/supabase-js@([0-9.]+)\/\+esm/) || [])[1]);
+  ok(`Supabase: beide Ladestellen auf derselben festen Fassung (${versionen.join(" / ")})`,
+    versionen.every((v) => /^\d+\.\d+\.\d+$/.test(v || "")) && versionen[0] === versionen[1]);
+}
+
+/* ── v1.90.18: DIE CHRONIK ERZAEHLT AUF DEUTSCH DASSELBE WIE AUF ENGLISCH ──────
+   Gefunden am 30.9.: die Kapitel II und III erzaehlten deutsch vom Korn und
+   vom Eichwald, englisch vom Richter und vom Doppelritter - und Kapitel I
+   verschwieg deutsch die Seherin, die das verbotene Verzeichnis beginnt, auf
+   das Kapitel VI dann zurueckkommt. Die englische Fassung war die Chronik des
+   Risses, die deutsche war nie nachgezogen worden. Geprueft wird: jede Gestalt,
+   die eine Fassung nennt, nennt auch die andere. */
+{
+  const { LEAGUE_LORE } = await import("./src/app/ui/worldMap.js");
+  const { BOSSES: BO } = await import("./src/content/bosses.js");
+  const paare = [["Osric", "Osric"], ["Asra", "Asra"], ["Vesna", "Vesna"], ["Corvin", "Corvin"], ["Seherin", "seeress"],
+    ...BO.map((b) => [b.nameDe.split(",")[0].replace(/^(Der|Die|Das) /, ""), b.nameEn.split(",")[0].replace(/^The /, "")])];
+  const schief = [];
+  for (const [k, l] of Object.entries(LEAGUE_LORE)) for (const [de, en] of paare) {
+    if (l.de.includes(de) !== l.en.includes(en)) schief.push(`${k}:${de}`);
+  }
+  ok(`Chronik: jede Gestalt steht in beiden Sprachen im selben Kapitel (schief: ${schief.join(", ") || "keine"})`, schief.length === 0);
 }
 
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);

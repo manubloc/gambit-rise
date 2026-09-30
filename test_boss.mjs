@@ -113,6 +113,32 @@ const ERWACHEN = CAMPAIGN.find((st) => /erwacht|magic wakes/.test(st.storyDe || 
     while (q.length) { const id = q.shift(); const u = CAMPAIGN.find((st) => st.id === id); for (const w of u?.next || []) if (!seen.has(w)) { seen.add(w); q.push(w); } }
     return seen.has(drache.id) && (brut.next || []).length > 0;
   })());
+  /* v1.90.18 (Besitzerentscheid 30.9.): DIE BOSSFORMATIONEN. Bis v1.90.17
+     standen 31 von 32 Bossen in derselben Szene. Geprueft wird die Verteilung
+     (jede Szene mindestens fuenfmal, nie in Kapitel I, am Finale oder beim
+     Drachen), jede Szene am ECHTEN Brett nach createGame - und dass die
+     Aufstellung fest ist (zweimal gebaut, zweimal gleich). */
+  {
+    const { bossFormation, BOSS_FORMATIONEN, withProgressPct, defaultProfile } = await import("./src/meta/index.js");
+    const stationen = CAMPAIGN.filter((st) => st.boss && !st.final);
+    const zahl = {};
+    for (const st of stationen) { const a = bossFormation(st); zahl[a] = (zahl[a] || 0) + 1; }
+    ok(`every formation is used at least five times (${JSON.stringify(zahl)})`, Object.keys(BOSS_FORMATIONEN).every((a) => (zahl[a] || 0) >= 5));
+    ok("chapter I, the finals and the dragon keep the old scene", CAMPAIGN.filter((st) => st.boss && (st.final || st.league === 1 || st.boss.piece === "dragon")).every((st) => bossFormation(st) === "mauer"));
+    const beispiel = (art) => stationen.find((st) => bossFormation(st) === art && st.rules === "hp");
+    const brett = (st) => {
+      const p = withProgressPct(defaultProfile(), 50, st.league);
+      const m = buildStageMatch(st.id, p);
+      return { m, g: createGame(undefined, m.aiArmy, { seed: 1, map: mapById(m.map), rules: m.rules }) };
+    };
+    const reihe = (g, r) => Array.from({ length: 8 }, (_, f) => { const q = g.board[idx(f, r, 8)]; return q ? (q.bossId ? "X" : q.kind) : "."; }).join("");
+    { const { m, g } = brett(beispiel("leibwache")); ok(`leibwache: the rooks flank boss and king (${reihe(g, 7)})`, m.bossFormation === "leibwache" && reihe(g, 7) === "NBRXKRBN" && reihe(g, 6) === "PPPPPPPP"); }
+    { const { m, g } = brett(beispiel("vorgeschoben")); ok(`vorgeschoben: the boss stands in the pawn rank, his throne empty (${reihe(g, 7)} / ${reihe(g, 6)})`, m.bossFormation === "vorgeschoben" && reihe(g, 7) === "RNB.KBNR" && reihe(g, 6) === "PPPXPPPP"); }
+    { const { m, g } = brett(beispiel("leicht")); ok(`leicht: knights instead of rooks (${reihe(g, 7)})`, m.bossFormation === "leicht" && reihe(g, 7) === "NNBXKBNN"); }
+    { const { m, g } = brett(beispiel("mauer")); ok(`mauer: the old scene (${reihe(g, 7)})`, m.bossFormation === "mauer" && reihe(g, 7) === "RNBXKBNR"); }
+    const st = beispiel("vorgeschoben");
+    ok("the scene is fixed: built twice, identical", JSON.stringify(brett(st).m.aiArmy) === JSON.stringify(brett(st).m.aiArmy));
+  }
   /* Die Startseite verspricht "13 Monster, die du besiegen kannst". Bis
      v1.90.15 traten vier davon im ersten Weltdurchlauf nie auf (sie standen
      nur an zweiter Stelle einer Rotation). */
@@ -126,10 +152,13 @@ const ERWACHEN = CAMPAIGN.find((st) => /erwacht|magic wakes/.test(st.storyDe || 
     && new Set(bossStages.filter((st) => st.boss.piece).map((st) => st.boss.piece)).size === 20);
   ok("every pure boss resolves", bossStages.filter((st) => st.boss.pure).every((st) => bossById(st.boss.pure)));
   const m = buildStageMatch(ERWACHEN);
-  ok("boss replaces the enemy queen", m.aiArmy.back.some((sp) => sp.kind === "X") && !m.aiArmy.back.some((sp) => sp.kind === "Q"));
+  /* v1.90.18: mit den Bossformationen kann ein Platz der Reihe leer sein und
+     der Boss in der Bauernreihe stehen (front) - beide Reihen zusammen */
+  const heerVon = (mm) => [...mm.aiArmy.back, ...(mm.aiArmy.front || [])].filter(Boolean);
+  ok("boss replaces the enemy queen", heerVon(m).some((sp) => sp.kind === "X") && !heerVon(m).some((sp) => sp.kind === "Q"));
   ok("stage match exposes the boss for the UI", m.boss && m.boss.bossId === "b01");
   const pm = buildStageMatch("L06s12", { campaign: { league: 6 } }); // der Attentaeter wohnt in Kapitel VI
-  ok("piece boss fields its own kind with boosted stats", pm.aiArmy.back.some((sp) => sp.kind === "S" && sp.hp >= 8)
+  ok("piece boss fields its own kind with boosted stats", heerVon(pm).some((sp) => sp.kind === "S" && sp.hp >= 8)
     && buildStageMatch("L06s12", { campaign: { league: 6 } }).boss.unlocks === "assassin");
   ok("a stubborn champion resists until his last demanded win (the Dragon wants two)",
     buildStageMatch("L07s41", { campaign: { league: 7 } }).boss.unlocks === null

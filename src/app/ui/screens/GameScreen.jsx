@@ -229,6 +229,23 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
     () => (!pvp && !daily && !hotseat && !classic ? buendeFuer(profile) : []),
     [pvp, daily, hotseat, classic, profile]);   // eslint-disable-line
 
+  /* ── v1.90.18: EIN GEGNERHEER FUER AUFBAU, NEUSTART UND NACHSPIELEN ────────
+     GEMESSEN (Kapitel-V-Finale, Samen 12345, 18 Befehle): das Nachspielen
+     fuer die Ergebnis-Zusammenfassung (summarizeMatch in finish) lief mit
+     `match.aiArmy` UNGEMISCHT - gespielt wurde aber gegen die gemischte
+     Grundreihe. Der nachgespielte Endstand wich vom gespielten ab; mit der
+     Mischung stimmt er. Damit war seit v1.89.5 an jedem Kapitelfinale die
+     Auswertung (Erfahrung, Heldentaten, Beute) die einer anderen Partie. Und
+     der Neustart nach einer Niederlage (reset) mischte gar nicht - dort stand
+     das Finale in der ungemischten Reihe, entgegen "jeder Versuch neu".
+     Jetzt fragen alle drei Stellen dieselbe Funktion, mit dem Samen der
+     Partie. */
+  function kampagnenGegner(samen) {
+    const a = match?.aiArmy;
+    if (!a?.back?.length) return a;
+    return { ...a, back: finaleGrundreihe(nodeById(match.nodeId), a.back, samen) };
+  }
+
   const [state, setState] = useState(() => {
     if (daily) {
       // THE LONG GAME, REBUILT: the server keeps no board, only the seed, both
@@ -253,13 +270,12 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
       return createGame(side(), ai, { map, rules, seed, buende: meineBuende });
     }
     /* v1.0.22: auch der GEGNER im Klassischen ist der blanke Standardsatz. */
-    let ai = campaign ? match.aiArmy : classic ? buildArmyFromFormation(() => 1, map.defaultFormation) : buildAiArmyForMap(difficulty, map, seed);
     // THE GRANDMASTER REDEPLOYS: every attempt at the Keep meets a freshly
     // shuffled back rank — losing means facing a NEW array, and only the
     // Seeress's gaze reveals it before the first horn.
     /* v1.89.5: jedes Kapitel-Finale; v1.90.16: die eine Stelle in campaign.js
-       (dort auch: Kapitel I mischt nicht) */
-    if (campaign && ai?.back?.length) ai = { ...ai, back: finaleGrundreihe(nodeById(match.nodeId), ai.back, seed) };
+       (dort auch: Kapitel I mischt nicht); v1.90.18: kampagnenGegner */
+    const ai = campaign ? kampagnenGegner(seed) : classic ? buildArmyFromFormation(() => 1, map.defaultFormation) : buildAiArmyForMap(difficulty, map, seed);
     return createGame(playerArmy, ai, { map, rules, seed, buende: meineBuende,
       potions: rules === "hp" ? { w: profile.items?.potion || 0, b: 0 } : undefined });
   });
@@ -668,7 +684,7 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
       setState(createGame(side(), side(), { map: m, rules: rl, seed }));   /* Hotseat: keine Buende (A9) */
       return;
     }
-    const ai = campaign ? match.aiArmy : classic ? buildArmyFromFormation(() => 1, m.defaultFormation) : buildAiArmyForMap(diff, m, seed);
+    const ai = campaign ? kampagnenGegner(seed) : classic ? buildArmyFromFormation(() => 1, m.defaultFormation) : buildAiArmyForMap(diff, m, seed);
     setState(createGame(buildArmy(profile, m, campaign ? match.excludeId : null, rl, classic), ai,
       { map: m, rules: rl, seed, buende: meineBuende }));
   }
@@ -695,7 +711,7 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
         gained: { gold: 0, sp: 0, xp: 0, levelBefore: 0, levelAfter: 0, newAchievements: [] } });
       return;
     }
-    const foe = pvp ? pvp.oppArmy : campaign ? match.aiArmy : classic ? buildArmyFromFormation(() => 1, map.defaultFormation) : buildAiArmyForMap(difficulty, map, state.seed);
+    const foe = pvp ? pvp.oppArmy : campaign ? kampagnenGegner(state.seed) : classic ? buildArmyFromFormation(() => 1, map.defaultFormation) : buildAiArmyForMap(difficulty, map, state.seed);
     /* v1.90.10 (A9): dieselben Buende wie beim Spielen - sonst spielt das
        Replay eine andere Partie nach als die, die stattgefunden hat.
        `state.buende` statt meineBuende: bei einer FORTGESETZTEN Partie kommt

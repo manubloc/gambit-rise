@@ -21,9 +21,9 @@
      Z4  die gemalte Figur steht auf ihrem Band: Fussmitte (Alphakanal,
          Canvas) gegen Bandmitte <= 2 px - die Dame stand bis v1.90.15 um
          ~6 px neben ihrem mittigen Band (Messtabelle veraltet, v1.90.8)
-     Z3  jede Bandunterkante liegt auf der Linie ihrer Klasse (+-2 px):
-         Bauern und Gambit auf der Bauernlinie, alle anderen auf der
-         Offizierslinie - ausser dem grossen Drachen, fuer den gilt:
+     Z3  jede Bandunterkante liegt auf der Offizierslinie (+-2 px) - seit
+         v1.90.18 auch Bauern und Gambit (Z6: ihr Median +-1,5 px), ausser
+         dem grossen Drachen, fuer den gilt:
      Z5  (Besitzer, 30.9. 22:32) die Massenmitte seiner Silhouette liegt auf
          der Mitte seines 2x2-Blocks (+-1,5 px)
 
@@ -158,15 +158,20 @@ const bau = Object.entries(jeFigur).filter(([k]) => BAUERN(k)).flatMap(([, v]) =
 const offMax = Math.max(...OFFIZIERE.map((k) => median((jeFigur[k] || []).filter((e) => e.band).map((e) => e.band.breite))).filter((x) => x > 0));
 const offUnten = median(off.map((e) => e.band.unten)), bauUnten = median(bau.map((e) => e.band.unten));
 console.log(`Offiziere: breitestes Band ${offMax.toFixed(3)} x Zelle, Unterkante ${offUnten} px ueber dem Zellrand`);
-console.log(`Bauern:    Unterkante ${bauUnten} px (${(bauUnten - offUnten).toFixed(1)} px hoeher als die Offiziere - eigene Klasse)\n`);
+console.log(`Bauern:    Unterkante ${bauUnten} px (${(bauUnten - offUnten).toFixed(1)} px gegen die Offiziere)\n`);
 let bruch = 0;
+/* Z6 (v1.90.18): Bauern und Offiziere auf derselben Linie, +-1,5 px */
+if (!(Math.abs(bauUnten - offUnten) <= 1.5)) { console.log(` FAIL  Bauernlinie ${bauUnten} px gegen Offizierslinie ${offUnten} px - "gleicher Abstand wie Gambit und Bauer"`); bruch++; }
 const zeile = (id, v) => {
   const b = v.filter((e) => e.band);
   const breite = median(b.map((e) => e.band.breite)), mitte = median(b.map((e) => e.band.mitte)), unten = median(b.map((e) => e.band.unten));
   const bild = median(v.map((e) => e.bildMitte)), hoehe = median(v.map((e) => e.bildHoehe));
   const gross = id.startsWith("DRACHE-2x2");
   const grenze = gross ? offMax * 2 : offMax * 1.03;
-  const linie = BAUERN(id) ? bauUnten : offUnten;
+  /* v1.90.18: EINE Linie fuer alle (Besitzer v1.24.4/v1.25.8: "gleicher
+     Abstand wie Gambit und Bauer") - vorher hatten die Bauern eine eigene
+     Linie, und genau darin versteckten sich 4,4 px Unterschied. */
+  const linie = offUnten;
   const fzb = median(v.filter((e) => e.fussZuBand != null).map((e) => e.fussZuBand));
   /* Z5 (Besitzer, 30.9. 22:32): der grosse Drache "ein bisschen weiter nach
      oben ..., dass er mehr in der Mitte von den vier Feldern steht". Fuer ihn

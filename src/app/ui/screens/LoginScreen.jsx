@@ -38,6 +38,8 @@ const STR = {
          Sitzung auf das Konto mit dieser Adresse gesetzt: auf einem
          geteilten Gerät genügte die fremde E-Mail. */
       "confirm-mail": "Fast geschafft: Wir haben dir eine Bestätigungsmail geschickt. Öffne den Link darin und melde dich danach hier an.",
+      /* v1.90.18 (A49): ein PBKDF2-Pruefwert ist nur mit crypto.subtle pruefbar */
+      keinSubtle: "Dieses Passwort lässt sich hier nicht prüfen: der Browser rechnet auf dieser Adresse keine Verschlüsselung (http oder als Datei geöffnet). Öffne das Spiel über https.",
       generic: "Das hat nicht geklappt. Versuch es noch einmal." },
   },
   en: {
@@ -52,6 +54,7 @@ const STR = {
       "wrong-pass": "Wrong password.", unconfigured: "Online sign-in isn't configured yet.",
       "Kontenliste unlesbar": "The account list on this device is damaged. It has NOT been deleted — your accounts are still there. Please report this; restarting the browser will not help.",
       "confirm-mail": "Almost there: we sent you a confirmation e-mail. Open the link in it, then sign in here.",
+      keinSubtle: "This password can't be checked here: the browser offers no cryptography on this address (http or opened as a file). Open the game over https.",
       generic: "That didn't work. Please try again." },
   },
 };

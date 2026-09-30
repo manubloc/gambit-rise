@@ -385,6 +385,10 @@ SLOTS.forEach(([key, name, roman], si) => {
       } else if (liga === HP_AB_LIGA && rang === hpAb) {   // DAS ERWACHEN hat Vorrang
         n.boss = { pure: "b01", rotation: ["b01", "b03", "b02"] };
         n.tier = 1;
+        /* v1.90.18: ausdruecklich markiert - die erste HP-Schlacht behaelt die
+           alte Szene (Bossformationen, meta/campaign.js). Vorher war das
+           Erwachen nur an seiner Erzaehlung zu erkennen. */
+        n.erwachen = true;
         n.storyDe = `${ort}: die alte Magie erwacht - Figuren bluten, Figuren halten stand.`;
         n.storyEn = `${ort}: the old magic wakes - pieces bleed, pieces endure.`;
       } else if (i === brutAt) {

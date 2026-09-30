@@ -51,19 +51,38 @@ export function readSnapshot(entry) {
   return p;
 }
 
+/* ── v1.90.18 (Audit A48): JE KONTO STATT GERAETEWEIT ────────────────────────
+   Die Liste lag unter EINEM Schluessel fuer alle Konten eines Geraets,
+   inklusive Gast. Der Admin sah darum die Sicherungen fremder Konten und
+   konnte sie in das angemeldete zurueckholen; und die sechs juengsten Plaetze
+   teilten sich alle Konten - wer viel spielte, schob die Sicherungen der
+   anderen hinaus.
+   Jetzt traegt jeder Eintrag `acc`, die Aufbewahrung gilt je Konto, und die
+   Liste zeigt nur die des Kontos. Der Gast sichert nicht (sein Stand ist beim
+   Verlassen ohnehin fort, gast.js). Eintraege von vor dieser Fassung tragen
+   kein `acc`; sie zeigt keine Liste mehr und die Aufbewahrung raeumt sie
+   nach spaetestens zehn Tagen ab. Ein Schluessel fuer alle bleibt - so muss
+   nichts umgezogen werden. */
+export const eintraegeVon = (list, acc) => (Array.isArray(list) ? list : []).filter((e) => acc && e.acc === acc);
+
 // ── thin async storage wrappers ──────────────────────────────────────────────
-export async function listRestorePoints() {
+async function alleSicherungen() {
   try { const r = await storage.get(KEY, false); return r?.value ? JSON.parse(r.value) : []; }
   catch { return []; }
+}
+/** Die Sicherungen EINES Kontos (A48). Ohne Konto: keine. */
+export async function listRestorePoints(acc) {
+  return eintraegeVon(await alleSicherungen(), acc);
 }
 /** v1.90.16 (Audit A47): Sicherungen eines geloeschten Kontos entfernen.
  *  Die Liste ist geraeteweit und traegt keine Kontokennung (A48) - erkannt
  *  wird ein Eintrag deshalb an etwas, das nur dieses Konto hatte: seiner
  *  Online-Kennung oder genau dem Stand, der geloescht wurde. Rein, getestet. */
-export function ohneKonto(list, { onlineIds = [], staende = [] } = {}) {
+export function ohneKonto(list, { onlineIds = [], staende = [], acc = null } = {}) {
   const ids = new Set(onlineIds.filter(Boolean));
   const blobs = new Set(staende.filter(Boolean));
   return (Array.isArray(list) ? list : []).filter((e) => {
+    if (acc && e.acc === acc) return false;   /* v1.90.18: seit A48 traegt jeder Eintrag sein Konto */
     if (blobs.has(e.data)) return false;
     try { const p = JSON.parse(e.data); if (p?.online?.id && ids.has(p.online.id)) return false; } catch {}
     return true;
@@ -71,17 +90,27 @@ export function ohneKonto(list, { onlineIds = [], staende = [] } = {}) {
 }
 export async function vergissKontoInSicherungen(spuren) {
   try {
-    const list = await listRestorePoints();
+    const list = await alleSicherungen();
     const rest = ohneKonto(list, spuren);
     if (rest.length !== list.length) await storage.set(KEY, JSON.stringify(rest), false);
     return list.length - rest.length;
   } catch { return 0; }
 }
-export async function takeRestorePoint(profile, { force = false } = {}) {
+/** Pure (A48): eine Sicherung fuer `acc` in die Gesamtliste - Abstand und
+ *  Aufbewahrung gelten nur innerhalb dieses Kontos. */
+export function mitSicherung(list, profile, acc, now = Date.now(), force = false) {
+  const alle = Array.isArray(list) ? list : [];
+  const meine = eintraegeVon(alle, acc);
+  const neu = applySnapshot(meine, profile, now, force);
+  if (neu === meine || (neu.length === meine.length && neu[0] === meine[0])) return alle;
+  return [...neu.map((e) => ({ ...e, acc })), ...alle.filter((e) => e.acc !== acc)];
+}
+export async function takeRestorePoint(profile, { force = false, acc = null } = {}) {
+  if (!acc || profile?.gast) return null;   /* A48: kein Konto, kein Gast */
   try {
-    const list = await listRestorePoints();
-    const next = applySnapshot(list, profile, Date.now(), force);
+    const list = await alleSicherungen();
+    const next = mitSicherung(list, profile, acc, Date.now(), force);
     if (next !== list) await storage.set(KEY, JSON.stringify(next), false);
-    return next;
+    return eintraegeVon(next, acc);
   } catch { return null; }
 }

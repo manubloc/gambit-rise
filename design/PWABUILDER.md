@@ -11,10 +11,15 @@ siehe Abschnitt 3a, bevor du auf Generate klickst.
 
 ## 1. PWABuilder öffnen
 
-<https://www.pwabuilder.com> → in das Feld **`https://gambitrise.com`**
+<https://www.pwabuilder.com> → in das Feld **`https://gambitrise.com/spielen/`**
 eintippen → **Start**.
 
-Er liest `/site.webmanifest` und zeigt eine Auswertung. Ein paar gelbe Punkte
+Er liest das Manifest der App (`/spielen/manifest.webmanifest`) und zeigt eine
+Auswertung. *(v1.90.18, Audit A62: bis dahin stand hier die Wurzeladresse -
+PWABuilder las dann `/site.webmanifest` der Startseite, dessen Werte von denen
+der App abwichen. Seit v1.90.18 tragen beide Manifeste dieselben Werte und
+dieselbe `id` "/spielen/"; die Adresse mit `/spielen/` ist trotzdem die
+eindeutige.)* Ein paar gelbe Punkte
 („screenshots", „categories") sind egal — sie betreffen den PWA-Score, nicht
 das Paket.
 

@@ -26,7 +26,7 @@ Grundregel für alle: **eigenes starkes Passwort (Passwortmanager) + 2FA an.**
 - **Für Route A zusätzlich:** zweites, **öffentliches** Repo
   `grand-gambit-site` anlegen (New repository → Public → ohne README).
   Keine weiteren Klicks — den Rest (Push + Pages aktivieren) übernimmt
-  `npm run deploy:site` bzw. ich im Chat.
+  `npm run deploy:site` *(seit v1.90.18 gestrichen, siehe archiv/ausgemustert/v1.90.18/)* bzw. ich im Chat.
 
 ---
 
@@ -113,7 +113,7 @@ Grundregel für alle: **eigenes starkes Passwort (Passwortmanager) + 2FA an.**
 - **Bereithalten:** Zahlungsmittel; ggf. Ausweis (Neukunden-Verifizierung).
 1. console.hetzner.cloud → Konto anlegen → 2FA.
 2. Neues Projekt → **Server** CX22 (Ubuntu) reicht locker.
-3. Danach: Node + `server/server.mjs` + Reverse-Proxy mit TLS (`wss://`),
+3. Danach: Node + `server/server.mjs` *(seit v1.90.18 ausgemustert — die Halle ist der Cloudflare Worker, DEPLOY-WORKER.md)* + Reverse-Proxy mit TLS (`wss://`),
    `ADMIN_TOKEN` als Umgebungsvariable — Details RELEASE-ANLEITUNG
    („Backups & Admin").
 - Alternative ohne eigenen Server: Fly.io (Kreditkarte nötig, Free-Tier

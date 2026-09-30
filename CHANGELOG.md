@@ -1,5 +1,101 @@
 # Changelog - Gambit Rise
 
+## 1.90.18 - Bossformationen, Bauern auf der Offizierslinie, "Verbinden" uebersprang die Zustimmung, die Finale-Auswertung spielte eine andere Partie nach; Audit-Punkte
+
+**DIE BOSSFORMATIONEN** (Besitzerentscheid 30.9., Empfehlung 2): vier Szenen,
+je Station fest - hinter der Bauernmauer (die alte), mit Leibwache (die Tuerme
+ruecken an Boss und Koenig), vorgeschoben (der Boss steht in der Bauernreihe,
+sein Thron bleibt leer), mit leichten Figuren (Springer statt Tuerme). Nicht in
+Kapitel I, nicht am Erwachen (erste HP-Schlacht, jetzt ausdruecklich markiert),
+nicht an den Finalen, nicht beim Drachen. Verteilt reihum je Kapitel - der
+erste Wurf per Streuwert ergab 14x "vorgeschoben" und 5x "Leibwache" auf 30.
+GEMESSEN, dass keine Szene eine Station leichter macht (neues Werkzeug
+tools/formationen-messen.mjs --duell, die Station gegen sich selbst, 600
+Partien je Szene): 49,3 / 49,8 / 51,5 / 54,7 %. Der erste Anlauf fuer "leicht"
+(Tuerme ersatzlos weg) lag bei 44,8 %, und Lebenspunkte fuer den Boss glichen
+das nicht aus (+6/+10 HP: 43,6/43,2 %) - entschieden wird am Koenig. Der Kern
+kennt dafuer `army.front` (Bauernreihe je Spalte), alles andere bleibt gleich.
+
+**DIE FINALE-AUSWERTUNG SPIELTE EINE ANDERE PARTIE NACH.** GameScreen spielte
+fuer die Ergebnis-Zusammenfassung die Befehlsliste mit `match.aiArmy` nach -
+UNGEMISCHT, gespielt wurde aber gegen die gemischte Grundreihe. Gemessen
+(Kapitel-V-Finale, 18 Befehle): anderer Endstand. Seit v1.89.5 war damit die
+Auswertung jedes Kapitelfinales (Erfahrung, Heldentaten, Beute) die einer
+Partie, die es nie gab. Und der Neustart nach einer Niederlage mischte gar
+nicht. Jetzt fragen Aufbau, Neustart und Auswertung dieselbe Funktion.
+
+**DIE BAUERN AUF DERSELBEN LINIE WIE DIE OFFIZIERE** (Besitzer v1.24.4 und
+v1.25.8: "gleicher Abstand wie Gambit und Bauer"). Gemessen am 30.9.: die
+Bandunterkante der Bauern 4,4 px hoeher (12,6 gegen 8,2 px). Ursache: der Bauer
+zeichnet in 1,17 statt 1,37 em, sein Kasten steht mittig, der Hub in Prozent
+der eigenen Hoehe gleicht das nicht aus. Eigener Hub fuer den Bauern, ueberall
+gleich (Feld, Gleiter, Fall): jetzt 8,0 gegen 8,2 px. Die Probe haelt es als Z6.
+
+**DIE CHRONIK AUF DEUTSCH** erzaehlte in Kapitel I bis III andere Texte als auf
+Englisch (Korn und Eichwald statt Richter und Doppelritter; die Seherin mit dem
+verbotenen Verzeichnis fehlte, auf das Kapitel VI zurueckkommt). Die englische
+Chronik war nie zurueckuebersetzt worden. Nachgezogen; test_ui prueft jetzt,
+dass jede Gestalt in beiden Sprachen im selben Kapitel steht.
+
+**DAS ONLINE-DUELL VON BEIDEN SEITEN (Audit A73)** - neue Probe
+tools/pruefe-duell.mjs: zwei App-Seiten gegen die echte Hallen-Logik
+(routeWebSocket, kein Netz), Zug hin und zurueck, Aufgabe, Wertung, Revanche.
+Sie fand beim ersten Lauf zwei echte Fehler, beide seit langem live:
+- **"Verbinden" uebersprang die Zustimmung.** onClick={connect} reichte das
+  Klick-Ereignis als `force` durch - Name, Punktzahl und Freundes-Code gingen
+  an die Halle, ohne dass "Online-Modus verbinden?" erschien. privacy.html
+  verspricht die Uebertragung erst "nach gesondertem Hinweis im Spiel".
+- **Die Hub-Kachel "Online-Duell" brach die Lobby halb ab.** Sie reichte ihr
+  Klick-Ereignis als Partiekennung weiter; beim welcome warf JSON.stringify,
+  und weil net.web.js seine Zuhoerer ohne try rief, starben die uebrigen:
+  Rangliste und Tresor wurden nie angefragt, ein Push-Schluessel nie
+  uebernommen. Behoben an allen drei Stellen (Card, OnlineScreen, emit).
+Gegen v1.90.17: 29/34, rot mit genau diesen fuenf Zeilen; jetzt 34/34.
+
+**AUDIT:**
+- **A40** Die Migration laeuft auf jedem Ladeweg. Vorher gemessen: eine
+  Sicherungsdatei zurueckspielen verlor bribedBosses (gekaufte Monster),
+  bossWins, tolls (bezahlte Maut), faced, besetzung und den Schach-Plan
+  "classic#chess" - `campaign` wurde aus vier Feldern neu gebaut. Jetzt bleibt
+  alles, die Migration ist idempotent (Probe).
+- **A42** Zwei Zurueck-Hooks: einer ist fort, nach dem Zurueck wird ersetzt statt
+  angelegt. Verlauf je Runde gemessen: 8/8/11 -> 4/3/4; die Navigationsprobe
+  zaehlt ihn jetzt.
+- **A44** Livree einmal beim Laden (setLivery nahm seit v1.1.0 kein Argument
+  mehr, die Hallen-Abfrage loeste nur einen zweiten Render aus); Sparmodus und
+  Gegnerstil setzt die App - vorher erst beim naechsten Hub-Render.
+- **A45** Zweite Fehlergrenze um den Schirm: Kopf und Reiter bleiben, "Zurueck
+  ins Hauptmenue" statt nur "Neu laden".
+- **A48** Wiederherstellungspunkte je Konto (Etikett, Aufbewahrung je Konto),
+  der Gast sichert nicht.
+- **A49** Lokale Passwoerter mit PBKDF2 (120 000 Runden) statt einer
+  SHA-256-Runde; alte Pruefwerte werden beim Anmelden still umgeschrieben.
+- **A54** Mehrere Spielstaende eines Kontos: "Weitere Spielstaende" im Profil
+  (oeffnen, loeschen), das Geraet merkt sich die Wahl.
+- **A56** Admin-Wort im Kopf (Authorization: Bearer) statt in der Adresse; der
+  tote POST auf /design ist aus der Halle.
+- **A57** Supabase auf 2.117.2 angeheftet (beide Ladestellen).
+- **A58** Die Startseite laedt das Play-Abzeichen von Google - die
+  Datenschutzerklaerung nennt das jetzt (lokal ausliefern geht erst, wenn die
+  Datei vorliegt; play.google.com ist aus der Werkstatt nicht erreichbar).
+- **A60** Alter Node-Server und test_net.mjs ausgemustert (test_worker prueft
+  das Protokoll der echten Halle).
+- **A61** Kein impressum.html noetig: das Impressum steht in privacy.html
+  (Anker #impressum); der tote Eintrag im Bau ist fort.
+- **A62** Beide Manifeste mit `id` "/spielen/", gleichem scope und theme_color;
+  PWABuilder-Anleitung auf /spielen/.
+- **A65** Schriften relativ (auch offline aus dem Vorcache).
+- **A68** deploy-pages.mjs (force-push mit Token) und 33 unverwiesene
+  Wurzelskripte ins Archiv.
+- **A72** verify-boot fragt ab statt 3,8 s zu schlafen - und wartet auf den
+  React-Aufbau. Dabei gefunden: das Tor bestand auch, wenn React NIE
+  aufbaute, denn der Ladeschirm allein hat 4010 Zeichen (> 1000).
+- **A74** Jede Suite der Kette meldet eine RESULT-Zeile.
+- **A75** i18n-Probe mit Unterstrich-Schluesseln und Pruefung jedes t("...")
+  im Code; vier tote profile.install*-Schluessel entfernt.
+- **/health** der Halle nennt ihre Fassung (worker/src/version.mjs, von
+  `npm run art` aus package.json geschrieben, test_worker prueft).
+
 ## 1.90.17 - drei Herolde riefen Monster bei alten Namen, zwei Monster hiessen gleich; die Monster-Prompts
 
 **DIE NAMEN.** Beim Umbenennen der Bestien war nur bosses.js nachgezogen

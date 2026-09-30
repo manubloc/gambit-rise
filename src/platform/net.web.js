@@ -19,7 +19,12 @@ export function createNet() {
   let gewollt = false;      // hat jemand von Hand geschlossen?
   let laeuft = null;        // Zeitgeber des naechsten Versuchs
   const handlers = new Map(); // type → Set<fn>
-  const emit = (type, msg) => { for (const fn of handlers.get(type) || []) fn(msg); };
+  /* v1.90.18: ein Zuhoerer, der wirft, haelt die uebrigen nicht mehr auf -
+     gemessen (tools/pruefe-duell.mjs) brach ein Fehler im welcome-Zuhoerer
+     der Lobby die Anfragen nach Rangliste und Tresor ab. Der Fehler wird
+     weiter gemeldet (console.error), nur nicht mehr verschluckt UND
+     ansteckend. */
+  const emit = (type, msg) => { for (const fn of handlers.get(type) || []) { try { fn(msg); } catch (e) { console.error("net:", type, e); } } };
   function oeffne(url, hello, aufWiedersehen) {
     return new Promise((resolve, reject) => {
       try { ws = new WebSocket(url); } catch (e) { reject(e); return; }

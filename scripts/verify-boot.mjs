@@ -11,13 +11,28 @@ const dom = new JSDOM(readFileSync("dist-single/index.html", "utf8"),
   { runScripts: "dangerously", url: "file:///gambit.html", pretendToBeVisual: true, virtualConsole: vc });
 if (!dom.window.matchMedia) dom.window.matchMedia = (q) => ({ matches: false, media: q,
   addEventListener() {}, removeEventListener() {}, addListener() {}, removeListener() {} });
-await new Promise((r) => setTimeout(r, 3800));
-const len = dom.window.document.getElementById("root")?.innerHTML.length ?? 0;
-if (errs.length || len < 1000) {
-  console.error("BOOT FAILED — root:", len, errs.slice(0, 2).join(" | "));
+/* v1.90.18 (Audit A72): ABFRAGEN STATT SCHLAFEN. Hier stand ein einziger
+   Schlaf von 3,8 s - kam der Aufbau einmal spaeter, meldete das Tor
+   "BOOT FAILED" fuer einen gesunden Bau; kam er frueher, wartete es trotzdem.
+   Jetzt: alle 200 ms nachsehen (Deckel 15 s). Steht die Wurzel, wartet das Tor
+   noch NACHLAUF ms (so lang wie der alte Schlaf, damit spaete Zeitgeber
+   weiter erfasst sind), denn Fehler aus der Effektphase kommen nach dem ersten
+   Bild - genau die soll dieses Tor fangen. Die Bootzeit steht in der Meldung. */
+const NACHLAUF = 3500, DECKEL = 15000, t0 = Date.now();
+const wurzel = () => dom.window.document.getElementById("root")?.innerHTML.length ?? 0;
+/* Die Wurzel traegt schon im HTML den Ladeschirm (#gg-boot, weit ueber 1000
+   Zeichen) - "lang genug" allein hiesse also nichts. Gewartet wird, bis React
+   ihn ersetzt hat. */
+const gemountet = () => !dom.window.document.querySelector("#root #gg-boot") && wurzel() >= 1000;
+while (Date.now() - t0 < DECKEL && !gemountet() && !errs.length) await new Promise((r) => setTimeout(r, 200));
+const bootMs = Date.now() - t0;
+if (gemountet() && !errs.length) await new Promise((r) => setTimeout(r, NACHLAUF));
+const len = wurzel();
+if (errs.length || !gemountet()) {
+  console.error("BOOT FAILED — root:", len, "nach", bootMs, "ms", errs.slice(0, 2).join(" | "));
   process.exit(1);
 }
-console.log("boot verified — root renders", len, "chars, zero errors");
+console.log("boot verified — root renders", len, "chars, zero errors (steht nach", bootMs, "ms)");
 /* DAS TOR MUSS SICH AUCH SCHLIESSEN. Der Lauf meldete gruen und lief dann
    ewig weiter: jsdom haelt mit pretendToBeVisual einen Bildtaktgeber und die
    Zeitgeber der Anwendung offen, und Node beendet sich nicht, solange ein

@@ -1,12 +1,14 @@
 {
+  "id": "/spielen/",
   "name": "Gambit Rise",
   "short_name": "Gambit Rise",
   "description": "Das Schach-Rollenspiel.",
+  "lang": "de",
   "start_url": "/spielen/",
-  "scope": "/",
+  "scope": "/spielen/",
   "display": "standalone",
   "background_color": "#000000",
-  "theme_color": "#0a0714",
+  "theme_color": "#000000",
   "icons": [
     {
       "src": "/icons/icon-192.png",

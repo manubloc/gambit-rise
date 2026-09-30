@@ -31,7 +31,7 @@ import { BrettHintergrund } from "./BrettHintergrund.jsx";
 import { FELD_KAPITEL, FELD_FINALE } from "./board/feldArt.js";
 import { createGame } from "../../core/index.js";
 import { CAMPAIGN, nodeById, mapById, BOSSES, CHARACTERS } from "../../content/index.js";
-import { buildStageMatch, buildArmy, defaultProfile, withProgressPct, finaleGrundreihe } from "../../meta/index.js";
+import { buildStageMatch, buildArmy, defaultProfile, withProgressPct, finaleGrundreihe, BOSS_FORMATIONEN } from "../../meta/index.js";
 
 /** Die Schluesselstationen: jede Boss-Station und jedes Kapitelfinale. */
 export function schluesselStationen() {
@@ -118,7 +118,8 @@ export function AufstellungKammerScreen() {
           KAPITEL {node.league} · {art} · {match.rules === "hp" ? "LEBENSPUNKTE" : "SCHACH"}</div>
         <div style={{ fontSize: 19, color: "#e8e4d8", marginTop: 2 }}>{node.place}</div>
         {node.boss || node.final
-          ? <div style={{ fontSize: 14, color: "#e0b76c", marginTop: 2 }}>Gegner: {gegner}</div>
+          ? <div style={{ fontSize: 14, color: "#e0b76c", marginTop: 2 }}>Gegner: {gegner}{node.boss && !node.final
+              ? <span data-formation={match.bossFormation} style={{ color: "#9aa3b8" }}> · {BOSS_FORMATIONEN[match.bossFormation]?.de}</span> : null}</div>
           : <div style={{ fontSize: 14, color: "#c4b5fd", marginTop: 2 }}>Besetzung: {besetzt.join(", ") || "—"}</div>}
         {node.final && <div style={{ fontSize: 11.5, color: "#9aa3b8", marginTop: 3 }}>
           {node.league > 1 ? "Die Grundreihe wird bei jedem Versuch neu gemischt — hier der Wurf zum Samen 1."

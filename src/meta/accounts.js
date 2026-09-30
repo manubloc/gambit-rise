@@ -90,6 +90,50 @@ export async function hashPass(pass, salt) {
 }
 export { sha256Hex as _sha256Hex };   /* fuer die Probe */
 
+/* ── v1.90.18 (Audit A49): PBKDF2 STATT EINER SHA-256-RUNDE ─────────────────
+   Der Pruefwert lokaler Konten war EIN SHA-256 ueber Salz und Wort - wer den
+   localStorage ausliest, rechnet ein wiederverwendetes Passwort mit einer
+   Grafikkarte in kurzer Zeit zurueck. Der PIN nutzte laengst PBKDF2 mit
+   120 000 Runden (crypto.web.js); das Passwort bekommt dasselbe.
+   Neue Pruefwerte tragen die Form "pbkdf2$<runden>$<hex>". Alte (reines Hex)
+   gelten weiter und werden beim naechsten erfolgreichen Anmelden STILL
+   umgeschrieben - dasselbe Muster wie v1.0.48. Ohne crypto.subtle (Datei,
+   http im LAN) entsteht wie bisher der alte Wert; ein starker ist dort nicht
+   pruefbar und meldet "keinSubtle" statt "falsches Passwort" (wie A53).
+   Ausgenommen vom Umschreiben: das MITGELIEFERTE Admin-Wort - an seinem
+   unveraenderten Pruefwert erkennt adminHasDefaultPass, dass es noch gilt. */
+const PASS_RUNDEN = 120000;
+const STARK = "pbkdf2$";
+async function starkerPruefwert(pass, salt) {
+  const subtle = typeof crypto !== "undefined" && crypto && crypto.subtle;
+  if (!subtle || typeof subtle.deriveBits !== "function") return null;
+  try {
+    const key = await subtle.importKey("raw", new TextEncoder().encode(pass), "PBKDF2", false, ["deriveBits"]);
+    const bits = await subtle.deriveBits({ name: "PBKDF2", salt: new TextEncoder().encode(salt), iterations: PASS_RUNDEN, hash: "SHA-256" }, key, 256);
+    return STARK + PASS_RUNDEN + "$" + Array.from(new Uint8Array(bits)).map((b) => b.toString(16).padStart(2, "0")).join("");
+  } catch { return null; }
+}
+/** Der Pruefwert fuer ein NEUES Wort - stark, wo es geht. */
+export async function neuerPruefwert(pass, salt) {
+  return (await starkerPruefwert(pass, salt)) || hashPass(pass, salt);
+}
+export const istStarkerPruefwert = (h) => typeof h === "string" && h.startsWith(STARK);
+/** Passt `roh` zum Konto? Erst getrimmt, dann roh (A6). Liefert, ob der Wert
+ *  noch alt ist und mit welchem Wort er getroffen wurde - fuers Umschreiben. */
+export async function passtPass(acc, roh) {
+  const worte = [String(roh || "").trim(), String(roh || "")];
+  if (istStarkerPruefwert(acc.passHash)) {
+    for (const w of worte) {
+      const h = await starkerPruefwert(w, acc.salt);
+      if (h == null) { const e = new Error("keinSubtle"); e.grund = "keinSubtle"; throw e; }
+      if (h === acc.passHash) return { ok: true, alt: false, wort: w };
+    }
+    return { ok: false };
+  }
+  for (const w of worte) if ((await hashPass(w, acc.salt)) === acc.passHash) return { ok: true, alt: true, wort: w };
+  return { ok: false };
+}
+
 // ── pure helpers (tested) ────────────────────────────────────────────────────
 export const normEmail = (e) => String(e || "").trim().toLowerCase();
 export const validEmail = (e) => e === ADMIN_EMAIL || /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e);
@@ -116,7 +160,7 @@ export async function mkAccount({ email, pass, name, provider = "local", isAdmin
        Gemessen im Audit (trim.mjs): register("...","geheim123 ") -> login
        mit UND ohne Leerzeichen "wrong-pass". Beide Tueren trimmen jetzt
        wirklich. */
-    salt, passHash: pass != null ? await hashPass(String(pass).trim(), salt) : null,
+    salt, passHash: pass != null ? await neuerPruefwert(String(pass).trim(), salt) : null,
     provider, isAdmin: !!isAdmin, createdAt: Date.now(),
   };
 }
@@ -307,9 +351,13 @@ export async function login(email, pass) {
      Hash ueber genau dieses Wort - der getrimmte Versuch trifft ihn nie. Also
      erst getrimmt, dann roh. Beides ist dasselbe Wort, nur anders geputzt;
      ein fremdes Wort oeffnet dadurch keine Tuer. */
-  const roh = String(pass || "");
-  const h = await hashPass(roh.trim(), acc.salt);
-  if (h !== acc.passHash && (await hashPass(roh, acc.salt)) !== acc.passHash) throw new Error("wrong-pass");
+  const treffer = await passtPass(acc, pass);
+  if (!treffer.ok) throw new Error("wrong-pass");
+  /* v1.90.18 (A49): alter Pruefwert -> still auf PBKDF2 umschreiben */
+  if (treffer.alt && !(acc.salt === ADMIN_SALT && acc.passHash === ADMIN_HASH)) {
+    const stark = await starkerPruefwert(treffer.wort, acc.salt);
+    if (stark) { acc.passHash = stark; try { await writeList(list); } catch {} }
+  }
   await setSession(acc.id);
   return acc;
 }
@@ -384,7 +432,7 @@ export async function deleteAccount(accountId, pass) {
   const acc = list.find((a) => a.id === accountId);
   if (!acc) throw new Error("not-found");
   if (acc.email === ADMIN_EMAIL) throw new Error("admin-locked");
-  if (acc.passHash != null && (await hashPass(pass || "", acc.salt)) !== acc.passHash) throw new Error("wrong-pass");
+  if (acc.passHash != null && !(await passtPass(acc, pass)).ok) throw new Error("wrong-pass");
 
   // 1. Die Halle vergisst jede Online-Kennung dieses Kontos.
   let halle = { versucht: 0, geloescht: 0 };
@@ -428,7 +476,7 @@ export async function deleteAccount(accountId, pass) {
          Schirm vom Server neu fuellt). */
   try {
     const { vergissKontoInSicherungen } = await import("./backups.js");
-    await vergissKontoInSicherungen(spuren);
+    await vergissKontoInSicherungen({ ...spuren, acc: acc.id });   /* v1.90.18 (A48): auch am Konto-Etikett */
     const erledigt = await storage.get("saves:migrated", false);
     if (erledigt?.value) await storage.delete("profile", false);
     try { localStorage.removeItem("gambit:u::daily:v1"); } catch {}
@@ -448,13 +496,8 @@ export async function changePassword(accountId, oldPass, newPass) {
   /* v1.90.3 (Audit A6): auch hier getrimmt - und das ALTE Wort darf
      ungetrimmt sein, weil Bestandskonten aus der Zeit vor dieser Fassung
      einen Hash ueber das ungetrimmte Wort tragen koennen. */
-  if (acc.passHash != null) {
-    const alt = String(oldPass || "");
-    const passt = (await hashPass(alt.trim(), acc.salt)) === acc.passHash
-      || (await hashPass(alt, acc.salt)) === acc.passHash;
-    if (!passt) throw new Error("wrong-pass");
-  }
-  acc.passHash = await hashPass(String(newPass).trim(), acc.salt);
+  if (acc.passHash != null && !(await passtPass(acc, oldPass)).ok) throw new Error("wrong-pass");
+  acc.passHash = await neuerPruefwert(String(newPass).trim(), acc.salt);   /* v1.90.18 (A49) */
   acc.mustChangePass = false;
   await writeList(list);
   return acc;

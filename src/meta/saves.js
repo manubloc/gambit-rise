@@ -10,7 +10,7 @@
 // visible and flushed here; progress numbers are derived on every write so
 // the save screen never has to load full profiles to render the list.
 import { storage } from "../platform/index.js";
-import { ohneDauerfeuer } from "./profile.js";   /* v1.28.1 */
+import { migrate } from "./profile.js";   /* v1.28.1 ohneDauerfeuer; v1.90.18 die ganze Migration (A40) */
 import { defaultProfile } from "./profile.js";
 import { clearedCount, campaignLength, nodeInLeague, effectiveNodeBoss } from "./campaign.js";
 import { CAMPAIGN, CHARACTERS, BOSSES, bossById, ITEMS } from "../content/index.js";
@@ -155,7 +155,9 @@ export async function loadSave(acc, slotId) {
   try { const r = await storage.get(SKEY(acc, slotId), false); roh = r?.value || null; }
   catch (e) { console.error("Spielstand nicht lesbar (Speicher)", e); return null; }
   if (!roh) { console.error("Spielstand fehlt im Speicher:", SKEY(acc, slotId)); return null; }
-  try { return ohneDauerfeuer(JSON.parse(roh)); }
+  /* v1.90.18 (A40): die ganze Migration statt nur ohneDauerfeuer - sie ist
+     jetzt idempotent (profile.js) und laeuft auf jedem Ladeweg */
+  try { return migrate(JSON.parse(roh)); }
   catch (e) { console.error("Spielstand unlesbar (kein gueltiges JSON)", e); return null; }
 }
 
@@ -238,6 +240,24 @@ export function sichereStandSofort(acc, slotId, profile) {
   catch (e) { console.error("Sofortsicherung misslungen", e); return false; }
 }
 
+/* ── v1.90.18 (Audit A54): WELCHER STAND WIRD GEOEFFNET? ─────────────────────
+   Seit v1.29.1 oeffnete die App immer den zuletzt bespielten (liste[0]) - ein
+   Konto mit zwei Karrieren aus der Zeit davor sah die andere nie wieder, und
+   loeschen liess sie sich auch nicht. Jetzt merkt sich das Geraet je Konto
+   die WAHL; ohne Wahl gilt weiter der juengste. Ein Merker im localStorage und
+   kein "Anfassen" des Stands (updatedAt) - das Sichern beim Verlassen haette
+   den alten Stand sonst gleich wieder nach vorn geschoben. */
+const WAHL = (acc) => `gambit:standwahl:${acc}`;
+export function waehleStand(acc, slotId) {
+  try { if (slotId) localStorage.setItem(WAHL(acc), slotId); else localStorage.removeItem(WAHL(acc)); } catch {}
+}
+export function gewaehlterStand(acc) {
+  try { return localStorage.getItem(WAHL(acc)); } catch { return null; }
+}
+/** Rein: der Eintrag, den die App oeffnet - die Wahl, sonst der juengste. */
+export const standZumOeffnen = (liste, wahl) => (Array.isArray(liste) && liste.length
+  ? (wahl && liste.find((s) => s.id === wahl)) || liste[0] : null);
+
 export async function deleteSave(acc, slotId) {
   const list = (await readIndex(acc)).filter((s) => s.id !== slotId);
   await storage.delete(SKEY(acc, slotId), false);
@@ -270,7 +290,7 @@ export async function migrateLegacyInto(acc, provider = null) {
     if (done?.value) return null;
     const old = await storage.get(LEGACY, false);
     if (!old?.value) { await storage.set(MIGRATED, "1", false); return null; }
-    const prof = JSON.parse(old.value);
+    const prof = migrate(JSON.parse(old.value));   /* v1.90.18 (A40): roh abgelegt war ein v1-Stand */
     const entry = await createSave(acc, "Übernommener Spielstand", prof);
     await storage.set(MIGRATED, "1", false);
     return entry;

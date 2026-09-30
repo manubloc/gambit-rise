@@ -3,18 +3,18 @@ import { klang, klangEinstellen, klangVorwaermen, klangUeberall } from "./ui/kla
 import { lautVon } from "./ui/lautstaerke.js";   /* v1.26.2 */
 import { musikBereich } from "./ui/musik.js";
 import { setSchlicht } from "./ui/board/paintedArt.js";
-import { upgradeAbility, characterLevel, maxLevelFor, formationKey, loadProfile, defaultProfile, buildStageMatch, advanceCampaign, upgradePiece, buySpShard, clearedCount, campaignLength, currentNodeId , unlockAbility, respecPiece, claimAchievement, payToll, takeRestorePoint, serializeSave, isUnlocked } from "../meta/index.js";
+import { upgradeAbility, characterLevel, maxLevelFor, formationKey, defaultProfile, buildStageMatch, advanceCampaign, upgradePiece, buySpShard, clearedCount, campaignLength, currentNodeId , unlockAbility, respecPiece, claimAchievement, payToll, takeRestorePoint, serializeSave, isUnlocked } from "../meta/index.js";
 import { nodeById, chapterForRow, buyItem, CHARACTER_LIST, clockFor } from "../content/index.js";
 import { verifyPin } from "../platform/index.js";
 import { makeT } from "./i18n/strings.js";
 import { SERVER_URL } from "./config.js";
-import { claimableCount, retinueScore, upgradeBoss, listSaves, createSave, loadSave, migrateLegacyInto } from "../meta/index.js";
+import { claimableCount, retinueScore, upgradeBoss, listSaves, createSave, loadSave, migrateLegacyInto, gewaehlterStand, standZumOeffnen } from "../meta/index.js";
 import { mitAktivemDeck, mitDeckName, mitAufstellung } from "../meta/index.js";   /* v1.15.0: Decks */
 import { naechsteErklaerung, merkschluessel } from "../meta/index.js";
-import { setLivery, fetchHouseDesign, crestArt, emblemArt, logoMenuArt } from "./ui/livery.js";
+import { setLivery, crestArt, emblemArt, logoMenuArt } from "./ui/livery.js";
+import { SchirmGrenze } from "./ui/SchirmGrenze.jsx";
 import { Soundtrack } from "./ui/Soundtrack.jsx";
 import { AchievementsScreen } from "./ui/screens/AchievementsScreen.jsx";
-import { APP_DESIGN } from "./config.js";
 import { CoinIc, SkillIc, CrestIc, GoldHeartIc, MapPinIc, LockIc } from "./ui/icons.jsx";
 import { JewelIc } from "./ui/board/PieceGlyph.jsx";
 import { T, GOLD_CTA } from "./ui/theme.js";
@@ -190,6 +190,9 @@ const TABS = [
   { id: "profile", key: "nav.profile" },
 ];
 
+/* v1.90.18 (A44): die Livree ist eine Konstante - einmal beim Laden setzen. */
+setLivery();
+
 export default function App() {
   const galerie = typeof location !== "undefined" && new URLSearchParams(location.search).has("galerie");
   /* v1.0.39 (Besitzer): DIE WERKZEUGE SIND VERSCHLOSSEN. Schaukammer,
@@ -201,9 +204,6 @@ export default function App() {
   const klangwerkstatt = typeof location !== "undefined" && new URLSearchParams(location.search).has("klangwerkstatt");
   const adminPortal = typeof location !== "undefined" && new URLSearchParams(location.search).has("admin");
   const [profile, dispatch] = useReducer(reducer, null);
-  // which livery the house wears — asked from the Hall once per boot
-  const [houseDesign, setHouseDesign] = useState(null);
-  useEffect(() => { fetchHouseDesign().then((d) => { if (d) setHouseDesign(d); }); }, []);
   const [ready, setReady] = useState(false);
   const [locked, setLocked] = useState(false);
   const [tab, setTab] = useState("play");
@@ -351,7 +351,7 @@ export default function App() {
            ein echtes Konto. */
         await migrateLegacyInto(account.id, account.provider);
         let liste = await listSaves(account.id);
-        let eintrag = liste && liste[0];
+        let eintrag = standZumOeffnen(liste, gewaehlterStand(account.id));   /* v1.90.18 (A54) */
         /* v1.46.0: ein GAST beginnt immer auf dem eingefrorenen Schaustand -
            Kapitel I, vier Stationen, drei Sonderfiguren. loginGuest hat den
            alten Gast-Stand vorher geraeumt, also entsteht er jedes Mal neu. */
@@ -422,7 +422,7 @@ export default function App() {
        machte daraus eine Kopie des zuletzt Spielenden - die ein neues Konto
        auf demselben Geraet (nach einem Gast) als "uebernommenen Stand" erbte
        und die das Loeschen eines Kontos ueberlebte. */
-    takeRestorePoint(profile);
+    takeRestorePoint(profile, { acc: account.id });   /* v1.90.18 (A48): je Konto, der Gast gar nicht */
     const add = playtimeRef.current; playtimeRef.current = 0;
     writeSave(account.id, slot.id, profile, add).then(nachSicherung);
   } }, [profile, ready]);
@@ -437,19 +437,13 @@ export default function App() {
     return () => clearInterval(iv);
   }, [account, slot]);
 
-  // ANDROID/PWA BACK: inside a match the back gesture must fall back to the
-  // hall, never kill the app. This hook lives ABOVE the login early-returns —
-  // hooks must run in the same order on every render (React #310).
+  /* v1.90.18 (Audit A42): hier stand ein ZWEITER Zurueck-Hook nur fuer die
+     Partie (pushState {gg:"match"} + eigener popstate-Zuhoerer, Abhaengigkeit
+     nur [inMatchNow] - er las also veraltete Werte). Beim Betreten einer
+     Partie legten beide Hooks je einen Verlaufseintrag an, und beim Zurueck
+     feuerten beide. Die Zurueck-Geste weiter unten (v0.99) kennt die Partie
+     als Tiefe 3 und deckt sie ganz ab. */
   const inMatchNow = !!match || !!pvp || !!quick || !!dailyGame;
-  useEffect(() => {
-    if (!inMatchNow) return;
-    try { window.history.pushState({ gg: "match" }, ""); } catch {}
-    const onPop = () => {
-      if (pvp) setPvp(null); else if (match) setMatch(null); else if (quick) setQuick(null); else if (dailyGame) setDailyGame(null);
-    };
-    window.addEventListener("popstate", onPop);
-    return () => window.removeEventListener("popstate", onPop);
-  }, [inMatchNow]);
 
   /* v0.80: die Huelle meldet der Musikregie ihren Bereich. Im Kampf meldet
      die Partie selbst (kampf/kampfSpannung/meister) - deshalb schweigt die
@@ -512,7 +506,10 @@ export default function App() {
       } else if (view !== "hub") setView("hub");
       else if (tab !== "play") setTab("play");
       else { history.back(); return; }   // ganz oben: die App darf gehen
-      try { history.pushState({ ggTiefe: 0 }, ""); } catch {}
+      /* v1.90.18 (A42): ERSETZEN statt anlegen. Hier stand pushState - nach
+         jedem Zurueck ein neuer Eintrag, der Verlauf wuchs mit jeder Partie.
+         Der Eintrag, auf dem wir nach dem Zurueck stehen, bleibt unser Anker. */
+      try { history.replaceState({ ggTiefe: 0 }, ""); } catch {}
     };
     window.addEventListener("popstate", zurueck);
     return () => window.removeEventListener("popstate", zurueck);
@@ -673,13 +670,23 @@ export default function App() {
   }
   if (!slot) return null;   // wird von oeffneSpielstand geoeffnet
   if (!ready || !profile) return null;
-  // The chosen piece style is announced to the gallery ONCE, here. Every screen
-  // that looks a figure up by id — the court, the chronicle, the unlock pop-ups
-  // — then answers in that style without knowing anything about it.
-  // The livery is the HOUSE's choice, not the player's. Priority: the admin's
-  // local preview override, then the Hall's live answer (cached), then the
-  // shipped APP_DESIGN. houseDesign state re-renders us when the Hall differs.
-  setLivery((account?.isAdmin && profile.design) || houseDesign || APP_DESIGN);
+  /* ── v1.90.18 (Audit A44): MODULZUSTAND IM RENDERN ────────────────────────
+     Hier stand setLivery(...) mit drei Quellen (Admin-Vorschau, Hallen-Antwort,
+     APP_DESIGN). Seit v1.1.0 ist die Livree eine Konstante, setLivery nimmt
+     gar kein Argument mehr - der Aufruf bei JEDEM Render tat nichts, und die
+     Hallen-Abfrage darueber (houseDesign) loeste nur einen zweiten Render
+     aus. Die Livree wird jetzt EINMAL beim Laden dieses Moduls gesetzt
+     (unten, ausserhalb der Komponente).
+     Sparmodus und Gegnerstil standen im Render von PlayHub - sie galten also
+     erst, wenn man wieder im Hub war (wer den Sparmodus im Profil umschaltete
+     und von dort in ein Gefecht ging, bekam die alte Fassung). Sie stehen
+     jetzt HIER, wo jede Profilaenderung ohnehin einen Render ausloest. Bewusst
+     weiter im Render und nicht in einem Effekt: beide sind reine Ableitungen
+     des Profils (idempotent), und die Kinder lesen sie beim Zeichnen - ein
+     Effekt kaeme ein Bild zu spaet ("sonst liefe ein Bild lang die teure
+     Fassung", v1.0.37). */
+  setSparmodus(profile.spar);
+  setGegnerStil(profile.gegnerStil);
   /* v1.65.0 (Besitzer): beim Gast faellt der Hinweis zum Speicherstand weg -
      er speichert nichts, sein Stand ist beim Verlassen fort. */
   const showPrivacy = !profile.notices?.privacy && !istGast(profile);
@@ -755,7 +762,7 @@ export default function App() {
             oeffneDaily={oeffneDaily}
             onDaily={(gameId) => netRef.current.send({ t: "daily:open", gameId })} />)
         : view === "tutorial" ? sub(t("tut.title"), <AkademieScreen profile={profile} t={t} en={profile.lang === "en"} account={account} onDone={() => setView("hub")} />)
-        : <PlayHub profile={profile} t={t} onQuick={() => setView("quick")} onQuickStart={startQuickNow} onCamp={() => setView("camp")} onOnline={(gid) => { oeffneDaily.current = gid || null; setView("online"); }} onTutorial={() => setView("tutorial")} hallenStand={hallenSteht} />
+        : <PlayHub profile={profile} t={t} onQuick={() => setView("quick")} onQuickStart={startQuickNow} onCamp={() => setView("camp")} onOnline={(gid) => { oeffneDaily.current = typeof gid === "string" ? gid : null; setView("online"); }} onTutorial={() => setView("tutorial")} hallenStand={hallenSteht} />
       )
       : tab === "army" ? <ArmyScreen key={armyTab.n} profile={profile} dispatch={dispatch} t={t} initialTab={armyTab.tab} account={account} />
         : tab === "ach" ? <AchievementsScreen profile={profile} dispatch={dispatch} t={t} en={profile.lang === "en"} />
@@ -763,6 +770,16 @@ export default function App() {
               onLogout={hardLogout} />;
 
   const inMatch = !!match || !!pvp || !!quick || !!dailyGame;
+  /* v1.90.18 (A45): der Schirm hinter seiner eigenen Fehlergrenze - faellt er,
+     bleiben Kopf und Reiter stehen, und "Zurueck ins Hauptmenue" raeumt auf.
+     Der Schluessel beschreibt den Schirm; wechselt er, vergisst die Grenze. */
+  const schirmGesichert = (
+    <SchirmGrenze en={profile.lang === "en"}
+      schluessel={`${tab}|${view}|${match ? "m" : pvp ? "p" : quick ? "q" : dailyGame ? "d" : "-"}`}
+      onReset={() => { setMatch(null); setPvp(null); setQuick(null); setDailyGame(null); setView("hub"); setTab("play"); }}>
+      {screen}
+    </SchirmGrenze>
+  );
   // map & match immersion (v0.3/v0.4): the campaign map and every running
   // match fill the screen — the shell locks to 100dvh, UI floats above
   const immersive = inMatch || (tab === "play" && view === "camp");
@@ -975,7 +992,7 @@ export default function App() {
           // schob die Haelfte des Leerraums ZWISCHEN Kopfleiste und Karten
           // (gemessen: 67 px Luecke). Inhalt beginnt oben, der Rest der Buehne
           // gehoert dem MysticBackground.
-          ? { display: "flex", flexDirection: "column", justifyContent: "flex-start", minHeight: "calc(100dvh / var(--vhz, 1) - 72px)" } : {}) }}>{screen}</main>
+          ? { display: "flex", flexDirection: "column", justifyContent: "flex-start", minHeight: "calc(100dvh / var(--vhz, 1) - 72px)" } : {}) }}>{schirmGesichert}</main>
     </div>
   );
 
@@ -1070,7 +1087,7 @@ export default function App() {
         maskImage: (immersive || inMatch) ? "none" : "linear-gradient(180deg, #000 0%, #000 calc(100% - 124px - env(safe-area-inset-bottom)), rgba(0,0,0,.4) calc(100% - 98px - env(safe-area-inset-bottom)), transparent calc(100% - 74px - env(safe-area-inset-bottom)))", padding: immersive ? (mapView ? "0 6px calc(72px + env(safe-area-inset-bottom))" : "0 3px") : inMatch ? "8px 6px 12px" : "22px 10px calc(130px + env(safe-area-inset-bottom, 0px))",   /* v1.89.0: kein Bodenpolster mehr (378 px) - siehe den breiten <main> oben */
         ...(tab === "play" && view === "hub" && !inMatch && !immersive
           ? { display: "flex", flexDirection: "column", justifyContent: "flex-start" } : {}),
-        ...(immersive ? { display: "flex", flexDirection: "column" } : {}) }}>{screen}</main>
+        ...(immersive ? { display: "flex", flexDirection: "column" } : {}) }}>{schirmGesichert}</main>
       {/* die Melodie des Hauses - abschaltbar unter Profil */}
       <Soundtrack an={profile.sound !== false && lautVon(profile, "musik") > 0} laut={lautVon(profile, "musik")} />
       <KlangRegie an={profile.sfx !== false && lautVon(profile, "klang") > 0} laut={lautVon(profile, "klang")} />
@@ -1120,10 +1137,8 @@ const G = "#c9a45c", GH = "#e8c97e", NV = "#0e1424";
 
 
 export function PlayHub({ profile, t, onQuick, onCamp, onOnline, onTutorial = null, hallenStand = false, onQuickStart = null }) {
-  /* v1.0.37: der Sparmodus steht VOR dem Zeichnen - sonst liefe ein Bild
-     lang die teure Fassung. */
-  setSparmodus(profile.spar);
-  setGegnerStil(profile.gegnerStil);   /* v1.0.50: die gewaehlte Sicht auf den Gegner */
+  /* v1.0.37/v1.0.50: Sparmodus und Gegnerstil setzt seit v1.90.18 die
+     App selbst (A44), bevor irgendein Schirm zeichnet - nicht mehr nur der Hub. */
   const en = profile.lang === "en";
   const hubWide = useMedia("(min-width: 900px)");
   const cur = nodeById(currentNodeId(profile));
@@ -1217,7 +1232,12 @@ export function PlayHub({ profile, t, onQuick, onCamp, onOnline, onTutorial = nu
           dort zwei eigene Griffe abgeloest haben, ist der Kopf kuerzer als
           das 84 px hohe Bild. Der Kopf haelt jetzt Mindesthoehe fuer sein
           Zeichen (84 + Polster). */}
-      <button onClick={onGo} style={{ textAlign: "left", fontFamily: "inherit", cursor: "pointer", width: "100%",
+      {/* v1.90.18 (gefunden von tools/pruefe-duell.mjs, Audit A73): hier stand
+          onClick={onGo} - der Klick reichte sein EREIGNIS weiter. onOnline(gid)
+          hielt es fuer eine Partiekennung, merkte es sich, und beim welcome
+          der Halle scheiterte JSON.stringify daran: der welcome-Zuhoerer brach
+          ab, Rangliste, Tresor und Push-Schluessel wurden nie angefragt. */}
+      <button onClick={() => onGo?.()} style={{ textAlign: "left", fontFamily: "inherit", cursor: "pointer", width: "100%",
         background: "none", border: "none", padding: "16px 16px 14px", display: "block", position: "relative",
         minHeight: art ? 114 : undefined }}>
         {/* Das Zeichen sitzt bei Karten MIT Fliesstext oben statt mittig - so

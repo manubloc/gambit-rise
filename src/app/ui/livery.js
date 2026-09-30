@@ -17,7 +17,7 @@
 import { setDesign as setThemeDesign } from "./theme.js";
 import { applyInsigniaDesign } from "./assets/icons/iconAssets.js";
 import { setPieceStyle } from "./board/paintedArt.js";
-import { APP_DESIGN, HALL_HTTP } from "../config.js";
+import { APP_DESIGN } from "../config.js";
 
 import hallK from "./assets/bg-hall.carved.webp";
 import frameK from "./assets/board-frame.carved.webp";
@@ -81,15 +81,8 @@ export async function fetchHouseDesign() {
 }
 
 
-/** The admin's hand on the house switch: persists in the Hall for everyone. */
-export async function setHouseDesign(design, token) {
-  const r = await fetch(HALL_HTTP + "/design", { method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ design, token }) });
-  if (!r.ok) throw new Error("unauthorized");
-  try { localStorage.setItem(CACHE_KEY, design); } catch {}
-  return design;
-}
+/* v1.90.18 (A56): setHouseDesign ist fort - der Knopf dazu seit v1.1.0,
+   der POST auf /design in der Halle jetzt auch. */
 export const bgHall = () => hallK;
 export const boardFrame = () => frameK;
 export const leagueShield = () => shieldK;

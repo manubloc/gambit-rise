@@ -16,7 +16,12 @@ let _sb = null;
 async function sb() {
   if (!cloudConfigured()) return null;
   if (_sb) return _sb;
-  const { createClient } = await import(/* @vite-ignore */ "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm");
+  /* v1.90.18 (Audit A57): angeheftet statt "@2" - ein neues 2.x vom CDN
+     haette ohne jede Pruefung beim naechsten Laden eines jeden Spielers
+     gegolten. 2.117.2 ist genau das, was "@2" am 1.10.2026 lieferte
+     (npm view @supabase/supabase-js version). Anheben = diese Zahl aendern,
+     in BEIDEN Dateien (storage.web.js und cloudAuth.js), test_ui prueft es. */
+  const { createClient } = await import(/* @vite-ignore */ "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/+esm");
   _sb = createClient(URL, KEYV);
   return _sb;
 }

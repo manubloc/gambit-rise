@@ -195,7 +195,90 @@ export function finaleGrundreihe(node, back, seed) {
   return arr;
 }
 
-export function buildStageMatch(id, profile = null, leagueOverride = null) {
+/* ── DIE BOSSFORMATIONEN (v1.90.18, Besitzerentscheid 30.9.) ─────────────────
+   Befund der Aufstellungskammer: 31 von 32 Bossen standen gleich - Turm,
+   Springer, Laeufer, Boss auf d8, Koenig ... von Kapitel I bis XII. Was sich
+   aenderte, waren das Monster und das Brett, nie die Szene. Empfehlung, vom
+   Besitzer angenommen: "drei bis vier feste Formationen, je Station
+   festgelegt (nicht zufaellig): Boss hinter der Bauernmauer, Boss mit
+   Leibwache, Boss vorgeschoben in Reihe 7, Boss allein mit leichten Figuren."
+
+   FEST heisst: aus der Kennung der Station (streuwert), rein - wer verliert,
+   trifft dieselbe Szene wieder. NICHT in Kapitel I (Lernkapitel, reines
+   Schach), NICHT an den Finalen (sie mischen ihre Grundreihe schon selbst,
+   finaleGrundreihe) und NICHT beim grossen Drachen (sein Block braucht
+   Damen- und Laeuferfeld samt Bauern davor).
+
+   Die vier Szenen auf der klassischen Reihe R N B [Boss] K B N R:
+     mauer         so wie bisher - der Boss hinter geschlossener Bauernreihe
+     leibwache     die Tuerme ruecken an Boss und Koenig: N B R [Boss] K R B N
+     vorgeschoben  der Boss steht in der Bauernreihe auf seiner Spalte, der
+                   Bauer dort faellt weg, sein Thron bleibt leer
+     leicht        ohne Tuerme - der Boss allein mit Springern und Laeufern
+   Wie stark jede Szene ist, misst tools/formationen-messen.mjs --duell: die
+   Station gegen SICH SELBST, einmal in "mauer", einmal in der Szene, Farben
+   abwechselnd. Gemessen ueber alle 30 Stationen, je 600 Partien (1.10.2026):
+   mauer 49,3 %, leibwache 49,8 %, vorgeschoben 51,5 %, leicht 54,7 % - keine
+   Szene macht eine Station messbar leichter. */
+export const BOSS_FORMATIONEN = {
+  mauer: { de: "Hinter der Bauernmauer", en: "Behind the pawn wall" },
+  leibwache: { de: "Mit Leibwache", en: "With a bodyguard" },
+  vorgeschoben: { de: "Vorgeschoben", en: "Stepped forward" },
+  leicht: { de: "Mit leichten Figuren", en: "With light pieces" },
+};
+const FORMATION_REIHE = ["mauer", "leibwache", "vorgeschoben", "leicht"];
+/* Verteilt wird REIHUM, nicht per Streuwert: der erste Wurf ueber den
+   Streuwert der Kennung ergab gemessen 14x "vorgeschoben" und 5x
+   "leibwache" auf 30 Stationen. Jetzt bekommen die Boss-Stationen eines
+   Kapitels (nach Kennung geordnet) die Szenen der Reihe nach, versetzt um
+   das Kapitel - so hat jedes Kapitel verschiedene, und keine Szene haeuft
+   sich. Fest ist es trotzdem: dieselbe Station, dieselbe Szene. */
+/* Auch das ERWACHEN (Kapitel II, die erste Schlacht mit Lebenspunkten)
+   behaelt die alte Szene: wer dort zum ersten Mal Leben sieht, soll nicht
+   zugleich eine fremde Aufstellung lesen muessen. */
+const ohneFormation = (n) => !n?.boss || n.final || (n.league || 1) <= 1 || n.boss.piece === "dragon" || n.erwachen;
+const formationsStationen = (lg) => CAMPAIGN
+  .filter((n) => n.league === lg && !ohneFormation(n))
+  .map((n) => String(n.id)).sort();
+export function bossFormation(node) {
+  if (ohneFormation(node)) return "mauer";
+  const lg = node.league || 1;
+  const i = formationsStationen(lg).indexOf(String(node.id));
+  if (i < 0) return "mauer";
+  return FORMATION_REIHE[(lg + i) % FORMATION_REIHE.length];
+}
+/** Stellt ein Gegnerheer in die Szene `art`. qi = Platz des Bosses in der
+ *  Grundreihe. Passt die Reihe nicht zum Muster (andere Breite, Boss nicht
+ *  links neben dem Koenig), bleibt alles, wie es ist. Rein. */
+export function formiereBoss(army, qi, art) {
+  if (!army || !Array.isArray(army.back) || art === "mauer") return army;
+  const b = army.back, w = b.length;
+  const koenig = b.findIndex((sp) => sp && sp.kind === "K");
+  if (w !== 8 || qi !== 3 || koenig !== 4 || !b[qi]) return army;
+  const boss = b[qi];
+  if (art === "leibwache") {
+    return { ...army, back: [b[1], b[2], b[0], boss, b[4], b[7], b[5], b[6]] };
+  }
+  if (art === "vorgeschoben") {
+    const front = Array(w).fill(undefined); front[qi] = boss;
+    return { ...army, back: b.map((sp, j) => (j === qi ? null : sp)), front };
+  }
+  if (art === "leicht") {
+    /* die Tuerme weichen leichten Figuren: an ihre Stelle tritt je ein
+       Springer (die Figur, die neben ihnen stand). Erster Anlauf: Tuerme
+       ersatzlos weg - gemessen gewann die Station dann 5-8 Punkte seltener
+       als in der alten Aufstellung (44,8 %), und Lebenspunkte fuer den Boss
+       glichen das nicht aus (+6 und +10 HP: 43,6 und 43,2 %) - entschieden
+       wird am Koenig, nicht am Boss. Mit Springern: 54,7 %. */
+    const springer = (j) => (j === 0 ? b[1] : b[w - 2]);
+    return { ...army, back: b.map((sp, j) => (j === qi ? boss : sp && sp.kind === "R" && springer(j) && springer(j).kind === "N" ? springer(j) : sp)) };
+  }
+  return army;
+}
+
+/* opts.formation: nur fuer Werkzeuge und Proben (tools/formationen-messen.mjs) -
+   stellt den Boss in eine bestimmte Szene statt der seiner Station. */
+export function buildStageMatch(id, profile = null, leagueOverride = null, opts = {}) {
   const node = nodeById(id);
   // THE PLAYER'S OWN DIAL: a campaign-wide difficulty offset shifts each
   // station's built-in level up or down (-1 gentler … 0 as designed … +1
@@ -273,6 +356,7 @@ export function buildStageMatch(id, profile = null, leagueOverride = null) {
      Stufe I in Liga 1-4, II in 5-8, III ab Liga 9 */
   const boss = boss1 && { ...boss1, stufen: monsterStufen(boss1.abilities, lg >= 9 ? 3 : lg >= 5 ? 2 : 1) };
   let bossInfo = null;
+  let formationArt = "mauer";
   if (boss) {
     let qi = formation.indexOf("queen");
     if (qi === -1) qi = Math.max(0, Math.floor(formation.length / 2) - 1);
@@ -303,6 +387,11 @@ export function buildStageMatch(id, profile = null, leagueOverride = null) {
         for (let j = 0; j < w2; j++) if (j !== ki && inward(j) !== ki) { qi = j; break; }
     }
     aiArmy.back = aiArmy.back.map((spec, j) => (j === qi ? boss : j === fluegel ? null : spec));
+    if (fluegel < 0) formationArt = opts.formation && BOSS_FORMATIONEN[opts.formation] ? opts.formation : bossFormation(node);
+    if (formationArt !== "mauer") {
+      const neu = formiereBoss(aiArmy, qi, formationArt);
+      if (neu === aiArmy) formationArt = "mauer"; else Object.assign(aiArmy, neu);
+    }
     bossInfo = { name: boss.name, bossId: boss.bossId, unlocks: looking ? null : recruitOnWin(node, profile),
       art: boss.art || null, accent: boss.accent, kind: boss.kind };
   }
@@ -311,6 +400,8 @@ export function buildStageMatch(id, profile = null, leagueOverride = null) {
     nodeId: id,
     /* v1.35.0: was die Besetzung brauchte - App haelt sie beim Betreten fest */
     besetzung, wechselnd: plan.wechselnd,
+    /* v1.90.18: in welcher Szene der Boss steht (BOSS_FORMATIONEN) */
+    bossFormation: formationArt,
     map: mapId, rules: node.rules,
     /* v1.1.5 (Besitzerbefund, nach zwei Fehlversuchen endlich am richtigen
        Ort): DER KAMPF TRAEGT SEIN KAPITEL. "Ich wechsle es ueber die

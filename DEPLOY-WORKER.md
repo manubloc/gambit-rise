@@ -34,7 +34,7 @@ Committen → Cloudflare Pages deployt → der Online-Tab verbindet sich.
 * **Health-Check:** `https://…workers.dev/health` → `{"ok":true,"online":n}`
 
 ## Was gleich blieb
-Das Protokoll ist 1:1 das des alten Node-Servers (`server/server.mjs` bleibt
+Das Protokoll ist 1:1 das des alten Node-Servers (`server/server.mjs`, seit v1.90.18 in `archiv/ausgemustert/v1.90.18/`; bleibt
 als Referenz liegen) — Client und Online-Screen brauchten keine Änderung.
 Matchmaking-Bänder, Elo (K=32), Rematch-Fenster (2 min, Seitenwechsel),
 Vault (5 Snapshots), Freunde/Geschenke/Privatsphäre: alles identisch, jetzt

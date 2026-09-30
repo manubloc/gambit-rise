@@ -340,15 +340,16 @@ ok("full build counts ten league crowns", fullB.stats.leaguesWon === 10);
   const st = await createSave(acc.id, "Stand S");
   const prof = { ...defaultProfile(), name: "Spurenleger", online: { id: "on-spur-1", secret: "x" } };
   await writeSave(acc.id, st.id, prof);
-  await takeRestorePoint(prof, { force: true });
+  await takeRestorePoint(prof, { force: true, acc: acc.id });
   const fremd = { ...defaultProfile(), name: "Andere", online: { id: "on-fremd-9", secret: "y" } };
-  await takeRestorePoint(fremd, { force: true });
+  await takeRestorePoint(fremd, { force: true, acc: "konto-fremd" });
   await storage.set("saves:migrated", "1", false);
   await storage.set("profile", JSON.stringify(prof), false);
-  const vorher = await listRestorePoints();
-  ok("A47: vor der Loeschung liegen beide Sicherungen", vorher.length >= 2);
+  const alle = async () => { const r = await storage.get("gambit:restorepoints", false); return r?.value ? JSON.parse(r.value) : []; };
+  const vorher = await alle();
+  ok("A47: vor der Loeschung liegen beide Sicherungen", vorher.length >= 2 && (await listRestorePoints(acc.id)).length >= 1);
   await deleteAccount(acc.id, "geheim123");
-  const nachher = await listRestorePoints();
+  const nachher = await alle();
   const hat = (id) => nachher.some((e) => { try { return JSON.parse(e.data).online?.id === id; } catch { return false; } });
   ok("A47: die Sicherung des geloeschten Kontos ist fort", !hat("on-spur-1"));
   ok("A47: die Sicherung eines anderen Kontos bleibt", hat("on-fremd-9"));
@@ -473,7 +474,12 @@ ok("full build counts ten league crowns", fullB.stats.leaguesWon === 10);
   /* v1.90.3: die Zeile in loadSave ist mit Audit A5 umgebaut worden (der
      Fehler wird jetzt gemeldet statt verschluckt) - die Probe haengt sich an
      den Aufruf, nicht mehr an den genauen Wortlaut der alten Zeile. */
-  ok("auch das normale Laden stellt Dauerfeuer um", readFileSync("src/meta/saves.js", "utf8").includes("return ohneDauerfeuer(JSON.parse(roh))"));
+  /* v1.90.18 (A40): statt einer Quelltextzeile das VERHALTEN - ein Stand mit
+     Dauerfeuer, abgelegt und normal geladen, ist umgestellt. */
+  void readFileSync;
+  const altStand = await createSave("acc-dauerfeuer", "Alt", p);
+  const geladen = await loadSave("acc-dauerfeuer", altStand.id);
+  ok("auch das normale Laden stellt Dauerfeuer um", JSON.stringify(geladen.pieces.abilities.captain) === '["ranged_shot"]');
   /* v1.29.0: eine gestrichene Faehigkeit (Blinzeln beim Springer) verschwindet
      samt Stufe, die Punkte kommen ueber denselben Weg zurueck */
   const q = pm.defaultProfile(); q.sp = 10;
@@ -802,6 +808,81 @@ const ohneSubtle = (() => {
     main.includes("r.unregister().then(() => ladeNeu(() => window.location.reload()))"));
   ok("A19: und die Absturzkarte behauptet nicht mehr, der Spielstand sei sicher",
     !main.includes("Dein Spielstand ist sicher") && main.includes("bis zur letzten Sicherung erhalten"));
+}
+
+/* ── v1.90.18 (Audit A48): WIEDERHERSTELLUNGSPUNKTE JE KONTO ──────────────────
+   Vorher: EINE Liste fuer alle Konten des Geraets, inklusive Gast. Der Admin
+   sah fremde Staende, und die sechs juengsten Plaetze teilten sich alle. */
+{
+  const { mitSicherung, eintraegeVon, takeRestorePoint, listRestorePoints } = await import("./src/meta/backups.js");
+  const pA = { ...defaultProfile(), name: "A" }, pB = { ...defaultProfile(), name: "B" };
+  let l = [];
+  for (let k = 0; k < 9; k++) l = mitSicherung(l, pA, "konto-a", 1e12 + k * 7e5, true);
+  l = mitSicherung(l, pB, "konto-b", 1e12 + 99e5, true);
+  for (let k = 0; k < 9; k++) l = mitSicherung(l, pA, "konto-a", 1e12 + 1e7 + k * 7e5, true);
+  ok("A48: ein fleissiges Konto schiebt die Sicherung eines anderen nicht hinaus", eintraegeVon(l, "konto-b").length === 1);
+  ok("A48: jedes Konto sieht nur seine eigenen", eintraegeVon(l, "konto-a").every((e) => JSON.parse(e.data).name === "A"));
+  ok("A48: der Gast sichert nicht", (await takeRestorePoint({ ...defaultProfile(), gast: true }, { force: true, acc: "gast-1" })) === null
+    && (await listRestorePoints("gast-1")).length === 0);
+  ok("A48: ohne Konto keine Liste", (await listRestorePoints()).length === 0);
+}
+
+/* ── v1.90.18 (Audit A49): PBKDF2 FUER LOKALE PASSWOERTER ────────────────────── */
+{
+  const am = await import("./src/meta/accounts.js");
+  const { storage: sp } = await import("./src/platform/index.js");
+  await am.clearSession();
+  const neu = await am.register("stark@example.com", "geheim123");
+  ok("A49: ein neues Konto bekommt einen PBKDF2-Pruefwert", am.istStarkerPruefwert(neu.passHash));
+  let rein = false; try { await am.login("stark@example.com", "geheim123"); rein = true; } catch {}
+  let falsch = false; try { await am.login("stark@example.com", "geheim124"); } catch (e) { falsch = e.message === "wrong-pass"; }
+  ok("A49: das richtige Wort oeffnet, ein falsches nicht", rein && falsch);
+  /* ein Bestandskonto mit altem SHA-256-Wert */
+  const liste = JSON.parse((await sp.get("accounts:v1", false))?.value || "[]");
+  const alt = liste.find((a) => a.email === "stark@example.com");
+  alt.passHash = await am.hashPass("geheim123", alt.salt);
+  await sp.set("accounts:v1", JSON.stringify(liste), false);
+  await am.login("stark@example.com", "geheim123");
+  const nachher = JSON.parse((await sp.get("accounts:v1", false))?.value || "[]").find((a) => a.email === "stark@example.com");
+  ok("A49: ein alter Pruefwert oeffnet weiter und wird beim Anmelden still umgeschrieben", am.istStarkerPruefwert(nachher.passHash));
+}
+
+/* ── v1.90.18 (Audit A54): DER GEWAEHLTE STAND WIRD GEOEFFNET ────────────────── */
+{
+  const { standZumOeffnen, listSaves: ls, createSave: cs } = await import("./src/meta/saves.js");
+  await cs("acc-zwei", "Erste Karriere"); await new Promise((r) => setTimeout(r, 5));
+  const zweite = await cs("acc-zwei", "Zweite Karriere");
+  const liste = await ls("acc-zwei");
+  const erste = liste.find((s) => s.name === "Erste Karriere");
+  ok("A54: ohne Wahl oeffnet der juengste", standZumOeffnen(liste, null).id === zweite.id);
+  ok("A54: mit Wahl der gewaehlte - auch wenn er aelter ist", standZumOeffnen(liste, erste.id).id === erste.id);
+  ok("A54: eine Wahl, die es nicht mehr gibt, faellt auf den juengsten zurueck", standZumOeffnen(liste, "weg").id === zweite.id);
+}
+
+/* ── v1.90.18 (Audit A40): DIE MIGRATION AUF JEDEM LADEWEG ───────────────────
+   Gemessen vor dem Umbau: parseSave (Sicherungsdatei zurueckspielen) baute
+   `campaign` aus vier Feldern neu - bribedBosses, bossWins, tolls, faced und
+   besetzung waren danach fort, und von den Aufstellungen nur "classic" uebrig
+   ("classic#chess" weg). Jetzt: nichts faellt weg, die Migration ist
+   idempotent, und normales Laden wie die Altstand-Uebernahme laufen durch sie. */
+{
+  const M = await import("./src/meta/index.js");
+  const p = M.withProgressPct(M.defaultProfile(), 50, 5);
+  p.campaign = { ...p.campaign, bribedBosses: ["b02"], bossWins: { L05s16: 1 }, tolls: ["L05s09"], faced: ["b02"], besetzung: { L05s01: ["boss:b02"] } };
+  const reihe = ["rook", "knight", "bishop", "queen", "king", "bishop", "knight", "rook"];
+  p.loadout = { ...p.loadout, formations: { classic: reihe, "classic#chess": reihe } };
+  const r = M.parseSave(M.serializeSave(p));
+  ok("A40: eine Sicherungsdatei behaelt jedes Kampagnenfeld (gekaufte Monster, Maut, Siege, Besetzung)",
+    ["bribedBosses", "bossWins", "tolls", "faced", "besetzung"].every((k) => JSON.stringify(r.campaign[k]) === JSON.stringify(p.campaign[k])));
+  ok("A40: ... und den Schach-Plan (classic#chess)", Array.isArray(r.loadout.formations["classic#chess"]));
+  const einmal = M.migrateProfile(p), zweimal = M.migrateProfile(einmal);
+  ok("A40: die Migration ist idempotent", JSON.stringify(einmal) === JSON.stringify(zweimal));
+  /* ein v1-Stand (vor den Konten): Zahl statt Liste in cleared, charXp */
+  const v1 = { gold: 5, xp: 600, charXp: { knight: 200 }, campaign: { league: 1, cleared: 2 } };
+  const s1 = await createSave("acc-v1", "v1", v1);
+  const g1 = await loadSave("acc-v1", s1.id);
+  ok("A40: das normale Laden bringt einen v1-Stand auf den heutigen Plan", g1.v === 2 && Array.isArray(g1.campaign.cleared)
+    && g1.campaign.unlocked.includes("knight") && g1.pieces.levels.knight > 1 && g1.sp === 10);
 }
 
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);

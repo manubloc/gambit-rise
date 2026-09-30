@@ -1,7 +1,7 @@
 // ── THE ADMIN BLACK BOX ──────────────────────────────────────────────────────
 // Crash reports never leave in an e-mail. They pool in the game's own Hall (the
 // existing Cloudflare Worker): anyone can FILE a report (POST /report), and the
-// admin READS them (GET /reports?token=…) straight inside the app. Every report
+// admin READS them (GET /reports, Authorization: Bearer …) straight inside the app. Every report
 // is also mirrored to a local ring buffer so nothing is lost offline.
 //
 // The admin token is the Worker's ADMIN_TOKEN secret (npx wrangler secret put
@@ -91,7 +91,8 @@ export async function listReports({ limit = 100 } = {}) {
   const token = getAdminToken();
   if (HALL_HTTP && token) {
     try {
-      const res = await fetch(HALL_HTTP + "/reports?token=" + encodeURIComponent(token) + "&limit=" + limit);
+      /* v1.90.18 (A56): das Admin-Wort im Kopf, nicht in der Adresse */
+      const res = await fetch(HALL_HTTP + "/reports?limit=" + limit, { headers: { authorization: "Bearer " + token } });
       if (res.status === 401) return { source: "hall", rows: [], error: "unauthorized" };
       if (res.ok) { const j = await res.json(); if (Array.isArray(j.rows)) return { source: "hall", rows: j.rows }; }
     } catch {}

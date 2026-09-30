@@ -29,7 +29,8 @@ export function SpielerbuchScreen() {
     if (!t) { setFehler("Ohne Admin-Wort bleibt das Buch zu."); return; }
     setLaedt(true); setFehler(null);
     try {
-      const r = await fetch(`${SERVER_URL.replace(/^ws/, "http").replace(/\/ws$/, "")}/spielerbuch?token=${encodeURIComponent(t)}`);
+      /* v1.90.18 (A56): das Admin-Wort im Kopf, nicht in der Adresse */
+      const r = await fetch(`${SERVER_URL.replace(/^ws/, "http").replace(/\/ws$/, "")}/spielerbuch`, { headers: { authorization: "Bearer " + t } });
       if (r.status === 401) throw new Error("Die Halle lehnt ab — falsches Admin-Wort.");
       if (!r.ok) throw new Error(`Die Halle antwortet mit ${r.status}.`);
       const d = await r.json();

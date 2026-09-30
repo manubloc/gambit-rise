@@ -12,6 +12,7 @@
 import { DurableObject } from "cloudflare:workers";
 import { HallCore } from "./logic.mjs";
 import { generateVapid, deliverPushes, pushText } from "./webpush.mjs";
+import { HALLE_VERSION } from "./version.mjs";   /* v1.90.18: /health nennt die Fassung */
 
 /* ── v1.90.8 (Audit A23): DER IP-PRUEFWERT WAR RUECKRECHENBAR ─────────
    Hier stand FNV-1a, 32 Bit, OHNE Geheimnis - und die Datenschutzerklaerung
@@ -206,7 +207,7 @@ export class Hall extends DurableObject {
        Bremse an /report und fuer adminCheck an den HTTP-Admin-Pfaden. */
     const anfragerIp = request.headers.get("cf-connecting-ip") || "?";
     if (url.pathname === "/health") {
-      return new Response(JSON.stringify({ ok: true, online: this.core.online.size }),
+      return new Response(JSON.stringify({ ok: true, online: this.core.online.size, version: HALLE_VERSION }),
         { headers: { "content-type": "application/json" } });
     }
     // ── THE BLACK BOX: crash & error reports pool here so the admin reads them
@@ -215,9 +216,21 @@ export class Hall extends DurableObject {
     const cors = {
       "access-control-allow-origin": "*",
       "access-control-allow-methods": "GET, POST, OPTIONS",
-      "access-control-allow-headers": "content-type",
+      "access-control-allow-headers": "content-type, authorization",
     };
-    if (request.method === "OPTIONS" && (url.pathname === "/report" || url.pathname === "/reports" || url.pathname === "/design" || url.pathname === "/vergiss")) {
+    /* ── v1.90.18 (Audit A56): DAS ADMIN-WORT GEHOERT NICHT IN DIE ADRESSE ──
+       Bis v1.90.17 kam es als `?token=` - und Workers Logs (observability an)
+       halten URLs fest, ebenso der Browserverlauf des Admins. Jetzt kommt es
+       als `Authorization: Bearer ...`. Der Adress-Parameter bleibt EINE
+       Fassung lang als Rueckfall fuer noch nicht aktualisierte Geraete des
+       Admins und entfaellt danach. Der Vergleich laeuft ueber adminCheck
+       (zeitkonstant, Sperre nach Fehlversuchen - v1.90.13). */
+    const adminWort = () => {
+      const h = request.headers.get("authorization") || "";
+      const m = /^Bearer\s+(.+)$/i.exec(h);
+      return m ? m[1] : (url.searchParams.get("token") || "");
+    };
+    if (request.method === "OPTIONS" && (url.pathname === "/report" || url.pathname === "/reports" || url.pathname === "/spielerbuch" || url.pathname === "/design" || url.pathname === "/vergiss")) {
       return new Response(null, { status: 204, headers: cors });
     }
     /* ── v1.27.2: IST DER NAME FREI? (Besitzer: "der Server muss pruefen, der
@@ -239,18 +252,10 @@ export class Hall extends DurableObject {
       return new Response(JSON.stringify({ design: r.length ? r[0].v : null }),
         { headers: { "content-type": "application/json", ...cors } });
     }
-    if (url.pathname === "/design" && request.method === "POST") {
-      let b = {}; try { b = await request.json(); } catch {}
-      /* v1.90.13 (A22, Rest): ueber adminCheck statt von Hand vergleichen -
-         damit gilt hier dieselbe Sperre nach fuenf Fehlversuchen wie im
-         WebSocket-Pfad. Vorher liess sich das Admin-Wort an /design,
-         /reports und /spielerbuch beliebig oft durchprobieren. */
-      try { this.core.adminCheck(anfragerIp, b.token); }
-      catch { return new Response(JSON.stringify({ error: "unauthorized" }), { status: 401, headers: { "content-type": "application/json", ...cors } }); }
-      const design = b.design === "carved" ? "carved" : "classic";
-      this.sql.exec("INSERT INTO kv (k, v) VALUES ('design', ?) ON CONFLICT(k) DO UPDATE SET v = excluded.v", design);
-      return new Response(JSON.stringify({ ok: true, design }), { headers: { "content-type": "application/json", ...cors } });
-    }
+    /* v1.90.18 (A56): der POST auf /design ist fort. Seit v1.1.0 ist die
+       Livree eine Konstante in der App (livery.js), niemand liest den
+       gespeicherten Wert mehr - der Weg war nur noch Angriffsflaeche mit
+       Admin-Wort. GET bleibt fuer alte Geraete, die noch fragen. */
     /* ── DAS VERGESSEN (v1.0.5, Besitzer: "es muss die Moeglichkeit geben,
        ein Konto auch loeschen zu koennen"). Wer loeschen will, weist sich
        mit id UND secret aus - demselben Paar, mit dem er sich in der Halle
@@ -306,7 +311,7 @@ export class Hall extends DurableObject {
     }
     if (url.pathname === "/reports" && request.method === "GET") {
       /* v1.90.13 (A22, Rest): dieselbe Sperre wie im WebSocket-Pfad. */
-      try { this.core.adminCheck(anfragerIp, url.searchParams.get("token") || ""); }
+      try { this.core.adminCheck(anfragerIp, adminWort()); }
       catch { return new Response(JSON.stringify({ error: "unauthorized" }), { status: 401, headers: { "content-type": "application/json", ...cors } }); }
       const limit = Math.min(200, Math.max(1, parseInt(url.searchParams.get("limit") || "100", 10) || 100));
       const rows = [...this.sql.exec("SELECT * FROM reports ORDER BY id DESC LIMIT ?", limit)].map((r) => ({
@@ -321,7 +326,7 @@ export class Hall extends DurableObject {
     // das Spiel im Ganzen. Nur mit Admin-Wort.
     if (url.pathname === "/spielerbuch" && request.method === "GET") {
       /* v1.90.13 (A22, Rest): dieselbe Sperre wie im WebSocket-Pfad. */
-      try { this.core.adminCheck(anfragerIp, url.searchParams.get("token") || ""); }
+      try { this.core.adminCheck(anfragerIp, adminWort()); }
       catch { return new Response(JSON.stringify({ error: "unauthorized" }), { status: 401, headers: { "content-type": "application/json", ...cors } }); }
       const jetzt = Date.now();
       const alle = Object.values(this.core.store.dumpPlayers());

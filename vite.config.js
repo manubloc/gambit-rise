@@ -61,6 +61,13 @@ export default defineConfig({
       includeAssets: ["favicon.ico"],   /* favicon.svg kommt ueber globPatterns - beides hiess doppelt */
       includeManifestIcons: false,
       manifest: {
+        /* v1.90.18 (Audit A62): ausdrueckliche id, gleich in beiden Manifesten
+           (dieses unter /spielen/, public/site.webmanifest fuer die
+           Startseite). Ohne id rechnete jeder Browser sie aus start_url - das
+           ergab schon bisher "/spielen/", bestehende Installationen behalten
+           also ihre Identitaet. Beide Manifeste tragen jetzt dieselben Werte:
+           scope /spielen/, theme_color #000000, lang de. */
+        id: "/spielen/",
         name: "Gambit Rise",
         short_name: "Gambit Rise",
         description: "Schach, das Charaktere erhebt — ein Taktik-Abenteuer. Chess that levels up.",

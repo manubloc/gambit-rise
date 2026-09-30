@@ -17,12 +17,12 @@ export {
 export { ACHIEVEMENTS, evaluate, completedSet, claimedTiers, claimReward, claimableCount, claimAchievement } from "./achievements.js";
 export { placeFor } from "./campaign.js";
 export { applyResult, winGold } from "./rewards.js";
-export { emptyStats, defaultProfile, loadProfile, saveProfile, serializeSave, parseSave } from "./profile.js";
+export { emptyStats, defaultProfile, serializeSave, parseSave, migrate as migrateProfile } from "./profile.js";
 export { newSession, applyEvents, summarize, summarizeMatch } from "./session.js";
 export {
   campaignLength, clearedCount, clearedIds, nodeStatus, currentNodeId, predsOf, nodeBossSpec, itemRevealed,
   buildStageMatch, advanceCampaign, advanceLeague, mapUnlocked, hpUnlocked, stageTimer, effectiveMap,
-  leagueRewardMult, leagueBump, stageGold, effectiveNodeBoss, finaleGrundreihe, tollCost, payToll, bossPieceFor, leagueFinalBossPiece, winsNeeded, bossWinsFor, recruitOnWin, seaAccessible, nodeInLeague, gateOf, leagueNo,
+  leagueRewardMult, leagueBump, stageGold, effectiveNodeBoss, finaleGrundreihe, BOSS_FORMATIONEN, bossFormation, formiereBoss, tollCost, payToll, bossPieceFor, leagueFinalBossPiece, winsNeeded, bossWinsFor, recruitOnWin, seaAccessible, nodeInLeague, gateOf, leagueNo,
 } from "./campaign.js";
 export { retinueScore, scoreBand } from "./rating.js";
 export { applySnapshot, readSnapshot, listRestorePoints, takeRestorePoint, BK_RECENT, BK_DAILY_DAYS, BK_MIN_GAP_MS } from "./backups.js";
@@ -33,7 +33,7 @@ export {
   renameAccount, nameFehler, NAME_MIN, NAME_MAX,
 } from "./accounts.js";
 export {
-  listSaves, createSave, loadSave, writeSave, deleteSave, renameSave, merkeStand, vergissStand, sichereStandSofort,
+  listSaves, waehleStand, gewaehlterStand, standZumOeffnen, createSave, loadSave, writeSave, deleteSave, renameSave, merkeStand, vergissStand, sichereStandSofort,
   progressPct, withProgressPct, leagueOrder, summarize as summarizeSave, migrateLegacyInto, fmtPlaytime,
 } from "./saves.js";
 export { cloudConfigured, signInWithGoogle, signInWithProvider, signInEmailCloud, signUpEmailCloud, resumeCloudSession, signOutCloud } from "./cloudAuth.js";

@@ -921,7 +921,13 @@ const hmac2 = async (key, data) => { const k = await subtle.importKey("raw", key
 
   ok("A24: der Install-Merker aus §2 ist fort - es gibt ihn im Spiel nicht mehr",
     !/Install-Hinweis ausgeblendet/.test(dse));
-  ok("A24: und das Stand-Datum ist nachgezogen", /Stand: 29\. September 2026/.test(dse));
+  /* v1.90.18: nicht mehr auf EIN Datum genagelt - jede spaetere Aenderung der
+     Erklaerung setzt das Datum weiter; geprueft wird, dass es mindestens der
+     Stand von A24 ist (29.9.2026) und die Form stimmt. */
+  const MONATE = { Januar: 1, Februar: 2, "März": 3, April: 4, Mai: 5, Juni: 6, Juli: 7, August: 8, September: 9, Oktober: 10, November: 11, Dezember: 12 };
+  const sd = /Stand: (\d{1,2})\. ([A-Za-zä]+) (\d{4})/.exec(dse);
+  const standWert = sd ? Number(sd[3]) * 10000 + (MONATE[sd[2]] || 0) * 100 + Number(sd[1]) : 0;
+  ok(`A24: und das Stand-Datum ist nachgezogen (${sd ? sd[0] : "fehlt"})`, standWert >= 20260929 && !!MONATE[sd?.[2]]);
 }
 
 /* ── v1.90.11 (Audit A26 + A27): AUSLIEFERUNG ──────────────────────────
@@ -1037,8 +1043,19 @@ const hmac2 = async (key, data) => { const k = await subtle.importKey("raw", key
   ok("A22: /report ist gedrosselt",
     /rateOk\("report", anfragerIp, 5, 60000\)/.test(idx) && /status: 429/.test(idx));
   const adminPfade = (idx.match(/this\.core\.adminCheck\(anfragerIp,/g) || []).length;
-  ok("A22: alle drei HTTP-Admin-Pfade laufen ueber adminCheck (Sperre nach 5 Fehlversuchen)",
-    adminPfade === 3, `gefunden: ${adminPfade}`);
+  /* v1.90.18 (A56): zwei Pfade - der POST auf /design ist fort */
+  ok("A22: beide HTTP-Admin-Pfade laufen ueber adminCheck (Sperre nach 5 Fehlversuchen)",
+    adminPfade === 2, `gefunden: ${adminPfade}`);
+  ok("A56: das Admin-Wort kommt im Kopf (Authorization: Bearer), der POST auf /design ist fort",
+    /authorization/.test(idx) && /Bearer/.test(idx) && (idx.match(/adminCheck\(anfragerIp, adminWort\(\)\)/g) || []).length === 2
+    && !/pathname === "\/design" && request\.method === "POST"/.test(idx));
+  const { readFileSync: rf } = await import("node:fs");
+  const appSeite = rf("src/meta/reports.js", "utf8") + rf("src/app/ui/SpielerbuchScreen.jsx", "utf8");
+  ok("A56: die App schickt das Admin-Wort nicht mehr in der Adresse", !/token=/.test(appSeite) && /authorization: "Bearer "/.test(appSeite));
+  const { HALLE_VERSION } = await import("./worker/src/version.mjs");
+  const pv = JSON.parse(rf("package.json", "utf8")).version;
+  ok(`/health nennt die Fassung der Halle, und sie ist die des Pakets (${HALLE_VERSION} / ${pv})`,
+    HALLE_VERSION === pv && /version: HALLE_VERSION/.test(idx));
   ok("A22: und keiner vergleicht das Admin-Wort mehr von Hand",
     !/if \(!admin \|\| (b\.)?token !== admin\)/.test(idx));
 }

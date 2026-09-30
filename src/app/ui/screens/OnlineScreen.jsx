@@ -232,7 +232,15 @@ export function OnlineScreen({ profile, dispatch, t, net, account, onDaily = nul
     if (conn !== "on" || !net.open) return;
     try { net.send({ t: "set", stats: buildStats(profile, myPlaytime) }); } catch {}
   }, [conn, profile, myPlaytime]);
+  /* v1.90.18 (gefunden von tools/pruefe-duell.mjs, Audit A73): die Knoepfe
+     "Verbinden" und "Erneut versuchen" riefen onClick={connect} - das
+     Klick-EREIGNIS landete als `force` und uebersprang die Zustimmung.
+     Gemessen: das hello (Name, Punktzahl, Freundes-Code) ging an die Halle,
+     ohne dass "Online-Modus verbinden?" erschien - privacy.html §5 verspricht
+     die Uebertragung erst "nach gesondertem Hinweis im Spiel". Jetzt zaehlt
+     nur ein echtes true. */
   async function connect(force = false) {
+    force = force === true;
     if (!server) return;
     if (!force && !profile.notices?.online) { setAskConsent(true); return; }
     setConn("busy");
@@ -359,13 +367,13 @@ export function OnlineScreen({ profile, dispatch, t, net, account, onDaily = nul
               <>
                 <div style={{ fontSize: 13, color: T.dim, lineHeight: 1.55 }}>
                   {en ? "Not connected to the duel hall." : "Nicht mit der Duell-Halle verbunden."}</div>
-                <Button variant="primary" onClick={connect}>{t("online.connect")}</Button>
+                <Button variant="primary" onClick={() => connect()}>{t("online.connect")}</Button>
               </>
             )}
             {conn === "fail" && server && (
               <>
                 <div style={{ fontSize: 13.5, color: T.danger }}>{t("online.unreachable")}</div>
-                <Button variant="primary" onClick={connect}>{t("online.retry")}</Button>
+                <Button variant="primary" onClick={() => connect()}>{t("online.retry")}</Button>
               </>
             )}
           </div>

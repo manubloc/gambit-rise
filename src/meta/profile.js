@@ -1,8 +1,6 @@
-import { storage } from "../platform/index.js";
 import { formationLegalOn, abilityCost, maxLevelFor } from "./leveling.js";
 import { mapById } from "../content/maps.js";
 
-const KEY = "profile";
 
 export function emptyStats() {
   return { games: 0, wins: 0, losses: 0, draws: 0, captures: 0, promotions: 0, checkmates: 0, winStreak: 0, bestStreak: 0, flawlessQueenWins: 0, fastWins: 0 };
@@ -166,7 +164,19 @@ export function ohneDauerfeuer(p) {
   }
   return geaendert ? { ...p, sp, pieces: { ...p.pieces, abilities: neu, stufen } } : p;
 }
-function migrate(p) {
+/* ── v1.90.18 (Audit A40): DIE MIGRATION LAEUFT AUF JEDEM LADEWEG ─────────────
+   Bis v1.90.17 lief `migrate` nur beim Einlesen einer Sicherungsdatei
+   (parseSave) - das normale Laden (saves.js loadSave) und die Uebernahme
+   alter Staende (migrateLegacyInto) gingen daran vorbei; jeder Konsument
+   musste darum selbst mit alten Formen rechnen.
+   BEVOR sie auf jedem Weg laufen durfte, musste sie IDEMPOTENT werden - und
+   dabei fiel ein echter Fehler auf, gemessen an einem heutigen Stand:
+   `campaign` wurde aus vier Feldern NEU gebaut. Wer eine Sicherungsdatei
+   zurueckspielte, verlor bribedBosses (gekaufte Monster), bossWins, tolls
+   (bezahlte Maut), faced und besetzung; und von den Aufstellungen ueberlebte
+   nur "classic" - "classic#chess" (der Schach-Plan) fiel weg. Jetzt bleibt
+   jedes Feld stehen, die Migration ergaenzt und formt nur um. */
+export function migrate(p) {
   p = ohneDauerfeuer(p);
   const d = defaultProfile();
   const lo = p.loadout || {};
@@ -177,7 +187,7 @@ function migrate(p) {
      jede 8x8-Karte, die noch keine eigene hat. Das 6x6-Scharmuetzel faellt
      weg (nicht hochrechenbar). */
   for (const [id, f] of Object.entries(lo.formations || {})) {
-    if (!gueltig.has(id)) continue;
+    if (!gueltig.has(String(id).split("#")[0])) continue;   /* v1.90.18: auch "classic#chess" */
     const a = formationAufAcht(f);
     if (a) formations[id] = a;
   }
@@ -223,11 +233,12 @@ function migrate(p) {
     stats: { ...d.stats, ...(p.stats || {}) },
     /* v1.15.0: die drei Faecher (decks) ueberleben das Laden - hier wurde
        loadout neu zusammengesetzt und haette sie stillschweigend verworfen. */
-    loadout: { formations, heroCols: { ...((p.loadout || {}).heroCols || {}) }, decks: { ...((p.loadout || {}).decks || {}) } },
+    loadout: { ...lo, formations, heroCols: { ...(lo.heroCols || {}) }, decks: { ...(lo.decks || {}) } },
     notices: { ...(p.notices || {}) },
     spar: { ...(p.spar || {}) },
     gegnerStil: p.gegnerStil || "farbig",
     campaign: {
+      ...((p.campaign && typeof p.campaign === "object") ? p.campaign : {}),
       league: (p.campaign && p.campaign.league) || 1,
       dupes: { ...((p.campaign && p.campaign.dupes) || {}) },
       cleared: [...cleared],
@@ -235,13 +246,10 @@ function migrate(p) {
     },
   };
 }
-export async function loadProfile() {
-  try { const r = await storage.get(KEY, false); if (r && r.value) return migrate(JSON.parse(r.value)); } catch {}
-  return defaultProfile();
-}
-export async function saveProfile(p) {
-  try { await storage.set(KEY, JSON.stringify(p), false); } catch {}
-}
+/* v1.90.18 (A40): loadProfile und saveProfile sind fort - keiner hatte noch
+   einen Aufrufer (App.jsx importierte loadProfile nur, den Spiegel "profile"
+   schreibt seit v1.90.16 niemand mehr). Geladen wird ueber saves.js loadSave,
+   den alten Spiegel liest nur noch migrateLegacyInto (saves.js, "profile"). */
 
 // ── save export / import ─────────────────────────────────────────────────────
 /** Serialize the profile as a portable save file (versioned envelope). */

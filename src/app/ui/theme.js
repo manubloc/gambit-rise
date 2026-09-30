@@ -216,11 +216,11 @@ export const GLOBAL_CSS = `
   @keyframes ggWmSchein { 0%,58%,100% { opacity: .85; } 60% { opacity: .3; } 62% { opacity: 1; } 67% { opacity: .9; } }
   @media (prefers-reduced-motion: reduce) { .gg-wm * { animation: none !important; opacity: 1 !important; } }
 
-  @font-face { font-family: 'Cinzel'; src: url('/fonts/cinzel-600.woff2') format('woff2');
+  @font-face { font-family: 'Cinzel'; src: url('./fonts/cinzel-600.woff2') format('woff2');
     font-weight: 600; font-style: normal; font-display: swap; }
-  @font-face { font-family: 'Cormorant Garamond'; src: url('/fonts/cormorant-600.woff2') format('woff2');
+  @font-face { font-family: 'Cormorant Garamond'; src: url('./fonts/cormorant-600.woff2') format('woff2');
     font-weight: 600; font-style: normal; font-display: swap; }
-  @font-face { font-family: 'Cormorant Garamond'; src: url('/fonts/cormorant-500i.woff2') format('woff2');
+  @font-face { font-family: 'Cormorant Garamond'; src: url('./fonts/cormorant-500i.woff2') format('woff2');
     font-weight: 500; font-style: italic; font-display: swap; }
   .gg-serif { font-family: ${T.serif}; }
   /* JEDE GLYPHE PASST IN IHRE ZELLE: die Aufstellungs-Zellen sind bei 320 px

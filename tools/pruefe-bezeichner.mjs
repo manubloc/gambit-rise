@@ -159,4 +159,6 @@ for (const [name, poss] of [...free.entries()].sort((a, b) => b[1].length - a[1]
   console.log(`${bekannt ? "  bekannt " : "  FREI    "}${name}\t${poss.length}x\tZeile ${lineOf(poss[0])}\t${ctx}`);
 }
 console.log(`--- ${free.size} freie Namen, davon ${fremd} unbekannt (${BUNDLE})`);
+/* v1.90.18 (Audit A74): RESULT-Zeile wie jede Suite - eine Pruefung */
+console.log(`RESULT pruefe-bezeichner: ${fremd ? 0 : 1} passed, ${fremd ? 1 : 0} failed`);
 process.exit(fremd ? 1 : 0);
