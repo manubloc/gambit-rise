@@ -30,10 +30,15 @@ const DATEI = {
  *                 es spaeter zurueckdrehen, ohne dass hier etwas umgebaut wird.
  */
 export function BrettHintergrund({ liga = 1, staerke = 1 }) {
-  /* v1.0.37: im Sparmodus bleibt der Grund schwarz - das Bild ist der
-     teuerste Einzelposten des Kampfschirms. */
-  if (gespart("gemaelde")) return <div aria-hidden style={{ position: "fixed", inset: 0, zIndex: 0,
-    pointerEvents: "none", background: "#05060a" }} />;
+  /* ── v1.90.14 (Audit A41): DIE FRUEHE RUECKKEHR STAND UEBER DEN HOOKS
+     Hier stand `if (gespart("gemaelde")) return …` VOR useState und
+     useMemo. React verlangt, dass jeder Render dieselben Hooks in
+     derselben Reihenfolge aufruft - ein Sparmodus-Schalter waehrend eines
+     Gefechts haette also mitten im Kampf die Absturzkarte gezeigt (React
+     #310). Heute loest es niemand aus, weil der Schalter im Profil sitzt
+     und der Kampfschirm dabei nicht steht; das ist Glueck, keine
+     Konstruktion. Die Hooks laufen jetzt IMMER, die Entscheidung faellt
+     danach. Beide kosten nichts, wenn ihr Ergebnis ungenutzt bleibt. */
   const [geladen, setGeladen] = useState(false);
   const quelle = useMemo(() => {
     const n = Math.min(12, Math.max(1, Math.round(liga || 1)));
@@ -43,6 +48,11 @@ export function BrettHintergrund({ liga = 1, staerke = 1 }) {
        "die ganzen schoenen Hintergruende von den Spielfeldern fehlen alle"). */
     return `./brett/${DATEI[n] || DATEI[1]}.webp`;
   }, [liga]);
+
+  /* v1.0.37: im Sparmodus bleibt der Grund schwarz - das Bild ist der
+     teuerste Einzelposten des Kampfschirms. (v1.90.14: unter den Hooks.) */
+  if (gespart("gemaelde")) return <div aria-hidden style={{ position: "fixed", inset: 0, zIndex: 0,
+    pointerEvents: "none", background: "#05060a" }} />;
 
   return (
     /* v1.0.25: EIGENE GRAFIKSCHICHT. Ohne diese Zeilen liegt das Gemaelde in

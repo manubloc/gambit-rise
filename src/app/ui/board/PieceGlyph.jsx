@@ -420,8 +420,16 @@ export function StatTriad({ piece, focus, shrink = 1 }) {
 const BRETT_HEBUNG = 0;      // v1.24.5c: die Probe hat ihren Dienst getan - die Hebung liegt in paintedArt (HEBUNG)
 
 export function PieceGlyph({ piece, showLevel = true, pov = "w", artStyle = "painted", focus = false, big = false, fliegt = false, aufsBrett = false, effekt = null }) {
-  if (!piece) return null;
-  const white = piece.color === "w";
+  /* ── v1.90.14 (Audit A41): DIE FRUEHE RUECKKEHR STAND UEBER ACHT HOOKS
+     Hier stand `if (!piece) return null;` als erste Zeile - vor useRef,
+     useState, useEffect und den uebrigen. React verlangt bei JEDEM Render
+     dieselben Hooks in derselben Reihenfolge; ein Aufrufer, der einmal eine
+     Figur und einmal `null` reicht, haette die Absturzkarte mitten im
+     Gefecht gezeigt (React #310). Heute reicht kein Aufrufer `null` - das
+     ist Glueck, keine Konstruktion, und ein neuer Aufrufer haette es
+     gekippt. Die Hooks laufen jetzt immer; gelesen wird mit `piece?.`, und
+     die Rueckkehr steht unter ihnen. */
+  const white = piece?.color === "w";
   const neon = white ? T.lime : T.magenta; // badge/frame color per faction
   // Gambit faction colors: the player is antique gold, the enemy deep navy.
   const fill = white ? "#c9a45c" : "#1a2233";
@@ -434,8 +442,8 @@ export function PieceGlyph({ piece, showLevel = true, pov = "w", artStyle = "pai
   const rim = white ? "#1b1408" : "#dbe4f5";
   const rimW = 1.6;
   const detail = white ? "#7a5c26" : "#8fa0bb";
-  const accent = piece.accent || T.gold;
-  const lvl = piece.level || 1;
+  const accent = piece?.accent || T.gold;
+  const lvl = piece?.level || 1;
   /* v1.0.67: STUFENGLANZ AUF DEM BRETT (Besitzer: der Aufstieg muss auch
      auf dem Schachbrett sichtbar sein, nicht nur im Figurenblatt). Steigt
      der Rang DIESER Figur, waehrend sie auf dem Brett steht, birst einmal
@@ -447,30 +455,30 @@ export function PieceGlyph({ piece, showLevel = true, pov = "w", artStyle = "pai
     if (lvl > rangVorher.current && animAn() && !big) setStufenStern((n) => n + 1);
     rangVorher.current = lvl;
   }, [lvl, big]);
-  const hpMode = piece.atk != null;
+  const hpMode = piece?.atk != null;
   // A master stands in the QUEEN'S PLACE — that is a matter of formation, not
   // of disguise. He shows his true face to both sides: the whole point of
   // meeting a champion is SEEING whom you face.
-  const isBoss = !!piece.bossId;
+  const isBoss = !!piece?.bossId;
   const paintPiece = piece;
   // The Gambit wears his crest openly — unless Masquerade is learned:
   // then only his OWN commander (pov) still sees who he is.
-  const showHero = !!piece.hero && (piece.color === pov || !(piece.abilities || []).includes("gambit_masquerade"));
+  const showHero = !!piece?.hero && (piece?.color === pov || !(piece?.abilities || []).includes("gambit_masquerade"));
 
   // Ability dots (right rail): sorted by tag for a stable column; once-spent
   // talents fade to ash so a glance tells you what is left in the tank.
-  const abilityDots = (piece.abilities || [])
+  const abilityDots = (piece?.abilities || [])
     .map((id) => ABILITIES[id]).filter(Boolean)
     .sort((x, y) => TAG_ORDER.indexOf(x.tag) - TAG_ORDER.indexOf(y.tag))
     .slice(0, 6)
     /* v1.28.0: ein Zauber auf Stufe II oder III ist erst verbraucht, wenn ALLE
        seine Einsaetze weg sind - nicht schon nach dem ersten. */
-    .map((ab) => { const u = piece.used?.[ab.id]; const n = u === true ? 1 : (typeof u === "number" ? u : 0);
-      return { id: ab.id, color: (TAGS[ab.tag] || { color: T.gold }).color, spent: !!(ab.once && n >= Math.max(1, piece.stufen?.[ab.id] || 1)) }; });
+    .map((ab) => { const u = piece?.used?.[ab.id]; const n = u === true ? 1 : (typeof u === "number" ? u : 0);
+      return { id: ab.id, color: (TAGS[ab.tag] || { color: T.gold }).color, spent: !!(ab.once && n >= Math.max(1, piece?.stufen?.[ab.id] || 1)) }; });
 
   // Crisp, modern: a short drop shadow for depth — no neon bloom. The risen
   /* v1.0.62: die Rang-Aura ist Geschichte - der Rang zeigt sich im BILD
-     (paintedRoh waehlt gambit-t2..t6 nach piece.tier). */
+     (paintedRoh waehlt gambit-t2..t6 nach piece?.tier). */
   // POWER READS AS LIGHT: the mightier the piece, the brighter and shinier.
   // King > queen > masters-in-the-queen's-place > everyone else > pawns. The
   // king's portrait is painted far darker than the queen's (measured: median
@@ -478,9 +486,9 @@ export function PieceGlyph({ piece, showLevel = true, pov = "w", artStyle = "pai
   // Gambit is a pawn — painted as dark as one — but he GLEAMS: a quiet sheen
   // even at tier one (gold for your own, cold steel for a foe's), beneath the
   // tier aura that grows with his rank.
-  const isKing = !piece.hero && !isBoss && piece.kind === "K";
-  const isQueen = !piece.hero && !isBoss && piece.kind === "Q";
-  const isPawn = !piece.hero && !isBoss && piece.kind === "P";
+  const isKing = !piece?.hero && !isBoss && piece?.kind === "K";
+  const isQueen = !piece?.hero && !isBoss && piece?.kind === "Q";
+  const isPawn = !piece?.hero && !isBoss && piece?.kind === "P";
   const royal = isKing || isQueen || isBoss;
   // Der Saum folgt der Silhouette: erste Stufe schmal und hell (die Kante),
   // die weiteren breiter und schwaecher (das Abklingen ins Violett). Die
@@ -489,11 +497,11 @@ export function PieceGlyph({ piece, showLevel = true, pov = "w", artStyle = "pai
   // EINE KONTUR, KEIN NEBEL: zwei enge Schatten statt dreier weiter - das
   // Licht liegt AUF der Silhouette, frisst kein halbes Feld und kostet die
   // Haelfte an Rechenzeit.
-  const gewaehlt = !!piece.selected;
+  const gewaehlt = !!piece?.selected;
   // v0.71.14 (Besitzer): DIE FIGUR DES LETZTEN ZUGES zuckt einmal auf und
   // glimmt langsam aus - Gegner im Riss-Violett, eigene im Gold. Nur DIESE
   // eine Figur, sonst wird der Schirm unruhig.
-  const zuletzt = !!piece.justMoved;
+  const zuletzt = !!piece?.justMoved;
   /* v1.0.11 (Besitzer): ALLE Figuren leuchten auf KOENIGS-Mass — eigene
      deutlich goldener, der Gegner heller und kraeftiger im Riss-Violett
      (184,146,255 statt 150,105,255). Der Koenig behaelt sein ROYAL_HALO
@@ -504,7 +512,7 @@ export function PieceGlyph({ piece, showLevel = true, pov = "w", artStyle = "pai
      stattdessen ihre Grundfarbe als aufsteigenden Verlauf. Der klassische
      Satz und die eigene Seite bleiben grundsaetzlich unberuehrt. */
   const sicht = (white || artStyle === "classic") ? "farbig" : gegnerStil();
-  const gefahr = gefahrVon(piece.kind);   /* v1.0.60: Sockel-Leuchtstaerke */
+  const gefahr = gefahrVon(piece?.kind);   /* v1.0.60: Sockel-Leuchtstaerke */
   /* v1.0.66 (Besitzerwunsch): DIE GLUT GILT FUER BEIDE SEITEN. Bisher glomm
      nur der Gegner; die eigene Seite stand ohne Sockel da und war allein am
      Goldschein zu erkennen. Jetzt dasselbe Bauwerk in Gold - "dann ist da
@@ -603,7 +611,7 @@ export function PieceGlyph({ piece, showLevel = true, pov = "w", artStyle = "pai
     /* v1.63.3: auch der gemalte Satz im reinen Schach 4 % kleiner - das
        sind die Figuren, die man im Schach tatsaechlich sieht. Im HP-Gefecht
        bleibt 0,99 em, dort tragen sie Lebensband und Werte. */
-    : hpMode && piece.maxHp > 0 ? "0.99em" : "0.96em";
+    : hpMode && piece?.maxHp > 0 ? "0.99em" : "0.96em";
 
   // Resolve the painting up-front (if any) so we can level its base width. The
   // enemy's gallery is turned to steel; the risen Gambit wears his tier portrait.
@@ -654,7 +662,7 @@ export function PieceGlyph({ piece, showLevel = true, pov = "w", artStyle = "pai
        damit paintedForPiece zuvor, das den Rang laengst richtig waehlt. Ein
        Rest aus v1.0.49, als die Rangbilder noch stilfremd waren und
        ausdruecklich unterdrueckt werden sollten; seit v1.0.62 sind sie da.
-       Jetzt entscheidet allein paintedForPiece - und das liest piece.tier. */
+       Jetzt entscheidet allein paintedForPiece - und das liest piece?.tier. */
     : paintedForPiece(paintPiece, aufsBrett);
   // every painting fitted to one box (uniform height) and dropped onto one
   // baseline; big pieces and the drawn SVG opt out. The carvings were already
@@ -683,7 +691,7 @@ export function PieceGlyph({ piece, showLevel = true, pov = "w", artStyle = "pai
      Entwurf "ohne Werte" hiess), mit Werten rot fuer Leben und blau fuer
      Kraft. Die Gegnerseite wird vom Brett ohnehin gedunkelt, also liest sich
      ihr Grau von selbst dunkler als das eigene. */
-  const werteAn = hpMode && piece.maxHp > 0;
+  const werteAn = hpMode && piece?.maxHp > 0;
   /* ── v1.24.9: DER SCHADENSBLITZ ───────────────────────────────────────────
      Besitzer: "Wenn eine Figur angreift, sieht man ganz kurz in Gelb, um wie
      viel dieser Angriff mich bei der Figur Leben gekostet hat."
@@ -691,20 +699,20 @@ export function PieceGlyph({ piece, showLevel = true, pov = "w", artStyle = "pai
      steht nirgends im Spielzustand - der kennt nur das Jetzt. Also merkt es
      sich die Anzeige selbst: sinkt hp, wird die Differenz fuer 620 ms
      festgehalten, genau so lange, wie die beiden Keyframes laufen. */
-  const vorher = useRef(piece.hp);
+  const vorher = useRef(piece?.hp);
   const [blitz, setBlitz] = useState(null);
   useEffect(() => {
     const alt = vorher.current;
-    vorher.current = piece.hp;
-    if (typeof alt !== "number" || typeof piece.hp !== "number") return;
-    const verlust = alt - piece.hp;
+    vorher.current = piece?.hp;
+    if (typeof alt !== "number" || typeof piece?.hp !== "number") return;
+    const verlust = alt - piece?.hp;
     if (verlust <= 0) return;
     setBlitz({ n: verlust, nr: Date.now() });
     const t = setTimeout(() => setBlitz(null), 640);
     return () => clearTimeout(t);
-  }, [piece.hp]);
-  const blitzAnteil = blitz && piece.maxHp > 0
-    ? Math.max(0, Math.min(1, rohrAnteile({ hp: blitz.n, maxHp: piece.maxHp, atk: piece.atk, level: piece.level, maxLevel: piece.maxLevel }).leben))
+  }, [piece?.hp]);
+  const blitzAnteil = blitz && piece?.maxHp > 0
+    ? Math.max(0, Math.min(1, rohrAnteile({ hp: blitz.n, maxHp: piece?.maxHp, atk: piece?.atk, level: piece?.level, maxLevel: piece?.maxLevel }).leben))
     : 0;
   const bandDa = ROHR_STATT_PERLEN && !!painting && !klassisch && bandBekannt(paintedIdOf(painting));
   const schneide = ROHR_STATT_PERLEN && !!painting && !big && !klassisch && werteAn && !bandDa;
@@ -717,6 +725,9 @@ export function PieceGlyph({ piece, showLevel = true, pov = "w", artStyle = "pai
     }
     return () => { lebt = false; };
   }, [painting, big]);
+
+  /* v1.90.14 (Audit A41): HIER, unter allen Hooks - nicht darueber. */
+  if (!piece) return null;
 
   return (
     <div style={{ position: "relative", width: "1em", height: "1em", display: "flex", flexDirection: "column",

@@ -1674,7 +1674,11 @@ print(json.dumps({"gezaehlt": gezaehlt, "schlecht": schlecht}))
     ok("das Band kennt den Schaden und zeichnet ihn hinter dem Rot",
       sb.includes("schaden = 0") && sb.includes('animation: "ggBlitz'));
     ok("die Figur merkt sich den Verlust selbst (der Spielzustand kennt nur das Jetzt)",
-      pg9.includes("const vorher = useRef(piece.hp)") && pg9.includes("const verlust = alt - piece.hp"));
+      /* v1.90.14 (Audit A41): die Lesezugriffe sind jetzt `piece?.hp` - der
+         Waechter `if (!piece) return null` steht seit dem Hook-Umbau UNTER
+         den Hooks, also muessen sie ein fehlendes piece vertragen. Die
+         Aussage der Probe bleibt dieselbe. */
+      pg9.includes("const vorher = useRef(piece?.hp)") && pg9.includes("const verlust = alt - piece?.hp"));
     ok("die Zahl waechst und verblasst", pg9.includes('animation: "ggBlitzZahl') && pg9.includes("−{blitz.n}"));
     {
       const k = th9.slice(th9.indexOf("@keyframes ggBlitz"), th9.indexOf("@keyframes ggBlitzZahl") + 400);
@@ -2329,6 +2333,67 @@ print(json.dumps({"gezaehlt": gezaehlt, "schlecht": schlecht}))
   ok("Krone: und auf Englisch steht der englische Satz",
     html(<KroenungsWahl bauer={bauer} en hpMode onWahl={() => {}} />).includes("Choose the piece to be crowned"));
   ok("Krone: der Klick meldet die gewaehlte Art", gewaehlt === null);   // SSR klickt nicht - der Griff ist da, s. data-kroenung-art
+}
+
+/* ── v1.90.14 (Audit A41): KEINE FRUEHE RUECKKEHR UEBER DEN HOOKS ───────
+   React verlangt bei JEDEM Render dieselben Hooks in derselben
+   Reihenfolge. `BrettHintergrund` kehrte im Sparmodus VOR useState/useMemo
+   zurueck, `PieceGlyph` bei `!piece` vor ACHT Hooks. Heute loest es
+   niemand aus - PlayHub und BrettHintergrund schliessen sich aus, und kein
+   Aufrufer reicht `null` - aber das ist Glueck, keine Konstruktion: ein
+   Sparmodus-Schalter in der Kampfleiste oder ein neuer Aufrufer haette
+   mitten im Gefecht die Absturzkarte gezeigt (React #310). Kein Linter im
+   Haus meldet das (Audit A16), also misst diese Probe es.
+
+   GEMESSEN, nicht geraten: der Quelltext jeder Komponente wird ab ihrer
+   Signatur gelesen; findet sich ein `return` VOR dem ersten Hook-Aufruf,
+   ist sie rot. Geprueft werden die beiden Dateien des Befundes. */
+{
+  const pruefe = (datei, name) => {
+    const txt = readFileSync(datei, "utf8");
+    const start = txt.indexOf(`export function ${name}(`);
+    if (start < 0) { ok(`A41: ${name} gefunden`, false); return; }
+    /* Bis zum Ende der Komponente: das naechste `export function` oder das
+       Dateiende. Kommentare vorher entfernen, sonst zaehlt ein "return" aus
+       einem Kommentar mit. */
+    const naechste = txt.indexOf("\nexport function ", start + 10);
+    const koerper = txt.slice(start, naechste < 0 ? txt.length : naechste)
+      .replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/[^\n]*/g, "");
+    const ersterHook = koerper.search(/\buse(State|Ref|Effect|Memo|LayoutEffect|Callback|Context)\s*\(/);
+    /* GEMESSEN, nachdem die erste Fassung BrettHintergrund NICHT fing: ein
+       Muster wie /^\s{2}(if \([^)]*\) )?return\b/ scheitert, sobald die
+       Bedingung selbst Klammern traegt - `if (gespart("gemaelde")) return`
+       enthaelt ein `)`, und `[^)]*` kommt nicht darueber hinweg. Gezaehlt
+       wird darum die KLAMMERTIEFE: ein `return`, das unmittelbar im Rumpf
+       der Komponente steht (Tiefe 1), zaehlt; eines in einer inneren
+       Funktion nicht. */
+    const tiefeRueckkehr = () => {
+      let tiefe = 0, imRumpf = false;
+      for (let k = 0; k < koerper.length; k++) {
+        const c = koerper[k];
+        if (c === "{") { tiefe++; imRumpf = true; continue; }
+        if (c === "}") { tiefe--; continue; }
+        if (!imRumpf || tiefe !== 1) continue;
+        if (koerper.startsWith("return", k) && !/[A-Za-z0-9_$]/.test(koerper[k - 1] || " ")
+            && !/[A-Za-z0-9_$]/.test(koerper[k + 6] || " ")) return k;
+      }
+      return -1;
+    };
+    const ersteRueckkehr = tiefeRueckkehr();
+    ok(`A41: ${name} ruft seine Hooks VOR jeder Rueckkehr auf`,
+      ersterHook >= 0 && (ersteRueckkehr < 0 || ersteRueckkehr > ersterHook),
+      `Hook bei ${ersterHook}, Rueckkehr bei ${ersteRueckkehr}`);
+  };
+  pruefe("src/app/ui/BrettHintergrund.jsx", "BrettHintergrund");
+  pruefe("src/app/ui/board/PieceGlyph.jsx", "PieceGlyph");
+
+  /* Und beide vertragen jetzt wirklich, was sie vorher zum Absturz brachte. */
+  const BH = (await import("./src/app/ui/BrettHintergrund.jsx")).BrettHintergrund;
+  const PG2 = (await import("./src/app/ui/board/PieceGlyph.jsx")).PieceGlyph;
+  ok("A41: PieceGlyph ohne Figur rendert nichts, statt zu werfen",
+    html(<PG2 piece={null} />) === "");
+  ok("A41: und mit Figur weiterhin etwas", html(<PG2 piece={{ kind: "Q", color: "w", level: 1 }} />).length > 50);
+  ok("A41: BrettHintergrund rendert", html(<BH liga={3} />).length > 50);
 }
 
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);

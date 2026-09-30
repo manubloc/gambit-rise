@@ -152,5 +152,62 @@ const mk = (lvl = 5, rules = "hp") => createGame(
   ok("after the step he has advanced one rank", ((newAnchor / W2) | 0) === ((anchor / W2) | 0) + 1);
 }
 
+/* ── v1.90.14 (Audit A36): DER DRACHENBLOCK VERSCHLUCKTE DEN HELDEN ─────
+   Beim Entfalten raeumte der Kern seine vier Felder mit
+   `for (const c of cells) if (c !== i) board[c] = null;` - ohne zu fragen,
+   WAS dort steht. Gemessen im Audit (H1): Aufstellung ["dragon", null, ...]
+   mit dem Helden auf Spalte 1 ergab in Reihe 2 `D+ D+ P P P P P P`, KEIN
+   HELD. Er war stumm fort, und mit ihm jede byHero-Belohnung der Partie.
+
+   Der Preis bleibt (Nachbar und zwei Bauern weichen) - aber wer nicht
+   ersetzbar ist, wird VERSETZT: Held, Koenig, Dame, Meister.
+   GEGENGEPRUEFT: gegen v1.90.13 ist die erste Pruefung rot - dort ist der
+   Held nach dem Aufbau schlicht nicht mehr auf dem Brett. */
+{
+  const spec = (k) => ({ kind: k, level: 1, abilities: [], shield: 0 });
+  /* Drache auf Spalte 0, Fluegel auf 1 - der Block deckt also die Spalten
+     0 und 1 in der Grundreihe UND in der Bauernreihe. Der Held steht auf
+     Spalte 1, mitten im Block. */
+  const heer = {
+    back: [spec("D"), null, spec("B"), spec("Q"), spec("K"), spec("B"), spec("N"), spec("R")],
+    pawn: spec("P"),
+    hero: { col: 1, spec: { kind: "P", level: 4, abilities: [], shield: 0 } },
+  };
+  heer.back[0].big = true;
+  const g = createGame(heer, undefined, { seed: 36 });
+  const W = g.w;
+  const held = g.board.find((p) => p && p.hero);
+  ok("A36: der Held steht nach dem Aufbau UEBERHAUPT auf dem Brett", !!held);
+  if (held) {
+    const wo = g.board.indexOf(held);
+    const f = wo % W, r = (wo / W) | 0;
+    ok("A36: er steht in seiner eigenen Reihe (der Bauernreihe)", r === 1, `Reihe ${r}`);
+    ok("A36: und NICHT mehr im Drachenblock (Spalte 0 oder 1)", f >= 2, `Spalte ${f}`);
+    ok("A36: er ist auf die NAECHSTE freie Spalte gerueckt", f === 2, `Spalte ${f}`);
+    ok("A36: mit seinen eigenen Werten, nicht als gewoehnlicher Bauer", held.level === 4);
+  }
+  /* Der Drache steht trotzdem, und sein Preis ist bezahlt. */
+  const drache = g.board.find((p) => p && p.kind === "D" && p.big);
+  ok("A36: der Drache ist entfaltet", !!drache);
+  ok("A36: er hat drei Fluegelfelder", g.board.filter((p) => p && p.kind === "D+").length === 3);
+  /* Genau EIN Bauer weniger als Spalten - der auf Spalte 0 ist der Preis,
+     der auf Spalte 1 war der Held und steht jetzt auf 2. */
+  const eigeneBauern = g.board.filter((p) => p && p.kind === "P" && p.color === "w");
+  ok("A36: die Bauernreihe hat den Preis bezahlt, aber nicht mehr",
+    eigeneBauern.length === W - 2, `${eigeneBauern.length} statt ${W - 2}`);
+
+  /* Und der KOENIG wird ebenso wenig verschluckt. Dafuer steht der Drache
+     direkt neben ihm: Spalte 3, Fluegel auf 4 - dort sitzt der Koenig. */
+  const heer2 = {
+    back: [spec("R"), spec("N"), spec("B"), { ...spec("D"), big: true }, null, spec("B"), spec("N"), spec("R")],
+    pawn: spec("P"),
+    hero: { col: 7, spec: { kind: "P", level: 1, abilities: [], shield: 0 } },
+  };
+  heer2.back[4] = spec("K");
+  const g2 = createGame(heer2, undefined, { seed: 37 });
+  const koenig = g2.board.find((p) => p && p.kind === "K" && p.color === "w");
+  ok("A36: auch der Koenig ueberlebt den Drachenblock", !!koenig);
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 if (fail) process.exit(1);

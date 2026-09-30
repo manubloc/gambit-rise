@@ -1,5 +1,48 @@
 # Changelog - Gambit Rise
 
+## 1.90.14 - der Drachenblock verschluckte den Helden, und zwei Komponenten kehrten ueber ihren Hooks zurueck
+
+**A36 — DER DRACHENBLOCK VERSCHLUCKTE DEN HELDEN.** Beim Entfalten raeumte
+der Kern seine vier Felder mit
+`for (const c of cells) if (c !== i) board[c] = null;` - ohne zu fragen,
+WAS dort steht. Gemessen (Audit H1, jetzt als Probe): Aufstellung
+`["dragon", null, ...]` mit dem Helden auf Spalte 1 ergab in Reihe 2
+`D+ D+ P P P P P P` - **kein Held**. Er war stumm fort, und mit ihm jede
+byHero-Belohnung der ganzen Partie. Dasselbe traf den Koenig. Ein Schutz
+existierte nur in der Oberflaeche beim Setzen des Drachen; `buildArmy`
+borgt sich Aufstellungen aber von Karten gleicher Breite, und dort greift
+er nicht.
+
+Der Preis bleibt **genau gleich gross** - Nachbar und zwei Bauern weichen.
+Aber Held, Koenig, Dame und Meister werden nicht mehr geloescht, sondern
+mit einem gewoehnlichen Nachbarn GETAUSCHT; der zahlt an ihrer Stelle.
+
+Die erste Fassung suchte ein FREIES Feld - auf einer vollen Bauernreihe
+gibt es keines, und der Drache entfaltete sich dann gar nicht mehr. Die
+Probe hat es im selben Lauf gemeldet. Ein Tausch haelt die Zahl der
+verlorenen Figuren gleich und aendert nur, welche es trifft.
+
+**A41 — ZWEI KOMPONENTEN KEHRTEN UEBER IHREN HOOKS ZURUECK.**
+`BrettHintergrund` gab im Sparmodus zurueck, BEVOR `useState` und `useMemo`
+liefen; `PieceGlyph` bei `!piece` vor ACHT Hooks. React verlangt bei jedem
+Render dieselben Hooks in derselben Reihenfolge - ein Sparmodus-Schalter in
+der Kampfleiste oder ein neuer Aufrufer ohne `piece &&`-Waechter haette
+mitten im Gefecht die Absturzkarte gezeigt (React #310). Dass es heute
+niemand ausloest, ist Glueck, keine Konstruktion. Beide Rueckkehren stehen
+jetzt unter den Hooks, und 33 Lesezugriffe in PieceGlyph sind auf `piece?.`
+umgestellt.
+
+Kein Linter im Haus meldet so etwas (Audit A16), also misst es jetzt eine
+Probe. **Auch sie musste zweimal gebaut werden:** die erste Fassung suchte
+die frueheste Rueckkehr mit `/^\s{2}(if \([^)]*\) )?return\b/` - und fand
+BrettHintergrund NICHT, weil dessen Bedingung selbst Klammern traegt
+(`if (gespart("gemaelde")) return`). Jetzt zaehlt sie die KLAMMERTIEFE: ein
+`return` unmittelbar im Rumpf zaehlt, eines in einer inneren Funktion
+nicht.
+
+**Gegengeprueft:** gegen v1.90.13 sind beide A41-Pruefungen rot, und im
+Drachenaufbau fehlen Held UND Koenig ganz.
+
 ## 1.90.13 - vier Megabyte, die niemand sieht; die Rangliste verriet jede Kennung; und A12 war laengst erledigt
 
 **4,5 MB BEI JEDEM ERSTAUFRUF FUER BILDER, DIE KEIN SCHIRM ZEIGT** (Audit

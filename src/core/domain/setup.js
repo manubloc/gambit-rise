@@ -80,6 +80,54 @@ export function createInitialState(whiteArmy = defaultArmy(), blackArmy = defaul
     const cells = [a, a + 1, a + w, a + w + 1];
     const ok = fa >= 0 && fa <= w - 2 && ra >= 0 && ra <= h - 2 && cells.every((c) => !holes.has(c));
     if (!ok) { pc.big = false; continue; }
+
+    /* ── v1.90.14 (Audit A36): DER BLOCK VERSCHLUCKTE DEN HELDEN ──────────
+       Hier stand `for (const c of cells) if (c !== i) board[c] = null;` -
+       ohne jede Frage, WAS dort steht. Gemessen (Audit H1): Aufstellung
+       ["dragon", null, ...] mit dem Helden auf Spalte 1 ergab in Reihe 2
+       `D+ D+ P P P P P P` - KEIN HELD. Er war stumm fort, und mit ihm jede
+       byHero-Belohnung der ganzen Partie. Ein Schutz existierte nur in der
+       Oberflaeche beim Setzen des Drachen; `buildArmy` borgt sich
+       Aufstellungen aber von Karten gleicher Breite (leveling.js), und dort
+       greift er nicht.
+
+       Der PREIS bleibt GENAU GLEICH GROSS: Nachbar und zwei Bauern weichen.
+       Aber wer nicht ersetzbar ist, wird nicht geloescht, sondern GETAUSCHT
+       - Held, Koenig, Dame und Meister nehmen den Platz eines gewoehnlichen
+       Nachbarn auf derselben Reihe, und DER zahlt an ihrer Stelle.
+
+       Warum Tausch und nicht Versetzen: die erste Fassung suchte ein FREIES
+       Feld. Auf einer vollen Bauernreihe gibt es keines - der Drache
+       entfaltete sich dann gar nicht mehr, und die Probe hat es sofort
+       gemeldet. Ein Tausch haelt die Zahl der verlorenen Figuren gleich und
+       aendert nur, WELCHE es trifft. Findet sich kein tauschbarer Nachbar
+       (alles ringsum unantastbar), bleibt der Drache lieber klein. */
+    const unantastbar = (q) => !!q && (q.hero || q.kind === "K" || q.kind === "Q" || q.kind === "X" || !!q.bossId);
+    const belegt = new Set(cells);
+    const weichen = [];
+    let gehtNicht = false;
+    for (const c of cells) {
+      if (c === i) continue;
+      const q = board[c];
+      if (!unantastbar(q)) continue;
+      const cr = (c / w) | 0, cf = c % w;
+      let ziel = -1, beste = Infinity;
+      for (let f2 = 0; f2 < w; f2++) {
+        const j = idx(f2, cr, w);
+        if (belegt.has(j) || holes.has(j)) continue;
+        if (unantastbar(board[j])) continue;                     // nie zwei Unantastbare tauschen
+        const d = Math.abs(f2 - cf);
+        if (d < beste) { beste = d; ziel = j; }
+      }
+      if (ziel < 0) { gehtNicht = true; break; }
+      weichen.push([c, ziel]);
+      belegt.add(ziel);                                          // dasselbe Feld nicht zweimal vergeben
+    }
+    if (gehtNicht) { pc.big = false; continue; }
+    /* TAUSCHEN: der Unantastbare geht nach draussen, sein Platzhalter
+       wandert in den Block und wird gleich mitverschluckt. */
+    for (const [von, nach] of weichen) { const tmp = board[nach]; board[nach] = board[von]; board[von] = tmp; }
+
     for (const c of cells) if (c !== i) board[c] = null;        // the price: neighbour + two pawns
     board[i] = null;
     pc._unfolded = true;
