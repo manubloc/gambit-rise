@@ -51,7 +51,7 @@ Das Herz. Reine Funktionen, keine Seiteneffekte, kein React, kein `Date.now()`, 
 `Math.random()` (Zufall kommt über einen Port herein). Gleicher Input → gleicher Output,
 immer. Das ist die Voraussetzung für Netcode, Replays und Verifikation.
 
-- `domain/` — Geometrie (10×10), Figurenarten, Brett, Startaufstellung, Werte.
+- `domain/` — Geometrie (8×8; Karten bringen ihre eigene Breite/Höhe mit), Figurenarten, Brett, Startaufstellung, Werte.
 - `rules/` — Zuggenerierung (`moves.js`) und Schach-/Angriffserkennung (`attacks.js`).
 - `sim/` — die Simulation:
   - `state.js` · `createGame(whiteArmy, blackArmy, seed)` → Startzustand inkl. `log` & `seed`.
@@ -121,8 +121,10 @@ läuft identisch in Node-Tests *und* im Vite-Build ohne jede Konfiguration und i
 extraktionsfertig: jeder Top-Level-Ordner kann 1:1 zu einem npm-Workspace-Paket werden,
 ohne dass ein einziger Import bricht.
 
-**Brettgröße als Konstante.** `FILES`/`RANKS` (10) liegen in `core/domain/constants.js`.
-Geometrie wird daraus berechnet, nirgends „10" hartkodiert — andere Formate später ohne
+**Brettgröße als Konstante.** `FILES`/`RANKS` (8) liegen in `core/domain/constants.js`,
+jede Karte trägt `w`/`h` selbst. Geometrie wird daraus berechnet, nirgends hartkodiert
+(die `?? 10`-Rückfälle aus der 10×10-Zeit sind seit v1.90.16 fort — bis auf
+`serialization/codec.js`, das auch Schnappschüsse aus jener Zeit lesen können muss) — andere Formate später ohne
 Engine-Operation am offenen Herzen.
 
 ---
@@ -147,7 +149,8 @@ sowie die gerenderten Proben `npm run smoke` und `npm run ui`.
 - `node test_boot.mjs` und `node scripts/verify-boot.mjs` — Boot ohne einen
   einzigen Konsolenfehler (letzteres ist das CI-Skript).
 - `timeout 250 node drive3.mjs` — die Fahrprobe: spielt wirklich und prüft im
-  Auslieferungsstand auch Landingpage, Riegel und den Dienstarbeiter.
+  Auslieferungsstand auch Landingpage, den abmeldenden Dienstarbeiter und dass
+  KEIN Riegel mehr fragt (den Passwort-Riegel gibt es seit v1.88.0 nicht mehr).
 - `node tools/pruefe-navigation.mjs` — Karte, Stationen, Gefecht, Reiter und
   Zurück-Geste über mehrere Runden.
 - `node test_layout.mjs` — echte Geometrie; hängt nicht in der Kette, siehe
@@ -173,5 +176,5 @@ sowie die gerenderten Proben `npm run smoke` und `npm run ui`.
    (Shared-Daten) vorbereitet.
 3. **Native:** Expo/React Native oder Capacitor. Nur `app/` + neue `platform/`-Adapter —
    `core`, `content`, `ai`, `meta` bleiben unangetastet.
-4. **Regel-Vervollständigung:** Rochade, En-Passant, Umwandlungs-Wahl (aktuell Auto-Dame)
-   — neue Handler/Commands im Kern, vom Rest entkoppelt.
+4. **Regel-Vervollständigung:** erledigt — Rochade und en passant seit v0.49, die
+   Umwandlungs-Wahl (Dame, Turm, Läufer, Springer) seit v1.90.12.

@@ -37,6 +37,24 @@ const MOVE_METAL = {
 // (the very slot where it now shows among the taken). We measure the real
 // on-screen tray at flight time (querying [data-gg-tray=<victim colour>]), so
 // it lands true whether the layout is portrait, landscape or flipped.
+/* ── v1.90.16 (Besitzer, 30.9.: "der Drache ist auch nicht sauber
+   positioniert. Der darf durchaus kleiner sein und er ist viel zu gross") ──
+   Der grosse Drache stand mit Faktor 1,88 auf seinem 2x2-Block; gemessen
+   (tools/pruefe-figurenmass.mjs) hing sein Band 2,4 px UNTER der Blockkante,
+   wo jede andere Figur ihr Band ~8 px darueber traegt. Kleiner, und sein
+   Band auf dieselbe Linie wie die Reihe, auf der er steht. Ueberall, wo der
+   grosse Drache gezeichnet wird (Kasten ueber dem Raster und Gleiter),
+   gelten dieselben zwei Zahlen. */
+/* v1.90.16b (Besitzer, 30.9. 22:32, zur Groesse: "der ist eigentlich perfekt.
+   Aber du solltest ihn noch ein bisschen weiter nach oben ruecken, dass er
+   mehr in der Mitte von den vier Feldern steht"). Gemessen am Block (114 px):
+   sein UMRISS hatte oben wie unten 5,7 px Luft - die MASSE der Silhouette lag
+   aber 4,7 px unter der Blockmitte (Fluegel und Hals leicht, der Leib tief).
+   Das Auge sieht die Masse. Jetzt liegt sie auf der Mitte; die Probe haelt
+   das als Z5 (tools/pruefe-figurenmass.mjs). */
+const DRACHE_GROESSE = 1.45;
+const DRACHE_HUB = "-1.5%";   /* in Prozent des 2x2-Kastens, negativ = nach oben */
+
 function DeathFlyer({ death, disp, box, W, H, pov, artStyle }) {
   const ref = useRef(null);
   const d = disp(death.at);
@@ -574,6 +592,15 @@ export function BoardView({ lang = "de", state, onMove, interactive, lastMove, m
       let piece = state.board[i];
       const isWing = piece && piece.kind === "D+";
       const isBigAnchor = piece && piece.big && piece.kind === "D";
+      /* v1.90.16 (Besitzer, 30.9.: "unbedingt bei dem Drachen, auch wenn der
+         beim Gegner steht, natuerlich die Felder lila faerben ... alle
+         gegnerischen Figuren muessen das Feld lila haben"). Die Toenung fragte
+         `piece` - und das wird fuer Anker und Fluegel eine Zeile tiefer auf
+         null gesetzt, weil der Block die Figur zeichnet. Seine vier Felder
+         blieben darum ungefaerbt. Wem ein Feld GEHOERT, steht jetzt getrennt
+         davon, was auf ihm GEZEICHNET wird (die Fluegelmarker tragen die
+         Farbe ihres Drachen, core/sim/transitions.js). */
+      const besitzer = piece;
       if (isWing || isBigAnchor) piece = null;     // drawn by the 2x2 overlay instead
       const dark = (f + r) % 2 === 1;
       const tgt = targets.get(i);
@@ -657,7 +684,7 @@ export function BoardView({ lang = "de", state, onMove, interactive, lastMove, m
               dort bleibt sie. `artStyle === "classic"` setzt GameScreen nur
               fuer die echte klassische Partie (klassikOptik), Kampagne und
               Gefecht sind davon nicht beruehrt. */}
-          {piece && piece.color !== pov && artStyle !== "classic" && <div aria-hidden data-gegnerfeld="" style={{ position: "absolute", inset: 0,
+          {besitzer && besitzer.color !== pov && artStyle !== "classic" && <div aria-hidden data-gegnerfeld="" style={{ position: "absolute", inset: 0,
             pointerEvents: "none", zIndex: 1,
             /* v1.24.5 (Besitzer): "der Farbton Lila ist viel zu wenig, man sieht ja gar
                nichts" - die Toenung lag bei .34 im Kern und wurde durch
@@ -1216,8 +1243,10 @@ export function BoardView({ lang = "de", state, onMove, interactive, lastMove, m
               /* v1.0.62 (Besitzer): der aeussere Auswahl-Schein war "besonders
                  krass" - gestrichen. Der Innenring sagt alles Noetige. */
               boxShadow: selHere ? "inset 0 0 0 3px rgba(240,214,138,.85)" : "none",
-              fontSize: `calc(${typeof glyph === "string" ? glyph : glyph + "px"} * 1.88)` }}>
-              <PieceGlyph piece={pc} showLevel={showLevel} pov={pov} artStyle={artStyle} focus={selHere} big />
+              fontSize: `calc(${typeof glyph === "string" ? glyph : glyph + "px"} * ${DRACHE_GROESSE})` }}>
+              <div style={{ transform: `translateY(${DRACHE_HUB})`, display: "grid", placeItems: "center", width: "100%", height: "100%" }}>
+                <PieceGlyph piece={pc} showLevel={showLevel} pov={pov} artStyle={artStyle} focus={selHere} big />
+              </div>
             </div>
           );
         })}
@@ -1437,7 +1466,8 @@ export function BoardView({ lang = "de", state, onMove, interactive, lastMove, m
                     (grosser Drache: wie der 2x2-Kasten ueber dem Raster) */}
                 {gross
                   ? <div style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center",
-                      fontSize: `calc(${typeof glyph === "string" ? glyph : glyph + "px"} * 1.88)` }}>
+                      transform: `translateY(${DRACHE_HUB})`,
+                      fontSize: `calc(${typeof glyph === "string" ? glyph : glyph + "px"} * ${DRACHE_GROESSE})` }}>
                       <PieceGlyph piece={stueck} showLevel={showLevel} pov={pov} artStyle={artStyle} big fliegt />
                     </div>
                   : <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center",

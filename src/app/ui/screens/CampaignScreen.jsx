@@ -149,9 +149,11 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
     /* Der Schirm hat waehrend des Einstiegs nichts messen koennen - erst
        jetzt gibt es einen Kartenbereich. Zwei Anlaeufe, weil der erste noch
        im selben Bild liegt und der Browser die Masse dann erst rechnet. */
-    requestAnimationFrame(() => {
+    /* v1.90.16 (Audit A46): beide Anlaeufe in Refs, damit das Verlassen der
+       Karte sie abbricht (Aufraeumen unten bei walkT). */
+    nachT.current.raf = requestAnimationFrame(() => {
       window.dispatchEvent(new Event("resize"));
-      setTimeout(() => window.dispatchEvent(new Event("resize")), 120);
+      nachT.current.tm = setTimeout(() => window.dispatchEvent(new Event("resize")), 120);
     });
   };
   // league selector: look back at worlds already mastered — view-only; the
@@ -195,6 +197,18 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
   const dragRef = useRef(null);
   const clickSquelch = useRef(false);
   const walkT = useRef(null);
+  /* ── v1.90.16 (Audit A46): WER DIE KARTE VERLAESST, NIMMT SEINE UHREN MIT ──
+     walkTo stellt 760 ms nach dem Schritt den Wanderer ab - und spielt beim
+     Kapitelwechsel den Hornruf. Wer in dieser Zeit die Karte verliess (ins
+     Gefecht, in einen Reiter), hoerte das Horn trotzdem, auf einem Schirm, der
+     gar nicht mehr da war. Dazu die beiden nachgeschobenen resize-Anlaeufe
+     nach dem Kapiteleinstieg. Alle drei werden beim Verlassen abgebrochen. */
+  const nachT = useRef({ raf: 0, tm: 0 });
+  useEffect(() => () => {
+    clearTimeout(walkT.current);
+    cancelAnimationFrame(nachT.current.raf);
+    clearTimeout(nachT.current.tm);
+  }, []);
   const [stride, setStride] = useState({ angle: 0, dir: 1 }); // last travel heading — feeds tilt & trail
   // A champion beaten but not recruited FLEES the map to the east — GameScreen
   // leaves his station id behind; we play the escape once, then only ✓ remains.

@@ -48,7 +48,18 @@ export default defineConfig({
     VitePWA({
       registerType: "autoUpdate",
       injectRegister: false, // registration lives in main.jsx (update loop + auto-reload)
-      includeAssets: ["favicon.ico", "favicon.svg", "og.png", "landing.html", "privacy.html", "terms.html", "robots.txt"],
+      /* ── v1.90.16 (Audit A66): DER VORCACHE TRAEGT NUR, WAS DAS SPIEL ZEIGT ──
+         Gemessen in dist/sw.js: 47 Eintraege, 37 verschieden, 4,8 MB - davon
+         ~1,9 MB PNG, die die App nie zeigt: die 512er-Symbole (je ~0,5 MB,
+         nur fuer die Installation - der Browser holt sie aus dem Manifest
+         selbst), boot-riss.png (der Ladeschirm zeigt die .webp), og.png (nur
+         fuer Vorschauen in sozialen Netzen), das Apple-Symbol. Die
+         Manifest-Symbole standen zudem DOPPELT drin (includeManifestIcons).
+         Die HTML-Seiten bleiben bewusst: ohne Eintrag im Vorcache liefert die
+         Navigations-Rueckfallregel fuer /spielen/privacy.html die App aus
+         statt der Datenschutzerklaerung. */
+      includeAssets: ["favicon.ico"],   /* favicon.svg kommt ueber globPatterns - beides hiess doppelt */
+      includeManifestIcons: false,
       manifest: {
         name: "Gambit Rise",
         short_name: "Gambit Rise",
@@ -84,7 +95,8 @@ export default defineConfig({
         // (it "loads" but never decodes). Images are cached at runtime instead,
         // and ONLY when the response really is an image.
         globPatterns: ["**/*.{js,css,html,svg,png,webmanifest,woff2}"],
-        globIgnores: ["**/painted-*"], skipWaiting: true, clientsClaim: true,
+        globIgnores: ["**/painted-*", "icons/*-512.png", "icons/boot-riss.png", "icons/apple-touch-icon.png", "og.png", "landing.html"],
+        skipWaiting: true, clientsClaim: true,
         // web push lives in its own small file, pulled into the generated sw.
         // Its hash sits in the precache manifest, so editing it rolls a normal
         // sw update — the stuck-update escape in main.jsx keeps working.

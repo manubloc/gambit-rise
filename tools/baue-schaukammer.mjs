@@ -184,8 +184,12 @@ async function zaehle(ordner) {
     if (e.isFile()) n++;
   return n;
 }
-const vs = await zaehle(VZIEL).catch(() => 0);
-const vb = await zaehle(BVZ).catch(() => 0);
+/* v1.90.16 (Audit A67): ein Fehler beim Zaehlen (etwa eine Node-Fassung ohne
+   readdir recursive) meldete bisher still "0" - und der Bau sagte
+   "vorschauen: 0/395" ohne Grund. Jetzt steht der Grund daneben. */
+const laut = (wo) => (e) => { console.log(`zaehlen fehlgeschlagen (${wo}):`, e.message); return 0; };
+const vs = await zaehle(VZIEL).catch(laut("Vorschauen"));
+const vb = await zaehle(BVZ).catch(laut("Originale"));
 if (OHNE_ARCHIV) {
   /* Der Zaehler darf hier NICHT klagen. Die Hausregel lautet "die Zeile
      vorschauen: N/N muss vollzaehlig sein" - mit OHNE_ARCHIV ist sie

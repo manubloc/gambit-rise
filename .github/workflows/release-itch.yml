@@ -1,12 +1,21 @@
-# Manual (or tag-triggered) publish of the web build to itch.io via butler.
+# Manual publish of the web build to itch.io via butler.
 # One-time setup — see RELEASE-ANLEITUNG.md:
 #   1. Repository secret BUTLER_API_KEY  (itch.io → Settings → API keys)
 #   2. Repository variables ITCH_USER and ITCH_GAME (the job reads vars.ITCH_USER / vars.ITCH_GAME)
+#
+# ── v1.90.16 (Audit A65) ─────────────────────────────────────────────────
+# Drei Fehler, die beim ersten echten Lauf zugeschlagen haetten:
+#   - Ein Tag "v*" loeste den Lauf aus. Tags setzt hier niemand bewusst fuer
+#     itch - der Lauf ist jetzt NUR noch von Hand (workflow_dispatch).
+#   - `npm run build` schliesst tools/seite-bauen.mjs ein: an der Wurzel von
+#     dist/ liegt danach die LANDINGPAGE, das Spiel in dist/spielen/. itch
+#     haette die Startseite bekommen - und 743 MB Archiv dazu. Jetzt
+#     `build:app` (Spiel an der Wurzel) ohne die drei Archivordner.
+#   - `npm test` braucht Pillow und einen Chromium (test_zauber, die
+#     Fahr- und Animationsproben) - dieselben Schritte wie in ci.yml.
 name: Release to itch.io
 on:
   workflow_dispatch:
-  push:
-    tags: ["v*"]
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -15,8 +24,15 @@ jobs:
       - uses: actions/setup-node@v7
         with: { node-version: 22, cache: npm }
       - run: npm ci
+      - name: Pillow fuer die Bildmessung
+        run: python3 -m pip install --quiet --break-system-packages pillow || python3 -m pip install --quiet pillow
+      - name: Chromium fuer die Proben
+        run: |
+          npx playwright-core install --with-deps chromium
+          echo "PW_CHROMIUM=$(node -e "import('playwright-core').then(p => console.log(p.chromium.executablePath()))")" >> "$GITHUB_ENV"
       - run: npm test
-      - run: npm run build
+      - run: npm run build:app
+        env: { OHNE_ARCHIV: "1" }
       - name: Push to itch.io
         uses: yeslayla/butler-publish-itchio-action@v1.0.3
         env:

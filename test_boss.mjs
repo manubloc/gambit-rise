@@ -86,7 +86,29 @@ function loneBoss(boss) {
 /* Das Erwachen wird an seiner ERZAEHLUNG erkannt, nicht an Kapitel oder
    Kennung: es ist die eine Station, auf der die alte Magie erwacht. */
 const ERWACHEN = CAMPAIGN.find((st) => /erwacht|magic wakes/.test(st.storyDe || "")).id;
-  ok("the twelve chapters field 44 boss stages", bossStages.length === 44);
+  /* v1.90.16: 45 statt 44 - die Brutmutter hat ihre eigene Station in
+     Kapitel VII vor dem Drachen bekommen (Besitzerentscheid 30.9.). */
+  ok("the twelve chapters field 45 boss stages", bossStages.length === 45);
+  /* ... und zwar AUF dem Weg zum Drachen, nicht auf einem Parallelzweig: der
+     erste Anlauf setzte sie an das Blatt L07s38 (next = []), der Drache stand
+     auf dem anderen Zweig. Geprueft ueber die echten Kanten (next). */
+  ok("... the Broodmother among them, on the path to the chapter VII dragon", (() => {
+    const brut = bossStages.find((st) => st.boss.pure === "b03");
+    const drache = CAMPAIGN.find((st) => st.league === 7 && st.boss && st.boss.piece === "dragon");
+    if (!brut || brut.league !== 7 || !drache) return false;
+    const seen = new Set([brut.id]); const q = [brut.id];
+    while (q.length) { const id = q.shift(); const u = CAMPAIGN.find((st) => st.id === id); for (const w of u?.next || []) if (!seen.has(w)) { seen.add(w); q.push(w); } }
+    return seen.has(drache.id) && (brut.next || []).length > 0;
+  })());
+  /* Die Startseite verspricht "13 Monster, die du besiegen kannst". Bis
+     v1.90.15 traten vier davon im ersten Weltdurchlauf nie auf (sie standen
+     nur an zweiter Stelle einer Rotation). */
+  {
+    const { LEAGUE_BOSSES } = await import("./src/content/bosses.js");
+    const monster = BOSSES.filter((b) => !LEAGUE_BOSSES.includes(b.id)).map((b) => b.id);
+    const erstRunde = new Set(bossStages.filter((st) => st.boss.pure).map((st) => st.boss.pure));
+    ok(`every one of the ${monster.length} monsters has a station in the first world lap`, monster.length === 13 && monster.every((id) => erstRunde.has(id)));
+  }
   ok("20 of them are recruitable piece bosses, one per key figure", bossStages.filter((st) => st.boss.piece).length === 20
     && new Set(bossStages.filter((st) => st.boss.piece).map((st) => st.boss.piece)).size === 20);
   ok("every pure boss resolves", bossStages.filter((st) => st.boss.pure).every((st) => bossById(st.boss.pure)));

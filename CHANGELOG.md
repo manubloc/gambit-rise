@@ -1,5 +1,124 @@
 # Changelog - Gambit Rise
 
+## 1.90.16 - Monster in Offiziersgroesse, die Dame wieder mittig, der Drache auf dem Damenplatz, die Brutmutter vor ihm; Audit-Reste
+
+Besitzer, 30.9., mit vier Bildern aus der Aufstellungskammer: "diese Monster
+... die sind doch viel zu gross ... du siehst es ja auch am Lebensband ...
+die Dame wieder nicht mittig ... der Drache ... darf durchaus kleiner sein."
+
+**DIE MONSTER WAREN ZU GROSS - MIT ABSICHT, UND DIE ABSICHT WAR FALSCH.**
+`paintedFitFor` gab jedem Monster auf dem Damenplatz eine eigene Tabelle
+(BOSS_FIT/PIECE_BOSS_FIT) mit Aufschlag, dazu streckte die gemessene Passung
+schmale Bestien auf die Offiziersbreite (mStreck bis 1,10). Gemessen am
+lebenden Brett (neue Probe `tools/pruefe-figurenmass.mjs`, alle 45
+Schluesselstationen): die Baender der Monster bis 1,3-mal so breit wie das
+des breitesten Offiziers. Jetzt nimmt jedes Monster dieselbe gemessene
+Passung wie jede Figur, ohne Streckung ueber 1; die Tabellen gelten nur noch
+fuer die alte Handtabelle.
+
+**DIE DAME STAND NEBEN IHREM BAND - MEIN EIGENER FEHLER AUS v1.90.8.**
+Damals wurde das Damenbild verschoben, die Messtabelle sockelband.json aber
+nicht neu gemessen (cx 327,5 statt 290,5). Das Band sass mittig, die gemalte
+Figur 5 px daneben - genau das, was der Besitzer sah. Nur dieser Eintrag ist
+nachgezogen (eine volle Neumessung haette die Gambit-Werte verschoben).
+
+**DER GROSSE DRACHE** steht mit Faktor 1,45 statt 1,88 auf seinem Viererblock
+(ein gutes Fuenftel kleiner). Besitzer um 22:32: "der ist eigentlich perfekt.
+Aber ... noch ein bisschen weiter nach oben ..., dass er mehr in der Mitte
+von den vier Feldern steht." Gemessen: sein UMRISS hatte oben wie unten
+5,7 px Luft, die MASSE der Silhouette lag aber 4,7 px unter der Blockmitte
+(Fluegel und Hals leicht, der Leib tief) - das Auge sieht die Masse. Jetzt
+liegt sie auf der Mitte (Probe: Z5, +-1,5 px). Im Stand und im Gleiter
+dieselben zwei Zahlen (DRACHE_GROESSE, DRACHE_HUB).
+
+**DIE FELDER UNTER DEM GEGNERISCHEN DRACHEN WAREN NICHT LILA.** Besitzer:
+"alle gegnerischen Figuren muessen das Feld lila haben." Die Toenung fragte
+die gezeichnete Figur - und die setzt BoardView fuer Anker und Fluegel auf
+null, weil der Block sie zeichnet. Wem ein Feld gehoert, steht jetzt getrennt
+davon, was darauf gezeichnet wird. test_ui zaehlt am gerenderten Brett
+16/16 (Gegenprobe mit der alten Bedingung: 12/16).
+
+**DIE PROBE:** vier Zusagen an jeder Figur jeder Schluesselstation - Band
+nicht breiter als der breiteste Offizier (+3 %), mittig (+-2 px), auf der
+Linie seiner Klasse, Fuss auf dem Band. Gegen den Stand v1.90.15: 16 rot
+(Dame, Fuss-Band -5,1 px, dazu die Monsterbreiten); jetzt 0.
+
+**ENTSCHEIDUNGEN DES BESITZERS (30.9., Aufstellungsseite):**
+1. Der Drache steht in Kapitel VII auf dem PLATZ DER DAME, ueber Damen- und
+   Laeuferfeld (c7-d8), der Koenig bleibt auf e8 - vorher suchte er eine Ecke.
+   Er bleibt Figurenboss, nicht Endboss (Osric bleibt).
+3. Die vier gemalten Bestien, die nie vorkamen (Brutmutter, Schleicher,
+   Bollwerk, Fluesterin - sie standen nur an ZWEITER Stelle einer Rotation,
+   also erst im zweiten Weltdurchlauf), ersetzen die Doppelungen: III
+   Schleicher statt Hetzer, VIII Bollwerk statt Waechter, XII Fluesterin
+   statt Sturmklaue. Die Brutmutter hat ihre EIGENE Station zwei Schritte
+   vor dem Drachen (Bannergrund, L07s35): erst das Gelege, dann der
+   geschluepfte Drache. Erster Anlauf verworfen: der Anteil am Hauptast fiel
+   auf das Blatt eines Parallelzweigs (L07s38, ohne Ausgang) - der Drache
+   stand auf dem anderen. Jetzt rueckwaerts ueber die echten Wege gesucht,
+   test_boss prueft den Weg ueber die Kanten. 45 statt 44 Boss-Stationen.
+   Dabei die tote a4-Weiche geloescht (Knoten gibt es seit den zwoelf
+   Graphen nicht mehr; dort stand die Brutmutter-Geschichte).
+4. **DIE FRISCHE statt eines Hetzer-Abschlags.** Der Hetzer stand auf 101 von
+   172 besetzten Stationen: er ist das erste Monster und passt mit Staerke 55
+   in alle drei Klassen. Eine Sonderregel haette das Problem verschoben -
+   gemessen: nach Entscheidung 3 rueckte der Schleicher auf 60. Jetzt zieht
+   ein Gast aus diesem oder dem letzten Kapitel voll, zwei bis drei Kapitel
+   alt halb, aelter ein Viertel (gewichtete Ziehung, rein, fester Keim). Neu
+   gemessen: Spitze 43 von 171, Hetzer 39, elf verschiedene Gaeste statt
+   acht. test_features haelt "hoechstens 30 %"; die alte Ziehung faellt dort
+   mit 71/171 durch (Gegenprobe gefahren).
+5. Die Kapitelfinale mischen ihre Grundreihe erst AB KAPITEL II (Kapitel I
+   ist das Lernkapitel, der Koenig stand gemischt in der Ecke h8). Die
+   Mischung steht jetzt an einer Stelle (`finaleGrundreihe`), vorher zweimal.
+6. Der Brandstifter wird umgefaerbt statt neu gemalt - Vorschauen liegen beim
+   Besitzer, eingebaut wird erst nach seiner Wahl.
+(2, die wechselnden Bossformationen, folgt als eigener Schritt mit Vorschau.)
+
+### Audit-Reste: Kopien nach der Kontoloeschung, ein Reducer ohne Nebenwirkung, 2,8 MB weniger Vorcache
+
+**A47 - NACH DEM LOESCHEN EINES KONTOS BLIEBEN KOPIEN SEINES STANDS.**
+privacy.html verspricht "alle Spielstaende dieses Kontos auf deinem Geraet".
+Liegen blieben die Wiederherstellungspunkte mit seinem Stand (die Liste ist
+geraeteweit), der Spiegel "profile" und die Fernpartien-Liste. Die Ursache
+fuer den Spiegel: App.jsx schrieb bei JEDER Aenderung zusaetzlich den ganzen
+Stand unter "profile" - gelesen wird der Schluessel nur einmal, von der
+Uebernahme alter Staende aus der Zeit vor den Konten. Der Spiegel ist fort;
+deleteAccount raeumt die Kopien, die Sicherungen ANDERER Konten bleiben
+(erkannt an Online-Kennung oder genau dem geloeschten Stand, test_saves).
+
+**A43 - EIN REDUCER MIT NEBENWIRKUNG.** Jedes "REPLACE" schrieb im Reducer
+einen erzwungenen Wiederherstellungspunkt. REPLACE dient aber an rund zwanzig
+Stellen als gewoehnlicher Setzer (Name, Stil, "Kapitel gesehen") - die sechs
+juengsten Sicherungen fuellten sich mit fast gleichen Staenden und schoben
+die aelteren hinaus. Erzwungen gesichert wird jetzt nur, wo ein ganzer Stand
+ersetzt wird (Laden aus Datei, Zurueckholen, Werkbank), vor dem Ersetzen.
+
+**A66 - DER VORCACHE DER APP: 4,8 MB -> 2,0 MB.** Gemessen in dist/sw.js: 47
+Eintraege, davon die 512er-Symbole (je ~0,5 MB, nur fuer die Installation),
+boot-riss.png (der Ladeschirm zeigt die .webp), og.png und das Apple-Symbol,
+die Manifest-Symbole doppelt. Die HTML-Seiten bleiben absichtlich drin: ohne
+Eintrag lieferte die Rueckfallregel fuer /spielen/privacy.html die App aus.
+
+**A46 - DER HORNRUF NACH DEM VERLASSEN DER KARTE.** walkTo spielte 760 ms
+nach dem Schritt in ein neues Kapitel das Horn - auch wenn man die Karte in
+dieser Zeit schon verlassen hatte. Die Uhren der Karte werden jetzt beim
+Verlassen abgebrochen.
+
+**A57** HSTS und `immutable` fuer die gehashten Buendel unter /spielen/assets/
+(sw.js, version.json und HTML bleiben kurzlebig). Die CSP ist bewusst NICHT
+dabei: selbst als Report-Only schreibt sie Konsolenmeldungen, und verify-boot
+wertet jede Konsolenmeldung als Boot-Versagen - sie braucht eine eigene
+Runde mit Messung. **A65** release-itch.yml nur noch von Hand, mit
+build:app (vorher haette itch die Landingpage und 743 MB Archiv bekommen)
+und den Pillow-/Chromium-Schritten. **A67** .nvmrc 22, engines, der
+Vorschau-Zaehler nennt einen Fehler statt still 0 zu melden. **A69** die CI
+baut ohne Archiv und laedt kein 700-MB-dist/ mehr hoch. **A37** die letzten
+10x10-Rueckfaelle in Kern und Sperren auf FILES/RANKS (der Codec behaelt
+seinen, er muss alte Schnappschuesse lesen), vier tote Marker-Zeilen weg.
+**A63** ARCHITECTURE.md: 8x8, Rochade/en passant/Umwandlungs-Wahl gebaut,
+kein Riegel.
+
 ## 1.90.15 - die Zuege am echten Brett gemessen: sieben Animationsfehler, die Startseite und die Aufstellungskammer
 
 Besitzer, 30.9.: "dass man nochmal die Animation alle sauber geprueft hat,

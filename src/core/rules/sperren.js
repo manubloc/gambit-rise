@@ -29,6 +29,11 @@
 //     ueberdauert 20 Zuege. Das ist die Bedingung, unter der der Besitzer
 //     sie ueberhaupt wollte: ein VERZOEGERN, kein zweites Brett.
 
+/* v1.90.16 (Audit A37): die Rueckfaelle fuer ein Brett ohne w/h standen hier
+   noch auf 10 - aus der Zeit vor dem 8x8-Umbau. Jeder Spielstand traegt w/h;
+   fehlen sie doch einmal, gilt das Brett, das es heute gibt. */
+import { FILES, RANKS } from "../domain/constants.js";
+
 /** Die Sorten. Preis und Haerte gehoeren zusammen: was laenger haelt, kostet
  *  mehr - und kostet den Gegner mehr Zuege. */
 export const SPERR_ARTEN = {
@@ -128,7 +133,7 @@ export const ZERFALL_TAKT = 12;
  *  der eigenen Seite (0-basiert 2 und 3, von der eigenen Grundreihe aus).
  *  Weiss steht unten, Schwarz oben - so bauen alle Karten des Spiels. */
 export function setzReihen(state, farbe) {
-  const h = state?.h ?? 10;
+  const h = state?.h ?? RANKS;
   return farbe === "w" ? [2, 3] : [h - 3, h - 4];
 }
 
@@ -138,10 +143,10 @@ export function setzReihen(state, farbe) {
 export function setzFelder(state, farbe) {
   const felder = [];
   if (sperrenAnzahl(state?.sperren, farbe) >= MAX_SPERREN) return felder;
-  const w = state?.w ?? 10;
+  const w = state?.w ?? FILES;
   const reihen = setzReihen(state, farbe);
   for (const r of reihen) {
-    if (r < 0 || r >= (state?.h ?? 10)) continue;
+    if (r < 0 || r >= (state?.h ?? RANKS)) continue;
     for (let f = 0; f < w; f++) {
       const i = r * w + f;
       if (feldFrei(state, i)) felder.push(i);
@@ -171,7 +176,7 @@ export function sperrenAnzahl(sperren, farbe) {
 export function darfSetzen(state, i, farbe) {
   if (!feldFrei(state, i)) return false;
   if (sperrenAnzahl(state?.sperren, farbe) >= MAX_SPERREN) return false;
-  const w = state?.w ?? 10;
+  const w = state?.w ?? FILES;
   return setzReihen(state, farbe).includes((i / w) | 0);
 }
 
@@ -246,7 +251,7 @@ export function feldGanzFrei(state, i) {
 export function darfFalleLegen(state, i, farbe) {
   if (!feldGanzFrei(state, i)) return false;
   if (fallenAnzahl(state?.fallen, farbe) >= MAX_FALLEN) return false;
-  const w = state?.w ?? 10;
+  const w = state?.w ?? FILES;
   return setzReihen(state, farbe).includes((i / w) | 0);
 }
 
@@ -254,9 +259,9 @@ export function darfFalleLegen(state, i, farbe) {
 export function fallenFelder(state, farbe) {
   const felder = [];
   if (fallenAnzahl(state?.fallen, farbe) >= MAX_FALLEN) return felder;
-  const w = state?.w ?? 10;
+  const w = state?.w ?? FILES;
   for (const r of setzReihen(state, farbe)) {
-    if (r < 0 || r >= (state?.h ?? 10)) continue;
+    if (r < 0 || r >= (state?.h ?? RANKS)) continue;
     for (let f = 0; f < w; f++) {
       const i = r * w + f;
       if (feldGanzFrei(state, i)) felder.push(i);

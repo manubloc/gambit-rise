@@ -3,7 +3,7 @@ import { klang, klangEinstellen, klangVorwaermen, klangUeberall } from "./ui/kla
 import { lautVon } from "./ui/lautstaerke.js";   /* v1.26.2 */
 import { musikBereich } from "./ui/musik.js";
 import { setSchlicht } from "./ui/board/paintedArt.js";
-import { upgradeAbility, characterLevel, maxLevelFor, formationKey, loadProfile, saveProfile, defaultProfile, buildStageMatch, advanceCampaign, upgradePiece, buySpShard, clearedCount, campaignLength, currentNodeId , unlockAbility, respecPiece, claimAchievement, payToll, takeRestorePoint, serializeSave, isUnlocked } from "../meta/index.js";
+import { upgradeAbility, characterLevel, maxLevelFor, formationKey, loadProfile, defaultProfile, buildStageMatch, advanceCampaign, upgradePiece, buySpShard, clearedCount, campaignLength, currentNodeId , unlockAbility, respecPiece, claimAchievement, payToll, takeRestorePoint, serializeSave, isUnlocked } from "../meta/index.js";
 import { nodeById, chapterForRow, buyItem, CHARACTER_LIST, clockFor } from "../content/index.js";
 import { verifyPin } from "../platform/index.js";
 import { makeT } from "./i18n/strings.js";
@@ -142,7 +142,9 @@ export function reducer(state, a) {
        Datei kommen. Diese vier Felder bleiben darum immer die des LAUFENDEN
        Standes; alles andere wird ersetzt wie bisher. */
     case "REPLACE": {
-      if (state) takeRestorePoint(state, { force: true });
+      /* v1.90.16 (Audit A43): kein takeRestorePoint mehr hier - ein Reducer
+         hat keine Nebenwirkungen. Wer einen ganzen Stand ersetzt, sichert
+         vorher selbst (ProfileScreen: ersetze()). */
       if (!a.profile) return a.profile;
       if (!state) return a.profile;
       const eigen = {};
@@ -413,7 +415,14 @@ export default function App() {
     if (e && (e.fremd || e.weg)) setFremdesFenster(e.weg ? "weg" : "fremd");
   };
   useEffect(() => { if (ready && profile && account && slot) {
-    saveProfile(profile); takeRestorePoint(profile);
+    /* v1.90.16 (Audit A47): hier stand zusaetzlich saveProfile(profile) -
+       ein Spiegel des ganzen Stands unter "profile", bei JEDER Aenderung
+       serialisiert. Gelesen wird der Schluessel nur von migrateLegacyInto,
+       also einmal, fuer Staende aus der Zeit VOR den Konten. Der Spiegel
+       machte daraus eine Kopie des zuletzt Spielenden - die ein neues Konto
+       auf demselben Geraet (nach einem Gast) als "uebernommenen Stand" erbte
+       und die das Loeschen eines Kontos ueberlebte. */
+    takeRestorePoint(profile);
     const add = playtimeRef.current; playtimeRef.current = 0;
     writeSave(account.id, slot.id, profile, add).then(nachSicherung);
   } }, [profile, ready]);

@@ -2,7 +2,7 @@
    Fotografiert jede Station aus der Aufstellungskammer (?aufstellung=<id>)
    so, wie sie beim ERSTEN Zug steht - mit dem echten Brett, dem
    Kapitelstreifen und dem Kapitelgemaelde. Genommen werden:
-     - alle 44 Schluesselstationen (Boss-Stationen, darunter 12 Finale)
+     - alle Schluesselstationen (Boss-Stationen, darunter 12 Finale; 45 seit v1.90.16)
      - je Kapitel III-XII die am staerksten BESETZTE gewoehnliche Station,
        denn Monster auf freien Plaetzen gibt es NUR dort (an Boss- und
        Finalstationen ist die Besetzung absichtlich aus, besetzung.js)
@@ -66,7 +66,14 @@ for (const n of alle) {
   await page.waitForTimeout(900);
   const kopf = await page.evaluate(() => (document.querySelector("[data-aufstellung-kopf]")?.innerText || "").replace(/\n/g, " | "));
   const datei = `${n.id}.png`;
-  await page.screenshot({ path: join(ZIEL, datei), fullPage: false });
+  /* nur Kopf und Brett - darunter liegt nichts als Hintergrund */
+  const clip = await page.evaluate(() => {
+    const k = document.querySelector("[data-aufstellung-kopf]").getBoundingClientRect();
+    const b = document.querySelector("[data-aufstellung-brett]").getBoundingClientRect();
+    const y = Math.max(0, k.top - 8);
+    return { x: 0, y, width: innerWidth, height: Math.min(innerHeight, b.bottom + 12) - y };
+  });
+  await page.screenshot({ path: join(ZIEL, datei), clip });
   index.push({ id: n.id, liga: n.league, ort: n.place, final: !!n.final, boss: !!n.boss, kopf, datei });
   process.stdout.write(".");
 }

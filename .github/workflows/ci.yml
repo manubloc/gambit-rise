@@ -1,5 +1,12 @@
-# Die EISERNE KETTE, so weit sie ein Runner tragen kann (28 Suiten / 2422
-# Pruefungen, Stand v1.90.14 - siehe CLAUDE.md).
+# Die EISERNE KETTE, so weit sie ein Runner tragen kann (29 Suiten / 2575
+# Pruefungen, Stand v1.90.16 - siehe CLAUDE.md).
+#
+# ── v1.90.16 (Audit A69): OHNE ARCHIV, OHNE 700-MB-UPLOAD ───────────────
+# Der Bau lief hier mit den drei Archivordnern der Schaukammer (743 MB dist/)
+# und lud das GANZE dist/ als Artefakt hoch - bei jedem Push. Geprueft wird
+# hier, ob das Spiel baut und laeuft; die Originale der Schaukammer braucht
+# dafuer niemand (lokal gilt weiter: echter Release OHNE den Schalter). Das
+# Einzeldatei-Artefakt bleibt, drei Tage lang.
 #
 # ── v1.90.11 (Audit A27): WAS DIESE DATEI NICHT KANN ────────────────────
 # Sie sperrt den Deploy NICHT. Cloudflare Pages baut bei JEDEM Push auf main
@@ -38,21 +45,23 @@ jobs:
           echo "PW_CHROMIUM=$(node -e "import('playwright-core').then(p => console.log(p.chromium.executablePath()))")" >> "$GITHUB_ENV"
       - run: npm test
       - run: npm run build
+        env: { OHNE_ARCHIV: "1" }
       # build:app stellt die App an die Wurzel von dist/ zurueck - ohne diesen
       # Schritt meldet drive3 vier Fehler, die es nicht gibt (die Landingpage
       # hat kein Brett). Teuer gelernt in v1.86.0, siehe CLAUDE.md.
       - run: npm run build:app
+        env: { OHNE_ARCHIV: "1" }
       - run: npm run build:single
       - run: node test_boot.mjs
       - run: node scripts/verify-boot.mjs
       - run: node tools/pruefe-sperrsitz.mjs
       - run: timeout 250 node drive3.mjs
       - run: node tools/pruefe-navigation.mjs
+      # v1.90.16: jede Figur jeder Schluesselstation auf dem echten Brett
+      # vermessen (Bandbreite, Mitte, Linie, Fuss) - siehe CLAUDE.md.
+      - run: node tools/pruefe-figurenmass.mjs
       - uses: actions/upload-artifact@v7
         with:
-          name: grand-gambit-web
-          path: dist/
-      - uses: actions/upload-artifact@v7
-        with:
-          name: grand-gambit-singlefile
+          name: gambit-rise-singlefile
           path: dist-single/index.html
+          retention-days: 3

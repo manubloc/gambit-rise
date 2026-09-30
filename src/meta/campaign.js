@@ -119,7 +119,7 @@ const ATK_BOOST = [0, 0, 1, 1, 2];
 /** The boss army-spec for a node: a unique monster or the BOSS VERSION of an
  *  unlockable piece (same movement — fighting it teaches you the piece). */
 export function nodeBossSpec(node, league = 1) {
-  node = { ...node, boss: effectiveNodeBoss(node, league) };  // the Hoard hatches late
+  node = { ...node, boss: effectiveNodeBoss(node, league) };
   if (!node.boss) return null;
   if (node.boss.pure) {
     // Monster-Stationen rotieren ihren Champion mit dem Weltdurchlauf; der
@@ -167,15 +167,33 @@ export function placeFor(node, _lg, en = false) {
   return en ? placeEn(de) : de;
 }
 
-export function effectiveNodeBoss(node, lg) {
-  if (node?.id === "a4" && (lg || 1) < 2) return { pure: "b03" };
+/* v1.90.16: Hier stand eine Weiche fuer den Knoten "a4" (Drachenhort in
+   Liga 1 -> Brutmutter statt Drache) samt eigener Geschichte. Den Knoten gibt
+   es seit den zwoelf Graphen nicht mehr (kein "a4" in campaign12.gen.js) -
+   die Weiche griff nie. Die Brutmutter hat jetzt ihre EIGENE Station in
+   Kapitel VII vor dem Drachen (tools/build-campaign12.mjs, BRUT). Die
+   Funktion bleibt als eine Stelle, an der man den Boss eines Knotens liest. */
+export function effectiveNodeBoss(node, _lg) {
   return node?.boss;
 }
 
-const A4_L1_STORY = {
-  de: "Im Drachenhort ist es warm — zu warm. Die Brutmutter hütet hier ein Gelege, das noch niemand schlüpfen sah. Noch nicht.",
-  en: "The Dragon Hoard is warm - too warm. The Broodmother tends a clutch here that no one has seen hatch. Not yet.",
-};
+/* ── DIE FINALE MISCHEN IHRE GRUNDREIHE (v1.89.5, eine Stelle seit v1.90.16) ──
+   Jedes Kapitelfinale stellt die gegnerische Grundreihe bei jedem Versuch neu
+   auf - wer verliert, trifft eine NEUE Ordnung. Bis v1.90.15 stand die
+   Mischung zweimal (GameScreen und Aufstellungskammer).
+   v1.90.16 (Besitzerentscheid 30.9.): NICHT in Kapitel I. Es ist das
+   Lernkapitel im reinen Schach - dort gehoert der Koenig auf e8; gemessen
+   stand er mit Samen 1 in der Ecke h8. Gemischt wird ab Kapitel II. */
+export function finaleGrundreihe(node, back, seed) {
+  if (!node?.final || !Array.isArray(back) || back.length < 2) return back;
+  if ((node.league || 1) <= 1) return back;
+  const arr = [...back]; let sh = seed >>> 0;
+  for (let i = arr.length - 1; i > 0; i--) {
+    sh = (Math.imul(sh, 1664525) + 1013904223) >>> 0;
+    const j = sh % (i + 1); [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
 
 export function buildStageMatch(id, profile = null, leagueOverride = null) {
   const node = nodeById(id);
@@ -262,14 +280,29 @@ export function buildStageMatch(id, profile = null, leagueOverride = null) {
     // einwaerts und raeumt sie leer - stuende dort der Koenig, waere die
     // Partie vor dem ersten Zug verloren. Also einen Slot waehlen, dessen
     // Entfaltung den Koenig verschont.
-    if (boss.kind === "D") {
+    /* ── v1.90.16 (Besitzerentscheid 30.9.): DER DRACHE AN STELLE DER DAME ──
+       Bis v1.90.15 wich der grosse Drache in die Ecke aus: sein Block klappt
+       nach rechts auf, vom Damenplatz aus also auf den Koenig - die Regel
+       unten suchte darum das erste freie Paar und fand a8/b8. Er stand in der
+       Ecke, und die Dame blieb stehen (als einziger Boss mit Dame an seiner
+       Seite). Jetzt nimmt er den PLATZ DER DAME ein, wie jeder Boss: sein
+       Anker steht links neben ihr, der Block deckt c7-d8 und steht neben dem
+       Koenig; Dame, Laeufer c8 und die zwei Bauern davor weichen. Geht das
+       auf einer Karte nicht (Rand, Koenig im Weg), gilt die alte Suche. */
+    let fluegel = -1;
+    if (boss.kind === "D" && boss.big) {
       const w2 = formation.length;
-      const ki = aiArmy.back.findIndex((sp) => sp.kind === "K");
+      const ki = aiArmy.back.findIndex((sp) => sp && sp.kind === "K");
+      if (qi >= 1 && qi - 1 !== ki && qi !== ki) { fluegel = qi; qi = qi - 1; }
+    }
+    if (boss.kind === "D" && fluegel < 0) {
+      const w2 = formation.length;
+      const ki = aiArmy.back.findIndex((sp) => sp && sp.kind === "K");
       const inward = (q) => (q < w2 - 1 ? q + 1 : q - 1);
       if (qi === ki || inward(qi) === ki)
         for (let j = 0; j < w2; j++) if (j !== ki && inward(j) !== ki) { qi = j; break; }
     }
-    aiArmy.back = aiArmy.back.map((spec, j) => (j === qi ? boss : spec));
+    aiArmy.back = aiArmy.back.map((spec, j) => (j === qi ? boss : j === fluegel ? null : spec));
     bossInfo = { name: boss.name, bossId: boss.bossId, unlocks: looking ? null : recruitOnWin(node, profile),
       art: boss.art || null, accent: boss.accent, kind: boss.kind };
   }
@@ -293,7 +326,7 @@ export function buildStageMatch(id, profile = null, leagueOverride = null) {
        Gegner waren seit v1.1.2 richtig - nur die Optik log. Jetzt steht das
        Kapitel im Kampf, und zwar dasselbe, mit dem er gebaut wurde. */
     league: lgMap,
-    node: (node.id === "a4" && lg < 2) ? { ...node, storyDe: A4_L1_STORY.de, storyEn: A4_L1_STORY.en } : node,
+    node,
     boss: bossInfo,
     turncoat, excludeId: turncoat ? recruitId : null,
     // classic boards trade level bumps for a sharper mind in later leagues

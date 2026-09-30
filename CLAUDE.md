@@ -39,8 +39,8 @@ gambitrise.com zeigt darauf).
   pruefe-navigation, pruefe-textfluss, test_layout) lesen den Chromium-Pfad aus
   `PW_CHROMIUM`; ohne die Variable gilt der Pfad des Cloud-Containers. Lokal:
   `npx playwright install chromium` und `PW_CHROMIUM=<Pfad zur chrome-Datei>`.
-- `npm test` — volle Batterie. MUSS **29 Suiten / 2561 Prüfungen** melden
-  (Stand v1.90.15; der Runner stoppt nach der ersten roten Suite, also
+- `npm test` — volle Batterie. MUSS **29 Suiten / 2575 Prüfungen** melden
+  (Stand v1.90.16; der Runner stoppt nach der ersten roten Suite, also
   Suitenzahl prüfen, nicht nur Assertions! Zählweise: alle Zeilen
   `RESULT…: N passed` summieren — test_balance meldet zwei, darum stehen im
   Log 30 RESULT-Zeilen für 29 Suiten; die 29. ist seit v1.90.15
@@ -124,6 +124,21 @@ gambitrise.com zeigt darauf).
   (braucht `npx vite build`). Die Befunde vom 30.9. (Drache in der Ecke,
   31/32 Bosse auf d8, vier Bestien nie im Spiel, Hetzer auf 101/172
   Besetzungen) stehen im Changelog v1.90.15.
+- `node tools/pruefe-figurenmass.mjs` — **wie groß und wo steht jede Figur
+  auf dem ECHTEN Brett?** (v1.90.16) Fährt die Aufstellungskammer
+  (`?aufstellung=<Station>`) für alle 45 Schlüsselstationen und misst an
+  jeder Figur im lebenden DOM Band (Breite, Mitte, Unterkante) und Sockelfuß
+  (Alphakanal). Fünf Zusagen: kein Band breiter als das des breitesten
+  Offiziers +3 % (der große Drache höchstens doppelt), Band mittig ±2 px,
+  Unterkante auf der Linie der Klasse (Bauern/Gambit eigene Linie), Fuß auf
+  dem Band ≤ 2 px — und der große Drache steht mit der MASSE seiner
+  Silhouette auf der Mitte seiner vier Felder ±1,5 px (Besitzer 30.9.: „ein
+  bisschen weiter nach oben … mehr in der Mitte von den vier Feldern"). **Warum es sie gibt:** der Besitzer sah am 30.9. auf vier
+  Fotos zu große Monster, eine Dame neben ihrem Band und einen zu großen
+  Drachen — keine Probe hatte je eine Figur auf dem echten Brett vermessen.
+  Gegen v1.90.15 gefahren: 16 rot, danach 0. `--nur=L07s41,…` für einzelne
+  Stationen, `WURZEL=/tmp/rr/dist` gegen einen anderen Bau. Braucht `dist/`
+  mit der App (**nach `build:app`**).
 - `node test_layout.mjs` — echte Geometrie im Browser. Läuft wieder (v1.86.0:
   die Klang-Loader fehlten), hängt aber NICHT in der Kette: vier Proben
   erwarten ein vertikal zentriertes Brett, was seit dem Talentband nicht mehr
@@ -149,7 +164,8 @@ starten, sonst reißen Werkzeug-Zeitlimits den Lauf ab.
    Auslieferungsstand zusätzlich Landingpage, den abmeldenden Dienstarbeiter
    und dass KEIN Riegel mehr fragt — der Umzug ist damit unter Aufsicht.
 3. `node test_boot.mjs` (3/3) und `node scripts/verify-boot.mjs` (grün)
-4. `timeout 250 node drive3.mjs` (keine Fehler); bei Arbeit an Karte,
+4. `timeout 250 node drive3.mjs` (keine Fehler) und
+   `node tools/pruefe-figurenmass.mjs` (0 Befunde); bei Arbeit an Karte,
    Kampagne oder Navigation zusätzlich `node tools/pruefe-navigation.mjs`
 5. REINRAUM: `git clone . /tmp/rr && cp -r node_modules /tmp/rr/` und dort
    Schritte 1–4 wiederholen

@@ -31,7 +31,7 @@ import { BrettHintergrund } from "./BrettHintergrund.jsx";
 import { FELD_KAPITEL, FELD_FINALE } from "./board/feldArt.js";
 import { createGame } from "../../core/index.js";
 import { CAMPAIGN, nodeById, mapById, BOSSES, CHARACTERS } from "../../content/index.js";
-import { buildStageMatch, buildArmy, defaultProfile, withProgressPct } from "../../meta/index.js";
+import { buildStageMatch, buildArmy, defaultProfile, withProgressPct, finaleGrundreihe } from "../../meta/index.js";
 
 /** Die Schluesselstationen: jede Boss-Station und jedes Kapitelfinale. */
 export function schluesselStationen() {
@@ -61,14 +61,7 @@ export function aufstellungFuer(nodeId, seed = 1) {
   let ai = match.aiArmy;
   /* Dieselbe Umstellung wie in GameScreen: jedes Kapitelfinale mischt die
      Grundreihe. Ohne sie zeigte die Kammer ein Finale, das so nie auftritt. */
-  if (node.final && ai?.back?.length) {
-    const arr = [...ai.back]; let sh = seed >>> 0;
-    for (let i = arr.length - 1; i > 0; i--) {
-      sh = (Math.imul(sh, 1664525) + 1013904223) >>> 0;
-      const j = sh % (i + 1); [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-    ai = { ...ai, back: arr };
-  }
+  if (ai?.back?.length) ai = { ...ai, back: finaleGrundreihe(node, ai.back, seed) };
   const state = createGame(buildArmy(profil, map), ai, { seed, map, rules: match.rules });
   /* Wer auf freien Plaetzen steht (nur an GEWOEHNLICHEN Stationen - an Boss-
      und Finalstationen ist die Besetzung absichtlich aus, besetzung.js). */
@@ -128,7 +121,8 @@ export function AufstellungKammerScreen() {
           ? <div style={{ fontSize: 14, color: "#e0b76c", marginTop: 2 }}>Gegner: {gegner}</div>
           : <div style={{ fontSize: 14, color: "#c4b5fd", marginTop: 2 }}>Besetzung: {besetzt.join(", ") || "—"}</div>}
         {node.final && <div style={{ fontSize: 11.5, color: "#9aa3b8", marginTop: 3 }}>
-          Die Grundreihe wird bei jedem Versuch neu gemischt — hier der Wurf zum Samen 1.</div>}
+          {node.league > 1 ? "Die Grundreihe wird bei jedem Versuch neu gemischt — hier der Wurf zum Samen 1."
+            : "Kapitel I mischt nicht: das Lernkapitel steht in der Grundstellung."}</div>}
       </div>
       {/* Luft ueber dem Brett: die gemalten Figuren ragen ueber ihr Feld
           hinaus, und die hintere Reihe stiess sonst in den Kopf. */}

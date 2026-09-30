@@ -67,11 +67,22 @@ const piece = (x = {}) => ({ id: 1, kind: "Q", color: "w", level: 1, abilities: 
      Monster werden wie jede Figur ueber ihren Teller vermessen. */
   const meister = piece({ bossId: "b12", color: "b" });
   const fb = paintedFitFor(meister), fq = paintedFitFor(piece({ kind: "Q" }));
-  /* GEMESSEN: die Meistertabelle (BOSS_FIT, mitskaliert) stellt Meister rund
-     10 % ueber die Dame - so war sie gebaut; die alte 6-%-Probe sah das nie,
-     weil sie den Waechter pruefte. Gilt: mindestens damengross, hoechstens
-     15 % darueber. */
-  ok("champion (chapter master) is queen-class: at least her size, at most 15% above", fb.h >= fq.h * 0.98 && fb.h <= fq.h * 1.15);
+  /* v1.90.16 (Besitzer, 30.9.: "diese Monster ... die sind doch viel zu
+     gross ... du siehst es ja auch am Lebensband"): hier stand "mindestens
+     damengross, hoechstens 15 % darueber" - das Versprechen der alten
+     Meistertabelle. Am Brett gemessen war das Band des Doppelritters damit
+     211 % so breit wie das einer gewoehnlichen Figur. Jetzt gilt fuer JEDEN
+     Meister, was fuer jede Figur gilt: sein TELLER (Faktor x gemalte
+     Tellerbreite rx) steht so breit wie der der Dame, und kein Monster
+     breiter als der breiteste gewoehnliche Offizier. */
+  const SB = JSON.parse(readFileSync("src/app/ui/board/sockelband.json", "utf8"));
+  const teller = (p, id) => paintedFitFor(p).h * SB[id].rx;
+  const dame = teller(piece({ kind: "Q" }), "queen");
+  const turm = teller(piece({ kind: "R" }), "rook");
+  ok("champion (chapter master) plate is queen-class: 90-103 % of the queen's", teller(meister, "boss-b12") >= dame * 0.9 && teller(meister, "boss-b12") <= dame * 1.03);
+  const zuBreit = BOSSES.filter((b) => SB["boss-" + b.id]).filter((b) => teller(piece({ bossId: b.id, color: "b" }), "boss-" + b.id) > turm * 1.03).map((b) => b.id);
+  ok(`no monster plate wider than the widest officer (rook) - over: ${zuBreit.join(", ") || "none"}`, zuBreit.length === 0);
+  void fb; void fq;
   const fw = paintedFitFor(piece({ bossId: "b01", color: "w" }));
   ok("an ordinary monster is measured by its plate like every piece (yProzent)", fw.yProzent === true);
 }
@@ -2186,7 +2197,12 @@ print(json.dumps({"gezaehlt": gezaehlt, "schlecht": schlecht}))
   const arm = readFileSync("src/app/ui/screens/ArmyScreen.jsx", "utf8");
   const vergleichMitN22 = /===\s*"n22"|nodeStatus\(profile,\s*"n22"\)\s*===/;
   ok("CampaignScreen vergleicht nirgends mehr mit der alten Kennung n22", !vergleichMitN22.test(camp));
-  ok("GameScreen vergleicht nirgends mehr mit n22 (Mischen der Meister-Reihe haengt am Flag final)", !vergleichMitN22.test(game) && game.includes("nodeById(match.nodeId)?.final"));
+  /* v1.90.16: das Mischen steht jetzt an EINER Stelle (finaleGrundreihe in
+     meta/campaign.js, dort haengt es an node.final); GameScreen reicht nur
+     noch den Knoten hinein. */
+  const kampagneMeta = readFileSync("src/meta/campaign.js", "utf8");
+  ok("GameScreen vergleicht nirgends mehr mit n22 (Mischen der Meister-Reihe haengt am Flag final)", !vergleichMitN22.test(game)
+    && game.includes("finaleGrundreihe(nodeById(match.nodeId)") && kampagneMeta.includes("if (!node?.final ||"));
   ok("mapArt: die Feste ist das Finale jedes Kapitels", !vergleichMitN22.test(karte) && karte.includes("if (node.final) return \"keep\""));
   ok("das Tor haengt am Finale des laufenden Kapitels", camp.includes("const finaleId = CAMPAIGN.find((n) => n.final && nodeInLeague(n, league))?.id")
     && camp.includes("finaleGeschafft && !hinterSchranke(profile, league + 1)") && camp.includes("finaleGeschafft && hinterSchranke(profile, league + 1)"));
@@ -2215,6 +2231,16 @@ print(json.dumps({"gezaehlt": gezaehlt, "schlecht": schlecht}))
   ok("A50: und der Riegel laesst sich nicht wegladen", nach.pin && nach.pin.hash === "h");
   const ohneStand = reducer(null, { type: "REPLACE", profile: datei });
   ok("A50: ohne laufenden Stand wird nichts festgehalten", ohneStand.voll === true);
+  /* v1.90.16 (Audit A43): der Reducer ist rein - REPLACE schreibt keinen
+     Wiederherstellungspunkt mehr (das tut ProfileScreen vor dem Ersetzen). */
+  const { listRestorePoints } = await import("./src/meta/backups.js");
+  const vorRP = (await listRestorePoints()).length;
+  reducer({ ...jetzt, pieces: {} }, { type: "REPLACE", profile: { ...datei, pieces: {} } });
+  await new Promise((r) => setTimeout(r, 30));
+  ok("A43: REPLACE im Reducer legt keine Sicherung an", (await listRestorePoints()).length === vorRP);
+  const prof = _lies("src/app/ui/screens/ProfileScreen.jsx", "utf8");
+  ok("A43: Laden, Zurueckholen und Werkbank sichern vorher selbst",
+    (prof.match(/ersetzeMitSicherung\(/g) || []).length >= 5 && prof.includes("await takeRestorePoint(jetzt, { force: true })"));
 }
 
 /* ── v1.90.7 (Audit A55): WENN NICHTS BLEIBT, MUSS ES JEMAND SAGEN ─────
@@ -2427,6 +2453,18 @@ print(json.dumps({"gezaehlt": gezaehlt, "schlecht": schlecht}))
     const koenig = drache[0].state.board.findIndex((p) => p && p.kind === "K" && p.color === "b");
     const block = [anker, anker + 1, anker + w, anker + w + 1];
     ok(`Aufstellungskammer: der Drachenblock beruehrt den Koenig nicht (Anker ${anker}, Koenig ${koenig})`, !block.includes(koenig));
+    /* v1.90.16 (Besitzer, 30.9.: "alle gegnerischen Figuren muessen das Feld
+       lila haben"): die vier Felder unter dem gegnerischen Drachen blieben
+       ungefaerbt - die Toenung fragte die gezeichnete Figur, und die ist unter
+       dem Block null. Gezaehlt am gerenderten Brett: jedes Feld, auf dem eine
+       gegnerische Figur ODER ein Fluegel des Drachen steht, traegt die Toenung. */
+    const { BoardView } = await import("./src/app/ui/board/BoardView.jsx");
+    const st = drache[0].state;
+    const brettHtml = html(<BoardView lang="de" state={st} onMove={() => {}} interactive={false} lastMove={null} maxPx={460} showLevel artStyle="painted" ruhig />);
+    const lila = (brettHtml.match(/data-gegnerfeld/g) || []).length;
+    const gegnerFelder = st.board.filter((p) => p && p.color === "b").length;
+    const fluegel = st.board.filter((p) => p && p.kind === "D+" && p.color === "b").length;
+    ok(`Aufstellungskammer: jedes gegnerische Feld ist lila, auch die vier unter dem Drachen (${lila}/${gegnerFelder}, Fluegel ${fluegel})`, lila === gegnerFelder && fluegel === 3);
   }
   const kopf = html(<AufstellungKammerScreen />);
   ok("Aufstellungskammer: die Liste rendert (ohne Parameter)", kopf.includes("AUFSTELLUNGSKAMMER") && (kopf.match(/aufstellung=/g) || []).length === liste.length);

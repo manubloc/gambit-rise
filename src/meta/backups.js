@@ -56,6 +56,27 @@ export async function listRestorePoints() {
   try { const r = await storage.get(KEY, false); return r?.value ? JSON.parse(r.value) : []; }
   catch { return []; }
 }
+/** v1.90.16 (Audit A47): Sicherungen eines geloeschten Kontos entfernen.
+ *  Die Liste ist geraeteweit und traegt keine Kontokennung (A48) - erkannt
+ *  wird ein Eintrag deshalb an etwas, das nur dieses Konto hatte: seiner
+ *  Online-Kennung oder genau dem Stand, der geloescht wurde. Rein, getestet. */
+export function ohneKonto(list, { onlineIds = [], staende = [] } = {}) {
+  const ids = new Set(onlineIds.filter(Boolean));
+  const blobs = new Set(staende.filter(Boolean));
+  return (Array.isArray(list) ? list : []).filter((e) => {
+    if (blobs.has(e.data)) return false;
+    try { const p = JSON.parse(e.data); if (p?.online?.id && ids.has(p.online.id)) return false; } catch {}
+    return true;
+  });
+}
+export async function vergissKontoInSicherungen(spuren) {
+  try {
+    const list = await listRestorePoints();
+    const rest = ohneKonto(list, spuren);
+    if (rest.length !== list.length) await storage.set(KEY, JSON.stringify(rest), false);
+    return list.length - rest.length;
+  } catch { return 0; }
+}
 export async function takeRestorePoint(profile, { force = false } = {}) {
   try {
     const list = await listRestorePoints();

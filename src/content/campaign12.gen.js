@@ -2126,10 +2126,10 @@ export const CAMPAIGN12 = [
   "storyDe": "Der Pfad führt weiter über Der Rehpfad.",
   "storyEn": "The path leads on across Der Rehpfad.",
   "boss": {
-   "pure": "b02",
+   "pure": "b04",
    "rotation": [
-    "b02",
-    "b05"
+    "b04",
+    "b02"
    ]
   },
   "tier": 3
@@ -6514,8 +6514,12 @@ export const CAMPAIGN12 = [
   "reward": {
    "xp": 123
   },
-  "storyDe": "Der Pfad führt weiter über Bannergrund.",
-  "storyEn": "The path leads on across Bannergrund."
+  "storyDe": "Bannergrund: Hier ist es warm - zu warm. Die Brutmutter hütet ein Gelege, das noch niemand schlüpfen sah. Noch nicht.",
+  "storyEn": "Bannergrund: It is warm here - too warm. The Broodmother tends a clutch that no one has seen hatch. Not yet.",
+  "boss": {
+   "pure": "b03"
+  },
+  "tier": 2
  },
  {
   "id": "L07s36",
@@ -7251,10 +7255,10 @@ export const CAMPAIGN12 = [
   "storyDe": "Der Pfad führt weiter über Messerschlucht.",
   "storyEn": "The path leads on across Messerschlucht.",
   "boss": {
-   "pure": "b01",
+   "pure": "b06",
    "rotation": [
-    "b01",
-    "b09"
+    "b06",
+    "b01"
    ]
   },
   "tier": 3
@@ -10912,10 +10916,10 @@ export const CAMPAIGN12 = [
   "storyDe": "Der Pfad führt weiter über Einsame Boje.",
   "storyEn": "The path leads on across Einsame Boje.",
   "boss": {
-   "pure": "b15",
+   "pure": "b11",
    "rotation": [
-    "b15",
-    "b04"
+    "b11",
+    "b15"
    ]
   },
   "tier": 4

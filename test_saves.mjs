@@ -328,6 +328,35 @@ ok("full build counts ten league crowns", fullB.stats.leaguesWon === 10);
   ok("das eingebaute admin-Konto ist unloeschbar", admin === "admin-locked" && !!findAccount(await ensureAccounts(), ADMIN_EMAIL));
 }
 
+/* ── v1.90.16 (Audit A47): KEINE KOPIEN DES STANDS NACH DER KONTOLOESCHUNG ──
+   privacy.html verspricht "alle Spielstaende dieses Kontos auf deinem
+   Geraet". Liegen blieben: Wiederherstellungspunkte mit seinem Stand, der
+   Spiegel "profile" und die Fernpartien-Liste. Die Sicherung eines ANDEREN
+   Kontos bleibt dabei unberuehrt. */
+{
+  const { takeRestorePoint, listRestorePoints, ohneKonto } = await import("./src/meta/backups.js");
+  await clearSession();
+  const acc = await register("spur@example.com", "geheim123");
+  const st = await createSave(acc.id, "Stand S");
+  const prof = { ...defaultProfile(), name: "Spurenleger", online: { id: "on-spur-1", secret: "x" } };
+  await writeSave(acc.id, st.id, prof);
+  await takeRestorePoint(prof, { force: true });
+  const fremd = { ...defaultProfile(), name: "Andere", online: { id: "on-fremd-9", secret: "y" } };
+  await takeRestorePoint(fremd, { force: true });
+  await storage.set("saves:migrated", "1", false);
+  await storage.set("profile", JSON.stringify(prof), false);
+  const vorher = await listRestorePoints();
+  ok("A47: vor der Loeschung liegen beide Sicherungen", vorher.length >= 2);
+  await deleteAccount(acc.id, "geheim123");
+  const nachher = await listRestorePoints();
+  const hat = (id) => nachher.some((e) => { try { return JSON.parse(e.data).online?.id === id; } catch { return false; } });
+  ok("A47: die Sicherung des geloeschten Kontos ist fort", !hat("on-spur-1"));
+  ok("A47: die Sicherung eines anderen Kontos bleibt", hat("on-fremd-9"));
+  ok("A47: der Spiegel 'profile' ist fort", !(await storage.get("profile", false))?.value);
+  ok("A47: ohneKonto erkennt auch den unveraenderten Stand ohne Online-Kennung",
+    ohneKonto([{ data: "S1" }, { data: "S2" }], { staende: ["S1"] }).length === 1);
+}
+
 /* v1.26.8 (Besitzer: "Ich kann mich am Computer nicht als Admin anmelden"):
    ohne https fehlt crypto.subtle, und die Anmeldung scheiterte stumm. Die
    eigene Rechnung muss bitgenau denselben Pruefwert liefern wie der Browser -

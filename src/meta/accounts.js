@@ -388,6 +388,9 @@ export async function deleteAccount(accountId, pass) {
 
   // 1. Die Halle vergisst jede Online-Kennung dieses Kontos.
   let halle = { versucht: 0, geloescht: 0 };
+  /* v1.90.16 (Audit A47): was dieses Konto sonst noch auf dem Geraet
+     hinterliess - gesammelt, bevor die Staende fallen. */
+  const spuren = { onlineIds: [], staende: [] };
   try {
     const { HALL_HTTP } = await import("../app/config.js");
     const r = await storage.get(`saves:${acc.id}`, false);
@@ -396,7 +399,9 @@ export async function deleteAccount(accountId, pass) {
       try {
         const sv = await storage.get(`save:${acc.id}:${st.id}`, false);
         const prof = JSON.parse(sv?.value || "null");
+        if (sv?.value) spuren.staende.push(sv.value);
         const o = prof?.online;
+        if (o?.id) spuren.onlineIds.push(o.id);
         if (o?.id && o?.secret && HALL_HTTP) {
           halle.versucht++;
           const res = await fetch(HALL_HTTP + "/vergiss", {
@@ -411,6 +416,23 @@ export async function deleteAccount(accountId, pass) {
     for (const st of staende) await storage.delete(`save:${acc.id}:${st.id}`, false);
     await storage.delete(`saves:${acc.id}`, false);
   } catch { /* ohne Staende gibt es nichts zu raeumen */ }
+
+  /* 2b. v1.90.16 (Audit A47): die Kopien, die privacy.html mit "alle
+     Spielstaende dieses Kontos auf deinem Geraet" mit meint - vorher blieben
+     sie liegen:
+       - Wiederherstellungspunkte mit seinem Stand (geraeteweite Liste, A48),
+       - der Spiegel "profile" (bis v1.90.15 bei JEDER Aenderung mitgeschrieben;
+         gelesen wird er nur von der Uebernahme alter Staende, und die ist
+         nach "saves:migrated" erledigt),
+       - die Liste der Fernpartien (ein Zwischenspeicher, den der Online-
+         Schirm vom Server neu fuellt). */
+  try {
+    const { vergissKontoInSicherungen } = await import("./backups.js");
+    await vergissKontoInSicherungen(spuren);
+    const erledigt = await storage.get("saves:migrated", false);
+    if (erledigt?.value) await storage.delete("profile", false);
+    try { localStorage.removeItem("gambit:u::daily:v1"); } catch {}
+  } catch { /* das Loeschen des Kontos haengt nicht an den Kopien */ }
 
   // 3. Das Konto und die Sitzung.
   await writeList(list.filter((a) => a.id !== acc.id));

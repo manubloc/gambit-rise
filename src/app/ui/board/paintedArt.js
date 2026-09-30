@@ -3,7 +3,6 @@
 // painting. Pieces without a painting yet fall back to the drawn SVG silently,
 // so the set may grow one figure at a time.
 import SOCKELMASS from "./sockelband.json";
-import { LEAGUE_BOSSES as LEAGUE_BOSS_IDS } from "../../../content/bosses.js";   /* v1.62.0 */
 import pPawn from "../assets/painted/painted-pawn.webp";
 import pHaendler from "../assets/painted/painted-haendler.webp";  // der fahrende Haendler am Stand
 /* v1.0.91: DIE SCHATZKAMMER HAT IHR BILD (Besitzerwunsch) - dasselbe Format
@@ -566,10 +565,15 @@ const mStreck = (m) => (m.oben == null ? 1
 /* Das Brett kennt nur EINEN Faktor und einen Versatz in em, keine getrennte
    Breite und Hoehe - deshalb tragen h und y dieselbe Rechnung wie im
    Hofstaat, in dessen Einheiten umgesetzt. */
-function gemessenerFit(id) {
+function gemessenerFit(id, { ohneStreckung = false } = {}) {
   const m = SOCKELMASS[id];
   if (!m) return null;
-  const k = mSkal(m), st = mStreck(m), ges = k * st;
+  /* v1.90.16: ein MONSTER wird nicht auf Bauernhoehe gestreckt. Die
+     Streckung (bis 1,10) gleicht schmale, hohe Figuren an; ein breit gemalter
+     Hocker bekaeme damit einen Teller, der 7 % breiter ist als der der Dame
+     (gemessen, tools/pruefe-figurenmass.mjs) - und ein Band, das man ihm
+     ansieht. Monster duerfen kleiner wirken, nicht groesser. */
+  const k = mSkal(m), st = ohneStreckung ? Math.min(1, mStreck(m)) : mStreck(m), ges = k * st;
   const aus = Math.max(-8, Math.min(8, (((m.H - m.boden) * ges - (m.H - BODEN_LINIE)) / m.H) * 100));
   /* Besitzer: "die muessen alle etwas hoeher sein. Der Turm ist gerade am
      hoechsten - den noch minimal hoeher und dann die anderen alle
@@ -609,6 +613,9 @@ function gemessenerFit(id) {
 /* dieselbe Nachschlagekette wie paintedForPiece, damit Mass und Gemaelde
    immer zusammengehoeren */
 function paintedIdFuerStueck(piece) {
+  /* v1.90.16: der Meister als Figur (pb_*) traegt das Gemaelde der Figur -
+     also auch ihr Mass. Vorher fragte er nach "boss-pb_…", das es nie gab. */
+  if (piece.bossId && piece.bossId.startsWith("pb_")) return piece.bossId.slice(3);
   if (piece.bossId) return "boss-" + piece.bossId;
   if (piece.hero) return "gambit-t" + Math.min(6, Math.max(1, piece.tier || 1));
   return KIND2ID[piece.kind] || null;
@@ -633,10 +640,22 @@ export function paintedFitFor(piece) {
      keine gemessene Anpassung und stand mit seinem breit gemalten Teller
      groesser als die Nachbarn. Jetzt misst es wie jede Figur: Teller auf
      dieselbe Breite, Boden auf dieselbe Linie. Meister behalten BOSS_FIT. */
-  const istMeister = !!piece.bossId && LEAGUE_BOSS_IDS.includes(piece.bossId);
-  if (!HANDTABELLE && (!piece.bossId || (!istMeister && !piece.bossId.startsWith("pb_")))) {
+  /* ── v1.90.16 (Besitzer, 30.9., mit Bildschirmfotos): "diese Monster ...
+     die sind doch viel zu gross ... du siehst es ja auch am Lebensband".
+     GEMESSEN am Brett (tools/pruefe-figurenmass.mjs, alle 44 Schluessel-
+     stationen): das Band des Doppelritters war 211 % so breit wie das einer
+     gewoehnlichen Figur, Seuchenkoenig 164 %, Blutmagd 155 %, Attentaeter
+     132 %. Die Ursache stand direkt hier: Meister (Kapitelfinale) und die
+     Figuren-Meister (pb_) nahmen die HANDTABELLE BOSS_FIT/PIECE_BOSS_FIT mit
+     Faktoren bis 1,47 - "seine Groesse ist ein Spielversprechen". Das
+     Versprechen war der PLATZ der Dame, nicht eine Groesse darueber hinaus.
+     Jetzt misst JEDE Figur gleich: Teller auf dieselbe Breite, Boden auf
+     dieselbe Linie; Monster ohne Streckung (siehe gemessenerFit). Die
+     Tabellen bleiben fuer HANDTABELLE stehen. */
+  if (!HANDTABELLE) {
     const id = paintedIdFuerStueck(piece);
-    const f = id && gemessenerFit(id);
+    const monster = !!piece.bossId && !piece.bossId.startsWith("pb_");
+    const f = id && gemessenerFit(id, { ohneStreckung: monster });
     if (f) return f;
   }
   if (piece.bossId) {

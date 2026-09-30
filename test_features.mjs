@@ -861,6 +861,26 @@ console.log("\n== DIE WIRKUNG DER BUENDE (v1.10.0) ==");
   ok("im Gegnerheer stehen die Monster wirklich auf freien Plaetzen (" + hp.id + ")", monster.length >= 1 && m.besetzung && m.besetzung.eintraege.filter(Boolean).length === monster.length);
   ok("... mit Faehigkeitsstufen nach Liga wie der Stationsboss", monster.every((sp) => Object.values(sp.stufen || {}).every((st) => st === (lg >= 9 ? 3 : lg >= 5 ? 2 : 1))));
   ok("ohne Spielstand (Vorschau, Proben) bleibt das klassische Heer", !buildStageMatch(hp.id, null).besetzung);
+
+  /* v1.90.16 (Besitzerentscheid 30.9.): DIE FRISCHE. Bis v1.90.15 stand der
+     Hetzer auf 101 von 172 besetzten Stationen (59 %) - er ist das erste
+     Monster und passt in alle drei Klassen. Gemessen mit derselben Rechnung
+     wie die Aufstellungskammer (je Kapitel ein Spieler bei 50 %). */
+  ok("Frische: ein Monster aus diesem Kapitel zieht voll, eins von vor vier Kapiteln mit einem Viertel",
+    B.gastGewicht("boss:b02", 3) === 1 && B.gastGewicht("boss:b02", 5) === 0.5 && B.gastGewicht("boss:b02", 9) === 0.25 && B.gastGewicht("mage", 12) === 1);
+  const { withProgressPct, defaultProfile } = await import("./src/meta/index.js");
+  const zaehl = {}; let stationen = 0;
+  for (const n of CAMPAIGN12) {
+    if (n.boss || n.final || n.gate || n.league < 3) continue;
+    const e = (buildStageMatch(n.id, withProgressPct(defaultProfile(), 50, n.league)).besetzung?.eintraege || []).filter(Boolean);
+    if (!e.length) continue;
+    stationen++;
+    for (const x of new Set(e)) zaehl[x] = (zaehl[x] || 0) + 1;
+  }
+  const spitze = Math.max(...Object.values(zaehl));
+  ok(`... kein Gast steht auf mehr als 30 % der besetzten Stationen (Spitze ${spitze}/${stationen}, Hetzer ${zaehl["boss:b02"] || 0})`,
+    stationen > 100 && spitze <= 0.3 * stationen);
+  ok("... und es treten mindestens zehn verschiedene Gaeste auf", Object.keys(zaehl).length >= 10);
 }
 
 /* ── v1.90.13 (Audit A12, Teil 2): JEDE BESETZENDE FIGUR MUSS IM SCHACH

@@ -20,7 +20,7 @@
 
    Alles hier ist rein: dieselbe Station mit demselben Spielstand ergibt
    dieselbe Besetzung. Keine Zufallszahl ohne Keim. */
-import { CHARACTER_LIST } from "../content/index.js";
+import { CHARACTER_LIST, CAMPAIGN } from "../content/index.js";
 import { BOSSES, LEAGUE_BOSSES } from "../content/bosses.js";
 import { ownedLeagueBosses } from "./leveling.js";
 
@@ -53,6 +53,52 @@ export const BESETZUNGS_VORRAT = [
   ...BOSSES.filter((b) => !LEAGUE_BOSSES.includes(b.id)).map((b) => "boss:" + b.id),
 ];
 const FREIE_ART = new Set(["rook", "bishop", "knight"]);
+
+/* ── DIE FRISCHE (v1.90.16, Besitzerentscheid 30.9.: "das Gewicht des Hetzers
+   senken") ─────────────────────────────────────────────────────────────────
+   GEMESSEN (withProgressPct 50 % je Kapitel, alle gewoehnlichen Stationen):
+   Bis v1.90.15 stand der Hetzer auf 101 von 172 besetzten Stationen. Die
+   Ursache war nicht ein Zahlenwert, sondern zwei Dinge zusammen: er ist das
+   ERSTE Monster, dem man begegnet (Kapitel II), und seine Staerke 55 passt in
+   alle drei Klassen (Turm 50, Springer 55, Laeufer 61 - je hoechstens 6
+   daneben). In der gemischten Reihe gewann er darum fast jede Station, an der
+   nicht zufaellig ein anderer vor ihm lag.
+   Eine Sonderregel nur fuer ihn haette das Problem verschoben, und zwar
+   messbar: mit den stummen Bestien (Entscheidung 3) rueckte der Schleicher b04
+   in Kapitel III und stand sofort auf 60 Stationen, der Hetzer noch auf 73.
+   Darum die allgemeine Regel: wer vor LANGER Zeit zum ersten Mal auftrat,
+   kommt seltener. Ein Monster aus diesem oder dem letzten Kapitel zieht mit
+   vollem Gewicht, zwei bis drei Kapitel alt mit halbem, aelter mit einem
+   Viertel. Gezogen wird nach Efraimidis-Spirakis (Schluessel u^(1/w)) mit
+   einem festen Streuwert je Station - rein, wie alles hier. Gespeicherte
+   Besetzungen bleiben unberuehrt; die Regel gilt fuer neu betretene Stationen.
+   Sonderfiguren ziehen immer voll (sie sind selten Kandidaten: wer ihnen
+   begegnet, gewinnt sie meist). */
+const ERSTES_KAPITEL = (() => {
+  const m = {};
+  for (const n of CAMPAIGN) {
+    const id = n?.boss?.pure;
+    if (id && (m[id] == null || n.league < m[id])) m[id] = n.league;
+  }
+  return m;
+})();
+export function gastGewicht(eintrag, kapitel) {
+  if (!eintrag.startsWith("boss:")) return 1;
+  const seit = ERSTES_KAPITEL[eintrag.slice(5)];
+  if (seit == null) return 1;
+  const alter = (kapitel || 1) - seit;
+  return alter <= 1 ? 1 : alter <= 3 ? 0.5 : 0.25;
+}
+function gewichtet(liste, node) {
+  const kapitel = node?.league || 1;
+  return liste
+    .map((e) => {
+      const u = (streuwert(node.id + ":vorrat:" + e) + 0.5) / 4294967296;
+      return { e, k: Math.pow(u, 1 / gastGewicht(e, kapitel)) };
+    })
+    .sort((a, b) => b.k - a.k)
+    .map((x) => x.e);
+}
 const kindVon = (id) => CHARACTER_LIST.find((c) => c.id === id)?.kind;
 
 /** Ist dieser Eintrag dem Spieler begegnet und gehoert ihm nicht? */
@@ -143,7 +189,7 @@ export function besetzungFuer(node, profile, formation, ausser = []) {
   const gespeichert = profile?.campaign?.besetzung?.[node.id];
   const fest = Array.isArray(gespeichert) && gespeichert.length === plaetze.length;
   const passt = (e) => istKandidat(profile, e) && !ausser.includes(e);
-  const reihe = gemischt(BESETZUNGS_VORRAT, streuwert(node.id + ":vorrat"));
+  const reihe = gewichtet(BESETZUNGS_VORRAT, node);
   const vergeben = new Set(fest ? gespeichert.filter((e) => e && passt(e)) : []);
   const eintraege = plaetze.map((i, n) => {
     if (fest) {

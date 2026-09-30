@@ -9,7 +9,7 @@ import { WHITE, BLACK, createGame, reduce, moveCommand, potionCommand, shiftComm
   /* v1.90.9 (Audit A32): die Fallen. Dieselbe Setzphase, andere Regeln. */
   FALLEN_ARTEN, MAX_FALLEN, fallenFelder, legeFalle, nimmFalle, fallenAnzahl } from "../../../core/index.js";
 import { difficultyById, mapById, MAPS, campaignTag, chapterForRow, CHARACTERS as CHARACTERS_BY_ID, voiceFor, ITEMS, KIND_TO_CHAR, nodeById } from "../../../content/index.js";
-import { buildArmy, buildAiArmyForMap, buildArmyFromFormation, hasForesight, applyResult, summarizeMatch, mapUnlocked, hpUnlocked, winGold, characterLevel, gambitTier, itemRevealed, clearedCount, SP_VAULT_MIN_CLEARED, buendeFuer } from "../../../meta/index.js";
+import { buildArmy, buildAiArmyForMap, buildArmyFromFormation, hasForesight, applyResult, summarizeMatch, mapUnlocked, hpUnlocked, winGold, characterLevel, gambitTier, itemRevealed, clearedCount, SP_VAULT_MIN_CLEARED, buendeFuer, finaleGrundreihe } from "../../../meta/index.js";
 import { chooseMove } from "../../../ai/index.js";
 import { T } from "../theme.js";
 import { groundArt, livery } from "../livery.js";
@@ -257,14 +257,9 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
     // THE GRANDMASTER REDEPLOYS: every attempt at the Keep meets a freshly
     // shuffled back rank — losing means facing a NEW array, and only the
     // Seeress's gaze reveals it before the first horn.
-    if (campaign && nodeById(match.nodeId)?.final && ai?.back?.length) {   /* v1.89.5: jedes Kapitel-Finale, nicht die alte Kennung n22 */
-      const arr = [...ai.back]; let sh = seed >>> 0;
-      for (let i = arr.length - 1; i > 0; i--) {
-        sh = (Math.imul(sh, 1664525) + 1013904223) >>> 0;
-        const j = sh % (i + 1); [arr[i], arr[j]] = [arr[j], arr[i]];
-      }
-      ai = { ...ai, back: arr };
-    }
+    /* v1.89.5: jedes Kapitel-Finale; v1.90.16: die eine Stelle in campaign.js
+       (dort auch: Kapitel I mischt nicht) */
+    if (campaign && ai?.back?.length) ai = { ...ai, back: finaleGrundreihe(nodeById(match.nodeId), ai.back, seed) };
     return createGame(playerArmy, ai, { map, rules, seed, buende: meineBuende,
       potions: rules === "hp" ? { w: profile.items?.potion || 0, b: 0 } : undefined });
   });

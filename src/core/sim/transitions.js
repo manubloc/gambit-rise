@@ -1,4 +1,4 @@
-import { other, WHITE, BLACK, BASE_HP, BASE_ATK, HP_REMIS_HALBZUEGE, HELD_PUNKTE, werteBeiStufe, KIND, kroenbar } from "../domain/constants.js";
+import { other, WHITE, BLACK, FILES, BASE_HP, BASE_ATK, HP_REMIS_HALBZUEGE, HELD_PUNKTE, werteBeiStufe, KIND, kroenbar } from "../domain/constants.js";
 import { cloneBoard, findKing } from "../domain/board.js";
 import { pseudoMoves, pieceMoves, talentWirkt, verbuche, zauberRest, stufeVon, kroenungsReihe } from "../rules/moves.js";
 import { kroneFaengtAb, schildwachtDeckt, nachtwacheHeilt, faehrteFolgt, konzilLehntAb, sturmRuftZurueck, hinterstenBauern } from "../rules/buende.js";
@@ -289,7 +289,6 @@ export function applyMove(state, move, opts) {
     ns.sperren = sperren;
     ns.turn = piece.color === WHITE ? BLACK : WHITE;
     ns.lastMove = { ...move, schlag: true, gefallen };
-    if (typeof bundKrone !== "undefined" && bundKrone != null) ns.lastMove.bundKrone = bundKrone;
     /* v1.0.63: hier stand `ns.ply` - ein Zaehler, den cloneState gar nicht
        mitkopiert und den niemand liest. Der Schlag gegen eine Sperre KOSTET
        den Zug, also muss er auch den Zugzaehler weiterdrehen; sonst alterte
@@ -313,7 +312,7 @@ export function applyMove(state, move, opts) {
   if (target && target.kind === "D+") { dragonAnchor = target.ref; target = b[target.ref]; }
   else if (target && target.big && target.kind === "D") dragonAnchor = move.to;
   const clearDragon = (a) => {
-    const W2 = ns.w ?? 10;
+    const W2 = ns.w ?? FILES;
     for (const c of [a, a + 1, a + W2, a + W2 + 1]) {
       const oc = b[c];
       if (oc && (c === a || (oc.kind === "D+" && oc.ref === a))) b[c] = null;
@@ -338,7 +337,6 @@ export function applyMove(state, move, opts) {
     if (ns.shiftArmed === piece.color) { ns.turn = piece.color; ns.shiftArmed = null; }
     else ns.turn = other(state.turn);
     ns.lastMove = { consumed: (typeof move !== "undefined" && move && move.consumes) || null, from: move.from, to: move.to, color: piece.color, kind: piece.kind, capture: false, spawned: true, special: "spawn" };
-    if (typeof bundKrone !== "undefined" && bundKrone != null) ns.lastMove.bundKrone = bundKrone;
     ns.moveCount = state.moveCount + 1;
     ns.ohneSchaden = geschaffen ? 0 : (state.ohneSchaden || 0) + 1;
     if (record) { ns.history = [...state.history, state]; }
@@ -352,7 +350,7 @@ export function applyMove(state, move, opts) {
   // foes is a direct strike on every covered square; in hp play, SURVIVORS
   // throw him back to where he took off (the strike still counts).
   if (move.special === "dragonStep" || move.special === "dragonFly") {
-    const W = ns.w ?? 10;
+    const W = ns.w ?? FILES;
     const block = (a) => [a, a + 1, a + W, a + W + 1];
     const oldCells = block(move.from), newCells = block(move.to);
     for (const c of oldCells) b[c] = null;                    // lift off
@@ -389,10 +387,8 @@ export function applyMove(state, move, opts) {
     else ns.turn = other(state.turn);
     ns.lastMove = { consumed: (typeof move !== "undefined" && move && move.consumes) || null, from: move.from, to: settled ? move.to : move.from, color: piece.color, kind: piece.kind,
       capture: lethal, damaged, lethal, special: move.special, bounced: !settled };
-    if (typeof bundKrone !== "undefined" && bundKrone != null) ns.lastMove.bundKrone = bundKrone;
     /* v1.10.1: hat der Paladin eingegriffen, merkt der Zug es sich - die
        Anzeige liest den letzten Zug, Ereignislisten gibt es hier nicht. */
-    if (typeof bundKrone !== "undefined" && bundKrone != null) ns.lastMove.bundKrone = bundKrone;
     ns.moveCount = state.moveCount + 1;
     ns.ohneSchaden = (damaged || lethal) ? 0 : (state.ohneSchaden || 0) + 1;
     if (record) { ns.history = [...state.history, state]; }

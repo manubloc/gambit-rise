@@ -3,7 +3,7 @@ import { CAMPAIGN12 } from "../../../content/campaign12.gen.js";
 import { MAX_KAPITEL } from "../../config.js";
 import { hashPin } from "../../../platform/index.js";
 import { animAn, setAnimAn } from "../anim.js";
-import { serializeSave, parseSave, listRestorePoints, readSnapshot, withProgressPct, listReports, clearLocalReports, getAdminToken, setAdminToken, deleteAccount , adminHasDefaultPass, absturzBerichteAn, setzeAbsturzBerichte } from "../../../meta/index.js";
+import { serializeSave, parseSave, listRestorePoints, readSnapshot, withProgressPct, takeRestorePoint, listReports, clearLocalReports, getAdminToken, setAdminToken, deleteAccount , adminHasDefaultPass, absturzBerichteAn, setzeAbsturzBerichte } from "../../../meta/index.js";
 import { CHARACTERS } from "../../../content/index.js";
 import { T } from "../theme.js";
 import { Button, Segmented, Stat, Toggle } from "../primitives.jsx";
@@ -97,7 +97,22 @@ function NamenFeld({ profile, dispatch, account, en }) {
   </div>;
 }
 
+/* ── v1.90.16 (Audit A43): DIE SICHERUNG VOR DEM ERSETZEN GEHOERT HIERHER ──
+   Bis v1.90.15 schrieb der REDUCER bei JEDEM "REPLACE" einen erzwungenen
+   Wiederherstellungspunkt - ein Reducer mit Nebenwirkung (asynchron, zwei
+   Laeufe konnten sich in der Liste ueberschreiben). Und weil REPLACE an
+   rund zwanzig Stellen als gewoehnlicher Setzer dient (Name, Stil, Hinweise,
+   "Kapitel gesehen"), fuellten sich die sechs juengsten Sicherungen mit fast
+   gleichen Staenden und schoben die aelteren hinaus. Erzwungen gesichert wird
+   jetzt nur dort, wo wirklich ein GANZER Stand ersetzt wird: Laden aus Datei,
+   Zurueckholen einer Sicherung, die Werkbank des Admins. */
+async function ersetze(dispatch, jetzt, next) {
+  if (jetzt) await takeRestorePoint(jetzt, { force: true });
+  dispatch({ type: "REPLACE", profile: next });
+}
+
 export function ProfileScreen({ profile, dispatch, t, account, onSwitchSave, onLogout }) {
+  const ersetzeMitSicherung = (next) => ersetze(dispatch, profile, next);
   const en = profile.lang === "en";
   const [devPct, setDevPct] = useState(0); // workbench: journey progress slider
   /* v1.0.97: die Kapitelliste der Werkbank faellt aus der Kampagne heraus. */
@@ -369,7 +384,7 @@ export function ProfileScreen({ profile, dispatch, t, account, onSwitchSave, onL
             const f = inp.files?.[0]; if (!f) return;
             try {
               const next = parseSave(await f.text());
-              if (confirm(t("profile.saveConfirm"))) dispatch({ type: "REPLACE", profile: next });
+              if (confirm(t("profile.saveConfirm"))) await ersetzeMitSicherung(next);
             } catch { alert(t("profile.saveBad")); }
           };
           inp.click();
@@ -407,15 +422,12 @@ export function ProfileScreen({ profile, dispatch, t, account, onSwitchSave, onL
         <input type="range" min="0" max="100" step="5" value={devPct} onChange={(e) => setDevPct(+e.target.value)}
           style={{ flex: 1, accentColor: T.gold }} />
         <span style={{ color: T.text, fontWeight: 800, width: 42, textAlign: "right", fontVariantNumeric: "tabular-nums" }}>{devPct}%</span>
-        <Button variant="subtle" style={{ padding: "7px 12px", fontSize: 12.5 }} onClick={() => dispatch({ type: "REPLACE",
-          profile: withProgressPct(profile, devPct, devLg) })}>{t("profile.devApply")}</Button>
+        <Button variant="subtle" style={{ padding: "7px 12px", fontSize: 12.5 }} onClick={() => ersetzeMitSicherung(withProgressPct(profile, devPct, devLg))}>{t("profile.devApply")}</Button>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-        <Button variant="subtle" onClick={() => dispatch({ type: "REPLACE",
-          profile: { ...profile, campaign: { ...profile.campaign, unlocked: Object.keys(CHARACTERS) } } })}>
+        <Button variant="subtle" onClick={() => ersetzeMitSicherung({ ...profile, campaign: { ...profile.campaign, unlocked: Object.keys(CHARACTERS) } })}>
           ⚜ {t("profile.devUnlockAll")}</Button>
-        <Button variant="subtle" onClick={() => dispatch({ type: "REPLACE",
-          profile: { ...profile, gold: (profile.gold || 0) + 1000, sp: (profile.sp || 0) + 50 } })}>
+        <Button variant="subtle" onClick={() => ersetzeMitSicherung({ ...profile, gold: (profile.gold || 0) + 1000, sp: (profile.sp || 0) + 50 })}>
           ✦ {t("profile.devFunds")}</Button>
       </div>
     </Panel>}
@@ -423,7 +435,7 @@ export function ProfileScreen({ profile, dispatch, t, account, onSwitchSave, onL
     {account?.isAdmin && <Panel>
       <PanelTitle tag="Admin">{t("profile.rpTitle")}</PanelTitle>
       <div style={{ fontSize: 12, color: T.dim, margin: "2px 0 10px" }}>{t("profile.rpHint")}</div>
-      <RestorePoints t={t} dispatch={dispatch} />
+      <RestorePoints t={t} dispatch={dispatch} profile={profile} />
     </Panel>}
 
     {/* v1.0.3: JEDER darf melden - Absturz, Balance, Wunsch, mit Bild.
@@ -653,7 +665,8 @@ function ErrorReports({ t }) {
   </div>;
 }
 
-function RestorePoints({ t, dispatch }) {
+function RestorePoints({ t, dispatch, profile }) {
+  const ersetzeMitSicherung = (next) => ersetze(dispatch, profile, next);
   const [points, setPoints] = useState(null);
   useEffect(() => { let on = true; listRestorePoints().then((l) => on && setPoints(l)); return () => { on = false; }; }, []);
   if (!points) return <div style={{ fontSize: 12, color: T.faint }}>…</div>;
@@ -668,10 +681,10 @@ function RestorePoints({ t, dispatch }) {
             <b>{fmt(e.ts)}</b>
             <span style={{ color: T.faint, fontSize: 11.5 }}> · {t("profile.rpMeta", { league: e.league, gold: e.gold })}</span>
           </span>
-          <Button variant="subtle" style={{ padding: "6px 11px", fontSize: 12 }} onClick={() => {
+          <Button variant="subtle" style={{ padding: "6px 11px", fontSize: 12 }} onClick={async () => {
             try {
               const prof = readSnapshot(e);
-              if (confirm(t("profile.rpConfirm", { when: fmt(e.ts) }))) dispatch({ type: "REPLACE", profile: prof });
+              if (confirm(t("profile.rpConfirm", { when: fmt(e.ts) }))) await ersetzeMitSicherung(prof);
             } catch { alert(t("profile.saveBad")); }
           }}>↩ {t("profile.rpRestore")}</Button>
         </div>

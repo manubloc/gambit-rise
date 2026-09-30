@@ -41,8 +41,24 @@ const SLOTS = [
    Kapitel XI. Die zwoelf Kapitelmeister sind die Grossmeister des Spiels. */
 const ENDBOSS = ["b12","b10","b24","b19","b20","b16","b17","b18","b08","b14","b23","b25"]; // v0.38.1: Osric ans Ende (war faelschlich Kapitel-I-Finale)
 // Zwischen-Monster fuer die Mitte des Hauptastes, je Liga eine kleine Rotation.
-const MITTE = [["b01","b03"],["b02","b11"],["b02","b05"],["b09","b13"],["b22","b04"],
-  ["b21","b07"],["b15","b06"],["b01","b09"],["b13","b22"],["b05","b02"],["b07","b21"],["b15","b04"]];
+/* v1.90.16 (Besitzerentscheid 30.9.): VIER GEMALTE BESTIEN KAMEN NIE VOR.
+   Brutmutter, Schleicher, Bollwerk und Fluesterin standen nur an ZWEITER
+   Stelle einer Rotation - also erst im zweiten Weltdurchlauf -, und die
+   Besetzung nimmt nur Monster, denen man schon begegnet ist. Gleichzeitig
+   kamen drei Bestien doppelt: Hetzer (II und III), Waechter (Erwachen II und
+   VIII), Sturmklaue (VII und XII). Die Doppelungen weichen jetzt den
+   Stummen: III Schleicher, VIII Bollwerk, XII Fluesterin; der bisherige
+   Mitte-Boss rueckt in der Rotation nach hinten. Die Brutmutter bekommt
+   ihre eigene Station in Kapitel VII (BRUT unten). */
+const MITTE = [["b01","b03"],["b02","b11"],["b04","b02"],["b09","b13"],["b22","b04"],
+  ["b21","b07"],["b15","b06"],["b06","b01"],["b13","b22"],["b05","b02"],["b07","b21"],["b11","b15"]];
+/* DIE BRUTMUTTER VOR DEM DRACHEN (v1.90.16, Besitzerentscheid): in Kapitel VII
+   hinter dem Mitte-Boss und VOR der Drachenstation - erst das Gelege, dann
+   der geschluepfte Drache. Ihre Geschichte stand bis v1.90.15 als toter Code
+   an einer Station "a4", die es seit den zwoelf Graphen nicht mehr gibt. */
+const BRUT = { liga: 7, schritte: 2, boss: "b03",
+  storyDe: "Hier ist es warm - zu warm. Die Brutmutter hütet ein Gelege, das noch niemand schlüpfen sah. Noch nicht.",
+  storyEn: "It is warm here - too warm. The Broodmother tends a clutch that no one has seen hatch. Not yet." };
 // Schluesselfiguren: [liga, anteilImHauptast 0..1] bzw. Nebenast-Pool je Liga.
 const HAUPTFIGUR = {
   1:[["mage",.62],["paladin",.86]],   /* v0.77: beide Werbungen liegen HINTER dem Erwachen - die Schachhaelfte kommt ohne neue Figuren aus */ 2:[["hawk",.55]], 3:[["alchemist",.55]],
@@ -249,6 +265,27 @@ SLOTS.forEach(([key, name, roman], si) => {
   const figuren = (HAUPTFIGUR[liga] || []).map(([f, a]) => [haupt[Math.min(H - 1, Math.round(a * (H - 1)))], f]);
   const figAt = Object.fromEntries(figuren);
   const mitteAt = haupt[Math.round(0.3 * (H - 1))];
+  /* Die Brutmutter steht AUF DEM WEG zum Drachen: zwei Schritte vor seiner
+     Station, rueckwaerts entlang der kuerzesten Wege (dist - 1).
+     Erster Anlauf (gemessen, verworfen): ein Anteil am Hauptast wie beim
+     Mitte-Boss (0.45). Die Liste `hauptast` des Kartenpruefers ist aber
+     keine Weg-Reihenfolge - der Rang fiel auf "Der Ferne Riegel" (L07s38),
+     das Blatt eines PARALLELEN Zweigs (s02 -> s09 ... s31 -> s38, next = []),
+     waehrend der Drache auf dem anderen Zweig steht (s02 -> s05 ... s40 ->
+     s41). Die Brutmutter waere ein ueberspringbares Ende gewesen, nicht
+     "erst das Gelege, dann der geschluepfte Drache". */
+  let brutAt = -1;
+  if (liga === BRUT.liga) {
+    const drache = figuren.find(([, f]) => f === "dragon")?.[0];
+    let u = drache;
+    for (let schritt = 0; u != null && schritt < BRUT.schritte; schritt++) {
+      const vor = (nb[u] || []).filter(w => dist[w] === dist[u] - 1)
+        .sort((a, b) => (rangH.has(b) - rangH.has(a)) || a - b)[0];
+      u = vor;
+    }
+    if (u != null && u !== drache && !figAt[u] && u !== mitteAt && rangH.has(u)) brutAt = u;
+    if (brutAt < 0) throw new Error(`Kapitel ${liga}: keine freie Station fuer die Brutmutter vor dem Drachen`);
+  }
   /* v1.0.20: DAS ERWACHEN BRAUCHT EINE FREIE STATION. Faellt der berechnete
      Rang auf eine, die schon eine Figur oder den Mitte-Boss traegt, gewinnt
      dort der andere Boss und das Erwachen verschwindet spurlos - genau das
@@ -350,6 +387,11 @@ SLOTS.forEach(([key, name, roman], si) => {
         n.tier = 1;
         n.storyDe = `${ort}: die alte Magie erwacht - Figuren bluten, Figuren halten stand.`;
         n.storyEn = `${ort}: the old magic wakes - pieces bleed, pieces endure.`;
+      } else if (i === brutAt) {
+        n.boss = { pure: BRUT.boss };
+        n.tier = Math.min(4, 1 + Math.floor(liga / 5) + schwer);
+        n.storyDe = `${ort}: ${BRUT.storyDe}`;
+        n.storyEn = `${ort}: ${BRUT.storyEn}`;
       } else if (i === mitteAt && liga > 1) {
         n.boss = { pure: MITTE[si][0], rotation: MITTE[si] };
         n.tier = Math.min(4, 1 + Math.floor(liga / 5) + schwer);
