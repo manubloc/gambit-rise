@@ -39,8 +39,8 @@ gambitrise.com zeigt darauf).
   pruefe-navigation, pruefe-textfluss, test_layout) lesen den Chromium-Pfad aus
   `PW_CHROMIUM`; ohne die Variable gilt der Pfad des Cloud-Containers. Lokal:
   `npx playwright install chromium` und `PW_CHROMIUM=<Pfad zur chrome-Datei>`.
-- `npm test` — volle Batterie. MUSS **31 Suiten / 2617 Prüfungen** melden
-  (Stand v1.90.19; der Runner stoppt nach der ersten roten Suite, also
+- `npm test` — volle Batterie. MUSS **31 Suiten / 2640 Prüfungen** melden
+  (Stand v1.90.20; der Runner stoppt nach der ersten roten Suite, also
   Suitenzahl prüfen, nicht nur Assertions! **Zählweise seit v1.90.18
   (Audit A74): JEDE Suite der Kette meldet eine RESULT-Zeile** — alle Zeilen
   `RESULT…: N passed` summieren; test_balance meldet zwei, darum stehen im
@@ -295,6 +295,23 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
   das). Freistellen über `tools/freistellen.py` (Greenscreen #00FF66;
   Magenta nur bei grünlastigen Motiven wie Meer/Boot; GPT-Bilder kommen oft
   mit ECHTER Transparenz — Alpha ≥ 150 härten, nie über RGB flatten).
+- **Kapitelmeister ≠ Großmeister (seit v1.90.20).** `LEAGUE_BOSSES` ist die
+  KLASSE der zwölf Großmeister (Damenplatz, Goldrahmen, nie Gast, nicht
+  bestechlich – außer dem Richter). Wem ein gewonnenes Kapitel gehört, steht in
+  `KAPITEL_TROPHAEE` (Index = Kapitel − 1); Kapitel I hält der **Drache** (eine
+  Figur, `boss: {piece: "dragon", wins: 1}`, kommt mit dem Sieg), dort steht
+  `null`. Der Richter (b12) ist Mitte-Boss von Kapitel II. Alte Stände nach
+  Kapitel I behalten ihn über den einmaligen Umzug `campaign.meister20`
+  (profile.js). Im **klassischen Schach hat der große Drache vier Leben**
+  (`DRACHE_LEBEN`, setup.js, über den Schild-Abprall des Schachkerns), sichtbar
+  als vier Punkte auf dem Sockel.
+- **Bilder rechnen statt malen:** `tools/umfaerben.py` (Farbton drehen, z. B.
+  Brandstifter blau, mit Helligkeitsfaktor) und `tools/monster-aufhellen.py`
+  (Monsterkörper auf Leuchtdichte 0,24, Sockel/Alpha/Glutaugen bleiben). Beide
+  lassen den Alphakanal unberührt – `sockelband.json` gilt danach weiter.
+  Danach `python3 scripts/messe_farbe.py` NUR für die geänderten Einträge
+  übernehmen (das Skript rundet bei anderen Figuren um eine Stelle anders) und
+  die Vorschauen in `public/schau-klein/painted/` nachziehen.
 - `piece.tier` steuert Rangbilder (gambit-t2…t6, pawn-t2/t3) und wird von
   makePiece durchgereicht — bei neuen Figurenfeldern dort ergänzen.
 - Ausgemusterte Assets nach `archiv/ausgemustert/vX.Y.Z/`, Bild-Rohlinge
@@ -313,7 +330,7 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
   Auswahl-Lichtspektakel.
 - Alles Optionale abschaltbar (Klang, Online).
 
-## Offene Baustellen (Stand v1.90.19, 1.10.2026)
+## Offene Baustellen (Stand v1.90.20, 1.10.2026)
 
 **Einstieg für jede neue Sitzung: `design/CHAT-EINSTIEG-2026-09-27.md`** (zehn
 Minuten, mit dem Startsatz für den Chat), dann **`design/UEBERGABE-2026-09-27.md`** — Stand,
@@ -328,7 +345,9 @@ Hier nur der Überblick:
 
 - **Beim Besitzer:** die Monster neu
   zeichnen (Prompts; neue Bilder erst messen — Höhe/Sockel-Halbbreite ≥ 3,7 —
-  und am Brett zeigen) · Play-Abzeichen als Datei für die Startseite (A58).
+  und am Brett zeigen; seit v1.90.20 sind alle Monster per Rechnung heller,
+  ein neues Bild sollte mindestens diese Helligkeit tragen) · Play-Abzeichen
+  als Datei für die Startseite (A58).
 - **Spiel:** „Die Karte erzählt die Geschichte" (Besitzer 27.9.: **später**) ·
   **Ladeschirm-Feinschliff** (subjektiv, braucht Live-Abnahme).
 - **Audit offen:** A8-Rest (Befehlsliste in der Halle nachspielen — braucht den

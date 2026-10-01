@@ -86,7 +86,10 @@ ok("classic stages field base-level enemies", s0.aiArmy.back.every((p) => (p.lev
 ok("later stages open new boards", CAMPAIGN.some((s) => s.map === "courtyard") && CAMPAIGN.some((s) => s.map === "gauntlet") && CAMPAIGN.some((s) => s.rules === "hp"));
 
 const last = buildStageMatch("L01s44");
-ok("final stage is a boss fight", last.boss && last.aiArmy.back.some((s) => s.kind === "X"));
+/* v1.90.20 (Besitzerentscheid): Meister von Kapitel I ist der DRACHE - eine
+   Figur (kind D, gross), kein Monster (X). Sein Fluegelplatz ist leer (null). */
+ok("final stage is a boss fight - the dragon holds chapter I", last.boss && last.boss.bossId === "pb_dragon"
+  && last.aiArmy.back.some((s) => s && s.kind === "D" && s.big));
 
 import { hauptast, figurStation, startOf } from "./test_helpers12.mjs";
 import * as metaAll from "./src/meta/index.js";
@@ -105,7 +108,10 @@ ok("paths do not open each other", nodeStatus(prof, H1[10].id) === "locked");
 // ── Piece bosses unlock pieces; XP upgrades them ─────────────────────────────
 // Die Figuren wohnen jetzt in ihren Kapiteln: der Falke frueh (ein Sieg),
 // der Drache spaet (zwei Siege, ueber Wiederholungen gezaehlt).
-const hawkN = figurStation("hawk"), dragonN = figurStation("dragon");
+/* v1.90.20: der Drache ist Meister von Kapitel I und kommt mit dem ERSTEN Sieg -
+   die Probe fuer "zwei Siege, ueber Wiederholungen gezaehlt" nimmt darum den
+   Hexenmeister (Kapitel VIII, wins 2). */
+const hawkN = figurStation("hawk"), dragonN = figurStation("warlock");
 ok("the hawk waits in its own chapter, locked to a fresh profile", !unlockedCharacterIds(prof).includes("hawk"));
 {
   let p2 = { xp: 0, campaign: { league: hawkN.league, cleared: [], unlocked: [] } };
@@ -124,14 +130,24 @@ import { bossPieceFor, effectiveMap, winsNeeded, bossWinsFor, recruitOnWin } fro
 import { nodeById as nbId } from "./src/content/index.js";
 ok("wins demands are read off the boss (late champions resist twice)",
   winsNeeded(dragonN, dragonN.league) === 2 && winsNeeded(hawkN, hawkN.league) === 1 && winsNeeded(figurStation("seeress")) === 2);
+ok("the dragon, master of chapter I, yields in a single win", (() => {
+  const dn = figurStation("dragon");
+  return dn.id === "L01s44" && dn.final === true && winsNeeded(dn, 1) === 1;
+})());
+{
+  let d = { xp: 0, campaign: { league: 1, cleared: [], unlocked: [] } };
+  for (const n of hauptast(1)) d = advanceCampaign(d, n.id);
+  ok("beating chapter I: the dragon joins, the chapter counts as won, no monster trophy",
+    unlockedCharacterIds(d).includes("dragon") && d.stats.leaguesWon === 1 && ownedLeagueBosses(d).length === 0);
+}
 ok("early chapters yield in one win, the deep road demands two",
   winsNeeded(figurStation("mage")) === 1 && winsNeeded(figurStation("warlock")) === 2);
 {
   let d = { xp: 0, campaign: { league: dragonN.league, cleared: [], unlocked: [] } };
   for (const n of hauptast(dragonN.league)) { if (n.id === dragonN.id) break; d = advanceCampaign(d, n.id); }
-  ok("first Dragon win only notches the tally", (() => { d = advanceCampaign(d, dragonN.id); return bossWinsFor(d, "dragon") === 1 && !unlockedCharacterIds(d).includes("dragon"); })());
-  ok("a replay notches it again without progress or XP", (() => { const xp = d.xpEarned || 0; const c = clearedCount(d); d = advanceCampaign(d, dragonN.id); return bossWinsFor(d, "dragon") === 2 && clearedCount(d) === c; })());
-  ok("the tally seals the recruit on the deciding win", unlockedCharacterIds(d).includes("dragon"));
+  ok("first Warlock win only notches the tally", (() => { d = advanceCampaign(d, dragonN.id); return bossWinsFor(d, "warlock") === 1 && !unlockedCharacterIds(d).includes("warlock"); })());
+  ok("a replay notches it again without progress or XP", (() => { const xp = d.xpEarned || 0; const c = clearedCount(d); d = advanceCampaign(d, dragonN.id); return bossWinsFor(d, "warlock") === 2 && clearedCount(d) === c; })());
+  ok("the tally seals the recruit on the deciding win", unlockedCharacterIds(d).includes("warlock"));
 }
 // a won league boss may march in the queen's place — one at most
 import { formationLegalOn as fLegal, buildArmyFromFormation as bFromForm, ownedLeagueBosses } from "./src/meta/index.js";
@@ -140,9 +156,11 @@ import { mapById as mapOf } from "./src/content/index.js";
   const karte = mapOf("classic");   /* v1.24.0: die Arena ist gestrichen */
   const ids = ["hawk","assassin","pathfinder","dragon","guardian","bard","paladin","inquisitor","standard","engineer","chancellor","archbishop","mage","alchemist","sorceress","warlock","strategist","amazon","captain","knight","bishop","rook","queen","king","pawn"];
   const base = ["rook","knight","bishop","queen","king","bishop","knight","rook"];
-  const withBoss = [...base]; withBoss[3] = "boss:b12";  // v0.38.1: Kapitel-I-Trophaee ist der Richter (Osric ans Ende)
-  const prof1 = { stats: { leaguesWon: 1 } }, prof0 = { stats: {} };
-  ok("league bosses are trophies of finished leagues", ownedLeagueBosses(prof1).join() === "b12" && ownedLeagueBosses(prof0).length === 0);
+  const withBoss = [...base]; withBoss[3] = "boss:b12";  // der Richter: Grossmeister, auf dem Damenplatz (v1.90.20 nur noch per Bestechung/Altstand)
+  /* v1.90.20: Kapitel I gibt den Drachen (Figur), keine Monster-Trophaee; ab
+     Kapitel II wieder je Kapitel ein Meister */
+  const prof1 = { stats: { leaguesWon: 1 } }, prof0 = { stats: {} }, prof2 = { stats: { leaguesWon: 2 } };
+  ok("league bosses are trophies of finished leagues", ownedLeagueBosses(prof1).length === 0 && ownedLeagueBosses(prof2).join() === "b10" && ownedLeagueBosses(prof0).length === 0);
   ok("a boss stands in for the queen — if you own him", fLegal(withBoss, ids, karte, ["b12"]) && !fLegal(withBoss, ids, karte, []));
   const twoBosses = [...withBoss]; twoBosses[0] = "boss:b12";
   ok("one boss at most on the field", !fLegal(twoBosses, ids, karte, ["b12"]));
@@ -169,8 +187,8 @@ import { mapById as mapOf } from "./src/content/index.js";
   ok("Meister auf dem Damenplatz und Monster auf der Flanke zugleich", fLegal(beides, ids, karte, ["b12", "b05"]));
   const heer = bFromForm(() => 1, beides);
   ok("... und beide marschieren mit ihren Werten", heer.back[3].bossId === "b12" && heer.back[7].bossId === "b05" && heer.back[7].kind === "X");
-  ok("Kapitel III gewonnen: der Seuchenkoenig gehoert einem, nicht der Hetzer",
-    ownedLeagueBosses({ stats: { leaguesWon: 3 } }).join() === "b12,b10,b24");
+  ok("Kapitel III gewonnen: der Seuchenkoenig gehoert einem, nicht der Hetzer (v1.90.20: Kapitel I gab den Drachen)",
+    ownedLeagueBosses({ stats: { leaguesWon: 3 } }).join() === "b10,b24");
 }
 ok("from chapter IV every station fields its own stage; the finale always does",
   ["L01s02","L01s16","L07s41","L01s22"].every((id) => effectiveMap(nbId(id), 4) === nbId(id).map)
@@ -446,10 +464,12 @@ ok("frisch steht keine der beiden neuen Buehnen offen",
 
 // ── v0.21.92: bribed monsters join the ranks ─────────────────────────────────
 {
-  const pb = { stats: { leaguesWon: 1 }, campaign: { bribedBosses: ["b10"] } };
+  /* v1.90.20: Kapitel I gibt keine Monster-Trophaee mehr (der Drache) - die
+     Probe zaehlt darum zwei gewonnene Kapitel (Trophaee b10) und besticht b05 */
+  const pb = { stats: { leaguesWon: 2 }, campaign: { bribedBosses: ["b05"] } };
   const owned = ownedLeagueBosses(pb);
-  ok("league victory grants its boss", owned.includes("b12"));
-  ok("a bribed monster fights for you too", owned.includes("b10"));
+  ok("league victory grants its boss", owned.includes("b10"));
+  ok("a bribed monster fights for you too", owned.includes("b05"));
   ok("no double entries in the ranks", new Set(owned).size === owned.length);
 }
 

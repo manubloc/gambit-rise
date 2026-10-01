@@ -21,7 +21,7 @@ export function defaultProfile() {
     sp: 0,
     claims: {},
     items: { potion: 0 },
-    campaign: { league: 1, cleared: [], unlocked: [], dupes: {} }, // per-league clears; unlocks + duplication stars persist
+    campaign: { league: 1, cleared: [], unlocked: [], dupes: {}, meister20: true }, // per-league clears; unlocks + duplication stars persist; meister20: v1.90.20, siehe migrate
     online: { id: rid(6), secret: rid(18), privacy: "public", server: "" }, // multiplayer identity
     difficulty: "easy",
     stats: emptyStats(),
@@ -216,6 +216,22 @@ export function migrate(p) {
   }
   let cleared = (p.campaign && p.campaign.cleared) || [];
   if (typeof cleared === "number") cleared = ["n01", "n02", "n03"].slice(0, Math.min(cleared, 3));
+  /* ── v1.90.20: DER NEUE MEISTER VON KAPITEL I (Besitzerentscheid 1.10.) ─────
+     Kapitel I endet jetzt mit dem Drachen, und wer ihn schlaegt, bekommt ihn
+     sofort. Der Richter, der bis hierher dort stand und mit dem Sieg in den
+     Hof kam, haelt Gericht in Kapitel II. Wer Kapitel I VOR dieser Fassung
+     gewann, verliert dadurch nichts: er behaelt den Richter (als bestochenen
+     Grossmeister - ownedLeagueBosses fuehrt bribedBosses mit, eine Aufstellung
+     mit "boss:b12" bleibt gueltig) und bekommt den Drachen, denn er hat den
+     Meister von Kapitel I ja besiegt. Einmalig: das Merkzeichen meister20
+     steht danach im Stand (und in jedem neuen Stand von Anfang an, siehe
+     defaultProfile) - spaetere Siege laufen ueber die neuen Regeln. */
+  const campIn = (p.campaign && typeof p.campaign === "object") ? p.campaign : {};
+  const bestochen = new Set(campIn.bribedBosses || []);
+  if (campIn.meister20 !== true && ((p.stats && p.stats.leaguesWon) || 0) >= 1) {
+    bestochen.add("b12");
+    unlocked.add("dragon");
+  }
   return {
     ...d, ...p,
     v: 2,
@@ -243,6 +259,8 @@ export function migrate(p) {
       dupes: { ...((p.campaign && p.campaign.dupes) || {}) },
       cleared: [...cleared],
       unlocked: [...unlocked],
+      ...(bestochen.size ? { bribedBosses: [...bestochen] } : {}),
+      meister20: true,
     },
   };
 }

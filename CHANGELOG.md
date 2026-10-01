@@ -1,5 +1,76 @@
 # Changelog - Gambit Rise
 
+## 1.90.20 - Der Drache ist Meister von Kapitel I (vier Leben im Schach), der Richter haelt Gericht in Kapitel II, Gegner ohne Grauschleier, alle Monster heller
+
+**DER DRACHE IST MEISTER VON KAPITEL I** (Besitzerentscheid 1.10.: "nicht als
+Endgegner, sondern als Kapitelmeister 1 und als Vorstufe fuer HP-Kaempfe").
+Er haelt die Bannerhoehe (L01s44, Hof-Karte, klassisches Schach) und kommt mit
+dem ersten Sieg in den Hofstaat (Besitzer: "Ja, sofort").
+
+**VIER LEBEN IM KLASSISCHEN SCHACH.** "Da der Drache den Platz von vier Figuren
+einnimmt, hat er im klassischen Schach halt einfach vier Leben." Gebaut auf dem
+Schild des Schachkerns: ein Schlag auf eines seiner vier Felder prallt ab, der
+Angreifer bleibt stehen, ein Leben ist fort; der vierte nimmt ihn, alle vier
+Felder auf einmal (core/domain/setup.js, DRACHE_LEBEN). Gilt fuer jeden grossen
+Drachen im Schach, auch den eigenen; im HP-Gefecht zaehlt weiter sein Leben.
+Anzeige wie gewuenscht: vier Punkte auf seinem Sockel, rot mit Leben, schwarz
+wenn eins fehlt (SockelBand, data-gg="lebenspunkte"), und die Meldung "Der
+Drache verliert ein Leben - noch 3". Dabei behoben: traf ein Schlag einen
+FLUEGEL, las die Meldung den Schild des Fluegel-Markierers und verlor das
+"noch n" - jetzt liest sie den Drachen selbst. Gemessen: die Kampagnen-Probe
+spielt das Kapitel-I-Finale weiter als echte Belagerung (kuerzeste Partie 113
+Halbzuege).
+
+**DER RICHTER HAELT GERICHT IN KAPITEL II** (Besitzerentscheid): Mitte-Boss in
+Kapitel II, wo die Chronik ihn ohnehin erzaehlt ("Mittendrin haelt der Richter
+Gericht"). Der Hetzer rueckt dafuer an das Erwachen; der Waechter, der dort
+stand, huetet die leere Drachenhalle in Kapitel VII (sonst fiele er aus dem
+ersten Durchlauf, und die "13 Monster" der Startseite stimmten nicht mehr).
+Die Brutmutter steht weiter zwei Stationen davor. Ehrlich: die Antwort auf die
+Rueckfrage sagte "die Drachenstation in Kapitel VII bekommt eine andere Figur"
+- es gibt keine freie (alle 20 Figuren haben ihre Station), darum der Waechter.
+
+**WER KAPITEL I SCHON GEWANN, VERLIERT NICHTS.** Bisher gab Kapitel I den
+Richter als Damenersatz. Der Meister je Kapitel steht jetzt in
+KAPITEL_TROPHAEE (Kapitel I: null, der Drache kommt als Figur); LEAGUE_BOSSES
+bleibt die Klasse der zwoelf Grossmeister (Damenplatz, Goldrahmen, nie Gast).
+Ein einmaliger Umzug (profile.js, meister20) gibt jedem alten Stand nach
+Kapitel I den Richter als bestochenen Grossmeister und den Drachen - eine
+Aufstellung mit dem Richter auf dem Damenplatz bleibt gueltig (test_saves).
+Der Richter ist ausserdem jetzt bestechlich wie ein Monster (sonst gaebe es
+keinen Weg mehr zu ihm).
+
+**DIE GEGNER TRAGEN IHRE ORIGINALFARBEN** (Besitzer: "genau gleich von der
+Faerbung wie die eigenen Figuren - nur der sanfte lila Schatten hinter den
+Figuren ist ok"). Der Filter grayscale(0.22) saturate(0.9) brightness(0.92) am
+Gemaelde ist fort; der lila Saum bleibt, das lila Feld auch.
+
+**ALLE MONSTER HELLER** (Besitzer: "das 'noch heller' beim Brandstifter ist
+eine gute Grundlage und sollte fuer alle Monster gelten"; aus zwei gezeigten
+Stufen gewaehlt: "in der hellsten Variante sehen sie auf jeden Fall besser
+aus"). tools/monster-aufhellen.py hebt den Koerper jedes Monsters auf eine
+mittlere Leuchtdichte von 0,24 (vorher 0,085 bis 0,21; die Figuren liegen um
+0,31), mit einer Gammakurve - dunkle Partien stark, Lichter kaum; Sockel,
+Glutaugen und Alphakanal bleiben (Abweichung 0 ueber alle 50 Bilder, also
+gelten sockelband.json und alle Masse weiter). Der Brandstifter kam vorher auf
+"noch heller" (umfaerben.py mit neuem Helligkeitswert). Die Figurfarben fuer
+Medaillon und Hofstaat-Hintergrund sind nachgemessen (figurfarbe.json) - einige
+Kacheln bekommen dadurch erst eine Farbe (Bollwerk, Fluesterin waren
+"farblos"). Die Galerie-Kachel "Waechter" der Startseite ist neu gerechnet.
+
+Kleinere Funde unterwegs: der Rueckblick zeigte bei jedem Boss keinen Namen
+(nameDe/nameEn gab es an der Bossangabe nie, sie traegt name.de/en), der
+Kopfchip im Gefecht ebenso; fuer einen Figuren-Boss fehlte dort ausserdem das
+Bild. Behoben. Ein Kapitelfinale mit einer Figur klingt jetzt wie ein Meister
+(vorher still) und laesst das Kapitelende vor dem Hornruf der Werbung klingen.
+
+Proben: 31 Suiten / 2640 Pruefungen (vorher 2617). Neu u. a. die vier Leben
+in test_dragon (Abprall, Punkte, vierter Schlag nimmt alle vier Felder), die
+Lebenspunkte und der fehlende Gegnerfilter in test_ui - dieser Block stand
+zuerst im ruhenden Zweig `if (!ROHR_STATT_PERLEN)` und lief gar nicht, er ist
+herausgezogen -, der Umzug meister20 in test_saves, die neuen Meister und
+Trophaeen in test_features und test_boss.
+
 ## 1.90.19 - Der Brandstifter in Blau, eine Inhaltsrichtlinie (Report-Only), Proben warten auf Zustaende statt auf Uhrzeiten, 104 tote Texte, das Fernpartien-Regal je Partie
 
 **DER BRANDSTIFTER IST BLAU** (Besitzerentscheid 1.10.: "Brandstifter blau").

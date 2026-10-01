@@ -121,7 +121,12 @@ const OHNE_BAND = new Set(["schatzkammer", "haendler"]);
 /* `schaden`: der gerade verlorene Anteil, in derselben Einheit wie `leben`.
    Er wird dort gezeichnet, wo das Rot eben noch stand - also direkt hinter
    dem heutigen Rot - und glimmt aus (v1.24.9). */
-export function SockelBand({ paintedId, leben = 0, kraft = 0, schaden = 0, grau = false, hell = false, id = "sb", ausrichtung = "mitte" }) {
+/* `punkte` (v1.90.20): { an, max } - LEBENSPUNKTE AUF DEM SOCKEL. Besitzer
+   1.10.: der Drache hat im klassischen Schach vier Leben, "in Form von vier
+   Punkten auf seinem Sockel - mit Leben rot, und wenn er eins weniger hat,
+   schwarz". Die Punkte sitzen auf dem Band, mittig auf seinem vorderen
+   Bogen, und liegen AUSSERHALB des Graufilters (sonst waere das Rot grau). */
+export function SockelBand({ paintedId, leben = 0, kraft = 0, schaden = 0, grau = false, hell = false, id = "sb", ausrichtung = "mitte", punkte = null }) {
   const m = MASS[paintedId];
   if (!m || OHNE_BAND.has(paintedId)) return null;
   /* ── BANDHOEHE: DIE GEMESSENE TELLERHOEHE ────────────────────────────────
@@ -258,5 +263,30 @@ export function SockelBand({ paintedId, leben = 0, kraft = 0, schaden = 0, grau 
       {/* v1.18.0 (Besitzer): KEINE Stege zwischen Rot, Schwarz und Blau -
           die Farben stossen stumpf aneinander, wie in der Vorlage. */}
     </g>
+    {punkte && punkte.max > 0 && (() => {
+      const n = punkte.max, an = Math.max(0, Math.min(n, punkte.an));
+      /* gleichmaessig auf dem mittleren Teil des vorderen Bogens (theta 1,22 pi
+         bis 1,78 pi), auf halber Bandhoehe; Radius aus der Bandhoehe */
+      const r = Math.max(4, hoehe * 0.34);
+      const mittelHoch = (h + fuss) / 2;
+      return <g data-gg="lebenspunkte" data-an={an} data-max={n}>
+        <defs>
+          <radialGradient id={u("pRot")} cx=".38" cy=".32" r=".75">
+            <stop offset="0" stopColor="#ffb3a8" /><stop offset=".45" stopColor="#e5322c" /><stop offset="1" stopColor="#6e0b0b" />
+          </radialGradient>
+          <radialGradient id={u("pLeer")} cx=".38" cy=".32" r=".75">
+            <stop offset="0" stopColor="#4a4a52" /><stop offset=".5" stopColor="#141418" /><stop offset="1" stopColor="#000" />
+          </radialGradient>
+        </defs>
+        {Array.from({ length: n }, (_, i) => {
+          const t = Math.PI * (1.22 + (0.56 * (n === 1 ? 0.5 : i / (n - 1))));
+          const x = m.cx + m.rx * Math.cos(t);
+          const y = (m.boden - m.ry) - m.ry * Math.sin(t) - mittelHoch;
+          const lebt = i < an;
+          return <circle key={i} cx={x.toFixed(1)} cy={y.toFixed(1)} r={r.toFixed(1)} data-lebt={lebt ? "1" : "0"}
+            fill={`url(#${u(lebt ? "pRot" : "pLeer")})`} stroke={lebt ? "#f6e2a6" : "#6e6a60"} strokeWidth={Math.max(1.2, r * 0.18).toFixed(1)} />;
+        })}
+      </g>;
+    })()}
   </svg>;
 }

@@ -137,7 +137,10 @@ export const BOSSES = [
      kaum zu unterscheiden; die Blutmagd bleibt blutrot. Das Gemaelde ist per tools/umfaerben.py
      (218 Grad, Glutaugen bleiben, Saettigung 0,85) blau gedreht, der
      Akzent folgt (#ff4d5e -> #4d7cff). Die roten Originale liegen in
-     archiv/ausgemustert/v1.90.19/. */
+     archiv/ausgemustert/v1.90.19/.
+     v1.90.20 (Besitzer: "noch heller" ist die Grundlage): die umgefaerbten
+     Flaechen tragen die doppelte Leuchtdichte (umfaerben.py ... 1.0 2.0),
+     Figurfarbe nachgemessen #2f439e. */
   B("b13", "Brandstifter",     "Firestarter",     "serpent", "#4d7cff",  14, 10, { slides: DIAG }, { flavorDe: "Er sammelt keine Beute; er hinterlässt nur Asche, ordentlich verteilt.", flavorEn: "He gathers no spoils; he leaves only ash, evenly spread.", abilities: ["aderlass", "gift"] }),  // scharf, aber glas
   B("b14", "Der Koloss",       "The Colossus",    "golem",   "#94a3b8", 21, 3, { slides: ORTHO, range: 2, leaps: DIAG }, { flavorDe: "Er trägt die Rüstung nicht — er ist sie, bis hinunter zum Herzen aus Stein.", flavorEn: "He does not wear the armour — he is it, down to the heart of stone.", aura: { type: "grant", id: "bulwark" }, abilities: ["steinhaut", "unsterblich", "widerhall", "schrecken", "aderlass"] }),  // seine AURA ist die Gabe: Eigenpanzer + Panzer-Aura kaskadierte in der Sim (+77 Feldwirkung)
   B("b15", "Die Sturmklaue",   "The Stormclaw",   "beast",   "#38bdf8",  16, 8, { leaps: [...CAMEL, ...sym(0, 3)] }, { flavorDe: "Sie kommt mit dem Wetter und geht mit ihm; dazwischen liegt der Schaden.", flavorEn: "She comes with the weather and leaves with it; the damage lies between.", abilities: ["blenden", "wegelagerei"] }),
@@ -155,10 +158,10 @@ export const BOSSES = [
 
 export const bossById = (id) => BOSSES.find((b) => b.id === id) || null;
 
-/** The ten LEAGUE BOSSES — the finale of each league (I–X). Beating a league
- *  wins you its boss: he may then march for YOU, in place of the queen (one
- *  boss at most). Every league boss carries an AURA that bends the whole
- *  match, not just his square. */
+/** The twelve GRANDMASTERS (v1.90.20: see below - no longer identical with
+ *  the chapter finals). Beating a chapter wins you its master (KAPITEL_TROPHAEE):
+ *  he may then march for YOU, in place of the queen (one boss at most). Every
+ *  grandmaster carries an AURA that bends the whole match, not just his square. */
 // v0.38.1: OSRIC GEHOERT ANS ENDE. Die Liste begann mit b25 - der
 // Grossmeister stand als Finale von KAPITEL I, waehrend Kapitel XII mit
 // Asra endete, die dort zusaetzlich als Station stand (Doppelung). Jetzt:
@@ -170,8 +173,26 @@ export const bossById = (id) => BOSSES.find((b) => b.id === id) || null;
    gewonnenen Kapitel GEHOERT, den Grossmeister-Rahmen, die Bundtafel und die
    Kulissen: wer Kapitel III gewann, bekam den Hetzer. Eine Probe (test_boss)
    haelt beide Listen jetzt aneinander. */
+/* ── v1.90.20: GROSSMEISTER UND KAPITELMEISTER SIND NICHT MEHR DASSELBE ────
+   Besitzerentscheid 1.10.: Meister von Kapitel I ist der DRACHE (eine Figur,
+   die man mit dem Sieg sofort bekommt), der Richter (b12) haelt Gericht in
+   Kapitel II als Mitte-Boss. Damit trennen sich zwei Bedeutungen, die bis
+   hierher eine Liste trug:
+     LEAGUE_BOSSES     die zwoelf GROSSMEISTER - die Klasse: nur auf dem
+                       Damenplatz, Goldrahmen, nie Gast auf freien Feldern,
+                       nicht bestechlich. Der Richter bleibt einer (alte
+                       Spielstaende fuehren ihn auf dem Damenplatz).
+     KAPITEL_TROPHAEE  je Kapitel der Meister, den der Sieg dir GIBT (Index
+                       = Kapitel - 1). Kapitel I gibt den Drachen als Figur
+                       (campaign.unlocked), darum steht dort null. */
 export const LEAGUE_BOSSES = ["b12", "b10", "b24", "b19", "b20", "b16", "b17", "b18", "b08", "b14", "b23", "b25"];
-export const leagueBossId = (league) => LEAGUE_BOSSES[(((league || 1) - 1) % 12)];
+export const KAPITEL_TROPHAEE = [null, "b10", "b24", "b19", "b20", "b16", "b17", "b18", "b08", "b14", "b23", "b25"];
+/** In welchem Kapitel steht dieser Grossmeister? (Bundtafel, Hofstaat) */
+export const kapitelVonGrossmeister = (id) => {
+  const i = KAPITEL_TROPHAEE.indexOf(id);
+  if (i >= 0) return i + 1;
+  return id === "b12" ? 2 : null;          // der Richter: Mitte von Kapitel II
+};
 export const bossName = (b, en) => (en ? b.nameEn : b.nameDe);
 
 /** Army-spec entry for a boss piece (drops into a back-rank slot). */

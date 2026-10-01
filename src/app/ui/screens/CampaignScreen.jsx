@@ -1194,7 +1194,9 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
           {(() => {
             const bossHier = node?.boss ? nodeBossSpec(node, viewLeague) : null;
             if (!bossHier) return null;
-            const bild = paintedById("boss-" + bossHier.bossId);
+            /* v1.90.20: eine FIGUR als Boss (pb_dragon, Meister von Kapitel I)
+               hat ihr Gemaelde unter ihrem Namen, nicht unter "boss-" */
+            const bild = paintedById(String(bossHier.bossId || "").startsWith("pb_") ? bossHier.bossId.slice(3) : "boss-" + bossHier.bossId);
             const S = 74;
             return <div style={{ display: "flex", gap: 10, alignItems: "center", marginTop: 9,
               padding: "8px 10px", borderRadius: 10, background: "rgba(255,255,255,.05)",
@@ -1203,7 +1205,9 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
                 objectFit: "contain", objectPosition: "bottom", flex: "0 0 auto" }} />}
               <div style={{ minWidth: 0 }}>
                 <div className="gg-quill" style={{ fontSize: 15, color: PP.ink, lineHeight: 1.1 }}>
-                  {en ? bossHier.nameEn : bossHier.nameDe}</div>
+                  {/* v1.90.20: die Bossangabe traegt name {de, en} - nameEn/nameDe
+                      gab es dort nie, der Name stand leer (gemessen beim Umbau) */}
+                  {bossHier.name ? bossHier.name[en ? "en" : "de"] : (en ? bossHier.nameEn : bossHier.nameDe)}</div>
                 <div style={{ display: "flex", gap: 7, marginTop: 5 }}>
                   {/* v1.25.4 (Besitzer): keine Perlen mehr, auch nicht auf der
                       Karte - die Zahlen in den Farben des Sockelbandes. */}
@@ -1372,7 +1376,9 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
           {/* the aftermath, told on the spot: joined the retinue, fled again (with tally), or simply done */}
           {status === "cleared" && (() => {
             const nm = unlockCh ? unlockCh[en ? "nameEn" : "nameDe"] : null;
-            const txt = node.final ? t("camp.stKeepFriendly")
+            /* v1.90.20: das Finale von Kapitel I haelt eine FIGUR (den Drachen) -
+               "Der Grossmeister dient deinem Hofstaat" waere dort falsch */
+            const txt = node.final ? (unlockCh ? t("camp.stKeepFriendlyFigur", { name: nm }) : t("camp.stKeepFriendly"))
               : unlockCh
               ? (known ? t("camp.stFriendly", { name: nm })
                        : t("camp.stFled", { n: bossWinsFor(profile, unlockCh.id), name: nm }))

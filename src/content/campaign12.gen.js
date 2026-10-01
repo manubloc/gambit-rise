@@ -937,11 +937,12 @@ export const CAMPAIGN12 = [
    "xp": 99,
    "gold": 24
   },
-  "storyDe": "Bannerhöhe: Hier wartet der Meister von Kapitel I.",
-  "storyEn": "Bannerhöhe: here waits the master of chapter I.",
+  "storyDe": "Bannerhöhe: Hier wartet der Meister von Kapitel I - ein junger Drache. Vier Felder, vier Leben.",
+  "storyEn": "Bannerhöhe: here waits the master of chapter I - a young dragon. Four squares, four lives.",
   "final": true,
   "boss": {
-   "pure": "b12"
+   "piece": "dragon",
+   "wins": 1
   },
   "tier": 4
  },
@@ -1116,11 +1117,11 @@ export const CAMPAIGN12 = [
   "storyDe": "Krähenschreck: die alte Magie erwacht - Figuren bluten, Figuren halten stand.",
   "storyEn": "Krähenschreck: the old magic wakes - pieces bleed, pieces endure.",
   "boss": {
-   "pure": "b01",
+   "pure": "b02",
    "rotation": [
-    "b01",
+    "b02",
     "b03",
-    "b02"
+    "b01"
    ]
   },
   "tier": 1,
@@ -1187,9 +1188,9 @@ export const CAMPAIGN12 = [
   "storyDe": "Der Pfad führt weiter über Der lange Acker.",
   "storyEn": "The path leads on across Der lange Acker.",
   "boss": {
-   "pure": "b02",
+   "pure": "b12",
    "rotation": [
-    "b02",
+    "b12",
     "b11"
    ]
   },
@@ -6643,11 +6644,10 @@ export const CAMPAIGN12 = [
   "reward": {
    "xp": 129
   },
-  "storyDe": "Die Prüfung wartet bei Halle des einen Gangs.",
-  "storyEn": "The trial waits at Halle des einen Gangs.",
+  "storyDe": "Halle des einen Gangs: Der Hort ist leer, sein Bewohner ausgeflogen. Geblieben ist der Wächter, und er hütet die Halle, als käme jemand zurück.",
+  "storyEn": "Halle des einen Gangs: The hoard is empty, its keeper flown. The Warden stayed behind, guarding the hall as if someone might return.",
   "boss": {
-   "piece": "dragon",
-   "wins": 2
+   "pure": "b01"
   },
   "tier": 2
  },

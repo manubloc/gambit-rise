@@ -4,7 +4,7 @@
 // node always is). Clearing a piece-boss node unlocks that piece — the only way
 // to gain new pieces. XP is a spendable currency for upgrades (leveling.js).
 import { placeEn } from "../content/placeNamesEn.js";
-import { CAMPAIGN, nodeById, difficultyById, mapById, bossById, bossSpec, CHARACTERS, leagueBossId } from "../content/index.js";
+import { CAMPAIGN, nodeById, difficultyById, mapById, bossById, bossSpec, CHARACTERS } from "../content/index.js";
 import { buildArmyFromFormation, resolveCharacter, spForXpJump, isUnlocked, monsterStufen } from "./leveling.js";
 import { hasItem } from "../content/items.js";
 import { BASE_HP, BASE_ATK } from "../core/index.js";
@@ -146,9 +146,10 @@ export function nodeBossSpec(node, league = 1) {
 
 /** Resolve a node id into a ready-to-play match spec. The boss replaces the
  *  enemy QUEEN slot (the king always stays on the board). */
-/** THE DRAGON COMES LATER: his 2x2 form is a new machine, so the Hoard only
- *  holds him from League II on. In League I the warm nest belongs to the
- *  BROODMOTHER — the ancient heart has not hatched yet. */
+/* v1.90.20: Hier stand "THE DRAGON COMES LATER ... from League II on". Seit
+   dem Besitzerentscheid vom 1.10. ist der Drache Meister von Kapitel I - mit
+   vier Leben im klassischen Schach (core/domain/setup.js) als Vorstufe zu den
+   HP-Gefechten. */
 
 /** Der Name der Station - einmalig auf der ganzen Reise.
  *  v1.90.13 (Audit A35, Rest): dieser Kopf sagte "II-XI draw from
@@ -187,6 +188,11 @@ export function effectiveNodeBoss(node, _lg) {
 export function finaleGrundreihe(node, back, seed) {
   if (!node?.final || !Array.isArray(back) || back.length < 2) return back;
   if ((node.league || 1) <= 1) return back;
+  /* v1.90.20: ein grosser Drache in der Grundreihe (Anker + leerer Fluegel)
+     darf nicht gemischt werden - Anker und Luecke gehoeren nebeneinander.
+     Heute steht er nur im Finale von Kapitel I, das ohnehin nicht mischt;
+     die Sperre haelt das fest, falls er einmal woanders Meister wird. */
+  if (back.some((sp) => sp && sp.kind === "D" && sp.big)) return back;
   const arr = [...back]; let sh = seed >>> 0;
   for (let i = arr.length - 1; i > 0; i--) {
     sh = (Math.imul(sh, 1664525) + 1013904223) >>> 0;

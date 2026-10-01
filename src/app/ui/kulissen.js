@@ -12,7 +12,7 @@ import { LEAGUE_BOSSES } from "../../content/index.js";
 /* Die zwoelf Grossmeister, in Kapitelfolge - dieselbe Reihenfolge wie
    LEAGUE_BOSSES. Eine Probe haelt beide Listen aneinander. */
 export const MEISTER_KULISSE = {
-  b12: "meister-richter",       // I    Der Richter
+  b12: "meister-richter",       // II   Der Richter (v1.90.20: Mitte von Kapitel II, nicht mehr Meister I - der Drache ist es)
   b10: "meister-doppelritter",  // II   Doppelritter
   b24: "meister-hetzer",        // III  Seuchenkoenig (v1.33.0: der naechtliche Marktplatz mit Galgen - die Kulisse
                                 //      von Kapitel III; der Dateiname blieb, damit kein Bildpfad bricht)

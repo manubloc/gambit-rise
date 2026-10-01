@@ -87,6 +87,32 @@ const piece = (x = {}) => ({ id: 1, kind: "Q", color: "w", level: 1, abilities: 
   ok("an ordinary monster is measured by its plate like every piece (yProzent)", fw.yProzent === true);
 }
 
+// ── v1.90.20: DER GEGNER OHNE FILTER (ausserhalb des Perlen-Schalters) ──────
+{
+  const feind = html(<PieceGlyph piece={piece({ color: "b" })} />);
+  /* v1.90.20 (Besitzer): "die Figuren genau gleich von der Faerbung wie die
+     eigenen" - das Gemaelde des Gegners traegt keinen Filter mehr */
+  /* gemessen: das Gemaelde selbst traegt "filter:none"; der Sockelanstrich
+     (die maskierte Glutkopie, nur der Teller) behaelt seinen eigenen Filter */
+  ok("v1.90.20: das Gemaelde des Gegners ist so ungefiltert wie das eigene",
+    feind.includes("filter:none") && !feind.includes("grayscale(0.22)") && !/brightness\(0\.9\d?\)/.test(feind));
+}
+
+// ── v1.90.20: DER DRACHE HAT IM SCHACH VIER LEBEN - VIER PUNKTE AM SOCKEL ────
+// Besitzer: "die du einfach in Form von vier Punkten auf seinem Sockel
+// darstellst. Mit Leben rot, und wenn er eins weniger hat, schwarz."
+{
+  const drache = (shield) => ({ id: 9, kind: "D", color: "b", level: 1, abilities: [], used: {}, big: true, shield, lebenMax: 4 });
+  const voll = html(<PieceGlyph piece={drache(3)} pov="w" />);
+  const zwei = html(<PieceGlyph piece={drache(1)} pov="w" />);
+  const lebt = (h) => (h.match(/data-lebt="1"/g) || []).length, tot = (h) => (h.match(/data-lebt="0"/g) || []).length;
+  ok(`der Drache traegt vier Punkte am Sockel, alle rot (${lebt(voll)} rot, ${tot(voll)} schwarz)`,
+    voll.includes('data-gg="lebenspunkte"') && lebt(voll) === 4 && tot(voll) === 0);
+  ok(`nach zwei Schlaegen: zwei rot, zwei schwarz (${lebt(zwei)}/${tot(zwei)})`, lebt(zwei) === 2 && tot(zwei) === 2);
+  const hpDrache = html(<PieceGlyph piece={{ ...drache(0), lebenMax: undefined, atk: 6, hp: 30, maxHp: 30 }} pov="w" />);
+  ok("im HP-Gefecht keine Punkte - dort zaehlt sein Leben", !hpDrache.includes('data-gg="lebenspunkte"'));
+}
+
 /* ── DIE PERLENFASSUNG (bis v1.2.x) ───────────────────────────────────────
    Seit v1.3.0 traegt jede Figur das LEBENSROHR statt zweier Zahlenperlen.
    Die Perlen bleiben als Rueckfall im Code (ROHR_STATT_PERLEN), und die
@@ -132,6 +158,7 @@ if (!ROHR_STATT_PERLEN) {
   ok("kein Koenigshalo, keine Aura, kein Heldenglanz im Markup",
     ![eigen, feind, gewaehlt].some((h) => h.includes("0 0 16px") || h.includes("0 0 18px")));
 }
+
 
 // ── 3. ONE SIZE OF NUMERAL ──────────────────────────────────────────────────
 // "die zahlen überall gleiche größe egal ob ein oder zweistellig"
@@ -2202,9 +2229,15 @@ print(json.dumps({"gezaehlt": gezaehlt, "schlecht": schlecht}))
     !/piece\.shield > 0 && \(/.test(pg));
   ok("der Schild wirkt weiterhin im Kern",
     (await import("node:fs")).readFileSync("src/core/rules/moves.js", "utf8").includes("shield"));
-  /* v1.22.2 (Besitzer): nur noch ein Hauch Grau - "man muss sie klar sehen" */
-  ok("die Gegenseite traegt nur einen Hauch Grau (v1.22.2)",
-    pg.includes("grayscale(0.22) saturate(0.9) brightness(0.92)"));
+  /* v1.22.2 (Besitzer): nur noch ein Hauch Grau - "man muss sie klar sehen".
+     v1.90.20 (Besitzer, 1.10.): auch der Hauch ist fort - "genau gleich von der
+     Faerbung wie die eigenen Figuren, nur der sanfte lila Schatten". Die Probe
+     haelt beides fest: kein Grau/Dunkel-Filter mehr am Gemaelde, der lila Saum
+     bleibt. */
+  ok("die Gegenseite traegt KEINEN Grau-/Dunkelfilter mehr (v1.90.20)",
+    !pg.includes("grayscale(0.22)") && !/brightness\(0\.9\d?\)"/.test(pg));
+  ok("der sanfte lila Saum hinter der Gegnerfigur bleibt (v1.90.20)",
+    pg.includes('"drop-shadow(0 0 2.4px rgba(184,146,255,.38))"'));
   ok("das Atmen liegt NICHT mehr auf derselben Ebene wie die Landung",
     !/ggLandung[^`]*ggAtmen/.test(pg));
   ok("eine hoehere Kante verschiebt beide Formen",

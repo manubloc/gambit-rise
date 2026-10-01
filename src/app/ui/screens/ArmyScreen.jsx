@@ -30,7 +30,7 @@ import { PieceArt } from "../board/PieceArt.jsx";
 import { paintedFitById, paintedFitFor, paintedById, paintedForPiece, schlichtAn } from "../board/paintedArt.js";
 import { GAMBIT_STUFEN } from "../board/gambitStufen.js";
 import { kulisseFuer } from "../kulissen.js";
-import { LEAGUE_BOSSES } from "../../../content/index.js";   /* v1.23.0: Grossmeister-Rahmen */
+import { LEAGUE_BOSSES, KAPITEL_TROPHAEE } from "../../../content/index.js";   /* v1.23.0: Grossmeister-Rahmen; v1.90.20 Trophaeen */
 import { KulisseHinterGrund, KULISSE_URL } from "../KulissenBilder.jsx";
 import { BundTafel } from "../BundTafel.jsx";
 import { SockelBand, bandBekannt, bodenAusgleichProzent, sockelSkalierung, figurStreckung, tellerMitteProzent } from "../SockelBand.jsx";   /* v1.17.0: das Band im Sockel */
@@ -2660,7 +2660,11 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
      vorher ist er nicht gesperrt, sondern GAR NICHT DA. Ein Knopf, den man
      sieht, aber nicht versteht, ist schlechter als keiner. */
   const bestechenOffen = freigegeben(profile, "bestechen");
-  const monsterBribable = (b) => bestechenOffen && b.art !== "tyrant" && b.id !== "b23" && b.id !== "b25" && met.has("X:" + b.id) && !bribedSet.has(b.id);
+  /* v1.90.20: "Tyrann" hiess bis hier "Kapitelmeister - den gewinnt man, man
+     kauft ihn nicht". Der Richter ist seit v1.90.20 Tyrann OHNE Kapitel (Mitte
+     von Kapitel II) - ihn darf man bestechen wie jedes Monster, sonst gaebe es
+     keinen Weg mehr zu ihm. */
+  const monsterBribable = (b) => bestechenOffen && (b.art !== "tyrant" || !KAPITEL_TROPHAEE.includes(b.id)) && b.id !== "b23" && b.id !== "b25" && met.has("X:" + b.id) && !bribedSet.has(b.id);
   const bribeMonster = (bossId, victim) => {
     if (gold < MONSTER_BRIBE_GOLD || !unlocked.has(victim)) return;
     // formations that fielded the victim are dissolved (they fall back to default)

@@ -209,5 +209,38 @@ const mk = (lvl = 5, rules = "hp") => createGame(
   ok("A36: auch der Koenig ueberlebt den Drachenblock", !!koenig);
 }
 
+// ── v1.90.20: IM KLASSISCHEN SCHACH HAT DER DRACHE VIER LEBEN (Besitzer 1.10.) ──
+// Ein Schlag auf irgendeines seiner vier Felder kostet ein Leben, der Angreifer
+// bleibt stehen; erst der vierte Schlag nimmt ihn - alle vier Felder auf einmal.
+{
+  const g = mk(5, "chess");
+  const d = g.board[0];
+  ok("Schach: der grosse Drache startet mit vier Leben (3 Schilde, lebenMax 4)", d.shield === 3 && d.lebenMax === 4);
+  const gh = mk(5, "hp");
+  ok("HP-Gefecht: dort gilt sein Leben, nicht die vier Schlaege", gh.board[0].shield === 0 && gh.board[0].lebenMax === undefined);
+  // ein schwarzer Turm direkt ueber dem rechten Fluegel (Feld W+1), Weg frei
+  let s = mk(5, "chess");
+  const ziel = 2 * W + 1;                       // Feld ueber dem Fluegel W+1
+  for (let i = 2 * W; i < 3 * W; i++) s.board[i] = null;
+  s.board[ziel] = { id: 777, kind: "R", color: "b", level: 1, abilities: [], shield: 0, used: {}, hasMoved: true };
+  s.turn = "b";
+  const schlaege = [];
+  for (let n = 0; n < 4; n++) {
+    const hieb = legalMoves(s, "b").find((m) => m.from === ziel && m.to === W + 1);
+    if (!hieb) { schlaege.push("kein Zug"); break; }
+    s = applyMove(s, hieb);
+    const a = s.board[0];
+    schlaege.push(a && a.kind === "D" ? `prallt ab (noch ${a.shield + 1})` : "Drache faellt");
+    ok(`Schlag ${n + 1}: der Turm bleibt auf seinem Feld, solange der Drache lebt`,
+      n < 3 ? (s.board[ziel]?.id === 777 && s.lastMove.bounced === true) : s.board[W + 1]?.id === 777);
+    s.turn = "b";
+  }
+  ok(`vier Schlaege, vier Leben: ${schlaege.join(" · ")}`,
+    schlaege.join("|") === "prallt ab (noch 3)|prallt ab (noch 2)|prallt ab (noch 1)|Drache faellt");
+  ok("beim vierten Schlag werden alle vier Felder frei (der Turm steht auf dem getroffenen)",
+    s.board[0] === null && s.board[1] === null && s.board[W] === null && s.board[W + 1]?.kind === "R");
+  ok("und der Drache zaehlt als geschlagen", s.captured.b.includes("D"));
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 if (fail) process.exit(1);

@@ -171,7 +171,11 @@ const tMon = stageTimer(nb2(ERWACHEN), 5);
 ok("league 5 monster boss: 6-minute total budget", tMon?.type === "total" && tMon.seconds === 360);
 const tEli = stageTimer(nb2("L03s23"), 5);
 ok("league 5 elite piece boss: 20s per move", tEli?.type === "move" && tEli.seconds === 20);
-ok("clocks tighten but stay bounded", stageTimer(nb2("L01s44"), 30).seconds === 180 && stageTimer(nb2("L03s23"), 30).seconds === 12);
+/* v1.90.20: das Finale von Kapitel I haelt jetzt der Drache - eine FIGUR, und
+   Figurenstationen tragen nur in spaeten Ligen eine Zuguhr. Die Probe fuer die
+   Monster-Gesamtuhr nimmt darum das Finale von Kapitel II (ein Monster). */
+const FIN2 = CAMPX.find((n) => n.final && n.league === 2).id;
+ok("clocks tighten but stay bounded", stageTimer(nb2(FIN2), 30).seconds === 180 && stageTimer(nb2("L03s23"), 30).seconds === 12);
 /* v1.1.2: DIE UHR HAENGT AN DER STATION, nicht am Spielerstand. Vorher stand
    hier: Profil auf Liga 5 -> auch eine Station aus Kapitel 1 (ERWACHEN)
    bekommt die Uhr. Das war das alte Verhalten und der gemeldete Fehler: wer
@@ -314,8 +318,12 @@ ok("nine leagues of income cover the boat (" + income9 + " vs " + boat3.gold + "
   }
   {
     const p = withProgressPct(defaultProfile(), 40, 2);
-    const m = buildStageMatch("L07s41", p);
-    ok("hoard boss dragon carries the big flag", !!m.aiArmy.back.find((s) => s && s.kind === "D" && s.big));
+    /* v1.90.20: der Drache ist Meister von Kapitel I (Bannerhoehe, L01s44) -
+       die Halle in Kapitel VII (L07s41) huetet seither der Waechter */
+    const m = buildStageMatch("L01s44", p);
+    ok("hoard boss dragon carries the big flag (chapter I master)", !!m.aiArmy.back.find((s) => s && s.kind === "D" && s.big));
+    const halle = buildStageMatch("L07s41", p);
+    ok("the empty hall in chapter VII holds the Warden", halle.boss?.bossId === "b01");
   }
   ok("potion veiled at the very start", !itemRevealed(fresh, ITEMS.potion));
   // v0.77: Der Trank kommt NICHT mehr nach dem ersten Sieg - erst wenn die

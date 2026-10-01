@@ -2,6 +2,9 @@ import { FILES, RANKS, WHITE, BLACK, KIND, idx, BASE_HP, BASE_ATK, SHIELD_HP, NO
 import { familyOf, crownHp, shadowAtk, shadowRifts } from "../rules/families.js";
 import { emptyBoard, makePiece } from "./board.js";
 
+/** v1.90.20: Leben des grossen Drachen im klassischen Schach (siehe createGame). */
+export const DRACHE_LEBEN = 4;
+
 /* v1.24.0: DIE GRUNDSTELLUNG IST DIE DES SCHACHS (8 Plaetze, R N B Q K B N R).
    Vorher stand hier die 10er-Reihe der Arena mit vier Springern; mit dem
    Wegfall von Arena und Scharmuetzel gibt es nur noch EINE Breite. Die
@@ -141,6 +144,29 @@ export function createInitialState(whiteArmy = defaultArmy(), blackArmy = defaul
     pc._unfolded = true;
     board[a] = pc;
     for (const c of cells) if (c !== a) board[c] = { kind: "D+", color: pc.color, ref: a };
+  }
+
+  /* ── v1.90.20: DER DRACHE HAT IM SCHACH VIER LEBEN (Besitzer, 1.10.) ──────
+     "Da der Drache den Platz von vier Figuren einnimmt, hat er im klassischen
+      Schach halt einfach vier Leben - die du in Form von vier Punkten auf
+      seinem Sockel darstellst. Mit Leben rot, und wenn er eins weniger hat,
+      schwarz." Er ist der Meister von Kapitel I und die Vorstufe zu den
+      HP-Gefechten: man lernt hier, dass ein Schlag nicht immer faellt.
+
+     Gebaut auf dem SCHILD des Schachkerns (transitions.js, Schachzweig): ein
+     Schlag auf einen geschuetzten Gegner prallt ab, der Angreifer bleibt auf
+     seinem Feld, ein Schild ist verbraucht. Vier Leben = drei Schilde und der
+     vierte, der faellt. `lebenMax` merkt sich das Ganze - die Punkte am Sockel
+     lesen (shield + 1) von lebenMax. Die KI rechnet Schilde schon mit
+     (evaluate.js, SHIELD_VALUE). Nur der GROSSE Drache (2x2 entfaltet); einer,
+     der mangels Platz klein blieb, ist eine Figur wie jede andere. Im
+     HP-Gefecht gilt sein Leben (HP), nicht dies. */
+  if (rules !== "hp") {
+    for (const p of board) {
+      if (!p || p.kind !== KIND.DRAGON || !p.big) continue;
+      p.shield = DRACHE_LEBEN - 1;
+      p.lebenMax = DRACHE_LEBEN;
+    }
   }
 
   // HP ruleset: give every piece hit points + attack power. A progression

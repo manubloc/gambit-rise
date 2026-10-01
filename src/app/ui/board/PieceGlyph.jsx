@@ -929,7 +929,15 @@ export function PieceGlyph({ piece, showLevel = true, pov = "w", artStyle = "pai
                    halbe Entfaerbung und ein Viertel dunkler; jetzt ein Fuenftel
                    Grau und kaum dunkler. Die Trennung tragen Sockelband und
                    Riss-Violett. */
-                : "grayscale(0.22) saturate(0.9) brightness(0.92)",
+                /* v1.90.20 (Besitzer, 1.10.): "bei allen Gegnern doch wieder
+                   heller werden - dass wir die Figuren sogar genau gleich haben
+                   von der Faerbung wie die eigenen Figuren. Nur der sanfte lila
+                   Schatten hinter den Figuren ist ok." Gemessen vorher: der
+                   blaue Brandstifter wurde unter diesem Filter am Brett fast
+                   schwarz, jedes Monster einen Schritt dunkler als im Bild.
+                   Der Filter ist fort; die Seiten trennen jetzt das lila Feld
+                   (BoardView) und der lila Saum (SAUM_RUHIG oben). */
+                : "none",
               userSelect: "none", pointerEvents: "none" ,
               /* v1.31.0: GEISTWANDEL - bleich und durchscheinend, NUR das Bild;
                  das Band behaelt seine Farben (Besitzer) */
@@ -1006,6 +1014,9 @@ export function PieceGlyph({ piece, showLevel = true, pov = "w", artStyle = "pai
                  die der Besitzer damit ausdruecklich zuruecknimmt. Das
                  Mittelstueck ist ab jetzt fuer BEIDE Seiten schwarz. */
               schaden={blitzAnteil} grau={!werteAn} ausrichtung="unten"
+              /* v1.90.20 (Besitzer): der Drache im klassischen Schach - vier
+                 Leben als Punkte auf dem Sockel (setup.js, lebenMax/shield) */
+              punkte={!hpMode && piece?.lebenMax > 0 ? { an: (piece.shield || 0) + 1, max: piece.lebenMax } : null}
               /* v1.55.0: EINE KENNUNG JE FIGUR. Vorher teilten alle Figuren ohne
                  charId die Kennung "sbb-x" - und doppelte Kennungen loest der
                  Browser auf das ERSTE Vorkommen auf, die schwarze Figur oben.

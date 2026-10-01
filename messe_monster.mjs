@@ -97,7 +97,9 @@ for (const b of BOSSES) {
 console.log(`Ausreisser ueber +14 Feldwirkung: ${ausreisser} (Ziel 0) | Spieler-Niederlagen: ${spielerKollaps} (Ziel <=3) | Haerte-Verletzungen: ${fruehHart} (Ziel 0)`);
 
 // Anker: Brutmutter faellt einem Frischling, Osric widersteht dem Vollausbau lange
-const a4 = CAMPAIGN.find((n) => n.league === 1 && n.boss?.pure);
+/* v1.90.20: Kapitel I hat keine Monster-Station mehr (der Drache, eine Figur,
+   haelt das Finale) - der Anker ist die erste Monster-Station ueberhaupt */
+const a4 = CAMPAIGN.filter((n) => n.boss?.pure).sort((x, y) => x.league - y.league)[0];
 const frisch = defaultProfile();
 const m1 = buildStageMatch(a4.id, frisch);
 let s1 = createGame(buildArmyForMap(frisch, mapById(m1.map || "classic")), m1.aiArmy, { seed: 3, map: mapById(m1.map || "classic"), rules: m1.rules || "chess" });

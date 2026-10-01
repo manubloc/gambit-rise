@@ -877,6 +877,28 @@ const ohneSubtle = (() => {
   ok("A40: ... und den Schach-Plan (classic#chess)", Array.isArray(r.loadout.formations["classic#chess"]));
   const einmal = M.migrateProfile(p), zweimal = M.migrateProfile(einmal);
   ok("A40: die Migration ist idempotent", JSON.stringify(einmal) === JSON.stringify(zweimal));
+  /* v1.90.20: DER NEUE MEISTER VON KAPITEL I. Ein Stand von VOR dieser Fassung,
+     der Kapitel I schon gewonnen hatte, besass den Richter (Trophaee I) und
+     fuehrte ihn vielleicht auf dem Damenplatz. Er behaelt ihn (als bestochenen
+     Grossmeister) und bekommt den Drachen - einmalig (meister20). Ein Stand,
+     der Kapitel I noch nicht gewann, bekommt nichts geschenkt. */
+  {
+    const alt = { stats: { leaguesWon: 2 }, campaign: { league: 3, unlocked: ["mage"] },
+      loadout: { formations: { classic: ["rook", "knight", "bishop", "boss:b12", "king", "bishop", "knight", "rook"] } } };
+    const neu = M.migrateProfile(alt);
+    ok("v1.90.20: ein alter Stand nach Kapitel I behaelt den Richter und bekommt den Drachen",
+      M.ownedLeagueBosses(neu).includes("b12") && neu.campaign.unlocked.includes("dragon") && neu.campaign.meister20 === true);
+    ok("v1.90.20: ... seine Aufstellung mit dem Richter auf dem Damenplatz bleibt gueltig",
+      M.formationLegalOn(neu.loadout.formations.classic, M.unlockedCharacterIds(neu), (await import("./src/content/index.js")).mapById("classic"), M.ownedLeagueBosses(neu)));
+    const zweit = M.migrateProfile(neu);
+    ok("v1.90.20: der Umzug laeuft nur einmal", JSON.stringify(zweit.campaign.bribedBosses) === JSON.stringify(neu.campaign.bribedBosses));
+    const frueh = M.migrateProfile({ stats: { leaguesWon: 0 }, campaign: { league: 1, unlocked: [] } });
+    ok("v1.90.20: wer Kapitel I noch nicht gewann, bekommt nichts geschenkt",
+      !frueh.campaign.unlocked.includes("dragon") && !(frueh.campaign.bribedBosses || []).includes("b12"));
+    const spaeter = M.migrateProfile({ ...frueh, stats: { leaguesWon: 1 } });
+    ok("v1.90.20: ... und ein spaeterer Sieg laeuft ueber die neuen Regeln (kein Richter)",
+      !(spaeter.campaign.bribedBosses || []).includes("b12"));
+  }
   /* ein v1-Stand (vor den Konten): Zahl statt Liste in cleared, charXp */
   const v1 = { gold: 5, xp: 600, charXp: { knight: 200 }, campaign: { league: 1, cleared: 2 } };
   const s1 = await createSave("acc-v1", "v1", v1);

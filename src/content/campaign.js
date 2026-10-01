@@ -56,7 +56,13 @@ export const nodeById = (id) => CAMPAIGN.find((n) => n.id === id) || null;
    Kapitel. Nur diese zwoelf sind "Grossmeister": nur auf dem Damenplatz, 3-5
    Faehigkeiten, duerfen verschieden stark sein. Die 13 anderen Monster sind
    gewoehnliche Monster und folgen der Beweglichkeitsregel wie die Figuren. */
-export const KAPITELMEISTER = CAMPAIGN.filter((n) => n.final && n.boss?.pure).map((n) => n.boss.pure);
+/* v1.90.20: Kapitel I endet mit dem DRACHEN, einer Figur - die Liste fuehrt
+   ihn als "figur:dragon", damit sie zwoelf Eintraege behaelt (einer je
+   Kapitel) und istKapitelmeister fuer jede bXX-Kennung weiter stimmt. Der
+   Richter (b12) ist Grossmeister, aber nicht mehr Kapitelmeister. */
+export const KAPITELMEISTER = CAMPAIGN.filter((n) => n.final && n.boss && n.league <= 12)
+  .sort((a, b) => a.league - b.league)
+  .map((n) => n.boss.pure || "figur:" + n.boss.piece);
 export const istKapitelmeister = (bossId) => KAPITELMEISTER.includes(bossId);
 
 export const BRANCHES = {

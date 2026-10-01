@@ -22,3 +22,18 @@ byte-gleich mit der Vorschau, die der Besitzer gesehen hat.
 
 Der Hochauflösungs-Rohling `archiv/bilder/figuren-hq/boss-b13.png` bleibt
 rot: er ist das Original, das Blau ist eine Ableitung davon.
+
+## Nachtrag v1.90.20: "noch heller"
+
+Am Brett wurde das Blau unter dem damaligen Gegnerfilter fast schwarz. Der
+Besitzer wählte am 1.10. die Fassung „noch heller“ (Leuchtdichte der
+umgefärbten Flächen × 2,0, Sättigung 1,0) — und hob den Gegnerfilter ganz auf.
+Gerechnet wieder aus dem roten Original hier:
+
+    python3 tools/umfaerben.py archiv/ausgemustert/v1.90.19/painted-boss-b13-rot.webp \
+        src/app/ui/assets/painted/painted-boss-b13.webp 218 1 1.0 2.0
+    python3 tools/umfaerben.py archiv/ausgemustert/v1.90.19/klein/painted-boss-b13-rot.webp \
+        src/app/ui/assets/painted/klein/painted-boss-b13.webp 218 1 1.0 2.0
+
+Byte-gleich mit der Vorschau, die der Besitzer gesehen hat; Alphakanal
+unverändert (Abweichung 0).

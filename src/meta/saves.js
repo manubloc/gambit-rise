@@ -13,7 +13,7 @@ import { storage } from "../platform/index.js";
 import { migrate } from "./profile.js";   /* v1.28.1 ohneDauerfeuer; v1.90.18 die ganze Migration (A40) */
 import { defaultProfile } from "./profile.js";
 import { clearedCount, campaignLength, nodeInLeague, effectiveNodeBoss } from "./campaign.js";
-import { CAMPAIGN, CHARACTERS, BOSSES, bossById, ITEMS } from "../content/index.js";
+import { CAMPAIGN, CHARACTERS, BOSSES, bossById, ITEMS, KAPITEL_TROPHAEE } from "../content/index.js";
 
 const IKEY = (acc) => `saves:${acc}`;
 const SKEY = (acc, slot) => `save:${acc}:${slot}`;
@@ -90,7 +90,9 @@ export function withProgressPct(profile, pct, league = 1) {
     }
     bribed = [...monstersMet].filter((id) => {
       const b = bossById(id);
-      return b && b.art !== "tyrant" && b.id !== "b23" && b.id !== "b25"; // tyrants join via leaguesWon only
+      /* tyrants join via leaguesWon only - v1.90.20: ausser dem Richter, der
+         kein Kapitel mehr haelt (bestechlich wie ein Monster, ArmyScreen) */
+      return b && (b.art !== "tyrant" || !KAPITEL_TROPHAEE.includes(b.id)) && b.id !== "b23" && b.id !== "b25";
     });
     for (const it of Object.values(ITEMS)) items[it.id] = Math.max(items[it.id] || 0, it.max || 1);
   }
@@ -102,7 +104,9 @@ export function withProgressPct(profile, pct, league = 1) {
     items,
     stats: { ...base.stats, leaguesWon },
     codex: { ...(base.codex || {}), met: [...met] },
-    campaign: { league: lg, cleared, unlocked: [...recruits], dupes: {}, bribedBosses: bribed },
+    /* meister20: der Regler baut schon nach den Regeln von v1.90.20 (Drache als
+       Meister I) - der einmalige Umzug in profile.js darf hier nichts nachtragen */
+    campaign: { league: lg, cleared, unlocked: [...recruits], dupes: {}, bribedBosses: bribed, meister20: true },
   };
 }
 

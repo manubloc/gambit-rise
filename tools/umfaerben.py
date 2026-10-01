@@ -9,6 +9,11 @@ wahlweise Glut-orange (Feuer), damit der Name weiter stimmt.
 Helligkeit: ein reiner Farbtondreh von Dunkelrot nach Blau macht die Figur
 wahrgenommen DUNKLER (Blau traegt nur 7 % der Leuchtdichte). Darum wird V so
 nachgezogen, dass die Leuchtdichte (Rec. 709) je Pixel gleich bleibt.
+
+v1.90.20 (Besitzer 1.10.: "dieses noch heller ist eine gute Grundlage"):
+ein sechster Wert HELL hebt die Leuchtdichte der umgefaerbten Flaechen um
+diesen Faktor (1,0 = wie das Original, 2,0 = die Fassung "noch heller").
+Aufruf:  umfaerben.py <quelle> <ziel> <grad> [augen=1] [saettigung] [hell]
 """
 import sys
 import numpy as np
@@ -44,7 +49,7 @@ def lum(rgb):
     return 0.2126 * rgb[..., 0] + 0.7152 * rgb[..., 1] + 0.0722 * rgb[..., 2]
 
 
-def umfaerben(src, dst, ziel_grad, augen_bleiben=True, saett=1.0):
+def umfaerben(src, dst, ziel_grad, augen_bleiben=True, saett=1.0, hell=1.0):
     im = Image.open(src).convert("RGBA")
     a = np.asarray(im).astype(np.float64) / 255.0
     rgb = a[..., :3]; alpha = a[..., 3]
@@ -64,9 +69,9 @@ def umfaerben(src, dst, ziel_grad, augen_bleiben=True, saett=1.0):
     s2 = np.clip(s * saett, 0, 1)
     neu = hsv_to_rgb(h2, s2, v)
     # Leuchtdichte je Pixel angleichen
-    y0 = lum(rgb); y1 = lum(neu)
+    y0 = lum(rgb) * hell; y1 = lum(neu)
     k = np.where(y1 > 1e-4, y0 / np.maximum(y1, 1e-4), 1.0)
-    neu = np.clip(neu * np.clip(k, 0.5, 3.0)[..., None], 0, 1)
+    neu = np.clip(neu * np.clip(k, 0.5, 3.0 if hell == 1.0 else 5.0)[..., None], 0, 1)
     out = rgb * (1 - w[..., None]) + neu * w[..., None]
     res = np.concatenate([out, alpha[..., None]], -1)
     Image.fromarray((res * 255 + 0.5).astype(np.uint8), "RGBA").save(dst, lossless=False, quality=92, method=6)
@@ -77,4 +82,5 @@ if __name__ == "__main__":
     src, dst, grad = sys.argv[1], sys.argv[2], float(sys.argv[3])
     augen = (sys.argv[4] if len(sys.argv) > 4 else "1") == "1"
     satt = float(sys.argv[5]) if len(sys.argv) > 5 else 1.0
-    print(dst, "umgefaerbt:", round(100 * umfaerben(src, dst, grad, augen, satt), 1), "%")
+    hell = float(sys.argv[6]) if len(sys.argv) > 6 else 1.0
+    print(dst, "umgefaerbt:", round(100 * umfaerben(src, dst, grad, augen, satt, hell), 1), "%")

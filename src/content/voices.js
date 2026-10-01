@@ -29,11 +29,16 @@ export const VOICES = {
     afterDe: "Nimm meine Karte, {held}. Aber versprich mir, den einen Weg darauf niemals zu gehen.",
     afterEn: "Take my map, {held}. But promise me you will never walk the one road on it.",
   },
+  /* v1.90.20 (Besitzerentscheid): der Drache ist MEISTER VON KAPITEL I und
+     huetet damit das Tor des zweiten - wie jeder Meister das des naechsten.
+     Seine Zeile aus der Saga (der Schwur an die Krone) bleibt. Die alte
+     Nachrede ("drei Siege") stimmte schon vorher nicht (er verlangte zwei)
+     und jetzt erst recht nicht: ein Sieg, vier Leben. */
   dragon: {
-    heraldDe: "Der Drache schwor einst der Krone die Treue; der Riss fragte nicht nach Schwüren, nur nach Feuer.",
-    heraldEn: "The Dragon once swore fealty to the Crown; the rift never asked for oaths, only for fire.",
-    afterDe: "Drei Siege forderte mein Stolz von dir. Dein Feuer brennt heller als meines — führe mich.",
-    afterEn: "My pride demanded three victories of you. Your fire burns brighter than mine — lead me.",
+    heraldDe: "Der junge Drache hütet das Tor des zweiten Kapitels. Sein Geschlecht schwor einst der Krone die Treue; der Riss fragte nicht nach Schwüren, nur nach Feuer.",
+    heraldEn: "The young Dragon keeps the second chapter's gate. His kin once swore fealty to the Crown; the rift never asked for oaths, only for fire.",
+    afterDe: "Vier Leben, vier Schläge — du hast sie mir alle genommen, {held}. Mein Feuer gehört dir.",
+    afterEn: "Four lives, four blows — you took every one of them, {held}. My fire is yours.",
   },
   sorceress: {
     heraldDe: "Die Hexerin sah im Orakel das Ende dieser Geschichte — und beschloss, jedem einzelnen Kapitel im Weg zu stehen.",
@@ -204,11 +209,13 @@ export const VOICES = {
     afterDe: "Das ausgelassene Wort, {held}? Es ist immer dasselbe: dein Name.",
     afterEn: "The word I leave out, {held}? It is always the same one: your name.",
   },
+  /* v1.90.20: der Richter haelt nicht mehr das Tor, sondern Gericht mitten im
+     Korn von Kapitel II (Besitzerentscheid; die Chronik erzaehlt ihn dort) */
   b12: {
-    heraldDe: "Der Richter hütet das Tor des zweiten Kapitels und spricht Recht im Namen eines Hofes, den es nicht mehr gibt.",
-    heraldEn: "The Judge keeps the second chapter's gate, passing sentence in the name of a court that no longer exists.",
-    afterDe: "Das Urteil lautet: schuldig — ich, des Wartens. Die Waage gehört dir, {held}.",
-    afterEn: "The verdict: guilty — I, of waiting. The scales are yours, {held}.",
+    heraldDe: "Der Richter hält mitten im Korn Gericht, im Namen eines Hofes, den es nicht mehr gibt.",
+    heraldEn: "The Judge holds court in the middle of the wheat, in the name of a court that no longer exists.",
+    afterDe: "Das Urteil lautet: schuldig — ich, des Wartens. Geh weiter, {held}; das Korn gehört dir.",
+    afterEn: "The verdict: guilty — I, of waiting. Walk on, {held}; the wheat is yours.",
   },
   b13: {
     heraldDe: "Der Brandstifter glaubt, man könne den Riss ausbrennen; bisher brannte nur alles andere.",

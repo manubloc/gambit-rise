@@ -1,6 +1,6 @@
 import { KIND, VALUE, BASE_HP, BASE_ATK } from "../core/index.js";
 import { DEFAULT_BACK_RANK, FLANK_SLOTS } from "../core/index.js";
-import { bossById, bossSpec, LEAGUE_BOSSES } from "../content/bosses.js";
+import { bossById, bossSpec, LEAGUE_BOSSES, KAPITEL_TROPHAEE } from "../content/bosses.js";
 import { erwachteBuende } from "../content/buende.js";   /* v1.90.10 (A9) */
 import { CHARACTERS, CHARACTER_LIST, KIND_TO_CHAR } from "../content/index.js";
 import { difficultyById, mapById, MAPS } from "../content/index.js";
@@ -367,7 +367,10 @@ export function formationLegal(formation, unlockedIds) {
 // Beating a league wins you its boss. A formation entry "boss:bXX" fields him
 // in place of the queen — one boss at most; his AURA then serves YOUR side.
 export const ownedLeagueBosses = (profile) => {
-  const won = LEAGUE_BOSSES.slice(0, Math.min(LEAGUE_BOSSES.length, profile?.stats?.leaguesWon || 0));
+  /* v1.90.20: die TROPHAEE je Kapitel, nicht die Grossmeister-Liste - Kapitel I
+     gibt den Drachen als Figur (null in KAPITEL_TROPHAEE). Wer Kapitel I vor
+     v1.90.20 gewann, behaelt den Richter (Umzug in profile.js, meister20). */
+  const won = KAPITEL_TROPHAEE.slice(0, Math.min(KAPITEL_TROPHAEE.length, profile?.stats?.leaguesWon || 0)).filter(Boolean);
   // monsters BOUGHT with gold and a crown sacrifice fight for you too
   const bribed = profile?.campaign?.bribedBosses || [];
   return [...new Set([...won, ...bribed])];

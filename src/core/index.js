@@ -10,7 +10,7 @@ export {
   KROENUNG_ARTEN, kroenbar,
 } from "./domain/constants.js";
 export { makePiece, emptyBoard, clonePiece, cloneBoard, findKing, newId } from "./domain/board.js";
-export { DEFAULT_BACK_RANK, FLANK_SLOTS, defaultArmy, createInitialState } from "./domain/setup.js";
+export { DEFAULT_BACK_RANK, FLANK_SLOTS, defaultArmy, createInitialState, DRACHE_LEBEN } from "./domain/setup.js";
 
 // Rules: move generation + attack/check detection
 export { pieceMoves, pseudoMoves, hasAbility, PASSIVE_TALENTE } from "./rules/moves.js";

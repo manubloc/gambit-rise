@@ -39,7 +39,20 @@ const SLOTS = [
    und tauscht mit dem Hetzer - er ist jetzt der Meister von Kapitel III, der
    Hetzer steht dort und in Kapitel X unterwegs. Asra war schon Meisterin von
    Kapitel XI. Die zwoelf Kapitelmeister sind die Grossmeister des Spiels. */
-const ENDBOSS = ["b12","b10","b24","b19","b20","b16","b17","b18","b08","b14","b23","b25"]; // v0.38.1: Osric ans Ende (war faelschlich Kapitel-I-Finale)
+const ENDBOSS = [null,"b10","b24","b19","b20","b16","b17","b18","b08","b14","b23","b25"]; // v0.38.1: Osric ans Ende (war faelschlich Kapitel-I-Finale)
+/* ── v1.90.20 (Besitzerentscheid 1.10.): DER DRACHE IST MEISTER VON KAPITEL I ──
+   "Mach den Drachen gerne frueher - nicht als Endgegner, sondern als
+    Kapitelmeister 1 und als Vorstufe fuer HP-Kaempfe." Im klassischen Schach
+   hat er vier Leben (core/domain/setup.js), und wer ihn besiegt, bekommt ihn
+   sofort (Besitzer: "Ja, sofort") - eine FIGUR als Meister, darum steht hier
+   kein Monster, sondern eine Figur mit wins 1.
+   Der RICHTER, bis hierher Meister von Kapitel I, haelt jetzt Gericht in
+   Kapitel II - als Mitte-Boss, wo seine Geschichte ohnehin spielt ("Mittendrin
+   haelt der Richter Gericht", worldMap.js Kapitel II). Der Hetzer, der dort
+   stand, rueckt an das Erwachen; der Waechter, der am Erwachen stand, huetet
+   die leere Drachenhalle in Kapitel VII (DRACHENHALLE unten) - sonst fiele er
+   aus dem ersten Durchlauf, und "13 Monster" stuende nicht mehr. */
+const MEISTER_FIGUR = { 1: "dragon" };
 // Zwischen-Monster fuer die Mitte des Hauptastes, je Liga eine kleine Rotation.
 /* v1.90.16 (Besitzerentscheid 30.9.): VIER GEMALTE BESTIEN KAMEN NIE VOR.
    Brutmutter, Schleicher, Bollwerk und Fluesterin standen nur an ZWEITER
@@ -50,12 +63,21 @@ const ENDBOSS = ["b12","b10","b24","b19","b20","b16","b17","b18","b08","b14","b2
    Stummen: III Schleicher, VIII Bollwerk, XII Fluesterin; der bisherige
    Mitte-Boss rueckt in der Rotation nach hinten. Die Brutmutter bekommt
    ihre eigene Station in Kapitel VII (BRUT unten). */
-const MITTE = [["b01","b03"],["b02","b11"],["b04","b02"],["b09","b13"],["b22","b04"],
+const MITTE = [["b01","b03"],["b12","b11"],["b04","b02"],["b09","b13"],["b22","b04"],
   ["b21","b07"],["b15","b06"],["b06","b01"],["b13","b22"],["b05","b02"],["b07","b21"],["b11","b15"]];
 /* DIE BRUTMUTTER VOR DEM DRACHEN (v1.90.16, Besitzerentscheid): in Kapitel VII
    hinter dem Mitte-Boss und VOR der Drachenstation - erst das Gelege, dann
    der geschluepfte Drache. Ihre Geschichte stand bis v1.90.15 als toter Code
    an einer Station "a4", die es seit den zwoelf Graphen nicht mehr gibt. */
+/* v1.90.20: in Kapitel VII stand an dieser Stelle der Drache (Schluesselfigur
+   bei 55 % des Hauptastes). Er ist jetzt Meister von Kapitel I - die Station
+   bleibt, und der Waechter haelt die leere Halle. Die Brutmutter steht weiter
+   zwei Schritte davor; ihr Anker ist die Halle, nicht mehr die Figur. */
+const DRACHENHALLE = { liga: 7, anteil: 0.55, boss: "b01",
+  /* ohne das Wort "Drache": test_story duldet keine Station, die eine Figur
+     nennt, die sie nicht stellt */
+  storyDe: "Der Hort ist leer, sein Bewohner ausgeflogen. Geblieben ist der Wächter, und er hütet die Halle, als käme jemand zurück.",
+  storyEn: "The hoard is empty, its keeper flown. The Warden stayed behind, guarding the hall as if someone might return." };
 const BRUT = { liga: 7, schritte: 2, boss: "b03",
   storyDe: "Hier ist es warm - zu warm. Die Brutmutter hütet ein Gelege, das noch niemand schlüpfen sah. Noch nicht.",
   storyEn: "It is warm here - too warm. The Broodmother tends a clutch that no one has seen hatch. Not yet." };
@@ -63,7 +85,7 @@ const BRUT = { liga: 7, schritte: 2, boss: "b03",
 const HAUPTFIGUR = {
   1:[["mage",.62],["paladin",.86]],   /* v0.77: beide Werbungen liegen HINTER dem Erwachen - die Schachhaelfte kommt ohne neue Figuren aus */ 2:[["hawk",.55]], 3:[["alchemist",.55]],
   4:[["sorceress",.55]], 5:[["guardian",.55]], 6:[["assassin",.55]],
-  7:[["dragon",.55]], 8:[["warlock",.55]], 9:[["inquisitor",.55]],
+  7:[], 8:[["warlock",.55]], 9:[["inquisitor",.55]],   /* v1.90.20: der Drache ist Meister von Kapitel I */
   10:[["archbishop",.42],["engineer",.75]], 11:[["chancellor",.42],["standard",.75]],
   12:[["seeress",.5]],
 };
@@ -265,6 +287,7 @@ SLOTS.forEach(([key, name, roman], si) => {
   const figuren = (HAUPTFIGUR[liga] || []).map(([f, a]) => [haupt[Math.min(H - 1, Math.round(a * (H - 1)))], f]);
   const figAt = Object.fromEntries(figuren);
   const mitteAt = haupt[Math.round(0.3 * (H - 1))];
+  const hallenAt = liga === DRACHENHALLE.liga ? haupt[Math.round(DRACHENHALLE.anteil * (H - 1))] : -1;
   /* Die Brutmutter steht AUF DEM WEG zum Drachen: zwei Schritte vor seiner
      Station, rueckwaerts entlang der kuerzesten Wege (dist - 1).
      Erster Anlauf (gemessen, verworfen): ein Anteil am Hauptast wie beim
@@ -276,7 +299,7 @@ SLOTS.forEach(([key, name, roman], si) => {
      "erst das Gelege, dann der geschluepfte Drache". */
   let brutAt = -1;
   if (liga === BRUT.liga) {
-    const drache = figuren.find(([, f]) => f === "dragon")?.[0];
+    const drache = hallenAt;                       // v1.90.20: die (leere) Drachenhalle
     let u = drache;
     for (let schritt = 0; u != null && schritt < BRUT.schritte; schritt++) {
       const vor = (nb[u] || []).filter(w => dist[w] === dist[u] - 1)
@@ -284,6 +307,7 @@ SLOTS.forEach(([key, name, roman], si) => {
       u = vor;
     }
     if (u != null && u !== drache && !figAt[u] && u !== mitteAt && rangH.has(u)) brutAt = u;
+    if (drache == null || drache < 0) throw new Error(`Kapitel ${liga}: keine Drachenhalle`);
     if (brutAt < 0) throw new Error(`Kapitel ${liga}: keine freie Station fuer die Brutmutter vor dem Drachen`);
   }
   /* v1.0.20: DAS ERWACHEN BRAUCHT EINE FREIE STATION. Faellt der berechnete
@@ -373,17 +397,21 @@ SLOTS.forEach(([key, name, roman], si) => {
       if (rang === H - 1) {                    // Kapitel-Endboss
         n.final = true;                          // schliesst das Kapitel ab
         if (liga === 12) n.place = "Blitzfeste des Grossmeisters";
-        n.boss = { pure: ENDBOSS[si] };
+        n.boss = MEISTER_FIGUR[liga] ? { piece: MEISTER_FIGUR[liga], wins: 1 } : { pure: ENDBOSS[si] };
         n.tier = Math.min(4, 3 + schwer + (liga >= 11 ? 1 : 0));
         n.difficulty = "hard";
         n.storyDe = `${n.place}: Hier wartet der Meister von Kapitel ${roman}.`;
         n.storyEn = `${n.place}: here waits the master of chapter ${roman}.`;
+        if (MEISTER_FIGUR[liga] === "dragon") {
+          n.storyDe = `${n.place}: Hier wartet der Meister von Kapitel ${roman} - ein junger Drache. Vier Felder, vier Leben.`;
+          n.storyEn = `${n.place}: here waits the master of chapter ${roman} - a young dragon. Four squares, four lives.`;
+        }
         n.reward.gold = 20 + 4 * liga;
       } else if (figAt[i]) {
         n.boss = { piece: figAt[i], wins: liga >= 7 ? 2 : 1 };
         n.tier = Math.min(4, 1 + Math.floor(liga / 4) + schwer);
       } else if (liga === HP_AB_LIGA && rang === hpAb) {   // DAS ERWACHEN hat Vorrang
-        n.boss = { pure: "b01", rotation: ["b01", "b03", "b02"] };
+        n.boss = { pure: "b02", rotation: ["b02", "b03", "b01"] };   /* v1.90.20: der Hetzer (vorher der Waechter) */
         n.tier = 1;
         /* v1.90.18: ausdruecklich markiert - die erste HP-Schlacht behaelt die
            alte Szene (Bossformationen, meta/campaign.js). Vorher war das
@@ -391,6 +419,11 @@ SLOTS.forEach(([key, name, roman], si) => {
         n.erwachen = true;
         n.storyDe = `${ort}: die alte Magie erwacht - Figuren bluten, Figuren halten stand.`;
         n.storyEn = `${ort}: the old magic wakes - pieces bleed, pieces endure.`;
+      } else if (i === hallenAt) {                 // v1.90.20: die leere Drachenhalle
+        n.boss = { pure: DRACHENHALLE.boss };
+        n.tier = Math.min(4, 1 + Math.floor(liga / 5) + schwer);
+        n.storyDe = `${ort}: ${DRACHENHALLE.storyDe}`;
+        n.storyEn = `${ort}: ${DRACHENHALLE.storyEn}`;
       } else if (i === brutAt) {
         n.boss = { pure: BRUT.boss };
         n.tier = Math.min(4, 1 + Math.floor(liga / 5) + schwer);

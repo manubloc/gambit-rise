@@ -511,8 +511,11 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
      anderen Seite, klingt sein Erscheinen einmal beim Einstieg - der Meister
      mit Glocke und Chor, die Bestie mit Stein und Atem. */
   useEffect(() => {
-    if (resume || !match?.boss?.bossId || match.boss.bossId.startsWith("pb_")) return;
+    /* v1.90.20: auch eine FIGUR kann Kapitelmeister sein (der Drache, Kapitel
+       I) - dann klingt der Meister-Auftritt; gewoehnliche Figurenstationen
+       bleiben still wie bisher */
     const feierlich = match?.node?.final;
+    if (resume || !match?.boss?.bossId || (match.boss.bossId.startsWith("pb_") && !feierlich)) return;
     const t0 = setTimeout(() => { try { klang(feierlich ? "meister" : "bestie"); } catch {} }, 700);
     return () => clearTimeout(t0);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -607,9 +610,20 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
        ohne Meldung wie ein Fehler aussah, seit die Schildperlen vom Brett
        sind. Jetzt sagt das Band, was geschah und was bleibt. */
     if (lm.bounced && lm.hitKind) {
-      const ziel = state.board[lm.to];   // beim Abprallen steht das Ziel noch auf seinem Feld
+      /* beim Abprallen steht das Ziel noch auf seinem Feld. v1.90.20: traf der
+         Schlag einen FLUEGEL des Drachen, steht dort nur sein Markierer (D+) -
+         der Drache selbst steht auf dem Anker (ref). Vorher las die Meldung den
+         Schild des Markierers und verlor das "noch n". */
+      const roh = state.board[lm.to];
+      const ziel = roh && roh.kind === "D+" ? state.board[roh.ref] : roh;
       const rest = ziel && typeof ziel.shield === "number" ? ziel.shield : null;
       const name = ziel && ziel.hero ? "Gambit" : wer(lm.hitKind);
+      if (ziel && ziel.lebenMax > 0 && state.rules !== "hp") {
+        /* v1.90.20 (Besitzer): der Drache hat im Schach VIER LEBEN - die
+           Meldung sagt es so, wie die Punkte am Sockel es zeigen */
+        const leben = (ziel.shield || 0) + 1;
+        text = en ? `The Dragon loses a life — ${leben} left` : `Der Drache verliert ein Leben — noch ${leben}`;
+      } else
       text = en ? `Shield! ${name} blocked the blow${rest != null ? ` — ${rest} left` : ""}`
                 : `Schild! ${name} fängt den Schlag ab${rest != null ? ` — noch ${rest}` : ""}`;
     }
@@ -702,8 +716,13 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
       klang("sieg");
       const beitritt = campaign && match?.boss?.unlocks;
       const kapitelZu = campaign && match?.node?.final;
-      if (beitritt) setTimeout(() => { try { klang("werbung"); } catch {} }, 2200);
-      else if (kapitelZu) setTimeout(() => { try { klang("kapitelEnde"); } catch {} }, 2300);
+      /* v1.90.20: am Ende von Kapitel I tritt der Drache bei UND das Kapitel
+         schliesst - das Kapitelende hat Vorrang (es ist der groessere Moment),
+         der Hornruf der Werbung folgt danach */
+      if (kapitelZu) {
+        setTimeout(() => { try { klang("kapitelEnde"); } catch {} }, 2300);
+        if (beitritt) setTimeout(() => { try { klang("werbung"); } catch {} }, 4600);
+      } else if (beitritt) setTimeout(() => { try { klang("werbung"); } catch {} }, 2200);
     }
     else if (result === "loss") klang("niederlage");
     if (hotseat) {
@@ -1296,7 +1315,7 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
             : campaign ? <>
               {/* Stationsname-Pille gestrichen (Besitzer, v0.70.3): die
                   Kampagnenkarte nennt die Station bereits. */}
-              {match.boss && <Chip color={match.boss.bossId?.startsWith("pb_") ? T.gold : "#b4636c"} bg={T.sel}>{match.boss.bossId?.startsWith("pb_") ? <JewelIc kind="power" size={12} /> : <SkullIc color="#b4636c" size={12} />} {en ? match.boss.nameEn : match.boss.nameDe}</Chip>}
+              {match.boss && <Chip color={match.boss.bossId?.startsWith("pb_") ? T.gold : "#b4636c"} bg={T.sel}>{match.boss.bossId?.startsWith("pb_") ? <JewelIc kind="power" size={12} /> : <SkullIc color="#b4636c" size={12} />} {match.boss.name ? match.boss.name[en ? "en" : "de"] : (en ? match.boss.nameEn : match.boss.nameDe)}</Chip>}
             </>
             : hotseat ? <Chip color={T.text} bg={T.sel}>{t("quick.hotseat")}</Chip>
             : <Chip color={T.text} bg={T.sel}>{t("game.ai")} · {t("diff." + difficulty)}</Chip>)}
