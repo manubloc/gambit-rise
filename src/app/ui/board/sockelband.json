@@ -375,14 +375,15 @@
  "boss-b25": {
   "W": 576,
   "H": 576,
-  "cx": 285.5,
-  "rx": 166.0,
-  "ry": 32.9,
-  "boden": 559,
-  "ring": 12,
-  "schatten": 4,
-  "oben": 32,
-  "teller": 41
+  "cx": 286.5,
+  "rx": 130.0,
+  "ry": 25.5,
+  "boden": 555,
+  "ring": 8,
+  "schatten": 1,
+  "oben": 21,
+  "teller": 49,
+  "tellerVonHand": true
  },
  "captain": {
   "W": 576,

@@ -35,7 +35,14 @@ ORDNER = "src/app/ui/assets/painted"
 #   gambit-t2 hat denselben Sockel wie gambit-t3 (Profil deckungsgleich: 98 %
 #             bei 40, 90 % bei 50, 75 % bei 60), der Automat fand aber einen
 #             Scheinknick bei 14. Gesetzt auf 45, wie bei t3 gemessen.
-HANDWERTE = {"boss-b02": 75, "gambit-t2": 45}
+#   boss-b25  (v1.90.21, Osric groesser gerechnet): sein Umhang haengt NEBEN
+#             dem Sockel bis knapp ueber die Standflaeche, die Umhangecken
+#             setzen genau dort ein, wo die Wand endet - der Automat fand
+#             keinen Knick (0,0 %) und meldete 120. Am Breitenverlauf
+#             abgelesen: beide Wandkanten stehen von y 533 bis 507 auf
+#             cx +- rx, bei 505 springt die linke Kante in den Umhang. Boden
+#             555 - 506 = 49 (aus dem 2x-Bild hochgerechnet: 49,8).
+HANDWERTE = {"boss-b02": 75, "gambit-t2": 45, "boss-b25": 49}
 MASSE = json.load(open("src/app/ui/board/sockelband.json"))
 
 def kante(fid, m):

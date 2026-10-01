@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect } from "react";
 import LebensRohr, { ROHR_BREITE_VOM_SOCKEL, ROHR_HOEHE_VON_ZELLE, ROHR_KRUEMMUNG } from "./LebensRohr.jsx";
 import { SockelBand, bandBekannt } from "../SockelBand.jsx";
+import { KronenGlut } from "./KronenGlut.jsx";
 import { paintedIdOf } from "./paintedArt.js";
 import { ABILITIES, TAGS } from "../../../content/index.js";
 import { T } from "../theme.js";
@@ -943,6 +944,10 @@ export function PieceGlyph({ piece, showLevel = true, pov = "w", artStyle = "pai
                  das Band behaelt seine Farben (Besitzer) */
               ...(piece.geist ? { filter: "grayscale(1) brightness(1.55) drop-shadow(0 0 6px rgba(200,225,255,.75))", opacity: 0.58 } : null)}} />
           : <PieceArt kind={piece.kind} fill={fill} rim={rim} rimW={rimW} detail={detail} accent={accent} size="100%" level={showLevel ? lvl : 1} art={piece.art} bossId={piece.bossId} hero={showHero} />}
+        {/* v1.90.21: Osrics Krone leuchtet lila und atmet (KronenGlut.jsx) -
+            das Gemaelde bleibt, darueber liegt nur ihr Licht. Nicht im
+            Geistwandel: da ist die ganze Figur bleich. */}
+        {painting && !piece.geist && <KronenGlut painting={painting} objectPosition={big ? "center" : "center bottom"} />}
         {/* v1.0.50: DIE GRUNDFARBE STEIGT AUF. Nur im getoenten Stil: eine
             zweite, deckungsgleiche Kopie des Bildes, per sepia+hue auf die
             Grundfarbe der Figurenart gedreht und mit einer LINEAREN

@@ -3,6 +3,7 @@
 // painting. Pieces without a painting yet fall back to the drawn SVG silently,
 // so the set may grow one figure at a time.
 import SOCKELMASS from "./sockelband.json";
+import { kanteVonHand } from "./sockelmass.js";
 import pPawn from "../assets/painted/painted-pawn.webp";
 import pHaendler from "../assets/painted/painted-haendler.webp";  // der fahrende Haendler am Stand
 /* v1.0.91: DIE SCHATZKAMMER HAT IHR BILD (Besitzerwunsch) - dasselbe Format
@@ -208,6 +209,10 @@ export const PAINTED = {
   "boss-b09": pbb09, "boss-b10": pbb10, "boss-b11": pbb11, "boss-b12": pbb12, "boss-b13": pbb13, "boss-b14": pbb14, "boss-b15": pbb15, "boss-b16": pbb16,
   "boss-b17": pbb17, "boss-b18": pbb18, "boss-b19": pbb19, "boss-b20": pbb20, "boss-b21": pbb21, "boss-b22": pbb22, "boss-b23": pbb23, "boss-b24": pbb24, "boss-b25": pbb25,
 };
+/* v1.90.21: Osrics Sockelkante von Hand (Begruendung in sockelmass.js) */
+kanteVonHand(pbb25, 0.12);
+kanteVonHand(k_pbb25, 0.12);
+
 
 // ── the active piece style ──────────────────────────────────────────────────
 // The carved set has to replace the gallery EVERYWHERE, not just on the board:

@@ -39,8 +39,8 @@ gambitrise.com zeigt darauf).
   pruefe-navigation, pruefe-textfluss, test_layout) lesen den Chromium-Pfad aus
   `PW_CHROMIUM`; ohne die Variable gilt der Pfad des Cloud-Containers. Lokal:
   `npx playwright install chromium` und `PW_CHROMIUM=<Pfad zur chrome-Datei>`.
-- `npm test` — volle Batterie. MUSS **31 Suiten / 2640 Prüfungen** melden
-  (Stand v1.90.20; der Runner stoppt nach der ersten roten Suite, also
+- `npm test` — volle Batterie. MUSS **31 Suiten / 2653 Prüfungen** melden
+  (Stand v1.90.21; der Runner stoppt nach der ersten roten Suite, also
   Suitenzahl prüfen, nicht nur Assertions! **Zählweise seit v1.90.18
   (Audit A74): JEDE Suite der Kette meldet eine RESULT-Zeile** — alle Zeilen
   `RESULT…: N passed` summieren; test_balance meldet zwei, darum stehen im
@@ -312,6 +312,23 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
   Danach `python3 scripts/messe_farbe.py` NUR für die geänderten Einträge
   übernehmen (das Skript rundet bei anderen Figuren um eine Stelle anders) und
   die Vorschauen in `public/schau-klein/painted/` nachziehen.
+- **Größer rechnen statt neu malen (v1.90.21, Osric):** der Körper wird um den
+  Standpunkt der Füße vergrößert, der Sockel bleibt pixelgleich — am Brett
+  zählt allein Höhe : Sockel-Halbbreite. Hängt etwas NEBEN dem Sockel bis
+  knapp über den Boden (Umhang, Schild, Flügel), irren drei Messungen und
+  brauchen je einen begründeten Handwert: `scripts/messe_sockel.py`
+  (`SUCHZONE`, sonst gilt der Umhang als Teller), `scripts/messe_tellerkante.py`
+  (`HANDWERTE`) und `sockelmass.js` (`kanteVonHand`, sonst läuft die lila
+  Sockelglut über die Füße). Nach jedem neuen Bild: altes gegen neues
+  Messskript auf ALLEN Bildern vergleichen — null Abweichungen außer dem neuen.
+- **Leuchten ohne das Bild anzufassen (`KronenGlut.jsx`):** eine
+  deckungsgleiche Ebene aus denselben Pixeln trägt das Licht (drop-shadow),
+  animiert NUR über opacity/transform. Jede `<img>`, die selbst animiert, braucht
+  `data-gg-still` — sonst überschreibt `ggImgIn` aus main.jsx ihre Animation.
+  Masken in Prozent rechnen im KASTEN, nicht im Bild (am Brett 68 × 79 px, das
+  Bild liegt unten bündig 68 × 68).
+- **`tools/freistellen.py … magenta`**: für Figuren mit echtem Grün (Efeu,
+  Moos) — auf Grün würde `entgruenen()` die ganze Figur entfärben.
 - `piece.tier` steuert Rangbilder (gambit-t2…t6, pawn-t2/t3) und wird von
   makePiece durchgereicht — bei neuen Figurenfeldern dort ergänzen.
 - Ausgemusterte Assets nach `archiv/ausgemustert/vX.Y.Z/`, Bild-Rohlinge
@@ -330,7 +347,7 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
   Auswahl-Lichtspektakel.
 - Alles Optionale abschaltbar (Klang, Online).
 
-## Offene Baustellen (Stand v1.90.20, 1.10.2026)
+## Offene Baustellen (Stand v1.90.21, 1.10.2026)
 
 **Einstieg für jede neue Sitzung: `design/CHAT-EINSTIEG-2026-09-27.md`** (zehn
 Minuten, mit dem Startsatz für den Chat), dann **`design/UEBERGABE-2026-09-27.md`** — Stand,
@@ -343,11 +360,13 @@ Tabelle „STAND DER ABARBEITUNG“ oben — erst dort nachsehen),
 **`design/MONSTER-PROMPTS-2026-09-30.md`** (Neuzeichnung der Monster).
 Hier nur der Überblick:
 
-- **Beim Besitzer:** die Monster neu
-  zeichnen (Prompts; neue Bilder erst messen — Höhe/Sockel-Halbbreite ≥ 3,7 —
-  und am Brett zeigen; seit v1.90.20 sind alle Monster per Rechnung heller,
-  ein neues Bild sollte mindestens diese Helligkeit tragen) · Play-Abzeichen
-  als Datei für die Startseite (A58).
+- **Monster überarbeiten, vier je Runde** (Besitzer 1.10.): per fal-Edit am
+  bestehenden Bild (nur mit Freigabe), dann lokal auf Höhe gerechnet wie
+  Osric, am Brett neben dem Springer gezeigt, erst dann eingebaut. Runde 1
+  (freigegeben): Bollwerk, Sturmklaue, Wächter, Hetzer — Auftrag liegt bereit,
+  wartet auf den fal-Schlüssel. Runde 2: Zerreißer, Streuner, Brandstifter,
+  Skorpion. Runde 3 (nur Akzente): Schleicher, Flüsterin, Brutmutter. Geist
+  und Wandlerin bleiben. · Play-Abzeichen als Datei für die Startseite (A58).
 - **Spiel:** „Die Karte erzählt die Geschichte" (Besitzer 27.9.: **später**) ·
   **Ladeschirm-Feinschliff** (subjektiv, braucht Live-Abnahme).
 - **Audit offen:** A8-Rest (Befehlsliste in der Halle nachspielen — braucht den

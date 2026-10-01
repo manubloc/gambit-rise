@@ -1,5 +1,53 @@
 # Changelog - Gambit Rise
 
+## 1.90.21 - Osric neu und so gross wie die Dame, seine Krone leuchtet lila (Animation), freistellen.py kennt Magenta
+
+**OSRIC NEU** (Besitzer 1.10.: "bunter, der Umhang soll hinten durchgehen",
+Grunddesign und Messmethoden behalten). Per fal.ai (nano-banana/edit,
+freigegeben) zwei Fassungen; gewaehlt A2 - lila Umhang, steingrauer Koerper,
+knochenweisse Krone - und dann "natuerlich noch groesser, Sockel muss aber
+genau gleich bleiben". Gerechnet, nicht neu gemalt: Koerper samt Fuessen um
+1,32 vergroessert um den Standpunkt, der Sockel pixelgleich darunter, die
+Tellerflaeche unter den alten Fuessen zeilenweise aus ihren Nachbarn ergaenzt,
+der Umhang hinter dem Teller nach unten verlaengert. Am Brett 99,6 % der
+Offiziershoehe (vorher 77 %). Altes Bild in archiv/ausgemustert/v1.90.21/.
+
+**DREI MESSUNGEN IRRTEN AN SEINEM UMHANG - DREI HANDWERTE MIT BEGRUENDUNG.**
+Der Umhang haengt NEBEN dem Sockel bis knapp ueber den Boden:
+- `scripts/messe_sockel.py` nahm die Umhangecken als breiteste Tellerzeile
+  (rx 190,5 statt 130) - Osric haette am Brett bei 68 % gestanden, KLEINER als
+  vorher. Eine allgemeine Regel ("die Aussenspalten muessen bis an den Boden
+  reichen") verschob fuenf andere Figuren mit tiefem Bogen (Schatzkammer um
+  8,5 px) und ist verworfen; statt dessen `SUCHZONE = {"boss-b25": 0.07}`.
+  Altes gegen neues Skript auf allen Bildern: null Abweichungen.
+- `scripts/messe_tellerkante.py` fand keinen Knick (0,0 %) und meldete 120;
+  am Breitenverlauf abgelesen 49 (HANDWERTE wie bei Hetzer und Gambit-t2).
+- `sockelmass.js` (Laufzeit) landete fuer Osric auf dem Deckel 0,24 - beim
+  ALTEN Bild genauso. Die lila Sockelglut lief dadurch ueber Fuesse und
+  Umhangsaum. Jetzt `kanteVonHand` (0,12), von paintedArt.js vorbelegt.
+
+**DIE KRONE LEUCHTET** (Besitzer: "das leuchtende Lila, das wir an der Kontur
+anwenden ... evtl. als Animation, so dass du gar nicht mehr das Bild anpassen
+musst"). Das Gemaelde bleibt unberuehrt; darueber liegt eine deckungsgleiche
+Kronenebene (assets/glanz/) mit drop-shadow in den Farben der
+Grossmeister-Kontur, atmend ueber die Deckkraft (3,4 s), und alle 5,2 s laeuft
+ein Funke per transform ueber die Krone - beides komponiert, nichts malt neu.
+Am Brett, in der Hofstaat-Kachel und in der Grossansicht (KronenGlut.jsx).
+Gemessen und dabei behoben: (1) main.jsx haengt jedem geladenen Bild sein
+Einblenden ggImgIn an und ueberschrieb damit das Atmen - die Ebene nimmt sich
+per data-gg-still heraus; (2) eine CSS-Maske in Prozent schnitt mitten durch
+die Krone, weil der Kasten am Brett 68 x 79 px misst, das Bild darin aber
+68 x 68 unten buendig liegt; (3) jede Ausblendung der Kronen-Unterkante
+faerbte entweder die Stirn oder die Krone selbst lila - eine dritte Ebene mit
+den Originalpixeln der Stirn deckt den Schein dort ab.
+
+**freistellen.py kennt Magenta** (fuenftes Argument `magenta`): fuer Figuren
+mit echtem Gruen (Efeu, Moos), die auf Gruen beim Entgruenen ihre Farbe
+verloeren. Entfaerbt wird dort nur der Saum (4 px), nicht die Figur.
+
+Proben: 31 Suiten / 2653 Pruefungen (vorher 2640) - 13 neue in test_ui fuer
+Krone (Ebene, Stirn, Funke, data-gg-still, Hofstaat, Filter) und Osrics Masse.
+
 ## 1.90.20 - Der Drache ist Meister von Kapitel I (vier Leben im Schach), der Richter haelt Gericht in Kapitel II, Gegner ohne Grauschleier, alle Monster heller
 
 **DER DRACHE IST MEISTER VON KAPITEL I** (Besitzerentscheid 1.10.: "nicht als

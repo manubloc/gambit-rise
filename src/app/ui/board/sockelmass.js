@@ -103,6 +103,18 @@ export function messeSockelKante({ width, height, data }) {
 const KANTEN = new Map();
 export function sockelKanteAusCache(url) { return KANTEN.get(url); }
 
+/* ── v1.90.21: HANDWERTE, wo die Messung nachweislich irrt ──────────────────
+   Dieselbe Klasse wie HANDWERTE in scripts/messe_tellerkante.py. Osrics
+   Umhang (boss-b25) haengt NEBEN dem Sockel bis knapp ueber die
+   Standflaeche; seine Ecken sind die breiteste Zeile der Sockelzone, das
+   Plateau wird an ihnen gesucht, und die Messung landet auf dem Deckel
+   KANTE_MAX (0,24) - gemessen am alten wie am neuen Bild. Die lila Glut
+   reichte damit ueber Fuesse und Umhangsaum. Seine Wandkante liegt bei y 506
+   von 576 (sockelband.json: teller 49 ueber Boden 555), also 0,12.
+   paintedArt.js belegt den Wert beim Laden vor; holeSockelKante findet ihn
+   dann im Speicher und misst nicht mehr. */
+export function kanteVonHand(url, kante) { if (url) KANTEN.set(url, kante); }
+
 /* v1.3.0: die gemessene Sockelbreite (Anteil der Bildbreite), sobald das Bild
    einmal durch holeSockelKante gelaufen ist. Vorher der Mittelwert. */
 const BREITEN = new Map();

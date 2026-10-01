@@ -28,6 +28,7 @@ import { SkillStar, GoldCoin, LockIc, BladesIc, SealIc, HeartIc } from "../icons
 import { PieceGlyph } from "../board/PieceGlyph.jsx";
 import { PieceArt } from "../board/PieceArt.jsx";
 import { paintedFitById, paintedFitFor, paintedById, paintedForPiece, schlichtAn } from "../board/paintedArt.js";
+import { KronenGlut } from "../board/KronenGlut.jsx";
 import { GAMBIT_STUFEN } from "../board/gambitStufen.js";
 import { kulisseFuer } from "../kulissen.js";
 import { LEAGUE_BOSSES, KAPITEL_TROPHAEE } from "../../../content/index.js";   /* v1.23.0: Grossmeister-Rahmen; v1.90.20 Trophaeen */
@@ -2221,8 +2222,14 @@ export function CharLightbox({ char, en, onClose, titel = null, aktionen = null 
       </div>
       {/* Mitte: die Figur, gross */}
       <div style={{ position: "relative", zIndex: 1, display: "grid", placeItems: "center", padding: "0 16px", minHeight: 0 }}>
-        {src && <img src={src} alt="" style={{ height: "min(56vh, 520px)", maxWidth: "90vw", objectFit: "contain",
-          filter: "drop-shadow(0 22px 44px rgba(0,0,0,.75))", ...(titel ? { animation: "ggFeierBild .9s cubic-bezier(.2,1.3,.4,1) .15s both" } : null) }} />}
+        {/* v1.90.21: Bild und Kronenglut in EINEM Kasten - die Feier-Animation
+            sitzt am Kasten, damit die Kronenebene deckungsgleich mitwaechst */}
+        {src && <span style={{ position: "relative", display: "inline-block", lineHeight: 0,
+            ...(titel ? { animation: "ggFeierBild .9s cubic-bezier(.2,1.3,.4,1) .15s both" } : null) }}>
+          <img src={src} alt="" style={{ height: "min(56vh, 520px)", maxWidth: "90vw", objectFit: "contain",
+            filter: "drop-shadow(0 22px 44px rgba(0,0,0,.75))" }} />
+          <KronenGlut painting={src} />
+        </span>}
       </div>
       {/* unten: Name, Satz, Aktionen - auf der dunklen Platte, mit Luft zur Leiste */}
       <div style={{ position: "relative", zIndex: 1, textAlign: "center", padding: "10px 22px max(26px, env(safe-area-inset-bottom))" }}>
@@ -2561,6 +2568,9 @@ export function HofKachel({ img, name, dim, dark, action, glow, origin, onOpen, 
            jetzt nachgeholt (test_ui rendert die Kachel). */
         filter: dark ? "brightness(0) opacity(.55)" : dim ? "grayscale(1) brightness(.8)" : "brightness(1.14) saturate(1.05)",
         userSelect: "none" }} />
+        {/* v1.90.21: Osrics Krone leuchtet auch im Hofstaat - nur, wenn er
+            schon dazugehoert (nicht grau, nicht dunkel). */}
+        {!dark && !dim && <KronenGlut painting={img} bildFilter="brightness(1.14) saturate(1.05)" />}
         {werte && <SockelBand paintedId={paintedIdOf(img)} leben={werte.leben} kraft={werte.kraft} grau={!!(dim || dark || werte.ohne)} hell={!!werte.ohne && !dim && !dark} id={`sb-${artId || bossId || "x"}`} />}
         </div>
         : <div style={{ width: "100%", aspectRatio: "1 / 1", display: "grid", placeItems: "center", margin: "0 auto" }}>

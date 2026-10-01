@@ -113,6 +113,50 @@ const piece = (x = {}) => ({ id: 1, kind: "Q", color: "w", level: 1, abilities: 
   ok("im HP-Gefecht keine Punkte - dort zaehlt sein Leben", !hpDrache.includes('data-gg="lebenspunkte"'));
 }
 
+// ── v1.90.21: OSRICS KRONE LEUCHTET - UND OSRIC STEHT SO GROSS WIE DIE DAME ──
+// Besitzer (1.10.): "A2 noch groesser ist perfekt" und "die Krone ... dieses
+// leuchtende Lila, was wir an der Kontur anwenden ... evtl. als Animation, so
+// dass du gar nicht mehr das Bild anpassen musst". Am Brett fotografiert und
+// gemessen (Kronenebene deckungsgleich: 68,44 x 79,29 px wie das Gemaelde);
+// hier die Vertraege, die das halten.
+{
+  const { KronenGlut, kroneFuer } = await import("./src/app/ui/board/KronenGlut.jsx");
+  const { PAINTED, PAINTED_KLEIN } = await import("./src/app/ui/board/paintedArt.js");
+  const { sockelKanteAusCache } = await import("./src/app/ui/board/sockelmass.js");
+  const { HofKachel } = await import("./src/app/ui/screens/ArmyScreen.jsx");
+  const osric = (x = {}) => piece({ bossId: "b25", color: "b", ...x });
+  const brett = html(<PieceGlyph piece={osric()} pov="w" />);
+  ok("v1.90.21: Osric am Brett traegt die Kronenglut (Leuchten, Stirn, Funke)",
+    ['data-gg="kronenglut"', 'data-gg="kronenstirn"', 'data-gg="kronenfunke"', "gg-kronen-atem", "gg-kronen-funke"].every((s) => brett.includes(s)));
+  ok("v1.90.21: die Kronenebene nimmt sich aus dem Einblenden (data-gg-still) - sonst ueberschrieb ggImgIn das Atmen",
+    /data-gg="kronenglut"[^>]*data-gg-still|data-gg-still[^>]*data-gg="kronenglut"/.test(brett));
+  ok("v1.90.21: im Geistwandel keine Krone (die ganze Figur ist bleich)", !html(<PieceGlyph piece={osric({ geist: true })} pov="w" />).includes("kronenglut"));
+  ok("v1.90.21: nur Osric traegt sie - der Richter nicht", !html(<PieceGlyph piece={piece({ bossId: "b12", color: "b" })} pov="w" />).includes("kronenglut"));
+  ok("v1.90.21: Kronenebene fuer beide Fassungen (gross und Brett-klein), sonst keine",
+    !!kroneFuer(PAINTED["boss-b25"]) && !!kroneFuer(PAINTED_KLEIN["boss-b25"]) && !kroneFuer(PAINTED["queen"]));
+  const gross = html(<KronenGlut painting={PAINTED["boss-b25"]} bildFilter="brightness(1.14) saturate(1.05)" />);
+  const klein = html(<KronenGlut painting={PAINTED_KLEIN["boss-b25"]} />);
+  ok("v1.90.21: im Hofstaat traegt die Kronenebene den Filter des Bildes mit (sonst waere die Krone beim Leuchten dunkler)",
+    gross.includes("brightness(1.14) saturate(1.05) drop-shadow"));
+  ok("v1.90.21: am Brett ein kleinerer Schein als im Hofstaat (5px gegen 9px)", klein.includes("5px rgba(124,58,237") && gross.includes("9px rgba(124,58,237"));
+  const kachel = html(<HofKachel img={PAINTED["boss-b25"]} name="Osric" bossId="b25" meister />);
+  ok("v1.90.21: die Hofstaat-Kachel zeigt Osrics Kronenglut", kachel.includes('data-gg="kronenglut"'));
+  ok("v1.90.21: grau (noch nicht dabei) leuchtet nichts", !html(<HofKachel img={PAINTED["boss-b25"]} name="Osric" bossId="b25" dim />).includes("kronenglut"));
+  const css = readFileSync("src/app/ui/theme.js", "utf8");
+  ok("v1.90.21: Atmen und Funke sind Deckkraft und transform (komponieren, malen nicht neu)",
+    /@keyframes ggKronenAtem \{[^}]*opacity/.test(css) && /@keyframes ggKronenFunke \{[^}]*transform/.test(css) && !/ggKronenAtem[^}]*filter/.test(css));
+  /* Osrics Groesse: der Umhang haengt neben dem Sockel fast bis auf den Boden.
+     Mit der Regel fuer alle mass messe_sockel.py die Umhangecken als Teller
+     (rx 190,5) und Osric stand bei 68 %; mit der Suchzone (Handwert) 130. */
+  const m = SBkrone();
+  const brettProzent = (m.boden - m.oben) * Math.max(0.55, Math.min(1.35, 136 / m.rx)) / 561 * 100;
+  ok(`v1.90.21: Osric steht am Brett so gross wie die Dame (${brettProzent.toFixed(1)} %, Soll 97-103)`, brettProzent >= 97 && brettProzent <= 103);
+  ok("v1.90.21: seine Standflaeche ist von Hand gesetzt (teller 49, die Messung fand keinen Knick)", m.teller === 49 && m.tellerVonHand === true);
+  ok("v1.90.21: seine Sockelkante kommt von Hand (0,12) - gemessen landete sie am Deckel 0,24 und die Glut lief ueber die Fuesse",
+    sockelKanteAusCache(PAINTED["boss-b25"]) === 0.12 && sockelKanteAusCache(PAINTED_KLEIN["boss-b25"]) === 0.12);
+}
+function SBkrone() { return JSON.parse(readFileSync("src/app/ui/board/sockelband.json", "utf8"))["boss-b25"]; }
+
 /* ── DIE PERLENFASSUNG (bis v1.2.x) ───────────────────────────────────────
    Seit v1.3.0 traegt jede Figur das LEBENSROHR statt zweier Zahlenperlen.
    Die Perlen bleiben als Rueckfall im Code (ROHR_STATT_PERLEN), und die

@@ -18,6 +18,17 @@ import json, math, os
 from PIL import Image
 
 ORDNER = "src/app/ui/assets/painted"
+# ── HANDWERTE: SUCHZONE DES TELLERS (v1.90.21) ──────────────────────────────
+# Gesucht wird die breiteste Zeile in den unteren 12 % der Figur. Osric
+# (boss-b25, seit v1.90.21 groesser gerechnet) traegt einen Umhang, der NEBEN
+# dem Sockel bis knapp ueber den Boden haengt: seine Ecken liegen bei 11,8 %
+# und sind breiter als der Teller. Gemessen mit der Regel fuer alle stand er
+# am Brett bei 68 % statt 100 % (rx 190,5 statt 129,6). Eine allgemeine
+# Regel ("die Aussenspalten muessen bis an den Boden reichen") verschob fuenf
+# andere Figuren mit tiefem Tellerbogen (Schatzkammer um 8,5 px) - darum ein
+# Handwert wie in messe_tellerkante.py: sein Teller ist breitester Punkt bei
+# 4,9 %, die Zone fuer ihn endet bei 7 %.
+SUCHZONE = {"boss-b25": 0.07}
 erg = {}
 for f in sorted(os.listdir(ORDNER)):
     if not (f.startswith("painted-") and f.endswith(".webp")): continue
@@ -43,7 +54,7 @@ for f in sorted(os.listdir(ORDNER)):
     while oben < H and breite[oben] == 0: oben += 1
     hoehe = bmax - oben
     tY, tB = bmax, 0
-    for y in range(bmax, int(bmax - hoehe * 0.12), -1):
+    for y in range(bmax, int(bmax - hoehe * SUCHZONE.get(fid, 0.12)), -1):
         if breite[y] > tB: tB, tY = breite[y], y
     cx = (links[tY] + rechts[tY]) / 2; rx = tB / 2
     mitte = boden[round(cx)]
@@ -63,5 +74,5 @@ for f in sorted(os.listdir(ORDNER)):
     erg[fid] = {"W": W, "H": H, "cx": round(cx, 1), "rx": round(rx, 1), "ry": round(ry, 1), "boden": mitte, "ring": ring, "schatten": schatten, "oben": oben}   # oben: erste deckende Zeile = Scheitel der Figur
     print(f"{fid:16} Teller {tB}px breit, Boden y={mitte}, Bogen ry={ry:.1f}, Farbring {ring}px, Schatten {schatten}px")
 os.makedirs("src/app/ui/board", exist_ok=True)
-json.dump(erg, open("src/app/ui/board/sockelband.json", "w"), indent=1)
+json.dump(erg, open(os.environ.get("AUS", "src/app/ui/board/sockelband.json"), "w"), indent=1)
 print(f"\n{len(erg)} Sockel vermessen -> src/app/ui/board/sockelband.json")

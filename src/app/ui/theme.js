@@ -375,6 +375,14 @@ export const GLOBAL_CSS = `
      Weltschicht der Karte neu (gemessen). Jetzt fester Schein, Puls per
      Opazitaet - das komponiert, statt zu malen. */
   @keyframes ggGatePuls { 0%, 100% { opacity: .8; } 50% { opacity: 1; } }
+  /* v1.90.21 (Besitzer): Osrics Krone leuchtet lila - sie ATMET ueber die
+     Deckkraft, und ein Funke laeuft per transform ueber sie (KronenGlut.jsx).
+     Beides komponiert, nichts malt neu. Bei reduzierter Bewegung steht das
+     Leuchten still auf halber Kraft, der Funke ausserhalb der Krone. */
+  @keyframes ggKronenAtem { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
+  @keyframes ggKronenFunke { 0% { transform: translateX(0); } 40%, 100% { transform: translateX(520%); } }
+  .gg-kronen-atem { animation: ggKronenAtem 3.4s ease-in-out infinite; will-change: opacity; }
+  .gg-kronen-funke { animation: ggKronenFunke 5.2s ease-in-out infinite; will-change: transform; }
   @keyframes ggSaum { 0%, 100% { opacity: .72; } 50% { opacity: 1; } }
   @keyframes ggRiftOpen { from { transform: scale(1.09); opacity: 0; } 40% { opacity: .92; } to { transform: scale(1); opacity: .92; } }
   @keyframes ggRiftPulse { 0%, 100% { box-shadow: 0 0 9px rgba(124,58,237,.35); border-color: rgba(167,139,250,.55); }
