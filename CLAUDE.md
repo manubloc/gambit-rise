@@ -39,8 +39,8 @@ gambitrise.com zeigt darauf).
   pruefe-navigation, pruefe-textfluss, test_layout) lesen den Chromium-Pfad aus
   `PW_CHROMIUM`; ohne die Variable gilt der Pfad des Cloud-Containers. Lokal:
   `npx playwright install chromium` und `PW_CHROMIUM=<Pfad zur chrome-Datei>`.
-- `npm test` — volle Batterie. MUSS **31 Suiten / 2607 Prüfungen** melden
-  (Stand v1.90.18; der Runner stoppt nach der ersten roten Suite, also
+- `npm test` — volle Batterie. MUSS **31 Suiten / 2617 Prüfungen** melden
+  (Stand v1.90.19; der Runner stoppt nach der ersten roten Suite, also
   Suitenzahl prüfen, nicht nur Assertions! **Zählweise seit v1.90.18
   (Audit A74): JEDE Suite der Kette meldet eine RESULT-Zeile** — alle Zeilen
   `RESULT…: N passed` summieren; test_balance meldet zwei, darum stehen im
@@ -71,9 +71,24 @@ gambitrise.com zeigt darauf).
   Zeit — vorher bestand es auch, wenn React nie aufbaute (der Ladeschirm allein
   hat 4010 Zeichen, geprüft wurde „≥ 1000“).
 - `timeout 250 node drive3.mjs` — Kampagnen-Fahrprobe ("== KEINE FEHLER ==").
+  Seit v1.90.19 ~10 s statt ~21 s: sie wartet auf Zustände statt auf Uhrzeiten
+  (**`tools/warten.mjs`**: `bis()` auf eine DOM-Bedingung, `ruhe()` bis das DOM
+  stillsteht, die alte Schlafzeit als Deckel — dieselben Helfer nutzt die
+  Navigationsprobe). Und sie prüft, dass der Gegner WIRKLICH antwortet.
+- **Die Inhaltsrichtlinie (CSP, v1.90.19, Audit A57):** `tools/csp.mjs` rechnet
+  sie an EINER Stelle (Inline-Skripte per sha256 aus der gebauten Datei).
+  `tools/seite-bauen.mjs` schreibt sie live als **Report-Only** in
+  `dist/_headers`; drive3, die Navigations- und die Duell-Probe schicken sie
+  lokal **SCHARF** mit — jede Verletzung ist dort ein Konsolenfehler. `CSP=0`
+  schaltet sie in den Proben ab (zum Vergleich). Wer ein neues Fremd-Ziel
+  einbaut (Skript, Verbindung, Bild von einer anderen Adresse), trägt es in
+  csp.mjs ein, sonst werden die Proben rot. Die Duell-Probe kann die Halle
+  NICHT unter der Richtlinie prüfen (routeWebSocket ersetzt WebSocket in der
+  Seite) — das prüft die Live-Abnahme mit `new WebSocket(...)` und der Konsole.
 - `npm run pruefe:fluss` — Playwright-Textfluss/Popup-Messung.
-- `node tools/pruefe-navigation.mjs` — die NAVIGATIONSPROBE (v1.86.0): fährt in
-  mehreren Runden **das ganze Haus** und wertet jeden Konsolenfehler als
+- `node tools/pruefe-navigation.mjs` — die NAVIGATIONSPROBE (v1.86.0, ~90 s): fährt in
+  mehreren Runden **das ganze Haus**, meldet jeden i18n-Schlüssel, der statt
+  eines Textes auf dem Schirm steht (v1.90.19), und wertet jeden Konsolenfehler als
   Absturz — Karte mit allen Stationsfenstern, Gefecht (betreten *und* mitten im
   Spiel verlassen, inklusive der Rückfrage „Kampf verlassen?"), alle vier
   Reiter, Schnelles Spiel, Akademie, Online-Duell, die Unterreiter im
@@ -183,7 +198,10 @@ starten, sonst reißen Werkzeug-Zeitlimits den Lauf ab.
 ## EISERNE KETTE — Pflicht vor JEDEM Push, keine Ausnahmen
 
 1. `npm test` (31 Suiten, Assertionszahl notieren)
-2. `npm run build`, dann **`npm run build:app`**, dann `npm run build:single`
+2. `npm run build`, dann **`timeout 250 node drive3.mjs` im Auslieferungsstand**
+   (seit v1.90.19 — nur hier prüft es Startseite, abmeldenden Dienstarbeiter und
+   den CSP-Kopf in `dist/_headers` samt passender Hashes), dann
+   **`npm run build:app`**, dann `npm run build:single`
 
    **Warum `build:app` NACH `build` gehört** (v1.86.0, teuer gelernt):
    `npm run build` schließt `tools/seite-bauen.mjs` ein. Danach liegt unter
@@ -213,7 +231,11 @@ starten, sonst reißen Werkzeug-Zeitlimits den Lauf ab.
    denselben Proxy). Ausweg: die Abnahme über **Claude in Chrome** fahren
    (`navigate` auf die Adresse, dann per `javascript_tool`
    `await fetch("/spielen/version.json?x="+Math.random(), {cache:"no-store"}).then(r=>r.text())`;
-   dasselbe Fenster zählt auch gleich die Marker im Live-Bundle). WebFetch
+   dasselbe Fenster zählt auch gleich die Marker im Live-Bundle). Seit v1.90.19
+   gehört dazu: die Konsole desselben Fensters auf `Report Only` lesen
+   (Muster `Content Security Policy`), nach einem `new WebSocket("wss://duell.gambitrise.com/ws")`
+   und einem Abruf von `https://duell.gambitrise.com/health` — so wird die
+   Richtlinie live gemessen, bevor sie scharf geht. WebFetch
    braucht eine Freigabe des Besitzers und steht unbeaufsichtigt nicht zur
    Verfügung. Zur Adresse selbst (**mit `/spielen/`** — `version.json` zieht seit v1.42.0 mit der
    App um, `tools/seite-bauen.mjs` Schritt 1; die Wurzel-Adresse
@@ -281,7 +303,7 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
   Auswahl-Lichtspektakel.
 - Alles Optionale abschaltbar (Klang, Online).
 
-## Offene Baustellen (Stand v1.90.18, 1.10.2026)
+## Offene Baustellen (Stand v1.90.19, 1.10.2026)
 
 **Einstieg für jede neue Sitzung: `design/CHAT-EINSTIEG-2026-09-27.md`** (zehn
 Minuten, mit dem Startsatz für den Chat), dann **`design/UEBERGABE-2026-09-27.md`** — Stand,
@@ -294,18 +316,18 @@ Tabelle „STAND DER ABARBEITUNG“ oben — erst dort nachsehen),
 **`design/MONSTER-PROMPTS-2026-09-30.md`** (Neuzeichnung der Monster).
 Hier nur der Überblick:
 
-- **Beim Besitzer:** Brandstifter umfärben (Vorschau Blau/Grün gezeigt,
-  Empfehlung Blau) oder mit der Neuzeichnung erledigen · die Monster neu
+- **Beim Besitzer:** die Monster neu
   zeichnen (Prompts; neue Bilder erst messen — Höhe/Sockel-Halbbreite ≥ 3,7 —
   und am Brett zeigen) · Play-Abzeichen als Datei für die Startseite (A58).
 - **Spiel:** „Die Karte erzählt die Geschichte" (Besitzer 27.9.: **später**) ·
   **Ladeschirm-Feinschliff** (subjektiv, braucht Live-Abnahme).
-- **Audit offen:** A7-Rest (daily:<gid>, Speicherumbau der Halle) · A8-Rest
-  (Befehlsliste in der Halle nachspielen) · A9-Rest (Bünde im Netz — braucht
-  eine Protokollfassung, sonst entzweien sich alte und neue Geräte) · A57-Rest
-  (CSP, braucht Live-Messung) · A72-Rest (Schlafzeiten in drive3/Navigation) ·
-  A75-Rest (107 Schlüssel ohne
-  wörtliches Vorkommen prüfen) · A22/A26/A27 (Cloudflare-Dashboard, Besitzer).
+- **Audit offen:** A8-Rest (Befehlsliste in der Halle nachspielen — braucht den
+  Kern im Worker und eine Befehlsliste im Live-Duell, Aufwand L) · A9-Rest
+  (Bünde im Netz — braucht eine Protokollfassung, sonst entzweien sich alte und
+  neue Geräte) · A57-Rest (die CSP steht seit v1.90.19 als Report-Only; scharf
+  schalten = in `tools/seite-bauen.mjs` Schritt 5 den Kopf umbenennen, sobald
+  die Live-Konsole über einige Tage sauber bleibt) · A22/A26/A27
+  (Cloudflare-Dashboard, Besitzer).
 - **Technik:** Deploy wiegt 743 MB, davon 692 MB Archiv für die Schaukammer
   (Schalter `OHNE_ARCHIV=1` liegt bereit, Standard unverändert) · `.git` 1 GB.
 - **Store:** siehe `design/PLAYSTORE-BACKLOG.md`.

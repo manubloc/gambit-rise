@@ -101,8 +101,50 @@ export class HallCore {
   // HERE in full — seed, both armies and the ordered list of commands. The board
   // is deterministic (same seed + same commands = same position), so a returning
   // player replays the list instead of the server having to understand chess.
-  get daily() { return this._blob("daily", {}); }
-  set daily(v) { this._put("daily", v); }
+  /* ── v1.90.19 (Audit A7, Rest): JE PARTIE EIN SCHLUESSEL ─────────────────
+     Bis hierher lag das ganze Regal als EIN JSON-String unter "daily". Der
+     Sweep (v1.90.4) haelt es klein, aber jeder Zug las und schrieb trotzdem
+     JEDE Partie, und die Zeilengrenze galt fuer alle zusammen. Jetzt liegt
+     jede Partie unter "daily:<gid>"; geschrieben wird nur, was sich
+     geaendert hat, geloescht nur, was aus dem Regal fiel.
+     Die Schnittstelle bleibt: `this.daily` liefert das Regal als Objekt,
+     `this.daily = g` legt es ab. Kein Aufrufer musste sich aendern - das war
+     die Absicht, denn diese Stellen (Sweep, Zug, Aufgabe, Vergessen) sind
+     erprobt.
+     UMZUG: steht noch der alte Sammel-Schluessel da, wird er beim ersten
+     Zugriff aufgeteilt. Der alte Inhalt bleibt als "daily_vor_umzug" liegen
+     (wird nie mehr gelesen) - geht beim Umzug etwas schief, ist nichts
+     verloren. Ein Speicher ohne kvPrefix (aelterer Adapter) arbeitet weiter
+     mit dem Sammel-Schluessel. */
+  _dailyUmzug() {
+    const alt = this.store.kvGet("daily");
+    if (!alt) return;
+    let g = {};
+    try { g = JSON.parse(alt) || {}; } catch { g = {}; }
+    for (const [gid, rec] of Object.entries(g)) this.store.kvSet("daily:" + gid, JSON.stringify(rec));
+    this.store.kvSet("daily_vor_umzug", alt);
+    this.store.kvDel("daily");
+  }
+  get daily() {
+    if (!this.store.kvPrefix) return this._blob("daily", {});
+    this._dailyUmzug();
+    const out = {};
+    for (const [k, v] of this.store.kvPrefix("daily:")) {
+      try { out[k.slice(6)] = JSON.parse(v); } catch { /* eine kaputte Zeile kostet nur diese Partie */ }
+    }
+    return out;
+  }
+  set daily(g) {
+    if (!this.store.kvPrefix) { this._put("daily", g); return; }
+    this._dailyUmzug();
+    const vorher = new Map(this.store.kvPrefix("daily:"));
+    for (const [gid, rec] of Object.entries(g || {})) {
+      const k = "daily:" + gid, s = JSON.stringify(rec);
+      if (vorher.get(k) !== s) this.store.kvSet(k, s);
+      vorher.delete(k);
+    }
+    for (const k of vorher.keys()) this.store.kvDel(k);
+  }
   /* ── v1.90.8 (Audit A22): EIN EINTRAG DARF DAS REGAL NICHT SPRENGEN ──
      `queue` und `challenges` liegen je als EIN JSON-String in einer Zeile -
      dieselbe Bauweise wie das Fernpartien-Regal aus A7. maps, army und
@@ -907,6 +949,8 @@ export function memoryStore() {
     dumpPlayers: () => Object.fromEntries(players),
     kvGet: (k) => kv.get(k) ?? null,
     kvSet: (k, v) => kv.set(k, v),
+    kvDel: (k) => kv.delete(k),                                   // v1.90.19 (A7)
+    kvPrefix: (pre) => [...kv.entries()].filter(([k]) => k.startsWith(pre)).sort(([a], [b]) => (a < b ? -1 : 1)),
     vaultPush: (owner, entry, keep) => {
       const list = [entry, ...(vault.get(owner) || [])].slice(0, keep);
       vault.set(owner, list);

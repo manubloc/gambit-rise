@@ -110,6 +110,7 @@ import { existsSync } from "node:fs";
 import { extname, join } from "node:path";
 import { chromium } from "playwright-core";
 import { HallCore, memoryStore } from "../worker/src/logic.mjs";
+import { appRichtlinie } from "./csp.mjs";
 
 const T0 = Date.now();
 const WURZEL = process.env.WURZEL || "dist";
@@ -135,17 +136,28 @@ const MIME = {
   ".json": "application/json", ".webmanifest": "application/manifest+json",
   ".ico": "image/x-icon", ".txt": "text/plain",
 };
+/* v1.90.19 (Audit A57): die Seite kommt mit der Inhaltsrichtlinie der App,
+   SCHARF; eine Verletzung ist ein Konsolenfehler und damit ein Befund.
+   GEMESSEN, was sie hier NICHT kann: die Verbindung zur Halle pruefen. Mit
+   duell.gambitrise.com aus connect-src gestrichen blieb diese Probe 34/34
+   gruen - Playwrights routeWebSocket ersetzt WebSocket IN der Seite, es
+   entsteht nie eine echte Verbindung, die der Browser pruefen koennte. Die
+   Halle unter der Richtlinie prueft darum die Live-Abnahme (new WebSocket
+   auf der echten Seite, Konsole auf "[Report Only]"). CSP=0 schaltet ab. */
+const CSP = process.env.CSP === "0" ? null : appRichtlinie(await readFile(join(WURZEL, "index.html"), "utf8"));
+const html = (kopf) => (CSP ? { ...kopf, "content-security-policy": CSP } : kopf);
 const srv = createServer(async (req, res) => {
   const p = req.url.split("?")[0];
   try {
     const f = join(WURZEL, p === "/" ? "index.html" : p.slice(1));
     const b = await readFile(f);
-    res.writeHead(200, { "content-type": MIME[extname(f)] || "application/octet-stream" });
+    const typ = MIME[extname(f)] || "application/octet-stream";
+    res.writeHead(200, typ === "text/html" ? html({ "content-type": typ }) : { "content-type": typ });
     res.end(b);
   } catch {
     try {
       const b = await readFile(join(WURZEL, "index.html"));
-      res.writeHead(200, { "content-type": "text/html" }); res.end(b);
+      res.writeHead(200, html({ "content-type": "text/html" })); res.end(b);
     } catch { res.writeHead(404); res.end(); }
   }
 });

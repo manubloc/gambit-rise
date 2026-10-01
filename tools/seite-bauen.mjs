@@ -20,7 +20,7 @@
 
    DAS PASSWORT war ein Riegel, keine Sicherheit: wer die Seite liest, findet
    den Weg daran vorbei. Seit v1.88.0 gibt es ihn nicht mehr (Schritt 3).   */
-import { cpSync, existsSync, mkdirSync, readdirSync, renameSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const DIST = "dist";
@@ -93,5 +93,25 @@ self.addEventListener("activate", function (e) {
   })());
 });
 `);
+
+/* 5. DIE INHALTSRICHTLINIE, ZUERST NUR BERICHTEND (v1.90.19, Audit A57).
+   Gerechnet aus den GEBAUTEN Seiten (tools/csp.mjs), damit die Hashes der
+   Inline-Skripte immer zur ausgelieferten Datei passen. Report-Only: der
+   Browser meldet Verstoesse in der Konsole, blockiert aber nichts. Scharf
+   geschaltet wird erst, wenn die Live-Messung sauber bleibt - lokal fahren
+   drive3 und die Navigationsprobe sie bereits SCHARF. */
+{
+  const { appRichtlinie, seitenRichtlinie, SEITEN } = await import("./csp.mjs");
+  const lies = (f) => (existsSync(f) ? readFileSync(f, "utf8") : "");
+  const app = appRichtlinie(lies(join(SPIEL, "index.html")));
+  const seiten = seitenRichtlinie(...["index.html", "privacy.html", "terms.html", "konto-loeschen.html"].map((f) => lies(join(DIST, f))));
+  const kopf = "Content-Security-Policy-Report-Only";
+  const block = ["", "# v1.90.19 (Audit A57): CSP als Report-Only, gerechnet von tools/csp.mjs beim Bau.",
+    "/spielen/*", `  ${kopf}: ${app}`,
+    ...SEITEN.flatMap((p) => [p, `  ${kopf}: ${seiten}`]), ""].join("\n");
+  const ziel = join(DIST, "_headers");
+  writeFileSync(ziel, (existsSync(ziel) ? readFileSync(ziel, "utf8") : "") + block);
+  console.log(`CSP (Report-Only) in dist/_headers: App ${app.length} Zeichen, Seiten ${seiten.length} Zeichen`);
+}
 
 console.log(`Seite gebaut: / = Landingpage, /spielen/ = App (ohne Riegel seit v1.88.0 - die Anmeldung der App ist die Tuer)`);

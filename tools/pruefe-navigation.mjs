@@ -35,9 +35,11 @@
    Probe mit einer Ansage ab, statt sinnlos zu messen.                      */
 import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { extname, join } from "node:path";
 import { chromium } from "playwright-core";
+import { wartenAuf } from "./warten.mjs";
+import { appRichtlinie } from "./csp.mjs";
 
 const MIME = {
   ".html": "text/html", ".js": "text/javascript", ".css": "text/css",
@@ -55,17 +57,32 @@ if (!existsSync(join(WURZEL, "index.html"))) {
   process.exit(1);
 }
 
+/* v1.90.19 (Audit A57): die Seite kommt mit der Inhaltsrichtlinie der App,
+   SCHARF (nicht Report-Only) - jede Verletzung ist ein Konsolenfehler und
+   damit ein Befund dieser Probe. Die Richtlinie rechnet tools/csp.mjs, wie
+   beim Bau. CSP=0 schaltet sie ab (zum Vergleich). */
+/* Schluessel-Praefixe aus strings.js - fuer die Probe "Schluessel statt Text" */
+const SCHLUESSEL_MUSTER = (() => {
+  const roh = readFileSync("src/app/i18n/strings.js", "utf8");
+  const pre = [...new Set([...roh.matchAll(/"([a-zA-Z]+)\.[a-zA-Z0-9_]+":/g)].map((m) => m[1]))];
+  /* Praefix, Punkt, Kleinbuchstabe ohne Leerzeichen - in Fliesstext kommt
+     das nicht vor ("gambitrise.com" hat kein Praefix aus der Liste). */
+  return `\\b(?:${pre.join("|")})\\.[a-z][a-zA-Z0-9_]*\\b`;
+})();
+const CSP = process.env.CSP === "0" ? null : appRichtlinie(await readFile(join(WURZEL, "index.html"), "utf8"));
+const html = (kopf) => (CSP ? { ...kopf, "content-security-policy": CSP } : kopf);
 const srv = createServer(async (req, res) => {
   const p = req.url.split("?")[0];
   try {
     const f = join(WURZEL, p === "/" ? "index.html" : p.slice(1));
     const b = await readFile(f);
-    res.writeHead(200, { "content-type": MIME[extname(f)] || "application/octet-stream" });
+    const typ = MIME[extname(f)] || "application/octet-stream";
+    res.writeHead(200, typ === "text/html" ? html({ "content-type": typ }) : { "content-type": typ });
     res.end(b);
   } catch {
     try {
       const b = await readFile(join(WURZEL, "index.html"));
-      res.writeHead(200, { "content-type": "text/html" }); res.end(b);
+      res.writeHead(200, html({ "content-type": "text/html" })); res.end(b);
     } catch { res.writeHead(404); res.end(); }
   }
 });
@@ -76,9 +93,12 @@ const START = `http://127.0.0.1:${port}/`;
 /* Die Halle (duell.gambitrise.com) ist aus der Sandkiste nicht erreichbar.
    GET /design darf still fehlschlagen - livery.js faellt auf APP_DESIGN
    zurueck. Dieses Paar ist das EINZIGE, was die Probe duldet (wie drive3). */
-const ERWARTET_OFFLINE = (t) =>
+/* Eine CSP-Meldung zitiert die verletzte Direktive - und connect-src nennt
+   duell.gambitrise.com. Ohne den Ausschluss ginge jede Verbindungs-
+   Verletzung als "erwartet offline" durch. */
+const ERWARTET_OFFLINE = (t) => !/Content Security Policy/i.test(t) && (
   /duell\.gambitrise\.com/.test(t)
-  || /^Failed to load resource: net::ERR_(FAILED|TUNNEL_CONNECTION_FAILED|NAME_NOT_RESOLVED|CONNECTION_REFUSED)/.test(t);
+  || /^Failed to load resource: net::ERR_(FAILED|TUNNEL_CONNECTION_FAILED|NAME_NOT_RESOLVED|CONNECTION_REFUSED)/.test(t));
 
 const browser = await chromium.launch({
   executablePath: process.env.PW_CHROMIUM || "/opt/pw-browsers/chromium-1194/chrome-linux/chrome",
@@ -96,6 +116,15 @@ page.on("console", (m) => {
   if (!ERWARTET_OFFLINE(t)) melde("Konsolenfehler: " + t.slice(0, 180));
 });
 page.on("pageerror", (e) => melde("Seitenfehler: " + String(e).slice(0, 180)));
+/* v1.90.19 (Audit A72): gewartet wird auf Zustaende, nicht auf Uhrzeiten
+   (tools/warten.mjs). ruhe(x) mit x = der alten Schlafzeit ist nie langsamer
+   als vorher; vor jedem Klick auf etwas, das erst erscheinen muss, steht
+   bis()/knopfDa(). */
+const { bis, ruhe, knopfDa, knopfWeg, brettDa, appDa } = wartenAuf(page);
+const KREUZ = "^✕$|^×$|^Schliessen$|^Schließen$";
+const karteDa = (max) => bis(() => [...document.querySelectorAll("button")]
+  .map((b) => b.getBoundingClientRect())
+  .filter((r) => r.width > 20 && r.width < 46 && Math.abs(r.width - r.height) < 6 && r.top > 40).length >= 4, null, max);
 
 const klick = (muster) => page.evaluate((m) => {
   const re = new RegExp(m, "i");
@@ -144,6 +173,12 @@ const zustand = async (wo) => {
     melde(`weisser Schirm bei ${wo} (Knoten ${d.knoten}, ${d.zeichen} Zeichen, ${d.knoepfe} Knoepfe)`);
     return { tot: true };
   }
+  /* v1.90.19 (Audit A75): steht ein SCHLUESSEL statt eines Textes da? makeT
+     liefert bei einem fehlenden Schluessel den Schluessel selbst ("camp.boss"),
+     und das faellt nur auf, wenn jemand hinsieht. test_ui prueft jedes
+     woertliche t("…"); dynamisch gebildete faengt erst diese Probe. */
+  const roh = await page.evaluate((re) => (document.body.innerText.match(new RegExp(re, "g")) || []).slice(0, 4), SCHLUESSEL_MUSTER).catch(() => []);
+  if (roh.length) melde(`i18n-Schluessel statt Text bei ${wo}: ${roh.join(", ")}`);
   return d;
 };
 
@@ -151,21 +186,30 @@ const zustand = async (wo) => {
    fuehrt "Weiterspielen" direkt zurueck in den Hub. */
 const wiederHinein = async () => {
   await page.goto(START, { waitUntil: "networkidle" });
-  await page.waitForTimeout(1600);
+  await appDa(10000); await ruhe(1600, 300);
   for (let i = 0; i < 8; i++) {
     if (!(await klick("Weiterspielen|Los geht|Verstanden|Beginnen"))) break;
-    await page.waitForTimeout(700);
+    await ruhe(1200, 250);
   }
 };
 
 const zurKarte = async () => {
   if (!(await klick("^Kampagne"))) { melde("Knopf 'Kampagne' nicht gefunden"); return false; }
-  await page.waitForTimeout(2400);
+  /* Der Kapitelschirm bietet "Weiter zur Karte", oder die Karte steht gleich. */
+  await bis(() => [...document.querySelectorAll("button")].some((b) => /Weiter zur Karte/.test(b.textContent || ""))
+    || [...document.querySelectorAll("button")].map((b) => b.getBoundingClientRect())
+      .filter((r) => r.width > 20 && r.width < 46 && Math.abs(r.width - r.height) < 6 && r.top > 40).length >= 4, null, 6000);
   if ((await zustand("Kapitelschirm")).tot) return false;
   for (let i = 0; i < 4; i++) {
+    if (await karteDa(300)) break;               // die Karte steht schon
+    await knopfDa("Weiter zur Karte", 3000);
     if (!(await klick("Weiter zur Karte"))) break;
-    await page.waitForTimeout(2200);
+    await ruhe(2200, 400);
   }
+  /* Die Stationen erscheinen nicht auf einen Schlag: im ersten Lauf mit
+     bis() zaehlte Runde 2 "17 Stationen", die Runden davor und danach 43.
+     Also nach dem ersten Erscheinen noch warten, bis die Karte stillsteht. */
+  await karteDa(5000); await ruhe(1500, 300);
   const z = await zustand("Karte");
   if (z.tot || z.draussen) return false;
   const n = await stationen();
@@ -176,18 +220,19 @@ const zurKarte = async () => {
 // ── Einstieg ───────────────────────────────────────────────────────────────
 schritt = "Einstieg";
 await page.goto(START, { waitUntil: "networkidle" });
-await page.waitForTimeout(1800);
+await appDa(12000);
 if (!(await klick("Erstellen"))) melde("Knopf 'Erstellen' nicht gefunden - steckt die App hinter dem Riegel?");
-await page.waitForTimeout(900);
+await bis(() => !!document.querySelector("input[type=email]"), null, 5000);
 try {
   await page.locator("input[type=email]").fill(`nav${Date.now()}@probe.local`);
   await page.locator("input[type=password]").fill("Probe12345!");
   await klick("Konto erstellen");
-  await page.waitForTimeout(3000);
+  await bis(() => !document.querySelector("input[type=email]"), null, 10000);   // PBKDF2 braucht einen Augenblick
+  await ruhe(3000, 400);
 } catch { melde("Anmeldung nicht moeglich"); }
 for (let i = 0; i < 10; i++) {
   if (!(await klick("Los geht|Verstanden|Beginnen"))) break;
-  await page.waitForTimeout(650);
+  await ruhe(1200, 250);
 }
 await zustand("nach dem Einstieg");
 console.log("   Einstieg: im Hub");
@@ -221,8 +266,8 @@ const liga = await page.evaluate(() => {
 if (liga.fehler) melde("Rueckblick nicht vorbereitbar: " + liga.fehler);
 else {
   await page.reload({ waitUntil: "networkidle" });
-  await page.waitForTimeout(2500);
-  for (let i = 0; i < 6; i++) { if (!(await klick("Los geht|Verstanden|Beginnen|Weiterspielen"))) break; await page.waitForTimeout(700); }
+  await appDa(10000); await ruhe(2500, 400);
+  for (let i = 0; i < 6; i++) { if (!(await klick("Los geht|Verstanden|Beginnen|Weiterspielen"))) break; await ruhe(1200, 250); }
   await zustand("nach dem Anheben auf Liga 3");
   console.log(`   Spielstand steht auf Liga ${liga.liga} - der Rueckblick ist erreichbar`);
 }
@@ -248,15 +293,15 @@ for (let runde = 1; runde <= RUNDEN; runde++) {
   for (let s = 0; s < 6; s++) {
     schritt = `R${runde} Station ${s + 1} oeffnen`;
     if (!(await stationKlick(s * 3 + runde))) { melde("keine Station anklickbar"); break; }
-    await page.waitForTimeout(1100);
+    await knopfDa(KREUZ, 3000);
     if ((await zustand(`Stationsfenster ${s + 1}`)).tot) break;
     offen++;
     schritt = `R${runde} Station ${s + 1} schliessen`;
-    if (!(await klick("^✕$|^×$|^Schliessen$|^Schließen$"))) {
+    if (!(await klick(KREUZ))) {
       melde("Stationsfenster hat keinen Schliessknopf");
       break;
     }
-    await page.waitForTimeout(800);
+    await knopfWeg(KREUZ, 2000); await ruhe(800, 250);
     if ((await zustand(`Karte nach Station ${s + 1}`)).tot) break;
   }
   console.log(`   ${offen} Stationen geoeffnet und geschlossen`);
@@ -279,17 +324,17 @@ for (let runde = 1; runde <= RUNDEN; runde++) {
   let los = null;
   for (let v = 0; v < 12 && !los; v++) {
     if (!(await stationKlick(v))) break;
-    await page.waitForTimeout(900);
+    await knopfDa(KREUZ, 2500); await ruhe(900, 250);
     los = await klick("Herausforderung starten|Losziehen|Spiel starten|Antreten|Fortsetzen|fortsetzen");
     if (!los) {
-      await klick("^✕$|^×$|^Schliessen$|^Schließen$");
-      await page.waitForTimeout(500);
+      await klick(KREUZ);
+      await knopfWeg(KREUZ, 2000);
     }
   }
   if (!los) melde("keine einzige Station laesst sich betreten - der Weg ins Gefecht ist zu");
   {
     if (los) {
-      await page.waitForTimeout(3200);
+      await brettDa(8000); await ruhe(3200, 400);
       if (!(await zustand("Gefecht")).tot) {
         console.log("   Gefecht betreten");
         // Einen Zug spielen, damit auch Zustand entsteht, der aufgeraeumt
@@ -307,8 +352,12 @@ for (let runde = 1; runde <= RUNDEN; runde++) {
           };
           const eigene = felder().filter((d) => d.querySelector("img,svg") && d.getBoundingClientRect().top > innerHeight * 0.42);
           for (const d of eigene) {
-            d.click(); await new Promise((r) => setTimeout(r, 260));
-            const ziel = felder().find((z) => /ggZielAtem/.test(z.getAttribute("style") || "") || z.querySelector('[style*="ggZielAtem"]'));
+            d.click();
+            let ziel = null;
+            for (let i = 0; i < 10 && !ziel; i++) {   // A72: nachsehen statt 260 ms schlafen
+              await new Promise((r) => setTimeout(r, 100));
+              ziel = felder().find((z) => /ggZielAtem/.test(z.getAttribute("style") || "") || z.querySelector('[style*="ggZielAtem"]'));
+            }
             if (ziel) { ziel.click(); await new Promise((r) => setTimeout(r, 1200)); return true; }
           }
           return false;
@@ -334,11 +383,11 @@ for (let runde = 1; runde <= RUNDEN; runde++) {
              im Gefecht - und genau daran hat sich diese Probe drei Fassungen
              lang selbst getaeuscht: sie meldete vier Runden "keine Station
              laesst sich betreten", weil sie das Gefecht nie verlassen hatte. */
-          await page.waitForTimeout(700);
+          await knopfDa("Pausieren", 2000);
           const bestaetigt = await klick("Pausieren & wechseln|Pausieren");
           if (!bestaetigt) melde("die Rueckfrage 'Kampf verlassen?' hat keinen Knopf zum Pausieren");
         }
-        await page.waitForTimeout(2200);
+        await ruhe(2200, 400);
         const z = await zustand("zurueck nach dem Gefecht");
         if (z.draussen) { await wiederHinein(); }
         else console.log("   Gefecht mitten im Spiel verlassen");
@@ -357,7 +406,7 @@ for (let runde = 1; runde <= RUNDEN; runde++) {
       .some((b) => /^(Figuren|Lager|Profil)$/.test((b.textContent || "").trim())));
     if (reiterDa) break;
     await page.goBack().catch(() => {});
-    await page.waitForTimeout(900);
+    await ruhe(900, 250);
     const z = await zustand("beim Verlassen der Karte");
     if (z.draussen) { await wiederHinein(); break; }
     if (z.tot) break;
@@ -366,7 +415,7 @@ for (let runde = 1; runde <= RUNDEN; runde++) {
   let reiterOk = 0;
   for (const reiter of ["Figuren", "Lager", "Profil", "Spielen"]) {
     if (!(await klick(`^${reiter}$`))) { melde(`Reiter '${reiter}' nicht gefunden`); continue; }
-    await page.waitForTimeout(1300);
+    await ruhe(1300, 300);
     if ((await zustand(`Reiter ${reiter}`)).tot) break;
     reiterOk++;
   }
@@ -387,11 +436,11 @@ for (let runde = 1; runde <= RUNDEN; runde++) {
                                ["Online-Duell", "Online-Duell"]]) {
     schritt = `R${runde} ${name}`;
     if (!(await klick(`^${knopf}`))) { melde(`Knopf '${knopf}' im Hub nicht gefunden`); continue; }
-    await page.waitForTimeout(2000);
+    await knopfDa("Zurück|Zurueck", 4000); await ruhe(2000, 300);
     if ((await zustand(name)).tot) break;
     // wieder heraus: der Zurueck-Knopf des Unterschirms, sonst die Geste
     if (!(await klick("Zurück|Zurueck"))) await page.goBack().catch(() => {});
-    await page.waitForTimeout(1200);
+    await knopfDa("^Schnelles Spiel", 4000); await ruhe(1200, 250);
     const z = await zustand(`Hub nach ${name}`);
     if (z.draussen) { await wiederHinein(); break; }
     if (z.tot) break;
@@ -407,7 +456,7 @@ for (let runde = 1; runde <= RUNDEN; runde++) {
      Knopfzeile der Reihe nach, mit Lebensprobe nach jedem Klick. */
   schritt = `R${runde} Figuren-Unterreiter`;
   if (await klick("^Figuren$")) {
-    await page.waitForTimeout(1600);
+    await ruhe(1600, 300);
     const reiterZahl = await page.evaluate(() => {
       const oben = [...document.querySelectorAll("button")]
         .filter((b) => { const r = b.getBoundingClientRect(); return r.top < 260 && r.width > 40 && r.height > 20 && r.height < 70; });
@@ -422,7 +471,7 @@ for (let runde = 1; runde <= RUNDEN; runde++) {
         oben[n].click(); return t || `Reiter ${n}`;
       }, i);
       if (!wohin) break;
-      await page.waitForTimeout(1500);
+      await ruhe(1500, 300);
       if ((await zustand(`Figuren-Unterreiter "${wohin}"`)).tot) break;
     }
     console.log(`   Figuren: ${Math.min(reiterZahl, 6)} Unterreiter durchgefahren`);
@@ -431,7 +480,7 @@ for (let runde = 1; runde <= RUNDEN; runde++) {
   schritt = `R${runde} Erfolge und Profil`;
   for (const reiter of ["Lager", "Profil", "Spielen"]) {
     if (!(await klick(`^${reiter}$`))) { melde(`Reiter '${reiter}' nicht gefunden`); continue; }
-    await page.waitForTimeout(1400);
+    await ruhe(1400, 300);
     if ((await zustand(`Reiter ${reiter} (zweite Fahrt)`)).tot) break;
   }
 
@@ -441,7 +490,7 @@ for (let runde = 1; runde <= RUNDEN; runde++) {
   schritt = `R${runde} Karte + Zurueck-Geste`;
   if (await zurKarte()) {
     await page.goBack().catch(() => {});
-    await page.waitForTimeout(1000);
+    await ruhe(1000, 250);
     const z = await zustand("nach der Zurueck-Geste");
     if (z.draussen) { melde("die Zurueck-Geste hat die App von der Karte aus verlassen - erwartet waere der Hub"); await wiederHinein(); }
     else {
@@ -475,7 +524,7 @@ if ((await stationen()) >= 4 || (await zurKarte())) {
   if (knoepfe.length < 2) melde(`der Rueckblick-Pfeil ist nicht zu finden (${knoepfe.length} runde Knoepfe oben)`);
   else {
     await page.evaluate((i) => { const b = [...document.querySelectorAll("button")][i]; b && b.click(); }, knoepfe[1].i);
-    await page.waitForTimeout(1800);
+    await ruhe(1800, 400);
     const z1 = await zustand("Rueckblick: ein Kapitel zurueck");
     if (!z1.tot && !z1.draussen) {
       console.log("   ein Kapitel zurueckgeblaettert");
@@ -488,12 +537,12 @@ if ((await stationen()) >= 4 || (await zurKarte())) {
       if (vor.length < 3) melde(`im Rueckblick fehlt der Vorwaerts-Pfeil (${vor.length} runde Knoepfe statt 3)`);
       else {
         await page.evaluate((i) => { const b = [...document.querySelectorAll("button")][i]; b && b.click(); }, vor[vor.length - 1].i);
-        await page.waitForTimeout(1500);
+        await ruhe(1500, 400);
         if (!(await zustand("Rueckblick: wieder nach vorn")).tot) console.log("   wieder nach vorn geblaettert");
         const zur = await runde40();
         if (zur.length >= 2) {
           await page.evaluate((i) => { const b = [...document.querySelectorAll("button")][i]; b && b.click(); }, zur[1].i);
-          await page.waitForTimeout(1500);
+          await ruhe(1500, 400);
           await zustand("Rueckblick: erneut zurueck");
         }
       }
@@ -503,21 +552,21 @@ if ((await stationen()) >= 4 || (await zurKarte())) {
       let gesehen = 0, gestartet = false;
       for (let s2 = 0; s2 < 8 && gesehen < 3; s2++) {
         if (!(await stationKlick(s2))) break;
-        await page.waitForTimeout(1000);
+        await ruhe(1000, 300);
         if ((await zustand(`Rueckblickfenster ${s2 + 1}`)).tot) break;
         gesehen++;
         /* Genau EINMAL auch hineingehen: "Freundschaftskampf" ist der einzige
            Knopf des Rueckblickfensters, und er fuehrt in ein echtes Gefecht. */
         if (!gestartet && (await klick("Freundschaftskampf|Friendly"))) {
           gestartet = true;
-          await page.waitForTimeout(3200);
+          await brettDa(8000); await ruhe(3200, 400);
           if (!(await zustand("Freundschaftskampf aus dem Rueckblick")).tot) {
             console.log("   Freundschaftskampf aus dem Rueckblick betreten");
             if (await klick("Zurück|Zurueck|Verlassen")) {
-              await page.waitForTimeout(700);
+              await knopfDa("Pausieren|Verlassen", 2000);
               await klick("Pausieren & wechseln|Pausieren|Verlassen");
             } else await page.goBack().catch(() => {});
-            await page.waitForTimeout(2200);
+            await ruhe(2200, 400);
             const zr = await zustand("zurueck aus dem Freundschaftskampf");
             if (zr.draussen) { await wiederHinein(); break; }
           }
@@ -527,11 +576,11 @@ if ((await stationen()) >= 4 || (await zurKarte())) {
              meldet ihn als fehlend - ein Fehler, der keiner ist. Also erst
              nachsehen, ob die Karte da ist. */
           if ((await stationen()) < 4 && !(await zurKarte())) break;
-          await page.waitForTimeout(600);
+          await ruhe(600, 250);
           continue;
         }
         await page.mouse.click(12, 400);       // daneben tippen schliesst es
-        await page.waitForTimeout(700);
+        await ruhe(700, 250);
         if ((await zustand(`Karte nach Rueckblickfenster ${s2 + 1}`)).tot) break;
       }
       console.log(`   ${gesehen} Rueckblickfenster geoeffnet${gestartet ? ", eines bespielt" : ""}`);
@@ -548,7 +597,7 @@ if ((await stationen()) >= 4 || (await zurKarte())) {
         if (!k3.length) melde("der Weltkarten-Knopf ist auf der Karte nicht zu finden");
         else {
           await page.evaluate((i) => { const b = [...document.querySelectorAll("button")][i]; b && b.click(); }, k3[0].i);
-          await page.waitForTimeout(1800);
+          await ruhe(1800, 400);
           const zw = await zustand("Weltkarte");
           if (!zw.tot && !zw.draussen) {
             console.log("   Weltkarte geoeffnet");
@@ -570,13 +619,13 @@ if ((await stationen()) >= 4 || (await zurKarte())) {
             if (!welten) melde("auf der Weltkarte ist keine erreichte Welt anklickbar");
             for (let i = 0; i < Math.min(welten, 3); i++) {
               await page.evaluate((n) => { const d = document.querySelector(`[data-welt="${n}"]`); d && d.click(); }, i);
-              await page.waitForTimeout(900);
+              await bis(() => /Hierhin reisen|Du bist hier|Travel here|You are here/.test(document.body.innerText || ""), null, 900);
               if (await page.evaluate(() => /Hierhin reisen|Du bist hier|Travel here|You are here/.test(document.body.innerText || ""))) break;
             }
             if (!(await klick("Hierhin reisen|Du bist hier|Travel here|You are here")))
               melde("auf der Weltkarte erscheint kein Reiseknopf - das Lore-Blatt oeffnet sich nicht");
             else {
-              await page.waitForTimeout(1800);
+              await ruhe(1800, 400);
               const zr2 = await zustand("nach dem Reisen");
               if (!zr2.tot && !zr2.draussen) console.log("   ueber die Weltkarte gereist");
             }

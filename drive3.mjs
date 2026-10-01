@@ -6,6 +6,8 @@ import { readFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { extname, join } from "node:path";
 import { chromium } from "playwright-core";
+import { wartenAuf } from "./tools/warten.mjs";
+import { appRichtlinie, seitenRichtlinie, inlineHashes } from "./tools/csp.mjs";
 
 const MIME = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css",
   ".webp": "image/webp", ".png": "image/png", ".svg": "image/svg+xml", ".webmanifest": "application/manifest+json" };
@@ -32,17 +34,31 @@ const MIME = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css
 const AUSLIEFERUNG = existsSync(join("dist", "spielen", "index.html"));
 const EINSTIEG = AUSLIEFERUNG ? "/spielen/" : "/";
 
+/* v1.90.19 (Audit A57): jede HTML-Seite kommt mit ihrer Inhaltsrichtlinie,
+   SCHARF - live steht sie vorerst nur als Report-Only (tools/seite-bauen.mjs).
+   Verletzt das Spiel sie, steht ein Konsolenfehler da, und den wertet diese
+   Probe als Fehler. CSP=0 schaltet ab. */
+const CSP = process.env.CSP === "0" ? null : {
+  app: appRichtlinie(await readFile(AUSLIEFERUNG ? "dist/spielen/index.html" : "dist/index.html", "utf8")),
+  seite: AUSLIEFERUNG ? seitenRichtlinie(await readFile("dist/index.html", "utf8")) : null,
+};
+const mitCsp = (pfad, kopf) => {
+  if (!CSP) return kopf;
+  const app = !AUSLIEFERUNG || pfad.startsWith("/spielen");
+  return { ...kopf, "content-security-policy": app ? CSP.app : CSP.seite };
+};
 const srv = createServer(async (req, res) => {
   const p = req.url.split("?")[0];
   try {
     const f = join("dist", p === "/" ? "index.html" : p.slice(1));
     const b = await readFile(f);
-    res.writeHead(200, { "content-type": MIME[extname(f)] || "application/octet-stream" }); res.end(b);
+    const typ = MIME[extname(f)] || "application/octet-stream";
+    res.writeHead(200, typ === "text/html" ? mitCsp(p, { "content-type": typ }) : { "content-type": typ }); res.end(b);
   } catch {
     // SPA-Rueckfall: im Auslieferungsstand gehoert er zur App, nicht zur Seite
     const f = AUSLIEFERUNG ? "dist/spielen/index.html" : "dist/index.html";
     const b = await readFile(f);
-    res.writeHead(200, { "content-type": "text/html" }); res.end(b);
+    res.writeHead(200, mitCsp(AUSLIEFERUNG ? "/spielen/" : p, { "content-type": "text/html" })); res.end(b);
   }
 });
 await new Promise((r) => srv.listen(0, r));
@@ -59,13 +75,19 @@ const errors = [];
    GET https://duell.gambitrise.com/design. Ein Tunnelfehler kann ohnehin nur
    bei einer AUSWAERTIGEN Anfrage entstehen; alles Eigene liefert der lokale
    Server dieser Datei (und im Zweifel seine SPA-Rueckfallseite mit 200). */
-const EXPECTED_OFFLINE = (t) =>
+/* v1.90.19: eine CSP-Meldung zitiert die verletzte Direktive, und
+   connect-src nennt duell.gambitrise.com - ohne den Ausschluss ginge jede
+   Verbindungs-Verletzung hier als "erwartet offline" durch. */
+const EXPECTED_OFFLINE = (t) => !/Content Security Policy/i.test(t) && (
   /duell\.gambitrise\.com/.test(t)
-  || /^Failed to load resource: net::ERR_(FAILED|TUNNEL_CONNECTION_FAILED)/.test(t);
+  || /^Failed to load resource: net::ERR_(FAILED|TUNNEL_CONNECTION_FAILED)/.test(t));
 const browser = await chromium.launch({ executablePath: process.env.PW_CHROMIUM || "/opt/pw-browsers/chromium-1194/chrome-linux/chrome" });   /* PW_CHROMIUM: lokaler Pfad, sonst der Cloud-Container (v1.89.4) */
 const page = await browser.newPage();
 page.on("console", (m) => { if (m.type() === "error" && !EXPECTED_OFFLINE(m.text())) errors.push(m.text().slice(0, 160)); });
 page.on("pageerror", (e) => errors.push(String(e).slice(0, 160)));
+/* v1.90.19 (Audit A72): gewartet wird auf Zustaende, nicht auf Uhrzeiten -
+   siehe tools/warten.mjs. Vorher 13 feste Schlafzeiten. */
+const { bis, ruhe, knopfDa, knopfWeg, brettDa, appDa } = wartenAuf(page);
 /* ── DER AUSLIEFERUNGSSTAND, ZUERST ───────────────────────────────────────
    Nur wenn dist/ wirklich die Seite traegt. Geprueft wird, was der Besucher
    als Erstes sieht: die Landingpage an der Wurzel, dann die App unter
@@ -82,7 +104,7 @@ if (AUSLIEFERUNG) {
   });
 
   await page.goto(`http://127.0.0.1:${port}/`, { waitUntil: "networkidle" });
-  await page.waitForTimeout(1500);
+  await bis(() => (document.body.innerText || "").trim().length >= 200, null, 5000);
   const seite = await page.evaluate(() => ({
     titel: document.title || "",
     zeichen: (document.body.innerText || "").trim().length,
@@ -110,12 +132,32 @@ if (AUSLIEFERUNG) {
     if (!/unregister\(\)/.test(sw)) errors.push("sw.js an der Wurzel meldet sich nicht ab");
     else console.log("   sw.js an der Wurzel raeumt auf");
   } catch { errors.push("sw.js an der Wurzel fehlt"); }
+
+  /* v1.90.19 (A57): traegt dist/_headers die Richtlinie, und passen ihre
+     Hashes zu den GEBAUTEN Inline-Skripten? Ein Hash, der nicht passt, hiesse
+     live: das Fehlerfang-Skript der App wuerde blockiert, sobald die
+     Richtlinie scharf geschaltet ist. */
+  try {
+    const kopf = await readFile("dist/_headers", "utf8");
+    const zeileNach = (pfad) => { const z = kopf.split("\n"); const i = z.findIndex((x) => x.trim() === pfad); return i >= 0 ? (z[i + 1] || "") : ""; };
+    const app = zeileNach("/spielen/*"), seite = zeileNach("/");
+    const fehlt = [
+      ...inlineHashes(await readFile("dist/spielen/index.html", "utf8")).filter((h) => !app.includes(h)).map((h) => "App " + h),
+      ...inlineHashes(await readFile("dist/index.html", "utf8")).filter((h) => !seite.includes(h)).map((h) => "Seite " + h),
+    ];
+    if (!/Content-Security-Policy-Report-Only:/.test(app) || !/Content-Security-Policy-Report-Only:/.test(seite))
+      errors.push("dist/_headers ohne Inhaltsrichtlinie fuer /spielen/* oder / (tools/seite-bauen.mjs Schritt 5)");
+    else if (fehlt.length) errors.push(`CSP-Hash passt nicht zum gebauten Inline-Skript: ${fehlt.join(", ")}`);
+    else console.log("   dist/_headers: Inhaltsrichtlinie (Report-Only) mit passenden Hashes");
+  } catch (e) { errors.push("dist/_headers nicht lesbar: " + String(e).slice(0, 80)); }
 }
 
 await page.goto(`http://127.0.0.1:${port}${EINSTIEG}`, { waitUntil: "networkidle" });
-await page.waitForTimeout(2500);
+/* Ein alter Riegel wuerde VOR dem Aufbau fragen (prompt()); der Horcher oben
+   faengt ihn, auch wenn die App danach nie aufbaut. */
+await appDa(12000);
 if (AUSLIEFERUNG) {
-  await page.waitForTimeout(1500);
+  await ruhe(1500);
   const versteckt = await page.evaluate(() => document.documentElement.style.visibility === "hidden");
   if (dialoge.length) errors.push(`ein Riegel fragt wieder (${dialoge.join(" | ")}) - v1.88.0 hat ihn entfernt`);
   else if (versteckt) errors.push("die App unter /spielen/ bleibt versteckt (visibility hidden)");
@@ -140,12 +182,14 @@ const klick = async (wort) => page.evaluate((w) => {
   return false;
 }, wort);
 
-await klick("Erstellen"); await page.waitForTimeout(700);
+await klick("Erstellen"); await bis(() => !!document.querySelector("input[type=email]"), null, 5000);
 try {
   await page.locator("input[type=email]").fill("fahrprobe@probe.local");
   await page.locator("input[type=password]").fill("Probe12345!");
-  await klick("Konto erstellen"); await page.waitForTimeout(2600);
-  await klick("Neuer Spielstand"); await page.waitForTimeout(2600);
+  /* Nach dem Anlegen verschwindet die Anmeldemaske (das Pruefwort braucht
+     PBKDF2, 120 000 Runden - darum nicht sofort). */
+  await klick("Konto erstellen"); await bis(() => !document.querySelector("input[type=email]"), null, 10000); await ruhe(2600, 400);
+  if (await klick("Neuer Spielstand")) { await knopfWeg("Neuer Spielstand", 6000); await ruhe(2600, 400); }
 } catch { errors.push("Anmeldung nicht moeglich"); }
 for (let i = 0; i < 8; i++) {
   const w = await page.evaluate(() => {
@@ -153,14 +197,15 @@ for (let i = 0; i < 8; i++) {
     if (!b) return false; b.click(); return true;
   });
   if (!w) break;
-  await page.waitForTimeout(600);
+  await ruhe(1500, 250);
 }
-await klick("Schnelles Spiel"); await page.waitForTimeout(1900);
+await klick("Schnelles Spiel"); await knopfDa("Losziehen|Spiel starten|Start", 6000);
 await page.evaluate(() => {
   const b = [...document.querySelectorAll("button")].find((x) => /Losziehen|Spiel starten|Start/i.test(x.textContent || ""));
   b && b.click();
 });
-await page.waitForTimeout(2800);
+await brettDa(10000);
+await ruhe(2800, 400);
 
 {
   /* 0. STEHT QUELLTEXT AUF DEM SCHIRM? (v1.1.16, Besitzerbefund mit
@@ -204,15 +249,48 @@ await page.waitForTimeout(2800);
       const k = Math.min(...alle.map((d) => d.getBoundingClientRect().width));
       return alle.filter((d) => Math.abs(d.getBoundingClientRect().width - k) < 2);
     };
+    /* v1.90.19 (A72): statt 260 ms und 1400 ms zu schlafen, wird gemessen.
+       Zielfelder: bis zu 1 s nachsehen. Danach die BESETZUNG des Bretts als
+       Zeichenkette - sie muss sich zweimal aendern und jeweils 300 ms stehen:
+       einmal durch den eigenen Zug, einmal durch die Antwort. Das traegt,
+       weil die KI erst 1000 ms nach dem eigenen Zug antwortet
+       (GameScreen.jsx, "a clear beat before the foe moves"). Vorher schrieb
+       die Probe "der Gegner hat geantwortet", ohne es je nachzusehen. */
+    const warte = (ms) => new Promise((r) => setTimeout(r, ms));
+    const besetzung = () => felder().map((d) => (d.querySelector("img,svg") ? "x" : ".")).join("");
+    const neueRuhe = async (alt, max) => {
+      let s = besetzung(), seit = performance.now();
+      const t0 = performance.now();
+      while (performance.now() - t0 < max) {
+        await warte(100);
+        const n = besetzung();
+        if (n !== s) { s = n; seit = performance.now(); }
+        else if (s !== alt && performance.now() - seit >= 300) return s;
+      }
+      return null;
+    };
     const eigene = felder().filter((d) => d.querySelector("img,svg") && d.getBoundingClientRect().top > innerHeight * 0.42);
     for (const d of eigene) {
-      d.click(); await new Promise((r) => setTimeout(r, 260));
-      const ziel = felder().find((z) => /ggZielAtem/.test(z.getAttribute("style") || "") || z.querySelector('[style*="ggZielAtem"]'));
-      if (ziel) { ziel.click(); await new Promise((r) => setTimeout(r, 1400)); return true; }
+      d.click();
+      let ziel = null;
+      for (let i = 0; i < 10 && !ziel; i++) {
+        await warte(100);
+        ziel = felder().find((z) => /ggZielAtem/.test(z.getAttribute("style") || "") || z.querySelector('[style*="ggZielAtem"]'));
+      }
+      if (ziel) {
+        const vorher = besetzung();
+        ziel.click();
+        const nachMeinem = await neueRuhe(vorher, 4000);
+        if (!nachMeinem) return { gezogen: false };
+        const nachSeinem = await neueRuhe(nachMeinem, 8000);
+        return { gezogen: true, geantwortet: !!nachSeinem };
+      }
     }
-    return false;
+    return { gezogen: false, keinZiel: true };
   });
-  if (!zug) errors.push("kein Zug im Gefecht moeglich (keine Zielfelder gefunden)");
+  if (zug.keinZiel) errors.push("kein Zug im Gefecht moeglich (keine Zielfelder gefunden)");
+  else if (!zug.gezogen) errors.push("ein Zielfeld war da, aber der Zug kam nicht auf dem Brett an");
+  else if (!zug.geantwortet) errors.push("ein Zug gespielt, aber der Gegner hat binnen 8 s nicht geantwortet");
   else console.log("   ein Zug gespielt, der Gegner hat geantwortet");
 
   /* 3. DAS TALENTBAND liegt UNTER dem Brett, nicht dahinter (v1.0.92). */
@@ -242,7 +320,7 @@ await page.waitForTimeout(2800);
   });
   let band = await messeBand();
   if (!band.da || band.ueberlappung > 1 || band.ueberlappung < -60) {
-    await page.waitForTimeout(1200);          // Zuganimation auslaufen lassen
+    await ruhe(1500, 300);                    // Zuganimation auslaufen lassen
     const zweit = await messeBand();
     if (zweit.da && zweit.ueberlappung <= 1 && zweit.ueberlappung >= -60) band = zweit;
   }

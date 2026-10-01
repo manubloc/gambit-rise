@@ -87,6 +87,11 @@ export class Hall extends DurableObject {
       dumpPlayers: () => Object.fromEntries([...sql.exec("SELECT id, doc FROM players")].map((r) => [r.id, JSON.parse(r.doc)])),
       kvGet: (k) => { const r = [...sql.exec("SELECT v FROM kv WHERE k = ?", k)]; return r.length ? r[0].v : null; },
       kvSet: (k, v) => { sql.exec("INSERT INTO kv (k, v) VALUES (?, ?) ON CONFLICT(k) DO UPDATE SET v = excluded.v", k, v); },
+      /* v1.90.19 (A7): je Fernpartie ein Schluessel "daily:<gid>". Gesucht wird
+         ueber den Bereich [pre, pre + U+FFFF) - kein LIKE, also keine Falle mit
+         "_" und "%" im Praefix, und der Primaerschluessel-Index traegt. */
+      kvDel: (k) => { sql.exec("DELETE FROM kv WHERE k = ?", k); },
+      kvPrefix: (pre) => [...sql.exec("SELECT k, v FROM kv WHERE k >= ? AND k < ? ORDER BY k", pre, pre + "￿")].map((r) => [r.k, r.v]),
       vaultPush: (owner, entry, keep) => {
         sql.exec("INSERT OR REPLACE INTO vault (owner, ts, league, gold, data) VALUES (?, ?, ?, ?, ?)",
           owner, entry.ts, entry.league ?? null, entry.gold ?? null, entry.data);

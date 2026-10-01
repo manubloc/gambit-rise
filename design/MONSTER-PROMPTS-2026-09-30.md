@@ -132,6 +132,8 @@ BACKGROUND: a completely flat, uniform chroma green (#00FF66) background filling
 
 Heute am Brett: 64 % der Figurengroesse, h/rx 2.65.
 
+Seit v1.90.19 blau umgefaerbt (tools/umfaerben.py, 218 Grad); der Prompt nimmt dasselbe Blau.
+
 ```
 A single fantasy chess piece for a board game: THE FIRESTARTER, a serpent coiled UPWARD in a tall S-shape: the lowest coil rests on the base, the body rises straight up and the head sits at the top, looking at the viewer with the jaw slightly open; a crest of short fins along the back ends in carved wooden flame tongues behind the head; small carved flames lick up from the lowest coil.
 

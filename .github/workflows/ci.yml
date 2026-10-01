@@ -1,5 +1,5 @@
-# Die EISERNE KETTE, so weit sie ein Runner tragen kann (31 Suiten / 2607
-# Pruefungen, Stand v1.90.18 - siehe CLAUDE.md).
+# Die EISERNE KETTE, so weit sie ein Runner tragen kann (31 Suiten / 2617
+# Pruefungen, Stand v1.90.19 - siehe CLAUDE.md).
 #
 # ── v1.90.16 (Audit A69): OHNE ARCHIV, OHNE 700-MB-UPLOAD ───────────────
 # Der Bau lief hier mit den drei Archivordnern der Schaukammer (743 MB dist/)
@@ -46,6 +46,11 @@ jobs:
       - run: npm test
       - run: npm run build
         env: { OHNE_ARCHIV: "1" }
+      # v1.90.19: drive3 EINMAL im Auslieferungsstand (Landingpage an der
+      # Wurzel, App unter /spielen/): nur hier prueft es die Startseite, den
+      # abmeldenden Dienstarbeiter und den CSP-Kopf in dist/_headers samt
+      # passender Hashes. Nach build:app sieht es nur noch die App.
+      - run: timeout 250 node drive3.mjs
       # build:app stellt die App an die Wurzel von dist/ zurueck - ohne diesen
       # Schritt meldet drive3 vier Fehler, die es nicht gibt (die Landingpage
       # hat kein Brett). Teuer gelernt in v1.86.0, siehe CLAUDE.md.

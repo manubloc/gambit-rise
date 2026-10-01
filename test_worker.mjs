@@ -348,6 +348,46 @@ function mkHall(t0 = 1000) {
   })());
 }
 
+// ── v1.90.19 (Audit A7, Rest): JE FERNPARTIE EIN SCHLUESSEL ─────────────────
+// Das Regal lag als EIN JSON-String unter "daily"; jeder Zug schrieb alle
+// Partien neu. Jetzt "daily:<gid>" je Partie. Geprueft: der Umzug eines alten
+// Regals, dass ein Zug nur SEINE Partie schreibt, und dass der Sweep den
+// Schluessel einer abgelaufenen Partie wirklich loescht.
+{
+  const { hall, last, tick } = mkHall();
+  const st = hall.store;
+  // ein Regal im alten Format, wie es live in der Halle liegt
+  const alt = { d7: { id: "d7", w: "a", b: "b", armyW: ["p"], armyB: ["q"], map: "classic", seed: 1, rules: "chess",
+      mode: "classic", moves: [], turn: "w", createdAt: 1000, lastAt: 1000, deadline: 1000 + 3 * 86400000, done: null },
+    d8: { id: "d8", w: "a", b: "c", armyW: ["p"], armyB: ["q"], map: "classic", seed: 2, rules: "chess",
+      mode: "classic", moves: [], turn: "w", createdAt: 1000, lastAt: 1000, deadline: 1000, done: { winner: "b", reason: "resign" } } };
+  st.kvSet("daily", JSON.stringify(alt));
+  hall.handle(null, { t: "hello", id: "a", secret: "s", name: "A", score: 100 });
+  hall.handle("a", { t: "daily:list" });
+  const liste = last("daily:list", "a").games.map((g) => g.gameId).sort();
+  ok("A7: an old single-row shelf is moved on first touch, nothing lost", liste.join() === "d7,d8");
+  ok("A7: the old row is gone, one row per game instead",
+    st.kvGet("daily") === null && !!st.kvGet("daily:d7") && !!st.kvGet("daily:d8"));
+  ok("A7: the old content is kept aside, untouched", st.kvGet("daily_vor_umzug") === JSON.stringify(alt));
+
+  // ein Zug schreibt nur seine eigene Partie
+  const geschrieben = [];
+  const kvSet = st.kvSet;
+  st.kvSet = (k, v) => { geschrieben.push(k); return kvSet(k, v); };
+  hall.handle("a", { t: "daily:move", gameId: "d7", cmd: { t: "move", from: 8, to: 16 } });
+  st.kvSet = kvSet;
+  ok(`A7: a move writes only its own game (${geschrieben.filter((k) => k.startsWith("daily")).join(", ") || "nichts"})`,
+    geschrieben.filter((k) => k.startsWith("daily")).join() === "daily:d7" && hall.daily.d7.moves.length === 1);
+
+  // die beendete Partie faellt nach 30 Tagen aus dem Regal - samt Schluessel
+  tick(31 * 86400000);
+  hall.handle("a", { t: "daily:list" });
+  ok("A7: the sweep deletes the row of a game past its 30 days", st.kvGet("daily:d8") === null && !hall.daily.d8);
+  ok("A7: an open game past its deadline stays, decided on time", !!hall.daily.d7?.done && hall.daily.d7.done.reason === "time");
+  ok("A7: the setter/getter round-trip is lossless",
+    JSON.stringify(hall.daily) === JSON.stringify(Object.fromEntries(st.kvPrefix("daily:").map(([k, v]) => [k.slice(6), JSON.parse(v)]))));
+}
+
 // ── THE LONG GAME, PLAYED FOR REAL ──────────────────────────────────────────
 // Not a mock: four half-moves are played through the actual rules engine, on
 // four different days, with BOTH players offline in between. What is stored is
@@ -973,9 +1013,18 @@ const hmac2 = async (key, data) => { const k = await subtle.importKey("raw", key
     ["drive3.mjs", /- run: timeout \d+ node drive3\.mjs/],
     ["pruefe-navigation.mjs", /- run: node tools\/pruefe-navigation\.mjs/],
   ]) ok(`A27: die CI faehrt ${was}`, muster.test(ci));
-  ok("A27: build:app steht NACH build - sonst misst drive3 die Landingpage",
-    ci.indexOf("- run: npm run build\n") < ci.indexOf("- run: npm run build:app")
-    && ci.indexOf("- run: npm run build:app") < ci.indexOf("node drive3.mjs"));
+  /* v1.90.19: drive3 faehrt ZWEIMAL - einmal im Auslieferungsstand (zwischen
+     build und build:app: Landingpage, abmeldender Dienstarbeiter, CSP-Kopf in
+     dist/_headers) und einmal nach build:app im reinen App-Stand. Die alte
+     Pruefung verlangte das ERSTE drive3 hinter build:app; seit v1.86.0 kennt
+     drive3 beide Staende, die Begruendung "sonst misst es die Landingpage"
+     trug nicht mehr. */
+  const iBuild = ci.indexOf("- run: npm run build\n"), iApp = ci.indexOf("- run: npm run build:app");
+  const iDriveErst = ci.indexOf("node drive3.mjs"), iDriveLetzt = ci.lastIndexOf("node drive3.mjs");
+  ok("A27: build:app steht NACH build, und drive3 faehrt danach im App-Stand",
+    iBuild < iApp && iApp < iDriveLetzt);
+  ok("A27 (v1.90.19): drive3 faehrt auch im Auslieferungsstand, zwischen build und build:app",
+    iBuild < iDriveErst && iDriveErst < iApp);
   ok("A27: die Fahrproben bekommen einen Browser, statt auf den Containerpfad zu hoffen",
     /playwright-core install/.test(ci) && /PW_CHROMIUM=/.test(ci));
   ok("A27: und die Datei sagt selbst, dass sie den Deploy NICHT sperrt",

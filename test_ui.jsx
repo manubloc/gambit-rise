@@ -823,8 +823,15 @@ const erloschen = (m) => m.includes("#2f2a3d");
   /* v1.65.0 (Besitzer: "der Screen ist zu ueberladen, zu viel Text"): der
      Zusatzsatz und die drei Aufzaehlungen sind fort - der Schirm stellt nur
      noch die Fragen. */
-  ok("the welcome sheet asks only the questions - no bullet points, no extra lead",
-    !intro.includes(t("setup.lead").slice(0, 30)) && !intro.includes(t("intro.p1").slice(0, 30)) && !intro.includes(t("intro.p3").slice(0, 30)));
+  /* v1.90.19 (A75): die drei Texte sind aus strings.js gestrichen - vorher
+     prueften wir ihr Fehlen am Schirm, jetzt ihr Fehlen ueberhaupt. Ein t()
+     auf einen fehlenden Schluessel liefert den Schluessel selbst; den faengt
+     die Probe "every t(...) key used in the code exists" weiter unten. */
+  {
+    const roh = _lies("src/app/i18n/strings.js", "utf8");
+    ok("the welcome sheet asks only the questions - no bullet points, no extra lead",
+      !['"setup.lead"', '"intro.p1"', '"intro.p3"'].some((k) => roh.includes(k)) && !/setup\.lead|intro\.p[13]/.test(intro));
+  }
 }
 
 // ── 18. FACTS IN THE TREASURY'S OWN WORDS ───────────────────────────────────
@@ -1091,8 +1098,20 @@ import { readFileSync as _lies } from "node:fs";
   const benutzt = new Set([...code.matchAll(/\bt\(\s*"([a-zA-Z]+\.[a-zA-Z0-9_]+)"\s*[,)]/g)].map((m) => m[1]));
   const fehlend = [...benutzt].filter((k) => !de.has(k));
   ok(`every t("...") key used in the code exists (${benutzt.size} used, missing: ${fehlend.join(", ") || "none"})`, fehlend.length === 0);
-  const verwaist = [...de].filter((k) => !code.includes(k));
-  console.log(`   i18n: ${de.size} Schluessel, ${verwaist.length} ohne woertliches Vorkommen im Code (dynamisch gebaut oder verwaist)`);
+  /* v1.90.19 (Audit A75, Rest): die 107 Schluessel ohne woertliches
+     Vorkommen sind einzeln geprueft - 104 waren tot (keine dynamische
+     Bildung im Code: kein `praefix.${x}`, kein "praefix." + x, makeT ist der
+     einzige Export von strings.js und niemand zaehlt die Woerterbuecher
+     auf). Gestrichen in beiden Sprachen. Uebrig bleiben die drei
+     profile.campDiffElo_*, die ProfileScreen als "profile.campDiffElo_" + x
+     bildet. Ab jetzt ist ein neuer toter Schluessel ROT, nicht nur eine
+     Zeile im Protokoll - sonst waechst der Haufen wieder. Wer einen
+     Schluessel dynamisch bildet, traegt das Praefix hier ein. */
+  const DYNAMISCH = ["profile.campDiffElo_"];
+  const dynDa = DYNAMISCH.filter((pre) => code.includes(`"${pre}" +`));
+  ok(`every registered dynamic i18n prefix is really built in the code (${dynDa.length}/${DYNAMISCH.length})`, dynDa.length === DYNAMISCH.length);
+  const verwaist = [...de].filter((k) => !code.includes(k) && !DYNAMISCH.some((pre) => k.startsWith(pre)));
+  ok(`no dead i18n key (${de.size} keys, dead: ${verwaist.slice(0, 8).join(", ") || "none"}${verwaist.length > 8 ? " …" : ""})`, verwaist.length === 0);
 }
 
 

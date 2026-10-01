@@ -1,5 +1,76 @@
 # Changelog - Gambit Rise
 
+## 1.90.19 - Der Brandstifter in Blau, eine Inhaltsrichtlinie (Report-Only), Proben warten auf Zustaende statt auf Uhrzeiten, 104 tote Texte, das Fernpartien-Regal je Partie
+
+**DER BRANDSTIFTER IST BLAU** (Besitzerentscheid 1.10.: "Brandstifter blau").
+Er und die Blutmagd waren zwei rote Schlangen mit Rueckenkamm und rotem
+Sockelstreifen, am Brett kaum zu unterscheiden. Umgefaerbt, nicht neu gemalt:
+`tools/umfaerben.py` dreht nur die roten Flaechen um 218 Grad, laesst die
+Glutaugen orange, haelt die Helligkeit je Pixel und fasst den Alphakanal nicht
+an (gemessen: Abweichung 0) - darum gilt `sockelband.json` unveraendert. Das
+Bild ist byte-gleich mit der Vorschau, die der Besitzer gesehen hat. Akzent
+#ff4d5e -> #4d7cff, Figurfarbe (Medaillon) nachgemessen: #46579e. Die roten
+Originale liegen in `archiv/ausgemustert/v1.90.19/`.
+
+**EINE INHALTSRICHTLINIE, ZUERST NUR BERICHTEND (Audit A57).** Die Seite trug
+keine Content-Security-Policy. Gemessen am 1.10. live (Claude in Chrome): die
+App laedt ihr Buendel, EIN Inline-Skript, 9 Supabase-Module von
+cdn.jsdelivr.net, spricht mit der Halle und dem Supabase-Projekt, sonst nur mit
+sich selbst; kein eval. `tools/csp.mjs` rechnet daraus die Richtlinie - die
+Inline-Skripte per sha256 aus der GEBAUTEN Datei, nicht pauschal erlaubt.
+`tools/seite-bauen.mjs` schreibt sie als `Content-Security-Policy-Report-Only`
+in `dist/_headers` (App und Schaufenster getrennt). drive3, die
+Navigationsprobe und die Duell-Probe schicken sie lokal SCHARF mit; jede
+Verletzung ist dort ein Konsolenfehler. Gleich die erste Fahrt fand, was die
+Live-Messung nicht sehen konnte: Vite legt kleine Klangdateien als
+data:-Adresse ins Buendel, und der Klang holt sie per fetch() - 16x "Refused to
+connect to 'data:video/webm…'". connect-src traegt darum data: und blob:.
+Gegenprobe: ohne den Hash des Inline-Skripts meldet drive3 "Refused to execute
+inline script" und wird rot. Ehrliche Grenze: die Duell-Probe kann die
+Verbindung zur Halle NICHT unter der Richtlinie pruefen (Playwrights
+routeWebSocket ersetzt WebSocket in der Seite, gemessen: mit gestrichener
+Halle blieb sie 34/34 gruen) - das prueft die Live-Abnahme. Und eine Falle in
+den Proben: eine CSP-Meldung zitiert die verletzte Direktive, connect-src
+nennt duell.gambitrise.com, und das Offline-Sieb liess alles mit dieser
+Adresse durch. CSP-Meldungen sind jetzt ausgenommen. Scharf geschaltet wird
+live erst, wenn die Konsole dort sauber bleibt. drive3 faehrt dafuer jetzt
+ZWEIMAL (Kette und CI): zwischen build und build:app im Auslieferungsstand -
+nur dort sieht es dist/_headers - und danach im App-Stand. Der Reinraum fand
+dabei, was der lokale Lauf nicht sah (er war vor der Aenderung an ci.yml
+gestartet): test_worker verlangte das ERSTE drive3 hinter build:app, mit der
+Begruendung von vor v1.86.0. Die Pruefung verlangt jetzt beide Laeufe.
+
+**DIE PROBEN WARTEN AUF ZUSTAENDE, NICHT AUF UHRZEITEN (Audit A72).**
+`tools/warten.mjs`: `bis()` wartet auf eine Bedingung im DOM, `ruhe()` darauf,
+dass das DOM still steht (MutationObserver) - mit der alten Schlafzeit als
+Deckel, also nie langsamer als vorher. drive3: 13 feste Schlafzeiten ersetzt,
+gemessen 21 s -> 10 s (je drei Laeufe); die Navigationsprobe: 39 Stellen,
+204 s -> 88 bis 100 s. drive3 prueft dabei zum ersten Mal, was es behauptet:
+"der Gegner hat geantwortet" stand im Protokoll, ohne dass je nachgesehen
+wurde - jetzt muss sich die Besetzung des Bretts zweimal aendern und stehen.
+Eine Falle beim Umbau, festgehalten: ruhe() allein reicht nicht vor einem
+Klick auf etwas, das erst noch erscheint (die Karte zaehlte in Runde 2 "17
+Stationen" statt 43, weil sie noch aufbaute) - dort steht bis().
+
+**104 TOTE TEXTE GESTRICHEN (Audit A75, Rest).** Die 107 Schluessel ohne
+woertliches Vorkommen einzeln geprueft: keine dynamische Bildung im Code (kein
+`praefix.${x}`, kein `"praefix." + x`), makeT ist der einzige Export von
+strings.js, niemand zaehlt die Woerterbuecher auf. 104 waren tot und sind in
+beiden Sprachen fort (572 -> 468 Schluessel je Sprache). Die
+drei profile.campDiffElo_* bleiben (ProfileScreen bildet sie). Ab jetzt ist ein
+toter Schluessel in test_ui ROT, und die Navigationsprobe meldet jeden
+Schluessel, der statt eines Textes auf dem Schirm steht (makeT liefert bei
+einem fehlenden den Schluessel selbst).
+
+**DAS FERNPARTIEN-REGAL JE PARTIE (Audit A7, Rest).** Alle Fernpartien lagen
+als EIN JSON-String unter "daily"; jeder Zug las und schrieb alle Partien, und
+die Zeilengrenze galt fuer alle zusammen. Jetzt liegt jede Partie unter
+"daily:<gid>", geschrieben wird nur, was sich aendert. Die Schnittstelle
+`this.daily` blieb - kein Aufrufer musste sich aendern. Das alte Regal wird
+beim ersten Zugriff umgezogen, sein Inhalt bleibt als "daily_vor_umzug"
+liegen. Die Bereichsabfrage des Durable-Object-Adapters ist gegen SQLite
+geprueft (node:sqlite), test_worker haelt Umzug, Einzelschreiben und Abraeumen.
+
 ## 1.90.18 - Bossformationen, Bauern auf der Offizierslinie, "Verbinden" uebersprang die Zustimmung, die Finale-Auswertung spielte eine andere Partie nach; Audit-Punkte
 
 **DIE BOSSFORMATIONEN** (Besitzerentscheid 30.9., Empfehlung 2): vier Szenen,

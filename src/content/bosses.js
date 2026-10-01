@@ -131,8 +131,14 @@ export const BOSSES = [
   B("b12", "Der Richter",      "The Judge",       "tyrant",  "#ffb454", 19, 5, { slides: KING, range: 2 }, { flavorDe: "Sein Urteil ist gefällt, ehe der Fall beginnt — die Verhandlung ist die Vollstreckung.", flavorEn: "His verdict is set before the case begins — the trial is the execution.", aura: { type: "noEnemyPotions" }, abilities: ["schrecken", "widerhall", "blenden"] }),  // 12->11
   /* b13 bleibt ABSICHTLICH farbgebunden: unbegrenzte Diagonalen sind die
      Laeufer-Verwandtschaft, die jeder Schachspieler kennt und einzuschaetzen
-     weiss. Die Bindung ist hier kein Fehler, sondern Lesbarkeit. */
-  B("b13", "Brandstifter",     "Firestarter",     "serpent", "#ff4d5e",  14, 10, { slides: DIAG }, { flavorDe: "Er sammelt keine Beute; er hinterlässt nur Asche, ordentlich verteilt.", flavorEn: "He gathers no spoils; he leaves only ash, evenly spread.", abilities: ["aderlass", "gift"] }),  // scharf, aber glas
+     weiss. Die Bindung ist hier kein Fehler, sondern Lesbarkeit.
+     v1.90.19 (Besitzerentscheid 1.10.: "Brandstifter blau"): er und die
+     Blutmagd (b16) waren zwei rote Schlangen mit Rueckenkamm, am Brett
+     kaum zu unterscheiden; die Blutmagd bleibt blutrot. Das Gemaelde ist per tools/umfaerben.py
+     (218 Grad, Glutaugen bleiben, Saettigung 0,85) blau gedreht, der
+     Akzent folgt (#ff4d5e -> #4d7cff). Die roten Originale liegen in
+     archiv/ausgemustert/v1.90.19/. */
+  B("b13", "Brandstifter",     "Firestarter",     "serpent", "#4d7cff",  14, 10, { slides: DIAG }, { flavorDe: "Er sammelt keine Beute; er hinterlässt nur Asche, ordentlich verteilt.", flavorEn: "He gathers no spoils; he leaves only ash, evenly spread.", abilities: ["aderlass", "gift"] }),  // scharf, aber glas
   B("b14", "Der Koloss",       "The Colossus",    "golem",   "#94a3b8", 21, 3, { slides: ORTHO, range: 2, leaps: DIAG }, { flavorDe: "Er trägt die Rüstung nicht — er ist sie, bis hinunter zum Herzen aus Stein.", flavorEn: "He does not wear the armour — he is it, down to the heart of stone.", aura: { type: "grant", id: "bulwark" }, abilities: ["steinhaut", "unsterblich", "widerhall", "schrecken", "aderlass"] }),  // seine AURA ist die Gabe: Eigenpanzer + Panzer-Aura kaskadierte in der Sim (+77 Feldwirkung)
   B("b15", "Die Sturmklaue",   "The Stormclaw",   "beast",   "#38bdf8",  16, 8, { leaps: [...CAMEL, ...sym(0, 3)] }, { flavorDe: "Sie kommt mit dem Wetter und geht mit ihm; dazwischen liegt der Schaden.", flavorEn: "She comes with the weather and leaves with it; the damage lies between.", abilities: ["blenden", "wegelagerei"] }),
   B("b16", "Die Blutmagd",     "The Bloodmaid",   "serpent", "#fb7185", 17, 7, { slides: KING, range: 1, leaps: [[0, 2], [0, -2]] }, { flavorDe: "Aus dem Lazarett verschwand erst der Aderlass, dann die Magd. Was der Riss aus ihr machte, windet sich noch immer um sein Werk.", flavorEn: "First the bloodletting vanished from the infirmary, then the maid. What the Rift made of her still coils around its work.", aura: { type: "grant", id: "lifesteal" }, abilities: ["gift", "aderlass", "unsterblich", "schrecken"] }),
