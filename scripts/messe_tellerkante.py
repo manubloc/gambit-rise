@@ -40,9 +40,15 @@ ORDNER = "src/app/ui/assets/painted"
 #             setzen genau dort ein, wo die Wand endet - der Automat fand
 #             keinen Knick (0,0 %) und meldete 120. Am Breitenverlauf
 #             abgelesen: beide Wandkanten stehen von y 533 bis 507 auf
-#             cx +- rx, bei 505 springt die linke Kante in den Umhang. Boden
-#             555 - 506 = 49 (aus dem 2x-Bild hochgerechnet: 49,8).
-HANDWERTE = {"boss-b02": 75, "gambit-t2": 45, "boss-b25": 49}
+#             cx +- rx, bei 505 springt die linke Kante in den Umhang. Die
+#             Wandoberkante (Mitte der OBEREN Ellipse) liegt also bei 506.
+#             `teller` ist der Abstand der beiden Ellipsenmitten:
+#             (Boden 555 - ry 25,5) - 506 = 24.
+#             v1.90.22 (Besitzerbefund "das Band ist voellig fehl am Platz, es
+#             muss weiter runter"): in v1.90.21 stand hier 49 - ich hatte
+#             Boden minus Wandoberkante gerechnet und ry NICHT abgezogen. Das
+#             Band stand 25 px zu hoch, seine Oberkante lag auf den Fuessen.
+HANDWERTE = {"boss-b02": 75, "gambit-t2": 45, "boss-b25": 24}
 MASSE = json.load(open("src/app/ui/board/sockelband.json"))
 
 def kante(fid, m):

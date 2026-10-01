@@ -40,7 +40,7 @@ gambitrise.com zeigt darauf).
   `PW_CHROMIUM`; ohne die Variable gilt der Pfad des Cloud-Containers. Lokal:
   `npx playwright install chromium` und `PW_CHROMIUM=<Pfad zur chrome-Datei>`.
 - `npm test` — volle Batterie. MUSS **31 Suiten / 2653 Prüfungen** melden
-  (Stand v1.90.21; der Runner stoppt nach der ersten roten Suite, also
+  (Stand v1.90.22; der Runner stoppt nach der ersten roten Suite, also
   Suitenzahl prüfen, nicht nur Assertions! **Zählweise seit v1.90.18
   (Audit A74): JEDE Suite der Kette meldet eine RESULT-Zeile** — alle Zeilen
   `RESULT…: N passed` summieren; test_balance meldet zwei, darum stehen im
@@ -319,7 +319,11 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
   brauchen je einen begründeten Handwert: `scripts/messe_sockel.py`
   (`SUCHZONE`, sonst gilt der Umhang als Teller), `scripts/messe_tellerkante.py`
   (`HANDWERTE`) und `sockelmass.js` (`kanteVonHand`, sonst läuft die lila
-  Sockelglut über die Füße). Nach jedem neuen Bild: altes gegen neues
+  Sockelglut über die Füße). **`teller` ist der Abstand der beiden
+  ELLIPSENMITTEN** (Boden − ry − Wandoberkante), nicht Boden − Wandoberkante:
+  v1.90.21 trug 49 statt 24, und Osrics Lebensband stand 25 px zu hoch auf
+  den Füßen (Besitzerbefund). Das Band zeichnet seine Oberkante vorne bei
+  `boden − teller` — die muss auf der Vorderkante der Standfläche liegen. Nach jedem neuen Bild: altes gegen neues
   Messskript auf ALLEN Bildern vergleichen — null Abweichungen außer dem neuen.
 - **Leuchten ohne das Bild anzufassen (`KronenGlut.jsx`):** eine
   deckungsgleiche Ebene aus denselben Pixeln trägt das Licht (drop-shadow),
@@ -347,7 +351,7 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
   Auswahl-Lichtspektakel.
 - Alles Optionale abschaltbar (Klang, Online).
 
-## Offene Baustellen (Stand v1.90.21, 1.10.2026)
+## Offene Baustellen (Stand v1.90.22, 1.10.2026)
 
 **Einstieg für jede neue Sitzung: `design/CHAT-EINSTIEG-2026-09-27.md`** (zehn
 Minuten, mit dem Startsatz für den Chat), dann **`design/UEBERGABE-2026-09-27.md`** — Stand,

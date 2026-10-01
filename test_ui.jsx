@@ -151,7 +151,16 @@ const piece = (x = {}) => ({ id: 1, kind: "Q", color: "w", level: 1, abilities: 
   const m = SBkrone();
   const brettProzent = (m.boden - m.oben) * Math.max(0.55, Math.min(1.35, 136 / m.rx)) / 561 * 100;
   ok(`v1.90.21: Osric steht am Brett so gross wie die Dame (${brettProzent.toFixed(1)} %, Soll 97-103)`, brettProzent >= 97 && brettProzent <= 103);
-  ok("v1.90.21: seine Standflaeche ist von Hand gesetzt (teller 49, die Messung fand keinen Knick)", m.teller === 49 && m.tellerVonHand === true);
+  /* v1.90.22 (Besitzerbefund "das Band ist voellig fehl am Platz, es muss
+     weiter runter ... du hast das Gefuehl, den Sockel abgeschnitten"): hier
+     stand 49 - Boden minus Wandoberkante. `teller` ist aber der Abstand der
+     beiden ELLIPSENMITTEN (messe_tellerkante.py: unten = boden - ry), also
+     555 - 25,5 - 506 = 24. Mit 49 stand die Band-Oberkante vorne 25 px zu
+     hoch, auf den Fuessen. Die Probe rechnet jetzt nach, statt eine Zahl zu
+     wiederholen: die Oberkante vorne (boden - teller) liegt auf der
+     Vorderkante der Standflaeche (Wandoberkante 506 + ry), +-2 px. */
+  ok(`v1.90.22: Osrics Band sitzt mit der Oberkante auf der Vorderkante der Standflaeche (${m.boden - m.teller} gegen ${(506 + m.ry).toFixed(1)})`,
+    m.tellerVonHand === true && Math.abs((m.boden - m.teller) - (506 + m.ry)) <= 2);
   ok("v1.90.21: seine Sockelkante kommt von Hand (0,12) - gemessen landete sie am Deckel 0,24 und die Glut lief ueber die Fuesse",
     sockelKanteAusCache(PAINTED["boss-b25"]) === 0.12 && sockelKanteAusCache(PAINTED_KLEIN["boss-b25"]) === 0.12);
 }

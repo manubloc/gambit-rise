@@ -1,5 +1,29 @@
 # Changelog - Gambit Rise
 
+## 1.90.22 - Osrics Lebensband sitzt wieder auf dem Sockel, sein Umhangfutter laeuft gerade bis zum Saum
+
+**DAS BAND STAND 25 PX ZU HOCH** (Besitzer: "das Band unten ist voellig fehl am
+Platz, es muss weiter runter und ein bisschen nach links ... du hast das
+Gefuehl, den Sockel abgeschnitten"). Ursache: mein Handwert `teller` 49 in
+messe_tellerkante.py. `teller` ist der Abstand der beiden ELLIPSENMITTEN
+(unten = boden - ry), ich hatte Boden minus Wandoberkante gerechnet und ry
+nicht abgezogen. Richtig: 555 - 25,5 - 506 = 24. Das Band zeichnet seine
+Oberkante vorne bei boden - teller; mit 49 lag sie bei y 506 statt 531 -
+auf den Fuessen, und der Stein darunter verschwand. Das "nach links" war der
+graue Splitter links unter dem Saum (siehe unten), der neben dem Band
+herausschaute. Die Probe wiederholt jetzt keine Zahl mehr, sondern rechnet
+nach: Oberkante vorne auf der Vorderkante der Standflaeche, +-2 px.
+
+**DAS UMHANGFUTTER LAEUFT GERADE** ("die beige Kante wie eine Linie
+runterfuehren, nicht nochmal so reinlaufen lassen"). Das Futterband weitete
+sich nach unten zu einem Keil (gemessen 20 -> 80-90 px am Saum). Korrigiert am
+Zwischenbild: Aussenkante bleibt, das Band behaelt 22 px, der Rest ist aus dem
+Innenfutter aufgefuellt (OpenCV-Inpainting). Ein grauer Splitter unter dem
+linken Saum (Rest der Schichtrechnung aus v1.90.21) ist weg. Sockel und Krone
+pixelgleich (Abweichung 0); der erste Anlauf malte einen dunklen Balken durch
+die Klaue und einen Riegel an den Saum - beides am Bild gesehen und behoben,
+bevor es eingebaut wurde.
+
 ## 1.90.21 - Osric neu und so gross wie die Dame, seine Krone leuchtet lila (Animation), freistellen.py kennt Magenta
 
 **OSRIC NEU** (Besitzer 1.10.: "bunter, der Umhang soll hinten durchgehen",
