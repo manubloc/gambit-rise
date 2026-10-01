@@ -314,7 +314,14 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
   die Vorschauen in `public/schau-klein/painted/` nachziehen.
 - **Größer rechnen statt neu malen (v1.90.21, Osric):** der Körper wird um den
   Standpunkt der Füße vergrößert, der Sockel bleibt pixelgleich — am Brett
-  zählt allein Höhe : Sockel-Halbbreite. Hängt etwas NEBEN dem Sockel bis
+  zählt allein Höhe : Sockel-Halbbreite. Werkzeug: **`tools/koerper-groesser.py`**
+  (misst Sockelmitte, Breite, Wandoberkante und Bogen selbst — an Osric auf
+  1 px wie die Handmessung; `--ziel 0.95` rechnet den Faktor, `--diag` zeichnet
+  die Messung über das Bild; die Fußspalten `--fuesse` setzt man von Hand nach
+  dem Diagnosebild). Am Wächter-Test blieben Geisterkanten, wo die Beine
+  breiter auf der Fläche stehen als die Fußspalten — je Bild nachstellen.
+  Besser noch: im fal-Auftrag gleich einen SCHMALEREN Sockel verlangen (gleiches
+  Design, ~45 % Bildbreite), dann kommt die Höhe aus dem Bild selbst. Hängt etwas NEBEN dem Sockel bis
   knapp über den Boden (Umhang, Schild, Flügel), irren drei Messungen und
   brauchen je einen begründeten Handwert: `scripts/messe_sockel.py`
   (`SUCHZONE`, sonst gilt der Umhang als Teller), `scripts/messe_tellerkante.py`
