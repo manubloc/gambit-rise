@@ -232,10 +232,20 @@ starten, sonst reißen Werkzeug-Zeitlimits den Lauf ab.
    (`navigate` auf die Adresse, dann per `javascript_tool`
    `await fetch("/spielen/version.json?x="+Math.random(), {cache:"no-store"}).then(r=>r.text())`;
    dasselbe Fenster zählt auch gleich die Marker im Live-Bundle). Seit v1.90.19
-   gehört dazu: die Konsole desselben Fensters auf `Report Only` lesen
-   (Muster `Content Security Policy`), nach einem `new WebSocket("wss://duell.gambitrise.com/ws")`
-   und einem Abruf von `https://duell.gambitrise.com/health` — so wird die
-   Richtlinie live gemessen, bevor sie scharf geht. WebFetch
+   gehört dazu die CSP-Messung: **NICHT über die Konsole** — gemessen am
+   1.10.: `read_console_messages` zeigt die „[Report Only]“-Meldungen des
+   Browsers gar nicht (eine absichtliche Verletzung blieb dort unsichtbar).
+   Der Weg, der trägt: nach dem Laden der Seite per `javascript_tool`
+   `new ReportingObserver(cb, { types: ["csp-violation"], buffered: true })`
+   — `buffered` liefert auch die Verstöße, die VOR dem Beobachter beim Laden
+   entstanden. Vorher `new WebSocket("wss://duell.gambitrise.com/ws")` öffnen
+   und `fetch("https://duell.gambitrise.com/health", {mode: "no-cors"})`
+   (ohne no-cors scheitert der Abruf an CORS, `/health` sendet keinen
+   CORS-Kopf — die Fassung der Halle liest man, indem man das Fenster direkt
+   auf `https://duell.gambitrise.com/health` schickt). Die Köpfe selbst:
+   `(await fetch("/spielen/")).headers.get("content-security-policy-report-only")`.
+   Abnahme v1.90.19: App und Startseite **0 Verstöße**, Halle per WebSocket
+   offen. WebFetch
    braucht eine Freigabe des Besitzers und steht unbeaufsichtigt nicht zur
    Verfügung. Zur Adresse selbst (**mit `/spielen/`** — `version.json` zieht seit v1.42.0 mit der
    App um, `tools/seite-bauen.mjs` Schritt 1; die Wurzel-Adresse
