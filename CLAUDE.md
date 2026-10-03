@@ -10,9 +10,11 @@ Die Seite: **/** ist das Schaufenster (Landingpage), **/spielen/** die App.
 Der Passwort-Riegel davor (v1.42.0–v1.87.0, ein `prompt()`) ist seit v1.88.0
 fort — er sperrte den Besitzer auf dem Handy aus (prompt() liefert in
 installierten Seiten stumm null). Die Anmeldung der App ist die Tür.
-Play Store: die App ist NICHT veröffentlicht; Paket **com.gambitrise.app**
-(neu, die alte Kennung war nie in Gebrauch). Ein neues Paket muss gebaut
-werden — Host und Startpfad haben sich geändert.
+Play Store: Paket **com.gambitrise.app**, seit 2.10.2026 im **INTERNEN TEST**
+(Release 1, nur eingetragene Tester; öffentlich ist die App NICHT). Das Bundle
+ist mit dem Uploadschlüssel `gg` signiert — Stand, Opt-in-Link und der Weg,
+ein PWABuilder-Paket umzusignieren, stehen in `design/PLAYSTORE-BACKLOG.md`
+(S4, S4b).
 GitHub-Repo: **manubloc/gambit-rise** (Umbenennung erledigt — `git remote -v`
 zeigt die neue Adresse; die alte `manubloc/grand-gambit` leitet bei GitHub
 weiter). Cloudflare-Pages-Projekt heißt weiterhin **grand-gambit** (die Domain
@@ -389,7 +391,9 @@ Hier nur der Überblick:
   (Cloudflare-Dashboard, Besitzer).
 - **Technik:** Deploy wiegt 743 MB, davon 692 MB Archiv für die Schaukammer
   (Schalter `OHNE_ARCHIV=1` liegt bereit, Standard unverändert) · `.git` 1 GB.
-- **Store:** siehe `design/PLAYSTORE-BACKLOG.md`.
+- **Store:** interner Test läuft (2.10.); als Nächstes S6 (erster Start am
+  Handy: keine Passwortabfrage, keine graue Browserleiste), dann S7–S9 — siehe
+  `design/PLAYSTORE-BACKLOG.md`.
 
 **Erledigt und aus dieser Liste gestrichen** (die alte Fassung stand auf
 v1.0.62 und führte längst Gebautes als offen): Sperren kaufen/setzen

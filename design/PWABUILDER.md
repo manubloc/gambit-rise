@@ -64,8 +64,15 @@ Landingpage statt im Spiel.
 **In der Play Console ist bereits ein Uploadschlüssel registriert** (S5,
 gemessen am 29.9.: unter *App-Integrität → App-Signatur* stehen BEIDE
 Zertifikate — Googles App-Signaturschlüssel `D9:2D:FB:…:A8:F6` und der
-Uploadschlüssel `00:4B:29:…:E6:52`). Eine `.aab`, die mit einem NEU
+Uploadschlüssel; am 29.9. war das `00:4B:29:…:E6:52`, **seit dem Reset vom
+2.10.2026 ist es `15:E8:30:D9:…:23:93:FE`**, Alias `gg`, Keystore unter
+`Downloads\gambit-schluessel\`). Eine `.aab`, die mit einem NEU
 erzeugten Schlüssel signiert ist, weist Google beim Hochladen ab.
+
+**Wer das PWABuilder-Paket schon mit dessen eigenem Schlüssel hat, muss
+nicht neu bauen:** die Signatur lässt sich mit `jarsigner` gegen den
+`gg`-Schlüssel tauschen — der Weg steht in `PLAYSTORE-BACKLOG.md` unter S4
+(so entstand am 2.10. das Bundle des internen Tests).
 
 Bis v1.90.12 stand in der Tabelle oben „Create new". Das war falsch und
 hätte einen halben Tag gekostet — die Zeile ist berichtigt. Drei Fälle:

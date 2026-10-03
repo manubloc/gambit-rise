@@ -31,7 +31,8 @@
   gedeckelt, „zwölf Kapitel" trifft zu.
 - **`design/twa-manifest.json`** — fertige Bubblewrap-Konfiguration.
 - **`public/.well-known/assetlinks.json`** — trägt zwei echte
-  SHA-256-Fingerabdrücke (noch gegen die Console abzugleichen, siehe S5).
+  SHA-256-Fingerabdrücke: Googles App-Signaturschlüssel und den
+  Uploadschlüssel `gg` (seit 2.10.2026 der NEUE, siehe S4a/S5).
 - **In der Console schon erledigt:** App angelegt, Store-Texte,
   Datenschutzlink, Werbung, Werbe-ID, Behörden-App, Zielgruppe 13+,
   Finanz- und Gesundheitsfunktionen, App-Zugriff. Altersfragebogen ausgefüllt.
@@ -102,7 +103,11 @@
   („Einige Sprachen sind fehlerhaft"). Entfernt; UK-Nutzer sehen ohnehin den
   en-US-Eintrag.
 
-- [ ] **S4a UPLOADSCHLÜSSEL-RESET — ANGEFORDERT AM 29.9.2026, 22:30.**
+- [x] **S4a UPLOADSCHLÜSSEL-RESET — ERLEDIGT 2.10.2026** (angefordert am
+  29.9.2026, 22:30). Am 2.10. in der Console nachgesehen: unter
+  *App-Signatur* steht als Uploadschlüssel der neue Abdruck
+  (SHA-1 `FC:6A:75:…:CF:BA`), und ein damit signiertes Bundle wurde
+  angenommen. `assetlinks.json` ist nachgezogen (S5).
   Der erste Versuch lief genau in die Falle aus S4: PWABuilder hat einen
   NEUEN Schlüssel erzeugt, und die Console hat das Bundle abgewiesen —
   erwartet SHA-1 `0F:F9:2A:E5:…:C5:CF:CD`, geliefert
@@ -135,7 +140,27 @@
   Gegengeprüft: der so gewonnene Abdruck war exakt der, den Googles
   Fehlermeldung nannte.
 
-- [ ] **S4 Android-Paket bauen — DER EINZIGE BLOCKER FÜR DEN INTERNEN TEST.**
+- [x] **S4 Android-Paket — ERLEDIGT 2.10.2026, aber anders als gedacht.**
+  Der Besitzer lieferte das PWABuilder-ZIP vom ERSTEN Versuch: das Bundle
+  darin trägt wieder PWABuilders eigenen Schlüssel (SHA-1
+  `AA:BE:6E:AD:…:1E:CE:19:83`, genau der am 29.9. abgewiesene), nicht den
+  registrierten Uploadschlüssel. **Es musste nicht neu gebaut werden:** ein
+  `.aab` ist ein JAR, die Signatur lässt sich tauschen. Alte Signaturdateien
+  aus `META-INF/` entfernen (`*.SF`, `*.RSA`, `MANIFEST.MF`), dann
+  `jarsigner -keystore gambit-upload.keystore -storepass:env <VAR>
+  -sigalg SHA256withRSA -digestalg SHA-256 <datei>.aab gg` und mit
+  `keytool -printcert -jarfile <datei>.aab` gegenprüfen (muss
+  `FC:6A:75:…` zeigen). Das Passwort NUR über eine Umgebungsvariable
+  reichen, nie auf die Befehlszeile schreiben. Die Console nahm das Bundle
+  an: Versionscode 1, Versionsname 1.0.0.0, minSdk 24, targetSdk 36.
+  Die fertige Datei liegt bei den Schlüsseln:
+  `Downloads\gambit-schluessel\Gambit-Rise-v1-uploadschluessel-gg.aab`.
+  **Der Schlüssel im PWABuilder-ZIP (`signing.keystore`,
+  `signing-key-info.txt`) ist NICHT der Uploadschlüssel** und wird nicht
+  gebraucht. Für jedes Update der Hülle gilt derselbe Weg — oder in
+  PWABuilder gleich „Use mine" mit dem `gg`-Keystore.
+
+  *Der ursprüngliche Arbeitsauftrag (überholt, als Nachschlag behalten):*
   Nach `design/PWABUILDER.md` über <https://www.pwabuilder.com>: Adresse
   `https://gambitrise.com`, Paket `com.gambitrise.app`, App-Name
   „Gambit Rise", Launcher „Gambit", Startpfad `/spielen/`.
@@ -159,7 +184,20 @@
   Containers ab. Java 21 und `keytool` sind da, das SDK nicht. Darum der Weg
   über pwabuilder.com im Browser; der braucht keinen Werkzeugkasten.
 
-- [ ] **S4b Interner Test starten** — nach S4 eine Sache von Minuten und
+- [x] **S4b Interner Test — LÄUFT SEIT 2.10.2026, 19:02.** Release
+  „1 (1.0.0.0)" veröffentlicht („Für interne Tester verfügbar"), Spur
+  **Aktiv**. Testerliste **„Gambit Rise intern"** mit frey.manu@gmail.com
+  (im Konto lag schon eine zweite Liste „Interne Tester" mit einem Nutzer —
+  nicht ausgewählt, nicht angefasst). Opt-in-Link:
+  <https://play.google.com/apps/internaltest/4701531947202446151> — am
+  Handy mit dem Tester-Konto öffnen, Einladung annehmen, dann installieren.
+  Solange Google den Eintrag nicht geprüft hat, heißt die App im Store
+  „com.gambitrise.app (unreviewed)"; das ist beim internen Test normal.
+  **Falle:** ohne ausgewählte Testerliste bleibt die Spur „Inaktiv", obwohl
+  der Release veröffentlicht ist — die Console warnt nur klein („noch keine
+  Tester festgelegt").
+
+  *Der ursprüngliche Arbeitsauftrag (überholt):* nach S4 eine Sache von Minuten und
   **ohne Google-Prüfung**: Play Console → Testen und Veröffentlichen →
   *Interner Test* → Neue Version erstellen → `.aab` hineinziehen →
   Versionshinweise → Veröffentlichung starten. Dann unter *Tester* die
@@ -177,6 +215,13 @@
   **Uploadschlüssel** (`00:4B:29:…:E6:52`), damit auch eine selbst signierte
   Installation desselben Pakets ohne Browserleiste startet. Prüfen nach dem
   Deploy: <https://gambitrise.com/.well-known/assetlinks.json>
+
+  **Nachgezogen am 2.10.2026:** nach dem bestätigten Reset (S4a) steht als
+  zweiter Abdruck der NEUE Uploadschlüssel `15:E8:30:D9:…:23:93:FE`; der
+  alte `00:4B:29:…:E6:52` ist heraus (zu ihm gibt es keinen privaten
+  Schlüssel mehr). Für die Play-Installation zählt ohnehin nur Googles
+  `D9:2D:FB:…:A8:F6` — der blieb unverändert, die Datei war dafür also
+  schon vorher richtig.
 
   **WICHTIGER NEBENBEFUND FÜR S4:** in der Console ist bereits ein
   **Uploadschlüssel registriert** (sein öffentliches Zertifikat steht auf der
