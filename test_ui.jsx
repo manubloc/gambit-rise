@@ -33,7 +33,7 @@ import { TutorialScreen } from "./src/app/ui/screens/TutorialScreen.jsx";
 import { buildStageMatch, withProgressPct } from "./src/meta/index.js";
 import { CAMPAIGN, TIME_MODES, timeModeById, clockFor } from "./src/content/index.js";
 import { AkademieScreen } from "./src/app/ui/screens/AkademieScreen.jsx";
-import { ArmyScreen, GearPanel, MoveDiagram } from "./src/app/ui/screens/ArmyScreen.jsx";
+import { ArmyScreen, GearPanel, MoveDiagram, monsterHaus } from "./src/app/ui/screens/ArmyScreen.jsx";
 import { CHARACTER_LIST } from "./src/content/index.js";
 import { defaultProfile, evaluate } from "./src/meta/index.js";
 import { makeT } from "./src/app/i18n/strings.js";
@@ -180,9 +180,9 @@ const piece = (x = {}) => ({ id: 1, kind: "Q", color: "w", level: 1, abilities: 
      der Standflaeche, also (untere Ellipsenmitte - teller) + ry. Das ist
      dieselbe Rechnung wie bei Osric - eine Gegenprobe der drei neuen Teller,
      darunter der Handwert des Hetzers (49; der alte, 75, galt dem alten Bild). */
-  ok("v1.90.23: ihre Teller liegen 25-55 px hoch, der Handwert des Hetzers gilt dem NEUEN Bild (49, nicht mehr 75)",
+  ok("v1.90.23: ihre Teller liegen 25-55 px hoch, der Handwert des Hetzers gilt dem NEUEN Bild (v1.90.25: 46, nicht mehr 75)",
     ["boss-b02", "boss-b01", "boss-b06"].every((id) => SB3[id].teller >= 25 && SB3[id].teller <= 55 && SB3[id].boden === 555 && SB3[id].oben === 21)
-    && SB3["boss-b02"].teller === 49 && SB3["boss-b02"].tellerVonHand === true);
+    && SB3["boss-b02"].teller === 46 && SB3["boss-b02"].tellerVonHand === true);
   /* ── v1.90.24: DIE ZIELFELDER SAGEN, WIE DIE FIGUR HINKOMMT ───────────────
      Besitzer 3.10.: "manchmal sieht man so einen kleinen Stern ... was
      bedeutet das? ... diese Faerbungen, ob ich springen oder ziehen kann oder
@@ -215,6 +215,87 @@ const piece = (x = {}) => ({ id: 1, kind: "Q", color: "w", level: 1, abilities: 
     ok("v1.90.24: Blau und Gelb am Brett sind die Farben des Zugbilds im Hofstaat",
       hof.includes(`rgba(${ZUG_TON.zug},`) && hof.includes(`rgba(${ZUG_TON.sprung},`) && ZUG_TON.schlag === "244,90,90");
     ok("v1.90.24: rgbTripel liest die Farbe eines Talentzeichens", rgbTripel("#3ee089") === "62,224,137" && rgbTripel("rgba(1, 2, 3, .5)") === "1,2,3" && rgbTripel(null) === "167,139,250");
+  }
+  /* ── v1.90.25: NAECHSTE RUNDE (Sturmklaue, Zerreisser, Streuner), der Hetzer
+     "minimal hoeher", Begegnete in Farbe, zwei Abschnitte statt vier ───────── */
+  {
+    const SB5 = JSON.parse(readFileSync("src/app/ui/board/sockelband.json", "utf8"));
+    /* wie gemessenerFit fuer Monster: Teller auf 136, Streckung hoechstens 1 */
+    const monsterAmBrett = (id) => { const s = SB5[id]; const k = Math.max(0.55, Math.min(1.35, 136 / s.rx)); const h = (s.boden - s.oben) * k;
+      return h * Math.min(1, Math.max(0.92, Math.min(1.10, 561 / h))) / 561 * 100; };
+    ok(`v1.90.25: der Hetzer steht bei 89-100 % der Offiziere (${monsterAmBrett("boss-b02").toFixed(1)})`,
+      monsterAmBrett("boss-b02") >= 89 && monsterAmBrett("boss-b02") <= 100.5);
+    /* Sturmklaue, Zerreisser und Streuner: die aufrechten Neufassungen vom
+       3.10. hat der Besitzer NICHT freigegeben ("zu hochgezogen", "zu
+       digital", "wichtig, dass wir an der alten Optik dranbleiben") - im
+       Spiel stehen weiter die alten, breiten Bilder (Teller-Halbbreite > 200).
+       Kommt ein freigegebenes Bild, faellt diese Pruefung und wird ersetzt. */
+    ok("v1.90.25: Sturmklaue, Zerreisser und Streuner tragen weiter die alten Bilder (nichts Ungefreigegebenes eingebaut)",
+      ["boss-b15", "boss-b22", "boss-b05"].every((id) => SB5[id].rx > 200));
+    /* Der Zerreisser trug seit jeher einen zu flachen Teller (25): der Automat
+       hielt die Stufe zwischen dem roten Farbring und der Steinwand fuer die
+       Standflaeche, das Band bedeckte nur den Ring und die Wand stand nackt
+       darueber. Jetzt 70 (Handwert, Herleitung in messe_tellerkante.py): die
+       Oberkante liegt UEBER dem Farbring auf der Kante der Standflaeche. */
+    ok("v1.90.25: das Band des Zerreissers reicht ueber den Farbring bis zur Standflaeche (Handwert 70), das des Hetzers bleibt 46",
+      SB5["boss-b22"].tellerVonHand === true && SB5["boss-b22"].teller === 70 && SB5["boss-b22"].teller > SB5["boss-b22"].ring + 30
+      && SB5["boss-b02"].tellerVonHand === true && SB5["boss-b02"].teller === 46);
+    const begegnet = html(<HofKachel img={PAINTED["boss-b22"]} name="Der Zerreißer" bossId="b22" dim />);
+    const fremd = html(<HofKachel img={PAINTED["boss-b22"]} name="???" bossId="b22" dark />);
+    ok("v1.90.25: wem man begegnet ist, der steht in FARBE im Verzeichnis (kein Graufilter mehr)",
+      !begegnet.includes("grayscale(1)") && begegnet.includes("brightness(1.14) saturate(1.05)"));
+    ok("v1.90.25: Unbekanntes bleibt dunkel", fremd.includes("brightness(0) opacity(.55)"));
+    const hofQ = readFileSync("src/app/ui/screens/ArmyScreen.jsx", "utf8");
+    ok("v1.90.25: ein begegneter Grossmeister traegt die leuchtende Kontur (meister) auch ausserhalb des eigenen Hofstaats",
+      /<Tile key=\{b\.id\} img=\{img\} bossId=\{b\.id\} dim meister=\{meister\}/.test(hofQ)
+      && html(<HofKachel img={PAINTED["boss-b25"]} name="Osric" bossId="b25" dim meister />).includes("gg-funkenkontur-innen"));
+    ok("v1.90.25: das Verzeichnis kennt unter dem Hofstaat nur noch FIGUREN und BESTIEN",
+      makeT("de")("tree.figuren") === "FIGUREN" && makeT("de")("tree.masters") === "BESTIEN" && makeT("en")("tree.masters") === "BEASTS" && makeT("de")("tree.crown") === "tree.crown" && /\[\.\.\.CROWN_IDS, \.\.\.SHADOW_IDS\]\.filter/.test(hofQ));
+    ok("v1.90.25: am Blatt steht 'Bestien' oder 'Großmeister', keine Familie mehr",
+      monsterHaus({ id: "b22", art: "beast" }, false) === "Bestien" && monsterHaus({ id: "b01", art: "golem" }, false) === "Bestien"
+      && monsterHaus({ id: "b25", art: "tyrant" }, false) === "Großmeister" && monsterHaus({ id: "b25" }, true) === "Grandmaster");
+    /* ── DAS ZUGBILD IST ABZAEHLBAR, DIE STARTSEITE ZEIGT DAS ECHTE SPIEL ────
+       Besitzer 3.10. am Springer: "das ist doch nicht richtig, was du da
+       darstellst - eins, zwei geradeaus und eins schraeg." Das L stimmte; die
+       leeren Felder waren unsichtbar (5 % und 2 % Weiss). */
+    const springerBild = html(<MoveDiagram kind="N" />);
+    const gelb = (springerBild.match(/rgba\(233,197,63,\.5\)/g) || []).length;
+    ok(`v1.90.25: das Zugbild des Springers zeigt genau sein L (acht gelbe Felder, gezaehlt ${gelb}) auf einem sichtbaren Raster`,
+      gelb === 8 && springerBild.includes("rgba(255,255,255,.13)") && springerBild.includes("rgba(255,255,255,.06)") && !springerBild.includes("rgba(255,255,255,.02)"));
+    const mitTalent = html(<MoveDiagram kind="N" talente={["knight_longleap"]} />);
+    ok("v1.90.25: gelernte Zugtalente liegen farbig obenauf, das L bleibt (8 gelb + 8 in der Talentfarbe = 16 markierte Felder)",
+      (mitTalent.match(/rgba\(233,197,63,\.5\)/g) || []).length === 8 && (mitTalent.match(/inset 0 0 0 1px rgba\(255,255,255,\.18\)/g) || []).length === 16);
+    ok("v1.90.25: die Karte der Aufstellung reicht dem Zugbild die GELERNTEN Talente", /const gelerntC = \[\.\.\.chosenAbilities\(profile, c\.id\)/.test(hofQ));
+    const seite = readFileSync("public/landing.html", "utf8"), zuschnitt = readFileSync("tools/landing_bilder.py", "utf8");
+    ok("v1.90.25: die Startseite zeigt keinen Drachen mehr in der Galerie, dafuer den Spaeher",
+      !seite.includes("gal-dragon") && seite.includes("gal-hawk.webp") && !existsSync("public/landing/gal-dragon.webp") && existsSync("public/landing/gal-hawk.webp"));
+    ok("v1.90.25: die Bretter der Startseite sind Fotos aus dem Spiel - die Montage aus rohen Gemaelden ist gestrichen",
+      !/^def gefecht\(/m.test(zuschnitt) && !/^def crowd\(/m.test(zuschnitt) && !/^def zugbilder\(/m.test(zuschnitt) && /^def fotos\(/m.test(zuschnitt)
+      && seite.includes("brett-kronland.webp") && existsSync("public/landing/brett-kronland.webp") && existsSync("tools/landing-pruefstand.jsx"));
+    ok("v1.90.25: die Legende der Zugbilder spricht die Sprache des Bretts (zieht blau, springt gelb, neu gruen)",
+      seite.includes('<span class="z y"></span>springt') && seite.includes('<span class="z s"></span>zieht') && seite.includes(".z.y{ background:rgba(233,197,63,.5)"));
+    /* Jede Zugfolge der Startseiten-Bretter gegen den Kern: derselbe Weg wie
+       im Pruefstand (buildStageMatch, createGame, legalMovesFrom, applyMove). */
+    {
+      const { applyMove: zieh, legalMovesFrom: erlaubt } = await import("./src/core/index.js");
+      const { nodeById: knoten, mapById: karte } = await import("./src/content/index.js");
+      const { buildArmy: heerVon } = await import("./src/meta/index.js");
+      const bretter = JSON.parse(readFileSync("tools/landing-bretter.json", "utf8"));
+      const feld = (n) => (n.charCodeAt(0) - 97) + (Number(n.slice(1)) - 1) * 8;
+      const bericht = [];
+      for (const [name, b] of Object.entries(bretter)) {
+        const lg = knoten(b.station).league;
+        const profil = withProgressPct(defaultProfile(), b.stand ?? 50, lg);
+        const match = buildStageMatch(b.station, profil);
+        const map = karte(match.map);
+        let st = createGame(heerVon(profil, map), match.aiArmy, { seed: 1, map, rules: match.rules });
+        let gut = (map.holes || []).length === 0;
+        for (const z of b.zuege || []) { const m = erlaubt(st, feld(z.slice(0, 2))).find((x) => x.to === feld(z.slice(2, 4))); if (!m) { gut = false; break; } st = zieh(st, m); }
+        bericht.push(`${name} ${match.rules}${gut ? "" : " UNGUELTIG"}`);
+      }
+      ok(`v1.90.25: jede Zugfolge der Startseiten-Bretter ist im Kern erlaubt, kein Brett hat Loecher (${bericht.join(", ")})`,
+        bericht.length === 3 && bericht.every((z) => !z.includes("UNGUELTIG")) && bericht[1].includes("chess") && bericht[2].includes("hp"));
+    }
   }
 }
 function SBkrone() { return JSON.parse(readFileSync("src/app/ui/board/sockelband.json", "utf8"))["boss-b25"]; }
@@ -1692,7 +1773,7 @@ print(json.dumps({"gezaehlt": gezaehlt, "schlecht": schlecht}))
     /* v1.2.1: die Karte skaliert mit dem Schirm, und ALLES passt darauf. */
     ok("Kartenbreite waechst mit dem Schirm", as.includes('window.addEventListener("resize", messen)'));
     ok("die Figur skaliert, die Gangart behaelt ihre Groesse (Besitzer: der Rest nicht)",
-      as.includes("<HofKachel img={bildC}") && as.includes('<MoveDiagram kind={c.kind} moveSpec={c.moveSpec} breite={"100px"} />'));
+      as.includes("<HofKachel img={bildC}") && as.includes('<MoveDiagram kind={c.kind} moveSpec={c.moveSpec} breite={"100px"} talente={gelerntC} />'));
     ok("der Slider laeuft von Bildschirmrand zu Bildschirmrand, ohne Box",
       as.includes('data-aufst-slider="1" style={{ width: "100vw", marginLeft: "calc(50% - 50vw)"'));
     ok("solange der Slider offen ist, scrollt die Seite nicht",
@@ -2469,15 +2550,23 @@ print(json.dumps({"gezaehlt": gezaehlt, "schlecht": schlecht}))
   const DUNKEL = "#15151b";
   ok("Band: beide Seiten tragen dasselbe schwarze Mittelstueck",
     eigen.includes(DUNKEL) && gegner.includes(DUNKEL));
-  /* Der Platzhalter im Figuren-Schirm bleibt: ein Band OHNE Werte darf hell
-     sein - aber nur zusammen mit `grau`, sonst entstuende wieder
-     rot-hell-blau. Dieser Riegel steht in SockelBand selbst. */
+  /* v1.90.25 (Besitzer 3.10.: "Wir killen den grauen Sockel ... ueberall das
+     Band, in schwarz, ohne Lebensbalken. Und das ziehst du ueberall durch."):
+     den hellen Platzhalter im Figuren-Schirm gibt es nicht mehr - ein Band
+     OHNE Werte ist dasselbe schwarze Band wie am Brett, nur ohne Rot und Blau.
+     Die Eigenschaft `hell` ist aus SockelBand gestrichen; wer sie noch
+     uebergibt, bewirkt nichts. */
   const platz = html(<SB paintedId="king" leben={0} kraft={0} grau hell id="t1" />);
-  ok("Band: der graue Platzhalter darf weiterhin hell sein",
-    HELL.some((c) => platz.includes(c)));
-  const versehen = html(<SB paintedId="king" leben={6} kraft={4} hell id="t2" />);
-  ok("Band: hell OHNE grau bleibt wirkungslos - der Riegel gegen rot-hell-blau",
-    HELL.every((c) => !versehen.includes(c)));
+  ok("v1.90.25: ein Band ohne Werte ist schwarz - der weissgraue Platzhalter ist fort",
+    HELL.every((c) => !platz.includes(c)) && platz.includes(DUNKEL));
+  const sbQ = readFileSync("src/app/ui/SockelBand.jsx", "utf8"), asQ = readFileSync("src/app/ui/screens/ArmyScreen.jsx", "utf8");
+  ok("v1.90.25: SockelBand kennt `hell` nicht mehr, und niemand reicht es durch",
+    !/hell = false/.test(sbQ) && !/hell &&/.test(sbQ) && !/<SockelBand[^>]*hell=/.test(asQ.replace(/\n/g, " ")) && !asQ.includes("hell={!"));
+  /* Kachel und Blatt ohne Werte (vor dem Erwachen der Lebenspunkte): schwarz */
+  const { HofKachel } = await import("./src/app/ui/screens/ArmyScreen.jsx");
+  const kachelOhne = html(<HofKachel img={PAINTED.knight} name="Springer" artId="knight" kind="N" werte={{ leben: 0, kraft: 0, ohne: true }} />);
+  ok("v1.90.25: die Hofstaat-Kachel ohne Werte traegt das schwarze Band",
+    kachelOhne.includes('data-gg="sockelband"') && kachelOhne.includes(DUNKEL) && HELL.every((c) => !kachelOhne.includes(c)));
 }
 
 /* ── v1.90.12 (Audit A11, Besitzerwunsch 29.9.): DIE KRONENWAHL, GERENDERT

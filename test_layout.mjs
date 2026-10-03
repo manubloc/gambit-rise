@@ -155,8 +155,8 @@ for (const [w, h, name] of [[390, 844, "iPhone"], [360, 800, "Android"], [414, 8
       }
     }
     return { tiles: tiles.length, withSigil, captionBelow, captionRight,
-      masters: /MEISTER & GROSSMEISTER/i.test(txt),
-      oldHeads: ["Golems", "Bestien", "Schlangen", "Schemen", "Tyrannen"].filter((h) => new RegExp("^" + h + "$", "m").test(txt)) };
+      masters: /^BESTIEN$/m.test(txt),   /* v1.90.25: der Abschnitt heisst jetzt BESTIEN */
+      oldHeads: ["Golems", "Schlangen", "Schemen", "Tyrannen"].filter((h) => new RegExp("^" + h + "$", "m").test(txt)) };
   });
   ok(`the register draws its tiles (${r.tiles})`, r.tiles > 15);
   ok(`tiles carry a vector figure in the corner (${r.withSigil})`, r.withSigil > 10);

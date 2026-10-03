@@ -392,6 +392,7 @@
     .z.f{ background:linear-gradient(160deg,#e7c877,#b1863c); box-shadow:0 0 5px rgba(231,200,119,.6); }
     .z.s{ background:rgba(74,163,232,.42); box-shadow:inset 0 0 0 1px rgba(255,255,255,.16); }
     .z.l{ background:rgba(233,197,63,.5);  box-shadow:inset 0 0 0 1px rgba(255,255,255,.16); }
+    .z.y{ background:rgba(233,197,63,.5); box-shadow:inset 0 0 0 1px rgba(255,255,255,.18); }
     .z.g{ background:rgba(62,224,137,.55); box-shadow:inset 0 0 0 1px rgba(120,255,180,.45); }
     .legende { color:var(--dim); font-size:10.5px; margin-bottom:8px; }
     .zuglegende { list-style:none; padding:0; margin:12px 0 4px; display:flex; flex-wrap:wrap; gap:8px 16px; }
@@ -544,7 +545,7 @@
          Zuegen vorgestellt werden; Gambit und Bauer weg, weniger
          Standardfiguren"): statt der Aufnahme des Hofstaat-Rasters stehen
          hier die Figuren selbst - acht in Farbe, vier als Schatten. Kapitaen,
-         Kanzler, Amazone und Drache kommen weiter unten mit ihren Zuegen
+         Kanzler und Amazone kommen weiter unten mit ihren Zuegen
          wieder; Gambit, Bauer und die uebrigen Standardfiguren fehlen hier
          bewusst, sie erzaehlen nichts Neues. -->
     <div style="order:1">
@@ -552,7 +553,13 @@
         <div class="sockel"><img src="/landing/gal-captain.webp" alt="Der Kapitän" loading="lazy" /><div class="n">Kapitän</div><div class="r">gerade &amp; schräg</div></div>
         <div class="sockel"><img src="/landing/gal-chancellor.webp" alt="Der Kanzler" loading="lazy" /><div class="n">Kanzler</div><div class="r">Turm &amp; Springer</div></div>
         <div class="sockel"><img src="/landing/gal-amazon.webp" alt="Die Amazone" loading="lazy" /><div class="n">Amazone</div><div class="r">Dame &amp; Springer</div></div>
-        <div class="sockel riss"><img src="/landing/gal-dragon.webp" alt="Der Drache" loading="lazy" /><div class="n">Drache</div><div class="r">vier Felder groß</div></div>
+        <!-- v1.90.25 (Besitzer 3.10.: "mach den Drachen raus, der ist in der
+             Stelle unangebracht, und achte darauf, dass der Sockel dieses
+             schwarze Band hat"): an der vierten Stelle steht der Spaeher. Alle
+             Galeriefiguren tragen jetzt das schwarze Band wie im Spiel - sie
+             kommen aus dem Pruefstand (tools/landing-fotos.mjs), nicht mehr
+             roh aus painted/ mit dem gemalten grauen Teller. -->
+        <div class="sockel"><img src="/landing/gal-hawk.webp" alt="Der Späher" loading="lazy" /><div class="n">Späher</div><div class="r">Sprung &amp; Schritt schräg</div></div>
         <div class="sockel"><img src="/landing/gal-archbishop.webp" alt="Der Erzbischof" loading="lazy" /><div class="n">Erzbischof</div><div class="r">Läufer &amp; Springer</div></div>
         <div class="sockel"><img src="/landing/gal-mage.webp" alt="Der Magier" loading="lazy" /><div class="n">Magier</div><div class="r">wirkt Zauber</div></div>
         <div class="sockel"><img src="/landing/gal-paladin.webp" alt="Der Paladin" loading="lazy" /><div class="n">Paladin</div><div class="r">hält die Reihe</div></div>
@@ -640,13 +647,26 @@
            sprechen alle vier Bilder die Sprache des Turmbildes: Blau der
            gewohnte Zug, Gruen was die Faehigkeit hinzugibt
            (tools/landing_bilder.py). -->
+<!-- v1.90.25 (Besitzer 3.10., am Springer: "das ist doch nicht richtig,
+           was du da darstellst ... du musst immer den Standardzug bei jeder
+           Figur anzeigen und das, wie es sich erweitert"): GEMESSEN war das L
+           der Karte richtig ((1,2),(2,1) und ihre Spiegelungen) - man konnte
+           es nur nicht abzaehlen, weil die leeren Felder des Rasters fast
+           schwarz auf schwarz standen. Und Karte und Zugbilder sprachen zwei
+           Farbsprachen: die Karte das Gelb des Spiels fuer den Sprung, die
+           vier Bilder daneben ein eigenes Blau fuer "gewohnt". Jetzt kommen
+           Karte UND Zugbilder aus demselben Bauteil wie im Spiel (MoveDiagram,
+           tools/landing-fotos.mjs): Blau zieht, Gelb springt, Gruen ist neu -
+           dieselben Farben wie auf dem Brett seit v1.90.24. -->
       <ul class="zuglegende sans">
         <li><span class="z f"></span>die Figur selbst</li>
-        <li><span class="z s"></span>ihr gewohnter Zug</li>
+        <li><span class="z s"></span>zieht</li>
+        <li><span class="z y"></span>springt</li>
         <li><span class="z g"></span>neu durch die Fähigkeit</li>
       </ul>
       <p class="unterzeile sans" style="text-align:left">Der <b>Weitsprung</b> etwa gibt dem Springer acht
-        weitere Ziele über das L hinaus — im Bild die grünen Felder, das L bleibt blau.</p>
+        weitere Ziele über das L hinaus — im Bild die grünen Felder; das L selbst, zwei Felder gerade und eins zur
+        Seite, steht in Gelb.</p>
     </div>
   </div>
 </section>
@@ -658,10 +678,16 @@
     <p class="h2u sans">Kapitän statt Turm, Späher statt Springer, eine Bestie aus dem Riss auf dem freien Platz —
       jede Partie beginnt mit deiner Aufstellung. Besiegte Monster lassen sich mit Gold und einem Opfer aus
       deinem Hofstaat anwerben, und wer ein Kapitel gewinnt, holt dessen Meister an den Platz der Dame.</p>
-    <!-- v1.87.0 (Besitzer): kein Rahmen, keine Leuchtkontur. Das Bild selbst
-         ist neu zusammengesetzt (tools/landing_bilder.py): ohne die violetten
-         Gegnerfelder und ohne die Sockelglut - alle Sockel gleich grau. -->
-    <div class="brettbild"><img src="/landing/gefecht-gemischt.webp" width="1152" height="1236"
+    <!-- v1.87.0 (Besitzer): kein Rahmen, keine Leuchtkontur.
+         v1.90.25 (Besitzer 3.10.: "da hast du ja gar nicht die Baender drauf,
+         und die Positionen und Groessen der Figuren sind auch nicht so wie im
+         Spiel ... wirklich genau das bringen, wie es im Spiel aussieht. Das
+         ist mir sehr wichtig."): das Bild war eine MONTAGE aus rohen Gemaelden.
+         Jetzt ist es das echte Brett - dieselbe BoardView wie im Gefecht, mit
+         dem Band im Sockel, den Groessen und der Standlinie des Spiels und der
+         violetten Toenung unter den Gegnern (tools/landing-fotos.mjs, Station
+         und Heer in tools/landing-bretter.json). -->
+    <div class="brettbild"><img src="/landing/gefecht-gemischt.webp" width="1152" height="1244"
       alt="Ein Gefecht in Gambit Rise: die eigene Reihe mit Kapitän, Späher, Magier, Dame, König, Paladin, dem Wächter und einem Turm" loading="lazy" /></div>
   </div>
 </section>
@@ -712,13 +738,15 @@
          Kapitel-Hintergruende) ist fort; die Bilder liegen in
          archiv/ausgemustert/v1.87.0/. -->
     <h3 class="sans" style="text-align:center;margin:34px 0 6px;font-size:19px">Jedes Land sein eigenes Brett</h3>
-    <!-- v1.87.0 (Besitzer): beide Bretter wie das Gefechtsbrett oben - ohne
-         Rahmen und Leuchtkontur, ohne violette Gegnerreihen, alle Sockel
-         gleich grau (tools/landing_bilder.py). -->
+    <!-- v1.87.0 (Besitzer): beide Bretter ohne Rahmen und Leuchtkontur.
+         v1.90.25: beide sind jetzt ECHTE Stellungen aus dem Spiel, ein paar
+         Zuege nach dem Anfang (jeder Zug gegen den Kern gespielt) - Kronland
+         im klassischen Schach mit dem schwarzen Band, Wolkenjoch im Gefecht
+         mit Leben und Staerke im Band (tools/landing-bretter.json). -->
     <div class="paar">
-      <figure><div class="brettbild"><img src="/landing/gefecht-gemischt.webp" width="1152" height="1236" alt="Das Brett im Kronland, Kapitel I" loading="lazy" /></div>
+      <figure><div class="brettbild"><img src="/landing/brett-kronland.webp" width="1152" height="1244" alt="Das Brett im Kronland, Kapitel I: eine Stellung nach vier Zügen, alle Figuren auf schwarzem Sockelband" loading="lazy" /></div>
         <figcaption class="sans" style="text-align:center"><b>Kronland</b> — Kapitel I</figcaption></figure>
-      <figure><div class="brettbild"><img src="/landing/brett-wolkenjoch.webp" width="1152" height="1236" alt="Das eisblaue Brett im Wolkenjoch, Kapitel VI" loading="lazy" /></div>
+      <figure><div class="brettbild"><img src="/landing/brett-wolkenjoch.webp" width="1152" height="1244" alt="Das eisblaue Brett im Wolkenjoch, Kapitel VI: ein Gefecht mit Lebenspunkten, Leben und Stärke stehen im Sockelband" loading="lazy" /></div>
         <figcaption class="sans" style="text-align:center"><b>Wolkenjoch</b> — Kapitel VI</figcaption></figure>
     </div>
   </div>

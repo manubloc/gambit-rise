@@ -38,6 +38,28 @@ ORDNER = "src/app/ui/assets/painted"
 #             Bis v1.90.22 stand hier 75 - das galt dem ALTEN Bild (kauernd,
 #             Teller 497 px breit, vom Besitzer bestaetigt: "75 px ist
 #             perfekt") und passt zum neuen nicht mehr.
+#             v1.90.25: der Hetzer ist ueber dem Sockel um 9,5 % gestreckt
+#             (tools/figur-strecken.py, Besitzer: "minimal hoeher"), der
+#             Teller dadurch im Bild kleiner: Wand bis 44 px, Abfall ab 48
+#             (269, 253, 233). Gesetzt auf 46; Gegenprobe 555 - 46 = 509 gegen
+#             (523 - 46) + ry 32,1 = 509,1.
+#   boss-b22  (v1.90.25, der Zerreisser - das ALTE, breite Bild): DERSELBE
+#             Fehler wie beim Hetzer, und er stand seit jeher in der Datei. Der
+#             Teller traegt unten einen breiteren roten Farbring, darueber die
+#             graue Steinwand; der Automat hielt die Stufe dazwischen fuer die
+#             Standflaeche und meldete 25. Das Band sass deshalb 45 px zu tief:
+#             es bedeckte nur den roten Ring, die ganze Steinwand stand nackt
+#             darueber. Besitzer am 3.10. mit Bildschirmfoto: "bei der Figur
+#             hast du es noch nie geschafft, das Band richtig zu machen".
+#             Am Breitenverlauf (Hoehe ueber der unteren Ellipsenmitte y 497):
+#             Ring 413-417 px bis 24, Wand 400-404 px von 28 bis 72, Abfall ab
+#             76 (386). An der Mittelspalte wechselt die Farbe bei y 461-464
+#             von der Wand (84,68,51) auf die helle Kante (139,127,106).
+#             Gesetzt auf 70; Gegenprobe 533 - 70 = 463 gegen
+#             (497 - 70) + ry 36,2 = 463,2.
+#             (Eine aufrechte Neufassung lag am 3.10. vor, war aber nicht
+#             freigegeben - kommt ein neues Bild, gehoert dieser Wert neu
+#             gemessen.)
 #   gambit-t2 hat denselben Sockel wie gambit-t3 (Profil deckungsgleich: 98 %
 #             bei 40, 90 % bei 50, 75 % bei 60), der Automat fand aber einen
 #             Scheinknick bei 14. Gesetzt auf 45, wie bei t3 gemessen.
@@ -54,7 +76,7 @@ ORDNER = "src/app/ui/assets/painted"
 #             muss weiter runter"): in v1.90.21 stand hier 49 - ich hatte
 #             Boden minus Wandoberkante gerechnet und ry NICHT abgezogen. Das
 #             Band stand 25 px zu hoch, seine Oberkante lag auf den Fuessen.
-HANDWERTE = {"boss-b02": 49, "gambit-t2": 45, "boss-b25": 24}
+HANDWERTE = {"boss-b02": 46, "boss-b22": 70, "gambit-t2": 45, "boss-b25": 24}
 MASSE = json.load(open("src/app/ui/board/sockelband.json"))
 
 def kante(fid, m):

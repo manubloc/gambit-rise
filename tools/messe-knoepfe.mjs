@@ -150,7 +150,7 @@ for (const [knopf, name] of [["Profil", "Profil"], ["Figuren", "Figuren"], ["Lag
   console.log("klick", knopf, ok ? "ok" : "NICHT GEFUNDEN");
   if (ok) await sammle(name);
   if (name === "Figuren") {   /* der Hofstaat heisst seit v0.74.1 Figuren */
-    await page.waitForFunction(() => /MEISTER|MASTERS/.test(document.body.innerText), { timeout: 9000 }).catch(() => {});
+    await page.waitForFunction(() => /BESTIEN|BEASTS/.test(document.body.innerText), { timeout: 9000 }).catch(() => {});
     await page.waitForTimeout(600);
     // DER MONSTER-KLICK: eine Bestien-Kachel im Verzeichnis muss ihr Popup
     // oeffnen wie jede Figur (der gemeldete Fehler vom 27.07.).
@@ -158,7 +158,7 @@ for (const [knopf, name] of [["Profil", "Profil"], ["Figuren", "Figuren"], ["Lag
       // Die Kacheln der MEISTER-Sektion: klickbare Karten unterhalb der
       // Ueberschrift MEISTER & GROSSMEISTER
       const alle = [...document.querySelectorAll("div")];
-      const kopf = alle.find((d) => /MEISTER/.test(d.textContent || "") && d.offsetHeight < 40);
+      const kopf = alle.find((d) => /^BESTIEN$/.test((d.textContent || "").trim()) && d.offsetHeight < 40);   /* v1.90.25: frueher MEISTER & GROSSMEISTER */
       if (!kopf) return "MEISTER-Kopf fehlt";
       const raster = kopf.nextElementSibling;
       const kachel = raster && [...raster.children].find((d) => d.style.cursor === "pointer");

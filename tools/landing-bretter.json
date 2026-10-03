@@ -1,0 +1,39 @@
+{
+  "gefecht-gemischt": {
+    "station": "L03s12",
+    "heer": [
+      "captain",
+      "hawk",
+      "mage",
+      "queen",
+      "king",
+      "paladin",
+      "boss:b01",
+      "rook"
+    ],
+    "zuege": []
+  },
+  "brett-kronland": {
+    "station": "L01s16",
+    "zuege": [
+      "e2e4",
+      "e7e5",
+      "g1f3",
+      "b8c6",
+      "f1c4",
+      "f8c5",
+      "d2d3",
+      "g8f6"
+    ]
+  },
+  "brett-wolkenjoch": {
+    "station": "L06s14",
+    "zuege": [
+      "e2e4",
+      "e7e5",
+      "g1f3",
+      "b8c6",
+      "d2d4"
+    ]
+  }
+}

@@ -1,46 +1,35 @@
 #!/usr/bin/env python3
-"""Die Bilder der Landingpage, die v1.87.0 neu zeichnet (Besitzer, 27.9.2026).
+"""Die Bilder der Landingpage zuschneiden (v1.87.0, neu gefasst in v1.90.25).
 
-Drei Aufgaben, alle aus Material, das schon im Repo liegt - kein Bild-API:
+SEIT v1.90.25 KOMMT JEDES BILD MIT FIGUREN AUS DEM ECHTEN SPIEL. Besitzer,
+3.10.2026: "Wir killen den grauen Sockel ... ueberall das Band, in schwarz ...
+Also auch auf dem Schachbrett, da hast du ja gar nicht die Baender drauf, und
+die Positionen und Groessen der Figuren sind auch nicht so wie im Spiel ...
+wirklich genau das bringen, wie es im Spiel aussieht. Das ist mir tatsaechlich
+sehr wichtig."
 
-  zugbilder   Die vier Zugbilder im Abschnitt "Auch der Springer lernt dazu".
-              Besitzer: "beim Weitsprung zeichne bitte auch den normalen Zug
-              ein, den der Springer kann, weil so erkennt man gar nicht, was
-              der Unterschied ist ... beim Turm hast du sie ja eigentlich
-              richtig eingezeichnet."
-              GEMESSEN, was schief war: die Bilder trugen die Farben des
-              SPIELS (Blau = Gleiten, Gelb = Sprung, Talentfarbe = neu), die
-              Legende darunter sagte aber "Blau = gewohnter Zug, Gelb = neu".
-              Beim Turm stimmte das zufaellig (er gleitet), beim Springer
-              war es verkehrt herum: sein L stand in Gelb ("neu"), der
-              Weitsprung in Blau ("gewohnt"). Jetzt gilt in allen vier
-              Bildern dieselbe Sprache wie beim Turm: BLAU der gewohnte Zug,
-              GRUEN was die Faehigkeit hinzugibt. Die Kacheln werden aus dem
-              alten Turmbild abgetastet, damit Stil und Geometrie pixelgenau
-              bleiben (484 px, 7x7, Zellen 60 px ab x=22 im Raster 64).
+Bis v1.90.24 setzte dieses Skript drei Dinge selbst zusammen - und alle drei
+sahen anders aus als das Spiel:
+  gefecht    das Brett aus rohen Gemaelden, jede Figur im selben 228-px-Kasten
+             auf ihrem gemalten grauen Teller (kein Band, falsche Groessen:
+             das Spiel skaliert nach Tellerbreite und stellt auf eine Linie)
+  crowd      die Figuren des ersten Schirms, roh aus painted/ (grauer Teller)
+  zugbilder  die vier Zugbilder aus Kacheln einer alten Aufnahme, in einer
+             eigenen Farbsprache (Blau = gewohnt, Gruen = neu), waehrend die
+             Karte daneben und das Spiel Gelb fuer den Sprung zeigen
+Diese drei Aufgaben sind GESTRICHEN. An ihre Stelle tritt
 
-  gefecht     Das Brett unter "Stell dein eigenes Heer auf". Besitzer: "die
-              lilanen Hintergruende weg ... die Kontur weg, dass man nur das
-              Schachbrett sieht ... der Sockel immer grau oder schwarz, aber
-              gleich." Die alte Aufnahme aus dem Spiel trug die violetten
-              Felder der Gegnerreihen, die Sockelglut (Gegner schwarz, eigene
-              weiss - gegnerstil.js, seit v1.0.83 ohne Wahl) und einen
-              Holzrand. Aus dem Spiel selbst kommt das nicht ohne Sockelglut;
-              darum wird das Brett neu zusammengesetzt: die leeren Felder
-              der Zeilen 3-5 der alten Aufnahme (gemessen: 8 Felder je 144 px,
-              x ab 24, y ab 124) fuellen alle acht Zeilen, die Figuren kommen
-              aus painted/ mit ihrem eigenen grauen Sockel. Massstab aus der
-              Aufnahme: Gegnerkoenig 51..264 px hoch = 213 px fuer 541 px
-              Figur -> Kasten 228 px, Unterkante 2 px unter der Feldkante.
+  fotos <ordner> [was]   schneidet zu, was tools/landing-fotos.mjs aus dem
+             Pruefstand (echte SockelBand, HofKachel, MoveDiagram, BoardView)
+             fotografiert hat: Figuren mit schwarzem Band fuer den ersten
+             Schirm (held-*) und die Galerie (gal-*), die Karten (auf-*), die
+             Zugbilder (zug-*) und die Bretter. Aufruf ueber das Fotoskript:
+                 node tools/landing-fotos.mjs
 
-  crowd       Sechs Figuren fuer die zweite Reihe des ersten Schirms - genau
-              wie die held-*.webp seit v1.78.0: painted/ auf 460 px, seitlich
-              auf die Figur beschnitten.
-
-  galerie     Die zwoelf Galerie-Kacheln: Sockel in die Bildmitte (v1.90.15);
+  galerie     Die Galerie-Kacheln: Sockel in die Bildmitte (v1.90.15);
               "galerie-pruefen" misst nur und scheitert bei Abweichung.
 
-Aufruf: python3 tools/landing_bilder.py [zugbilder|gefecht|crowd|galerie|galerie-pruefen|alles]
+Aufruf: python3 tools/landing_bilder.py [fotos <ordner> [was]|galerie|galerie-pruefen]
 """
 import sys
 from pathlib import Path
@@ -51,112 +40,65 @@ LANDING = WURZEL / "public" / "landing"
 PAINTED = WURZEL / "src" / "app" / "ui" / "assets" / "painted"
 
 
-# ── ZUGBILDER ────────────────────────────────────────────────────────────────
-ZELLE, RASTER, START = 60, 64, 22          # gemessen im alten Turmbild
+# ── FOTOS AUS DEM PRUEFSTAND ZUSCHNEIDEN (v1.90.25) ─────────────────────────
+# Die Figur kommt als 576 x 636 px mit durchsichtigem Grund: das Gemaelde in
+# seinem 576er Kasten, darueber das Band. Das Band haengt bis zu 3 px unter den
+# Kasten (gemessen: Paladin 579, Dame 577) - darum 580 statt 576.
+HELDEN = ["pawn", "rook", "bishop", "knight", "queen", "king",
+          "paladin", "guardian", "archbishop", "amazon", "captain", "chancellor"]
+HELDEN_BREITE = {"pawn": 248, "rook": 308, "bishop": 229, "knight": 267, "queen": 245, "king": 271}
+# Galerie: Dateiname der Kachel -> Gemaelde. Der Drache ist seit v1.90.25 fort
+# (Besitzer: "mach den Drachen raus, der ist in der Stelle unangebracht"), an
+# seiner Stelle steht der Spaeher.
+GALERIE = {"captain": "captain", "chancellor": "chancellor", "amazon": "amazon", "hawk": "hawk",
+           "archbishop": "archbishop", "mage": "mage", "paladin": "paladin", "waechter": "boss-b01"}
+KARTEN = ["auf-kapitaen", "auf-kanzler", "auf-amazone", "auf-drache", "auf-springer6"]
+ZUEGE = ["zug-knight_longleap", "zug-knight_outrider", "zug-rook_diag_step", "zug-king_dash"]
+BRETTER = ["gefecht-gemischt", "brett-kronland", "brett-wolkenjoch"]
 
-def zelle_xy(c, r):
-    return START + RASTER * c, START + RASTER * r
+def _sichtbar(im, schwelle=20):
+    return im.split()[3].point(lambda v: 255 if v > schwelle else 0).getbbox()
 
-def kachel(vorlage, c, r):
-    x, y = zelle_xy(c, r)
-    return vorlage.crop((x, y, x + ZELLE, y + ZELLE))
-
-def zugbild(vorlage, gewohnt, neu):
-    """gewohnt/neu: Mengen von (df, dr) um die Figur; df nach rechts, dr nach oben."""
-    bild = vorlage.copy()
-    hell, dunkel = kachel(vorlage, 0, 0), kachel(vorlage, 1, 0)
-    blau, gruen, mitte = kachel(vorlage, 3, 0), kachel(vorlage, 2, 2), kachel(vorlage, 3, 3)
-    # Erst das Innere neu fuellen: in den Fugen neben den blauen Turmzellen
-    # lag ein Hauch Blau (Kantenglaettung), der als Saum stehen blieb.
-    fuge = vorlage.getpixel((START + ZELLE + 2, START + 30))
-    bild.paste(fuge, (START - 4, START - 4, START + 7 * RASTER, START + 7 * RASTER))
-    for r in range(7):
-        for c in range(7):
-            df, dr = c - 3, 3 - r
-            if (df, dr) == (0, 0): k = mitte
-            elif (df, dr) in neu: k = gruen
-            elif (df, dr) in gewohnt: k = blau
-            else: k = hell if (c + r) % 2 == 0 else dunkel
-            bild.paste(k, zelle_xy(c, r))
-    return bild
-
-ZUG_VORLAGE = WURZEL / "archiv" / "ausgemustert" / "v1.87.0" / "zug-rook_diag_step-vorlage.webp"
-
-def zugbilder():
-    # Vorlage ist das ARCHIVIERTE Turmbild aus v1.62.0, nie das eigene Ergebnis
-    vorlage = Image.open(ZUG_VORLAGE).convert("RGB")
-    # Muster aus src/core/domain/constants.js - dieselben Tabellen wie der Kern
-    springer = {(1, 2), (2, 1), (-1, 2), (-2, 1), (1, -2), (2, -1), (-1, -2), (-2, -1)}
-    weit = {(1, 3), (3, 1), (-1, 3), (-3, 1), (1, -3), (3, -1), (-1, -3), (-3, -1)}
-    vorreiter = {(2, 2), (2, -2), (-2, 2), (-2, -2)}
-    turm = {(k * d, 0) for k in (1, 2, 3) for d in (1, -1)} | {(0, k * d) for k in (1, 2, 3) for d in (1, -1)}
-    diag = {(1, 1), (1, -1), (-1, 1), (-1, -1)}
-    koenig = {(a, b) for a in (-1, 0, 1) for b in (-1, 0, 1)} - {(0, 0)}
-    flucht = {(2, 0), (-2, 0), (0, 2), (0, -2)}
-    for name, g, n in [("knight_longleap", springer, weit), ("knight_outrider", springer, vorreiter),
-                       ("rook_diag_step", turm, diag), ("king_dash", koenig, flucht)]:
-        zugbild(vorlage, g, n).save(LANDING / f"zug-{name}.webp", quality=92)
-        print("zugbild", name)
-
-
-# ── GEFECHT ──────────────────────────────────────────────────────────────────
-FELD = 144
-BRETT_X = 24                               # linke Feldkante in den alten Aufnahmen
-KASTEN = 228                               # Figurenkasten (576 px painted -> 228 px)
-STREIFEN = 84                              # dunkler Streifen ueber dem Brett fuer die Koepfe
-
-def figur(name):
-    im = Image.open(PAINTED / f"painted-{name}.webp").convert("RGBA")
-    return im.resize((KASTEN, KASTEN), Image.LANCZOS)
-
-ARCHIV = WURZEL / "archiv" / "ausgemustert" / "v1.87.0"
-# Beide Aufnahmen aus v1.53.0/v1.62.0 haben dieselbe Feldbreite und dieselbe
-# linke Kante; nur die Oberkante liegt anders (gemessen an den Helligkeits-
-# spruengen der Zeilen: Kronland 124, Wolkenjoch 92).
-BRETTER = {
-    "gefecht-gemischt": (ARCHIV / "gefecht-gemischt-aufnahme.webp", 124),
-    "brett-wolkenjoch": (ARCHIV / "brett-wolkenjoch-aufnahme.webp", 92),
-}
-
-def gefecht(name="gefecht-gemischt"):
-    # Quelle ist die AUSGEMUSTERTE Aufnahme, nie das eigene Ergebnis - sonst
-    # stimmen beim zweiten Lauf die gemessenen Feldkanten nicht mehr.
-    quelle, oben = BRETTER[name]
-    alt = Image.open(quelle).convert("RGB")
-    W = 8 * FELD
-    brett = Image.new("RGB", (W, STREIFEN + W), alt.getpixel((600, 20)))
-    # Leere Felder: gerade Zeilen aus Zeile 2 bzw. 4, ungerade aus Zeile 3 - dort steht keine Figur
-    for r in range(8):
-        q = (2 if r % 4 == 0 else 4) if r % 2 == 0 else 3
-        streifen = alt.crop((BRETT_X, oben + q * FELD, BRETT_X + W, oben + (q + 1) * FELD))
-        brett.paste(streifen, (0, STREIFEN + r * FELD))
-    aufstellung = [
-        ["rook", "knight", "bishop", "queen", "king", "bishop", "knight", "rook"],
-        ["pawn"] * 8,
-        None, None, None, None,
-        ["pawn", "pawn", "pawn", "pawn", "gambit", "pawn", "pawn", "pawn"],
-        ["captain", "hawk", "mage", "queen", "king", "paladin", "boss-b01", "rook"],
-    ]
-    cache = {}
-    for r, reihe in enumerate(aufstellung):
-        if not reihe: continue
-        for c, fig in enumerate(reihe):
-            if fig not in cache: cache[fig] = figur(fig)
-            f = cache[fig]
-            x = c * FELD + (FELD - KASTEN) // 2
-            y = STREIFEN + (r + 1) * FELD + 2 - KASTEN
-            brett.paste(f, (x, y), f)
-    brett.save(LANDING / f"{name}.webp", quality=88)
-    print("gefecht", name, brett.size)
-
-
-# ── CROWD ────────────────────────────────────────────────────────────────────
-def crowd():
-    for name in ["paladin", "guardian", "archbishop", "amazon", "captain", "chancellor"]:
-        im = Image.open(PAINTED / f"painted-{name}.webp").convert("RGBA").resize((460, 460), Image.LANCZOS)
-        l, _, r, _ = im.split()[3].getbbox()
-        im.crop((l, 0, r, 460)).save(LANDING / f"held-{name}.webp", quality=90)
-        print("crowd", name, r - l)
+def fotos(roh, was="alles"):
+    roh = Path(roh)
+    if was in ("figuren", "alles"):
+        for name in HELDEN:
+            im = Image.open(roh / f"figur-{name}.png").convert("RGBA").crop((0, 0, 576, 580))
+            im = im.resize((460, round(580 * 460 / 576)), Image.LANCZOS)
+            # Seitlich beschnitten wie seit v1.78.0: auf jedes sichtbare Pixel
+            # (Alpha > 0). Die sechs der VORDEREN Reihe behalten dazu die Breite,
+            # auf die der erste Schirm eingemessen ist (v1.89.3/v1.90.15): ihre
+            # Gemaelde sind seit dem 27.9. neu, der weiche Schattensaum reicht
+            # heute weiter (Laeufer 288 statt 229 px) - ohne feste Breite
+            # rueckte die Reihe auseinander. Mitte ist die Figur (Alpha > 8).
+            if name in HELDEN_BREITE:
+                fl, _, fr, _ = _sichtbar(im, 8); mitte = (fl + fr) // 2
+                l = mitte - HELDEN_BREITE[name] // 2; r = l + HELDEN_BREITE[name]
+            else:
+                l, _, r, _ = im.split()[3].getbbox()
+            aus = Image.new("RGBA", (r - l, im.height), (0, 0, 0, 0))
+            aus.paste(im.crop((max(0, l), 0, min(im.width, r), im.height)), (max(0, -l), 0))
+            aus.save(LANDING / f"held-{name}.webp", quality=90)
+            print("held", name, r - l, im.height)
+        for kachel, name in GALERIE.items():
+            im = Image.open(roh / f"figur-{name}.png").convert("RGBA")
+            im = im.crop(_sichtbar(im))
+            im = im.resize((round(im.width * 300 / im.height), 300), Image.LANCZOS)
+            im.save(LANDING / f"gal-{kachel}.webp", quality=90)
+            print("gal", kachel, im.size)
+        galerie()                          # Sockel in die Bildmitte, wie seit v1.90.15
+    if was in ("karten", "alles"):
+        for name in KARTEN:
+            im = Image.open(roh / f"{name}.png").convert("RGB"); im.save(LANDING / f"{name}.webp", quality=88)
+            print("karte", name, im.size)
+    if was in ("zugbilder", "alles"):
+        for name in ZUEGE:
+            im = Image.open(roh / f"{name}.png").convert("RGB"); im.save(LANDING / f"{name}.webp", quality=92)
+            print("zugbild", name, im.size)
+    if was in ("bretter", "alles"):
+        for name in BRETTER:
+            im = Image.open(roh / f"{name}.png").convert("RGB"); im.save(LANDING / f"{name}.webp", quality=86)
+            print("brett", name, im.size)
 
 
 # ── GALERIE: DER SOCKEL IN DIE MITTE (v1.90.15) ──────────────────────────────
@@ -178,20 +120,9 @@ def fussmitte(im):
     return (min(xs) + max(xs)) / 2, w
 
 # v1.90.15 (Audit A76): die Kachel "Waechter - Bestie aus dem Riss" zeigte den
-# HELDEN Schildtraeger (painted-guardian, gruener Mantel, Wappenschild). Der
-# Waechter ist die Bestie b01 aus Stein - dieselbe, die im Gefechtsbild weiter
-# unten in der eigenen Reihe steht ("dem Waechter" im Alt-Text dort stimmt).
-# Die Kachel bekommt die Bestie, im Format der uebrigen: auf die Figur
-# beschnitten, 300 px hoch.
-def galerie_waechter():
-    im = Image.open(PAINTED / "painted-boss-b01.webp").convert("RGBA")
-    im = im.crop(im.split()[3].point(lambda v: 255 if v > 20 else 0).getbbox())
-    im = im.resize((round(im.width * 300 / im.height), 300), Image.LANCZOS)
-    im.save(LANDING / "gal-waechter.webp", quality=90)
-    print("galerie gal-waechter.webp", im.size)
-
+# HELDEN Schildtraeger (painted-guardian). Der Waechter ist die Bestie b01 -
+# seit v1.90.25 kommt die Kachel wie alle anderen aus dem Pruefstand (GALERIE).
 def galerie(nur_pruefen=False):
-    if not nur_pruefen and not (LANDING / "gal-waechter.webp").exists(): galerie_waechter()
     schief = []
     for pfad in sorted(LANDING.glob("gal-*.webp")):
         im = Image.open(pfad).convert("RGBA")
@@ -211,10 +142,10 @@ def galerie(nur_pruefen=False):
 
 
 if __name__ == "__main__":
-    was = sys.argv[1] if len(sys.argv) > 1 else "alles"
+    was = sys.argv[1] if len(sys.argv) > 1 else "galerie-pruefen"
     if was == "galerie-pruefen": galerie(nur_pruefen=True); sys.exit(0)
-    if was in ("galerie", "alles"): galerie()
-    if was in ("zugbilder", "alles"): zugbilder()
-    if was in ("gefecht", "alles"):
-        for name in BRETTER: gefecht(name)
-    if was in ("crowd", "alles"): crowd()
+    if was == "galerie": galerie(); sys.exit(0)
+    if was == "fotos":
+        if len(sys.argv) < 3: sys.exit("fotos braucht den Ordner mit den Aufnahmen (node tools/landing-fotos.mjs)")
+        fotos(sys.argv[2], sys.argv[3] if len(sys.argv) > 3 else "alles"); sys.exit(0)
+    sys.exit(f"unbekannte Aufgabe {was!r} - siehe Kopf der Datei")

@@ -157,7 +157,7 @@ umgekehrt: kommt eine, ist etwas anderes kaputt (Start-URL `/spielen/`).
 | Werkzeug | Zweck | Aufruf |
 |---|---|---|
 | `tools/pruefe-navigation.mjs` | fährt das ganze Haus (Karte, Gefecht, Reiter, Zurück-Geste) und wertet jeden Konsolenfehler als Absturz | nach `npm run build:app`: `node tools/pruefe-navigation.mjs` (`RUNDEN=5`) |
-| `tools/landing_bilder.py` | Zugbilder, Gefechtsbretter und Crowd-Figuren der Landingpage aus Repo-Material | `python3 tools/landing_bilder.py [zugbilder|gefecht|crowd|alles]` |
+| `tools/landing-fotos.mjs` | Figuren, Karten, Zugbilder und Bretter der Landingpage – fotografiert aus den echten Bauteilen des Spiels (seit v1.90.25; vorher Montage in `landing_bilder.py`) | `node tools/landing-fotos.mjs [figuren|karten|zugbilder|bretter|alles]` |
 | `OHNE_ARCHIV=1 npm run build` | Bau ohne die drei Archivordner (51 MB, Sekunden) — für Zwischenstände, nie für einen Release | — |
 | `drive3.mjs` (erweitert) | erkennt Auslieferungsstand und App-Bau; prüft Landingpage, Dienstarbeiter und dass kein Riegel fragt | `timeout 250 node drive3.mjs` |
 | `test_zugbilder.mjs` | 28. Suite: jedes Zugbild gegen den Kern, alle Sonderfiguren mit ihren Fähigkeiten, Drache je Stufe | läuft in `npm test` |

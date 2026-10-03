@@ -106,18 +106,18 @@ function segment(m, h, tA, tB, fuss = 0) {
    beiden, die wirklich keine Figuren sind. */
 const OHNE_BAND = new Set(["schatzkammer", "haendler"]);
 
-/* `hell`: die helle Graufassung - NUR fuer ein Band OHNE Werte.
-   v1.90.7 (Besitzer, 29.9.): "Dieses Band mit rot, grau, blau sollte es
-   nicht geben. Es ist immer rot, SCHWARZ, blau - das wollte ich nur
-   sicherstellen, dass es nicht so etwas spaeter im Spiel gibt."
-   Damit ist die aeltere Aussage ("meine eigenen Figuren brauchen natuerlich
-   die helle Variante") zurueckgenommen. Auf dem BRETT ist das Mittelstueck
-   ab jetzt fuer beide Seiten schwarz; PieceGlyph reicht `hell` nicht mehr
-   durch.
-   Was bleibt, ist der Platzhalter im Figuren-Schirm: eine Figur, deren
-   Werte man noch nicht kennt, traegt ein durchgehend graues Band. Damit aus
-   Versehen nie wieder rot-hell-blau entsteht, wirkt `hell` NUR ZUSAMMEN mit
-   `grau` - ein Riegel, kein Hinweis. */
+/* ── v1.90.25 (Besitzer 3.10.): ES GIBT NUR NOCH DAS SCHWARZE BAND ─────────
+   "Mach einfach ueberall diesen schwarzen Sockel. Wir killen den grauen
+    Sockel ... einfach ueberall das Band hinmachen und das einfach in schwarz,
+    ohne Lebensbalken. Und das ziehst du ueberall durch."
+   Bis hierher gab es eine zweite Fassung (`hell`): ein Band OHNE Werte trug im
+   Figuren-Schirm einen weissgrauen Verlauf (v1.24.4), auf dem Brett aber schon
+   seit v1.90.7 Schwarz. Dieselbe Figur stand also im Hofstaat auf Silber und
+   im Gefecht auf Schwarz - und auf der Startseite ganz ohne Band auf ihrem
+   gemalten grauen Teller. Die Eigenschaft `hell` ist gestrichen, die hellen
+   Verlaufsstufen auch: ohne Werte ist das Band durchgehend schwarz in seiner
+   (ergrauten) Fassung, mit Werten rot - schwarz - blau. Eine dritte Fassung
+   gibt es nicht mehr. */
 /* `schaden`: der gerade verlorene Anteil, in derselben Einheit wie `leben`.
    Er wird dort gezeichnet, wo das Rot eben noch stand - also direkt hinter
    dem heutigen Rot - und glimmt aus (v1.24.9). */
@@ -126,7 +126,7 @@ const OHNE_BAND = new Set(["schatzkammer", "haendler"]);
    Punkten auf seinem Sockel - mit Leben rot, und wenn er eins weniger hat,
    schwarz". Die Punkte sitzen auf dem Band, mittig auf seinem vorderen
    Bogen, und liegen AUSSERHALB des Graufilters (sonst waere das Rot grau). */
-export function SockelBand({ paintedId, leben = 0, kraft = 0, schaden = 0, grau = false, hell = false, id = "sb", ausrichtung = "mitte", punkte = null }) {
+export function SockelBand({ paintedId, leben = 0, kraft = 0, schaden = 0, grau = false, id = "sb", ausrichtung = "mitte", punkte = null }) {
   const m = MASS[paintedId];
   if (!m || OHNE_BAND.has(paintedId)) return null;
   /* ── BANDHOEHE: DIE GEMESSENE TELLERHOEHE ────────────────────────────────
@@ -149,8 +149,8 @@ export function SockelBand({ paintedId, leben = 0, kraft = 0, schaden = 0, grau 
 
      Zwei Teller haben keinen eindeutigen Knick und sind von Hand gesetzt
      (`tellerVonHand`): boss-b02 auf 75 und gambit-t2 auf 45.
-     (v1.90.23: der Hetzer hat ein neues Bild, sein Handwert ist jetzt 49 -
-     die Herleitung steht in scripts/messe_tellerkante.py.) */
+     (v1.90.23/25: Hetzer und Zerreisser haben neue Bilder; ihre Handwerte -
+     beide 46 - und die Herleitung stehen in scripts/messe_tellerkante.py.) */
   /* ── v1.23.9 (Besitzer): DER SOCKEL WIRD NACH UNTEN VERLAENGERT ──────────
      "Du kannst ihn nach unten immer verlaengern. Wichtig ist nur, dass die
      Oberkante sauber erfasst ist. Dann wuerde ich schon versuchen, allen
@@ -224,9 +224,7 @@ export function SockelBand({ paintedId, leben = 0, kraft = 0, schaden = 0, grau 
         <stop offset="0" stopColor="#fff6c4" /><stop offset=".4" stopColor="#ffd84a" /><stop offset="1" stopColor="#b57f0c" />
       </linearGradient>
       <linearGradient id={u("dunkel")} x1="0" y1="0" x2="0" y2="1">
-        {(hell && grau)
-          ? <><stop offset="0" stopColor="#f2efe8" /><stop offset=".4" stopColor="#cfc9bd" /><stop offset="1" stopColor="#6f6a60" /></>
-          : <><stop offset="0" stopColor="#3a3a44" /><stop offset=".4" stopColor="#15151b" /><stop offset="1" stopColor="#050507" /></>}
+        <stop offset="0" stopColor="#3a3a44" /><stop offset=".4" stopColor="#15151b" /><stop offset="1" stopColor="#050507" />
       </linearGradient>
       <linearGradient id={u("gold")} x1="0" y1="0" x2="0" y2="1">
         <stop offset="0" stopColor="#f6e2a6" /><stop offset=".5" stopColor="#c99a45" /><stop offset="1" stopColor="#6e4e1c" />

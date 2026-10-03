@@ -952,9 +952,11 @@ console.log("\n== STURM UND GELEIT (v1.11.2) ==");
   ok("Zurueck und Aufgeben sind leise Knoepfe (kein Gluehen, gedaempfte Schrift)",
     (gs.match(/leiserKnopf\(/g) || []).length === 2 && gs.includes('const leiserKnopf = (extra) => pill({') && !gs.includes("boxShadow: `0 0 10px ${T.selGlow}` })}>\n            <span style={{ fontSize: 15"));
   const ar = readFileSync("src/app/ui/screens/ArmyScreen.jsx", "utf8");
-  ok("vor dem Erwachen der Lebenspunkte: Kachel und Blatt ohne Werte, grau und hell - wie das Brett",
+  ok("vor dem Erwachen der Lebenspunkte: Kachel und Blatt ohne Werte, schwarzes Band - wie das Brett",
     ar.includes("if (!hpUnlocked(profile)) return { leben: 0, kraft: 0, ohne: true };")
-    && ar.includes("grau={!!(dim || dark || werte.ohne)} hell={!!werte.ohne && !dim && !dark}")
+    /* v1.90.25: Begegnete (dim) stehen in Farbe - grau ist nur noch Unbekanntes (dark) und "ohne Werte";
+       und "ohne Werte" ist das SCHWARZE Band, die helle Fassung (`hell`) ist gestrichen */
+    && ar.includes("grau={!!(dark || werte.ohne)} id=") && !ar.includes("hell={!")
     && ar.includes("{...(werteAn ? band : { leben: 0, kraft: 0 })}"));
 }
 

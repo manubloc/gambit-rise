@@ -1,5 +1,113 @@
 # Changelog - Gambit Rise
 
+## 1.90.25 - Ueberall das schwarze Band; die Startseite zeigt das echte Spiel; Hetzer hoeher; Begegnete in Farbe; nur noch Figuren und Bestien
+
+**"WIR KILLEN DEN GRAUEN SOCKEL"** (Besitzer 3.10., mit zwei Bildschirmfotos der
+Startseite: "mach einfach ueberall diesen schwarzen Sockel ... einfach ueberall
+das Band hinmachen und das einfach in schwarz, ohne Lebensbalken. Und das
+ziehst du ueberall durch."). GEMESSEN, was nebeneinander stand: dieselbe Figur
+trug im Hofstaat ein WEISSGRAUES Band (die Fassung `hell` fuer "ohne Werte",
+v1.24.4), am Brett ein schwarzes (seit v1.90.7) und auf der Startseite gar
+keines - dort stand sie auf ihrem gemalten grauen Teller. Jetzt:
+- `SockelBand` kennt `hell` nicht mehr. Ohne Werte ist das Band schwarz in
+  seiner Fassung, mit Werten rot - schwarz - blau. Eine dritte Fassung gibt es
+  nicht. Hofstaat-Kachel, Figurenblatt und Aufstellungskarte folgen damit von
+  selbst.
+- Alle Figuren der Startseite (erster Schirm, Galerie, Karten) tragen das Band.
+
+**DIE STARTSEITE ZEIGT DAS ECHTE SPIEL** (Besitzer: "da hast du ja gar nicht die
+Baender drauf, und die Positionen und Groessen der Figuren sind auch nicht so
+wie im Spiel ... wirklich genau das bringen, wie es im Spiel aussieht. Das ist
+mir tatsaechlich sehr wichtig."). URSACHE: tools/landing_bilder.py MONTIERTE die
+Bretter aus rohen Gemaelden - jede Figur im selben 228-px-Kasten. Das Spiel
+skaliert nach Tellerbreite, stellt auf eine Standlinie und legt das Band in den
+Sockel; die Montage tat nichts davon. Neu:
+- `tools/landing-pruefstand.jsx` laesst die ECHTEN Bauteile laufen (SockelBand,
+  HofKachel, MoveDiagram, BoardView mit buildStageMatch/createGame, Zuege ueber
+  legalMovesFrom/applyMove), `tools/landing-fotos.mjs` fotografiert sie,
+  landing_bilder.py schneidet nur noch zu. Die drei alten Montage-Aufgaben
+  (gefecht, crowd, zugbilder) sind gestrichen.
+- Drei Bretter (`tools/landing-bretter.json`): das eigene Heer im Gefecht
+  (Kapitel III, Lebenspunkte), Kronland nach vier Zuegen (klassisches Schach,
+  schwarzes Band - Kapitel I IST Schach) und Wolkenjoch im Gefecht. Die
+  violette Toenung unter den Gegnern ist wieder zu sehen: so sieht das Spiel
+  aus. (Am 27.9. hatte der Besitzer sie fuer die Startseite abbestellt - die
+  Zusage "wie im Spiel" vom 3.10. geht vor; ein Wort genuegt, und sie ist
+  wieder draussen.)
+- Galerie: "mach den Drachen raus, der ist in der Stelle unangebracht" - an
+  seiner Stelle steht der Spaeher. Die Drachenkarte unter "Neue Figuren, neue
+  Zuege" ist geblieben; dort wird sein Zug erklaert.
+
+**DAS ZUGBILD DES SPRINGERS** (Besitzer: "das ist doch nicht richtig, was du da
+darstellst - eins, zwei geradeaus und eins schraeg ... challenge mal, ob das
+alles richtig ist"). GEMESSEN: das L war richtig - acht Felder bei (1,2), (2,1)
+und ihren Spiegelungen, dieselbe Tabelle wie im Kern (test_zugbilder legt sie
+dagegen). Aber man konnte es nicht ABZAEHLEN: die leeren Felder des Rasters
+standen mit 5 % und 2 % Weiss auf fast schwarzem Grund, uebrig blieb ein Kreis
+aus acht gelben Punkten. Jetzt 13 % und 6 % - ein Schachmuster. Dazu:
+- Die Aufstellungskarte im Spiel zeigt ueber der Grundgangart die GELERNTEN
+  Zugtalente in ihrer Farbe (wie das Figurenblatt seit v1.5.0).
+- Auf der Startseite sprachen Karte und die vier Zugbilder daneben zwei
+  Farbsprachen (Karte: Gelb = Sprung; Bilder: eigenes Blau = "gewohnt"). Jetzt
+  kommen beide aus MoveDiagram: Blau zieht, Gelb springt, Gruen ist neu - wie
+  am Brett seit v1.90.24. Die Legende sagt es so.
+
+**DER HETZER IST "MINIMAL HOEHER"** (83 -> 90 %) - mit einem neuen Werkzeug,
+`tools/figur-strecken.py`: es streckt alle Bildzeilen OBERHALB der hinteren
+Kante der Standflaeche um 9,5 %, Sockel und Pfoten bleiben Pixel fuer Pixel.
+`tools/koerper-groesser.py` riss am Hetzer Loecher in die Standflaeche (es muss
+Koerper und Teller trennen, das gelingt nur bei klar verschiedenen Farben).
+
+**STURMKLAUE, ZERREISSER, STREUNER: NICHT EINGEBAUT.** Die aufrechten
+Neufassungen vom 3.10. lagen fertig vor und waren in einem lokalen Zwischenstand
+schon eingebaut - BEVOR der Besitzer sie gesehen hatte. Das war ein Verstoss
+gegen die eigene Regel ("generierte Bilder immer erst zeigen") und ist
+zurueckgenommen: sein Urteil kam danach ("der Streuner sieht zu hochgezogen
+aus", "fehlt Tiefe", spaeter zur dritten Runde: "nicht mehr ganz so geschnitzt",
+"zu digital - wichtig, dass wir an der alten Optik dranbleiben"). Im Spiel
+stehen weiter die alten Bilder.
+
+**DAS BAND DES ZERREISSERS SASS SEIT JEHER FALSCH** (Besitzer, mit
+Bildschirmfoto: "bei der Figur hast du es noch nie geschafft, das Band richtig
+zu machen"). URSACHE: `teller` 25 in sockelband.json. Sein Teller traegt unten
+einen breiteren roten Farbring, darueber die graue Steinwand; der Automat
+(messe_tellerkante.py sucht den Knick im Breitenverlauf) hielt die Stufe
+DAZWISCHEN fuer die Standflaeche. Das Band bedeckte nur den roten Ring, die
+ganze Steinwand stand nackt darueber. Am Breitenverlauf nachgemessen: Ring
+413-417 px bis Hoehe 24, Wand 400-404 px bis 72, Abfall ab 76; an der
+Mittelspalte wechselt die Farbe bei y 461-464 auf die helle Kante. Handwert 70,
+gegengerechnet (533 - 70 = 463). Derselbe Irrtum stand beim Hetzer.
+
+**HOFSTAAT** (Besitzer, mit Bildschirmfoto):
+- "Die Figuren, die man noch nicht gekauft hat, die man aber schon
+  kennengelernt hat - mach die bitte trotzdem bunt." Begegnete standen seit
+  v1.15.1 in Graustufen. Jetzt ist nur noch Unbekanntes ("???") dunkel; die
+  eigene Karte erkennt man am Goldrahmen.
+- "Es gibt halt Figuren und Bestien und die Sache ist erledigt": unter dem
+  Hofstaat stehen noch zwei Abschnitte, FIGUREN (bisher "Figuren der Krone"
+  und "Figuren des Schattens") und BESTIEN (bisher "Meister & Grossmeister").
+  Am Blatt eines Wesens steht "Bestien" oder "Grossmeister" statt Golems,
+  Schlangen, Schemen, Tyrannen.
+- "Grossmeister ... kennzeichnen durch ein Leuchten": die leuchtende violette
+  Kontur traegt jeder der zwoelf, sobald man ihm begegnet ist - bisher nur im
+  eigenen Hofstaat.
+NUR DIE ANZEIGE ist vereinfacht. Krone und Schatten bleiben im Regelwerk (das
+Opfer einer Kronenfigur beim Bestechen eines Monsters, die Buende, die Gaben der
+Familien) - das zu streichen ist eine Spielentscheidung des Besitzers.
+
+NOCH NICHT DURCHGEZOGEN: an einem guten Dutzend Stellen IM SPIEL steht ein
+Figurenbild ohne Band auf seinem gemalten Teller (Aufstellungsreihe, grosse
+Ansicht, Stationsfenster und Karte der Kampagne, Kampfleiste, Kroenungswahl,
+Erstbegegnung, Bundtafel, Monsterliste der Chronik). Das ist die naechste
+Fassung.
+
+Ausgemustert: archiv/ausgemustert/v1.90.25/ (der Hetzer aus v1.90.23, die
+Drachenkachel der Galerie).
+
+Proben: 31 Suiten / 2681 Pruefungen (vorher 2665). Dazu angesehen: die
+Startseite in Handy- und Rechnerbreite vor und nach dem Umbau, jedes der drei
+Bretter, die fuenf Karten, das Band des Zerreissers.
+
 ## 1.90.24 - Die Zielfelder sagen, wie die Figur hinkommt: Blau zieht, Gelb springt, der Stern heisst Talent
 
 **BESITZERBEFUND** (3.10., erste Partien in der Store-App, Gaeste Kapitaen und

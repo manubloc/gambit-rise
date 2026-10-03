@@ -281,7 +281,7 @@ function BlattBuehne({ kennung, name, haus, satz, portraet, pid, ton, kul, form,
                      rohrAnteile(), das die Kachel und das Gefecht benutzen.
                      Jetzt liest das Blatt dieselbe Quelle wie die Kachel. */
                   {...(werteAn ? band : { leben: 0, kraft: 0 })}
-                  grau={!werteAn} hell={!werteAn} ausrichtung="mitte" />}
+                  grau={!werteAn} ausrichtung="mitte" />}
               </div>
             </div>
             <div style={{ textAlign: "center", marginTop: 4 }}>
@@ -753,7 +753,14 @@ export function MoveDiagram({ kind, moveSpec, extra = null, breite = null, talen
         : c.mark === "leap" ? "rgba(233,197,63,.5)"
         : c.mark && c.mark.startsWith("t:") ? farbeMitDeckung(iconFarbe(c.mark.slice(2)), 0.82)   /* v1.26.6: Farbe des Symbols */
         : c.mark === "extra" ? "rgba(62,224,137,.62)"
-        : c.light ? "rgba(255,255,255,.05)" : "rgba(255,255,255,.02)",
+        /* v1.90.25 (Besitzer 3.10., am Springer: "das ist doch nicht richtig, was
+           du da darstellst - eins, zwei geradeaus und eins schraeg"): das L
+           STIMMTE, man konnte es nur nicht abzaehlen. Die leeren Felder standen
+           mit 5 % und 2 % Weiss auf fast schwarzem Grund - gemessen 2 bis 3
+           Helligkeitsstufen Unterschied, auf dem Handy ein schwarzes Loch mit
+           acht gelben Punkten im Kreis. Jetzt 13 % und 6 %: ein Schachmuster,
+           auf dem man die zwei Felder geradeaus und das eine zur Seite zaehlt. */
+        : c.light ? "rgba(255,255,255,.13)" : "rgba(255,255,255,.06)",
       boxShadow: c.here ? "0 0 5px rgba(231,200,119,.7)" : c.mark === "extra" ? "inset 0 0 0 1px rgba(120,255,180,.5)" : c.mark ? "inset 0 0 0 1px rgba(255,255,255,.18)" : "none" }}>
       {c.here && c.f === 0 && c.r === 0 && !grossDrache && <span style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center",
         fontSize: 8, fontWeight: 900, color: "#1a1206" }}>✦</span>}
@@ -874,7 +881,7 @@ export function ChroniclePanel({ profile, t, en, account = null }) {
     {BOSSES.filter(seenBoss).map((b) => {
       const open = openId === "X:" + b.id;
       const seen = true;
-      const fam = FAM_LABEL[b.art] ? (en ? FAM_LABEL[b.art][1] : FAM_LABEL[b.art][0]) : b.art;
+      const fam = monsterHaus(b, en);
       return <div key={b.id} style={kachel(open, "linear-gradient(180deg, rgba(46,24,40,.42), rgba(14,10,18,.6))")}>
         <KulisseHinterGrund name={kulisseFuer({ bossId: b.id })} deckung={0.5} ton="#5b2f3f" tonStaerke={0.35} />
         <button onClick={() => setOpenId(open ? null : "X:" + b.id)} style={kopf(open)}>
@@ -1758,6 +1765,8 @@ function FormationEditor({ profile, dispatch, t, en }) {
             const alle = (c.ladder || []).map((st) => st.ability).filter((id) => id && ABILITIES[id]);
             const zeigen = alle.slice(0, AUFST_TALENT_MAX);
             const mehr = alle.length - zeigen.length;
+            const gelerntC = [...chosenAbilities(profile, c.id),
+              ...(c.ladder || []).filter((e) => e.geschenkt && e.ability).map((e) => e.ability)];
             return <button key={c.id} disabled={blocked} onClick={() => setSlot(pick, c.id)} data-aufst-voll={blocked ? c.id : undefined}
               title={blocked ? t("army.limitFull", { n: hoechstzahl(c.id) }) : undefined}
               style={{ flex: "0 0 auto", width: kartenBreite + "px", scrollSnapAlign: "center",   /* v1.52.0: groesser (war 124-156) */
@@ -1770,7 +1779,13 @@ function FormationEditor({ profile, dispatch, t, en }) {
                 glow={on} gewaehlt={on} talente={[]}
                 unten={<div data-aufst-unten="1" style={{ marginTop: 7 }}>
                   <div style={{ display: "flex", justifyContent: "center" }}>
-                    <MoveDiagram kind={c.kind} moveSpec={c.moveSpec} breite={"100px"} />
+                    {/* v1.90.25 (Besitzer: "immer den Standardzug bei jeder Figur
+                        anzeigen und das, wie es sich erweitert, gerne auch"): die
+                        Karte der Aufstellung zeigte nur die Grundgangart - der
+                        Springer mit Weitsprung sah aus wie einer ohne. Jetzt
+                        liegen die GELERNTEN Zugtalente in ihrer Farbe obenauf,
+                        wie im Figurenblatt (dort seit v1.5.0). */}
+                    <MoveDiagram kind={c.kind} moveSpec={c.moveSpec} breite={"100px"} talente={gelerntC} />
                   </div>
                   {zeigen.length > 0 && <div style={{ display: "flex", justifyContent: "center", gap: 3, marginTop: 7 }}>
                     {zeigen.map((id) => <span key={id} data-aufst-talent={id} title={en ? ABILITIES[id].nameEn : ABILITIES[id].nameDe}
@@ -2265,6 +2280,13 @@ const CROWN_IDS = ["mage","guardian","bard","paladin","inquisitor","archbishop",
 const SHADOW_IDS = ["hawk","assassin","pathfinder","dragon","sorceress","alchemist","warlock","amazon","strategist","captain"];
 const COURT_IDS = ["gambit","pawn","knight","bishop","rook","queen","king"];
 const FAM_LABEL = { golem: ["Golems","Golems"], beast: ["Bestien","Beasts"], serpent: ["Schlangen","Serpents"], wraith: ["Schemen","Wraiths"], tyrant: ["Tyrannen","Tyrants"] };
+/* v1.90.25: am Blatt steht nicht mehr die Familie (Golems, Schlangen, Schemen,
+   Tyrannen), sondern nur noch, WAS das Wesen ist: eine Bestie - oder einer der
+   zwoelf Grossmeister. FAM_LABEL bleibt fuer Stellen, die die Familie als
+   Regel brauchen (Gaben, Kulissen). */
+export function monsterHaus(b, en) {
+  return LEAGUE_BOSSES.includes(b.id) ? (en ? "Grandmaster" : "Großmeister") : (en ? "Beasts" : "Bestien");
+}
 // figure paintings preload once per session, so the muster grid shows tiles
 // and figures TOGETHER instead of empty tiles that fill in a moment later
 let codexArtReady = false;
@@ -2380,8 +2402,16 @@ export function HofKachel({ img, name, dim, dark, action, glow, origin, onOpen, 
       {/* v1.19.0 (Besitzer): der Farbangleich der Monster auch bei den
           Figuren - aber schwaecher, sie tragen mehrere Farben. Ton der Figur
           aus der Messung (figurfarbe.json), 22 % statt 45 %. */}
-      <KulisseHinterGrund name={kulisseFuer({ charId: artId, bossId })} deckung={dark ? 0.5 : dim ? 0.7 : 0.92}
-        grau={!!(dim || dark)} ton={ton || figurFarbe(paintedIdOf(img))} tonStaerke={ton ? 0.45 : 0.30} />
+      {/* ── v1.90.25 (Besitzer 3.10., mit Bildschirmfoto des Hofstaats): "die
+          Figuren, die man noch nicht gekauft hat, die man aber schon
+          kennengelernt hat - mach die bitte trotzdem bunt." Bis hierher stand
+          alles, was einem noch nicht gehoert, in Graustufen (v1.15.1). Jetzt
+          ist nur noch UNBEKANNTES dunkel (`dark`, "???"); wem man begegnet
+          ist (`dim`), der zeigt sich in Farbe - Kulisse, Figur, Band, Stufe.
+          Was die eigene Karte von der fremden trennt, bleibt der Rahmen:
+          Gold fuer den Hofstaat, Violett fuer alles andere. */}
+      <KulisseHinterGrund name={kulisseFuer({ charId: artId, bossId })} deckung={dark ? 0.5 : 0.92}
+        grau={!!dark} ton={ton || figurFarbe(paintedIdOf(img))} tonStaerke={ton ? 0.45 : 0.30} />
       {/* v1.23.2 (Besitzer, aus der Vorlage): DIE ECKVERZIERUNG - kleine
           Goldwinkel mit Punkt, wie die Beschlaege einer Kartenbox. Grau bei
           Fremdem, violett beim Grossmeister. */}
@@ -2468,11 +2498,11 @@ export function HofKachel({ img, name, dim, dark, action, glow, origin, onOpen, 
         <div data-talentspalte="1" style={{ position: "absolute", left: -1, top: -4, display: "flex", flexDirection: "column", gap: 3, width: 19, zIndex: 2 }}>
           {(talente || []).slice(0, TALENT_KACHEL_MAX).map((id) => <span key={id} data-talent={id} style={{ width: 19, height: 19, display: "grid", placeItems: "center",
             borderRadius: 6, background: "rgba(12,8,22,.78)", border: "1px solid rgba(233,207,138,.45)",
-            filter: dim || dark ? "grayscale(1)" : "none" }}><AbilityIcon id={id} size={14} /></span>)}
+            filter: dark ? "grayscale(1)" : "none" }}><AbilityIcon id={id} size={14} /></span>)}
           {(talente || []).length > TALENT_KACHEL_MAX && <span data-talentmehr={(talente || []).length - TALENT_KACHEL_MAX}
             style={{ width: 19, height: 19, display: "grid", placeItems: "center", borderRadius: 6,
               background: "rgba(12,8,22,.78)", border: "1px solid rgba(233,207,138,.3)",
-              font: "700 9.5px/1 Georgia, serif", color: dim || dark ? "#8d8776" : "#e9cf8a" }}>+{(talente || []).length - TALENT_KACHEL_MAX}</span>}
+              font: "700 9.5px/1 Georgia, serif", color: dark ? "#8d8776" : "#e9cf8a" }}>+{(talente || []).length - TALENT_KACHEL_MAX}</span>}
         </div>
         <div style={{ flex: "1 1 auto", minWidth: 0, height: 21, display: "flex", justifyContent: "center", alignItems: "center", lineHeight: 0, overflow: "visible",
           /* der SVG-Kasten des Rohrs reserviert oben Platz fuer die Perle, der
@@ -2480,7 +2510,7 @@ export function HofKachel({ img, name, dim, dark, action, glow, origin, onOpen, 
              der Stufe. Um genau das hochgerueckt. */
           transform: "translateY(-3.4px)" }}>
           {werte && !bandBekannt(paintedIdOf(img)) && <LebensRohr lebenAnteil={werte.leben} kraftAnteil={werte.kraft} talentBereit={false} breite="4.2em" hoehe="0.72em"
-            style={dim || dark ? { filter: "grayscale(1)", opacity: .6 } : undefined} />}
+            style={dark ? { filter: "grayscale(1)", opacity: .6 } : undefined} />}
         </div>
         {/* Die Stufe: die Ziffer sitzt als Flex-Kind mit line-height 1 in der
             Mitte - kein SVG-Text mehr, dessen Grundlinie je Schrift wanderte
@@ -2505,14 +2535,14 @@ export function HofKachel({ img, name, dim, dark, action, glow, origin, onOpen, 
                   Platz frei, das Abzeichen rueckt weiter in die Ecke. */}
               <div data-stufenabzeichen="1" style={{ position: "absolute", top: -4, right: -1 }}>
                 <StufenAbzeichen form={formFuer({ charId: artId, bossId })} stufe={stufe} maxStufe={bossId ? BOSS_MAX_LEVEL : maxLevelFor(artId || "pawn")}
-                  farbe={ton || figurFarbe(paintedIdOf(img)) || "#5b3fa6"} grau={!!(dim || dark)} size={36} /></div></div>
+                  farbe={ton || figurFarbe(paintedIdOf(img)) || "#5b3fa6"} grau={!!dark} size={36} /></div></div>
           : <div style={{ width: 21, height: 21, flex: "0 0 auto" }} />}
       </div>
       {/* v1.0.11 (Besitzer): das ECK-SIGIL ist fort — die Kachel gehört ganz
           der Figur. Das Vektorzeichen lebt weiter in der Chronik (beide
           Gesichter) und als Sperr-Silhouette unten, wenn kein Gemälde da ist. */}
       {schlichtAn() && kind ? <div style={{ width: "100%", aspectRatio: "1 / 1", display: "grid", placeItems: "center", margin: "0 auto",
-        opacity: dark ? 0.5 : dim ? 0.7 : 1, filter: dark ? "brightness(0.35)" : "none" }}>
+        opacity: dark ? 0.5 : 1, filter: dark ? "brightness(0.35)" : "none" }}>
           <PieceArt kind={kind} size={"112%"} level={lvl} hero={hero} />   {/* v1.0.35: Kachelfigur groesser */}
         </div>
       : img ? <div data-boden={bodenAusgleichProzent(paintedIdOf(img)).toFixed(2)} style={{ position: "relative", width: "118%", aspectRatio: "1 / 1", margin: "0 0 -7px -9%",
@@ -2566,12 +2596,12 @@ export function HofKachel({ img, name, dim, dark, action, glow, origin, onOpen, 
            ReferenceError und der Fehlervorhang stand. Die Proben fingen es
            nicht, weil sie den QUELLTEXT lasen statt zu rendern - das ist
            jetzt nachgeholt (test_ui rendert die Kachel). */
-        filter: dark ? "brightness(0) opacity(.55)" : dim ? "grayscale(1) brightness(.8)" : "brightness(1.14) saturate(1.05)",
+        filter: dark ? "brightness(0) opacity(.55)" : "brightness(1.14) saturate(1.05)",   /* v1.90.25: Begegnete in Farbe */
         userSelect: "none" }} />
         {/* v1.90.21: Osrics Krone leuchtet auch im Hofstaat - nur, wenn er
             schon dazugehoert (nicht grau, nicht dunkel). */}
         {!dark && !dim && <KronenGlut painting={img} bildFilter="brightness(1.14) saturate(1.05)" />}
-        {werte && <SockelBand paintedId={paintedIdOf(img)} leben={werte.leben} kraft={werte.kraft} grau={!!(dim || dark || werte.ohne)} hell={!!werte.ohne && !dim && !dark} id={`sb-${artId || bossId || "x"}`} />}
+        {werte && <SockelBand paintedId={paintedIdOf(img)} leben={werte.leben} kraft={werte.kraft} grau={!!(dark || werte.ohne)} id={`sb-${artId || bossId || "x"}`} />}
         </div>
         : <div style={{ width: "100%", aspectRatio: "1 / 1", display: "grid", placeItems: "center", margin: "0 auto" }}>
             {/* NEVER A QUESTION MARK WHERE A FIGURE BELONGS. If no painting is
@@ -2804,7 +2834,11 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
       name={en ? b.nameEn : b.nameDe} origin={bribedSet.has(b.id) ? t("tree.allied") : t("tree.inCourt")} />;
     if (met.has(k)) {
       const can = monsterBribable(b);
-      return <Tile key={b.id} img={img} bossId={b.id} dim sigil={sig} sigilBig={sigBig} werte={mWerte} ton={ton} stufe={mLv} name={en ? b.nameEn : b.nameDe} origin={t("tree.masters")}
+      /* v1.90.25 (Besitzer: "die Grossmeister ... ob wir die Karten einfach
+         kennzeichnen durch ein Leuchten"): die leuchtende violette Kontur
+         trug bisher nur der Grossmeister im EIGENEN Hofstaat. Jetzt traegt
+         sie jeder der zwoelf, sobald man ihm begegnet ist. */
+      return <Tile key={b.id} img={img} bossId={b.id} dim meister={meister} sigil={sig} sigilBig={sigBig} werte={mWerte} ton={ton} stufe={mLv} name={en ? b.nameEn : b.nameDe} origin={t("tree.masters")}
         onOpen={() => setDetail(k)}
         action={can ? (sacrificeFor === b.id
           ? <div style={{ marginTop: 5 }}>
@@ -2910,10 +2944,20 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
       {shadowIn.map((c) => champTile(c, t("tree.fromShadow")))}
       {alliedIn.map(monsterTile)}
     </div>
-    {(() => { const rest = CROWN_IDS.filter((c) => !unlocked.has(c));
-      return rest.length ? <><H>{t("tree.crown")}</H><div style={grid}>{rest.map((c) => champTile(c))}</div></> : null; })()}
-    {(() => { const rest = SHADOW_IDS.filter((c) => !unlocked.has(c));
-      return rest.length ? <><H>{t("tree.shadow")}</H><div style={grid}>{rest.map((c) => champTile(c))}</div></> : null; })()}
+    {/* ── v1.90.25 (Besitzer 3.10.): "macht es wirklich Sinn, noch in diesen
+        Schattenwesen und das alles zu unterscheiden? Oder sagen wir einfach,
+        es gibt halt Figuren und Bestien und die Sache ist erledigt."
+        Das Verzeichnis hat darum unter dem Hofstaat nur noch ZWEI Abschnitte:
+        FIGUREN (bisher "Figuren der Krone" und "Figuren des Schattens") und
+        BESTIEN (bisher "Meister & Grossmeister" - die Ueberschrift nannte nur
+        die Grossmeister, darunter standen aber alle Wesen des Risses).
+        Die zwoelf Grossmeister erkennt man an der leuchtenden Kontur ihrer
+        Karte, nicht an einer eigenen Ueberschrift.
+        NUR DIE ANZEIGE: Krone und Schatten bleiben im Regelwerk (das Opfer
+        einer Kronenfigur beim Bestechen, die Buende) - das zu streichen ist
+        eine Spielentscheidung und steht beim Besitzer. */}
+    {(() => { const rest = [...CROWN_IDS, ...SHADOW_IDS].filter((c) => !unlocked.has(c));
+      return rest.length ? <><H>{t("tree.figuren")}</H><div style={grid}>{rest.map((c) => champTile(c))}</div></> : null; })()}
     {/* ONE HALL FOR THE MASTERS. Five family headings (Golems, Beasts,
         Serpents, Wraiths, Tyrants) split twenty-five monsters into five thin
         rows of mostly "???" — the register read as a list of holes rather than
@@ -2929,7 +2973,7 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
       const b = BOSSES.find((x) => "X:" + x.id === detail);
       if (!b) return null;
       const img = paintedById("boss-" + b.id);
-      const fam = FAM_LABEL[b.art] ? (en ? FAM_LABEL[b.art][1] : FAM_LABEL[b.art][0]) : b.art;
+      const fam = monsterHaus(b, en);
       return <div onClick={() => setDetail(null)} style={{ position: "fixed", inset: 0, zIndex: 55, background: "rgba(4,6,10,.72)",
         display: "block", overflow: "hidden",
           /* v0.81 (Besitzer): OBEN VERANKERT statt zentriert. Eine zentrierte

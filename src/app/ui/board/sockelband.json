@@ -98,14 +98,14 @@
  "boss-b02": {
   "W": 576,
   "H": 576,
-  "cx": 286.0,
-  "rx": 155.5,
-  "ry": 33.7,
+  "cx": 287.5,
+  "rx": 144.0,
+  "ry": 32.1,
   "boden": 555,
-  "ring": 19,
+  "ring": 18,
   "schatten": 1,
   "oben": 21,
-  "teller": 49,
+  "teller": 46,
   "tellerVonHand": true
  },
  "boss-b03": {
@@ -346,7 +346,8 @@
   "ring": 28,
   "schatten": 2,
   "oben": 54,
-  "teller": 25
+  "teller": 70,
+  "tellerVonHand": true
  },
  "boss-b23": {
   "W": 576,

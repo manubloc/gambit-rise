@@ -41,8 +41,8 @@ gambitrise.com zeigt darauf).
   pruefe-navigation, pruefe-textfluss, test_layout) lesen den Chromium-Pfad aus
   `PW_CHROMIUM`; ohne die Variable gilt der Pfad des Cloud-Containers. Lokal:
   `npx playwright install chromium` und `PW_CHROMIUM=<Pfad zur chrome-Datei>`.
-- `npm test` — volle Batterie. MUSS **31 Suiten / 2665 Prüfungen** melden
-  (Stand v1.90.24; der Runner stoppt nach der ersten roten Suite, also
+- `npm test` — volle Batterie. MUSS **31 Suiten / 2681 Prüfungen** melden
+  (Stand v1.90.25; der Runner stoppt nach der ersten roten Suite, also
   Suitenzahl prüfen, nicht nur Assertions! **Zählweise seit v1.90.18
   (Audit A74): JEDE Suite der Kette meldet eine RESULT-Zeile** — alle Zeilen
   `RESULT…: N passed` summieren; test_balance meldet zwei, darum stehen im
@@ -139,6 +139,21 @@ gambitrise.com zeigt darauf).
   Bilder ↔ vorhandene (keine Waisen), Galerie-Sockel in der Bildmitte
   (python3 + Pillow über `tools/landing_bilder.py galerie-pruefen`), vordere
   Figurenreihe in 13 Fenstergrößen nie breiter als das Fenster.
+- **`node tools/landing-fotos.mjs`** — **DIE BILDER DER STARTSEITE AUS DEM
+  ECHTEN SPIEL** (v1.90.25, ~70 s). Baut `tools/landing-pruefstand.jsx`
+  (SockelBand, HofKachel, MoveDiagram, BoardView mit `buildStageMatch`/
+  `createGame`, Züge über `legalMovesFrom`/`applyMove`) und fotografiert alle
+  Figuren (erster Schirm `held-*`, Galerie `gal-*`), die fünf Karten (`auf-*`),
+  die vier Zugbilder (`zug-*`) und die drei Bretter; `tools/landing_bilder.py
+  fotos` schneidet zu. Stationen, Heer und Zugfolgen der Bretter stehen in
+  `tools/landing-bretter.json` (test_ui spielt sie gegen den Kern). **Warum:**
+  bis v1.90.24 waren die Bretter eine MONTAGE aus rohen Gemälden (jede Figur im
+  selben Kasten, grauer gemalter Teller, kein Band) — Besitzer 3.10.: „genau
+  das bringen, wie es im Spiel aussieht. Das ist mir sehr wichtig.“ **Wer
+  BoardView, PieceGlyph, SockelBand oder ein Gemälde ändert, das die Startseite
+  zeigt, lässt das Skript neu laufen** — es hängt nicht in der Kette (die
+  Bilder sind eingecheckt), also zeigt sonst die Startseite das alte Spiel.
+  Einzeln: `figuren|karten|zugbilder|bretter`.
 - **Aufstellungskammer** `?aufstellung` bzw. `?aufstellung=<Station>` (hinter
   dem Werkzeug-Schloss, v1.90.15): jede der 45 Schlüsselstationen, wie sie
   beim ersten Zug steht, mit der BOSSFORMATION im Kopf (v1.90.18) — dasselbe buildStageMatch/createGame wie das
@@ -360,8 +375,42 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
   Optik“). Auftrag an die Bild-KI: nichts neu malen, keine neuen Farben oder
   Details, nur aufrechter und auf schmalerem Teller derselben Bauart. FLUX
   Kontext (`fal-ai/flux-pro/kontext`) hielt die Optik besser als nano-banana;
-  beide je einmal laufen lassen und nebeneinander zeigen. Kontext legt einen
-  Schlagschatten auf den Farbgrund — darum `streng`.
+  seit 3.10. gilt: **je Figur genau EIN Bild** (Besitzer: „nicht von jeder
+  mehrere Varianten“), mit Kontext. Kontext legt einen Schlagschatten auf den
+  Farbgrund — darum `streng`.
+- **„Minimal höher“ ohne neues Bild: `tools/figur-strecken.py`** (v1.90.25).
+  Streckt alle Zeilen ÜBER der hinteren Kante der Standfläche, Sockel und Füße
+  bleiben pixelgleich, es gibt keine Naht. **Höchstens ~10 %** (Hetzer 9,5 %
+  ging durch; Streuner 16 % und Sturmklaue 21 % nannte der Besitzer „zu
+  hochgezogen“). `koerper-groesser.py` taugt
+  nur, wo Körper und Tellerfläche klar verschiedene Farben haben (Osric) — am
+  Wächter und am Hetzer riss es Löcher in die Standfläche.
+- **Nach jedem Einbau eine KONTROLLE an den Besitzer** (3.10.: „ich möchte
+  immer eine Kontrolle, ob das mit dem Band sauber aussieht“): die Figur am
+  echten Brett, auf der Hofstaat-Karte und im Blatt, mit dem Lebensband.
+  `teller` nie blind vom Automaten nehmen: ist der Farbring unten breiter als
+  die Wand, hält `messe_tellerkante.py` diese Stufe für die Standfläche (Hetzer,
+  Zerreißer) — Breitenverlauf ansehen, Handwert setzen, Gegenprobe rechnen
+  (`boden − teller` = `(boden − ry − teller) + ry` der OBEREN Ellipse).
+  **ERST ZEIGEN, DANN EINBAUEN — auch lokal:** am 3.10. standen drei
+  Neufassungen schon in einem lokalen Commit, bevor der Besitzer sie gesehen
+  hatte; sein Urteil („zu hochgezogen“, „zu digital“) kam danach, und alles
+  musste wieder heraus. Was ihm wichtig ist: **geschnitzt bleibt geschnitzt**
+  — flache Facetten, mattes Holz, die alte Optik. Mehr Tiefe und dunkle Akzente
+  (Maul, Krallen) ja, aber keine glatten Verläufe, keine Symbole, nichts in die
+  Länge Gezogenes.
+- **ES GIBT NUR NOCH DAS SCHWARZE BAND** (v1.90.25, Besitzer 3.10.: „wir killen
+  den grauen Sockel … überall das Band, in schwarz, ohne Lebensbalken“).
+  `SockelBand` hat keine helle Fassung mehr (`hell` ist gestrichen): ohne Werte
+  schwarz, mit Werten rot – schwarz – blau. **Noch offen:** rund ein Dutzend
+  Stellen im Spiel zeigen ein Figurenbild ohne Band auf dem gemalten Teller
+  (Aufstellungsreihe, große Ansicht, Stationsfenster/Karte der Kampagne,
+  Kampfleiste, Krönungswahl, Erstbegegnung, Bundtafel, Monsterliste).
+- **Zugbild (MoveDiagram):** die leeren Felder sind seit v1.90.25 sichtbar
+  (13 % / 6 % Weiß) — vorher sah der Besitzer im Springer-L acht Punkte im
+  Kreis und hielt es für falsch. Die Aufstellungskarte legt gelernte
+  Zugtalente farbig obenauf. Startseite und Spiel sprechen EINE Farbsprache:
+  Blau zieht, Gelb springt, Grün (bzw. die Talentfarbe) ist neu.
 - **`sockelband.json` nie als Ganzes neu schreiben:** ein Gesamtlauf von
   `scripts/messe_sockel.py` verschiebt bei elf alten Figuren `ring`, `schatten`
   oder `oben` (gemessen 3.10. — alter Drift der Datei gegen das Skript). Mit
@@ -395,6 +444,12 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
 ## Design-Prinzipien
 
 - Deutsche Begriffe im Spiel (Kapitel, Riss, Halle, Hofstaat, Meister …).
+- **Im Verzeichnis gibt es nur FIGUREN und BESTIEN** (v1.90.25, Besitzer 3.10.);
+  die zwölf Großmeister erkennt man an der leuchtenden violetten Kontur ihrer
+  Karte. Wem man begegnet ist, der steht in FARBE da — dunkel ist nur
+  Unbekanntes. Krone/Schatten und die Monsterfamilien leben im Regelwerk
+  weiter (Opfer einer Kronenfigur, Bünde, Gaben), werden aber nicht mehr als
+  Überschrift gezeigt.
 - GOLD gehört allein dem Helden (auch der Sockelstreifen); eigene Bauern
   GRÜN, Gegnerseite RISS-VIOLETT (lila Sockel-Glut, Stil "getoent" ist der
   Standard; die Stil-Auswahl sieht nur der Admin).
@@ -404,7 +459,7 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
   Auswahl-Lichtspektakel.
 - Alles Optionale abschaltbar (Klang, Online).
 
-## Offene Baustellen (Stand v1.90.24, 3.10.2026)
+## Offene Baustellen (Stand v1.90.25, 3.10.2026)
 
 **Einstieg für jede neue Sitzung: `design/CHAT-EINSTIEG-2026-09-27.md`** (zehn
 Minuten, mit dem Startsatz für den Chat), dann **`design/UEBERGABE-2026-09-27.md`** — Stand,
@@ -419,10 +474,15 @@ Hier nur der Überblick:
 
 - **Monster überarbeiten, vier je Runde** (Besitzer 1.10.): per fal-Edit am
   bestehenden Bild (nur mit Freigabe), dann lokal auf Höhe gerechnet wie
-  Osric, am Brett neben dem Springer gezeigt, erst dann eingebaut. **Hetzer,
-  Wächter und Bollwerk sind seit v1.90.23 eingebaut** (nur höher, Optik
-  unverändert — so auch die weiteren). Offen aus Runde 1: Sturmklaue. Runde 2:
-  Zerreißer, Streuner, Brandstifter, Skorpion. Runde 3 (nur Akzente): Schleicher, Flüsterin, Brutmutter. Geist
+  Osric, am Brett neben dem Springer gezeigt, erst dann eingebaut. **Eingebaut:
+  Hetzer, Wächter, Bollwerk (v1.90.23; Hetzer in v1.90.25 um 9,5 % höher)** —
+  nur höher, Optik unverändert. **NICHT eingebaut, in Arbeit:** Sturmklaue,
+  Zerreißer, Streuner, Brandstifter und mehr Tiefe/Akzente für den Hetzer — drei
+  Runden lagen dem Besitzer vor (3.10.), keine ist freigegeben; sein letztes
+  Wort: „nicht mehr ganz so geschnitzt … zu digital … an der alten Optik
+  dranbleiben“. Danach Skorpion, Brutmutter;
+  dazu stehen sechs Großmeister nur bei 62–73 % (Doppelritter, Koloss,
+  Eisenfaust, Blutmagd, Kanonier, Seuchenkönig). Runde 3 (nur Akzente): Schleicher, Flüsterin, Brutmutter. Geist
   und Wandlerin bleiben. · Play-Abzeichen als Datei für die Startseite (A58).
 - **Spiel:** „Die Karte erzählt die Geschichte" (Besitzer 27.9.: **später**) ·
   **Ladeschirm-Feinschliff** (subjektiv, braucht Live-Abnahme).
