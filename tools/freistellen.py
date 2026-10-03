@@ -65,15 +65,56 @@ def entmagenta(rgb, saum):
     return rgb
 
 
-def freistellen(pfad_ein, pfad_aus, hoehe=None, leinwand=None, luft=0.035, grund="gruen"):
+def maske_gruen_streng(a):
+    """Wie maske_gruen, aber nur KRAEFTIGES Gruen (v1.90.23). Fuer Bilder, in
+    denen der Sockel selbst gruenstichig im Schatten liegt: am Hetzer (FLUX
+    Kontext, 3.10.) hielt die weite Maske die schattige Sockelwand
+    (z. B. 52/75/33) fuer Hintergrund und riss Zacken in den Tellerrand."""
+    r, g, b = a[:, :, 0], a[:, :, 1], a[:, :, 2]
+    maxv = a.max(axis=2)
+    minv = a.min(axis=2)
+    saettigung = (maxv - minv) / np.maximum(maxv, 1)
+    return (g > r + 50) & (g > b + 40) & (saettigung > 0.45)
+
+
+def kraeftig(a, grund):
+    """Unverkennbarer Hintergrund - das Mass, an dem eine TASCHE erkannt wird."""
+    r, g, b = a[:, :, 0], a[:, :, 1], a[:, :, 2]
+    if grund == "magenta":
+        return (r > g + 70) & (b > g + 70)
+    return (g > r + 70) & (g > b + 40)
+
+
+def freistellen(pfad_ein, pfad_aus, hoehe=None, leinwand=None, luft=0.035, grund="gruen", extras=()):
+    """extras (v1.90.23, sechstes Argument, mit Komma getrennt):
+      taschen     - auch EINGESCHLOSSENER Hintergrund faellt (zwischen den
+                    Beinen, zwischen Arm und Koerper). Ohne den Schalter gilt
+                    die alte Regel "nur was vom Rand zusammenhaengt": an den
+                    aufrecht stehenden Monstern blieben sonst farbige Flecken
+                    zwischen den Beinen. Eine Tasche zaehlt ab 40 px und nur,
+                    wenn sie ueberwiegend aus kraeftigem Hintergrund besteht.
+      streng      - nur kraeftiges Gruen ist Hintergrund (maske_gruen_streng).
+      sockelmitte - die Figur wird nach dem SOCKELFUSS mittig gesetzt
+                    (unterste 5 Zeilen, Alpha > 60), nicht nach dem Umriss.
+                    Traegt eine Figur einen Schild an der Seite, sitzt der
+                    Umriss mittig und der Sockel daneben."""
     im = Image.open(pfad_ein).convert("RGB")
     a = np.array(im).astype(int)
 
-    kandidat = maske_magenta(a) if grund == "magenta" else maske_gruen(a)
-    markiert, _ = ndimage.label(kandidat)
+    if grund == "magenta":
+        kandidat = maske_magenta(a)
+    else:
+        kandidat = maske_gruen_streng(a) if "streng" in extras else maske_gruen(a)
+    markiert, anzahl = ndimage.label(kandidat)
     rand = set(markiert[0, :]) | set(markiert[-1, :]) | set(markiert[:, 0]) | set(markiert[:, -1])
     rand.discard(0)
     hintergrund = np.isin(markiert, list(rand))
+    if "taschen" in extras and anzahl:
+        gross = ndimage.sum(kandidat, markiert, range(1, anzahl + 1))
+        stark = ndimage.sum(kraeftig(a, grund) & kandidat, markiert, range(1, anzahl + 1))
+        taschen = [i + 1 for i in range(anzahl)
+                   if (i + 1) not in rand and gross[i] >= 40 and stark[i] / gross[i] > 0.5]
+        hintergrund |= np.isin(markiert, taschen)
 
     alpha = np.where(hintergrund, 0, 255).astype(np.uint8)
     alpha = np.array(Image.fromarray(alpha, "L").filter(ImageFilter.MinFilter(3)))
@@ -100,7 +141,14 @@ def freistellen(pfad_ein, pfad_aus, hoehe=None, leinwand=None, luft=0.035, grund
         L = leinwand
         blatt = Image.new("RGBA", (L, L), (0, 0, 0, 0))
         unten = L - round(L * luft)
-        blatt.paste(frei, ((L - frei.width) // 2, unten - frei.height), frei)
+        links = (L - frei.width) // 2
+        if "sockelmitte" in extras:
+            al = np.array(frei)[:, :, 3]
+            xs = np.where((al[-5:] > 60).any(axis=0))[0]
+            links = int(round(L / 2 - (xs.min() + xs.max()) / 2))
+            if links < 0 or links + frei.width > L:
+                raise SystemExit(f"sockelmitte: der Umriss ragt aus der Leinwand (links {links}, Breite {frei.width})")
+        blatt.paste(frei, (links, unten - frei.height), frei)
         frei = blatt
 
     frei.save(pfad_aus)
@@ -111,4 +159,5 @@ if __name__ == "__main__":
     h = int(sys.argv[3]) if len(sys.argv) > 3 else None
     L = int(sys.argv[4]) if len(sys.argv) > 4 else None
     grund = sys.argv[5] if len(sys.argv) > 5 else "gruen"   # "magenta" fuer gruene Motive
-    print(sys.argv[2], freistellen(sys.argv[1], sys.argv[2], h, L, grund=grund))
+    extras = tuple(sys.argv[6].split(",")) if len(sys.argv) > 6 else ()   # taschen,streng,sockelmitte
+    print(sys.argv[2], freistellen(sys.argv[1], sys.argv[2], h, L, grund=grund, extras=extras))

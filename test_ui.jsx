@@ -163,6 +163,23 @@ const piece = (x = {}) => ({ id: 1, kind: "Q", color: "w", level: 1, abilities: 
     m.tellerVonHand === true && Math.abs((m.boden - m.teller) - (506 + m.ry)) <= 2);
   ok("v1.90.21: seine Sockelkante kommt von Hand (0,12) - gemessen landete sie am Deckel 0,24 und die Glut lief ueber die Fuesse",
     sockelKanteAusCache(PAINTED["boss-b25"]) === 0.12 && sockelKanteAusCache(PAINTED_KLEIN["boss-b25"]) === 0.12);
+  /* ── v1.90.23: HETZER, WAECHTER, BOLLWERK STEHEN AUFRECHT ─────────────────
+     Besitzer 3.10.: "versuche einfach, sie hoeher zu machen, dass sie von der
+     Groesse passen ... sehr nah an der bestehenden Optik". Am Brett zaehlt
+     Hoehe : Teller-Halbbreite; die drei standen bei 56 / 65 / 56 % der
+     Offiziere. Gerechnet wird wie gemessenerFit fuer Monster (ohne Streckung). */
+  const SB3 = JSON.parse(readFileSync("src/app/ui/board/sockelband.json", "utf8"));
+  const amBrett = (id) => { const s = SB3[id]; return (s.boden - s.oben) * Math.max(0.55, Math.min(1.35, 136 / s.rx)) / 561 * 100; };
+  const drei = ["boss-b02", "boss-b01", "boss-b06"].map((id) => `${id} ${amBrett(id).toFixed(1)} %`).join(", ");
+  ok(`v1.90.23: Hetzer, Waechter und Bollwerk stehen am Brett bei mindestens 80 % der Offiziere und nicht darueber (${drei})`,
+    ["boss-b02", "boss-b01", "boss-b06"].every((id) => amBrett(id) >= 80 && amBrett(id) <= 100.5));
+  /* Das Band: seine Oberkante vorne (boden - teller) liegt auf der Vorderkante
+     der Standflaeche, also (untere Ellipsenmitte - teller) + ry. Das ist
+     dieselbe Rechnung wie bei Osric - eine Gegenprobe der drei neuen Teller,
+     darunter der Handwert des Hetzers (49; der alte, 75, galt dem alten Bild). */
+  ok("v1.90.23: ihre Teller liegen 25-55 px hoch, der Handwert des Hetzers gilt dem NEUEN Bild (49, nicht mehr 75)",
+    ["boss-b02", "boss-b01", "boss-b06"].every((id) => SB3[id].teller >= 25 && SB3[id].teller <= 55 && SB3[id].boden === 555 && SB3[id].oben === 21)
+    && SB3["boss-b02"].teller === 49 && SB3["boss-b02"].tellerVonHand === true);
 }
 function SBkrone() { return JSON.parse(readFileSync("src/app/ui/board/sockelband.json", "utf8"))["boss-b25"]; }
 

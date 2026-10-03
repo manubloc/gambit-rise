@@ -41,8 +41,8 @@ gambitrise.com zeigt darauf).
   pruefe-navigation, pruefe-textfluss, test_layout) lesen den Chromium-Pfad aus
   `PW_CHROMIUM`; ohne die Variable gilt der Pfad des Cloud-Containers. Lokal:
   `npx playwright install chromium` und `PW_CHROMIUM=<Pfad zur chrome-Datei>`.
-- `npm test` — volle Batterie. MUSS **31 Suiten / 2653 Prüfungen** melden
-  (Stand v1.90.22; der Runner stoppt nach der ersten roten Suite, also
+- `npm test` — volle Batterie. MUSS **31 Suiten / 2655 Prüfungen** melden
+  (Stand v1.90.23; der Runner stoppt nach der ersten roten Suite, also
   Suitenzahl prüfen, nicht nur Assertions! **Zählweise seit v1.90.18
   (Audit A74): JEDE Suite der Kette meldet eine RESULT-Zeile** — alle Zeilen
   `RESULT…: N passed` summieren; test_balance meldet zwei, darum stehen im
@@ -258,6 +258,13 @@ starten, sonst reißen Werkzeug-Zeitlimits den Lauf ab.
    (das erste Ergebnis ohne -S ist oft der 5-KB-Stub). Cloudflare-Hashes
    weichen von lokalen ab — NIE per Hash vergleichen, nur per Marker.
 
+**Die Halle kann beim Bau hängen bleiben, ohne dass am Code etwas ist**
+(gemessen 3.10. im Cloudflare-Dashboard, Workers → gg-hall → Deployments →
+Build history): der Lauf für v1.90.21 endete nach 5 min mit „Build failed to
+initialize and was timed out“ — `/health` blieb auf 1.90.20, bis der nächste
+Push durchlief. Zeigt `/health` nach einem Push die alte Fassung: dort
+nachsehen und „Retry build“, nicht im Repo suchen.
+
 **DIE CI SPERRT DEN DEPLOY NICHT** (Audit A27). Cloudflare Pages baut bei
 JEDEM Push auf main und fragt das Ergebnis von `.github/workflows/ci.yml`
 nicht ab — ein roter Lauf hält nichts auf. Seit v1.90.11 fährt die CI
@@ -342,6 +349,34 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
   Bild liegt unten bündig 68 × 68).
 - **`tools/freistellen.py … magenta`**: für Figuren mit echtem Grün (Efeu,
   Moos) — auf Grün würde `entgruenen()` die ganze Figur entfärben.
+  **Sechstes Argument (v1.90.23), mit Komma:** `taschen` (eingeschlossener
+  Hintergrund zwischen Beinen und Armen fällt mit — bei jeder aufrecht
+  stehenden Figur nötig), `streng` (nur kräftiges Grün ist Hintergrund; sonst
+  reißt eine grünstichige Sockelwand im Schatten Zacken in den Tellerrand),
+  `sockelmitte` (gesetzt wird nach dem Sockelfuß, nicht nach dem Umriss —
+  nötig, sobald etwas seitlich absteht).
+- **Monster höher machen heißt: dieselbe Figur, andere Proportion** (Besitzer
+  3.10., nachdem ein Neuanstrich verworfen wurde: „zu weit entfernt von der
+  Optik“). Auftrag an die Bild-KI: nichts neu malen, keine neuen Farben oder
+  Details, nur aufrechter und auf schmalerem Teller derselben Bauart. FLUX
+  Kontext (`fal-ai/flux-pro/kontext`) hielt die Optik besser als nano-banana;
+  beide je einmal laufen lassen und nebeneinander zeigen. Kontext legt einen
+  Schlagschatten auf den Farbgrund — darum `streng`.
+- **`sockelband.json` nie als Ganzes neu schreiben:** ein Gesamtlauf von
+  `scripts/messe_sockel.py` verschiebt bei elf alten Figuren `ring`, `schatten`
+  oder `oben` (gemessen 3.10. — alter Drift der Datei gegen das Skript). Mit
+  `AUS=<datei>` in eine Nebendatei messen und nur die geänderten Einträge
+  übernehmen; `teller` kommt aus `messe_tellerkante.py` (dort `kante()`), der
+  Breitenverlauf daneben zeigt, ob der Automat eine Stufe im Teller für den
+  Knick hält (Hetzer: 13 statt 49).
+- **Claude in Chrome bei verdecktem Fenster:** ist das Chrome-Fenster des
+  Besitzers minimiert oder verdeckt (`document.visibilityState === "hidden"`),
+  schlagen Bildschirmfotos der Play Console fehl und ihre Dialoge öffnen nicht
+  — `requestAnimationFrame` steht. Abhilfe ohne den Besitzer zu stören: per
+  `javascript_tool` `window.requestAnimationFrame = cb => setTimeout(() =>
+  cb(performance.now()), 16)` setzen, Knöpfe per `.click()` auslösen und den
+  Dialogtext aus `[role=dialog]` lesen. Das Cloudflare-Dashboard braucht das
+  nicht.
 - `piece.tier` steuert Rangbilder (gambit-t2…t6, pawn-t2/t3) und wird von
   makePiece durchgereicht — bei neuen Figurenfeldern dort ergänzen.
 - Ausgemusterte Assets nach `archiv/ausgemustert/vX.Y.Z/`, Bild-Rohlinge
@@ -360,7 +395,7 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
   Auswahl-Lichtspektakel.
 - Alles Optionale abschaltbar (Klang, Online).
 
-## Offene Baustellen (Stand v1.90.22, 1.10.2026)
+## Offene Baustellen (Stand v1.90.23, 3.10.2026)
 
 **Einstieg für jede neue Sitzung: `design/CHAT-EINSTIEG-2026-09-27.md`** (zehn
 Minuten, mit dem Startsatz für den Chat), dann **`design/UEBERGABE-2026-09-27.md`** — Stand,
@@ -375,10 +410,10 @@ Hier nur der Überblick:
 
 - **Monster überarbeiten, vier je Runde** (Besitzer 1.10.): per fal-Edit am
   bestehenden Bild (nur mit Freigabe), dann lokal auf Höhe gerechnet wie
-  Osric, am Brett neben dem Springer gezeigt, erst dann eingebaut. Runde 1
-  (freigegeben): Bollwerk, Sturmklaue, Wächter, Hetzer — Auftrag liegt bereit,
-  wartet auf den fal-Schlüssel. Runde 2: Zerreißer, Streuner, Brandstifter,
-  Skorpion. Runde 3 (nur Akzente): Schleicher, Flüsterin, Brutmutter. Geist
+  Osric, am Brett neben dem Springer gezeigt, erst dann eingebaut. **Hetzer,
+  Wächter und Bollwerk sind seit v1.90.23 eingebaut** (nur höher, Optik
+  unverändert — so auch die weiteren). Offen aus Runde 1: Sturmklaue. Runde 2:
+  Zerreißer, Streuner, Brandstifter, Skorpion. Runde 3 (nur Akzente): Schleicher, Flüsterin, Brutmutter. Geist
   und Wandlerin bleiben. · Play-Abzeichen als Datei für die Startseite (A58).
 - **Spiel:** „Die Karte erzählt die Geschichte" (Besitzer 27.9.: **später**) ·
   **Ladeschirm-Feinschliff** (subjektiv, braucht Live-Abnahme).
@@ -391,9 +426,12 @@ Hier nur der Überblick:
   (Cloudflare-Dashboard, Besitzer).
 - **Technik:** Deploy wiegt 743 MB, davon 692 MB Archiv für die Schaukammer
   (Schalter `OHNE_ARCHIV=1` liegt bereit, Standard unverändert) · `.git` 1 GB.
-- **Store:** interner Test läuft (2.10.); als Nächstes S6 (erster Start am
-  Handy: keine Passwortabfrage, keine graue Browserleiste), dann S7–S9 — siehe
-  `design/PLAYSTORE-BACKLOG.md`.
+- **Store:** interner Test läuft (2.10.), die zehn Änderungen an Eintrag und
+  App-Inhalten sind seit 3.10. bei Google in Prüfung. **Offen: die
+  Installation am Handy des Besitzers scheitert** („Bei uns ist ein Fehler
+  aufgetreten“, Ursache ungeklärt — das Bundle ist gültig). Danach S6, dann
+  S7–S9; die Pflicht „12 Tester, 14 Tage“ gilt für dieses Konto (im Dashboard
+  nachgelesen) — siehe `design/PLAYSTORE-BACKLOG.md`.
 
 **Erledigt und aus dieser Liste gestrichen** (die alte Fassung stand auf
 v1.0.62 und führte längst Gebautes als offen): Sperren kaufen/setzen

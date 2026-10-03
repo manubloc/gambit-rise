@@ -1,5 +1,60 @@
 # Changelog - Gambit Rise
 
+## 1.90.23 - Hetzer, Waechter und Bollwerk stehen aufrecht und so hoch wie die Offiziere
+
+**DREI MONSTER WAREN AM BRETT ZU KLEIN** (Besitzer 1.10.: "den Monstern mehr
+Hoehe geben"; 3.10.: "versuche einfach, sie hoeher zu machen, dass sie von der
+Groesse passen ... sehr nah an der bestehenden Optik, zeichne sie nicht komplett
+neu"). Ursache ist die Brettregel, nicht das Brett: paintedArt.js zieht jeden
+Teller auf dieselbe Breite (136 px), es zaehlt also allein Hoehe :
+Teller-Halbbreite. Die drei kauerten breit auf breiten Tellern - Hetzer 56 %,
+Waechter 65 %, Bollwerk 56 % der Offiziershoehe.
+
+Jetzt stehen bzw. sitzen sie aufrecht auf schmaleren Tellern derselben Bauart:
+Hetzer 83 %, Waechter 100 %, Bollwerk 94 %. Farbe, Stein, Gesicht, Hoerner,
+Glutaugen und Zinnenkrone sind die alten.
+
+**DER ERSTE ANLAUF WAR FALSCH** und ist nicht eingebaut: ich hatte "mehr Hoehe
+und mehr Farbe" (1.10.) als Neuanstrich gelesen - getigerter Hetzer, Waechter
+mit blauem Wappenschild, Bollwerk als gemauerter Turm mit Tor und Wimpeln. Der
+Besitzer: "zu weit entfernt von der Optik ... insbesondere das Bollwerk sieht
+fuerchterlich aus". Zweiter Anlauf mit dem Auftrag "nichts neu malen, nur die
+Proportion aendern", je einmal mit nano-banana/edit und FLUX Kontext (beide
+ueber fal.ai, vom Besitzer freigegeben). Gewaehlt hat er bei allen dreien die
+Kontext-Fassung.
+
+**freistellen.py kann drei Dinge mehr** (sechstes Argument, mit Komma):
+- `taschen`: auch EINGESCHLOSSENER Hintergrund faellt. Die alte Regel "nur was
+  vom Rand zusammenhaengt" liess bei aufrecht stehenden Figuren gruene und
+  magentafarbene Flecken zwischen den Beinen und zwischen Arm und Koerper.
+- `streng`: nur kraeftiges Gruen ist Hintergrund. Am Hetzer hielt die weite
+  Maske die schattige, gruenstichige Sockelwand fuer Hintergrund und riss
+  Zacken in den Tellerrand.
+- `sockelmitte`: gesetzt wird nach dem Sockelfuss, nicht nach dem Umriss. Der
+  Waechter traegt den Schild an der Seite - mittig nach dem Umriss stand sein
+  Sockel 4 px neben der Bildmitte.
+
+**Masse.** sockelband.json: nur die drei Eintraege ersetzt (ein Gesamtlauf von
+messe_sockel.py haette bei elf weiteren Figuren `ring`, `schatten` oder `oben`
+um ein bis fuenfzehn Pixel verschoben - das ist alter Drift der Datei gegen
+das Skript, nicht von heute, und bleibt unberuehrt). Der Handwert des Hetzers
+in messe_tellerkante.py ist 49 statt 75: 75 galt dem alten Bild; am neuen
+hielt der Automat die Stufe zwischen Farbring und grauer Wand fuer den Knick
+(13). Figurfarbe: Hetzer und Bollwerk neu gemessen; der Waechter behaelt sein
+Blaugruen - gemessen kaemen 44 braune Pixel des Sockelrands heraus, die Farbe
+der Figur sind ihre Augen.
+
+**Startseite.** gal-waechter.webp und die beiden Brettbilder sind aus den
+heutigen Figuren neu gerechnet (im Gefechtsbild steht der Waechter in der
+eigenen Reihe).
+
+Die alten Bilder liegen in archiv/ausgemustert/v1.90.23/, die drei Originale
+(1024 px, wie von fal geliefert) in archiv/bilder/painted/.
+
+Proben: 31 Suiten / 2655 Pruefungen (vorher 2653) - zwei neue in test_ui: die
+drei stehen bei 80-100 % der Offiziere, und ihre Teller sind die der neuen
+Bilder.
+
 ## 1.90.22 - Osrics Lebensband sitzt wieder auf dem Sockel, sein Umhangfutter laeuft gerade bis zum Saum
 
 **DAS BAND STAND 25 PX ZU HOCH** (Besitzer: "das Band unten ist voellig fehl am

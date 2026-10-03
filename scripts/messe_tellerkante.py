@@ -26,12 +26,18 @@ ORDNER = "src/app/ui/assets/painted"
 # ── HANDWERTE ────────────────────────────────────────────────────────────────
 # Zwei Teller haben keinen eindeutigen Knick, deshalb sind sie von Hand
 # gesetzt - nachgemessen am Breitenverlauf, nicht geschaetzt:
-#   boss-b02  faellt in ZWEI Stufen (98,6 % bei 30 px, 89,5 % bei 80, erst bei
-#             110 auf 78,7 %). Der Automat nahm die erste Stufe bei 64. Die
-#             Standflaeche, auf der die Klauen liegen, ist die zweite. An der
-#             Kandidatenleiter abgelesen und vom Besitzer bestaetigt: 75.
-#             ("75 px ist perfekt.") 100 lief durch die Zehen, 90 lag noch zu
-#             hoch am Klauenansatz.
+#   boss-b02  (v1.90.23, der Hetzer SITZT jetzt aufrecht auf einem schmaleren
+#             Teller): der Teller traegt unten einen breiteren Farbring, die
+#             graue Wand darueber ist 3 px schmaler - der Automat hielt diese
+#             Stufe fuer den Knick und meldete 13. Am Breitenverlauf abgelesen:
+#             die Wand steht von der unteren Ellipsenmitte (y 521) bis 48 px
+#             darueber auf 299-302 px Breite und faellt erst ab 52 px steil
+#             (289, 275, 253). Gesetzt auf 49. Gegenprobe ueber das Band:
+#             Boden 555 - 49 = 506, die Vorderkante der Standflaeche liegt bei
+#             (521 - 49) + ry 33,7 = 505,7.
+#             Bis v1.90.22 stand hier 75 - das galt dem ALTEN Bild (kauernd,
+#             Teller 497 px breit, vom Besitzer bestaetigt: "75 px ist
+#             perfekt") und passt zum neuen nicht mehr.
 #   gambit-t2 hat denselben Sockel wie gambit-t3 (Profil deckungsgleich: 98 %
 #             bei 40, 90 % bei 50, 75 % bei 60), der Automat fand aber einen
 #             Scheinknick bei 14. Gesetzt auf 45, wie bei t3 gemessen.
@@ -48,7 +54,7 @@ ORDNER = "src/app/ui/assets/painted"
 #             muss weiter runter"): in v1.90.21 stand hier 49 - ich hatte
 #             Boden minus Wandoberkante gerechnet und ry NICHT abgezogen. Das
 #             Band stand 25 px zu hoch, seine Oberkante lag auf den Fuessen.
-HANDWERTE = {"boss-b02": 75, "gambit-t2": 45, "boss-b25": 24}
+HANDWERTE = {"boss-b02": 49, "gambit-t2": 45, "boss-b25": 24}
 MASSE = json.load(open("src/app/ui/board/sockelband.json"))
 
 def kante(fid, m):

@@ -148,7 +148,9 @@ export function SockelBand({ paintedId, leben = 0, kraft = 0, schaden = 0, grau 
      Stein auf seinen Notnagel 8 zurueck - bei 29 der 69 Figuren.
 
      Zwei Teller haben keinen eindeutigen Knick und sind von Hand gesetzt
-     (`tellerVonHand`): boss-b02 auf 75 und gambit-t2 auf 45. */
+     (`tellerVonHand`): boss-b02 auf 75 und gambit-t2 auf 45.
+     (v1.90.23: der Hetzer hat ein neues Bild, sein Handwert ist jetzt 49 -
+     die Herleitung steht in scripts/messe_tellerkante.py.) */
   /* ── v1.23.9 (Besitzer): DER SOCKEL WIRD NACH UNTEN VERLAENGERT ──────────
      "Du kannst ihn nach unten immer verlaengern. Wichtig ist nur, dass die
      Oberkante sauber erfasst ist. Dann wuerde ich schon versuchen, allen

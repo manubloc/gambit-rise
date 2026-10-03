@@ -197,6 +197,25 @@
   der Release veröffentlicht ist — die Console warnt nur klein („noch keine
   Tester festgelegt").
 
+  **OFFEN SEIT 3.10.2026: DIE INSTALLATION SCHEITERT AM HANDY DES BESITZERS.**
+  Der Play Store zeigt die App („com.gambitrise.app (unreviewed)"), nach
+  „Installieren" kommt „Fehler – Bei uns ist ein Fehler aufgetreten. Bitte
+  versuche es noch einmal." Gemessen: das Bundle ist gültig (`bundletool
+  validate`), und `bundletool build-apks` erzeugt daraus fehlerfrei Splits und
+  eine Universal-APK; die Meldung ist die allgemeine des Stores. Einen
+  Pre-Launch-Bericht gibt es für den internen Test nicht (er entsteht erst im
+  geschlossenen Test). Noch nicht geprüft, weil nur am Handy möglich: Cache
+  des Play Store leeren, aktives Konto im Store, eine früher direkt
+  installierte `Gambit Rise.apk` aus dem PWABuilder-ZIP (anderer Schlüssel).
+
+  **3.10.2026, 19:40: zehn Änderungen zur Prüfung eingereicht.** Unter
+  *Veröffentlichungen – Übersicht* lagen Store-Einträge (de-DE, en-US),
+  Einstufung des Inhalts, Zielgruppe, Datenschutzerklärung, Werbung,
+  Datensicherheit, Gesundheits-Apps, Formfaktoren und App-Kategorie als
+  „noch nicht zur Überprüfung eingereicht" — S1 bis S3 waren also gespeichert,
+  aber nie abgeschickt. Jetzt: „Deine Änderungen werden jetzt überprüft"
+  (Google nennt bis zu 7 Tage).
+
   *Der ursprüngliche Arbeitsauftrag (überholt):* nach S4 eine Sache von Minuten und
   **ohne Google-Prüfung**: Play Console → Testen und Veröffentlichen →
   *Interner Test* → Neue Version erstellen → `.aab` hineinziehen →
@@ -242,8 +261,10 @@
   hinüberkopieren, Tester per E-Mail-Liste eintragen, Release einführen.
 
 - [ ] **S8 12 Tester, 14 Tage am Stück.** Pflicht für private
-  Entwicklerkonten, die nach dem 13.11.2023 angelegt wurden — **für dieses
-  Konto noch zu prüfen**. Zeit im *internen* Test zählt dafür nicht.
+  Entwicklerkonten, die nach dem 13.11.2023 angelegt wurden — **gilt für
+  dieses Konto** (3.10.2026 im Dashboard nachgelesen: „Mindestens 12 Tester
+  müssen sich für deinen geschlossenen Test anmelden – momentan sind 0 Tester
+  angemeldet"). Zeit im *internen* Test zählt dafür nicht.
 
 - [ ] **S9 Produktionszugriff beantragen, dann einreichen.** Prüfung durch
   Google meist einige Tage. Danach funktioniert der Link, auf den das
