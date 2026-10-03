@@ -1,5 +1,45 @@
 # Changelog - Gambit Rise
 
+## 1.90.24 - Die Zielfelder sagen, wie die Figur hinkommt: Blau zieht, Gelb springt, der Stern heisst Talent
+
+**BESITZERBEFUND** (3.10., erste Partien in der Store-App, Gaeste Kapitaen und
+Spaeher): "wenn man auf die Figuren drueckt ... habe ich das Gefuehl, die Zuege
+sind nicht genau die, die man koennen sollte, manchmal mehr oder weniger ...
+manchmal sieht man so einen kleinen Stern in dem Feld, was bedeutet das? ...
+diese Faerbungen - springen, ziehen, Fernangriff - auf das Spielfeld
+uebertragen."
+
+**GEMESSEN am Kern (rules/moves.js), Figur in der Brettmitte:**
+- Die Zuege selbst stimmen. Kapitaen Stufe 1: 16 Felder auf leerem Brett (drei gerade
+  in vier Richtungen, ein Schritt schraeg), ab Stufe 3 kommt der Scharfschuss dazu.
+  Spaeher: 12 Felder (acht Spruenge, vier Schraegschritte), mit Blinzeln 23
+  weitere - aber nur, solange die Talentkarte scharf ist; ist der Zauber
+  verbraucht, sind es wieder 12. Das ist das "manchmal mehr, manchmal weniger".
+- **DER STERN WAR FALSCH VERGEBEN.** BoardView setzte ihn an jedes Ziel mit
+  `special`. Dieses Feld tragen aber auch gewoehnliche Zuege: jeder
+  Einzelschritt einer Figur mit eigenem Zugmuster (`special: "leap"` - die vier
+  Diagonalschritte des Kapitaens), jeder Schritt des grossen Drachen, die
+  Rochade, das En-passant. Die Kampfleiste sagt "tippe ein ✦-Feld" - der Stern
+  soll TALENT heissen und nichts sonst.
+- Alle eigenen Ziele trugen dasselbe Gold.
+
+**JETZT** (neue Datei `src/app/ui/board/zugart.js`, der Kern bleibt unberuehrt):
+- **Blau** - Schritt oder Gleiten auf einer Linie.
+- **Gelb** - Sprung ueber Figuren hinweg. Beides sind die Farben des Zugbilds
+  im Hofstaat ("Blau: Gleiten · Gelb: Sprung").
+- **Farbe des Talentzeichens + ✦** - das Feld kommt aus einer Faehigkeit:
+  Einmal-Talente (`consumes`) ebenso wie dauerhafte Gangarten (Sturmlauf,
+  Fliegen, Schraegschritt des Turms, Weitsprung, Vorreiter).
+- **Rot mit Ring** bleibt der Schlag (Besitzerentscheid v1.0.74), fremde Zuege
+  bleiben violett.
+Die Schachschule ("Talente & Zauber") erklaert die Farben in beiden Sprachen.
+
+Proben: 31 Suiten / 2665 Pruefungen (vorher 2655) - zehn neue in test_ui, an
+ECHTEN Zuegen aus pieceMoves: Kapitaen ohne Talent nur "zug", Scharfschuss und
+Blinzeln als Talent, Spaeher 8 gelb + 4 blau, dauerhafte Gangarten mit ihrem
+Talent, Attentaeter Schritt gegen Sprung, und der Stern haengt im Quelltext
+nicht mehr an `special`. Im echten Spiel fotografiert: Springer gelb, Bauer blau.
+
 ## 1.90.23 - Hetzer, Waechter und Bollwerk stehen aufrecht und so hoch wie die Offiziere
 
 **DREI MONSTER WAREN AM BRETT ZU KLEIN** (Besitzer 1.10.: "den Monstern mehr

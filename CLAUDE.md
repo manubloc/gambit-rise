@@ -41,8 +41,8 @@ gambitrise.com zeigt darauf).
   pruefe-navigation, pruefe-textfluss, test_layout) lesen den Chromium-Pfad aus
   `PW_CHROMIUM`; ohne die Variable gilt der Pfad des Cloud-Containers. Lokal:
   `npx playwright install chromium` und `PW_CHROMIUM=<Pfad zur chrome-Datei>`.
-- `npm test` — volle Batterie. MUSS **31 Suiten / 2655 Prüfungen** melden
-  (Stand v1.90.23; der Runner stoppt nach der ersten roten Suite, also
+- `npm test` — volle Batterie. MUSS **31 Suiten / 2665 Prüfungen** melden
+  (Stand v1.90.24; der Runner stoppt nach der ersten roten Suite, also
   Suitenzahl prüfen, nicht nur Assertions! **Zählweise seit v1.90.18
   (Audit A74): JEDE Suite der Kette meldet eine RESULT-Zeile** — alle Zeilen
   `RESULT…: N passed` summieren; test_balance meldet zwei, darum stehen im
@@ -377,6 +377,15 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
   cb(performance.now()), 16)` setzen, Knöpfe per `.click()` auslösen und den
   Dialogtext aus `[role=dialog]` lesen. Das Cloudflare-Dashboard braucht das
   nicht.
+- **Zielfelder am Brett tragen die ZUGART** (v1.90.24, `board/zugart.js`): Blau
+  = Schritt/Gleiten, Gelb = Sprung (die Farben des Zugbilds im Hofstaat), Rot
+  mit Ring = Schlag, Farbe des Talentzeichens + ✦ = eine Fähigkeit öffnet das
+  Feld. **Der Stern heißt Talent und nichts sonst** — `special` am Zug taugt
+  dafür nicht (auch Kapitänsschritte, Drachenschritte, Rochade und En-passant
+  tragen es). Wer im Kern eine neue Gangart ohne `consumes` baut, trägt sie in
+  `talentVon()` ein, sonst erscheint sie blau oder gelb statt als Talent.
+  Der Kern bleibt dafür unberührt: ein neues Feld am Zug ginge durch Protokoll
+  und Spielstände.
 - `piece.tier` steuert Rangbilder (gambit-t2…t6, pawn-t2/t3) und wird von
   makePiece durchgereicht — bei neuen Figurenfeldern dort ergänzen.
 - Ausgemusterte Assets nach `archiv/ausgemustert/vX.Y.Z/`, Bild-Rohlinge
@@ -395,7 +404,7 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
   Auswahl-Lichtspektakel.
 - Alles Optionale abschaltbar (Klang, Online).
 
-## Offene Baustellen (Stand v1.90.23, 3.10.2026)
+## Offene Baustellen (Stand v1.90.24, 3.10.2026)
 
 **Einstieg für jede neue Sitzung: `design/CHAT-EINSTIEG-2026-09-27.md`** (zehn
 Minuten, mit dem Startsatz für den Chat), dann **`design/UEBERGABE-2026-09-27.md`** — Stand,
@@ -429,7 +438,12 @@ Hier nur der Überblick:
 - **Store:** interner Test läuft (2.10.), die zehn Änderungen an Eintrag und
   App-Inhalten sind seit 3.10. bei Google in Prüfung. **Offen: die
   Installation am Handy des Besitzers scheitert** („Bei uns ist ein Fehler
-  aufgetreten“, Ursache ungeklärt — das Bundle ist gültig). Danach S6, dann
+  aufgetreten“ — am Abend des 3.10. ging sie dann durch, Ursache ungeklärt).
+  **Google- und E-Mail-Anmeldung sind tot:** das Supabase-Projekt hinter
+  `VITE_SUPABASE_URL` löst im DNS nicht mehr auf (NXDOMAIN, gemessen 3.10. über
+  dns.google) — pausiert oder gelöscht; der Besitzer muss es im
+  Supabase-Dashboard wiederherstellen oder ein neues anlegen und die beiden
+  Pages-Variablen neu setzen (`SUPABASE-SETUP.md`). Danach S6, dann
   S7–S9; die Pflicht „12 Tester, 14 Tage“ gilt für dieses Konto (im Dashboard
   nachgelesen) — siehe `design/PLAYSTORE-BACKLOG.md`.
 

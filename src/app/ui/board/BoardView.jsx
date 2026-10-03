@@ -14,6 +14,8 @@ import { PieceGlyph, StatTriad } from "./PieceGlyph.jsx";
 import { BrettRahmen, lageAusBrett } from "./BrettRahmen.jsx";
 import { PieceArt } from "./PieceArt.jsx";
 import { boardFrame, livery } from "../livery.js";
+import { zugArt, rgbTripel, ZUG_TON } from "./zugart.js";   /* v1.90.24: Zielfelder nach Zugart */
+import { iconFarbe } from "../AbilityIcons.jsx";
 
 // THE MOVE MARKERS WEAR THE ARMY'S METAL: your own moves are struck in the
 // same gold as the buttons and the jewels, a foe's (read by a seer) in the
@@ -952,13 +954,24 @@ export function BoardView({ lang = "de", state, onMove, interactive, lastMove, m
               Riss-Violett, wenn man fremde Zuege liest (Seherin). Ein
               SCHLAG faerbt roeter und traegt zusaetzlich den Ring - der
               Unterschied zwischen "hier hin" und "den da" muss auf einen
-              Blick lesbar bleiben. */}
+              Blick lesbar bleiben.
+              ── v1.90.24 (Besitzer: "diese Faerbungen - ob ich springen oder
+              ziehen kann oder Fernangriff - auf das Spielfeld uebertragen"):
+              das eigene Ziel traegt nicht mehr ein Gold fuer alles, sondern
+              die Farbe seiner ZUGART (zugart.js): Blau fuer Schritt und
+              Gleiten, Gelb fuer den Sprung - wie das Zugbild im Hofstaat -,
+              und die Farbe des Talentzeichens, wenn das Feld aus einer
+              Faehigkeit kommt. Der Schlag bleibt rot mit Ring; fremde Zuege
+              bleiben violett. */}
           {tgt && (() => {
             const schlag = !!tgt.capture;
             const eigen = !(movingPiece && movingPiece.color !== pov);
-            const ton = schlag ? "244,90,90" : eigen ? "233,207,138" : "168,124,255";
+            const art = zugArt(tgt, W);
+            const talentTon = art.typ === "talent" ? rgbTripel(iconFarbe(art.talent)) : null;
+            const ton = schlag ? ZUG_TON.schlag : !eigen ? ZUG_TON.fremd
+              : art.typ === "talent" ? talentTon : art.typ === "sprung" ? ZUG_TON.sprung : ZUG_TON.zug;
             return <>
-              <div aria-hidden style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 1,
+              <div aria-hidden data-zielart={schlag ? "schlag" : !eigen ? "fremd" : art.typ} style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 1,
                 /* v1.0.76 (Besitzer: "noch zu schwach, man erkennt es fast
                    nicht"): Deckung glatt verdoppelt (.24 -> .52 in der Mitte)
                    und die Innenkontur auf 2,5 px bei voller Deckkraft. Auf
@@ -970,9 +983,15 @@ export function BoardView({ lang = "de", state, onMove, interactive, lastMove, m
               {schlag && <div aria-hidden style={{ position: "absolute", inset: "7%", borderRadius: "50%",
                 pointerEvents: "none", zIndex: 1, background: metal.ring,
                 boxShadow: `0 0 9px ${metal.glow}, 0 1px 4px rgba(0,0,0,.5)` }} />}
-              {tgt.special && <div aria-hidden style={{ position: "absolute", inset: 0, pointerEvents: "none",
-                zIndex: 1, display: "grid", placeItems: "center", fontSize: "0.42em", color: "#f6e4a2",
-                textShadow: "0 0 6px rgba(246,228,162,.9)" }}>✦</div>}
+              {/* v1.90.24: DER STERN HEISST TALENT - und nichts sonst. Er stand
+                  an jedem Ziel mit `special`; das tragen aber auch die vier
+                  Diagonalschritte des Kapitaens, jeder Schritt des grossen
+                  Drachen, die Rochade und das En-passant. Die Kampfleiste
+                  sagt "tippe ein ✦-Feld" - also nur dort, wo eine Faehigkeit
+                  das Feld oeffnet, und in ihrer Farbe. */}
+              {art.typ === "talent" && <div aria-hidden data-zielstern={art.talent} style={{ position: "absolute", inset: 0, pointerEvents: "none",
+                zIndex: 1, display: "grid", placeItems: "center", fontSize: "0.42em", color: schlag ? "#f6e4a2" : "#ffffff",
+                textShadow: `0 0 6px rgba(${talentTon},.95), 0 1px 2px rgba(0,0,0,.6)` }}>✦</div>}
             </>;
           })()}
           {/* v1.0.63: EIN FREIES FELD FUER EINE SPERRE. Kein Zielpunkt aus

@@ -12,6 +12,9 @@ import { SperrGlyph } from "./src/app/ui/board/SperrGlyph.jsx";
 import { stadium, setzFelder, setzeSperre } from "./src/core/rules/sperren.js";
 import { BoardView } from "./src/app/ui/board/BoardView.jsx";
 import { createGame } from "./src/core/index.js";
+import { pieceMoves as kernZuege } from "./src/core/rules/moves.js";   /* v1.90.24 */
+import { CHARACTERS as FIGUREN_Z } from "./src/content/characters.js";
+import { zugArt, rgbTripel, ZUG_TON } from "./src/app/ui/board/zugart.js";
 import { buildArmyFromFormation } from "./src/meta/index.js";
 const einfachesHeer = () => buildArmyFromFormation(() => 1, ["rook", "knight", "bishop", "queen", "king", "bishop", "knight", "rook"]);
 import { ABILITIES, BOSSES } from "./src/content/index.js";
@@ -180,6 +183,39 @@ const piece = (x = {}) => ({ id: 1, kind: "Q", color: "w", level: 1, abilities: 
   ok("v1.90.23: ihre Teller liegen 25-55 px hoch, der Handwert des Hetzers gilt dem NEUEN Bild (49, nicht mehr 75)",
     ["boss-b02", "boss-b01", "boss-b06"].every((id) => SB3[id].teller >= 25 && SB3[id].teller <= 55 && SB3[id].boden === 555 && SB3[id].oben === 21)
     && SB3["boss-b02"].teller === 49 && SB3["boss-b02"].tellerVonHand === true);
+  /* ── v1.90.24: DIE ZIELFELDER SAGEN, WIE DIE FIGUR HINKOMMT ───────────────
+     Besitzer 3.10.: "manchmal sieht man so einen kleinen Stern ... was
+     bedeutet das? ... diese Faerbungen, ob ich springen oder ziehen kann oder
+     Fernangriff, auf das Spielfeld uebertragen". Geprueft wird an ECHTEN
+     Zuegen aus dem Kern (pieceMoves), nicht an nachgebauten Objekten: die
+     Figur steht in der Mitte eines 9x9-Bretts, ein Gegner zwei Felder vor ihr. */
+  {
+    const Wz = 9, MITz = 4 * Wz + 4; let lfdZ = 0;
+    const fig = (kind, color, abilities = [], extra = {}) => ({ id: "z" + (++lfdZ), kind, color, level: 20, abilities, used: {}, hp: 9, maxHp: 9, atk: 3, shield: 0, ...extra });
+    const lage = (figur) => { const b = Array(Wz * Wz).fill(null); b[MITz] = figur; b[0] = fig("K", "w"); b[Wz * Wz - 1] = fig("K", "b"); b[6 * Wz + 4] = fig("P", "b");
+      return { board: b, w: Wz, h: Wz, holes: new Set(), rules: "hp", turn: "w", captured: { w: [], b: [] }, history: [], lastMove: null, moveCount: 0, log: [], seed: 1 }; };
+    const arten = (figur) => { const z = {}; for (const mv of kernZuege(lage(figur), MITz)) { const a = zugArt(mv, Wz); const k = a.typ + (a.talent ? ":" + a.talent : ""); z[k] = (z[k] || 0) + 1; } return z; };
+    const kapSpec = FIGUREN_Z.captain.moveSpec;
+    const kap1 = arten(fig("V", "w", [], { moveSpec: kapSpec }));
+    ok(`v1.90.24: der Kapitaen ohne Talent hat NUR gewoehnliche Zuege - seine vier Diagonalschritte trugen bisher den Talentstern (${JSON.stringify(kap1)})`,
+      kap1.zug === 15 && Object.keys(kap1).length === 1);
+    const kap3 = arten(fig("V", "w", ["ranged_shot"], { moveSpec: kapSpec }));
+    ok("v1.90.24: sein Scharfschuss ist ein Talentziel (Stern, Farbe des Zeichens)", kap3["talent:ranged_shot"] === 1 && kap3.zug === 15);
+    const sp1 = arten(fig("H", "w")), sp3 = arten(fig("H", "w", ["teleport"]));
+    ok(`v1.90.24: der Spaeher springt achtmal (gelb) und schleicht viermal schraeg (blau) (${JSON.stringify(sp1)})`, sp1.sprung === 8 && sp1.zug === 4 && Object.keys(sp1).length === 2);
+    ok("v1.90.24: sein Blinzeln oeffnet 23 Talentfelder - das sind die 'mehr Zuege', sobald die Karte scharf ist", sp3["talent:teleport"] === 23 && sp3.sprung === 8 && sp3.zug === 4);
+    const spr = arten(fig("N", "w", ["knight_longleap", "knight_outrider"]));
+    ok("v1.90.24: dauerhafte Gangarten nennen ihr Talent auch ohne `consumes` (Weitsprung 8, Vorreiter 4, Springer-L 8)",
+      spr.sprung === 8 && spr["talent:knight_longleap"] === 8 && spr["talent:knight_outrider"] === 4);
+    const turm = arten(fig("R", "w", ["rook_diag_step"])), att = arten(fig("S", "w", [], { moveSpec: FIGUREN_Z.assassin.moveSpec }));
+    ok("v1.90.24: der Schraegschritt des Turms ist Talent, sein Gleiten blau", turm["talent:rook_diag_step"] === 4 && turm.zug === 14);
+    ok("v1.90.24: Attentaeter - ein Feld schraeg ist ein Schritt, zwei Felder schraeg ein Sprung (wie im Zugbild)", att.zug === 4 && att.sprung === 4);
+    const bv = readFileSync("src/app/ui/board/BoardView.jsx", "utf8"), hof = readFileSync("src/app/ui/screens/ArmyScreen.jsx", "utf8");
+    ok("v1.90.24: der Stern haengt an der Zugart 'talent', nicht mehr an `special`", !/\{tgt\.special &&/.test(bv) && /art\.typ === "talent" && <div aria-hidden data-zielstern/.test(bv));
+    ok("v1.90.24: Blau und Gelb am Brett sind die Farben des Zugbilds im Hofstaat",
+      hof.includes(`rgba(${ZUG_TON.zug},`) && hof.includes(`rgba(${ZUG_TON.sprung},`) && ZUG_TON.schlag === "244,90,90");
+    ok("v1.90.24: rgbTripel liest die Farbe eines Talentzeichens", rgbTripel("#3ee089") === "62,224,137" && rgbTripel("rgba(1, 2, 3, .5)") === "1,2,3" && rgbTripel(null) === "167,139,250");
+  }
 }
 function SBkrone() { return JSON.parse(readFileSync("src/app/ui/board/sockelband.json", "utf8"))["boss-b25"]; }
 

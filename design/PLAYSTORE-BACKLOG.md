@@ -197,7 +197,13 @@
   der Release veröffentlicht ist — die Console warnt nur klein („noch keine
   Tester festgelegt").
 
-  **OFFEN SEIT 3.10.2026: DIE INSTALLATION SCHEITERT AM HANDY DES BESITZERS.**
+  **3.10.2026, 20:27: die Installation ist durchgegangen** (Besitzer: „ich
+  konnte die App jetzt installieren") — ohne dass am Bundle etwas geändert
+  wurde; kurz davor waren die zehn Änderungen zur Prüfung eingereicht worden
+  (siehe unten). Ob das der Grund war, ist nicht gemessen. Der Befund vom
+  Vormittag bleibt zum Nachlesen stehen:
+
+  **Am 3.10.2026 vormittags scheiterte die Installation am Handy des Besitzers.**
   Der Play Store zeigt die App („com.gambitrise.app (unreviewed)"), nach
   „Installieren" kommt „Fehler – Bei uns ist ein Fehler aufgetreten. Bitte
   versuche es noch einmal." Gemessen: das Bundle ist gültig (`bundletool
