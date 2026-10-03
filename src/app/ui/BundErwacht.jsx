@@ -15,6 +15,7 @@
    ══════════════════════════════════════════════════════════════════════════ */
 
 import React from "react";
+import { BandBild } from "./BandBild.jsx";   /* v1.90.26 */
 import { T } from "./theme.js";
 import { BUENDE } from "../../content/buende.js";
 import { CHARACTERS } from "../../content/index.js";
@@ -111,7 +112,7 @@ export function BundErwacht({ bundId, en, onClose }) {
             const bild = paintedForPiece({ kind: ch.kind, color: "w", hero: id === "gambit", level: 10 }, false);
             const h = Math.round((b.figuren.length > 2 ? 78 : 92) * 1.2);   /* v1.22.1 (Besitzer): "gerne noch ein bisschen groesser" */
             return <div key={id} style={{ textAlign: "center" }}>
-              {bild && <img src={bild} alt="" draggable={false}
+              {bild && <BandBild kennung={"bund-" + id} src={bild}
                 style={{ height: h, display: "block", filter: "drop-shadow(0 6px 14px rgba(0,0,0,.6))" }} />}
               <div className="gg-quill" style={{ fontSize: 10, color: "rgba(230,222,208,.82)", marginTop: 2 }}>
                 {en ? (ch.nameEn || ch.nameDe) : ch.nameDe}

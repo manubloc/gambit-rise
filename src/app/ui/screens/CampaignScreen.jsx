@@ -1,5 +1,6 @@
 // Campaign — a HORIZONTAL illustrated journey, now a full-screen WINDOW onto
 import { familyOf } from "../../../core/index.js";
+import { BandBild } from "../BandBild.jsx";   /* v1.90.26 */
 import karteGambit from "../assets/karte-gambit.webp";   /* v1.0.52: Sockel auf die Marke gestaucht */
 /* v1.0.86 (Besitzer, zum vierten Mal: "auf der Map immer nur das erste
    Bild"): DIE KARTE KANNTE DEN RANG, NUTZTE IHN ABER NICHT. Der Wanderer
@@ -690,7 +691,7 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
                       width: size * 0.62, height: size * 0.16, borderRadius: "50%",
                       background: "radial-gradient(ellipse at center, rgba(46,42,32,.32), transparent 72%)" }} />}
                     {painting
-                      ? <img src={painting} alt="" draggable={false} style={{ width: "100%", height: "100%",
+                      ? <BandBild kennung={"karte-" + n.id} src={painting} style={{ width: "100%", height: "100%",
                           objectFit: "contain", objectPosition: "bottom",
                           filter: (n.boss.piece ? unlockedSet.has(n.boss.piece) : beaten) ? undefined : ENEMY_FILTER,
                           userSelect: "none", pointerEvents: "none" }} />
@@ -1201,7 +1202,7 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
             return <div style={{ display: "flex", gap: 10, alignItems: "center", marginTop: 9,
               padding: "8px 10px", borderRadius: 10, background: "rgba(255,255,255,.05)",
               border: `1px solid ${PP.line}` }}>
-              {bild && <img src={bild} alt="" draggable={false} style={{ width: S, height: S,
+              {bild && <BandBild kennung="station" src={bild} style={{ width: S, height: S,
                 objectFit: "contain", objectPosition: "bottom", flex: "0 0 auto" }} />}
               <div style={{ minWidth: 0 }}>
                 <div className="gg-quill" style={{ fontSize: 15, color: PP.ink, lineHeight: 1.1 }}>
@@ -1332,7 +1333,7 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
                   // erst wenn er zu dir kommt, verliert er sie - golden).
                   const painting = paintedForPiece({ kind: boss.kind, art: boss.art, bossId: boss.bossId });
                   return painting
-                    ? <img src={painting} alt="" draggable={false} style={{ width: "100%", height: "100%",
+                    ? <BandBild kennung="boss" src={painting} style={{ width: "100%", height: "100%",
                         // v0.71.14 (Besitzer): NICHT die Box verbreitern - das BILD
                         // beschneiden: die Malerei traegt viel Luft, also 1,42-fach
                         // hineinzoomen und ueberstehendes kappen. Figur gross,

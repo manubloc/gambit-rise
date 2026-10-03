@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { BandBild } from "../BandBild.jsx";   /* v1.90.26 */
 import { mitHeld } from "../namen.js";   /* v1.0.13: {held} in Erzaehltexten */
 import { klang, klangVorwaermen, klangEinstellen } from "../klang.js";
 import { musikBereich } from "../musik.js";
@@ -1499,7 +1500,7 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
                 background: "linear-gradient(178deg, #141a28, #0d1119)", border: "1px solid rgba(233,210,150,.45)",
                 boxShadow: "0 18px 50px rgba(0,0,0,.6)", textAlign: "center" }}>
                 <div className="gg-serif" style={{ fontSize: 11.5, letterSpacing: ".16em", color: T.gold }}>{t("meet.title")}</div>
-                {src && <img src={src} alt="" style={{ height: 110, margin: "10px auto 6px", display: "block", objectFit: "contain",
+                {src && <BandBild kennung="begegnung" src={src} style={{ height: 110, margin: "10px auto 6px", display: "block", objectFit: "contain",
                   filter: ENEMY_FILTER + " brightness(1.25) drop-shadow(0 4px 8px rgba(0,0,0,.6))" }} />}
                 <div className="gg-serif" style={{ fontSize: 19, color: T.goldBright, letterSpacing: ".05em" }}>{nm}</div>
                 <div className="gg-serif" style={{ fontSize: 12.5, fontStyle: "italic", color: T.dim, lineHeight: 1.55, margin: "7px 0 4px" }}>{tale}</div>
@@ -2103,7 +2104,7 @@ function ResultBanner({ banner, t, onNew, campaign = false, onExit = null, onSet
           return <div style={{ margin: "2px 0 12px", padding: "12px 12px 11px", borderRadius: 12,
             border: "1px solid #8a6d3577", background: "linear-gradient(170deg, rgba(46,37,16,.5), rgba(22,20,14,.4))" }}>
             {/* redeemed: the portrait sheds the enemy blue and turns gold */}
-            {pt && <img src={pt} alt="" draggable={false} style={{ width: 84, height: 84, objectFit: "contain",
+            {pt && <BandBild kennung="gewonnen" src={pt} style={{ width: 84, height: 84, objectFit: "contain",
               filter: "drop-shadow(0 3px 6px rgba(0,0,0,.5))", animation: "ggRedeem 1.5s ease .35s both", userSelect: "none" }} />}
             <div className="gg-serif" style={{ fontSize: 19, letterSpacing: ".05em", color: T.gold, marginTop: 2 }}>
               {en ? ch.nameEn : ch.nameDe}</div>

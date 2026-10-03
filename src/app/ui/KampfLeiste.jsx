@@ -14,6 +14,8 @@ import { legalMovesFrom } from "../../core/index.js";
 import { ABILITIES, CHARACTERS, faehigkeitZustand } from "../../content/index.js";
 import { PASSIVE_TALENTE } from "../../core/index.js";   /* v1.38.0, v1.86.0 ueber das Barrel */
 import { paintedForPiece } from "./board/paintedArt.js";
+import { BandBild } from "./BandBild.jsx";   /* v1.90.26 */
+import { rohrAnteile } from "./board/PieceGlyph.jsx";
 import { LockIc } from "./icons.jsx";   /* v1.89.0: das hauseigene Schloss statt des Emojis */
 import { AbilityIcon } from "./AbilityIcons.jsx";   /* v1.89.0: dasselbe Zeichen wie im Hofstaat */
 
@@ -186,8 +188,11 @@ export function KampfLeiste({ state, inspect, en, myColor = "w", banner = false,
               color: eigen ? T.goldBright : "#cbbcf5", opacity: 0.92, whiteSpace: "nowrap",
               maxWidth: 140, overflow: "hidden", textOverflow: "ellipsis", textAlign: "center" }}>
               {nm}{(pc.level || 1) > 1 ? ` · Lv ${pc.level}` : ""}</span>
-            <img src={bild} alt="" draggable={false} style={{ height: 108,
-              filter: "drop-shadow(0 3px 8px rgba(0,0,0,.6))" }} />
+            {/* v1.90.26: die gewaehlte Figur traegt hier DASSELBE Band wie auf dem
+                Brett - im Gefecht mit ihren Werten, im Schach schwarz. */}
+            <BandBild kennung="leiste" src={bild} style={{ height: 108,
+              filter: "drop-shadow(0 3px 8px rgba(0,0,0,.6))" }}
+              {...(state?.rules === "hp" && pc.maxHp > 0 ? rohrAnteile(pc) : null)} />
             {/* v0.71.12 (Besitzer): die Kugeln stehen wie auf dem Brett DIREKT
                 UNTER der Figur - und im Massstab der grossen Figur. */}
             {(pc.maxHp > 0 || pc.atk != null || pc.shield > 0) && (

@@ -105,6 +105,8 @@ function segment(m, h, tA, tB, fuss = 0) {
    "Beim Flaggentraeger fehlt noch das Band"). Ohne Band bleiben nur die
    beiden, die wirklich keine Figuren sind. */
 const OHNE_BAND = new Set(["schatzkammer", "haendler"]);
+/* v1.90.26: traegt dieses Gemaelde ueberhaupt ein Band? (vermessen UND eine Figur) */
+export const hatBand = (paintedId) => !!(paintedId && MASS[paintedId] && !OHNE_BAND.has(paintedId));
 
 /* ── v1.90.25 (Besitzer 3.10.): ES GIBT NUR NOCH DAS SCHWARZE BAND ─────────
    "Mach einfach ueberall diesen schwarzen Sockel. Wir killen den grauen

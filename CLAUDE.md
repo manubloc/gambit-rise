@@ -41,8 +41,8 @@ gambitrise.com zeigt darauf).
   pruefe-navigation, pruefe-textfluss, test_layout) lesen den Chromium-Pfad aus
   `PW_CHROMIUM`; ohne die Variable gilt der Pfad des Cloud-Containers. Lokal:
   `npx playwright install chromium` und `PW_CHROMIUM=<Pfad zur chrome-Datei>`.
-- `npm test` — volle Batterie. MUSS **31 Suiten / 2681 Prüfungen** melden
-  (Stand v1.90.25; der Runner stoppt nach der ersten roten Suite, also
+- `npm test` — volle Batterie. MUSS **31 Suiten / 2689 Prüfungen** melden
+  (Stand v1.90.26; der Runner stoppt nach der ersten roten Suite, also
   Suitenzahl prüfen, nicht nur Assertions! **Zählweise seit v1.90.18
   (Audit A74): JEDE Suite der Kette meldet eine RESULT-Zeile** — alle Zeilen
   `RESULT…: N passed` summieren; test_balance meldet zwei, darum stehen im
@@ -235,7 +235,11 @@ starten, sonst reißen Werkzeug-Zeitlimits den Lauf ab.
    `node tools/pruefe-duell.mjs` (RESULT ohne failed); bei Arbeit an Karte,
    Kampagne oder Navigation zusätzlich `node tools/pruefe-navigation.mjs`
 5. REINRAUM: `git clone . /tmp/rr && cp -r node_modules /tmp/rr/` und dort
-   Schritte 1–4 wiederholen
+   Schritte 1–4 wiederholen. **Währenddessen nichts Schweres nebenher laufen
+   lassen** (gemessen 3.10.: ein `vite build` und eine Playwright-Rundfahrt
+   parallel zur Animationsprobe ließen vier R5-Prüfungen „Übergabe ohne Ruck“
+   rot werden — 7 bis 22 px Sprung, weil dem Browser Bilder fehlten; allein
+   wiederholt 132/0). Rote R5 unter Last: erst allein wiederholen, dann urteilen
 6. `git fetch` + Punktprüfung: liegt auf origin ein fremder Commit, Inhalt
    verifizieren (`git diff --stat HEAD FETCH_HEAD`). Es können PARALLELE
    Sessions arbeiten. NIEMALS force-pushen.
@@ -402,10 +406,15 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
 - **ES GIBT NUR NOCH DAS SCHWARZE BAND** (v1.90.25, Besitzer 3.10.: „wir killen
   den grauen Sockel … überall das Band, in schwarz, ohne Lebensbalken“).
   `SockelBand` hat keine helle Fassung mehr (`hell` ist gestrichen): ohne Werte
-  schwarz, mit Werten rot – schwarz – blau. **Noch offen:** rund ein Dutzend
-  Stellen im Spiel zeigen ein Figurenbild ohne Band auf dem gemalten Teller
-  (Aufstellungsreihe, große Ansicht, Stationsfenster/Karte der Kampagne,
-  Kampfleiste, Krönungswahl, Erstbegegnung, Bundtafel, Monsterliste).
+  schwarz, mit Werten rot – schwarz – blau. **Seit v1.90.26 trägt es auch jedes
+  Bildnis außerhalb von Brett, Kachel und Blatt** (Aufstellungsreihe, große
+  Ansicht, Feiern, Chronik, Kampagnenfenster, Kampfleiste, Krönungswahl,
+  Erstbegegnung, Bundfenster) über **`BandBild`** (`src/app/ui/BandBild.jsx`):
+  es nimmt dasselbe style-Objekt wie das `<img>`, das es ersetzt. **Wer ein
+  Figurenbild neu irgendwo zeichnet, nimmt `BandBild`, nie ein rohes `<img>`**
+  — sonst steht die Figur wieder auf ihrem gemalten grauen Teller. Bewusst ohne
+  Band: Gegnerbildnis über dem Brett (Sockel verdeckt), 22-px-Köpfe der
+  Bundtafel, Händler und Schatzkammer (`hatBand`), die Gambit-Marke der Karte.
 - **Zugbild (MoveDiagram):** die leeren Felder sind seit v1.90.25 sichtbar
   (13 % / 6 % Weiß) — vorher sah der Besitzer im Springer-L acht Punkte im
   Kreis und hielt es für falsch. Die Aufstellungskarte legt gelernte
@@ -459,7 +468,7 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
   Auswahl-Lichtspektakel.
 - Alles Optionale abschaltbar (Klang, Online).
 
-## Offene Baustellen (Stand v1.90.25, 3.10.2026)
+## Offene Baustellen (Stand v1.90.26, 3.10.2026)
 
 **Einstieg für jede neue Sitzung: `design/CHAT-EINSTIEG-2026-09-27.md`** (zehn
 Minuten, mit dem Startsatz für den Chat), dann **`design/UEBERGABE-2026-09-27.md`** — Stand,

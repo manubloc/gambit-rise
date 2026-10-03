@@ -298,6 +298,39 @@ const piece = (x = {}) => ({ id: 1, kind: "Q", color: "w", level: 1, abilities: 
     }
   }
 }
+
+/* ── v1.90.26: DAS BAND AUCH AN DEN BILDNISSEN AUSSERHALB VON BRETT, KACHEL
+   UND BLATT (Besitzer 3.10.: "ueberall das Band ... das ziehst du ueberall
+   durch"). BandBild ersetzt das rohe <img> mit demselben style-Objekt. */
+{
+  const { BandBild } = await import("./src/app/ui/BandBild.jsx");
+  const { PAINTED: GEM } = await import("./src/app/ui/board/paintedArt.js");
+  const hoch = html(<BandBild kennung="t" src={GEM.knight} style={{ height: 108, filter: "drop-shadow(0 3px 8px rgba(0,0,0,.6))" }} />);
+  ok("v1.90.26: BandBild legt das schwarze Band ueber das Gemaelde (ohne Werte: kein Rot, kein Blau, Graufilter an der Fassung)",
+    hoch.includes('data-bandbild="knight"') && hoch.includes('data-gg="sockelband"') && hoch.includes("#15151b")
+    && !/fill="url\(#bb-t-knight-rot\)"/.test(hoch) && !/fill="url\(#bb-t-knight-blau\)"/.test(hoch) && hoch.includes('filter="url(#bb-t-knight-grau)"'));
+  ok("v1.90.26: fehlt dem Bild eine Kante, kommt sie aus dem Seitenverhaeltnis des Gemaeldes (576 : 576)",
+    /height:108px/.test(hoch) && /aspect-ratio:576 \/ 576/.test(hoch) && hoch.includes("drop-shadow(0 3px 8px rgba(0,0,0,.6))"));
+  const unten = html(<BandBild kennung="u" src={GEM.queen} style={{ width: 58, height: 58, objectFit: "contain", objectPosition: "bottom" }} />);
+  ok("v1.90.26: steht das Bild unten im Kasten, steht das Band unten (xMidYMax), sonst mittig",
+    unten.includes('preserveAspectRatio="xMidYMax meet"') && hoch.includes('preserveAspectRatio="xMidYMid meet"') && !/aspect-ratio/.test(unten));
+  const mitWerten = html(<BandBild kennung="w" src={GEM.knight} style={{ height: 108 }} leben={0.5} kraft={0.25} />);
+  ok("v1.90.26: mit Werten (Kampfleiste im Gefecht) zeigt es Rot und Blau wie am Brett",
+    /fill="url\(#bb-w-knight-rot\)"/.test(mitWerten) && /fill="url\(#bb-w-knight-blau\)"/.test(mitWerten) && !mitWerten.includes('filter="url(#bb-w-knight-grau)"'));
+  const ohneMass = html(<BandBild kennung="h" src={GEM.haendler} style={{ height: 80 }} />);
+  ok("v1.90.26: wer kein Band hat (Haendler), bleibt ein schlichtes Bild", !ohneMass.includes("data-bandbild") && /^<img /.test(ohneMass));
+  const zaehl = (datei) => (readFileSync(datei, "utf8").match(/<BandBild /g) || []).length;
+  const stellen = { "src/app/ui/screens/ArmyScreen.jsx": 8, "src/app/ui/screens/CampaignScreen.jsx": 3, "src/app/ui/screens/GameScreen.jsx": 2,
+    "src/app/ui/KampfLeiste.jsx": 1, "src/app/ui/KroenungsWahl.jsx": 1, "src/app/ui/BundErwacht.jsx": 1 };
+  ok(`v1.90.26: sechzehn Stellen tragen das Band (${Object.entries(stellen).map(([d, n]) => d.split("/").pop().replace(".jsx", "") + " " + zaehl(d)).join(", ")}) - dazu die grosse Ansicht`,
+    Object.entries(stellen).every(([d, n]) => zaehl(d) === n)
+    && /bandBekannt\(paintedIdOf\(src\)\) && <SockelBand paintedId=\{paintedIdOf\(src\)\}[^>]*id="gross"/.test(readFileSync("src/app/ui/screens/ArmyScreen.jsx", "utf8")));
+  const { CharLightbox: Gross } = await import("./src/app/ui/screens/ArmyScreen.jsx");
+  const grossHtml = html(<Gross char={{ id: "knight", nameDe: "Springer", nameEn: "Knight" }} en={false} onClose={() => {}} />);
+  ok("v1.90.26: die grosse Ansicht einer Figur traegt das schwarze Band", grossHtml.includes('data-gg="sockelband"') && grossHtml.includes('id="gross-grau"'));
+  ok("v1.90.26: die Kampfleiste reicht im Gefecht die Anteile der Figur durch (rohrAnteile), im Schach nichts",
+    readFileSync("src/app/ui/KampfLeiste.jsx", "utf8").includes('{...(state?.rules === "hp" && pc.maxHp > 0 ? rohrAnteile(pc) : null)} />'));
+}
 function SBkrone() { return JSON.parse(readFileSync("src/app/ui/board/sockelband.json", "utf8"))["boss-b25"]; }
 
 /* ── DIE PERLENFASSUNG (bis v1.2.x) ───────────────────────────────────────

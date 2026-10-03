@@ -1,4 +1,5 @@
 import { JewelIc } from "../board/PieceGlyph.jsx";
+import { BandBild } from "../BandBild.jsx";   /* v1.90.26: das Band auch an den Bildnissen ausserhalb von Kachel und Blatt */
 import { FigurenIc, AufstellungIc } from "../RaumIcons.jsx";
 import { AbilityIcon, abilityTint } from "../AbilityIcons.jsx";
 import { useState, useEffect, useMemo, useRef } from "react";
@@ -823,7 +824,7 @@ export function ChroniclePanel({ profile, t, en, account = null }) {
           <span style={{ display: "flex", alignItems: "flex-end", gap: 6, flex: "0 0 auto" }}>
             <span style={{ width: 52, height: 64, display: "grid", placeItems: "center" }}>
               {bild
-                ? <img src={bild} alt="" style={{ width: 52, height: 64, objectFit: "contain", objectPosition: "bottom",
+                ? <BandBild kennung={"chr-" + ch.id} src={bild} style={{ width: 52, height: 64, objectFit: "contain", objectPosition: "bottom",
                     filter: "drop-shadow(0 3px 6px rgba(0,0,0,.6))" }} />
                 : <PieceArt kind={ch.kind} size={40} level={1} />}
             </span>
@@ -887,7 +888,7 @@ export function ChroniclePanel({ profile, t, en, account = null }) {
         <button onClick={() => setOpenId(open ? null : "X:" + b.id)} style={kopf(open)}>
           <span style={{ width: 52, height: 64, flex: "0 0 auto", display: "grid", placeItems: "center" }}>
             {(paintedById("boss-" + b.id))
-              ? <img src={paintedById("boss-" + b.id)} alt="" style={{ width: 52, height: 64, objectFit: "contain", objectPosition: "bottom",
+              ? <BandBild kennung={"chrm-" + b.id} src={paintedById("boss-" + b.id)} style={{ width: 52, height: 64, objectFit: "contain", objectPosition: "bottom",
                   filter: "drop-shadow(0 3px 6px rgba(0,0,0,.6))" }} />
               : <span style={{ fontSize: 24 }}>👁</span>}
           </span>
@@ -1554,7 +1555,7 @@ function FormationEditor({ profile, dispatch, t, en }) {
             {eaten
               ? <span style={{ fontSize: "clamp(10px, 3.6vw, 16px)", opacity: 0.5, color: "#b9a6e6" }}>🜁</span>
               : (isHero ? gImg : pawnImg)
-              ? <img src={isHero ? gImg : pawnImg} alt="" draggable={false}
+              ? <BandBild kennung={"aufp-" + f} src={isHero ? gImg : pawnImg}
                   /* v1.0.10: DECKEL DER HUELLE - die 8vw massen sich am
                      Schirm, nicht an der Zelle; auf breiten Karten ragte die
                      Figur ueber den Kachelrand. max 100% beisst nur im Notfall. */
@@ -1632,7 +1633,7 @@ function FormationEditor({ profile, dispatch, t, en }) {
               : isBossEntry(id)
               ? (schlicht
                 ? <SlotGlyph kind="X" bossId={bossEntryId(id)} size={"clamp(26px, 10vw, 84px)"} />
-                : <img src={paintedById("boss-" + bossEntryId(id)) || undefined} alt="" draggable={false}
+                : <BandBild kennung={"auf-" + i} src={paintedById("boss-" + bossEntryId(id)) || undefined}
                     style={{ height: "clamp(28px, 11vw, 90px)", maxWidth: "100%", maxHeight: "100%",
                       objectFit: "contain", objectPosition: "center", pointerEvents: "none" }} />)
               /* v1.0.87 (Besitzer: "die Figuren der unteren Reihe alle mittig"),
@@ -1649,7 +1650,7 @@ function FormationEditor({ profile, dispatch, t, en }) {
                        von 576 (+6,9 %), alle anderen unter 1 %. Ausgleich ueber
                        den Teller, wie Brett, Figurenblatt und Hofstaat-Kachel. */
                     const tx = bild ? tellerMitteProzent(paintedIdOf(bild)) : 0;
-                    return <img src={bild || undefined} alt="" draggable={false}
+                    return <BandBild kennung={"auf-" + i} src={bild || undefined}
                     style={{ height: "clamp(26px, 10.5vw, 86px)", maxWidth: "100%", maxHeight: "100%",
                       objectFit: "contain", objectPosition: "center", pointerEvents: "none",
                       transform: tx ? `translateX(${tx.toFixed(2)}%)` : undefined }} />; })()}
@@ -1668,7 +1669,7 @@ function FormationEditor({ profile, dispatch, t, en }) {
           style={{ position: "absolute", top: 0, left: `${leftPct}%`, width: `${(2 / map.w) * 100}%`,
             height: "100%", display: "grid", placeItems: "center", cursor: "pointer", zIndex: 4, pointerEvents: "auto" }}>
           {dImg
-            ? <img src={dImg} alt="" draggable={false} style={{ width: "94%", height: "94%", objectFit: "contain",
+            ? <BandBild kennung="auf-drache" src={dImg} style={{ width: "94%", height: "94%", objectFit: "contain",
                 objectPosition: "center", filter: "drop-shadow(0 2px 6px rgba(0,0,0,.55))", pointerEvents: "none" }} />
             : <SlotGlyph kind="D" size="clamp(60px, 22vw, 180px)" art={"painted"} />}
           <span style={{ position: "absolute", bottom: 3, right: 4, fontSize: 10, fontWeight: 800,
@@ -2243,6 +2244,9 @@ export function CharLightbox({ char, en, onClose, titel = null, aktionen = null 
             ...(titel ? { animation: "ggFeierBild .9s cubic-bezier(.2,1.3,.4,1) .15s both" } : null) }}>
           <img src={src} alt="" style={{ height: "min(56vh, 520px)", maxWidth: "90vw", objectFit: "contain",
             filter: "drop-shadow(0 22px 44px rgba(0,0,0,.75))" }} />
+          {/* v1.90.26: auch die grosse Ansicht traegt das schwarze Band - der
+              Kasten ist das Bild selbst (inline-block), das Band liegt darueber */}
+          {bandBekannt(paintedIdOf(src)) && <SockelBand paintedId={paintedIdOf(src)} leben={0} kraft={0} grau ausrichtung="mitte" id="gross" />}
           <KronenGlut painting={src} />
         </span>}
       </div>
@@ -3169,7 +3173,7 @@ export function AufstiegsFeier({ art, gambitTier = 1, bild = null, chName = "", 
               Abstand, der nicht mehr unterschritten werden kann. */}
           <div style={{ position: "relative", height: 150, overflow: "hidden",
             display: "grid", placeItems: "end center", margin: "8px 0 14px" }}>
-            {bild && <img src={bild} alt="" draggable={false} style={{ height: "100%", width: "auto",
+            {bild && <BandBild kennung="feier" src={bild} style={{ height: "100%", width: "auto",
               maxWidth: "72%", objectFit: "contain", objectPosition: "bottom", transformOrigin: "50% 100%",
               filter: `drop-shadow(0 4px 10px rgba(0,0,0,.6)) drop-shadow(0 0 16px rgba(${ton},.5))`,
               ...(an ? { animation: "ggFeierBild .8s cubic-bezier(.2,1.3,.4,1) .1s both" } : null) }} />}
@@ -3188,7 +3192,7 @@ export function AufstiegsFeier({ art, gambitTier = 1, bild = null, chName = "", 
             <div style={{ position: "relative", height: 150, overflow: "hidden", borderRadius: 12, isolation: "isolate",
               display: "grid", placeItems: "end center", border: `1px solid rgba(${ton},.3)`, background: "rgba(10,7,19,.6)" }}>
               <KulisseHinterGrund name={kulisseFuer({ charId })} deckung={0.8} radius={12} />
-              {bild && <img src={bild} alt="" draggable={false} style={{ height: "96%", width: "auto", maxWidth: "88%",
+              {bild && <BandBild kennung="feier-talent" src={bild} style={{ height: "96%", width: "auto", maxWidth: "88%",
                 objectFit: "contain", objectPosition: "bottom", transformOrigin: "50% 100%",
                 filter: "drop-shadow(0 4px 10px rgba(0,0,0,.6))",
                 ...(an ? { animation: "ggFeierBild .8s cubic-bezier(.2,1.3,.4,1) .1s both" } : null) }} />}

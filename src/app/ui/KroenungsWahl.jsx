@@ -25,6 +25,7 @@
    betritt - offen ist nur die Art. Ein "Zurueck" muesste den Zug zuruecknehmen,
    und das ist der Zeitenwender, nicht diese Karte.                          */
 import { KROENUNG_ARTEN, werteBeiStufe, HELD_PUNKTE } from "../../core/index.js";
+import { BandBild } from "./BandBild.jsx";   /* v1.90.26 */
 import { CHARACTERS, KIND_TO_CHAR } from "../../content/index.js";
 import { paintedForPiece } from "./board/paintedArt.js";
 import { T } from "./theme.js";
@@ -78,7 +79,7 @@ export function KroenungsWahl({ bauer, en = false, hpMode = false, onWahl }) {
                 fontFamily: "inherit", padding: "6px 4px 7px", borderRadius: 11,
                 border: `1px solid ${k === KROENUNG_ARTEN[0] ? "rgba(233,210,150,.62)" : T.selLine + "55"}`,
                 background: "rgba(8,11,20,.55)", color: "#e8e4d8", textAlign: "center" }}>
-              {bild && <img src={bild} alt="" draggable={false} style={{ width: 58, height: 58, objectFit: "contain", objectPosition: "bottom" }} />}
+              {bild && <BandBild kennung={"kr-" + k} src={bild} style={{ width: 58, height: 58, objectFit: "contain", objectPosition: "bottom" }} />}
               <div className="gg-quill" style={{ fontSize: 11.5, lineHeight: 1.1, marginTop: 3 }}>{nameFuer(k)}</div>
               {w && <div style={{ display: "flex", gap: 6, justifyContent: "center", marginTop: 3 }}>
                 <span style={{ font: "800 12px/1 Georgia, serif", color: "#b6cdff" }}>{w.atk}</span>

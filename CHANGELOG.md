@@ -1,5 +1,44 @@
 # Changelog - Gambit Rise
 
+## 1.90.26 - Das schwarze Band auch an den Bildnissen ausserhalb von Brett, Kachel und Blatt
+
+**"UND DAS ZIEHST DU UEBERALL DURCH"** (Besitzer 3.10.). v1.90.25 hat die helle
+Fassung des Bandes gestrichen und die Startseite umgestellt - IM SPIEL aber
+standen Figuren an sechzehn weiteren Stellen noch roh auf ihrem gemalten grauen
+Teller, weil dort ein schlichtes <img> das Gemaelde zeichnet. Jetzt tragen sie
+das Band:
+- Aufstellung: die acht Plaetze der Grundreihe (Figuren und eigene Monster), die
+  Bauernreihe mit dem Gambit, der Drache ueber seinen vier Feldern
+- die grosse Ansicht einer Figur (CharLightbox), die Aufstiegsfeier und das
+  Talentfenster
+- Chronik: Figuren- und Monsterliste
+- Kampagne: der Boss auf der Karte, im Stationsfenster und im Bossfenster
+- Gefecht: die Kampfleiste (die gewaehlte Figur - im Gefecht mit IHREN Werten,
+  dieselben Anteile wie am Brett; im Schach schwarz), die Kroenungswahl, die
+  Erstbegegnung, die gewonnene Figur nach dem Sieg
+- das Bundfenster
+
+WIE: ein Bauteil, `BandBild` (src/app/ui/BandBild.jsx). Es nimmt dasselbe
+style-Objekt wie das <img>, das es ersetzt: was den Kasten betrifft (Masse,
+Raender, Filter, Bewegung), traegt die Huelle; das Bild fuellt sie, das Band
+liegt deckungsgleich darueber. Fehlt eine Kante (height: 108), kommt sie aus
+dem Seitenverhaeltnis des Gemaeldes. Haendler und Schatzkammer bleiben ohne
+Band - es sind keine Figuren (`hatBand` in SockelBand.jsx).
+
+BEWUSST OHNE BAND: das Gegnerbildnis ueber dem Brett (der Brettkasten schneidet
+den Rumpf ab, der Sockel ist nie zu sehen), die 22-px-Koepfe der Bundtafel
+(nur der Kopf im Kreis) und die 20-px-Zeichen in der Monsterzeile der
+Aufstellung.
+
+Proben: 31 Suiten / 2689 Pruefungen (vorher 2681) - acht neue in test_ui.
+Angesehen am echten Spiel: Aufstellung (beide Reihen), Kampfleiste im Gefecht,
+Chronik, Bossfenster einer Station. NICHT am echten Spiel gesehen, nur ueber die
+Probe gerendert: grosse Ansicht, Kroenungswahl, Erstbegegnung, Aufstiegsfeier,
+Bundfenster - der Weg dorthin braucht Spielstaende, die die Rundfahrt nicht
+herstellt. Die Marke des Gambits auf der Kapitelkarte (karte-gambit.webp) steht
+weiter auf ihrem eigenen hellen Sockel: ein eigens gestauchtes Kartenbild, kein
+Gemaelde mit Sockelmessung.
+
 ## 1.90.25 - Ueberall das schwarze Band; die Startseite zeigt das echte Spiel; Hetzer hoeher; Begegnete in Farbe; nur noch Figuren und Bestien
 
 **"WIR KILLEN DEN GRAUEN SOCKEL"** (Besitzer 3.10., mit zwei Bildschirmfotos der
