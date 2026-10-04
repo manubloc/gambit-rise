@@ -1,5 +1,38 @@
 # Changelog - Gambit Rise
 
+## 1.90.29 - Fuenf Grossmeister in neuer Fassung: Koloss, Kanonier, Blutmagd, Seuchenkoenig, Eisenfaust
+
+Sie standen am Brett bei 67-73 % der Offiziere und trugen kaum Akzente. Alle
+fuenf vom Besitzer am 4.10. freigegeben ("sonst sind alle gut"), jede erst
+gezeigt, dann eingebaut:
+
+- **Koloss** (67 -> 97 %): dunkler Stein mit violett leuchtenden Rissen, beide
+  Augen im selben Violett ("genau gleich") - das rechte ist das gespiegelte
+  linke. Das Freistellen auf Magenta hatte ein Auge und einen Riss im
+  Oberschenkel herausgefressen; beides ist im Freisteller nachgezogen.
+- **Kanonier** (71 -> 87 %): ganz aus hellem Eisen "wie Eisenfaust", das
+  Kanonenloch glueht gelb-rot. Das Eisen spiegelte den Magenta-Grund; darum
+  eigene Maske (Hintergrund = hochgesaettigtes Magenta) statt freistellen.py,
+  der Violettstich ist herausgerechnet. 9 % ueber dem Sockel gestreckt.
+- **Blutmagd** (68 -> 93 %): dieselbe rote Schlange, aufgerichtet wie eine
+  Kobra ("darf nicht aussehen wie ein Mensch"), 10 % gestreckt.
+- **Seuchenkoenig** (73 -> 95 %): nicht mehr die Schnabelschlange, sondern eine
+  Kapuzengestalt - kein Gesicht, nur gruene Augen, brauner zerfetzter Mantel,
+  Stab. Sechs Anlaeufe; getragen hat erst der, der UNSEREN MAGIER als Vorlage
+  nahm ("schau dir mal die Figuren an wie sie sind ... so muss es werden"):
+  nur so kamen die grossen kantigen Flaechen. Mantelbraun und grauer Sockel
+  sind gerechnet, 10 % gestreckt.
+- **Eisenfaust** (68 -> 100 %): aufrecht, die Faust aus Eisen, der Koerper wie
+  gluehendes Metall ("Mega gut").
+
+Akzente folgen der Figur (Kartenhintergrund): Koloss #94a3b8 -> #a855f7,
+Kanonier #ffd166 -> #a3adb8. Sockel einzeln gemessen; bei Kanonier (50) und
+Eisenfaust (42) haelt der Automat die Stufe am Ring fuer die Tellerkante -
+Handwerte mit Breitenverlauf in messe_tellerkante.py. Farben nur fuer die fuenf
+uebernommen. Alte Bilder in archiv/ausgemustert/v1.90.29/.
+
+Proben: 31 Suiten / 2692 Pruefungen (vorher 2691).
+
 ## 1.90.28 - Der Skorpion ist ein Skorpion
 
 Besitzer 4.10.: "die Figur sieht ja nicht aus wie ein Skorpion ... mir fehlen

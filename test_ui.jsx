@@ -239,6 +239,16 @@ const piece = (x = {}) => ({ id: 1, kind: "Q", color: "w", level: 1, abilities: 
        Karte dahinter passt. */
     ok("v1.90.28: der Skorpion traegt sein neues Bild (Teller 46) und einen ockerfarbenen Akzent statt Rosa",
       SB5["boss-b09"].teller === 46 && SB5["boss-b09"].boden === 555 && BOSSES.find((b) => b.id === "b09").accent === "#c9a24a");
+    /* Fuenf Grossmeister (v1.90.29, Besitzer 4.10.: "sonst sind alle gut"):
+       Koloss dunkel mit violetten Rissen, Kanonier aus Eisen, Blutmagd
+       aufgerichtet, Seuchenkoenig als Kapuzengestalt, Eisenfaust in Glut.
+       Vorher standen sie bei 67-73 % der Offiziere. Die Akzente von Koloss
+       und Kanonier folgen der Figur (Kartenhintergrund). */
+    const gm5 = ["boss-b14", "boss-b08", "boss-b16", "boss-b24", "boss-b18"];
+    ok(`v1.90.29: Koloss, Kanonier, Blutmagd, Seuchenkoenig und Eisenfaust stehen bei 85-100 % der Offiziere (${gm5.map((id) => id.slice(5) + " " + monsterAmBrett(id).toFixed(1)).join(", ")}), Teller von Hand bei Kanonier 50 und Eisenfaust 42, Akzente Violett und Stahl`,
+      gm5.every((id) => monsterAmBrett(id) >= 85 && monsterAmBrett(id) <= 100.5 && SB5[id].boden === 555 && SB5[id].oben === 21)
+      && SB5["boss-b08"].teller === 50 && SB5["boss-b18"].teller === 42
+      && BOSSES.find((b) => b.id === "b14").accent === "#a855f7" && BOSSES.find((b) => b.id === "b08").accent === "#a3adb8");
     const vier = ["boss-b15", "boss-b22", "boss-b05", "boss-b13"];
     ok(`v1.90.27: Sturmklaue, Zerreisser, Streuner und Brandstifter stehen bei 75-100 % der Offiziere (${vier.map((id) => id.slice(5) + " " + monsterAmBrett(id).toFixed(1)).join(", ")})`,
       vier.every((id) => monsterAmBrett(id) >= 75 && monsterAmBrett(id) <= 100.5 && SB5[id].boden === 555 && SB5[id].oben === 21));

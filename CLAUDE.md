@@ -41,8 +41,8 @@ gambitrise.com zeigt darauf).
   pruefe-navigation, pruefe-textfluss, test_layout) lesen den Chromium-Pfad aus
   `PW_CHROMIUM`; ohne die Variable gilt der Pfad des Cloud-Containers. Lokal:
   `npx playwright install chromium` und `PW_CHROMIUM=<Pfad zur chrome-Datei>`.
-- `npm test` — volle Batterie. MUSS **31 Suiten / 2691 Prüfungen** melden
-  (Stand v1.90.28; der Runner stoppt nach der ersten roten Suite, also
+- `npm test` — volle Batterie. MUSS **31 Suiten / 2692 Prüfungen** melden
+  (Stand v1.90.29; der Runner stoppt nach der ersten roten Suite, also
   Suitenzahl prüfen, nicht nur Assertions! **Zählweise seit v1.90.18
   (Audit A74): JEDE Suite der Kette meldet eine RESULT-Zeile** — alle Zeilen
   `RESULT…: N passed` summieren; test_balance meldet zwei, darum stehen im
@@ -468,7 +468,7 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
   Auswahl-Lichtspektakel.
 - Alles Optionale abschaltbar (Klang, Online).
 
-## Offene Baustellen (Stand v1.90.28, 4.10.2026)
+## Offene Baustellen (Stand v1.90.29, 4.10.2026)
 
 **Einstieg für jede neue Sitzung: `design/CHAT-EINSTIEG-2026-09-27.md`** (zehn
 Minuten, mit dem Startsatz für den Chat), dann **`design/UEBERGABE-2026-09-27.md`** — Stand,
@@ -496,10 +496,18 @@ Hier nur der Überblick:
   als Eingang gibt und nur das Wesen tauschen lässt**; ein freier Auftrag kam
   glatt und „komplett anderer Style“ zurück. Beim Einbau den `accent` in
   `bosses.js` an die neue Farbe angleichen — er färbt den Kartenhintergrund.
-  In Arbeit: die Großmeister;
-  dazu stehen sechs Großmeister nur bei 62–73 % (Doppelritter, Koloss,
-  Eisenfaust, Blutmagd, Kanonier, Seuchenkönig). Runde 3 (nur Akzente): Schleicher, Flüsterin, Brutmutter. Geist
-  und Wandlerin bleiben. · Play-Abzeichen als Datei für die Startseite (A58).
+  **Großmeister (v1.90.29, freigegeben 4.10.):** Koloss, Kanonier, Blutmagd,
+  Seuchenkönig, Eisenfaust stehen jetzt bei 87–100 %. Offen: Doppelritter
+  (Vorschlag bei 84 %, wartet auf das Urteil). Was dabei teuer war: **mehrere
+  Änderungen in EINEM Kontext-Auftrag zerstören den Stil** (Seuchenkönig, sechs
+  Anläufe) — eine Änderung je Auftrag. **Für eine Gestalt „wie unsere Figuren“
+  eine unserer FIGUREN als Eingang nehmen** (der Magier trug den Seuchenkönig;
+  mit Monster- oder freiem Eingang kam es „viel zu detailreich“). **Metall
+  spiegelt den Farbgrund:** auf Magenta wie auf Grün frisst `freistellen.py`
+  dann Sockel und Finger an — eigene Maske (Hintergrund = hochgesättigte
+  Farbe), Stich danach herausrechnen. Magenta frisst außerdem violette Glut
+  (Augen, Risse): nach dem Freistellen nachziehen. Runde 3 (nur Akzente):
+  Schleicher, Flüsterin. Geist und Wandlerin bleiben. · Play-Abzeichen als Datei für die Startseite (A58).
 - **Spiel:** „Die Karte erzählt die Geschichte" (Besitzer 27.9.: **später**) ·
   **Ladeschirm-Feinschliff** (subjektiv, braucht Live-Abnahme).
 - **Audit offen:** A8-Rest (Befehlsliste in der Halle nachspielen — braucht den

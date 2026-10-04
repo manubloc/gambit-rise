@@ -171,14 +171,14 @@
  "boss-b08": {
   "W": 576,
   "H": 576,
-  "cx": 292.0,
-  "rx": 176.5,
-  "ry": 45.2,
-  "boden": 550,
-  "ring": 25,
-  "schatten": 4,
-  "oben": 34,
-  "teller": 55
+  "cx": 289.5,
+  "rx": 148.0,
+  "ry": 41.1,
+  "boden": 555,
+  "ring": 8,
+  "schatten": 3,
+  "oben": 21,
+  "teller": 50
  },
  "boss-b09": {
   "W": 576,
@@ -243,14 +243,14 @@
  "boss-b14": {
   "W": 576,
   "H": 576,
-  "cx": 288.0,
-  "rx": 181.5,
-  "ry": 41.1,
-  "boden": 552,
+  "cx": 287.5,
+  "rx": 133.0,
+  "ry": 31.2,
+  "boden": 555,
   "ring": 8,
-  "schatten": 7,
-  "oben": 48,
-  "teller": 50
+  "schatten": 8,
+  "oben": 21,
+  "teller": 41
  },
  "boss-b15": {
   "W": 576,
@@ -267,14 +267,14 @@
  "boss-b16": {
   "W": 576,
   "H": 576,
-  "cx": 289.5,
-  "rx": 190.0,
-  "ry": 42.8,
-  "boden": 554,
-  "ring": 15,
-  "schatten": 3,
-  "oben": 23,
-  "teller": 57
+  "cx": 287.5,
+  "rx": 139.0,
+  "ry": 33.7,
+  "boden": 555,
+  "ring": 11,
+  "schatten": 1,
+  "oben": 21,
+  "teller": 44
  },
  "boss-b17": {
   "W": 576,
@@ -292,13 +292,13 @@
   "W": 576,
   "H": 576,
   "cx": 286.0,
-  "rx": 183.5,
-  "ry": 35.4,
-  "boden": 556,
-  "ring": 22,
-  "schatten": 4,
-  "oben": 45,
-  "teller": 57
+  "rx": 123.5,
+  "ry": 23.8,
+  "boden": 555,
+  "ring": 8,
+  "schatten": 2,
+  "oben": 21,
+  "teller": 42
  },
  "boss-b19": {
   "W": 576,
@@ -364,14 +364,14 @@
  "boss-b24": {
   "W": 576,
   "H": 576,
-  "cx": 289.5,
-  "rx": 169.0,
-  "ry": 43.6,
-  "boden": 552,
+  "cx": 288.0,
+  "rx": 136.5,
+  "ry": 28.8,
+  "boden": 555,
   "ring": 8,
-  "schatten": 4,
-  "oben": 42,
-  "teller": 59
+  "schatten": 1,
+  "oben": 21,
+  "teller": 39
  },
  "boss-b25": {
   "W": 576,

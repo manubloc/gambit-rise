@@ -69,7 +69,14 @@ ORDNER = "src/app/ui/assets/painted"
 #             muss weiter runter"): in v1.90.21 stand hier 49 - ich hatte
 #             Boden minus Wandoberkante gerechnet und ry NICHT abgezogen. Das
 #             Band stand 25 px zu hoch, seine Oberkante lag auf den Fuessen.
-HANDWERTE = {"boss-b02": 46, "boss-b22": 48, "gambit-t2": 45, "boss-b25": 24}
+#   boss-b08  (v1.90.29, Kanonier aus Eisen): der Automat meldet 20 - er haelt
+#             die Stufe zwischen Ring und Wand fuer den Knick. Breitenverlauf:
+#             die Wand steht von der unteren Ellipsenmitte (y 514) bis y 463
+#             auf 279-294 px und faellt bei 458 auf 259. Gesetzt auf 50.
+#   boss-b18  (v1.90.29, Eisenfaust in Glut): dasselbe, Automat 10. Die Wand
+#             steht von y 531 bis 491 auf 239-246 px, bei 486 noch 237, bei
+#             481 nur 216. Gesetzt auf 42.
+HANDWERTE = {"boss-b02": 46, "boss-b22": 48, "gambit-t2": 45, "boss-b25": 24, "boss-b08": 50, "boss-b18": 42}
 MASSE = json.load(open("src/app/ui/board/sockelband.json"))
 
 def kante(fid, m):
