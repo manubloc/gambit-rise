@@ -1,5 +1,24 @@
 # Changelog - Gambit Rise
 
+## 1.90.28 - Der Skorpion ist ein Skorpion
+
+Besitzer 4.10.: "die Figur sieht ja nicht aus wie ein Skorpion ... mir fehlen
+Fuesse und Scheren". Bisher war er eine rote Schlange mit Stachelschwanz. Drei
+Anlaeufe: der erste rot und glatt mit einer Schere, der zweite beige mit einer
+gruenen Blase als Stachel ("es muss geschnitzt aussehen ... komplett anderer
+Style ... mach den Stachel nicht wie eine Blase"), der dritte AUS DEM HETZER
+HERAUS geschnitzt (dessen Bild als Vorlage an FLUX Kontext - so bleiben
+Oberflaeche und Farbe im Stil): dunkelbeige, acht Beine, zwei Scheren,
+Mundzangen, Augen, ein geschnitzter Dorn als Stachel. Der Verlauf ins Gruene
+den Schwanz hinauf ist gerechnet. Freigegeben ("ist auch super").
+
+Sein Akzent folgt der Figur (#f472b6 -> #c9a24a), damit der Hintergrund seiner
+Karte passt - Besitzer: "beim Einbinden bitte auch die Farben auf den
+Hintergrund der Karten uebernehmen". Hoehe am Brett 76 % wie bisher: der
+Koerper ist flach, die Hoehe bringt der Schwanz.
+
+Proben: 31 Suiten / 2691 Pruefungen (vorher 2690).
+
 ## 1.90.27 - Sechs Monster in neuer Fassung: Hetzer mit Tiefe; Sturmklaue, Zerreisser, Streuner, Brandstifter und Brutmutter aufrecht
 
 Alle fuenf vom Besitzer am 4.10. freigegeben ("alle sind gut ... gerne

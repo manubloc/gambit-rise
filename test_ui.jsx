@@ -233,6 +233,12 @@ const piece = (x = {}) => ({ id: 1, kind: "Q", color: "w", level: 1, abilities: 
        gesehen und freigegeben. */
     ok(`v1.90.27: die Brutmutter steht bei 100-106 % der Offiziere (${monsterAmBrett("boss-b03").toFixed(1)})`,
       monsterAmBrett("boss-b03") >= 100 && monsterAmBrett("boss-b03") <= 106 && SB5["boss-b03"].teller === 35);
+    /* Der Skorpion (v1.90.28, "ist auch super"): jetzt ein Skorpion - Beine,
+       zwei Scheren, Stachelschwanz ins Gruene -, aus dem Hetzer heraus
+       geschnitzt. Sein Akzent folgt der Figur (Ocker statt Rosa), damit die
+       Karte dahinter passt. */
+    ok("v1.90.28: der Skorpion traegt sein neues Bild (Teller 46) und einen ockerfarbenen Akzent statt Rosa",
+      SB5["boss-b09"].teller === 46 && SB5["boss-b09"].boden === 555 && BOSSES.find((b) => b.id === "b09").accent === "#c9a24a");
     const vier = ["boss-b15", "boss-b22", "boss-b05", "boss-b13"];
     ok(`v1.90.27: Sturmklaue, Zerreisser, Streuner und Brandstifter stehen bei 75-100 % der Offiziere (${vier.map((id) => id.slice(5) + " " + monsterAmBrett(id).toFixed(1)).join(", ")})`,
       vier.every((id) => monsterAmBrett(id) >= 75 && monsterAmBrett(id) <= 100.5 && SB5[id].boden === 555 && SB5[id].oben === 21));

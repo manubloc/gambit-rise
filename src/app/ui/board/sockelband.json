@@ -183,14 +183,14 @@
  "boss-b09": {
   "W": 576,
   "H": 576,
-  "cx": 284.0,
-  "rx": 169.5,
-  "ry": 29.6,
-  "boden": 553,
-  "ring": 8,
-  "schatten": 5,
-  "oben": 22,
-  "teller": 47
+  "cx": 290.0,
+  "rx": 170.5,
+  "ry": 39.5,
+  "boden": 555,
+  "ring": 19,
+  "schatten": 0,
+  "oben": 21,
+  "teller": 46
  },
  "boss-b10": {
   "W": 576,

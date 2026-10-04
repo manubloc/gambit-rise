@@ -41,8 +41,8 @@ gambitrise.com zeigt darauf).
   pruefe-navigation, pruefe-textfluss, test_layout) lesen den Chromium-Pfad aus
   `PW_CHROMIUM`; ohne die Variable gilt der Pfad des Cloud-Containers. Lokal:
   `npx playwright install chromium` und `PW_CHROMIUM=<Pfad zur chrome-Datei>`.
-- `npm test` — volle Batterie. MUSS **31 Suiten / 2690 Prüfungen** melden
-  (Stand v1.90.27; der Runner stoppt nach der ersten roten Suite, also
+- `npm test` — volle Batterie. MUSS **31 Suiten / 2691 Prüfungen** melden
+  (Stand v1.90.28; der Runner stoppt nach der ersten roten Suite, also
   Suitenzahl prüfen, nicht nur Assertions! **Zählweise seit v1.90.18
   (Audit A74): JEDE Suite der Kette meldet eine RESULT-Zeile** — alle Zeilen
   `RESULT…: N passed` summieren; test_balance meldet zwei, darum stehen im
@@ -468,7 +468,7 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
   Auswahl-Lichtspektakel.
 - Alles Optionale abschaltbar (Klang, Online).
 
-## Offene Baustellen (Stand v1.90.27, 4.10.2026)
+## Offene Baustellen (Stand v1.90.28, 4.10.2026)
 
 **Einstieg für jede neue Sitzung: `design/CHAT-EINSTIEG-2026-09-27.md`** (zehn
 Minuten, mit dem Startsatz für den Chat), dann **`design/UEBERGABE-2026-09-27.md`** — Stand,
@@ -491,7 +491,12 @@ Hier nur der Überblick:
   Akzente lieber RECHNEN: die grobe Helligkeit des geschnitzten Bildes an eine
   Farbvorlage angleichen (Hetzer), mattes Korn als Rauschen auflegen
   (Streuner), ein Auge umfärben (Brandstifter) — das Geschnitzte bleibt.
-  In Arbeit: Skorpion (soll ein echter Skorpion werden: Beine, Scheren);
+  Skorpion (v1.90.28): neu als echter Skorpion — **eine NEUE Figur im Stil
+  bekommt man, indem man ein freigegebenes geschnitztes Bild (hier den Hetzer)
+  als Eingang gibt und nur das Wesen tauschen lässt**; ein freier Auftrag kam
+  glatt und „komplett anderer Style“ zurück. Beim Einbau den `accent` in
+  `bosses.js` an die neue Farbe angleichen — er färbt den Kartenhintergrund.
+  In Arbeit: die Großmeister;
   dazu stehen sechs Großmeister nur bei 62–73 % (Doppelritter, Koloss,
   Eisenfaust, Blutmagd, Kanonier, Seuchenkönig). Runde 3 (nur Akzente): Schleicher, Flüsterin, Brutmutter. Geist
   und Wandlerin bleiben. · Play-Abzeichen als Datei für die Startseite (A58).
