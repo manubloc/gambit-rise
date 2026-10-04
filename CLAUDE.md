@@ -41,8 +41,8 @@ gambitrise.com zeigt darauf).
   pruefe-navigation, pruefe-textfluss, test_layout) lesen den Chromium-Pfad aus
   `PW_CHROMIUM`; ohne die Variable gilt der Pfad des Cloud-Containers. Lokal:
   `npx playwright install chromium` und `PW_CHROMIUM=<Pfad zur chrome-Datei>`.
-- `npm test` — volle Batterie. MUSS **31 Suiten / 2689 Prüfungen** melden
-  (Stand v1.90.26; der Runner stoppt nach der ersten roten Suite, also
+- `npm test` — volle Batterie. MUSS **31 Suiten / 2690 Prüfungen** melden
+  (Stand v1.90.27; der Runner stoppt nach der ersten roten Suite, also
   Suitenzahl prüfen, nicht nur Assertions! **Zählweise seit v1.90.18
   (Audit A74): JEDE Suite der Kette meldet eine RESULT-Zeile** — alle Zeilen
   `RESULT…: N passed` summieren; test_balance meldet zwei, darum stehen im
@@ -468,7 +468,7 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
   Auswahl-Lichtspektakel.
 - Alles Optionale abschaltbar (Klang, Online).
 
-## Offene Baustellen (Stand v1.90.26, 3.10.2026)
+## Offene Baustellen (Stand v1.90.27, 4.10.2026)
 
 **Einstieg für jede neue Sitzung: `design/CHAT-EINSTIEG-2026-09-27.md`** (zehn
 Minuten, mit dem Startsatz für den Chat), dann **`design/UEBERGABE-2026-09-27.md`** — Stand,
@@ -484,12 +484,14 @@ Hier nur der Überblick:
 - **Monster überarbeiten, vier je Runde** (Besitzer 1.10.): per fal-Edit am
   bestehenden Bild (nur mit Freigabe), dann lokal auf Höhe gerechnet wie
   Osric, am Brett neben dem Springer gezeigt, erst dann eingebaut. **Eingebaut:
-  Hetzer, Wächter, Bollwerk (v1.90.23; Hetzer in v1.90.25 um 9,5 % höher)** —
-  nur höher, Optik unverändert. **NICHT eingebaut, in Arbeit:** Sturmklaue,
-  Zerreißer, Streuner, Brandstifter und mehr Tiefe/Akzente für den Hetzer — drei
-  Runden lagen dem Besitzer vor (3.10.), keine ist freigegeben; sein letztes
-  Wort: „nicht mehr ganz so geschnitzt … zu digital … an der alten Optik
-  dranbleiben“. Danach Skorpion, Brutmutter;
+  Wächter, Bollwerk (v1.90.23), Hetzer, Sturmklaue, Zerreißer, Streuner,
+  Brandstifter, Brutmutter (v1.90.27, am 4.10. freigegeben).** Was dabei trug: FLUX Kontext
+  für die Haltung und für KLEINE gezielte Änderungen („make ONLY one change: the
+  mouth is open“), nano-banana nannte der Besitzer „zu digital“. Tiefe und
+  Akzente lieber RECHNEN: die grobe Helligkeit des geschnitzten Bildes an eine
+  Farbvorlage angleichen (Hetzer), mattes Korn als Rauschen auflegen
+  (Streuner), ein Auge umfärben (Brandstifter) — das Geschnitzte bleibt.
+  In Arbeit: Skorpion (soll ein echter Skorpion werden: Beine, Scheren);
   dazu stehen sechs Großmeister nur bei 62–73 % (Doppelritter, Koloss,
   Eisenfaust, Blutmagd, Kanonier, Seuchenkönig). Runde 3 (nur Akzente): Schleicher, Flüsterin, Brutmutter. Geist
   und Wandlerin bleiben. · Play-Abzeichen als Datei für die Startseite (A58).
@@ -508,11 +510,9 @@ Hier nur der Überblick:
   App-Inhalten sind seit 3.10. bei Google in Prüfung. **Offen: die
   Installation am Handy des Besitzers scheitert** („Bei uns ist ein Fehler
   aufgetreten“ — am Abend des 3.10. ging sie dann durch, Ursache ungeklärt).
-  **Google- und E-Mail-Anmeldung sind tot:** das Supabase-Projekt hinter
-  `VITE_SUPABASE_URL` löst im DNS nicht mehr auf (NXDOMAIN, gemessen 3.10. über
-  dns.google) — pausiert oder gelöscht; der Besitzer muss es im
-  Supabase-Dashboard wiederherstellen oder ein neues anlegen und die beiden
-  Pages-Variablen neu setzen (`SUPABASE-SETUP.md`). Danach S6, dann
+  Die Google-Anmeldung geht wieder (Besitzer 4.10.; am 3.10. löste das
+  Supabase-Projekt im DNS nicht auf — nicht nachgemessen, warum es zurück ist).
+  Danach S6, dann
   S7–S9; die Pflicht „12 Tester, 14 Tage“ gilt für dieses Konto (im Dashboard
   nachgelesen) — siehe `design/PLAYSTORE-BACKLOG.md`.
 

@@ -1,5 +1,44 @@
 # Changelog - Gambit Rise
 
+## 1.90.27 - Sechs Monster in neuer Fassung: Hetzer mit Tiefe; Sturmklaue, Zerreisser, Streuner, Brandstifter und Brutmutter aufrecht
+
+Alle fuenf vom Besitzer am 4.10. freigegeben ("alle sind gut ... gerne
+einbauen Runde 5"), jede erst gezeigt, dann eingebaut.
+
+- **HETZER:** dasselbe geschnitzte Bild, Pixel fuer Pixel - nur seine GROBE
+  Helligkeit ist an eine Farbvorlage angeglichen (dunklere Hoerner, tiefere
+  Augenhoehlen, hellere Brust). Gerechnet, nicht gemalt: die Fassung der
+  Bild-KI war dem Besitzer "nicht mehr ganz so geschnitzt".
+- **STREUNER:** aufrecht (60 -> 76 % der Offiziershoehe), ungestreckt, mit
+  offenem Maul ("der Mund vorne ist ja wie geschlossen, das sieht doof aus")
+  und mattem Korn.
+- **STURMKLAUE:** aufrecht (58 -> 78 %), Fluegelhaeute blaugruen.
+- **ZERREISSER:** aufrecht (56 -> 100 %), Klauenhaende statt der Zangen.
+  Sein Band: der Automat haelt auch am neuen Bild die Stufe zwischen Farbring
+  und Wand fuer die Standflaeche (18) - Handwert 48, am Breitenverlauf gemessen.
+- **BRANDSTIFTER:** aufrecht (64 -> 96 %), Feuerfarben statt Blau ("wuerde ich
+  eher in Rot ueberfuehren ... flammartig"), das Auge leuchtet violett ("in
+  violett leuchten ist besser als blau" - umgerechnet am fertigen Bild, kein
+  neuer Bildauftrag). NICHT erreicht: der Kopf steht weiter im Profil, der
+  Kamm ist eckig geblieben.
+
+- **BRUTMUTTER** ("perfekt"): schlanker gewunden auf schmalem Teller (78 ->
+  105 % - sie ueberragt die Offiziere leicht; so gezeigt und freigegeben).
+- Die Karte des Brandstifters trug noch den BLAUEN Akzent aus v1.90.19
+  (`#4d7cff` in bosses.js) - gesehen im Kontrollbild, jetzt `#ff5a1f`.
+
+Sockelmasse der neuen Bilder einzeln gemessen und eingetragen (nicht die
+ganze Datei neu geschrieben), Tellerkanten am Breitenverlauf geprueft, Farben
+nur fuer die fuenf uebernommen. Alte Bilder: archiv/ausgemustert/v1.90.27/,
+Rohlinge: archiv/bilder/painted/boss-b{05,13,15,22}-original.png.
+
+KRONE UND SCHATTEN BLEIBEN IM REGELWERK. Der Besitzer fragte, ob man sie
+streichen kann, "wenn sie eh keinen Unterschied machen". Sie machen einen: das
+Opfer einer Kronenfigur beim Bestechen, die Buende, die Gaben der Familien.
+Angezeigt werden sie seit v1.90.25 nicht mehr - dabei bleibt es.
+
+Proben: 31 Suiten / 2690 Pruefungen (vorher 2689).
+
 ## 1.90.26 - Das schwarze Band auch an den Bildnissen ausserhalb von Brett, Kachel und Blatt
 
 **"UND DAS ZIEHST DU UEBERALL DURCH"** (Besitzer 3.10.). v1.90.25 hat die helle

@@ -225,20 +225,22 @@ const piece = (x = {}) => ({ id: 1, kind: "Q", color: "w", level: 1, abilities: 
       return h * Math.min(1, Math.max(0.92, Math.min(1.10, 561 / h))) / 561 * 100; };
     ok(`v1.90.25: der Hetzer steht bei 89-100 % der Offiziere (${monsterAmBrett("boss-b02").toFixed(1)})`,
       monsterAmBrett("boss-b02") >= 89 && monsterAmBrett("boss-b02") <= 100.5);
-    /* Sturmklaue, Zerreisser und Streuner: die aufrechten Neufassungen vom
-       3.10. hat der Besitzer NICHT freigegeben ("zu hochgezogen", "zu
-       digital", "wichtig, dass wir an der alten Optik dranbleiben") - im
-       Spiel stehen weiter die alten, breiten Bilder (Teller-Halbbreite > 200).
-       Kommt ein freigegebenes Bild, faellt diese Pruefung und wird ersetzt. */
-    ok("v1.90.25: Sturmklaue, Zerreisser und Streuner tragen weiter die alten Bilder (nichts Ungefreigegebenes eingebaut)",
-      ["boss-b15", "boss-b22", "boss-b05"].every((id) => SB5[id].rx > 200));
-    /* Der Zerreisser trug seit jeher einen zu flachen Teller (25): der Automat
-       hielt die Stufe zwischen dem roten Farbring und der Steinwand fuer die
-       Standflaeche, das Band bedeckte nur den Ring und die Wand stand nackt
-       darueber. Jetzt 70 (Handwert, Herleitung in messe_tellerkante.py): die
-       Oberkante liegt UEBER dem Farbring auf der Kante der Standflaeche. */
-    ok("v1.90.25: das Band des Zerreissers reicht ueber den Farbring bis zur Standflaeche (Handwert 70), das des Hetzers bleibt 46",
-      SB5["boss-b22"].tellerVonHand === true && SB5["boss-b22"].teller === 70 && SB5["boss-b22"].teller > SB5["boss-b22"].ring + 30
+    /* v1.90.27: Sturmklaue, Zerreisser, Streuner und Brandstifter stehen
+       aufrecht - vom Besitzer am 4.10. freigegeben ("alle sind gut", dazu das
+       offene Maul des Streuners und das violette Auge des Brandstifters). */
+    /* Die Brutmutter (v1.90.27, "perfekt"): schlanker gewunden auf schmalem
+       Teller - sie ueberragt die Offiziere um gut 5 %, so hat der Besitzer sie
+       gesehen und freigegeben. */
+    ok(`v1.90.27: die Brutmutter steht bei 100-106 % der Offiziere (${monsterAmBrett("boss-b03").toFixed(1)})`,
+      monsterAmBrett("boss-b03") >= 100 && monsterAmBrett("boss-b03") <= 106 && SB5["boss-b03"].teller === 35);
+    const vier = ["boss-b15", "boss-b22", "boss-b05", "boss-b13"];
+    ok(`v1.90.27: Sturmklaue, Zerreisser, Streuner und Brandstifter stehen bei 75-100 % der Offiziere (${vier.map((id) => id.slice(5) + " " + monsterAmBrett(id).toFixed(1)).join(", ")})`,
+      vier.every((id) => monsterAmBrett(id) >= 75 && monsterAmBrett(id) <= 100.5 && SB5[id].boden === 555 && SB5[id].oben === 21));
+    /* Der Zerreisser: der Automat haelt die Stufe zwischen Farbring und Wand
+       fuer die Standflaeche (meldet 18) - Handwert 48, Herleitung in
+       messe_tellerkante.py. Die Oberkante liegt UEBER dem Farbring. */
+    ok("v1.90.27: das Band des Zerreissers reicht ueber den Farbring bis zur Standflaeche (Handwert 48), das des Hetzers bleibt 46",
+      SB5["boss-b22"].tellerVonHand === true && SB5["boss-b22"].teller === 48 && SB5["boss-b22"].teller > 16 + 25
       && SB5["boss-b02"].tellerVonHand === true && SB5["boss-b02"].teller === 46);
     const begegnet = html(<HofKachel img={PAINTED["boss-b22"]} name="Der Zerreißer" bossId="b22" dim />);
     const fremd = html(<HofKachel img={PAINTED["boss-b22"]} name="???" bossId="b22" dark />);
