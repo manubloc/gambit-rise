@@ -81,7 +81,7 @@ ORDNER = "src/app/ui/assets/painted"
 #             Handwert ist gestrichen. Am Kanonier haelt er weiter die Stufe am
 #             Ring fuer den Knick (13): die Wand steht von y 520 bis 472 auf
 #             243-258 px und faellt bei 468 auf 227. Gesetzt auf 49.
-HANDWERTE = {"boss-b22": 48, "gambit-t2": 45, "boss-b25": 24, "boss-b08": 49, "boss-b18": 42}
+HANDWERTE = {"boss-b22": 48, "gambit-t2": 45, "boss-b25": 24, "boss-b08": 49, "boss-b18": 44}   # b18 seit v1.90.32 gestaucht: Wand von y 530 bis 486 auf 252-260 px, bei 482 noch 248, bei 478 nur 233
 MASSE = json.load(open("src/app/ui/board/sockelband.json"))
 
 def kante(fid, m):

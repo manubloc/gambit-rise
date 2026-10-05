@@ -1,5 +1,21 @@
 # Changelog - Gambit Rise
 
+## 1.90.32 - Seuchenkoenig und Eisenfaust nachgezogen; die Bretter der Startseite zeigen die neuen Monster
+
+- **Seuchenkoenig** 94,8 -> 97 %: 3 % gestreckt. Er war die einzige Figur
+  knapp unter der 95-%-Grenze des Besitzers.
+- **Eisenfaust**: 6 % gestaucht. Sie war seit v1.90.29 so schlank, dass die
+  Hoehenklammer ihr Band auf 95 % der Nachbarn drueckte; jetzt volle Breite
+  bei unveraenderten 100 % Hoehe. Teller von Hand 44 (vorher 42).
+- **Startseite:** `brett-kronland` und `brett-wolkenjoch` neu aus dem Spiel
+  fotografiert - sie zeigten noch die Monster von vor v1.90.31. Ursache: das
+  Fotoskript haengt nicht in der Kette, und nach dem Einbau der 17 Bilder
+  hatte ich es nicht laufen lassen.
+
+Proben: 31 Suiten / 2696 Pruefungen (vorher 2695) - die Grenze steht jetzt auf
+genau 95 %, und kein Band ausser dem der Brutmutter faellt unter 97 % der
+Nachbarn (der Zerreisser steht bei 98 %).
+
 ## 1.90.31 - Kein Monster mehr unter 95 %: 17 Figuren hoeher, alle in ihren alten Farben; die Blutmagd dunkel mit roten Rissen
 
 Besitzer 5.10.: "mach erstmal alle vom Urspruenglichen einfach gross" und

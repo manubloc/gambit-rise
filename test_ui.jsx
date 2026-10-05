@@ -247,9 +247,9 @@ const piece = (x = {}) => ({ id: 1, kind: "Q", color: "w", level: 1, abilities: 
        Vorher standen sie bei 67-73 % der Offiziere. Die Akzente von Koloss
        und Kanonier folgen der Figur (Kartenhintergrund). */
     const gm5 = ["boss-b14", "boss-b08", "boss-b16", "boss-b24", "boss-b18"];
-    ok(`v1.90.29: Koloss, Kanonier, Blutmagd, Seuchenkoenig und Eisenfaust stehen bei 85-100 % der Offiziere (${gm5.map((id) => id.slice(5) + " " + monsterAmBrett(id).toFixed(1)).join(", ")}), Teller von Hand bei Kanonier (seit v1.90.31: 49) und Eisenfaust 42, Akzente Violett und Stahl`,
+    ok(`v1.90.29: Koloss, Kanonier, Blutmagd, Seuchenkoenig und Eisenfaust stehen bei 85-100 % der Offiziere (${gm5.map((id) => id.slice(5) + " " + monsterAmBrett(id).toFixed(1)).join(", ")}), Teller von Hand bei Kanonier (seit v1.90.31: 49) und Eisenfaust (seit v1.90.32: 44), Akzente Violett und Stahl`,
       gm5.every((id) => monsterAmBrett(id) >= 85 && monsterAmBrett(id) <= 100.5 && SB5[id].boden === 555 && SB5[id].oben === 21)
-      && SB5["boss-b08"].teller === 49 && SB5["boss-b18"].teller === 42
+      && SB5["boss-b08"].teller === 49 && SB5["boss-b18"].teller === 44
       && BOSSES.find((b) => b.id === "b14").accent === "#a855f7" && BOSSES.find((b) => b.id === "b08").accent === "#a3adb8");
     /* v1.90.30 (Besitzer 5.10.): der Doppelritter 10 % hoeher ("muss noch
        etwas hoeher sein"), Schattenfuerst mit Knochenhoernern und Schleicher
@@ -266,11 +266,17 @@ const piece = (x = {}) => ({ id: 1, kind: "Q", color: "w", level: 1, abilities: 
        Seuchenkoenig steht seit v1.90.29 bei 94,8 und war nicht Teil dieser
        Runde. Und kein Band ist geschrumpft: keine Figur ueber 100,5 %. */
     const alleMonster = Object.keys(SB5).filter((id) => /^boss-b\d\d$/.test(id));
-    const zuKlein = alleMonster.filter((id) => monsterAmBrett(id) < 94.5), neu31 = ["b02", "b04", "b05", "b06", "b07", "b08", "b09", "b10", "b11", "b12", "b15", "b16", "b17", "b19", "b20", "b21", "b23"].map((b) => "boss-" + b), zuGross = neu31.filter((id) => (SB5[id].boden - SB5[id].oben) * Math.max(0.55, Math.min(1.35, 136 / SB5[id].rx)) > 561 * 1.03);
-    ok(`v1.90.31: alle ${alleMonster.length} Bestien und Grossmeister stehen bei mindestens 94,5 % der Offiziere (darunter: ${zuKlein.map((id) => id.slice(5) + " " + monsterAmBrett(id).toFixed(1)).join(", ") || "keine"})`,
+    const zuKlein = alleMonster.filter((id) => monsterAmBrett(id) < 95), neu31 = ["b02", "b04", "b05", "b06", "b07", "b08", "b09", "b10", "b11", "b12", "b15", "b16", "b17", "b19", "b20", "b21", "b23"].map((b) => "boss-" + b), zuGross = neu31.filter((id) => (SB5[id].boden - SB5[id].oben) * Math.max(0.55, Math.min(1.35, 136 / SB5[id].rx)) > 561 * 1.03);
+    ok(`v1.90.31: alle ${alleMonster.length} Bestien und Grossmeister stehen bei mindestens 95 % der Offiziere (seit v1.90.32 auch der Seuchenkoenig) (darunter: ${zuKlein.map((id) => id.slice(5) + " " + monsterAmBrett(id).toFixed(1)).join(", ") || "keine"})`,
       alleMonster.length === 25 && zuKlein.length === 0);
     ok(`v1.90.31: keine der 17 neuen Fassungen ist so schlank, dass die Hoehenklammer ihr Band schmaler macht (zu hoch: ${zuGross.join(", ") || "keine"}), die Blutmagd traegt Rot`,
       zuGross.length === 0 && BOSSES.find((b) => b.id === "b16").accent === "#dc2626" && SB5["boss-b08"].tellerVonHand === true);
+    /* v1.90.32: die Eisenfaust (v1.90.29) war die letzte, deren Band die
+       Hoehenklammer schmaler machte (95 % der Nachbarn) - 6 % gestaucht. Jetzt
+       gilt die Regel fuer ALLE 25, ausser der Brutmutter (105 %, so vom
+       Besitzer gesehen und freigegeben). */
+    const bandSchmal = alleMonster.filter((id) => id !== "boss-b03" && (SB5[id].boden - SB5[id].oben) * Math.max(0.55, Math.min(1.35, 136 / SB5[id].rx)) > 561 * 1.03);
+    ok(`v1.90.32: kein Monster ausser der Brutmutter ist so schlank, dass sein Band unter 97 % der Nachbarn faellt (${bandSchmal.join(", ") || "keins"})`, bandSchmal.length === 0);
     const vier = ["boss-b15", "boss-b22", "boss-b05", "boss-b13"];
     ok(`v1.90.27: Sturmklaue, Zerreisser, Streuner und Brandstifter stehen bei 75-100 % der Offiziere (${vier.map((id) => id.slice(5) + " " + monsterAmBrett(id).toFixed(1)).join(", ")})`,
       vier.every((id) => monsterAmBrett(id) >= 75 && monsterAmBrett(id) <= 100.5 && SB5[id].boden === 555 && SB5[id].oben === 21));

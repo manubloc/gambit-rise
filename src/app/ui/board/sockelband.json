@@ -291,14 +291,15 @@
  "boss-b18": {
   "W": 576,
   "H": 576,
-  "cx": 286.0,
-  "rx": 123.5,
-  "ry": 23.8,
+  "cx": 286.5,
+  "rx": 130.0,
+  "ry": 24.7,
   "boden": 555,
   "ring": 8,
   "schatten": 2,
   "oben": 21,
-  "teller": 42
+  "teller": 44,
+  "tellerVonHand": true
  },
  "boss-b19": {
   "W": 576,
@@ -364,14 +365,14 @@
  "boss-b24": {
   "W": 576,
   "H": 576,
-  "cx": 288.0,
-  "rx": 136.5,
-  "ry": 28.8,
+  "cx": 287.0,
+  "rx": 133.5,
+  "ry": 27.1,
   "boden": 555,
   "ring": 8,
   "schatten": 1,
   "oben": 21,
-  "teller": 39
+  "teller": 38
  },
  "boss-b25": {
   "W": 576,
