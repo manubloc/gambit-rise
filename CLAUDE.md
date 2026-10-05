@@ -41,8 +41,8 @@ gambitrise.com zeigt darauf).
   pruefe-navigation, pruefe-textfluss, test_layout) lesen den Chromium-Pfad aus
   `PW_CHROMIUM`; ohne die Variable gilt der Pfad des Cloud-Containers. Lokal:
   `npx playwright install chromium` und `PW_CHROMIUM=<Pfad zur chrome-Datei>`.
-- `npm test` — volle Batterie. MUSS **31 Suiten / 2692 Prüfungen** melden
-  (Stand v1.90.29; der Runner stoppt nach der ersten roten Suite, also
+- `npm test` — volle Batterie. MUSS **31 Suiten / 2693 Prüfungen** melden
+  (Stand v1.90.30; der Runner stoppt nach der ersten roten Suite, also
   Suitenzahl prüfen, nicht nur Assertions! **Zählweise seit v1.90.18
   (Audit A74): JEDE Suite der Kette meldet eine RESULT-Zeile** — alle Zeilen
   `RESULT…: N passed` summieren; test_balance meldet zwei, darum stehen im
@@ -468,7 +468,7 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
   Auswahl-Lichtspektakel.
 - Alles Optionale abschaltbar (Klang, Online).
 
-## Offene Baustellen (Stand v1.90.29, 4.10.2026)
+## Offene Baustellen (Stand v1.90.30, 5.10.2026)
 
 **Einstieg für jede neue Sitzung: `design/CHAT-EINSTIEG-2026-09-27.md`** (zehn
 Minuten, mit dem Startsatz für den Chat), dann **`design/UEBERGABE-2026-09-27.md`** — Stand,
@@ -497,8 +497,22 @@ Hier nur der Überblick:
   glatt und „komplett anderer Style“ zurück. Beim Einbau den `accent` in
   `bosses.js` an die neue Farbe angleichen — er färbt den Kartenhintergrund.
   **Großmeister (v1.90.29, freigegeben 4.10.):** Koloss, Kanonier, Blutmagd,
-  Seuchenkönig, Eisenfaust stehen jetzt bei 87–100 %. Offen: Doppelritter
-  (Vorschlag bei 84 %, wartet auf das Urteil). Was dabei teuer war: **mehrere
+  Seuchenkönig, Eisenfaust stehen jetzt bei 87–100 %. **v1.90.30 (5.10.):**
+  Doppelritter (84 %), Schattenfürst (Knochenhörner), Schleicher
+  (Knochenklaue). **In Arbeit, gezeigt, NICHT freigegeben:** Flüsterin (Kranz
+  violett glimmend), Asra (dunkelviolett, Risse), Lanzenmeister (neu als
+  schlanke Gestalt mit Umhang aus dem Attentäter heraus), Richter (Rüstung
+  andersfarbig, Augen türkis), Hüter (Ring leuchtend, Linien am Körper).
+  **„Mega, weitermachen“ ist KEINE Freigabe zum Einbau** — am 5.10. standen
+  vier Bilder schon lokal im Bau, als der Besitzer sie anders haben wollte.
+  Freigabe heißt: die Figur wird beim Namen genannt („X ist gut“).
+  Sollte nur ein TEIL einer Figur anders werden (Eisen, Rüstungsfarbe), malte
+  Kontext jedes Mal die GANZE Figur um: Teil-Akzente rechnen (Kasten über dem
+  Teil, Farbton setzen, weich blenden). **Kommt eine Figur ZU schlank zurück
+  (rx < ~128 bei 535 Höhe), drückt die Höhenklammer 0,92 auch ihr Band** unter
+  die Breite der Nachbarn (Probe „queen-class“) — über dem Sockel stauchen, bis
+  Höhe × 136/rx ≈ 561. Nach Strecken/Stauchen nach dem SOCKELFUSS mittig
+  setzen, nicht nach der breitesten Tellerzeile (A31). Was dabei teuer war: **mehrere
   Änderungen in EINEM Kontext-Auftrag zerstören den Stil** (Seuchenkönig, sechs
   Anläufe) — eine Änderung je Auftrag. **Für eine Gestalt „wie unsere Figuren“
   eine unserer FIGUREN als Eingang nehmen** (der Magier trug den Seuchenkönig;

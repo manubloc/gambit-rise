@@ -123,14 +123,14 @@
  "boss-b04": {
   "W": 576,
   "H": 576,
-  "cx": 285.5,
-  "rx": 145.0,
-  "ry": 36.2,
-  "boden": 550,
+  "cx": 287.5,
+  "rx": 148.0,
+  "ry": 39.5,
+  "boden": 555,
   "ring": 8,
-  "schatten": 10,
-  "oben": 33,
-  "teller": 50
+  "schatten": 7,
+  "oben": 21,
+  "teller": 46
  },
  "boss-b05": {
   "W": 576,
@@ -195,14 +195,14 @@
  "boss-b10": {
   "W": 576,
   "H": 576,
-  "cx": 289.5,
-  "rx": 202.0,
-  "ry": 33.7,
-  "boden": 559,
+  "cx": 289.0,
+  "rx": 153.5,
+  "ry": 23.0,
+  "boden": 555,
   "ring": 8,
-  "schatten": 2,
-  "oben": 44,
-  "teller": 70
+  "schatten": 13,
+  "oben": 21,
+  "teller": 52
  },
  "boss-b11": {
   "W": 576,
@@ -303,14 +303,14 @@
  "boss-b19": {
   "W": 576,
   "H": 576,
-  "cx": 286.5,
-  "rx": 146.0,
+  "cx": 288.0,
+  "rx": 144.5,
   "ry": 32.1,
-  "boden": 557,
+  "boden": 555,
   "ring": 8,
-  "schatten": 13,
-  "oben": 20,
-  "teller": 39
+  "schatten": 15,
+  "oben": 21,
+  "teller": 35
  },
  "boss-b20": {
   "W": 576,

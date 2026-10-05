@@ -249,6 +249,12 @@ const piece = (x = {}) => ({ id: 1, kind: "Q", color: "w", level: 1, abilities: 
       gm5.every((id) => monsterAmBrett(id) >= 85 && monsterAmBrett(id) <= 100.5 && SB5[id].boden === 555 && SB5[id].oben === 21)
       && SB5["boss-b08"].teller === 50 && SB5["boss-b18"].teller === 42
       && BOSSES.find((b) => b.id === "b14").accent === "#a855f7" && BOSSES.find((b) => b.id === "b08").accent === "#a3adb8");
+    /* v1.90.30 (Besitzer 5.10.): der Doppelritter 10 % hoeher ("muss noch
+       etwas hoeher sein"), Schattenfuerst mit Knochenhoernern und Schleicher
+       mit Knochenklaue ("sind gut"). */
+    ok(`v1.90.30: der Doppelritter steht bei 82-90 % der Offiziere (${monsterAmBrett("boss-b10").toFixed(1)}), Schattenfuerst und Schleicher tragen ihre neuen Bilder (Teller 35 und 46)`,
+      monsterAmBrett("boss-b10") >= 82 && monsterAmBrett("boss-b10") <= 90 && SB5["boss-b10"].teller === 52
+      && SB5["boss-b19"].teller === 35 && SB5["boss-b04"].teller === 46 && ["boss-b10", "boss-b19", "boss-b04"].every((id) => SB5[id].boden === 555 && SB5[id].oben === 21));
     const vier = ["boss-b15", "boss-b22", "boss-b05", "boss-b13"];
     ok(`v1.90.27: Sturmklaue, Zerreisser, Streuner und Brandstifter stehen bei 75-100 % der Offiziere (${vier.map((id) => id.slice(5) + " " + monsterAmBrett(id).toFixed(1)).join(", ")})`,
       vier.every((id) => monsterAmBrett(id) >= 75 && monsterAmBrett(id) <= 100.5 && SB5[id].boden === 555 && SB5[id].oben === 21));

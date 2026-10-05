@@ -1,5 +1,28 @@
 # Changelog - Gambit Rise
 
+## 1.90.30 - Doppelritter hoeher, Schattenfuerst und Schleicher mit Knochen-Akzent
+
+- **Doppelritter** (62 -> 84 %): aufgerichtet, die Koepfe nebeneinander, dazu
+  10 % ueber dem Sockel gestreckt (Besitzer 4.10.: "muss noch etwas hoeher
+  sein"). Mehr gibt sein breiter Sockel ohne neues Bild nicht her.
+- **Schattenfuerst**: die Hoerner in Knochenfarbe; der Koerper kam dabei
+  dunkelgrau statt grauviolett zurueck. Freigegeben 5.10. ("sind gut").
+- **Schleicher**: die Klaue in Knochenfarbe. Freigegeben 5.10.
+
+Was NICHT in dieser Fassung ist: Lanzenmeister, Richter, Hueter und Asra
+standen schon lokal im Bau ("Mega, gerne weitermachen" als Freigabe gelesen),
+der Besitzer wollte sie anders - wieder herausgenommen, neue Vorschlaege
+liegen bei ihm. Die Kette hatte an ihnen zwei echte Fehler gefangen, die fuer
+den naechsten Anlauf gelten: zu schlanke Figuren druecken ueber die
+Hoehenklammer ihr eigenes Band (Richter unter 90 % der Dame), und der
+Sockelfuss des Doppelritters stand nach dem Strecken 3,5 px neben der Mitte
+(A31) - er ist jetzt nach dem Fuss gesetzt.
+
+Sockel einzeln gemessen (Teller 52, 35, 46), Farben nur fuer die drei
+uebernommen. Alte Bilder in archiv/ausgemustert/v1.90.30/.
+
+Proben: 31 Suiten / 2693 Pruefungen (vorher 2692).
+
 ## 1.90.29 - Fuenf Grossmeister in neuer Fassung: Koloss, Kanonier, Blutmagd, Seuchenkoenig, Eisenfaust
 
 Sie standen am Brett bei 67-73 % der Offiziere und trugen kaum Akzente. Alle
