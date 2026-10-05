@@ -412,11 +412,20 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
   const platz = panelOben ? platzOben : platzUnten;
   const MINDEST = 300;
   const mittig = platz < MINDEST;
+  /* v1.90.34 (Besitzer 5.10., am Handy: "ich wuerde sie immer komplett auf
+     Fullscreen haben ... die Hoehe, die es benoetigt, dass alles drauf passt"):
+     gemessen an seinem Foto stand das Fenster unten neben dem Wanderer und
+     bekam nur den Platz DARUNTER (platzUnten) - der Gefolge-Kasten und der
+     Knopf lagen hinter einem Bildlauf. Das Fenster nimmt jetzt in JEDER Lage,
+     was sein Inhalt braucht, bis zur ganzen Rahmenhoehe unter der Knopfleiste;
+     der Bildlauf bleibt nur als Netz fuer sehr kleine Schirme. Den Wanderer
+     darf es dabei verdecken - wer die Station liest, sucht ihn nicht. */
+  const PANEL_HOCH = Math.max(180, frameH - LEISTE - 22);
   const panelPos = mittig
-    ? { top: "50%", transform: "translateY(-50%)", maxHeight: Math.round(frameH * 0.86), overflowY: "auto" }
+    ? { top: "50%", transform: "translateY(-50%)", maxHeight: PANEL_HOCH, overflowY: "auto" }
     : panelOben
-      ? { top: frameY + LEISTE, maxHeight: Math.max(180, platzOben), overflowY: "auto" }
-      : { bottom: dockPad + 14, maxHeight: Math.max(180, platzUnten), overflowY: "auto" };
+      ? { top: frameY + LEISTE, maxHeight: PANEL_HOCH, overflowY: "auto" }
+      : { bottom: dockPad + 14, maxHeight: PANEL_HOCH, overflowY: "auto" };
   const showPanel = panelOpen && !viewing && !!node && !token.moving && !seaLock;
 
   /* Der Einstieg liegt vor dem ganzen Schirm - erst das Land, dann die Karte. */
@@ -1231,7 +1240,7 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
         </div>
       )}
       {showPanel && (
-        <div key={sel + (token.at === sel ? "@" : "")} style={{ position: "absolute", left: frameX + panelLeft, width: panelW, ...panelPos,
+        <div data-stationsfenster key={sel + (token.at === sel ? "@" : "")} style={{ position: "absolute", left: frameX + panelLeft, width: panelW, ...panelPos,
           zIndex: 7, background: "rgba(14,10,24,.8)", backdropFilter: "blur(16px) saturate(1.15)",
           WebkitBackdropFilter: "blur(16px) saturate(1.15)", border: `1px solid ${PP.line}`, borderRadius: 18, color: PP.ink,
           boxShadow: "0 8px 30px rgba(0,0,0,.5)",
@@ -1400,12 +1409,16 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
                 background: "linear-gradient(135deg, rgba(233,207,138,.28), rgba(201,164,92,.14))",
                 border: "1px solid rgba(201,164,92,.55)", boxShadow: "inset 0 1px 0 rgba(255,244,214,.6)" } : null) }}>
               <span aria-hidden style={{ fontSize: erfolg ? 22 : 19, lineHeight: 1, flex: "0 0 auto",
-                color: erfolg ? "#c9a45c" : "#7d8a5a",
+                color: erfolg ? "#f0d68a" : "#7d8a5a",
                 textShadow: erfolg ? "0 0 8px rgba(233,207,138,.9), 0 0 2px #fff6d8" : "none",
                 ...(erfolg && animAn() ? { animation: "ggErfolgStern 2.4s ease-in-out infinite", display: "inline-block" } : null) }}>
                 {erfolg ? "✦" : "✓"}</span>
               <span className="gg-serif" style={{ fontSize: 13, fontStyle: "italic", lineHeight: 1.35,
-                color: erfolg ? "#5a4210" : PP.dim, fontWeight: erfolg ? 600 : 400 }}>{txt}</span>
+                /* v1.90.34 (Besitzer: "gar nicht richtig lesbar, falsche Kontraste"):
+                   dunkles Gold #5a4210 stammte aus der Zeit des hellen
+                   Pergamentfensters; auf dem dunklen Fenster von heute hatte
+                   es gegen den Kasten kaum Kontrast. Jetzt helles Gold. */
+                color: erfolg ? "#f6e3b0" : PP.dim, fontWeight: erfolg ? 600 : 400 }}>{txt}</span>
             </div>;
           })()}
           {status === "gated" ? (() => {

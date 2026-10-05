@@ -1,4 +1,4 @@
-# Die EISERNE KETTE, so weit sie ein Runner tragen kann (31 Suiten / 2699
+# Die EISERNE KETTE, so weit sie ein Runner tragen kann (31 Suiten / 2704
 # Pruefungen, Stand v1.90.25 - siehe CLAUDE.md).
 #
 # ── v1.90.16 (Audit A69): OHNE ARCHIV, OHNE 700-MB-UPLOAD ───────────────
@@ -68,6 +68,7 @@ jobs:
       # v1.90.18 (Audit A73): zwei App-Seiten spielen ein Online-Duell gegen
       # die echte Hallen-Logik (routeWebSocket, kein Netz) - siehe CLAUDE.md
       - run: node tools/pruefe-duell.mjs
+      - run: node tools/pruefe-leiste.mjs
       - uses: actions/upload-artifact@v7
         with:
           name: gambit-rise-singlefile

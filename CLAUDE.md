@@ -41,8 +41,8 @@ gambitrise.com zeigt darauf).
   pruefe-navigation, pruefe-textfluss, test_layout) lesen den Chromium-Pfad aus
   `PW_CHROMIUM`; ohne die Variable gilt der Pfad des Cloud-Containers. Lokal:
   `npx playwright install chromium` und `PW_CHROMIUM=<Pfad zur chrome-Datei>`.
-- `npm test` — volle Batterie. MUSS **31 Suiten / 2699 Prüfungen** melden
-  (Stand v1.90.33; der Runner stoppt nach der ersten roten Suite, also
+- `npm test` — volle Batterie. MUSS **31 Suiten / 2704 Prüfungen** melden
+  (Stand v1.90.34; der Runner stoppt nach der ersten roten Suite, also
   Suitenzahl prüfen, nicht nur Assertions! **Zählweise seit v1.90.18
   (Audit A74): JEDE Suite der Kette meldet eine RESULT-Zeile** — alle Zeilen
   `RESULT…: N passed` summieren; test_balance meldet zwei, darum stehen im
@@ -178,6 +178,18 @@ gambitrise.com zeigt darauf).
   Gegen v1.90.15 gefahren: 16 rot, danach 0. `--nur=L07s41,…` für einzelne
   Stationen, `WURZEL=/tmp/rr/dist` gegen einen anderen Bau. Braucht `dist/`
   mit der App (**nach `build:app`**).
+- `node tools/pruefe-leiste.mjs` — **DIE KAMPFLEISTE AM ECHTEN BAUTEIL**
+  (v1.90.34, ~10 s). Baut `tools/leiste-pruefstand.jsx` (ein Bauer mit allen 30
+  Fähigkeiten) und misst in drei Handybreiten, deutsch und englisch: jeder
+  Kachelname passt (L1), die Kartenreihe bleibt bei jeder geöffneten Fähigkeit
+  auf derselben Höhe (L2), kein Erklärtext ist abgeschnitten (L3). **Warum:**
+  Besitzer 5.10. am Handy — „STOSSSCHLA“ auf der Kachel, und die Reihe wanderte
+  mit der Textlänge. Wer eine Fähigkeit mit langem Namen oder einem Erklärtext
+  über 135 Zeichen anlegt, trägt in `LEISTE_KURZ` (KampfLeiste.jsx) eine
+  Kurzfassung ein, sonst werden diese Probe und test_ui rot. Die
+  Navigationsprobe misst seit v1.90.34 auch jedes Stationsfenster (kein
+  Bildlauf, ganz im Schirm); `GEKLAERT=1` klärt dafür alle Stationen — dann
+  meldet sie erwartungsgemäß „keine Station lässt sich betreten“.
 - `node tools/pruefe-duell.mjs` — **DAS ONLINE-DUELL VON BEIDEN SEITEN**
   (v1.90.18, Audit A73, ~10 s). Zwei Browser-Kontexte der gebauten App legen
   lokale Konten an, verbinden (MIT Zustimmungsfenster), spielen im Modus
@@ -231,8 +243,9 @@ starten, sonst reißen Werkzeug-Zeitlimits den Lauf ab.
    und dass KEIN Riegel mehr fragt — der Umzug ist damit unter Aufsicht.
 3. `node test_boot.mjs` (3/3) und `node scripts/verify-boot.mjs` (grün)
 4. `timeout 250 node drive3.mjs` (keine Fehler),
-   `node tools/pruefe-figurenmass.mjs` (0 Befunde) und
-   `node tools/pruefe-duell.mjs` (RESULT ohne failed); bei Arbeit an Karte,
+   `node tools/pruefe-figurenmass.mjs` (0 Befunde),
+   `node tools/pruefe-duell.mjs` (RESULT ohne failed) und
+   `node tools/pruefe-leiste.mjs` (RESULT ohne failed); bei Arbeit an Karte,
    Kampagne oder Navigation zusätzlich `node tools/pruefe-navigation.mjs`
 5. REINRAUM: `git clone . /tmp/rr && cp -r node_modules /tmp/rr/` und dort
    Schritte 1–4 wiederholen. **Währenddessen nichts Schweres nebenher laufen
@@ -469,7 +482,7 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
   Auswahl-Lichtspektakel.
 - Alles Optionale abschaltbar (Klang, Online).
 
-## Offene Baustellen (Stand v1.90.33, 5.10.2026)
+## Offene Baustellen (Stand v1.90.34, 5.10.2026)
 
 **Einstieg für jede neue Sitzung: `design/CHAT-EINSTIEG-2026-09-27.md`** (zehn
 Minuten, mit dem Startsatz für den Chat), dann **`design/UEBERGABE-2026-09-27.md`** — Stand,

@@ -57,6 +57,45 @@ function Ring({ icon, dry, gruen }) {
 
 // DIE KARTE (nach der Vorlage): schmaler violetter Rahmen, Ring oben,
 // Name darunter - und bei der gesperrten Karte die Stufe als Untertitel.
+/* v1.90.34 (Besitzer 5.10.: "die Erklaertexte sind unterschiedlich lang, und
+   entsprechend wandert das ganze Menue nach unten ... nimm die laengsten oder
+   kuerz die Texte"): die Leiste haelt fuer den Text ein FESTES Fenster frei
+   (TEXT_HOEHE), die Karten stehen darum immer auf derselben Hoehe. Damit kein
+   Text darin abgeschnitten wird, sagt die Leiste die sechs langen Erklaerungen
+   kuerzer - die volle Fassung steht weiter im Hofstaat. test_ui prueft die
+   Grenze LEISTE_TEXT_MAX fuer jeden Text, den die Leiste zeigen kann. */
+export const LEISTE_TEXT_MAX = 135;
+export const LEISTE_KURZ = {
+  castle: { de: "König und Turm ziehen zusammen. Nur wenn beide unbewegt sind, die Gasse frei ist und der König nicht durchs Schach zieht.",
+            en: "King and rook move together. Only while both are unmoved, the lane is clear and the king does not pass through check." },
+  enpassant: { de: "Zog ein Bauer eben per Doppelschritt an deinem vorbei, schlägst du ihn im Vorbeigehen. Nur genau einen Zug lang möglich.",
+               en: "If a pawn just double-stepped past yours, capture it in passing. Possible for exactly one move." },
+  dragon_flight: { de: "Der Drache springt als ganzer Block bis zu 2 Felder und trifft jedes bedeckte Feld. Überlebt ein Getroffener, fällt er zurück.",
+                   en: "The dragon leaps as a full block, up to 2 squares, striking every covered square. If a struck foe survives, he falls back." },
+  blenden: { de: "Zieht das Monster neben Gegner (bis zwei Felder), sind sie einen Zug lang blind und ziehen nicht. Den König blendet es nie.",
+             en: "When the monster moves within two squares of foes, they are blind for one move and may not move. Never the king." },
+  gift: { de: "Ein Treffer vergiftet: drei Runden lang kostet jeder eigene Zug Leben. Gift tötet nie, ein Leben bleibt.",
+          en: "A hit poisons: for three rounds each own move costs life. Poison never kills; one life remains." },
+  widerhall: { de: "Wer das Monster trifft, bekommt einen Teil des Schadens sofort zurück. Das kann den Angreifer fällen.",
+               en: "Whoever hits the monster takes part of the damage straight back. It can fell the attacker." },
+};
+export const leistenText = (id, quelle, en) => {
+  const k = LEISTE_KURZ[id];
+  return k ? (en ? k.en : k.de) : (en ? quelle.descEn : quelle.descDe);
+};
+const TEXT_HOEHE = 96;   // Kopfzeile + vier Textzeilen
+const HINWEIS_HOEHE = 28;   // zwei Zeilen: auf schmalen Geraeten bricht der Hinweis um
+
+/* Gemessen im Browser (tools/pruefe-leiste.mjs): Grossbuchstaben in fetter
+   Schrift brauchen rund 0,78 em je Zeichen, und aus "ß" wird in Grossschrift
+   "SS" - STOSSSCHLAG hat elf Zeichen, nicht zehn. Die Schrift richtet sich nach
+   dem laengsten Wort, damit es in KACHEL_TEXT Pixel passt. */
+export const KACHEL_TEXT = 70;
+export const nameGroesse = (label) => {
+  const lang = Math.max(...String(label || "").toUpperCase().split(/[\s-]+/).map((w) => w.length));
+  return Math.max(6.5, Math.min(9, (KACHEL_TEXT - 2) / (Math.max(1, lang) * 0.78)));
+};
+
 function Karte({ icon, label, unter, dry, gruen, active, lock, onTap, scharf = false, fuss = null }) {
   return (
     /* v1.89.0 (Besitzer: "Talent-Kacheln: Kontur Lila; wenn man eine auswaehlt,
@@ -68,7 +107,7 @@ function Karte({ icon, label, unter, dry, gruen, active, lock, onTap, scharf = f
        die scharfe Kachel traegt die laufende Kontur .gg-funkenkontur, dieselbe
        wie der Verbessern-Knopf im Hofstaat. */
     <button onClick={onTap} title={label} className={scharf ? "gg-funkenkontur" : undefined}
-      style={{ width: 66, minHeight: 78, flex: "0 0 auto", cursor: "pointer", fontFamily: "inherit",
+      style={{ width: 78, minHeight: 78, flex: "0 0 auto", cursor: "pointer", fontFamily: "inherit",
         display: "flex", flexDirection: "column", alignItems: "center", gap: 4, padding: "7px 3px 5px",
         borderRadius: 12,
         /* v1.38.0: SCHARF leuchtet violett - dieselbe Farbe, die das Brett fuer
@@ -81,9 +120,13 @@ function Karte({ icon, label, unter, dry, gruen, active, lock, onTap, scharf = f
         boxShadow: scharf ? "0 0 14px rgba(167,139,250,.65)" : active && !lock ? "0 0 10px rgba(167,139,250,.35)" : "0 2px 8px rgba(0,0,0,.4)",
         opacity: lock ? 0.78 : 1 }}>
       <Ring icon={lock ? <LockIc size={17} color="#a78bfa" /> : icon} dry={dry || lock} gruen={gruen} />
-      <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: ".05em", textTransform: "uppercase",
+      {/* v1.90.34 (Besitzer: "sehr unvorteilhaft, wenn der Name der Faehigkeit
+          nicht ganz auf die Kachel passt" - STOSSSCHLAG stand als STOSSSCHLA
+          da): die Kachel ist 78 statt 66 breit (drei passen bei 390 px neben die Figur), und die Schrift richtet sich
+          nach dem LAENGSTEN WORT des Namens (ein Wort bricht nicht um). */}
+      <span data-kachel-name style={{ fontSize: nameGroesse(label), fontWeight: 800, letterSpacing: ".02em", textTransform: "uppercase",
         color: lock ? T.faint : gruen ? "#9fe0b0" : T.goldBright, lineHeight: 1.15, textAlign: "center",
-        maxWidth: 60, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
+        maxWidth: KACHEL_TEXT, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
         {label}</span>
       {unter && <span style={{ fontSize: 8.5, fontWeight: 800, color: T.faint }}>{unter}</span>}
       {/* v1.38.0: die Fusszeile der Pillen zog mit um - dauerhaft, antippen,
@@ -209,6 +252,7 @@ export function KampfLeiste({ state, inspect, en, myColor = "w", banner = false,
         ) : null; })()}
         <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", justifyContent: "center", gap: 6 }}>
         {pc ? (<>
+          <div data-talent-fenster style={{ height: TEXT_HOEHE, display: "flex", flexDirection: "column", justifyContent: "flex-end", overflow: "hidden" }}>
           {beschreibung && (
             /* v1.89.0 (Besitzer: "wenn ich Ausweichen klicke, moechte ich die
                Erklaerung vielleicht haben, aber nicht eingekaestelt in so eine
@@ -227,18 +271,20 @@ export function KampfLeiste({ state, inspect, en, myColor = "w", banner = false,
                     {en ? "available now" : "jetzt möglich"}</span>)}
                 {offen.art === "lock" && (
                   <span style={{ fontSize: 10.5, fontWeight: 800, color: "#cbbcf5" }}>
-                    {en ? `locked · unlock in the court from Lv ${offen.level}` : `gesperrt · freischaltbar im Hofstaat ab Lv ${offen.level}`}</span>)}
+                    {en ? `locked · from Lv ${offen.level}` : `gesperrt · ab Lv ${offen.level}`}</span>)}
               </div>
-              <div style={{ fontSize: 12, lineHeight: 1.5, color: T.text }}>
-                {en ? beschreibung.descEn : beschreibung.descDe}</div>
+              <div style={{ fontSize: 12, lineHeight: 1.5, color: T.text,
+                overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 4, WebkitBoxOrient: "vertical" }}>
+                {offen.nebel ? (en ? beschreibung.descEn : beschreibung.descDe) : leistenText(offen.id, beschreibung, en)}</div>
             </div>
           )}
+          </div>
           {/* v0.71.8 (Besitzer): kein Kopfzeilen-Balken mehr - der Name steht
               WINZIG in der besonderen Schrift oben links, nimmt keinen Platz
               und traegt keine Pille; die Kugeln haengen klein daneben. */}
           {/* v0.71.12: der Kopf-Block oben links ist fort - alles wohnt an der Figur. */}
           {/* DIE KARTENREIHE: Sonderzuege · Faehigkeiten · die naechste Gesperrte */}
-          <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 2, scrollbarWidth: "none" }}>
+          <div style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 2, scrollbarWidth: "none" }}>
             {sonder.map((k) => (
               <Karte key={k} icon={SONDER[k].icon} label={en ? SONDER[k].nameEn : SONDER[k].nameDe} gruen
                 active={offen?.art === "sonder" && offen.id === k}
@@ -278,16 +324,18 @@ export function KampfLeiste({ state, inspect, en, myColor = "w", banner = false,
               mit und wurde am Rand abgeschnitten (im Browser gesehen). */}
           {/* v1.38.0: der Satz aus dem alten Talentband - er sagt, warum keine
               Karte mehr schaltet, wenn der eine Zauber der Partie fort ist. */}
+          <div data-talent-hinweis style={{ height: HINWEIS_HOEHE, overflow: "hidden", fontSize: 10.5, lineHeight: 1.3 }}>
           {!scharf && dry && amZug && abIds.some((id) => istZauber(id)) && (
             <span style={{ fontSize: 10.5, color: "#b8a7ea", paddingLeft: 2 }}>
-              {en ? "The book is closed — one spell per battle, and it is spent."
-                  : "Das Buch ist geschlossen — ein Zauber je Partie, er ist eingesetzt."}</span>
+              {en ? "One spell per battle — it is spent."
+                  : "Das Buch ist geschlossen — der Zauber ist eingesetzt."}</span>
           )}
           {scharf && ABILITIES[scharf] && (
             <span style={{ fontSize: 10.5, fontWeight: 700, color: "#cbbcf5", paddingLeft: 2 }}>
-              {en ? "ready — tap a ✦ square · tap the card again to stand down"
-                  : "bereit — tippe ein ✦-Feld · nochmal antippen entschärft"}</span>
+              {en ? "ready — tap a ✦ square · tap again to cancel"
+                  : "bereit — tippe ein ✦-Feld · nochmal tippen bricht ab"}</span>
           )}
+          </div>
         </>) : (
           <span style={{ fontSize: 11.5, color: T.faint, padding: "0 4px" }}>
             {en ? "Tap one of your pieces — its talents and special moves appear here."

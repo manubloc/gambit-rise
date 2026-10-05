@@ -1,2 +1,2 @@
 // von scripts/worker-version.mjs geschrieben - nicht von Hand aendern
-export const HALLE_VERSION = "1.90.33";
+export const HALLE_VERSION = "1.90.34";

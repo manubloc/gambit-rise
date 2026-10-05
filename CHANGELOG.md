@@ -1,5 +1,46 @@
 # Changelog - Gambit Rise
 
+## 1.90.34 - Kampfleiste steht still, Stationsfenster zeigt alles
+
+Besitzer am Handy, 5.10.: "sehr unvorteilhaft, wenn der Name der Faehigkeit
+nicht ganz drauf passt auf die Kachel ... unschoen, wenn die Erklaertexte
+unterschiedlich lang sind und entsprechend das ganze Menue nach unten wandert
+... [im Stationsfenster] ist die eine Box gar nicht richtig lesbar ... ich
+wuerde sie immer komplett auf Fullscreen haben - die Hoehe, die es benoetigt,
+dass alles drauf passt."
+
+- **Kachelnamen passen.** Ursache: die Kachel bot dem Namen 60 px, und aus "ß"
+  wird in Grossschrift "SS" - STOSSSCHLAG hat elf Zeichen und stand als
+  "STOSSSCHLA" da. Die Kachel ist 78 statt 66 px breit (drei passen bei 390 px
+  weiter neben die Figur), die Schrift richtet sich nach dem laengsten Wort
+  (`nameGroesse`, 0,78 em je Grossbuchstabe - im Browser gemessen).
+- **Die Kartenreihe wandert nicht mehr.** Ursache: Erklaertext und Hinweiszeile
+  standen im Fluss UEBER bzw. UNTER den Karten und waren je Faehigkeit ein bis
+  sechs Zeilen hoch. Jetzt haben beide ein festes Fenster (96 px fuer Kopf und
+  vier Zeilen, 28 px fuer den Hinweis). Damit nichts abgeschnitten wird, sagt
+  die Leiste sechs lange Erklaerungen kuerzer (`LEISTE_KURZ`: Rochade, En
+  passant, Fliegen, Blenden, Gift, Widerhall) - die volle Fassung steht weiter
+  im Hofstaat. "gesperrt · freischaltbar im Hofstaat ab Lv N" heisst hier
+  "gesperrt · ab Lv N".
+- **Gefolge-Kasten lesbar.** Ursache: dunkles Gold #5a4210 stammte aus der Zeit
+  des hellen Pergamentfensters; auf dem dunklen Fenster von heute lag es bei
+  rund 1,3 : 1 gegen den Kasten. Jetzt helles Gold #f6e3b0 (rund 10 : 1).
+- **Das Stationsfenster nimmt, was sein Inhalt braucht.** Ursache: unten
+  verankert bekam es nur den Platz UNTER dem Wanderer (`platzUnten`); Kasten
+  und Knopf lagen hinter einem Bildlauf. Jetzt in jeder Lage bis zur ganzen
+  Rahmenhoehe unter der Knopfleiste. Gemessen mit geklaertem Stand: vorher
+  "Inhalt 393 px in 338 px" (mit Info 449 in 338), jetzt 12 von 12 Fensterlagen
+  ohne Bildlauf, groesstes Fenster 449 px.
+- **Neue Probe `tools/pruefe-leiste.mjs`** (24 Messungen, drei Handybreiten,
+  deutsch und englisch, alle 30 Faehigkeiten an einem Bauern): Name passt,
+  Reihe steht (Abweichung 0,0 px), kein Text abgeschnitten. Beim ersten Lauf
+  rot an Stossschlag, Durchbruch, Scharfschuss, Schockwelle, Masquerade.
+  `tools/pruefe-navigation.mjs` misst jetzt jedes Stationsfenster (kein
+  Bildlauf, ganz im Schirm, auch mit Info); `GEKLAERT=1` klaert dafuer alle
+  Stationen, `FOTO=<ordner>` legt Bilder ab.
+- test_ui: +5 (Textgrenze 135 Zeichen fuer jeden Leistentext, feste Fenster,
+  Namensbreite, Fensterhoehe, Kastenfarbe) - 31 Suiten / 2704 Pruefungen.
+
 ## 1.90.33 - Bestechen ohne Opfer: der Preis folgt dem Koennen des Monsters
 
 Besitzer 5.10.: "Opfer auf jeden Fall streichen, mach die Monster auf jeden

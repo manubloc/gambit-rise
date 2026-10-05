@@ -2911,5 +2911,35 @@ print(json.dumps({"gezaehlt": gezaehlt, "schlecht": schlecht}))
   ok(`Chronik: jede Gestalt steht in beiden Sprachen im selben Kapitel (schief: ${schief.join(", ") || "keine"})`, schief.length === 0);
 }
 
+/* ── v1.90.34: DIE KAMPFLEISTE STEHT STILL ─────────────────────────────────────
+   Besitzer am Handy (5.10.): STOSSSCHLAG stand als "STOSSSCHLA" auf der Kachel,
+   und je nach Laenge des Erklaertextes rutschten die Kacheln nach unten.
+   Geprueft wird: jeder Text, den die Leiste zeigen kann, passt in das feste
+   Fenster (vier Zeilen), und jeder Name passt mit seinem laengsten Wort auf
+   die Kachel. Die Geometrie selbst misst tools/pruefe-leiste.mjs im Browser. */
+{
+  const { LEISTE_KURZ, LEISTE_TEXT_MAX, leistenText } = await import("./src/app/ui/KampfLeiste.jsx");
+  const kl = readFileSync("src/app/ui/KampfLeiste.jsx", "utf8");
+  const zuLang = [];
+  for (const [id, a] of Object.entries(ABILITIES)) for (const en of [false, true]) {
+    const t = leistenText(id, a, en); if (!t || t.length > LEISTE_TEXT_MAX) zuLang.push(`${id}${en ? "/en" : ""}:${(t || "").length}`);
+  }
+  for (const [id, k] of Object.entries(LEISTE_KURZ)) for (const t of [k.de, k.en]) if (t.length > LEISTE_TEXT_MAX) zuLang.push(`${id}:${t.length}`);
+  ok(`Kampfleiste: kein Erklaertext laenger als ${LEISTE_TEXT_MAX} Zeichen (zu lang: ${zuLang.join(", ") || "keiner"})`, zuLang.length === 0);
+  ok("Kampfleiste: Textfenster und Hinweiszeile haben feste Hoehe",
+    kl.includes("data-talent-fenster style={{ height: TEXT_HOEHE") && kl.includes("data-talent-hinweis style={{ height: HINWEIS_HOEHE"));
+  const { nameGroesse, KACHEL_TEXT } = await import("./src/app/ui/KampfLeiste.jsx");
+  const eng = [];
+  for (const a of Object.values(ABILITIES)) for (const n of [a.nameDe, a.nameEn]) {
+    const lang = Math.max(...n.toUpperCase().split(/[\s-]+/).map((w) => w.length));
+    if (lang * nameGroesse(n) * 0.78 > KACHEL_TEXT) eng.push(n);
+  }
+  ok(`Kampfleiste: jeder Faehigkeitsname passt auf die Kachel (zu breit: ${eng.join(", ") || "keiner"})`, eng.length === 0);
+  const cs34 = readFileSync("src/app/ui/screens/CampaignScreen.jsx", "utf8");
+  ok("Stationsfenster: nimmt die Hoehe, die der Inhalt braucht (bis zum ganzen Rahmen)",
+    cs34.includes("const PANEL_HOCH = Math.max(180, frameH - LEISTE - 22)") && !cs34.includes("maxHeight: Math.max(180, platzUnten)"));
+  ok("Stationsfenster: der Gefolge-Kasten schreibt hell auf dunkel", cs34.includes('color: erfolg ? "#f6e3b0" : PP.dim') && !cs34.includes('erfolg ? "#5a4210"'));
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

@@ -251,7 +251,11 @@ console.log("   Einstieg: im Hub");
    andere bleibt, wie die App es angelegt hat. Danach ein Neuladen, damit
    die App den Stand frisch liest. */
 schritt = "Rueckblick vorbereiten";
-const liga = await page.evaluate(() => {
+const VOLL = process.env.GEKLAERT === "1" ? await (async () => {
+  const c = await import("../src/content/index.js");
+  return { stationen: c.CAMPAIGN.map((n) => n.id), figuren: Object.keys(c.CHARACTERS) };
+})() : null;
+const liga = await page.evaluate((voll) => {
   try {
     const P = "gambit:u::save:";
     const k = Object.keys(localStorage).filter((x) => x.startsWith(P));
@@ -259,10 +263,16 @@ const liga = await page.evaluate(() => {
     const prof = JSON.parse(localStorage.getItem(k[0]));
     prof.campaign = prof.campaign || {};
     prof.campaign.league = 3;
+    /* v1.90.34: GEKLAERT=1 klaert dazu jede Station und gewinnt jede Figur -
+       dann zeigen die Stationsfenster ihre LANGE Fassung (Bildnis, Geschichte,
+       Gefolge-Kasten, Info-Knopf), und die Fenstermessung unten greift dort,
+       wo der Besitzer am 5.10. den Bildlauf fand. Nicht der Standard: die
+       Runden brauchen sonst offene Stationen zum Betreten. */
+    if (voll) { prof.campaign.cleared = voll.stationen; prof.campaign.unlocked = voll.figuren; }
     localStorage.setItem(k[0], JSON.stringify(prof));
     return { liga: prof.campaign.league, schluessel: k.length };
   } catch (e) { return { fehler: String(e && e.message || e) }; }
-});
+}, VOLL);
 if (liga.fehler) melde("Rueckblick nicht vorbereitbar: " + liga.fehler);
 else {
   await page.reload({ waitUntil: "networkidle" });
@@ -277,6 +287,7 @@ else {
    legten je Partie zwei Eintraege an und nach jedem Zurueck einen weiteren -
    die Probe mass `history` nie. Jetzt: Laenge zu Beginn jeder Runde. */
 const verlauf = [];
+const fensterMass = [];   // v1.90.34: Hoehen der gemessenen Stationsfenster
 for (let runde = 1; runde <= RUNDEN; runde++) {
   console.log(`\n== RUNDE ${runde} von ${RUNDEN} ==`);
   verlauf.push(await page.evaluate(() => history.length).catch(() => null));
@@ -296,6 +307,26 @@ for (let runde = 1; runde <= RUNDEN; runde++) {
     await knopfDa(KREUZ, 3000);
     if ((await zustand(`Stationsfenster ${s + 1}`)).tot) break;
     offen++;
+    /* v1.90.34 (Besitzer 5.10.: "immer die Hoehe, die es benoetigt, dass alles
+       drauf passt"): das Fenster darf keinen Bildlauf brauchen und muss ganz
+       im Schirm stehen - auch mit aufgeklapptem Info-Text. */
+    for (const lage of ["zu", "Info auf"]) {
+      if (lage === "Info auf" && !(await page.evaluate(() => {
+        const f = document.querySelector("[data-stationsfenster]");
+        const b = f && [...f.querySelectorAll("button")].find((x) => (x.textContent || "").trim() === "i");
+        if (b) b.click(); return !!b; }))) break;
+      await ruhe(400, 120);
+      const m = await page.evaluate(() => {
+        const f = document.querySelector("[data-stationsfenster]"); if (!f) return null;
+        const r = f.getBoundingClientRect();
+        return { sh: f.scrollHeight, ch: f.clientHeight, oben: Math.round(r.top), unten: Math.round(r.bottom), vh: innerHeight };
+      });
+      if (!m) { if (lage === "zu") melde("Stationsfenster ohne Kennung data-stationsfenster"); break; }
+      fensterMass.push(m.ch);
+      if (process.env.FOTO) await page.screenshot({ path: `${process.env.FOTO}/fenster-r${runde}-s${s + 1}-${lage === "zu" ? "zu" : "info"}.png` });
+      if (m.sh > m.ch + 1) melde(`Stationsfenster (${lage}) braucht Bildlauf: Inhalt ${m.sh} px in ${m.ch} px`);
+      if (m.oben < 0 || m.unten > m.vh) melde(`Stationsfenster (${lage}) ragt aus dem Schirm: ${m.oben}..${m.unten} von ${m.vh}`);
+    }
     schritt = `R${runde} Station ${s + 1} schliessen`;
     if (!(await klick(KREUZ))) {
       melde("Stationsfenster hat keinen Schliessknopf");
@@ -304,7 +335,7 @@ for (let runde = 1; runde <= RUNDEN; runde++) {
     await knopfWeg(KREUZ, 2000); await ruhe(800, 250);
     if ((await zustand(`Karte nach Station ${s + 1}`)).tot) break;
   }
-  console.log(`   ${offen} Stationen geoeffnet und geschlossen`);
+  console.log(`   ${offen} Stationen geoeffnet und geschlossen · ${fensterMass.length} Fensterlagen gemessen (ohne Bildlauf, im Schirm), Hoehen ${Math.min(...fensterMass, 9999)}–${Math.max(...fensterMass, 0)} px`);
 
   // 3. DER VOLLE SPIELFLUSS: Station -> Gefecht -> zurueck auf die Karte.
   //    Genau das, was der Besitzer als "in die Kapitel zurueckgehen" meint,
