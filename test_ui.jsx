@@ -18,6 +18,8 @@ import { zugArt, rgbTripel, ZUG_TON } from "./src/app/ui/board/zugart.js";
 import { buildArmyFromFormation } from "./src/meta/index.js";
 const einfachesHeer = () => buildArmyFromFormation(() => 1, ["rook", "knight", "bishop", "queen", "king", "bishop", "knight", "rook"]);
 import { ABILITIES, BOSSES } from "./src/content/index.js";
+import { KAPITEL_TROPHAEE as KAPITEL_TROPHAEE33 } from "./src/content/index.js";
+import { monsterBestechPreis, MONSTER_PREIS_STUFEN } from "./src/meta/index.js";
 import { ACHIEVEMENTS } from "./src/meta/achievements.js";
 import { PIECE_ART, BOSS_ART } from "./src/app/ui/art.generated.js";
 import { itemArt } from "./src/app/ui/assets/items/itemArt.js";
@@ -277,6 +279,25 @@ const piece = (x = {}) => ({ id: 1, kind: "Q", color: "w", level: 1, abilities: 
        Besitzer gesehen und freigegeben). */
     const bandSchmal = alleMonster.filter((id) => id !== "boss-b03" && (SB5[id].boden - SB5[id].oben) * Math.max(0.55, Math.min(1.35, 136 / SB5[id].rx)) > 561 * 1.03);
     ok(`v1.90.32: kein Monster ausser der Brutmutter ist so schlank, dass sein Band unter 97 % der Nachbarn faellt (${bandSchmal.join(", ") || "keins"})`, bandSchmal.length === 0);
+    /* ── v1.90.33: BESTECHEN OHNE OPFER, PREIS NACH KOENNEN ──────────────────
+       Besitzer 5.10.: "Opfer auf jeden Fall streichen, mach die Monster nicht
+       zu teuer ... ein sehr gutes Monster darf teurer sein als ein weniger
+       gutes ... wenn man alle Wege spielt, alle Monster kaufen koennen." */
+    {
+      const preise = BOSSES.map((b) => [b, monsterBestechPreis(b)]);
+      ok(`v1.90.33: der Bestechpreis folgt der Zahl der Faehigkeiten und liegt bei 1200-2400 (Geist ${monsterBestechPreis(BOSSES.find((b) => b.id === "b07"))}, Hetzer ${monsterBestechPreis(BOSSES.find((b) => b.id === "b02"))}, Bollwerk ${monsterBestechPreis(BOSSES.find((b) => b.id === "b06"))})`,
+        preise.every(([b, p]) => p >= 1200 && p <= 2400 && p === MONSTER_PREIS_STUFEN[b.abilities.length])
+        && preise.every(([a, pa]) => preise.every(([b, pb]) => a.abilities.length <= b.abilities.length || pa >= pb))
+        && monsterBestechPreis(BOSSES.find((b) => b.id === "b07")) === 1200 && monsterBestechPreis(BOSSES.find((b) => b.id === "b06")) === 2100);
+      const gewoehnlich = BOSSES.filter((b) => !KAPITEL_TROPHAEE33.includes(b.id));
+      const summe = gewoehnlich.reduce((s, b) => s + monsterBestechPreis(b), 0);
+      ok(`v1.90.33: die 14 Bestien ohne Kapitel (mit dem Richter) kosten zusammen ${summe} Gold - unter der Haelfte der 53613, die alle Wege einbringen`,
+        gewoehnlich.length === 14 && summe < 53613 / 2);
+      const armySrc = readFileSync("src/app/ui/screens/ArmyScreen.jsx", "utf8"), strSrc = readFileSync("src/app/i18n/strings.js", "utf8"), frSrc = readFileSync("src/meta/freigaben.js", "utf8");
+      ok("v1.90.33: das Opfer ist fort - keine Opferwahl mehr im Hofstaat, kein Opfer in den Texten, dafuer eine Rueckfrage vor dem Kauf",
+        !/pickSacrifice|noCrown|sacrificeFor|MONSTER_BRIBE_GOLD/.test(armySrc) && !/Opfer einer Kron|sacrifice of a crown|pickSacrifice|noCrown/.test(strSrc + frSrc)
+        && /tree\.bribeConfirm/.test(armySrc) && /"tree\.bribeConfirm"/.test(strSrc) && /"tree\.bribeYes"/.test(strSrc));
+    }
     const vier = ["boss-b15", "boss-b22", "boss-b05", "boss-b13"];
     ok(`v1.90.27: Sturmklaue, Zerreisser, Streuner und Brandstifter stehen bei 75-100 % der Offiziere (${vier.map((id) => id.slice(5) + " " + monsterAmBrett(id).toFixed(1)).join(", ")})`,
       vier.every((id) => monsterAmBrett(id) >= 75 && monsterAmBrett(id) <= 100.5 && SB5[id].boden === 555 && SB5[id].oben === 21));

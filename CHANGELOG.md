@@ -1,5 +1,31 @@
 # Changelog - Gambit Rise
 
+## 1.90.33 - Bestechen ohne Opfer: der Preis folgt dem Koennen des Monsters
+
+Besitzer 5.10.: "Opfer auf jeden Fall streichen, mach die Monster auf jeden
+Fall nicht zu teuer. Es muss Spass machen ... und natuerlich darf ein sehr
+gutes Monster teurer sein als ein weniger gutes."
+
+- **Das Opfer einer Kronenfigur ist fort.** Es war ohnehin wenig wert: die
+  geopferte Figur liess sich nach einem Sieg fuer 288 Gold zurueckholen - aber
+  es SPERRTE jeden, der noch keine Kronenfigur hatte.
+- **Preis nach Koennen** statt 1800 fuer alle: 1 Faehigkeit 1200, 2 -> 1500,
+  3 -> 1800, 4 -> 2100, 5 -> 2400 (`monsterBestechPreis`, meta/leveling.js).
+  Geist, Wandlerin, Zerreisser 1200; Hetzer 1500; Waechter 1800; Bollwerk
+  2100; Kanonier und Koloss 2400.
+- **Gemessen:** der Hauptweg bringt bis Ende Kapitel IV 2722 Gold, alle Wege
+  bis Ende Kapitel II 2718 und insgesamt 53613. Die 13 gewoehnlichen Bestien
+  und der Richter kosten zusammen 21900 (41 %) - "wenn man alle Wege spielt,
+  alle Monster kaufen koennen".
+- **Rueckfrage statt Opferwahl:** ein Tipp zeigt "Fuer N Gold an deinen Hof
+  holen?", erst der zweite kauft. Ein Fehlgriff am Handy soll nicht 2400 Gold
+  kosten.
+
+Unveraendert (nicht entschieden): welche Grossmeister kaeuflich sind, und der
+Preis fuer eigene Figuren nach dem ersten Sieg (288 Gold).
+
+Proben: 31 Suiten / 2699 Pruefungen (vorher 2696).
+
 ## 1.90.32 - Seuchenkoenig und Eisenfaust nachgezogen; die Bretter der Startseite zeigen die neuen Monster
 
 - **Seuchenkoenig** 94,8 -> 97 %: 3 % gestreckt. Er war die einzige Figur

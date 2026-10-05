@@ -371,7 +371,7 @@ export const ownedLeagueBosses = (profile) => {
      gibt den Drachen als Figur (null in KAPITEL_TROPHAEE). Wer Kapitel I vor
      v1.90.20 gewann, behaelt den Richter (Umzug in profile.js, meister20). */
   const won = KAPITEL_TROPHAEE.slice(0, Math.min(KAPITEL_TROPHAEE.length, profile?.stats?.leaguesWon || 0)).filter(Boolean);
-  // monsters BOUGHT with gold and a crown sacrifice fight for you too
+  // monsters BOUGHT with gold fight for you too (bis v1.90.32 kostete das zusaetzlich eine Kronenfigur)
   const bribed = profile?.campaign?.bribedBosses || [];
   return [...new Set([...won, ...bribed])];
 };
@@ -385,6 +385,23 @@ export const bossEntryId = (id) => (isBossEntry(id) ? id.slice(5) : null);
 // jeder Rang schwerer. Gespeichert unter pieces.bossLevels[bXX].
 export const BOSS_MAX_LEVEL = 5;
 export const bossLevelOf = (profile, bossId) => Math.max(1, Math.min(BOSS_MAX_LEVEL, profile?.pieces?.bossLevels?.[bossId] || 1));
+/* ── v1.90.33: WAS EIN MONSTER KOSTET (Besitzer 5.10.) ────────────────────────
+   "Opfer auf jeden Fall streichen, mach die Monster auf jeden Fall nicht zu
+    teuer. Es muss Spass machen ... und natuerlich darf ein sehr gutes Monster
+    teurer sein als ein weniger gutes."
+   Bis hierher kostete JEDES Monster 1800 Gold UND das Opfer einer Kronenfigur.
+   Das Opfer ist fort; der Preis folgt jetzt dem, was das Monster kann - der
+   Zahl seiner Faehigkeiten, die ihrerseits an der Beweglichkeit haengt
+   (bosses.js): 1 -> 1200, 2 -> 1500, 3 -> 1800, 4 -> 2100, 5 -> 2400.
+   GEMESSEN an der Kampagne (stageGold ueber alle 529 Stationen + 2 je Sieg):
+   wer nur den Hauptweg spielt, hat Ende Kapitel IV 2722 Gold verdient, wer
+   alle Wege spielt, Ende Kapitel II schon 2718 und am Ende 53613. Die 13
+   gewoehnlichen Bestien und der Richter kosten zusammen 21900 - 41 % davon;
+   mit den sieben Grossmeistern, die man ohnehin durch den Kapitelsieg bekommt
+   und nur vorab kaufen KANN, sind es 36300 (Probe in test_ui). "Man sollte,
+   wenn man alle Wege spielt, alle Monster kaufen koennen." */
+export const MONSTER_PREIS_STUFEN = [1200, 1200, 1500, 1800, 2100, 2400];
+export const monsterBestechPreis = (b) => MONSTER_PREIS_STUFEN[Math.max(0, Math.min(5, (b?.abilities || []).length))];
 export const bossUpgradeCost = (level) => 1 + 2 * level;   // 2->3, 3->5, 4->7, 5->9
 /* ── DAS ZIELPROFIL JEDER MONSTERART (v1.23.0, Besitzer) ─────────────────────
    "Alle Figuren, die man spielen kann und die gegen einen spielen, sollten in

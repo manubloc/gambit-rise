@@ -92,12 +92,12 @@ export const FREIGABEN = [
     titelEn: "Gold opens mouths",
     textDe: "Du hast ein Monster bezwungen — und manche von ihnen haben es "
       + "gesehen. Nicht jedes Untier kämpft aus Treue. Im Verzeichnis kannst "
-      + "du begegnete Monster mit viel Gold und dem Opfer einer Kronfigur an "
-      + "deinen Hof holen. Tyrannen und die Namhaften sind unbestechlich.",
+      + "du begegnete Monster mit Gold an deinen Hof holen — je mehr eines "
+      + "kann, desto mehr verlangt es. Tyrannen und die Namhaften sind unbestechlich.",
     textEn: "You have felled a monster — and some of them saw it happen. Not "
       + "every beast fights out of loyalty. In the codex you may bring "
-      + "monsters you have met to your court, for a great deal of gold and "
-      + "the sacrifice of a crown piece. Tyrants and the named are beyond "
+      + "monsters you have met to your court for gold. "
+      + "Tyrants and the named are beyond "
       + "corruption.",
   },
   {

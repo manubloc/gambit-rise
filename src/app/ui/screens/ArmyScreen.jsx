@@ -19,7 +19,7 @@ import {
   characterLevel, resolveCharacter, isUnlocked, upgradeCost, canUpgrade, maxLevelFor, gambitTier, clearedCount,
   formationKey, gespeicherteAufstellung, formationLegalOn, formationCounts, hoechstzahl, buildArmyFromFormation, buildArmyFrom, defaultFormation, buildAiArmyForMap, hpUnlocked, ownedLeagueBosses, isBossEntry, bossEntryId, crownSlots,
   chosenAbilities, abilityCost, canUnlockAbility, faehigkeitsStufe, stufeBenoetigt, canUpgradeAbility, dupeCount, RESPEC_GOLD, heroColFor, mapUnlocked,
-  itemRevealed, bossWinsFor, effectiveNodeBoss, nodeStatus, hpWach } from "../../../meta/index.js";
+  itemRevealed, bossWinsFor, effectiveNodeBoss, nodeStatus, hpWach, monsterBestechPreis } from "../../../meta/index.js";
 import { CAMPAIGN } from "../../../content/index.js";
 import { klang } from "../klang.js";   /* v0.77: Stufe, Freischalten, Gold bekommen ihren Klang */
 import { T } from "../theme.js";
@@ -2669,11 +2669,11 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
     return set;
   }, [profile, league]);
   const bribePrice = (ch) => Math.max(250, Math.round((ch.costValue || 320) * 0.9));
-  // ── monster bribery: SOME monsters take gold — but only a lot of it, and
-  // only sealed with the SACRIFICE of a recruited crown piece. Tyrants and
-  // the two named finals are beyond corruption. ──
-  const MONSTER_BRIBE_GOLD = 1800;
-  const [sacrificeFor, setSacrificeFor] = useState(null); // bossId awaiting a crown sacrifice
+  // ── monster bribery: SOME monsters take gold. v1.90.33 (Besitzer 5.10.): das
+  // Opfer einer Kronenfigur ist gestrichen, der Preis folgt dem Koennen des
+  // Monsters (monsterBestechPreis, meta/leveling.js). Die Kapitel-Tyrannen und
+  // die zwei Namhaften bleiben unbestechlich. ──
+  const [bestechFrage, setBestechFrage] = useState(null); // bossId, fuer den gerade "wirklich?" gefragt wird
   // preload every painting shown in the grid, then reveal tiles + figures at once
   const [artReady, setArtReady] = useState(codexArtReady);
   useEffect(() => {
@@ -2698,7 +2698,6 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
   }, []);
   const bribedSet = new Set(profile.campaign?.bribedBosses || []);
   const ownedBossSet = new Set(ownedLeagueBosses(profile)); // beaten league tyrants fight FOR you — the tree shows them in gold
-  const crownOwned = CROWN_IDS.filter((cid) => unlocked.has(cid));
   /* v1.0.50: BESTECHEN IST EINE FREIGABE. Der Knopf existiert erst, nachdem
      das erste echte Monster besiegt wurde (Freischalt-Ordnung "bestechen") -
      vorher ist er nicht gesperrt, sondern GAR NICHT DA. Ein Knopf, den man
@@ -2709,18 +2708,13 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
      von Kapitel II) - ihn darf man bestechen wie jedes Monster, sonst gaebe es
      keinen Weg mehr zu ihm. */
   const monsterBribable = (b) => bestechenOffen && (b.art !== "tyrant" || !KAPITEL_TROPHAEE.includes(b.id)) && b.id !== "b23" && b.id !== "b25" && met.has("X:" + b.id) && !bribedSet.has(b.id);
-  const bribeMonster = (bossId, victim) => {
-    if (gold < MONSTER_BRIBE_GOLD || !unlocked.has(victim)) return;
-    // formations that fielded the victim are dissolved (they fall back to default)
-    const forms = { ...(profile.loadout?.formations || {}) };
-    for (const k of Object.keys(forms)) if ((forms[k] || []).includes(victim)) delete forms[k];
-    dispatch({ type: "REPLACE", profile: { ...profile, gold: gold - MONSTER_BRIBE_GOLD,
-      loadout: { ...(profile.loadout || {}), formations: forms },
+  const bribeMonster = (bossId) => {
+    const preis = monsterBestechPreis(bossById(bossId));
+    if (gold < preis) return;
+    dispatch({ type: "REPLACE", profile: { ...profile, gold: gold - preis,
       campaign: { ...profile.campaign,
-        unlocked: (profile.campaign?.unlocked || []).filter((c) => c !== victim),
-        bossWins: { ...(profile.campaign?.bossWins || {}), [victim]: 0 },
         bribedBosses: [...new Set([...(profile.campaign?.bribedBosses || []), bossId])] } } });
-    setSacrificeFor(null);
+    setBestechFrage(null);
   };
   const bribe = (ch) => {
     const price = bribePrice(ch);
@@ -2844,25 +2838,26 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
          sie jeder der zwoelf, sobald man ihm begegnet ist. */
       return <Tile key={b.id} img={img} bossId={b.id} dim meister={meister} sigil={sig} sigilBig={sigBig} werte={mWerte} ton={ton} stufe={mLv} name={en ? b.nameEn : b.nameDe} origin={t("tree.masters")}
         onOpen={() => setDetail(k)}
-        action={can ? (sacrificeFor === b.id
-          ? <div style={{ marginTop: 5 }}>
-              <div style={{ fontSize: 9.5, color: T.gold, marginBottom: 3 }}>{t("tree.pickSacrifice")}</div>
-              {crownOwned.length === 0 && <div style={{ fontSize: 9.5, color: T.faint }}>{t("tree.noCrown")}</div>}
-              {crownOwned.map((cid) => <button key={cid} onClick={() => bribeMonster(b.id, cid)}
+        action={can ? (bestechFrage === b.id
+          /* v1.90.33: statt der Opferwahl eine Rueckfrage - ein Fehlgriff am
+             Handy soll nicht 1200 bis 2400 Gold kosten. */
+          ? <div style={{ marginTop: 5 }} data-bestech-frage={b.id}>
+              <div style={{ fontSize: 9.5, color: T.gold, marginBottom: 3 }}>{t("tree.bribeConfirm", { g: monsterBestechPreis(b) })}</div>
+              <button onClick={(e) => { e.stopPropagation(); bribeMonster(b.id); }}
                 style={{ display: "block", width: "100%", marginTop: 3, padding: "3px 4px", borderRadius: 6,
                   fontFamily: "inherit", fontSize: 9.5, fontWeight: 800, cursor: "pointer",
                   background: T.panel, border: `1px solid ${T.gold}66`, color: T.gold }}>
-                {en ? CHARACTERS[cid].nameEn : CHARACTERS[cid].nameDe}</button>)}
-              <button onClick={() => setSacrificeFor(null)} style={{ display: "block", width: "100%", marginTop: 3,
+                {t("tree.bribeYes")}</button>
+              <button onClick={(e) => { e.stopPropagation(); setBestechFrage(null); }} style={{ display: "block", width: "100%", marginTop: 3,
                 padding: "3px 4px", borderRadius: 6, fontFamily: "inherit", fontSize: 9.5, cursor: "pointer",
                 background: "none", border: `1px solid ${T.line}`, color: T.dim }}>{t("tree.cancel")}</button>
             </div>
-          : <button onClick={() => setSacrificeFor(b.id)} disabled={gold < MONSTER_BRIBE_GOLD}
-              title={t("tree.monsterBribeHint")}
+          : <button onClick={(e) => { e.stopPropagation(); setBestechFrage(b.id); }} disabled={gold < monsterBestechPreis(b)}
+              title={t("tree.monsterBribeHint")} data-bestech-preis={monsterBestechPreis(b)}
               style={{ marginTop: 5, width: "100%", padding: "4px 4px", borderRadius: 7, fontFamily: "inherit", fontWeight: 800,
-                fontSize: 10, cursor: gold >= MONSTER_BRIBE_GOLD ? "pointer" : "default", opacity: gold >= MONSTER_BRIBE_GOLD ? 1 : 0.45,
+                fontSize: 10, cursor: gold >= monsterBestechPreis(b) ? "pointer" : "default", opacity: gold >= monsterBestechPreis(b) ? 1 : 0.45,
                 background: "linear-gradient(165deg, #b78de0, #7a5ab0)", border: "1px solid rgba(226,205,255,.5)", color: "#17110a" }}>
-              {t("tree.bribe", { g: MONSTER_BRIBE_GOLD })}</button>) : null} />;
+              {t("tree.bribe", { g: monsterBestechPreis(b) })}</button>) : null} />;
     }
     if (sighted.has(b.id)) return <Tile key={b.id} img={img} bossId={b.id} dark sigil={sig} sigilBig={sigBig} werte={mWerte} ton={ton} name={en ? b.nameEn : b.nameDe} origin={t("tree.sighted")} />;
     return <Tile key={b.id} img={img} dark name={"???"} />;
@@ -2957,9 +2952,9 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
         die Grossmeister, darunter standen aber alle Wesen des Risses).
         Die zwoelf Grossmeister erkennt man an der leuchtenden Kontur ihrer
         Karte, nicht an einer eigenen Ueberschrift.
-        NUR DIE ANZEIGE: Krone und Schatten bleiben im Regelwerk (das Opfer
-        einer Kronenfigur beim Bestechen, die Buende) - das zu streichen ist
-        eine Spielentscheidung und steht beim Besitzer. */}
+        NUR DIE ANZEIGE: Krone und Schatten bleiben im Regelwerk (die Buende,
+        die Gaben). Das Opfer einer Kronenfigur beim Bestechen hat der Besitzer
+        am 5.10. gestrichen (v1.90.33). */}
     {(() => { const rest = [...CROWN_IDS, ...SHADOW_IDS].filter((c) => !unlocked.has(c));
       return rest.length ? <><H>{t("tree.figuren")}</H><div style={grid}>{rest.map((c) => champTile(c))}</div></> : null; })()}
     {/* ONE HALL FOR THE MASTERS. Five family headings (Golems, Beasts,
