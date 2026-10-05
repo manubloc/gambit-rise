@@ -1,5 +1,46 @@
 # Changelog - Gambit Rise
 
+## 1.90.31 - Kein Monster mehr unter 95 %: 17 Figuren hoeher, alle in ihren alten Farben; die Blutmagd dunkel mit roten Rissen
+
+Besitzer 5.10.: "mach erstmal alle vom Urspruenglichen einfach gross" und
+"aendere alle so ab, dass sie mindestens 95 Prozent erreichen". Vorher standen
+17 der 25 Bestien und Grossmeister bei 76-93 % der Offiziere. Freigegeben
+("so sind sie perfekt").
+
+Der Weg dahin war ein Umweg: Akzente und Umfaerbungen (Eisen an Krone und
+Hammer, blaue Ruestung, leuchtender Ring und Linien am Hueter, violetter Kranz,
+leuchtendere Augen, dunklere Gesichter) hat der Besitzer alle verworfen -
+"Farbuebergaenge nicht sauber ... saubere Konturen sind Pflicht". Unsauber
+wurde es immer dort, wo Farbe nachtraeglich in einen Teil der Figur gerechnet
+war. Geblieben ist: Originalfarbe, nur die Haltung.
+
+- **Aufgerichtet** (neues Bild, gleiche Farben, schmalerer Sockel):
+  Lanzenmeister 79 -> 100, Richter 79 -> 100, Hueter 86 -> 100, Asra 91 -> 100,
+  Fluesterin 86 -> 100, Wandlerin 80 -> 100, Streuner 76 -> 97, Skorpion
+  76 -> 98 (Schwanz steil), Sturmklaue 78 -> 100, Doppelritter 84 -> 100,
+  Schleicher 87 -> 95, Kanonier 87 -> 100, Hetzer 90 -> 97.
+- **Nur gestreckt** (Bild unveraendert, hoechstens 9 %): Schattenfuerst
+  90 -> 96, Geist 91 -> 96, Bollwerk 93 -> 96.
+- **Blutmagd** 93 -> 100: dunkler Stein mit rot leuchtenden Rissen ("zu nah am
+  Brandstifter ... dunkel wie den Koloss, Risse in leuchtend Rot"). Ihr Akzent
+  folgt: #fb7185 -> #dc2626.
+
+Jede Figur ist ueber dem Sockel so gestreckt oder gestaucht, dass Hoehe x
+136/rx = 561 gilt - dann steht sie auf Offiziershoehe UND ihr Band hat die
+volle Breite (zu schlanke Bilder druecken sonst ueber die Hoehenklammer ihr
+eigenes Band). Gesetzt nach dem Sockelfuss. Freigestellt ueber "Hintergrund =
+hochgesaettigte Grundfarbe", weil freistellen.py an Metall Sockel und Finger
+anfrass; Farbinseln ab 30 px fallen mit.
+
+Sockel einzeln gemessen. Am Hetzer trifft der Automat auf dem neuen Bild die
+Tellerkante (42, Handwert gestrichen); am Kanonier nicht (13 statt 49,
+Handwert mit Breitenverlauf). Farben nur fuer die 17 uebernommen. Alte Bilder
+in archiv/ausgemustert/v1.90.31/.
+
+Proben: 31 Suiten / 2695 Pruefungen (vorher 2693) - neu: alle 25 stehen bei
+mindestens 94,5 % (der Seuchenkoenig bei 94,8, nicht Teil dieser Runde), und
+keine ist so schlank, dass ihr Band schrumpft.
+
 ## 1.90.30 - Doppelritter hoeher, Schattenfuerst und Schleicher mit Knochen-Akzent
 
 - **Doppelritter** (62 -> 84 %): aufgerichtet, die Koepfe nebeneinander, dazu

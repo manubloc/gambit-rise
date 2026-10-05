@@ -180,9 +180,11 @@ const piece = (x = {}) => ({ id: 1, kind: "Q", color: "w", level: 1, abilities: 
      der Standflaeche, also (untere Ellipsenmitte - teller) + ry. Das ist
      dieselbe Rechnung wie bei Osric - eine Gegenprobe der drei neuen Teller,
      darunter der Handwert des Hetzers (49; der alte, 75, galt dem alten Bild). */
-  ok("v1.90.23: ihre Teller liegen 25-55 px hoch, der Handwert des Hetzers gilt dem NEUEN Bild (v1.90.25: 46, nicht mehr 75)",
+  /* v1.90.31: der Hetzer traegt wieder ein neues Bild (aufrechter, 97 %) -
+     auf ihm trifft der Automat die Tellerkante (42), der Handwert ist fort. */
+  ok("v1.90.23: ihre Teller liegen 25-55 px hoch; am Hetzer misst seit v1.90.31 wieder der Automat (42, kein Handwert mehr)",
     ["boss-b02", "boss-b01", "boss-b06"].every((id) => SB3[id].teller >= 25 && SB3[id].teller <= 55 && SB3[id].boden === 555 && SB3[id].oben === 21)
-    && SB3["boss-b02"].teller === 46 && SB3["boss-b02"].tellerVonHand === true);
+    && SB3["boss-b02"].teller === 42 && !SB3["boss-b02"].tellerVonHand);
   /* ── v1.90.24: DIE ZIELFELDER SAGEN, WIE DIE FIGUR HINKOMMT ───────────────
      Besitzer 3.10.: "manchmal sieht man so einen kleinen Stern ... was
      bedeutet das? ... diese Faerbungen, ob ich springen oder ziehen kann oder
@@ -237,33 +239,46 @@ const piece = (x = {}) => ({ id: 1, kind: "Q", color: "w", level: 1, abilities: 
        zwei Scheren, Stachelschwanz ins Gruene -, aus dem Hetzer heraus
        geschnitzt. Sein Akzent folgt der Figur (Ocker statt Rosa), damit die
        Karte dahinter passt. */
-    ok("v1.90.28: der Skorpion traegt sein neues Bild (Teller 46) und einen ockerfarbenen Akzent statt Rosa",
-      SB5["boss-b09"].teller === 46 && SB5["boss-b09"].boden === 555 && BOSSES.find((b) => b.id === "b09").accent === "#c9a24a");
+    ok("v1.90.28: der Skorpion ist ein Skorpion mit ockerfarbenem Akzent statt Rosa (Teller seit v1.90.31: 40, Schwanz steil)",
+      SB5["boss-b09"].teller === 40 && SB5["boss-b09"].boden === 555 && BOSSES.find((b) => b.id === "b09").accent === "#c9a24a");
     /* Fuenf Grossmeister (v1.90.29, Besitzer 4.10.: "sonst sind alle gut"):
        Koloss dunkel mit violetten Rissen, Kanonier aus Eisen, Blutmagd
        aufgerichtet, Seuchenkoenig als Kapuzengestalt, Eisenfaust in Glut.
        Vorher standen sie bei 67-73 % der Offiziere. Die Akzente von Koloss
        und Kanonier folgen der Figur (Kartenhintergrund). */
     const gm5 = ["boss-b14", "boss-b08", "boss-b16", "boss-b24", "boss-b18"];
-    ok(`v1.90.29: Koloss, Kanonier, Blutmagd, Seuchenkoenig und Eisenfaust stehen bei 85-100 % der Offiziere (${gm5.map((id) => id.slice(5) + " " + monsterAmBrett(id).toFixed(1)).join(", ")}), Teller von Hand bei Kanonier 50 und Eisenfaust 42, Akzente Violett und Stahl`,
+    ok(`v1.90.29: Koloss, Kanonier, Blutmagd, Seuchenkoenig und Eisenfaust stehen bei 85-100 % der Offiziere (${gm5.map((id) => id.slice(5) + " " + monsterAmBrett(id).toFixed(1)).join(", ")}), Teller von Hand bei Kanonier (seit v1.90.31: 49) und Eisenfaust 42, Akzente Violett und Stahl`,
       gm5.every((id) => monsterAmBrett(id) >= 85 && monsterAmBrett(id) <= 100.5 && SB5[id].boden === 555 && SB5[id].oben === 21)
-      && SB5["boss-b08"].teller === 50 && SB5["boss-b18"].teller === 42
+      && SB5["boss-b08"].teller === 49 && SB5["boss-b18"].teller === 42
       && BOSSES.find((b) => b.id === "b14").accent === "#a855f7" && BOSSES.find((b) => b.id === "b08").accent === "#a3adb8");
     /* v1.90.30 (Besitzer 5.10.): der Doppelritter 10 % hoeher ("muss noch
        etwas hoeher sein"), Schattenfuerst mit Knochenhoernern und Schleicher
        mit Knochenklaue ("sind gut"). */
-    ok(`v1.90.30: der Doppelritter steht bei 82-90 % der Offiziere (${monsterAmBrett("boss-b10").toFixed(1)}), Schattenfuerst und Schleicher tragen ihre neuen Bilder (Teller 35 und 46)`,
-      monsterAmBrett("boss-b10") >= 82 && monsterAmBrett("boss-b10") <= 90 && SB5["boss-b10"].teller === 52
-      && SB5["boss-b19"].teller === 35 && SB5["boss-b04"].teller === 46 && ["boss-b10", "boss-b19", "boss-b04"].every((id) => SB5[id].boden === 555 && SB5[id].oben === 21));
+    ok("v1.90.30: Doppelritter, Schattenfuerst und Schleicher tragen neue Bilder (Hoehen seit v1.90.31 in der Probe darunter)",
+      ["boss-b10", "boss-b19", "boss-b04"].every((id) => SB5[id].boden === 555 && SB5[id].oben === 21));
+    /* ── v1.90.31: KEIN MONSTER MEHR UNTER 95 % ───────────────────────────────
+       Besitzer 5.10.: "aendere alle so ab, dass sie mindestens 95 Prozent
+       erreichen" - und zuvor: "mach erstmal alle vom Urspruenglichen einfach
+       gross". 17 Bilder, alle in ihren alten Farben, nur aufrechter oder
+       gestreckt (freigegeben: "so sind sie perfekt"). Einzige Umfaerbung: die
+       Blutmagd, dunkel mit roten Rissen, weil sie dem Brandstifter zu nah
+       war - ihr Akzent folgt (#dc2626). Die Grenze 94,5 statt 95: der
+       Seuchenkoenig steht seit v1.90.29 bei 94,8 und war nicht Teil dieser
+       Runde. Und kein Band ist geschrumpft: keine Figur ueber 100,5 %. */
+    const alleMonster = Object.keys(SB5).filter((id) => /^boss-b\d\d$/.test(id));
+    const zuKlein = alleMonster.filter((id) => monsterAmBrett(id) < 94.5), neu31 = ["b02", "b04", "b05", "b06", "b07", "b08", "b09", "b10", "b11", "b12", "b15", "b16", "b17", "b19", "b20", "b21", "b23"].map((b) => "boss-" + b), zuGross = neu31.filter((id) => (SB5[id].boden - SB5[id].oben) * Math.max(0.55, Math.min(1.35, 136 / SB5[id].rx)) > 561 * 1.03);
+    ok(`v1.90.31: alle ${alleMonster.length} Bestien und Grossmeister stehen bei mindestens 94,5 % der Offiziere (darunter: ${zuKlein.map((id) => id.slice(5) + " " + monsterAmBrett(id).toFixed(1)).join(", ") || "keine"})`,
+      alleMonster.length === 25 && zuKlein.length === 0);
+    ok(`v1.90.31: keine der 17 neuen Fassungen ist so schlank, dass die Hoehenklammer ihr Band schmaler macht (zu hoch: ${zuGross.join(", ") || "keine"}), die Blutmagd traegt Rot`,
+      zuGross.length === 0 && BOSSES.find((b) => b.id === "b16").accent === "#dc2626" && SB5["boss-b08"].tellerVonHand === true);
     const vier = ["boss-b15", "boss-b22", "boss-b05", "boss-b13"];
     ok(`v1.90.27: Sturmklaue, Zerreisser, Streuner und Brandstifter stehen bei 75-100 % der Offiziere (${vier.map((id) => id.slice(5) + " " + monsterAmBrett(id).toFixed(1)).join(", ")})`,
       vier.every((id) => monsterAmBrett(id) >= 75 && monsterAmBrett(id) <= 100.5 && SB5[id].boden === 555 && SB5[id].oben === 21));
     /* Der Zerreisser: der Automat haelt die Stufe zwischen Farbring und Wand
        fuer die Standflaeche (meldet 18) - Handwert 48, Herleitung in
        messe_tellerkante.py. Die Oberkante liegt UEBER dem Farbring. */
-    ok("v1.90.27: das Band des Zerreissers reicht ueber den Farbring bis zur Standflaeche (Handwert 48), das des Hetzers bleibt 46",
-      SB5["boss-b22"].tellerVonHand === true && SB5["boss-b22"].teller === 48 && SB5["boss-b22"].teller > 16 + 25
-      && SB5["boss-b02"].tellerVonHand === true && SB5["boss-b02"].teller === 46);
+    ok("v1.90.27: das Band des Zerreissers reicht ueber den Farbring bis zur Standflaeche (Handwert 48)",
+      SB5["boss-b22"].tellerVonHand === true && SB5["boss-b22"].teller === 48 && SB5["boss-b22"].teller > 16 + 25);
     const begegnet = html(<HofKachel img={PAINTED["boss-b22"]} name="Der Zerreißer" bossId="b22" dim />);
     const fremd = html(<HofKachel img={PAINTED["boss-b22"]} name="???" bossId="b22" dark />);
     ok("v1.90.25: wem man begegnet ist, der steht in FARBE im Verzeichnis (kein Graufilter mehr)",

@@ -76,7 +76,12 @@ ORDNER = "src/app/ui/assets/painted"
 #   boss-b18  (v1.90.29, Eisenfaust in Glut): dasselbe, Automat 10. Die Wand
 #             steht von y 531 bis 491 auf 239-246 px, bei 486 noch 237, bei
 #             481 nur 216. Gesetzt auf 42.
-HANDWERTE = {"boss-b02": 46, "boss-b22": 48, "gambit-t2": 45, "boss-b25": 24, "boss-b08": 50, "boss-b18": 42}
+#   v1.90.31: Hetzer (b02) und Kanonier (b08) tragen NEUE Bilder (aufrechter,
+#             schmalerer Teller). Am Hetzer trifft der Automat jetzt (42) - sein
+#             Handwert ist gestrichen. Am Kanonier haelt er weiter die Stufe am
+#             Ring fuer den Knick (13): die Wand steht von y 520 bis 472 auf
+#             243-258 px und faellt bei 468 auf 227. Gesetzt auf 49.
+HANDWERTE = {"boss-b22": 48, "gambit-t2": 45, "boss-b25": 24, "boss-b08": 49, "boss-b18": 42}
 MASSE = json.load(open("src/app/ui/board/sockelband.json"))
 
 def kante(fid, m):
