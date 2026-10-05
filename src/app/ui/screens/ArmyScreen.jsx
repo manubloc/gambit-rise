@@ -471,6 +471,39 @@ function VerbessernKnopf({ kann, kosten, onClick, t }) {
     {t("army.upgrade")} · {kosten} <SkillStar size={12} /></button>;
 }
 
+/* v1.90.35: der Handel im Monsterblatt - Knopf mit Rueckfrage, oder der Satz,
+   der sagt, warum es (noch) nicht geht. */
+export function BestechBlatt({ b, preis, gold, kann, grund, frage, onFrage, onKauf, en }) {
+  const satz = { fontSize: 12, lineHeight: 1.45, color: "#cbbcf5", textAlign: "center", padding: "8px 6px" };
+  if (!kann) {
+    const text = grund === "trophaee" ? (en ? "A chapter master: win his chapter and he is yours. Gold does not buy him." : "Ein Kapitelmeister: gewinne sein Kapitel, dann gehört er dir. Gold kauft ihn nicht.")
+      : grund === "nie" ? (en ? "Unbribable." : "Unbestechlich.")
+      : grund === "freigabe" ? (en ? "Defeat your first monster — after that, gold opens mouths." : "Besiege dein erstes Monster — danach öffnet Gold die Mäuler.")
+      : grund === "fremd" ? (en ? "You have not met it yet. Only who you have faced can be bribed." : "Du bist ihm noch nicht begegnet. Bestechen lässt sich nur, wem du gegenüberstandst.")
+      : null;
+    return text ? <div data-bestech-grund={grund} style={satz}>{text}</div> : null;
+  }
+  const reicht = gold >= preis;
+  const knopf = (hell) => ({ display: "flex", flex: 1, justifyContent: "center", alignItems: "center", padding: "11px 12px", borderRadius: 10,
+    fontFamily: "inherit", fontWeight: 800, fontSize: 13, cursor: "pointer",
+    background: hell ? "linear-gradient(165deg, #b78de0, #7a5ab0)" : "none",
+    border: hell ? "1px solid rgba(226,205,255,.5)" : `1px solid ${T.line}`, color: hell ? "#17110a" : T.dim });
+  if (frage) return <div data-bestech-blatt="frage">
+    <div style={{ ...satz, color: T.goldBright, paddingTop: 0 }}>{en ? `Bring it to your court for ${preis} gold?` : `Für ${preis} Gold an deinen Hof holen?`}</div>
+    <div style={{ display: "flex", gap: 8 }}>
+      <button onClick={() => onFrage(false)} style={knopf(false)}>{en ? "Cancel" : "Abbrechen"}</button>
+      <button onClick={onKauf} style={knopf(true)}>{en ? "Yes, bribe" : "Ja, bestechen"}</button>
+    </div>
+  </div>;
+  return <div data-bestech-blatt="angebot">
+    <button disabled={!reicht} onClick={reicht ? () => onFrage(true) : undefined}
+      style={{ ...knopf(true), width: "100%", opacity: reicht ? 1 : 0.5, cursor: reicht ? "pointer" : "default" }}>
+      {en ? `Bribe · ${preis} gold` : `Bestechen · ${preis} Gold`}</button>
+    {!reicht && <div style={{ ...satz, paddingBottom: 0 }}>{en ? `You are ${preis - gold} gold short.` : `Dir fehlen ${preis - gold} Gold.`}</div>}
+    {reicht && <div style={{ ...satz, paddingBottom: 0, color: T.faint }}>{en ? "Afterwards you train it with skill points like any piece." : "Danach trainierst du es mit Skillpunkten wie jede Figur."}</div>}
+  </div>;
+}
+
 function SheetRow({ label, children }) {
   return <div style={{ display: "flex", alignItems: "baseline", gap: 8, padding: "3px 0" }}>
     <span className="gg-serif" style={{ fontSize: 11.5, letterSpacing: ".14em", color: "#9a8f6f",
@@ -619,7 +652,7 @@ const DIRS_O = [[1, 0], [-1, 0], [0, 1], [0, -1]];
 const DIRS_D = [[1, 1], [1, -1], [-1, 1], [-1, -1]];
 const DIRS_ALL = [...DIRS_O, ...DIRS_D];
 const KNIGHT_L = [[1, 2], [2, 1], [2, -1], [1, -2], [-1, -2], [-2, -1], [-2, 1], [-1, 2]];
-function specForKind(kind, ownSpec) {
+export function specForKind(kind, ownSpec) {
   if (ownSpec) return ownSpec;
   switch (kind) {
     case "N": return { leaps: KNIGHT_L };
@@ -746,8 +779,29 @@ export function MoveDiagram({ kind, moveSpec, extra = null, breite = null, talen
     const light = (f + r + 100) % 2 === 0;
     cells.push({ f, r, here, mark, light });
   }
+  /* ── v1.90.35: DAS L DES SPRINGERS WIRD GEZEICHNET ────────────────────────
+     Besitzer 5.10., zum dritten Mal: "du hast immer noch nicht das Pferd von
+     den Zuegen richtig dargestellt". GEMESSEN stimmen die acht gelben Felder
+     (test_ui zaehlt sie gegen den Kern) - aber acht Punkte im Kreis sehen
+     nicht nach einem Springerzug aus; die Aufhellung des Rasters (v1.90.25)
+     hat das nicht geloest. Jetzt zeichnet das Bild den WEG: von der Figur zwei
+     Felder gerade, dann eines zur Seite. Je zwei Spruenge teilen sich den
+     geraden Teil, es entstehen vier Arme mit Querbalken. Nur fuer echte
+     Springerspruenge (1/2) der GRUNDGANGART; Talente bleiben Felder. */
+  const springerL = (sp?.leaps || []).filter(([df, dr]) => {
+    const a = Math.abs(df), b = Math.abs(dr); return (a === 1 && b === 2) || (a === 2 && b === 1); });
+  const mitte = (f, r) => `${f - lo + 0.5},${hi - r + 0.5}`;
   return <div data-zugbild={grossDrache ? "drache" : undefined} style={{ display: "grid", gridTemplateColumns: `repeat(${NN}, 1fr)`, gap: 1.5, width: breite || "min(150px, 52vw)",
+    position: "relative",
     padding: 4, borderRadius: 8, background: "rgba(8,12,22,.55)", border: "1px solid #ffffff10" }}>
+    {springerL.length > 0 && <svg data-springer-l={springerL.length} viewBox={`0 0 ${NN} ${NN}`} aria-hidden
+      style={{ position: "absolute", inset: 4, width: "calc(100% - 8px)", height: "calc(100% - 8px)", pointerEvents: "none", zIndex: 1 }}>
+      {springerL.map(([df, dr], i) => {
+        const knick = Math.abs(df) === 2 ? [df, 0] : [0, dr];
+        return <polyline key={i} points={`${mitte(0, 0)} ${mitte(knick[0], knick[1])} ${mitte(df, dr)}`}
+          fill="none" stroke="rgba(255,226,130,.9)" strokeWidth={0.1} strokeLinecap="round" strokeLinejoin="round" />;
+      })}
+    </svg>}
     {cells.map((c, i) => <div key={i} style={{ aspectRatio: "1", borderRadius: 3, position: "relative",
       background: c.here ? "linear-gradient(160deg,#e7c877,#b1863c)"
         : c.mark === "slide" ? "rgba(74,163,232,.42)"
@@ -1025,7 +1079,7 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
         als Portal an document.body, damit kein transformierter Vorfahr das
         feste Fenster einfaengt. `tier` aus dem Rang-Ereignis wird als
         gambitTier durchgereicht. */}
-    {feier && createPortal(<AufstiegsFeier art={feier.art} gambitTier={feier.tier || 1} bild={feier.bild || null}
+    {feier && createPortal(<AufstiegsFeier art={feier.art} gambitTier={feier.tier || 1} bild={feier.bild || null} bildAlt={feier.bildAlt || null}
       chName={en ? char.nameEn : char.nameDe} ab={feier.ab || null} charId={feier.charId || char.id}
       kind={feier.kind || char.kind} abId={feier.abId || null} t={t} onClose={() => setFeier(null)} />, document.body)}
     {/* THE DOSSIER HEAD: a wanted-poster masthead — portrait to the side, name
@@ -1083,6 +1137,7 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
             if (char.id === "gambit" && gambitTier(level + 1) > gambitTier(level)) {
               const neuerRang = gambitTier(level + 1);
               setTimeout(() => setFeier({ art: "rang", tier: neuerRang,
+                bildAlt: paintedForPiece({ kind: "P", color: "w", hero: true, level, tier: gambitTier(level) }),
                 bild: paintedForPiece({ kind: "P", color: "w", hero: true, level: level + 1, tier: neuerRang }) }), 620);
             }
             dispatch({ type: "UPGRADE_PIECE", id: char.id }); }} />}
@@ -1263,6 +1318,7 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
             if (char.id === "gambit" && gambitTier(level + 1) > gambitTier(level)) {
               const neuerRang = gambitTier(level + 1);
               setTimeout(() => setFeier({ art: "rang", tier: neuerRang,
+                bildAlt: paintedForPiece({ kind: "P", color: "w", hero: true, level, tier: gambitTier(level) }),
                 bild: paintedForPiece({ kind: "P", color: "w", hero: true, level: level + 1, tier: neuerRang }) }), 620);
             }
             dispatch({ type: "UPGRADE_PIECE", id: char.id }); }} />}
@@ -2362,14 +2418,22 @@ const AUFST_TALENT_MAX = 4;
      gewaehlt  - der goldene Rand der gewaehlten Karte */
 export function HofKachel({ img, name, dim, dark, action, glow, origin, onOpen, sigil = null, sigilBig = null, stufe = null, kind = null, hero = false, lvl = 1,
     werte = null, xpAnteil = null, artId = null, bossId = null, talente = [], ton = null, meister = false,
-    unten = null, gewaehlt = false }) {
+    unten = null, gewaehlt = false, rang = null }) {
+  /* v1.90.35 (Besitzer 5.10.: "die Meister haben jetzt einfach nur so eine
+     leuchtende Karte in der Uebersicht - nicht erkennbar, dass es wirklich
+     Meister sind ... links oben oder irgendwo einfach Grossmeister drueber
+     schreiben, klein. Dann wirkt es nicht so bunt"): in der UEBERSICHT sagt
+     es jetzt ein WORT unter dem Namen (`rang`), die leuchtende Kontur faellt
+     dort weg. Die Kontur bleibt, wo sie etwas anderes bedeutet: am Damenplatz
+     der Aufstellung (dort ohne `rang`). */
+  const kontur = meister && !rang;
   /* v1.89.0 (Besitzer: "bei den lila Karten im Slider passt die kleine
      Markierung in den Ecken nicht zu dem Lila - mach die dann auch lila bei
      denen, die nicht ausgewaehlt sind"): die Eckverzierung folgt der KONTUR
      der Kachel. Goldrand (eigene Karte im Hofstaat, gewaehlte Karte der
      Aufstellung) -> Gold; violetter Rand (Grossmeister, nicht gewaehlt,
      fremd) -> das weiche Lila der Kontur. */
-  const eckFarbe = meister ? "#c3aaf5" : (glow || gewaehlt) ? "#e9cf8a" : "#b9a4f7";
+  const eckFarbe = kontur ? "#c3aaf5" : (glow || gewaehlt) ? "#e9cf8a" : "#b9a4f7";
   return (
     /* v1.0.11 (Besitzer): die Kachel KLINGT beim Tippen. Der Klangfaenger
        hoert nur auf button/[role=button] — diese div blieb stumm. */
@@ -2385,7 +2449,7 @@ export function HofKachel({ img, name, dim, dark, action, glow, origin, onOpen, 
          Leuchten im Kreis rennt, nicht in der Uebersicht der Karten"): die
          Kontur der Kapitelmeister leuchtet, steht aber still. An anderen
          Stellen (Damenplatz der Aufstellung) laeuft sie weiter. */
-      className={meister ? "gg-funkenkontur-innen gg-kontur-still" : undefined}
+      className={kontur ? "gg-funkenkontur-innen gg-kontur-still" : undefined}
       style={{ position: "relative",
       isolation: "isolate", overflow: "hidden",
       // der leichte Riss-Verlauf der Menueleisten, eine Stufe stiller
@@ -2393,8 +2457,8 @@ export function HofKachel({ img, name, dim, dark, action, glow, origin, onOpen, 
       border: `1px solid ${glow ? T.gold : "rgba(124,58,237,.38)"}`,
       borderRadius: 11, padding: "10px 7px 9px", textAlign: "center", minWidth: 0, cursor: onOpen ? "pointer" : "default",
       /* v1.23.0 (Besitzer): Grossmeister tragen einen leuchtenden violetten Rahmen */
-      ...(meister ? { border: "1px solid rgba(167,139,250,.85)", boxShadow: "0 0 14px rgba(124,58,237,.55), inset 0 0 10px rgba(124,58,237,.18)" } : null),
-      boxShadow: meister ? "0 0 14px rgba(124,58,237,.55), inset 0 0 10px rgba(124,58,237,.18)" : glow ? "0 0 10px rgba(240,206,122,.22)" : "0 0 6px rgba(124,58,237,.12)",
+      ...(kontur ? { border: "1px solid rgba(167,139,250,.85)", boxShadow: "0 0 14px rgba(124,58,237,.55), inset 0 0 10px rgba(124,58,237,.18)" } : null),
+      boxShadow: kontur ? "0 0 14px rgba(124,58,237,.55), inset 0 0 10px rgba(124,58,237,.18)" : glow ? "0 0 10px rgba(240,206,122,.22)" : "0 0 6px rgba(124,58,237,.12)",
       /* v1.51.0: die gewaehlte Karte der Aufstellung - goldener Rand und
          Schein statt der alten vollflaechig gelben Karte */
       ...(gewaehlt ? { border: "1.5px solid #f6dc8e",
@@ -2623,6 +2687,8 @@ export function HofKachel({ img, name, dim, dark, action, glow, origin, onOpen, 
       {/* v1.15.1: das Rohr sitzt jetzt oben in der Kopfzeile */}
       <div className="gg-quill" style={{ fontSize: 12.5, marginTop: 5, color: dark ? T.faint : glow ? T.goldBright : T.text,
         whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{name}</div>
+      {rang && <div data-rang style={{ fontSize: 8.5, fontWeight: 800, letterSpacing: ".14em", textTransform: "uppercase",
+        marginTop: 1, color: dark ? T.faint : "#c3aaf5", whiteSpace: "nowrap" }}>{rang}</div>}
       {unten}
       {/* Die Vorlage (ds1-vorlage-screens): jede Kachel traegt ihre Stufe -
           "Koenig Stufe 8" - klein und golden unter dem Namen. */}
@@ -2765,6 +2831,25 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
   /* v1.33.1 (Besitzer): IM POP-UP WISCHEN - nach links die naechste Karte,
      nach rechts die vorige, in der Reihenfolge der Uebersicht. Die Hooks
      stehen hier oben, vor jeder fruehen Rueckgabe dieser Komponente. */
+  /* ── v1.90.35: DIE UEBERSICHT LAESST SICH ZOOMEN ─────────────────────────
+     Besitzer 5.10.: "mega cool waere, wenn man im Hofstaat bei der Uebersicht
+     zoomen kann - dynamisch, so wie man das von einer Fotouebersicht kennt,
+     ueber alle Figuren, und mehrere Raster zulassen." Die Raster tragen CSS
+     `zoom`: die Kacheln wachsen und schrumpfen stufenlos, und weil das Raster
+     seine Spalten selbst fuellt (auto-fill, 96 px), springt es dabei von zwei
+     bis zu sechs Spalten. Zwei Finger auf der Uebersicht, oder die Knoepfe
+     - / +. Der Wert bleibt auf dem Geraet (ein JSON-String, wie alles hier). */
+  const ZOOM_MIN = 0.5, ZOOM_MAX = 2.2;
+  const zoomKlemme = (v) => Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, Math.round(v * 50) / 50));
+  const [hofZoom, setHofZoomRoh] = useState(() => {
+    try { const v = JSON.parse(localStorage.getItem("gg:hofzoom")); return typeof v === "number" ? zoomKlemme(v) : 1; } catch { return 1; } });
+  const setHofZoom = (v) => { const z = zoomKlemme(v); setHofZoomRoh(z); try { localStorage.setItem("gg:hofzoom", JSON.stringify(z)); } catch { /* privat: dann eben nur fuer jetzt */ } };
+  const kneif = useRef(null);
+  const abstand = (e) => Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+  const kneifStart = (e) => { if (e.touches && e.touches.length === 2) kneif.current = { d: abstand(e), z: hofZoom }; };
+  const kneifZug = (e) => { const k = kneif.current; if (!k || !e.touches || e.touches.length !== 2 || k.d < 10) return;
+    const z = zoomKlemme(k.z * abstand(e) / k.d); if (z !== hofZoom) setHofZoom(z); };
+  const kneifEnde = () => { kneif.current = null; };
   const wisch = useRef(null);
   const wischRichtung = useRef(0);
   useEffect(() => { wischRichtung.current = 0; }, [detail]);
@@ -2827,7 +2912,7 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
       : { leben: 0, kraft: 0, ohne: true };   /* v1.33.1: vor dem Erwachen ohne Werte, wie die Figuren */
     const ton = b.accent || null;
     const meister = LEAGUE_BOSSES.includes(b.id);
-    if (bribedSet.has(b.id) || ownedBossSet.has(b.id)) return <Tile key={b.id} img={img} bossId={b.id} glow meister={meister} sigil={sig} sigilBig={sigBig} werte={mWerte} ton={ton}
+    if (bribedSet.has(b.id) || ownedBossSet.has(b.id)) return <Tile key={b.id} img={img} bossId={b.id} glow meister={meister} rang={meister ? (en ? "Grandmaster" : "Großmeister") : null} sigil={sig} sigilBig={sigBig} werte={mWerte} ton={ton}
       onOpen={() => setDetail(k)} stufe={mLv}
       name={en ? b.nameEn : b.nameDe} origin={bribedSet.has(b.id) ? t("tree.allied") : t("tree.inCourt")} />;
     if (met.has(k)) {
@@ -2836,7 +2921,7 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
          kennzeichnen durch ein Leuchten"): die leuchtende violette Kontur
          trug bisher nur der Grossmeister im EIGENEN Hofstaat. Jetzt traegt
          sie jeder der zwoelf, sobald man ihm begegnet ist. */
-      return <Tile key={b.id} img={img} bossId={b.id} dim meister={meister} sigil={sig} sigilBig={sigBig} werte={mWerte} ton={ton} stufe={mLv} name={en ? b.nameEn : b.nameDe} origin={t("tree.masters")}
+      return <Tile key={b.id} img={img} bossId={b.id} dim meister={meister} rang={meister ? (en ? "Grandmaster" : "Großmeister") : null} sigil={sig} sigilBig={sigBig} werte={mWerte} ton={ton} stufe={mLv} name={en ? b.nameEn : b.nameDe} origin={t("tree.masters")}
         onOpen={() => setDetail(k)}
         action={can ? (bestechFrage === b.id
           /* v1.90.33: statt der Opferwahl eine Rueckfrage - ein Fehlgriff am
@@ -2862,7 +2947,7 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
     if (sighted.has(b.id)) return <Tile key={b.id} img={img} bossId={b.id} dark sigil={sig} sigilBig={sigBig} werte={mWerte} ton={ton} name={en ? b.nameEn : b.nameDe} origin={t("tree.sighted")} />;
     return <Tile key={b.id} img={img} dark name={"???"} />;
   };
-  const grid = { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(96px, 1fr))", gap: 7 };
+  const grid = { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(96px, 1fr))", gap: 7, zoom: hofZoom };
   const H = ({ children }) => <div className="gg-serif" style={{ fontSize: 12, letterSpacing: ".12em", color: T.gold, margin: "14px 0 7px" }}>{children}</div>;
   const fams = ["golem", "beast", "serpent", "wraith", "tyrant"];
   // recruits RISE into the court — each keeps a small note of where it came from
@@ -2931,8 +3016,17 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
         borderTopColor: T.gold, animation: "spin .8s linear infinite" }} />
     </div>
   </div>;
-  return <div style={{ }}>
+  const zoomKnopf = (kann) => ({ width: 30, height: 30, borderRadius: 9, display: "grid", placeItems: "center", cursor: kann ? "pointer" : "default",
+    fontFamily: "inherit", fontSize: 17, fontWeight: 800, lineHeight: 1, opacity: kann ? 1 : 0.4,
+    background: "rgba(38,28,64,.78)", border: "1px solid rgba(167,139,250,.5)", color: T.riftBright });
+  return <div data-hofuebersicht onTouchStart={kneifStart} onTouchMove={kneifZug} onTouchEnd={kneifEnde} onTouchCancel={kneifEnde}
+    style={{ touchAction: "pan-y" }}>
     <Vorrede />
+    <div data-hofzoom={hofZoom} style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 7, marginTop: 6 }}>
+      <span style={{ fontSize: 10.5, color: T.faint, marginRight: "auto" }}>{en ? "Pinch with two fingers to zoom" : "Mit zwei Fingern zoomen"}</span>
+      <button aria-label={en ? "smaller" : "kleiner"} onClick={() => setHofZoom(hofZoom / 1.25)} disabled={hofZoom <= ZOOM_MIN} style={zoomKnopf(hofZoom > ZOOM_MIN)}>−</button>
+      <button aria-label={en ? "larger" : "größer"} onClick={() => setHofZoom(hofZoom * 1.25)} disabled={hofZoom >= ZOOM_MAX} style={zoomKnopf(hofZoom < ZOOM_MAX)}>+</button>
+    </div>
     <H>{t("tree.court")}</H><div style={grid}>
       {/* v0.81: DER GAMBIT FEHLT HIER, BIS ER ERWACHT. Vor dem dritten
           geschafften Gefecht gibt es ihn nicht - kein Name, kein Bild, kein
@@ -2987,6 +3081,16 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
           borderRadius: 22, overflow: "hidden", boxShadow: `0 18px 50px rgba(0,0,0,.6), 0 0 26px ${T.riftGlow}`,
           border: `1px solid ${T.riftLine}`,
           background: "radial-gradient(130% 110% at 50% -10%, rgba(124,58,237,.28) 0%, rgba(26,16,44,.97) 46%, rgba(8,5,14,.99) 100%)" }}>
+          {/* v1.90.35 (Besitzer 5.10.: "aktuell sieht man nicht, dass man rechts
+              und links wischen kann"): zwei Pfeile am Blattrand zeigen es - und
+              blaettern auch per Tipp. Am Anfang und Ende der Reihe fehlt der
+              jeweilige Pfeil. */}
+          {[-1, 1].map((r) => blattFolge[blattFolge.indexOf(detail) + r] && blattFolge.indexOf(detail) >= 0 ? (
+            <button key={r} data-blatt-pfeil={r} aria-label={r < 0 ? "previous" : "next"} onClick={(e) => { e.stopPropagation(); klang("menue"); blaettern(r); }}
+              style={{ position: "absolute", top: 150, [r < 0 ? "left" : "right"]: 4, zIndex: 4, width: 26, height: 44, borderRadius: 13,
+                display: "grid", placeItems: "center", cursor: "pointer", fontFamily: "inherit", fontSize: 20, lineHeight: 1, padding: 0,
+                background: "rgba(10,13,20,.6)", border: `1px solid ${T.riftLine}`, color: T.riftBright,
+                animation: animAn() ? `ggBlattWink${r < 0 ? "L" : "R"} 1.4s ease-in-out .5s 1` : "none" }}>{r < 0 ? "‹" : "›"}</button>) : null)}
           <button onClick={() => setDetail(null)} aria-label="close" style={{ position: "absolute", top: 9, right: 9, zIndex: 4,
             width: 30, height: 30, borderRadius: "50%", display: "grid", placeItems: "center", cursor: "pointer",
             background: "rgba(10,13,20,.72)", border: `1px solid ${T.riftLine}`, color: T.riftBright,
@@ -3016,10 +3120,22 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
                 plusHp={lvlB < BOSS_MAX_LEVEL ? Math.max(0, bossSpecLeveled(b, lvlB + 1).hp - bossSpecLeveled(b, lvlB).hp) : 0}
                 werteAn={hpUnlocked(profile)} maxed={lvlB >= BOSS_MAX_LEVEL} en={en}
                 tonStaerke={0.45}
-                knopf={((profile.campaign?.bribedBosses || []).includes(b.id) || ownedBossSet.has(b.id)) && lvlB < BOSS_MAX_LEVEL
-                  ? <VerbessernKnopf kann={(profile.sp || 0) >= bossUpgradeCost(lvlB + 1)} kosten={bossUpgradeCost(lvlB + 1)}
-                      onClick={() => { klang("stufe"); dispatch({ type: "UPGRADE_BOSS", id: b.id }); }} t={t} />
-                  : null} />;
+                knopf={((profile.campaign?.bribedBosses || []).includes(b.id) || ownedBossSet.has(b.id))
+                  ? (lvlB < BOSS_MAX_LEVEL
+                    ? <VerbessernKnopf kann={(profile.sp || 0) >= bossUpgradeCost(lvlB + 1)} kosten={bossUpgradeCost(lvlB + 1)}
+                        onClick={() => { klang("stufe"); dispatch({ type: "UPGRADE_BOSS", id: b.id }); }} t={t} />
+                    : null)
+                  /* v1.90.35 (Besitzer 5.10.: "ich kann die Bestien, glaube ich,
+                     nicht mehr bestechen"): GEMESSEN im Quelltext - der Knopf
+                     stand nur auf der kleinen Kachel der Uebersicht. Wer die
+                     Karte oeffnete, fand im Blatt KEINEN Weg, das Monster zu
+                     holen, und keinen Satz, warum nicht. Jetzt steht hier
+                     derselbe Handel (mit Rueckfrage) oder der Grund. */
+                  : <BestechBlatt b={b} preis={monsterBestechPreis(b)} gold={gold} kann={monsterBribable(b)}
+                      grund={KAPITEL_TROPHAEE.includes(b.id) ? "trophaee" : (b.id === "b23" || b.id === "b25") ? "nie"
+                        : !bestechenOffen ? "freigabe" : !met.has("X:" + b.id) ? "fremd" : null}
+                      frage={bestechFrage === b.id} onFrage={(an) => setBestechFrage(an ? b.id : null)}
+                      onKauf={() => { klang("stufe"); bribeMonster(b.id); }} en={en} />} />;
             })()}
             {/* ── v1.26.7 (Besitzer): DIESELBE TRAININGSLEITER WIE BEI DEN FIGUREN.
                 "Mach es wirklich so, dass es global der gleiche Designblock
@@ -3060,6 +3176,16 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
           boxShadow: `0 18px 50px rgba(0,0,0,.6), 0 0 26px ${T.riftGlow}`,
           border: `1px solid ${T.riftLine}`,
           background: "radial-gradient(130% 110% at 50% -10%, rgba(124,58,237,.24) 0%, rgba(20,14,34,.97) 46%, rgba(8,5,14,.99) 100%)" }}>
+          {/* v1.90.35 (Besitzer 5.10.: "aktuell sieht man nicht, dass man rechts
+              und links wischen kann"): zwei Pfeile am Blattrand zeigen es - und
+              blaettern auch per Tipp. Am Anfang und Ende der Reihe fehlt der
+              jeweilige Pfeil. */}
+          {[-1, 1].map((r) => blattFolge[blattFolge.indexOf(detail) + r] && blattFolge.indexOf(detail) >= 0 ? (
+            <button key={r} data-blatt-pfeil={r} aria-label={r < 0 ? "previous" : "next"} onClick={(e) => { e.stopPropagation(); klang("menue"); blaettern(r); }}
+              style={{ position: "absolute", top: 150, [r < 0 ? "left" : "right"]: 4, zIndex: 4, width: 26, height: 44, borderRadius: 13,
+                display: "grid", placeItems: "center", cursor: "pointer", fontFamily: "inherit", fontSize: 20, lineHeight: 1, padding: 0,
+                background: "rgba(10,13,20,.6)", border: `1px solid ${T.riftLine}`, color: T.riftBright,
+                animation: animAn() ? `ggBlattWink${r < 0 ? "L" : "R"} 1.4s ease-in-out .5s 1` : "none" }}>{r < 0 ? "‹" : "›"}</button>) : null)}
           <button onClick={() => setDetail(null)} aria-label="close" style={{ position: "absolute", top: 9, right: 9, zIndex: 4,
             width: 30, height: 30, borderRadius: "50%", display: "grid", placeItems: "center", cursor: "pointer",
             background: "rgba(10,13,20,.72)", border: `1px solid ${T.riftLine}`, color: T.riftBright,
@@ -3130,7 +3256,7 @@ export function ArmyScreen({ profile, dispatch, t, initialTab, account = null, i
  * Der Strahlenkranz laeuft nur einmal und verglueht; ohne Animationen
  * (Schalter aus) erscheint das Fenster still, aber vollstaendig.
  */
-export function AufstiegsFeier({ art, gambitTier = 1, bild = null, chName = "", ab = null, t, onClose, charId = null, kind = null, abId = null }) {
+export function AufstiegsFeier({ art, gambitTier = 1, bild = null, bildAlt = null, chName = "", ab = null, t, onClose, charId = null, kind = null, abId = null }) {
   const an = animAn();
   const stufe = GAMBIT_STUFEN[Math.max(0, Math.min(5, gambitTier - 1))];
   const rang = art === "rang";
@@ -3168,7 +3294,29 @@ export function AufstiegsFeier({ art, gambitTier = 1, bild = null, chName = "", 
               Abstand, der nicht mehr unterschritten werden kann. */}
           <div style={{ position: "relative", height: 150, overflow: "hidden",
             display: "grid", placeItems: "end center", margin: "8px 0 14px" }}>
-            {bild && <BandBild kennung="feier" src={bild} style={{ height: "100%", width: "auto",
+            {/* v1.90.35 (Besitzer 5.10.: "nicht so von jetzt auf gleich ... eine
+                langsame Animation, wie er sich entwickelt - man sieht wirklich
+                nur so einen hellen Schein, und dann geht der Schein weg, und
+                dann ist er im Prinzip neu da"): DIE VERWANDLUNG. Erst steht
+                das ALTE Antlitz da, dann schwillt ein heller Schein an und
+                verschluckt es, und wenn er vergeht, steht das NEUE da - 3,4 s.
+                Animiert werden nur die HUELLEN (opacity/transform), nie das
+                <img> selbst (ggImgIn wuerde es ueberschreiben). Ohne
+                Animationen oder ohne altes Bild: das neue, still. */}
+            {bild && an && bildAlt ? <>
+              <div data-wandel="alt" style={{ position: "absolute", inset: 0, display: "grid", placeItems: "end center",
+                animation: "ggWandelAlt 3.4s ease-in-out both" }}>
+                <BandBild kennung="feier" src={bildAlt} style={{ height: "100%", width: "auto", maxWidth: "72%", objectFit: "contain",
+                  objectPosition: "bottom", filter: "drop-shadow(0 4px 10px rgba(0,0,0,.6))" }} /></div>
+              <div data-wandel="neu" style={{ position: "absolute", inset: 0, display: "grid", placeItems: "end center",
+                animation: "ggWandelNeu 3.4s ease-in-out both" }}>
+                <BandBild kennung="feier" src={bild} style={{ height: "100%", width: "auto", maxWidth: "72%", objectFit: "contain",
+                  objectPosition: "bottom", filter: `drop-shadow(0 4px 10px rgba(0,0,0,.6)) drop-shadow(0 0 16px rgba(${ton},.5))` }} /></div>
+              <span data-wandel="schein" aria-hidden style={{ position: "absolute", left: "50%", top: "50%", width: 150, height: 150,
+                marginLeft: -75, marginTop: -75, borderRadius: "50%", pointerEvents: "none",
+                background: "radial-gradient(circle, rgba(255,252,236,1) 0%, rgba(255,240,190,.95) 34%, rgba(255,226,140,.5) 58%, rgba(255,226,140,0) 74%)",
+                animation: "ggWandelSchein 3.4s ease-in-out both" }} />
+            </> : bild && <BandBild kennung="feier" src={bild} style={{ height: "100%", width: "auto",
               maxWidth: "72%", objectFit: "contain", objectPosition: "bottom", transformOrigin: "50% 100%",
               filter: `drop-shadow(0 4px 10px rgba(0,0,0,.6)) drop-shadow(0 0 16px rgba(${ton},.5))`,
               ...(an ? { animation: "ggFeierBild .8s cubic-bezier(.2,1.3,.4,1) .1s both" } : null) }} />}

@@ -1,5 +1,43 @@
 # Changelog - Gambit Rise
 
+## 1.90.35 - Hofstaat: zoomen, blaettern, bestechen im Blatt; der Springer zeigt sein L
+
+Besitzer 5.10. (abends, am Handy): Uebersicht zoomen "wie eine Fotouebersicht",
+das Blaettern sichtbar machen, "du hast immer noch nicht das Pferd von den
+Zuegen richtig dargestellt", alle Zuege kontrollieren, "ich kann die Bestien,
+glaube ich, nicht mehr bestechen", der Gambit soll sich langsam verwandeln, und
+die Grossmeister sollen als solche erkennbar sein, "dann wirkt es nicht so bunt".
+
+- **Uebersicht zoomen.** Die Raster tragen CSS `zoom` (0,5 bis 2,2): zwei
+  Finger oder die Knoepfe - / +. Gemessen bei 390 px: 5 Spalten (Zoom 0,64),
+  3 (1,0), 2 (1,58), kein Querueberlauf. Der Wert bleibt auf dem Geraet.
+- **Blaettern sichtbar.** Pfeile am Rand des Figuren- und Monsterblatts (tippen
+  blaettert auch); die neue Karte gleitet 84 statt 34 px weit herein.
+- **Springer-L.** Die acht gelben Felder STIMMTEN (gegen den Kern gezaehlt) -
+  aber acht Punkte im Kreis sehen nicht nach einem Springerzug aus. Das Zugbild
+  zeichnet jetzt den WEG: zwei Felder gerade, eines zur Seite. Auch auf den
+  Karten und Zugbildern der Startseite (neu fotografiert).
+- **Alle Zugbilder gegen den Kern.** Neue Pruefung: jede der 24 Figuren steht
+  allein auf leerem Brett, die Felder des Kerns muessen genau die des Bilds
+  sein. Ergebnis: keine Abweichung. Der Magier zieht bis zu zwei Felder
+  SCHRAEG - in der Grundstellung stehen dort eigene Bauern, darum hat er am
+  Anfang keinen Zug (wie ein Laeufer). Das Bild stimmt, das Spiel sagt es nur
+  nicht.
+- **Bestechen im Monsterblatt.** Ursache der Meldung: der Knopf stand NUR auf
+  der kleinen Kachel der Uebersicht; im geoeffneten Blatt gab es weder Handel
+  noch Erklaerung. Jetzt steht dort der Knopf mit Rueckfrage (`BestechBlatt`)
+  oder der Grund: Kapitelmeister / unbestechlich / erst ein Monster besiegen /
+  noch nicht begegnet / wie viel Gold fehlt. Im Browser gefahren: Kauf zieht
+  1800 Gold ab, danach steht der Verbessern-Knopf (Skillpunkte) da.
+- **Gambit verwandelt sich.** Beim Stufenwechsel stand das neue Antlitz sofort
+  da. Jetzt 3,4 s: altes Antlitz, ein heller Schein schwillt an und deckt es
+  zu, darunter wechselt das Bild, der Schein vergeht (nur opacity/transform).
+- **Grossmeister als Wort.** In der Uebersicht steht "GROSSMEISTER" unter dem
+  Namen, die leuchtende Kontur faellt dort weg; am Damenplatz der Aufstellung
+  bleibt sie.
+- test_ui +14 (Zugbilder gegen den Kern, L-Linien, Handel in vier Lagen und
+  vier Gruenden, Rang-Wort, Zoom, Pfeile, Verwandlung) - 31 Suiten / 2718.
+
 ## 1.90.34 - Kampfleiste steht still, Stationsfenster zeigt alles
 
 Besitzer am Handy, 5.10.: "sehr unvorteilhaft, wenn der Name der Faehigkeit

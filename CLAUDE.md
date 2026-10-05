@@ -41,8 +41,8 @@ gambitrise.com zeigt darauf).
   pruefe-navigation, pruefe-textfluss, test_layout) lesen den Chromium-Pfad aus
   `PW_CHROMIUM`; ohne die Variable gilt der Pfad des Cloud-Containers. Lokal:
   `npx playwright install chromium` und `PW_CHROMIUM=<Pfad zur chrome-Datei>`.
-- `npm test` — volle Batterie. MUSS **31 Suiten / 2704 Prüfungen** melden
-  (Stand v1.90.34; der Runner stoppt nach der ersten roten Suite, also
+- `npm test` — volle Batterie. MUSS **31 Suiten / 2718 Prüfungen** melden
+  (Stand v1.90.35; der Runner stoppt nach der ersten roten Suite, also
   Suitenzahl prüfen, nicht nur Assertions! **Zählweise seit v1.90.18
   (Audit A74): JEDE Suite der Kette meldet eine RESULT-Zeile** — alle Zeilen
   `RESULT…: N passed` summieren; test_balance meldet zwei, darum stehen im
@@ -428,6 +428,13 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
   — sonst steht die Figur wieder auf ihrem gemalten grauen Teller. Bewusst ohne
   Band: Gegnerbildnis über dem Brett (Sockel verdeckt), 22-px-Köpfe der
   Bundtafel, Händler und Schatzkammer (`hatBand`), die Gambit-Marke der Karte.
+- **Zugbild (MoveDiagram), v1.90.35:** der Springersprung wird als WEG
+  gezeichnet (L-Linien: zwei gerade, eins zur Seite) — der Besitzer hat die
+  acht richtigen Felder dreimal für falsch gehalten, weil acht Punkte im Kreis
+  nicht nach Springer aussehen. test_ui prüft JEDE Figur gegen den Kern (leeres
+  9×9-Brett); wer eine Gangart ändert, sieht dort sofort, ob Bild und Kern
+  auseinanderlaufen. Der Magier (zwei Felder schräg) hat in der Grundstellung
+  keinen Zug — das ist richtig, wird aber im Spiel nicht erklärt.
 - **Zugbild (MoveDiagram):** die leeren Felder sind seit v1.90.25 sichtbar
   (13 % / 6 % Weiß) — vorher sah der Besitzer im Springer-L acht Punkte im
   Kreis und hielt es für falsch. Die Aufstellungskarte legt gelernte
@@ -448,6 +455,12 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
   cb(performance.now()), 16)` setzen, Knöpfe per `.click()` auslösen und den
   Dialogtext aus `[role=dialog]` lesen. Das Cloudflare-Dashboard braucht das
   nicht.
+- **Hofstaat-Übersicht zoomt (v1.90.35):** die Raster tragen CSS `zoom`
+  (`hofZoom`, 0,5–2,2, im localStorage `gg:hofzoom`), zwei Finger oder −/+.
+  Wer in die Kachel etwas mit fester Pixelgröße baut, muss nichts tun — `zoom`
+  skaliert alles mit. **Bestechen steht auch im geöffneten Monsterblatt**
+  (`BestechBlatt`) — mit dem Grund, wenn es nicht geht; der Knopf nur auf der
+  Kachel hat den Besitzer am 5.10. glauben lassen, Bestechen sei fort.
 - **Zielfelder am Brett tragen die ZUGART** (v1.90.24, `board/zugart.js`): Blau
   = Schritt/Gleiten, Gelb = Sprung (die Farben des Zugbilds im Hofstaat), Rot
   mit Ring = Schlag, Farbe des Talentzeichens + ✦ = eine Fähigkeit öffnet das
@@ -467,8 +480,9 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
 
 - Deutsche Begriffe im Spiel (Kapitel, Riss, Halle, Hofstaat, Meister …).
 - **Im Verzeichnis gibt es nur FIGUREN und BESTIEN** (v1.90.25, Besitzer 3.10.);
-  die zwölf Großmeister erkennt man an der leuchtenden violetten Kontur ihrer
-  Karte. Wem man begegnet ist, der steht in FARBE da — dunkel ist nur
+  die zwölf Großmeister tragen seit v1.90.35 das WORT „Großmeister“ unter dem
+  Namen (`rang` an der HofKachel) statt der leuchtenden Kontur — die bleibt am
+  Damenplatz der Aufstellung. Wem man begegnet ist, der steht in FARBE da — dunkel ist nur
   Unbekanntes. Krone/Schatten und die Monsterfamilien leben im Regelwerk
   weiter (Bünde, Gaben; das Opfer einer Kronenfigur beim Bestechen ist seit
   v1.90.33 gestrichen, der Preis folgt der Zahl der Fähigkeiten: 1200–2400), werden aber nicht mehr als
@@ -482,7 +496,7 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
   Auswahl-Lichtspektakel.
 - Alles Optionale abschaltbar (Klang, Online).
 
-## Offene Baustellen (Stand v1.90.34, 5.10.2026)
+## Offene Baustellen (Stand v1.90.35, 5.10.2026)
 
 **Einstieg für jede neue Sitzung: `design/CHAT-EINSTIEG-2026-09-27.md`** (zehn
 Minuten, mit dem Startsatz für den Chat), dann **`design/UEBERGABE-2026-09-27.md`** — Stand,

@@ -386,9 +386,9 @@ const piece = (x = {}) => ({ id: 1, kind: "Q", color: "w", level: 1, abilities: 
   const ohneMass = html(<BandBild kennung="h" src={GEM.haendler} style={{ height: 80 }} />);
   ok("v1.90.26: wer kein Band hat (Haendler), bleibt ein schlichtes Bild", !ohneMass.includes("data-bandbild") && /^<img /.test(ohneMass));
   const zaehl = (datei) => (readFileSync(datei, "utf8").match(/<BandBild /g) || []).length;
-  const stellen = { "src/app/ui/screens/ArmyScreen.jsx": 8, "src/app/ui/screens/CampaignScreen.jsx": 3, "src/app/ui/screens/GameScreen.jsx": 2,
+  const stellen = { "src/app/ui/screens/ArmyScreen.jsx": 10, "src/app/ui/screens/CampaignScreen.jsx": 3, "src/app/ui/screens/GameScreen.jsx": 2,
     "src/app/ui/KampfLeiste.jsx": 1, "src/app/ui/KroenungsWahl.jsx": 1, "src/app/ui/BundErwacht.jsx": 1 };
-  ok(`v1.90.26: sechzehn Stellen tragen das Band (${Object.entries(stellen).map(([d, n]) => d.split("/").pop().replace(".jsx", "") + " " + zaehl(d)).join(", ")}) - dazu die grosse Ansicht`,
+  ok(`v1.90.26: achtzehn Stellen tragen das Band - seit v1.90.35 zwei mehr fuer die Verwandlung des Gambit (${Object.entries(stellen).map(([d, n]) => d.split("/").pop().replace(".jsx", "") + " " + zaehl(d)).join(", ")}) - dazu die grosse Ansicht`,
     Object.entries(stellen).every(([d, n]) => zaehl(d) === n)
     && /bandBekannt\(paintedIdOf\(src\)\) && <SockelBand paintedId=\{paintedIdOf\(src\)\}[^>]*id="gross"/.test(readFileSync("src/app/ui/screens/ArmyScreen.jsx", "utf8")));
   const { CharLightbox: Gross } = await import("./src/app/ui/screens/ArmyScreen.jsx");
@@ -2909,6 +2909,78 @@ print(json.dumps({"gezaehlt": gezaehlt, "schlecht": schlecht}))
     if (l.de.includes(de) !== l.en.includes(en)) schief.push(`${k}:${de}`);
   }
   ok(`Chronik: jede Gestalt steht in beiden Sprachen im selben Kapitel (schief: ${schief.join(", ") || "keine"})`, schief.length === 0);
+}
+
+/* ── v1.90.35: JEDES ZUGBILD GEGEN DEN KERN ───────────────────────────────────
+   Besitzer 5.10.: "diese Zuege allgemein bitte nochmal wirklich kontrollieren,
+   dass das so stimmt ... der Magier konnte nicht ziehen." Bisher zaehlte die
+   Batterie einzelne Figuren (Springer, Kapitaen, Attentaeter). Jetzt steht
+   JEDE Figur allein in der Mitte eines leeren 9x9-Bretts, und die Felder, die
+   der Kern ihr gibt, muessen genau die Felder ihres Zugbilds sein (im 7x7-
+   Ausschnitt, den das Bild zeigt). Bauer, Gambit und der grosse Drache haben
+   eigene Regeln (Schlag schraeg, Doppelschritt, 2x2-Block) und eigene Proben. */
+{
+  const { specForKind } = await import("./src/app/ui/screens/ArmyScreen.jsx");
+  const W = 9, MIT = 4 * W + 4, R = 3;
+  const schief = []; let gezaehlt = 0;
+  for (const ch of Object.values(FIGUREN_Z)) {
+    if (ch.kind === "P" || ch.kind === "D" || ch.id === "gambit") continue;
+    const b = Array(W * W).fill(null);
+    b[MIT] = { id: "z", kind: ch.kind, color: "w", level: 1, abilities: [], used: {}, hp: 9, maxHp: 9, atk: 3, shield: 0, ...(ch.moveSpec ? { moveSpec: ch.moveSpec } : {}) };
+    b[0] = { id: "kw", kind: "K", color: "w", level: 1, abilities: [], used: {}, hp: 9, maxHp: 9, atk: 1, shield: 0 };
+    b[W * W - 1] = { id: "kb", kind: "K", color: "b", level: 1, abilities: [], used: {}, hp: 9, maxHp: 9, atk: 1, shield: 0 };
+    const st = { board: b, w: W, h: W, holes: new Set(), rules: "hp", turn: "w", captured: { w: [], b: [] }, history: [], lastMove: null, moveCount: 0, log: [], seed: 1 };
+    const kern = new Set();
+    for (const mv of kernZuege(st, MIT)) { const df = (mv.to % W) - 4, dr = Math.floor(mv.to / W) - 4; if (Math.abs(df) <= R && Math.abs(dr) <= R) kern.add(`${df},${dr}`); }
+    const sp = specForKind(ch.kind, ch.moveSpec); const bild = new Set();
+    if (sp) {
+      const rng = Math.min(sp.range || 1, R);
+      for (const [df, dr] of sp.slides || []) for (let k = 1; k <= rng; k++) bild.add(`${df * k},${dr * k}`);
+      for (const [df, dr] of sp.leaps || []) if (Math.abs(df) <= R && Math.abs(dr) <= R) bild.add(`${df},${dr}`);
+    }
+    const spiegel = new Set([...bild].map((k) => { const [f, r] = k.split(",").map(Number); return `${f},${-r}`; }));
+    const gleich = (a, c) => a.size === c.size && [...a].every((k) => c.has(k));
+    gezaehlt++;
+    if (!gleich(kern, bild) && !gleich(kern, spiegel))
+      schief.push(`${ch.nameDe}: Kern ${kern.size} Felder, Bild ${bild.size}; nur im Kern [${[...kern].filter((k) => !bild.has(k) && !spiegel.has(k)).join(" ")}], nur im Bild [${[...bild].filter((k) => !kern.has(k)).join(" ")}]`);
+  }
+  ok(`Zugbilder: ${gezaehlt} Figuren - jedes Bild zeigt genau die Felder, die der Kern auf leerem Brett gibt (schief: ${schief.join(" || ") || "keine"})`, gezaehlt >= 20 && schief.length === 0);
+  const spL = html(<MoveDiagram kind="N" />);
+  ok("v1.90.35: das Zugbild des Springers zeichnet den WEG - acht L-Linien (zwei gerade, eins zur Seite)",
+    spL.includes('data-springer-l="8"') && (spL.match(/<polyline/g) || []).length === 8 && spL.includes('points="3.5,3.5 3.5,1.5 4.5,1.5"'));
+  ok("v1.90.35: der Laeufer traegt keine L-Linien", !html(<MoveDiagram kind="B" />).includes("data-springer-l"));
+}
+
+/* ── v1.90.35: BESTECHEN IM BLATT, GROSSMEISTER ALS WORT, ZOOM, VERWANDLUNG ───── */
+{
+  const { BestechBlatt, HofKachel: HK, AufstiegsFeier: AF } = await import("./src/app/ui/screens/ArmyScreen.jsx");
+  const b = BOSSES.find((x) => x.id === "b01") || BOSSES[0];
+  const nix = () => {};
+  const angebot = html(<BestechBlatt b={b} preis={1500} gold={2000} kann grund={null} frage={false} onFrage={nix} onKauf={nix} en={false} />);
+  ok("Monsterblatt: wer bestechen kann, bekommt den Knopf mit Preis", angebot.includes('data-bestech-blatt="angebot"') && angebot.includes("Bestechen · 1500 Gold") && !angebot.includes("disabled"));
+  const arm = html(<BestechBlatt b={b} preis={1500} gold={900} kann grund={null} frage={false} onFrage={nix} onKauf={nix} en={false} />);
+  ok("Monsterblatt: fehlt Gold, sagt es, wie viel", arm.includes("disabled") && arm.includes("Dir fehlen 600 Gold."));
+  const frage = html(<BestechBlatt b={b} preis={1500} gold={2000} kann grund={null} frage onFrage={nix} onKauf={nix} en={false} />);
+  ok("Monsterblatt: vor dem Kauf steht eine Rueckfrage", frage.includes('data-bestech-blatt="frage"') && frage.includes("Ja, bestechen") && frage.includes("Abbrechen"));
+  const gruende = ["trophaee", "nie", "freigabe", "fremd"].map((g) => html(<BestechBlatt b={b} preis={1500} gold={9999} kann={false} grund={g} frage={false} onFrage={nix} onKauf={nix} en={false} />));
+  ok("Monsterblatt: geht es nicht, steht der GRUND da (Kapitelmeister, unbestechlich, Freigabe, nicht begegnet)",
+    gruende.every((h, i) => h.includes(`data-bestech-grund="${["trophaee", "nie", "freigabe", "fremd"][i]}"`) && !h.includes("<button")) && new Set(gruende).size === 4);
+  const as35 = readFileSync("src/app/ui/screens/ArmyScreen.jsx", "utf8");
+  ok("Monsterblatt: das Blatt eines fremden Monsters ruft den Handel", as35.includes("<BestechBlatt b={b} preis={monsterBestechPreis(b)} gold={gold} kann={monsterBribable(b)}"));
+  const mitRang = html(<HK img={null} name="Osric" meister rang="Großmeister" />), ohneRang = html(<HK img={null} name="Osric" meister />);
+  ok("Uebersicht: der Grossmeister traegt sein WORT statt der leuchtenden Kontur",
+    mitRang.includes("data-rang") && mitRang.includes("Großmeister") && !mitRang.includes("gg-funkenkontur-innen") && ohneRang.includes("gg-funkenkontur-innen") && !ohneRang.includes("data-rang"));
+  ok("Uebersicht: die Raster tragen den Zoom, zwei Finger und zwei Knoepfe stellen ihn",
+    as35.includes('gap: 7, zoom: hofZoom }') && as35.includes("onTouchMove={kneifZug}") && as35.includes('localStorage.setItem("gg:hofzoom", JSON.stringify(z))') && as35.includes("data-hofzoom={hofZoom}"));
+  ok("Figurenblatt: Pfeile am Rand zeigen das Blaettern", (as35.match(/data-blatt-pfeil=\{r\}/g) || []).length === 2);
+  const wandel = html(<AF art="rang" gambitTier={2} bild="neu.webp" bildAlt="alt.webp" t={(k) => k} onClose={nix} />);
+  ok("Gambit: die Verwandlung zeigt erst das alte Antlitz, dann den Schein, dann das neue",
+    wandel.includes('data-wandel="alt"') && wandel.includes('data-wandel="schein"') && wandel.includes('data-wandel="neu"')
+    && wandel.indexOf("alt.webp") < wandel.indexOf("neu.webp") && wandel.includes("ggWandelSchein 3.4s"));
+  ok("Gambit: ohne altes Bild erscheint das neue wie bisher", !html(<AF art="rang" gambitTier={2} bild="neu.webp" t={(k) => k} onClose={nix} />).includes("data-wandel"));
+  const th35 = readFileSync("src/app/ui/theme.js", "utf8");
+  ok("Gambit: die Verwandlung bewegt nur opacity und transform", ["ggWandelAlt", "ggWandelNeu", "ggWandelSchein"].every((k) => {
+    const m = th35.match(new RegExp("@keyframes " + k + " \\{([\\s\\S]*?)\\} \\}")); return m && !/(width|height|top|left|filter|background)\s*:/.test(m[1]); }));
 }
 
 /* ── v1.90.34: DIE KAMPFLEISTE STEHT STILL ─────────────────────────────────────

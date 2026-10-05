@@ -598,6 +598,18 @@ export const GLOBAL_CSS = `
   @keyframes ggFeierBild { 0% { opacity: 0; transform: scale(.62) rotate(-6deg); }
     55% { opacity: 1; transform: scale(1.0) rotate(2deg); }
     100% { opacity: 1; transform: scale(.98) rotate(0deg); } }
+  /* v1.90.35: DIE VERWANDLUNG DES GAMBIT (3,4 s). Das alte Antlitz steht
+     0,9 s, der Schein schwillt an und deckt bei 46-56 % alles zu; unter ihm
+     wechselt das Bild, dann vergeht er. Nur opacity und transform. */
+  @keyframes ggWandelAlt { 0%, 30% { opacity: 1; transform: scale(1); } 46% { opacity: 1; transform: scale(1.04); }
+    52%, 100% { opacity: 0; transform: scale(1.04); } }
+  @keyframes ggWandelNeu { 0%, 50% { opacity: 0; transform: scale(1.04); } 56% { opacity: 1; transform: scale(1.04); }
+    100% { opacity: 1; transform: scale(1); } }
+  @keyframes ggWandelSchein { 0%, 22% { opacity: 0; transform: scale(.25); } 46% { opacity: 1; transform: scale(1.15); }
+    56% { opacity: 1; transform: scale(1.3); } 100% { opacity: 0; transform: scale(1.45); } }
+  /* v1.90.35: die Blaetter-Pfeile am Rand des Figurenblatts winken zweimal */
+  @keyframes ggBlattWinkL { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-4px); } }
+  @keyframes ggBlattWinkR { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(4px); } }
   /* v1.0.87: der Erfolgsstern im Stationsfenster - glaenzt und atmet.
      Nur transform und opacity. */
   /* v1.1.2 (Besitzeridee): DIE PERLE LOEST SICH AUF. In dem Moment, wo der

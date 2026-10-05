@@ -301,7 +301,7 @@ console.log("\n== KEIN GROESSENSPRUNG BEIM ZIEHEN (v1.4.9) ==");
      der Uebersicht der Karten" - die Kontur leuchtet, steht aber still. */
   ok("Grossmeister-Kacheln tragen die leuchtende Kontur - still",
     th2.includes(".gg-funkenkontur-innen::after") && th2.includes(".gg-kontur-still::after { animation: none !important;")
-    && ar2.includes('className={meister ? "gg-funkenkontur-innen gg-kontur-still" : undefined}'));
+    && ar2.includes('className={kontur ? "gg-funkenkontur-innen gg-kontur-still" : undefined}'));
 }
 
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
