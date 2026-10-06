@@ -103,7 +103,7 @@ function BossKarte({ b }) {
   return <div data-karte={b.id} style={{ width: 372, padding: 10, borderRadius: 14, background: "rgba(16,20,36,.92)", border: `1px solid ${meister ? "rgba(167,139,250,.7)" : T.line}` }}>
     <div style={{ display: "flex", gap: 10 }}>
       <div style={{ width: 132, flex: "0 0 auto" }}>
-        <HofKachel img={paintedById("boss-" + b.id)} bossId={b.id} glow meister={meister} rang={meister ? "Großmeister" : null}
+        <HofKachel img={paintedById("boss-" + b.id)} bossId={b.id} glow meister={meister} zier={meister}
           werte={rohrAnteile({ hp: spec.hp, atk: spec.atk, level: BOSS_MAX_LEVEL, maxLevel: BOSS_MAX_LEVEL })} ton={b.accent || null}
           stufe={BOSS_MAX_LEVEL} name={b.nameDe} />
       </div>

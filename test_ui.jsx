@@ -2987,14 +2987,34 @@ print(json.dumps({"gezaehlt": gezaehlt, "schlecht": schlecht}))
   const as35 = readFileSync("src/app/ui/screens/ArmyScreen.jsx", "utf8");
   ok("Monsterblatt: das Blatt eines fremden Monsters ruft den Handel", as35.includes("<BestechBlatt b={b} preis={monsterBestechPreis(b)} gold={gold} kann={monsterBribable(b)}"));
   const mitRang = html(<HK img={null} name="Osric" meister rang="Großmeister" />), ohneRang = html(<HK img={null} name="Osric" meister />);
-  ok("Uebersicht: der Grossmeister traegt sein WORT statt der leuchtenden Kontur",
+  ok("Kachel: mit `rang` steht das WORT statt der leuchtenden Kontur (Sammlungsblaetter)",
     mitRang.includes("data-rang") && mitRang.includes("Großmeister") && !mitRang.includes("gg-funkenkontur-innen") && ohneRang.includes("gg-funkenkontur-innen") && !ohneRang.includes("data-rang"));
-  ok("Uebersicht: die Raster tragen den Zoom, zwei Finger stellen ihn (v1.90.36: ohne Leiste und Knoepfe)",
-    as35.includes('gap: 7, zoom: hofZoom }') && as35.includes("onTouchMove={kneifZug}") && as35.includes('localStorage.setItem("gg:hofzoom", JSON.stringify(z))')
-    && as35.includes("data-hofuebersicht data-hofzoom={hofZoom}") && !as35.includes("zoomKnopf") && !as35.includes("Mit zwei Fingern zoomen"));
-  ok("v1.90.36: ganz hineinzoomen oeffnet das Blatt der Karte zwischen den Fingern",
-    as35.includes("roh > ZOOM_MAX * 1.18") && as35.includes('el.closest("[data-hofkachel]")') && as35.includes("kachel.click()")
+  /* v1.92.2 (Besitzer 6.10.): in der Uebersicht traegt der Grossmeister kein Wort
+     mehr (es schob Bild und Namen hoeher als bei den Nachbarn), sondern staerkere
+     goldene Eckbeschlaege und eine goldene Innenlinie. */
+  const mitZier = html(<HK img={null} name="Osric" meister zier stufe={3} bossId="b36" />), schlicht = html(<HK img={null} name="Bauer" stufe={3} />);
+  ok("v1.92.2: Grossmeister in der Uebersicht - Zier statt Wort: goldene Innenlinie, groessere doppelte Eckwinkel, keine Kontur",
+    mitZier.includes("data-zier") && !mitZier.includes("data-rang") && !mitZier.includes("gg-funkenkontur-innen")
+    && (mitZier.match(/width="15"/g) || []).length === 3 && mitZier.includes("#f3d98b") && !schlicht.includes("data-zier") && (schlicht.match(/data-ecke=/g) || []).length === 3
+    && (as35.match(/zier=\{meister\}/g) || []).length === 2 && !as35.includes('rang={meister ?'));
+  ok("v1.92.2: wo ein Stufenabzeichen steht, entfaellt der Eckwinkel oben rechts (das Abzeichen sitzt 3 px in der Ecke)",
+    !schlicht.includes('data-ecke="oben-rechts"') && html(<HK img={null} name="???" />).includes('data-ecke="oben-rechts"')
+    && as35.includes('data-stufenabzeichen="1" style={{ position: "absolute", top: -7, right: -4 }}'));
+  ok("v1.92.2: die Raster haben feste 96-px-Karten - der Zoom ist das einzige Mass (kein 1fr, das die Karte unabhaengig vom Inhalt dehnt)",
+    as35.includes("gridTemplateColumns: `repeat(auto-fill, ${RASTER_KARTE}px)`, justifyContent: \"center\", gap: RASTER_FUGE, zoom: hofZoom }") && !as35.includes("minmax(96px, 1fr))\", gap: 7, zoom")
+    && (as35.match(/<div data-hofraster style=\{grid\}>/g) || []).length === 3 && as35.includes('localStorage.setItem("gg:hofspalten", JSON.stringify(c))')
+    && as35.includes("data-hofuebersicht data-hofspalten=") && !as35.includes("zoomKnopf") && !as35.includes("Mit zwei Fingern zoomen"));
+  ok("v1.92.2: stufenlos waehrend der Geste (direkt am DOM), beim Loslassen auf ganze Spalten; die Karte unter den Fingern bleibt dort",
+    as35.includes('el.addEventListener("touchmove", zug, { passive: false })') && as35.includes("g.style.zoom = z") && as35.includes("Math.round(von)") && as35.includes("k.roller.scrollTop +="));
+  ok("v1.90.36/v1.92.2: ganz hineinzoomen oeffnet das Blatt der Karte unter den Fingern - weich (ggBlattAuf)",
+    as35.includes("drueber >= 1.22 && k.kachel") && as35.includes('unter.closest("[data-hofkachel]")') && as35.includes("ka.click()")
+    && (as35.match(/ggBlattAuf \.26s/g) || []).length === 2 && readFileSync("src/app/ui/theme.js", "utf8").includes("@keyframes ggBlattAuf")
     && html(<HK img={null} name="x" onOpen={nix} />).includes("data-hofkachel") && !html(<HK img={null} name="x" />).includes("data-hofkachel"));
+  ok("v1.92.2: aus dem Blatt laesst sich herauszoomen (zwei Finger zusammen schliessen es)",
+    (as35.match(/onTouchMove=\{blattKneifZug\}/g) || []).length === 2 && as35.includes("if (r < 0.7) { blattKneif.current = null;") && (as35.match(/ref=\{blattEl\} data-blatt/g) || []).length === 2);
+  ok("v1.92.2: der Wisch-Wink - ein durchscheinender Finger, nur die ersten drei Male; die Pfeile bleiben nur fuer die Maus",
+    (as35.match(/\{wink && blattFolge\.length > 1 && <WischWink \/>\}/g) || []).length === 2 && as35.includes('if (n < 3) { setWink(true);')
+    && as35.includes('"gg:wischwink"') && (as35.match(/\[-1, 1\]\.map\(\(r\) => feinZeiger && /g) || []).length === 2 && readFileSync("src/app/ui/theme.js", "utf8").includes("@keyframes ggWischFinger"));
   ok("v1.90.36: Figuren- und Monsterblatt ohne lila Kontur, die Blaetter-Pfeile ohne Rahmen",
     (as35.match(/v1\.90\.36: ohne lila Kontur/g) || []).length === 2 && !as35.includes("0 0 26px ${T.riftGlow}`,\n          border: `1px solid ${T.riftLine}`")
     && (as35.match(/background: "none", border: "none", color: "rgba\(236,228,255,\.82\)"/g) || []).length === 2);

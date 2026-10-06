@@ -1,5 +1,36 @@
 # Changelog - Gambit Rise
 
+## 1.92.2 - Hofstaat: der Zoom ist stufenlos und gleichmaessig, das Blatt oeffnet weich und schliesst mit zwei Fingern
+
+Besitzer 6.10.: "die Elemente auf den Karten sollten sich komplett gleich
+skalieren zu den Karten ... das Padding springt ... das Reinspringen ist
+ruckelig ... man kann auch nicht mehr rauszoomen."
+
+- **Ursache des Springens:** die Spalten der Uebersicht waren `minmax(96px, 1fr)`.
+  Der Zoom skalierte den INHALT der Karte, `1fr` dehnte die KARTE unabhaengig
+  davon auf die Restbreite - bei jedem Spaltenwechsel sprang der Rand in der
+  Karte (bei Zoom 2,2: Inhalt fuer 211 px in einer 370 px breiten Karte), und der
+  Wert war auf Fuenfzigstel gerastert. Jetzt ist die Karte fest 96 px, der Zoom
+  das einzige Mass; gespeichert wird die Spaltenzahl. Waehrend der Geste laeuft
+  sie stufenlos (direkt am DOM), die Karte unter den Fingern bleibt dort, beim
+  Loslassen gleitet das Raster auf ganze Spalten. Gemessen: Abzeichen 37,5 % der
+  Kartenbreite bei jedem Zoom (Abweichung 0,0001), groesster Schritt 5 px.
+- **Ins Blatt und wieder heraus:** wer ueber die groesste Stufe hinaus zieht,
+  spuert es zuerst (die Karte hebt sich), dann waechst das Blatt aus der Karte
+  (vorher sprang es hart auf). Zwei Finger zusammen machen das Blatt kleiner und
+  schliessen es - vorher gab es keinen Weg zurueck ausser dem Kreuz.
+- **Der Wisch-Wink statt der kleinen Pfeile:** die ersten drei Male wischt ein
+  durchscheinender Finger zweimal ueber das Blatt, danach nie wieder. Die Pfeile
+  bleiben nur, wo es keinen Finger gibt (Maus).
+- **Grossmeister tragen Zier statt Wort:** das Wort "Grossmeister" unter dem Namen
+  schob Bild und Namen hoeher als bei den Nachbarn. Jetzt haben alle Karten
+  denselben Aufbau; die Grossmeister tragen groessere, doppelt gefuehrte goldene
+  Eckbeschlaege und eine feine goldene Innenlinie.
+- **Das Stufenabzeichen sitzt weiter in der Ecke** (3 statt 6 px von beiden
+  Kanten); wo eines steht, entfaellt der Eckwinkel oben rechts.
+- Neue Probe `tools/pruefe-hofzoom.mjs` (echte Zwei-Finger-Gesten am echten
+  Figuren-Schirm, 14 Pruefungen), in Kette und CI.
+
 ## 1.92.1 - Das Brett bleibt stehen
 
 Besitzer 6.10., mit zwei Fotos: "In dem Moment, wo ich eine Figur ausgewaehlt

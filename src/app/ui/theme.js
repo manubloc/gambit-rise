@@ -608,6 +608,12 @@ export const GLOBAL_CSS = `
   @keyframes ggWandelSchein { 0%, 22% { opacity: 0; transform: scale(.25); } 46% { opacity: 1; transform: scale(1.15); }
     56% { opacity: 1; transform: scale(1.3); } 100% { opacity: 0; transform: scale(1.45); } }
   /* v1.90.35: die Blaetter-Pfeile am Rand des Figurenblatts winken zweimal */
+  /* v1.92.2: das Blatt waechst aus der Karte; der Wisch-Wink (durchscheinender Finger) */
+  @keyframes ggBlattAuf { from { scale: .86; opacity: 0; } to { scale: 1; opacity: 1; } }
+  @keyframes ggSchleierEin { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes ggWischSchein { 0% { opacity: 0; } 8%, 88% { opacity: 1; } 100% { opacity: 0; } }
+  @keyframes ggWischFinger { 0% { transform: translateX(70px) rotate(8deg); opacity: 0; } 14% { opacity: 1; }
+    52% { transform: translateX(-70px) rotate(-8deg); opacity: 1; } 86% { transform: translateX(70px) rotate(8deg); opacity: 1; } 100% { transform: translateX(70px) rotate(8deg); opacity: 0; } }
   @keyframes ggBlattWinkL { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-4px); } }
   @keyframes ggBlattWinkR { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(4px); } }
   /* v1.0.87: der Erfolgsstern im Stationsfenster - glaenzt und atmet.

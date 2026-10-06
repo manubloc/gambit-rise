@@ -2482,9 +2482,35 @@ const AUFST_TALENT_MAX = 4;
      unten     - was unter dem Namen steht (Aufstellung: Zugbild, Faehigkeiten)
      gewaehlt  - der goldene Rand der gewaehlten Karte */
 export const DRACHE_KACHEL = 1.2;
+/* v1.92.2: der naechste Vorfahr, der wirklich rollt - fuer den Zoom der Uebersicht,
+   der die Karte unter den Fingern festhaelt. */
+function rollElter(el) {
+  for (let p = el.parentElement; p; p = p.parentElement) {
+    const o = getComputedStyle(p).overflowY;
+    if ((o === "auto" || o === "scroll") && p.scrollHeight > p.clientHeight + 1) return p;
+  }
+  return document.scrollingElement || document.documentElement;
+}
+/* v1.92.2: DER WISCH-WINK - ein durchscheinender Finger wischt zweimal ueber das
+   Blatt. Reine Auflage: nimmt keinen Tipp an und keinen Platz. */
+function WischWink() {
+  return (
+    <div data-wischwink aria-hidden style={{ position: "absolute", left: 0, right: 0, top: 96, height: 150, zIndex: 5, pointerEvents: "none",
+      display: "grid", placeItems: "center", animation: "ggWischSchein 6.2s ease-in-out both" }}>
+      <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", font: "300 54px/1 Georgia, serif", color: "rgba(255,255,255,.34)" }}>‹</span>
+      <span style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", font: "300 54px/1 Georgia, serif", color: "rgba(255,255,255,.34)" }}>›</span>
+      <svg width="86" height="124" viewBox="0 0 86 124" style={{ animation: "ggWischFinger 2.9s ease-in-out .35s 2 both", filter: "drop-shadow(0 4px 14px rgba(0,0,0,.45))" }}>
+        <circle cx="43" cy="30" r="27" fill="rgba(255,255,255,.10)" stroke="rgba(255,255,255,.42)" strokeWidth="1.4" />
+        <rect x="31" y="16" width="24" height="96" rx="12" fill="rgba(255,255,255,.30)" />
+        <rect x="35" y="20" width="16" height="15" rx="7" fill="rgba(255,255,255,.22)" />
+      </svg>
+    </div>
+  );
+}
+
 export function HofKachel({ img, name, dim, dark, action, glow, origin, onOpen, sigil = null, sigilBig = null, stufe = null, kind = null, hero = false, lvl = 1,
     werte = null, xpAnteil = null, artId = null, bossId = null, talente = [], ton = null, meister = false,
-    unten = null, gewaehlt = false, rang = null }) {
+    unten = null, gewaehlt = false, rang = null, zier = false }) {
   /* v1.90.35 (Besitzer 5.10.: "die Meister haben jetzt einfach nur so eine
      leuchtende Karte in der Uebersicht - nicht erkennbar, dass es wirklich
      Meister sind ... links oben oder irgendwo einfach Grossmeister drueber
@@ -2492,14 +2518,24 @@ export function HofKachel({ img, name, dim, dark, action, glow, origin, onOpen, 
      es jetzt ein WORT unter dem Namen (`rang`), die leuchtende Kontur faellt
      dort weg. Die Kontur bleibt, wo sie etwas anderes bedeutet: am Damenplatz
      der Aufstellung (dort ohne `rang`). */
-  const kontur = meister && !rang;
+  /* v1.92.2 (Besitzer 6.10.: "wenn Grossmeister unter den Figuren steht, wandert
+     die Schrift nach oben ... oder dass die Grossmeister eine andere Verzierung
+     auf der Karte haben, so wie dieses kleine Goldene in den Ecken, dass das bei
+     Grossmeistern noch ein bisschen staerker ist - faende ich auf jeden Fall
+     cool"): das WORT faellt in der Uebersicht wieder weg (es schob Bild und
+     Namen um 11 px hoeher als bei den Nachbarn). Statt dessen `zier`: die
+     Eckbeschlaege groesser, doppelt gefuehrt und in Gold, dazu eine feine
+     goldene Innenlinie. Alle Karten sind damit wieder gleich aufgebaut. `rang`
+     bleibt als Prop (die Sammlungsblaetter des Besitzers nutzen es). */
+  const kontur = meister && !rang && !zier;
   /* v1.89.0 (Besitzer: "bei den lila Karten im Slider passt die kleine
      Markierung in den Ecken nicht zu dem Lila - mach die dann auch lila bei
      denen, die nicht ausgewaehlt sind"): die Eckverzierung folgt der KONTUR
      der Kachel. Goldrand (eigene Karte im Hofstaat, gewaehlte Karte der
      Aufstellung) -> Gold; violetter Rand (Grossmeister, nicht gewaehlt,
      fremd) -> das weiche Lila der Kontur. */
-  const eckFarbe = kontur ? "#c3aaf5" : (glow || gewaehlt) ? "#e9cf8a" : "#b9a4f7";
+  const eckFarbe = zier ? "#f3d98b" : kontur ? "#c3aaf5" : (glow || gewaehlt) ? "#e9cf8a" : "#b9a4f7";
+  const eckMass = zier ? 15 : 10;
   return (
     /* v1.0.11 (Besitzer): die Kachel KLINGT beim Tippen. Der Klangfaenger
        hoert nur auf button/[role=button] — diese div blieb stumm. */
@@ -2589,9 +2625,16 @@ export function HofKachel({ img, name, dim, dark, action, glow, origin, onOpen, 
           4,6/16 x 10 = 2,9 px, Halbmesser 0,7 - er reicht bis 2+2,9+0,7 = 5,6
           px von jeder Kante. Abzeichen und Talente stehen auf 7, also bleiben
           1,4 px Luft. Nachgemessen, nicht geschaetzt. */}
+      {zier && <div data-zier aria-hidden style={{ position: "absolute", inset: 3, borderRadius: 8.5, zIndex: -1, pointerEvents: "none",
+        border: `1px solid rgba(243,217,139,${dark ? .16 : .34})` }} />}
+      {/* v1.92.2 (Besitzer: "das Wappen rechts oben darf noch weiter nach rechts
+          oben"): das Abzeichen sitzt jetzt 3 px von beiden Kanten (vorher 6) -
+          also dort, wo der Eckwinkel lag. Wo ein Abzeichen steht, entfaellt der
+          Winkel oben rechts: das Abzeichen IST dort die Ecke, und die Regel von
+          v1.23.4 (nie uebereinander) bleibt gewahrt. */}
       {[["oben-links", 0, true, true], ["oben-rechts", 90, true, false],
-        ["unten-rechts", 180, false, false], ["unten-links", 270, false, true]].map(([wo, rot, oben, links]) =>
-        <svg key={wo} data-ecke={wo} viewBox="0 0 16 16" width="10" height="10" aria-hidden
+        ["unten-rechts", 180, false, false], ["unten-links", 270, false, true]].filter(([wo]) => !(wo === "oben-rechts" && stufe != null)).map(([wo, rot, oben, links]) =>
+        <svg key={wo} data-ecke={wo} viewBox="0 0 16 16" width={eckMass} height={eckMass} aria-hidden
           style={{ position: "absolute", top: oben ? 1 : "auto", bottom: oben ? "auto" : 1,
             left: links ? 1 : "auto", right: links ? "auto" : 1,
             transform: `rotate(${rot}deg)`, zIndex: -1, pointerEvents: "none", opacity: dark ? .35 : .85 }}>
@@ -2607,7 +2650,8 @@ export function HofKachel({ img, name, dim, dark, action, glow, origin, onOpen, 
           <path d="M5 1.5H9.5" fill="none" stroke={eckFarbe} strokeWidth="0.85" strokeLinecap="round" />
           <path d="M1.5 12.5c0 1.6 1 2.4 2.4 2.4" fill="none" stroke={eckFarbe} strokeWidth="1" strokeLinecap="round" opacity=".8" />
           <path d="M12.5 1.5c1.6 0 2.4 1 2.4 2.4" fill="none" stroke={eckFarbe} strokeWidth="1" strokeLinecap="round" opacity=".8" />
-          <circle cx="4.6" cy="4.6" r="1.05" fill={eckFarbe} />
+          {zier && <path d="M3.9 10.5V7A3.1 3.1 0 0 1 7 3.9H10.5" fill="none" stroke={eckFarbe} strokeWidth="0.6" strokeLinecap="round" opacity=".75" />}
+          <circle cx={zier ? 5.6 : 4.6} cy={zier ? 5.6 : 4.6} r={zier ? 0.95 : 1.05} fill={eckFarbe} />
         </svg>)}
       {/* v1.15.1: DIE KOPFZEILE - fuer JEDE Kachel gleich (Besitzervorlage):
           links die Talente, in der Mitte das Lebensrohr, rechts die Stufe.
@@ -2667,7 +2711,7 @@ export function HofKachel({ img, name, dim, dark, action, glow, origin, onOpen, 
                   Talentspalte auf der anderen Seite.
                   v1.23.5 (Besitzer): 7/7 - die kleinere Verzierung gibt den
                   Platz frei, das Abzeichen rueckt weiter in die Ecke. */}
-              <div data-stufenabzeichen="1" style={{ position: "absolute", top: -4, right: -1 }}>
+              <div data-stufenabzeichen="1" style={{ position: "absolute", top: -7, right: -4 }}>
                 <StufenAbzeichen form={formFuer({ charId: artId, bossId })} stufe={stufe} maxStufe={bossId ? BOSS_MAX_LEVEL : maxLevelFor(artId || "pawn")}
                   farbe={ton || figurFarbe(paintedIdOf(img)) || "#5b3fa6"} grau={!!dark} size={36} /></div></div>
           : <div style={{ width: 21, height: 21, flex: "0 0 auto" }} />}
@@ -2903,36 +2947,126 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
   /* v1.33.1 (Besitzer): IM POP-UP WISCHEN - nach links die naechste Karte,
      nach rechts die vorige, in der Reihenfolge der Uebersicht. Die Hooks
      stehen hier oben, vor jeder fruehen Rueckgabe dieser Komponente. */
-  /* ── v1.90.35: DIE UEBERSICHT LAESST SICH ZOOMEN ─────────────────────────
-     Besitzer 5.10.: "mega cool waere, wenn man im Hofstaat bei der Uebersicht
-     zoomen kann - dynamisch, so wie man das von einer Fotouebersicht kennt,
-     ueber alle Figuren, und mehrere Raster zulassen." Die Raster tragen CSS
-     `zoom`: die Kacheln wachsen und schrumpfen stufenlos, und weil das Raster
-     seine Spalten selbst fuellt (auto-fill, 96 px), springt es dabei von zwei
-     bis zu sechs Spalten. Zwei Finger auf der Uebersicht, oder die Knoepfe
-     - / +. Der Wert bleibt auf dem Geraet (ein JSON-String, wie alles hier). */
-  const ZOOM_MIN = 0.5, ZOOM_MAX = 2.2;
-  const zoomKlemme = (v) => Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, Math.round(v * 50) / 50));
-  const [hofZoom, setHofZoomRoh] = useState(() => {
-    try { const v = JSON.parse(localStorage.getItem("gg:hofzoom")); return typeof v === "number" ? zoomKlemme(v) : 1; } catch { return 1; } });
-  const setHofZoom = (v) => { const z = zoomKlemme(v); setHofZoomRoh(z); try { localStorage.setItem("gg:hofzoom", JSON.stringify(z)); } catch { /* privat: dann eben nur fuer jetzt */ } };
-  const kneif = useRef(null);
-  const abstand = (e) => Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
-  const kneifStart = (e) => { if (e.touches && e.touches.length === 2) kneif.current = { d: abstand(e), z: hofZoom }; };
-  /* v1.90.36 (Besitzer: "intuitiv, wenn ich komplett reinzoome, dann lande ich
-     am Ende in genau diesem Menue"): wer ueber die groesste Stufe hinaus
-     weiterzieht (ab 18 % darueber), oeffnet das Blatt der Karte ZWISCHEN den
-     beiden Fingern. Die Kachel wird dafuer schlicht angetippt - sie kennt
-     ihren eigenen Weg ins Blatt. Danach ist die Geste verbraucht. */
-  const kneifZug = (e) => { const k = kneif.current; if (!k || !e.touches || e.touches.length !== 2 || k.d < 10) return;
-    const roh = k.z * abstand(e) / k.d;
-    if (roh > ZOOM_MAX * 1.18 && typeof document !== "undefined") {
-      const mx = (e.touches[0].clientX + e.touches[1].clientX) / 2, my = (e.touches[0].clientY + e.touches[1].clientY) / 2;
-      const el = document.elementFromPoint(mx, my); const kachel = el && el.closest ? el.closest("[data-hofkachel]") : null;
-      if (kachel) { kneif.current = null; kachel.click(); return; }
+  /* ── DIE UEBERSICHT LAESST SICH ZOOMEN (v1.90.35, neu gebaut in v1.92.2) ──
+     Besitzer 5.10.: "dynamisch, so wie man das von einer Fotouebersicht kennt".
+     Besitzer 6.10.: "die Elemente, die auf den Karten sind, sollten sich komplett
+     gleich skalieren zu den Karten ... stufenlos reinzoomen ... das Padding
+     springt, wenn ich ganz reinzoome."
+
+     URSACHE des Springens: die Spalten waren `minmax(96px, 1fr)`. CSS `zoom`
+     skalierte den INHALT der Karte (Abzeichen, Schrift, Talente), `1fr` aber
+     DEHNTE die Karte unabhaengig davon auf die Restbreite - Karte und Inhalt
+     liefen auseinander, und bei jedem Spaltenwechsel sprang der Rand in der
+     Karte (bei 2,2 und 390 px: eine 370 px breite Karte mit Inhalt fuer 211).
+     Dazu war der Wert auf Fuenfzigstel gerastert.
+
+     JETZT ist die Karte immer 96 px breit, und der Zoom ist das EINZIGE Mass:
+     Karte und alles darauf wachsen als ein Stueck. Gespeichert wird nicht mehr
+     der Zoom, sondern die SPALTENZAHL (auch gebrochen): der Zoom folgt aus ihr
+     und der gemessenen Breite, so dass bei einer ganzen Zahl die Karten die
+     Breite genau fuellen. Waehrend der Geste laeuft der Wert stufenlos und wird
+     direkt am DOM gesetzt (kein Neuaufbau je Fingerbewegung), die Karte unter
+     den Fingern bleibt unter den Fingern, beim Loslassen gleitet das Raster auf
+     die naechste ganze Spaltenzahl. */
+  const RASTER_KARTE = 96, RASTER_FUGE = 7;
+  const hofRef = useRef(null);
+  const [hofBreite, setHofBreite] = useState(0);
+  const [spaltenWahl, setSpaltenWahl] = useState(() => {
+    try { const v = JSON.parse(localStorage.getItem("gg:hofspalten")); return typeof v === "number" && v > 0 ? v : null; } catch { return null; } });
+  const spaltenGrenzen = (w) => [Math.max(1, Math.ceil((w || 370) / 460)), Math.max(6, Math.floor((w || 370) / 62))];
+  const spalten = (() => { const [lo, hi] = spaltenGrenzen(hofBreite);
+    return Math.max(lo, Math.min(hi, spaltenWahl ?? Math.max(2, Math.round((hofBreite || 370) / 124)))); })();
+  const zoomFuer = (c, w) => (w > 0 ? (w - 0.5) / ((RASTER_KARTE + RASTER_FUGE) * c - RASTER_FUGE) : 1);
+  const hofZoom = zoomFuer(spalten, hofBreite);
+  const hofStand = useRef({ spalten, hofBreite }); hofStand.current = { spalten, hofBreite };
+  const blattZu = useRef(0);
+  useEffect(() => {
+    const el = hofRef.current; if (!el) return undefined;
+    const miss = () => setHofBreite(el.clientWidth);
+    miss();
+    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(miss) : null; if (ro) ro.observe(el);
+    const setze = (c) => { const z = zoomFuer(c, hofStand.current.hofBreite); for (const g of el.querySelectorAll("[data-hofraster]")) g.style.zoom = z; el.dataset.hofspalten = c.toFixed(2); };
+    const abstand = (e) => Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+    const mitteY = (e) => (e.touches[0].clientY + e.touches[1].clientY) / 2;
+    let k = null, live = null, lauf = 0;
+    const fertig = (c) => { live = null; setSpaltenWahl(c); try { localStorage.setItem("gg:hofspalten", JSON.stringify(c)); } catch { /* privat: dann eben nur fuer jetzt */ } };
+    const start = (e) => { if (!e.touches || e.touches.length !== 2) return;
+      /* nicht, waehrend ein Blatt offen ist oder eben mit zwei Fingern geschlossen
+         wurde - dieselben Finger wuerden sonst gleich die Uebersicht verstellen */
+      if (document.querySelector("[data-blatt]") || performance.now() - blattZu.current < 500) return;
+      cancelAnimationFrame(lauf);
+      const my = mitteY(e), mx = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+      const unter = document.elementFromPoint(mx, my); const kachel = unter && unter.closest ? unter.closest("[data-hofkachel]") : null;
+      const r = kachel ? kachel.getBoundingClientRect() : null;
+      k = { d: abstand(e), c: live ?? hofStand.current.spalten, kachel, fy: r ? (my - r.top) / Math.max(1, r.height) : 0, roller: kachel ? rollElter(kachel) : null }; };
+    const zug = (e) => { if (!k || !e.touches || e.touches.length !== 2 || k.d < 10) return;
+      if (e.cancelable) e.preventDefault();
+      const [lo, hi] = spaltenGrenzen(hofStand.current.hofBreite);
+      const roh = k.c * k.d / Math.max(1, abstand(e));
+      /* v1.90.36 (Besitzer: "wenn ich komplett reinzoome, dann lande ich am Ende
+         in genau diesem Menue"), v1.92.2 fluessig: wer ueber die groesste Stufe
+         hinaus weiterzieht, spuert es zuerst (die Karte unter den Fingern hebt
+         sich ein Stueck), und ab 22 % darueber oeffnet sich ihr Blatt - aus der
+         Karte heraus (ggBlattAuf), statt hart aufzuspringen. */
+      const drueber = roh < lo ? lo / roh : 1;
+      if (k.kachel) k.kachel.style.scale = drueber > 1 ? String(1 + Math.min(0.07, (drueber - 1) * 0.3)) : "";
+      if (drueber >= 1.22 && k.kachel) { const ka = k.kachel; ka.style.scale = ""; k = null; setze(lo); fertig(lo); ka.click(); return; }
+      const c = Math.max(lo, Math.min(hi, roh));
+      live = c; setze(c);
+      /* die Karte unter den Fingern bleibt unter den Fingern */
+      if (k.kachel && k.roller) { const r = k.kachel.getBoundingClientRect(); k.roller.scrollTop += (r.top + k.fy * r.height) - mitteY(e); } };
+    const ende = (e) => { if ((!k && live == null) || (e.touches && e.touches.length >= 2)) return;
+      if (k && k.kachel) k.kachel.style.scale = "";
+      const von = live ?? k.c; k = null;
+      const [lo, hi] = spaltenGrenzen(hofStand.current.hofBreite);
+      const ziel = Math.max(lo, Math.min(hi, Math.round(von)));
+      if (Math.abs(ziel - von) < 0.004) { setze(ziel); fertig(ziel); return; }
+      const t0 = performance.now();
+      const schritt = (t) => { const p = Math.min(1, (t - t0) / 180), q = 1 - (1 - p) * (1 - p); const c = von + (ziel - von) * q;
+        live = c; setze(c); if (p < 1) lauf = requestAnimationFrame(schritt); else fertig(ziel); };
+      lauf = requestAnimationFrame(schritt); };
+    el.addEventListener("touchstart", start, { passive: true }); el.addEventListener("touchmove", zug, { passive: false });
+    el.addEventListener("touchend", ende); el.addEventListener("touchcancel", ende);
+    return () => { cancelAnimationFrame(lauf); if (ro) ro.disconnect();
+      el.removeEventListener("touchstart", start); el.removeEventListener("touchmove", zug);
+      el.removeEventListener("touchend", ende); el.removeEventListener("touchcancel", ende); };
+  }, [artReady]);   // eslint-disable-line react-hooks/exhaustive-deps
+  /* ── v1.92.2: AUS DEM BLATT WIEDER HERAUSZOOMEN (Besitzer 6.10.: "man kann auch
+     nicht mehr rauszoomen, das darf nicht sein"). Zwei Finger zusammen: das
+     Blatt wird kleiner und blasser, unter 70 % schliesst es sich; wer vorher
+     loslaesst, bekommt es zurueck. */
+  const blattEl = useRef(null);
+  const blattKneif = useRef(null);
+  const zweiAbstand = (e) => Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+  const blattKneifStart = (e) => { if (e.touches && e.touches.length === 2) { wisch.current = null; blattKneif.current = { d: zweiAbstand(e) }; } };
+  const blattKneifZug = (e) => { const k = blattKneif.current, el = blattEl.current;
+    if (!k || !el || !e.touches || e.touches.length !== 2 || k.d < 10) return;
+    const r = zweiAbstand(e) / k.d;
+    if (r < 0.7) { blattKneif.current = null; blattZu.current = performance.now(); el.style.scale = ""; el.style.opacity = ""; klang("menue"); setDetail(null); return; }
+    el.style.transition = "none"; el.style.scale = String(Math.max(0.8, Math.min(1, 0.34 + 0.66 * r))); el.style.opacity = String(Math.max(0.35, Math.min(1, r * 1.25 - 0.25))); };
+  const blattKneifEnde = () => { const el = blattEl.current;
+    if (blattKneif.current && el) { el.style.transition = "scale .18s ease, opacity .18s ease"; el.style.scale = ""; el.style.opacity = ""; }
+    blattKneif.current = null; };
+  /* ── v1.92.2: DER WISCH-WINK (Besitzer 6.10.: "diese kleinen Pfeile wuerde ich
+     nur ganz am Anfang, viel groesser und sanfter zeigen ... so einen Finger,
+     der ganz sanft in einem Weiss transparent zeigt, dass man hier nach rechts
+     und links wischen kann. Das machen wir ein paar Mal."). Die ersten drei
+     Male, die ein Blatt aufgeht, wischt ein durchscheinender Finger zweimal
+     ueber das Blatt; danach nie wieder. Wer selbst wischt, beendet ihn. */
+  const [wink, setWink] = useState(false);
+  const blattWarOffen = useRef(false);
+  useEffect(() => {
+    if (detail && !blattWarOffen.current) {
+      let n = 0; try { n = +(JSON.parse(localStorage.getItem("gg:wischwink") || "0")) || 0; } catch { n = 0; }
+      if (n < 3) { setWink(true); try { localStorage.setItem("gg:wischwink", JSON.stringify(n + 1)); } catch { /* privat */ } }
     }
-    const z = zoomKlemme(roh); if (z !== hofZoom) setHofZoom(z); };
-  const kneifEnde = () => { kneif.current = null; };
+    if (!detail) setWink(false);
+    blattWarOffen.current = !!detail;
+  }, [detail]);
+  useEffect(() => { if (!wink) return undefined; const t = setTimeout(() => setWink(false), 6400); return () => clearTimeout(t); }, [wink]);
+  /* Die Pfeile bleiben, wo es keinen Finger gibt (Maus): dort sind sie der
+     einzige Weg zum naechsten Blatt. */
+  const feinZeiger = typeof window !== "undefined" && !!window.matchMedia && window.matchMedia("(hover: hover) and (pointer: fine)").matches;
   const wisch = useRef(null);
   const wischRichtung = useRef(0);
   useEffect(() => { wischRichtung.current = 0; }, [detail]);
@@ -2995,7 +3129,7 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
       : { leben: 0, kraft: 0, ohne: true };   /* v1.33.1: vor dem Erwachen ohne Werte, wie die Figuren */
     const ton = b.accent || null;
     const meister = LEAGUE_BOSSES.includes(b.id);
-    if (bribedSet.has(b.id) || ownedBossSet.has(b.id)) return <Tile key={b.id} img={img} bossId={b.id} glow meister={meister} rang={meister ? (en ? "Grandmaster" : "Großmeister") : null} sigil={sig} sigilBig={sigBig} werte={mWerte} ton={ton}
+    if (bribedSet.has(b.id) || ownedBossSet.has(b.id)) return <Tile key={b.id} img={img} bossId={b.id} glow meister={meister} zier={meister} sigil={sig} sigilBig={sigBig} werte={mWerte} ton={ton}
       onOpen={() => setDetail(k)} stufe={mLv}
       name={en ? b.nameEn : b.nameDe} origin={bribedSet.has(b.id) ? t("tree.allied") : t("tree.inCourt")} />;
     if (met.has(k)) {
@@ -3004,7 +3138,7 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
          kennzeichnen durch ein Leuchten"): die leuchtende violette Kontur
          trug bisher nur der Grossmeister im EIGENEN Hofstaat. Jetzt traegt
          sie jeder der zwoelf, sobald man ihm begegnet ist. */
-      return <Tile key={b.id} img={img} bossId={b.id} dim meister={meister} rang={meister ? (en ? "Grandmaster" : "Großmeister") : null} sigil={sig} sigilBig={sigBig} werte={mWerte} ton={ton} stufe={mLv} name={en ? b.nameEn : b.nameDe} origin={t("tree.masters")}
+      return <Tile key={b.id} img={img} bossId={b.id} dim meister={meister} zier={meister} sigil={sig} sigilBig={sigBig} werte={mWerte} ton={ton} stufe={mLv} name={en ? b.nameEn : b.nameDe} origin={t("tree.masters")}
         onOpen={() => setDetail(k)}
         action={can ? (bestechFrage === b.id
           /* v1.90.33: statt der Opferwahl eine Rueckfrage - ein Fehlgriff am
@@ -3030,7 +3164,7 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
     if (sighted.has(b.id)) return <Tile key={b.id} img={img} bossId={b.id} dark sigil={sig} sigilBig={sigBig} werte={mWerte} ton={ton} name={en ? b.nameEn : b.nameDe} origin={t("tree.sighted")} />;
     return <Tile key={b.id} img={img} dark name={"???"} />;
   };
-  const grid = { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(96px, 1fr))", gap: 7, zoom: hofZoom };
+  const grid = { display: "grid", gridTemplateColumns: `repeat(auto-fill, ${RASTER_KARTE}px)`, justifyContent: "center", gap: RASTER_FUGE, zoom: hofZoom };
   const H = ({ children }) => <div className="gg-serif" style={{ fontSize: 12, letterSpacing: ".12em", color: T.gold, margin: "14px 0 7px" }}>{children}</div>;
   const fams = ["golem", "beast", "serpent", "wraith", "tyrant"];
   // recruits RISE into the court — each keeps a small note of where it came from
@@ -3069,13 +3203,15 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
     const n = blattFolge[i + r]; if (!n) return;
     wischRichtung.current = r; setDetail(n);
   };
-  const wischStart = (e) => { const p = e.touches && e.touches[0]; wisch.current = p ? { x: p.clientX, y: p.clientY, t: Date.now() } : null; };
+  const wischStart = (e) => { const p = e.touches && e.touches.length === 1 ? e.touches[0] : null;   /* v1.92.2: zwei Finger sind kein Wisch */
+    wisch.current = p ? { x: p.clientX, y: p.clientY, t: Date.now() } : null; };
   const wischEnde = (e) => {
     const a = wisch.current; wisch.current = null;
     const p = e.changedTouches && e.changedTouches[0]; if (!a || !p) return;
     const dx = p.clientX - a.x, dy = p.clientY - a.y;
     /* nur ein klarer, waagrechter, zuegiger Wisch - Scrollen bleibt Scrollen */
     if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.6 || Date.now() - a.t > 800) return;
+    setWink(false);
     blaettern(dx < 0 ? 1 : -1);
   };
   const blattKlasse = () => (wischRichtung.current > 0 ? " gg-blatt-rechts" : wischRichtung.current < 0 ? " gg-blatt-links" : "");
@@ -3102,10 +3238,10 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
   /* v1.90.36 (Besitzer 6.10.: "lass die Erklaerung mit Zoom weg und auch den
      Plus- und Minus-Button"): die Leiste ueber dem Hofstaat ist fort, gezoomt
      wird allein mit zwei Fingern. data-hofzoom traegt den Wert fuer die Proben. */
-  return <div data-hofuebersicht data-hofzoom={hofZoom} onTouchStart={kneifStart} onTouchMove={kneifZug} onTouchEnd={kneifEnde} onTouchCancel={kneifEnde}
+  return <div ref={hofRef} data-hofuebersicht data-hofspalten={spalten.toFixed(2)}
     style={{ touchAction: "pan-y" }}>
     <Vorrede />
-    <H>{t("tree.court")}</H><div style={grid}>
+    <H>{t("tree.court")}</H><div data-hofraster style={grid}>
       {/* v0.81: DER GAMBIT FEHLT HIER, BIS ER ERWACHT. Vor dem dritten
           geschafften Gefecht gibt es ihn nicht - kein Name, kein Bild, kein
           leerer Platz mit Fragezeichen. Erst wenn er sich selbst entdeckt,
@@ -3128,14 +3264,14 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
         die Gaben). Das Opfer einer Kronenfigur beim Bestechen hat der Besitzer
         am 5.10. gestrichen (v1.90.33). */}
     {(() => { const rest = [...CROWN_IDS, ...SHADOW_IDS].filter((c) => !unlocked.has(c));
-      return rest.length ? <><H>{t("tree.figuren")}</H><div style={grid}>{rest.map((c) => champTile(c))}</div></> : null; })()}
+      return rest.length ? <><H>{t("tree.figuren")}</H><div data-hofraster style={grid}>{rest.map((c) => champTile(c))}</div></> : null; })()}
     {/* ONE HALL FOR THE MASTERS. Five family headings (Golems, Beasts,
         Serpents, Wraiths, Tyrants) split twenty-five monsters into five thin
         rows of mostly "???" — the register read as a list of holes rather than
         a chronicle. They stand together now, in the order you meet them. */}
     {(() => {
       const list = BOSSES.filter((b) => !bribedSet.has(b.id) && !ownedBossSet.has(b.id));
-      return list.length ? <div><H>{t("tree.masters")}</H><div style={grid}>{list.map(monsterTile)}</div></div> : null;
+      return list.length ? <div><H>{t("tree.masters")}</H><div data-hofraster style={grid}>{list.map(monsterTile)}</div></div> : null;
     })()}
     {/* EIN MONSTER OEFFNET SEINE KARTE wie jede Figur des Hofs: Portrait,
         Zeichen, Familie, Zugbild und sein Fluestern. Der Rahmen traegt das
@@ -3145,14 +3281,17 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
       if (!b) return null;
       const img = paintedById("boss-" + b.id);
       const fam = monsterHaus(b, en);
-      return <div onClick={() => setDetail(null)} style={{ position: "fixed", inset: 0, zIndex: 55, background: "rgba(4,6,10,.72)",
-        display: "block", overflow: "hidden",
+      return <div onClick={() => setDetail(null)} onTouchStart={blattKneifStart} onTouchMove={blattKneifZug} onTouchEnd={blattKneifEnde} onTouchCancel={blattKneifEnde}
+        style={{ position: "fixed", inset: 0, zIndex: 55, background: "rgba(4,6,10,.72)",
+        display: "block", overflow: "hidden", touchAction: "pan-y", animation: animAn() ? "ggSchleierEin .2s ease" : "none",
           /* v0.81 (Besitzer): OBEN VERANKERT statt zentriert. Eine zentrierte
              Karte waechst in BEIDE Richtungen - ist sie hoch, wandert ihr Kopf
              unter die Leiste. Jetzt beginnt jedes Popup auf DERSELBEN Hoehe,
              gleich wie gross sein Inhalt ist, und scrollt in sich. */
         }}>
-        <div key={detail} onClick={(e) => e.stopPropagation()} onTouchStart={wischStart} onTouchEnd={wischEnde} style={{ position: "absolute", left: "50%", transform: "translateX(-50%)",
+        <div key={detail} ref={blattEl} data-blatt onClick={(e) => e.stopPropagation()} onTouchStart={wischStart} onTouchEnd={wischEnde} style={{ position: "absolute", left: "50%", transform: "translateX(-50%)",
+          /* v1.92.2: das Blatt waechst aus der Karte (nur beim Oeffnen, nicht beim Blaettern) - ohne fill-mode, damit die Kneif-Geste danach scale/opacity setzen kann */
+          animation: animAn() && !wischRichtung.current ? "ggBlattAuf .26s cubic-bezier(.2,.8,.25,1)" : "none",
           top: "calc(14px + var(--gg-popfrei-oben, 0px))",
           maxHeight: "calc(100dvh / var(--vhz, 1) - 30px - var(--gg-popfrei-oben, 0px) - var(--gg-popfrei-unten, 0px))",
           display: "flex", flexDirection: "column", width: "min(100vw - 20px, 420px)",
@@ -3162,7 +3301,8 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
               und links wischen kann"): zwei Pfeile am Blattrand zeigen es - und
               blaettern auch per Tipp. Am Anfang und Ende der Reihe fehlt der
               jeweilige Pfeil. */}
-          {[-1, 1].map((r) => blattFolge[blattFolge.indexOf(detail) + r] && blattFolge.indexOf(detail) >= 0 ? (
+          {wink && blattFolge.length > 1 && <WischWink />}
+          {[-1, 1].map((r) => feinZeiger && blattFolge[blattFolge.indexOf(detail) + r] && blattFolge.indexOf(detail) >= 0 ? (
             <button key={r} data-blatt-pfeil={r} aria-label={r < 0 ? "previous" : "next"} onClick={(e) => { e.stopPropagation(); klang("menue"); blaettern(r); }}
               /* v1.90.36 (Besitzer: "die Pfeile an der Seite bitte anders,
                  ohne Kontur auf jeden Fall"): kein Rahmen, kein Grund - nur
@@ -3248,14 +3388,17 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
       </div>;
     })()}
     {detail && CHARACTERS[detail] && (
-      <div onClick={() => setDetail(null)} style={{ position: "fixed", inset: 0, zIndex: 55, background: "rgba(4,6,10,.72)",
-        display: "block", overflow: "hidden",
+      <div onClick={() => setDetail(null)} onTouchStart={blattKneifStart} onTouchMove={blattKneifZug} onTouchEnd={blattKneifEnde} onTouchCancel={blattKneifEnde}
+        style={{ position: "fixed", inset: 0, zIndex: 55, background: "rgba(4,6,10,.72)",
+        display: "block", overflow: "hidden", touchAction: "pan-y", animation: animAn() ? "ggSchleierEin .2s ease" : "none",
           /* v0.81 (Besitzer): OBEN VERANKERT statt zentriert. Eine zentrierte
              Karte waechst in BEIDE Richtungen - ist sie hoch, wandert ihr Kopf
              unter die Leiste. Jetzt beginnt jedes Popup auf DERSELBEN Hoehe,
              gleich wie gross sein Inhalt ist, und scrollt in sich. */
         }}>
-        <div key={detail} onClick={(e) => e.stopPropagation()} onTouchStart={wischStart} onTouchEnd={wischEnde} style={{ position: "absolute", left: "50%", transform: "translateX(-50%)",
+        <div key={detail} ref={blattEl} data-blatt onClick={(e) => e.stopPropagation()} onTouchStart={wischStart} onTouchEnd={wischEnde} style={{ position: "absolute", left: "50%", transform: "translateX(-50%)",
+          /* v1.92.2: das Blatt waechst aus der Karte (nur beim Oeffnen, nicht beim Blaettern) - ohne fill-mode, damit die Kneif-Geste danach scale/opacity setzen kann */
+          animation: animAn() && !wischRichtung.current ? "ggBlattAuf .26s cubic-bezier(.2,.8,.25,1)" : "none",
           top: "calc(14px + var(--gg-popfrei-oben, 0px))",
           maxHeight: "calc(100dvh / var(--vhz, 1) - 30px - var(--gg-popfrei-oben, 0px) - var(--gg-popfrei-unten, 0px))",
           display: "flex", flexDirection: "column", width: "min(100vw - 20px, 440px)",
@@ -3268,7 +3411,8 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
               und links wischen kann"): zwei Pfeile am Blattrand zeigen es - und
               blaettern auch per Tipp. Am Anfang und Ende der Reihe fehlt der
               jeweilige Pfeil. */}
-          {[-1, 1].map((r) => blattFolge[blattFolge.indexOf(detail) + r] && blattFolge.indexOf(detail) >= 0 ? (
+          {wink && blattFolge.length > 1 && <WischWink />}
+          {[-1, 1].map((r) => feinZeiger && blattFolge[blattFolge.indexOf(detail) + r] && blattFolge.indexOf(detail) >= 0 ? (
             <button key={r} data-blatt-pfeil={r} aria-label={r < 0 ? "previous" : "next"} onClick={(e) => { e.stopPropagation(); klang("menue"); blaettern(r); }}
               /* v1.90.36 (Besitzer: "die Pfeile an der Seite bitte anders,
                  ohne Kontur auf jeden Fall"): kein Rahmen, kein Grund - nur

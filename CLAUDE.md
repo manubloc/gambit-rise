@@ -41,8 +41,8 @@ gambitrise.com zeigt darauf).
   pruefe-navigation, pruefe-textfluss, test_layout) lesen den Chromium-Pfad aus
   `PW_CHROMIUM`; ohne die Variable gilt der Pfad des Cloud-Containers. Lokal:
   `npx playwright install chromium` und `PW_CHROMIUM=<Pfad zur chrome-Datei>`.
-- `npm test` — volle Batterie. MUSS **31 Suiten / 2939 Prüfungen** melden
-  (Stand v1.92.0; der Runner stoppt nach der ersten roten Suite, also
+- `npm test` — volle Batterie. MUSS **31 Suiten / 2944 Prüfungen** melden
+  (Stand v1.92.2; der Runner stoppt nach der ersten roten Suite, also
   Suitenzahl prüfen, nicht nur Assertions! **Zählweise seit v1.90.18
   (Audit A74): JEDE Suite der Kette meldet eine RESULT-Zeile** — alle Zeilen
   `RESULT…: N passed` summieren; test_balance meldet zwei, darum stehen im
@@ -271,8 +271,9 @@ starten, sonst reißen Werkzeug-Zeitlimits den Lauf ab.
 4. `timeout 250 node drive3.mjs` (keine Fehler),
    `node tools/pruefe-figurenmass.mjs` (0 Befunde),
    `node tools/pruefe-duell.mjs` (RESULT ohne failed),
-   `node tools/pruefe-leiste.mjs` (RESULT ohne failed) und
-   `node tools/pruefe-brettruhe.mjs` (RESULT ohne failed, ~5 min); bei Arbeit an Karte,
+   `node tools/pruefe-leiste.mjs` (RESULT ohne failed),
+   `node tools/pruefe-brettruhe.mjs` (RESULT ohne failed, ~5 min) und
+   `node tools/pruefe-hofzoom.mjs` (RESULT ohne failed); bei Arbeit an Karte,
    Kampagne oder Navigation zusätzlich `node tools/pruefe-navigation.mjs`
 5. REINRAUM: `git clone . /tmp/rr && cp -r node_modules /tmp/rr/` und dort
    Schritte 1–4 wiederholen. **Währenddessen nichts Schweres nebenher laufen
@@ -539,12 +540,20 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
   cb(performance.now()), 16)` setzen, Knöpfe per `.click()` auslösen und den
   Dialogtext aus `[role=dialog]` lesen. Das Cloudflare-Dashboard braucht das
   nicht.
-- **Hofstaat-Übersicht zoomt (v1.90.35):** die Raster tragen CSS `zoom`
-  (`hofZoom`, 0,5–2,2, im localStorage `gg:hofzoom`), NUR mit zwei Fingern
-  (Leiste und −/+ hat der Besitzer am 6.10. gestrichen); wer über die größte
-  Stufe hinaus weiterzieht, öffnet das Blatt der Karte zwischen den Fingern
-  (`data-hofkachel`). Die Blätter tragen seit v1.90.36 keine lila Kontur mehr,
-  die Blätter-Pfeile keinen Rahmen.
+- **Hofstaat-Übersicht zoomt (v1.90.35, neu gebaut v1.92.2):** die Karte ist
+  fest 96 px breit, die Raster (`data-hofraster`) tragen CSS `zoom` — der Zoom
+  ist das EINZIGE Maß, Karte und Inhalt wachsen als ein Stück. **Nie wieder
+  `1fr` in diesen Spalten:** es dehnte die Karte unabhängig vom Inhalt, der Rand
+  in der Karte sprang bei jedem Spaltenwechsel (Besitzer 6.10.). Gespeichert wird
+  die SPALTENZAHL (`gg:hofspalten`), der Zoom folgt aus ihr und der gemessenen
+  Breite. NUR mit zwei Fingern (native Hörer am `data-hofuebersicht`, während
+  der Geste direkt am DOM, beim Loslassen auf ganze Spalten); wer über die
+  größte Stufe hinaus weiterzieht, öffnet das Blatt der Karte unter den Fingern
+  (`ggBlattAuf`), zwei Finger zusammen schließen es wieder. Die ersten drei
+  Male wischt ein durchscheinender Finger über das Blatt (`WischWink`,
+  `gg:wischwink`); die Blätter-Pfeile gibt es nur noch für die Maus.
+  **`node tools/pruefe-hofzoom.mjs [fotoordner]`** fährt das alles mit echten
+  Touch-Gesten (~40 s, Schritt 4 der Kette).
   Wer in die Kachel etwas mit fester Pixelgröße baut, muss nichts tun — `zoom`
   skaliert alles mit. **Bestechen steht auch im geöffneten Monsterblatt**
   (`BestechBlatt`) — mit dem Grund, wenn es nicht geht; der Knopf nur auf der
@@ -568,9 +577,11 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
 
 - Deutsche Begriffe im Spiel (Kapitel, Riss, Halle, Hofstaat, Meister …).
 - **Im Verzeichnis gibt es nur FIGUREN und BESTIEN** (v1.90.25, Besitzer 3.10.);
-  die vierzehn Großmeister tragen seit v1.90.35 das WORT „Großmeister“ unter dem
-  Namen (`rang` an der HofKachel, dort seit v1.91.0 nur der Rufname: „Varek“)
-  statt der leuchtenden Kontur — die bleibt am
+  die vierzehn Großmeister tragen seit v1.92.2 **ZIER statt Wort** (`zier` an
+  der HofKachel: größere, doppelt geführte goldene Eckbeschläge und eine goldene
+  Innenlinie — vom Besitzer am 6.10. so gewünscht, das Wort „Großmeister“ schob
+  Bild und Namen höher als bei den Nachbarn; auf der Kachel steht nur der
+  Rufname: „Varek“). Die leuchtende Kontur bleibt am
   Damenplatz der Aufstellung. Wem man begegnet ist, der steht in FARBE da — dunkel ist nur
   Unbekanntes. Krone/Schatten und die Monsterfamilien leben im Regelwerk
   weiter (Bünde, Gaben; das Opfer einer Kronenfigur beim Bestechen ist seit
@@ -587,7 +598,7 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
   Auswahl-Lichtspektakel.
 - Alles Optionale abschaltbar (Klang, Online).
 
-## Offene Baustellen (Stand v1.92.1, 6.10.2026)
+## Offene Baustellen (Stand v1.92.2, 7.10.2026)
 
 **Einstieg für jede neue Sitzung: `design/CHAT-EINSTIEG-2026-09-27.md`** (zehn
 Minuten, mit dem Startsatz für den Chat), dann **`design/UEBERGABE-2026-09-27.md`** — Stand,
