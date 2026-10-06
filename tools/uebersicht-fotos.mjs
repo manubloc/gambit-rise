@@ -3,7 +3,7 @@
    Leitern, Werte und Fundorte) und legt je Bund, fuer die Grossmeister und die
    Bestien ein Bild ab.
 
-     node tools/uebersicht-fotos.mjs [ordner] [--nur=bund:dorf,bosse:meister:1]
+     node tools/uebersicht-fotos.mjs [ordner] [--nur=bund:dorf,bosse:meister:1] [--spalten=1]
 
    Haengt nicht in der Kette - es ist das Werkzeug, mit dem der Besitzer nach
    einer Aenderung an Figuren, Bestien oder Buenden die ganze Sammlung auf
@@ -16,6 +16,7 @@ import { chromium } from "playwright-core";
 import { BUENDE } from "../src/content/buende.js";
 
 const AUS = process.argv[2] && !process.argv[2].startsWith("--") ? process.argv[2] : "/tmp/gg-uebersicht";
+const SPALTEN = (process.argv.find((a) => a.startsWith("--spalten=")) || "").slice(10);   // --spalten=1: einspaltig, fuers Handy
 const NUR = (process.argv.find((a) => a.startsWith("--nur=")) || "").slice(6).split(",").filter(Boolean);
 const DIR = "/tmp/gg-uebersichtprobe";
 await mkdir(DIR, { recursive: true }); await mkdir(AUS, { recursive: true });
@@ -49,11 +50,11 @@ const LAGEN = [
 let fehler = 0;
 for (const [abfrage, datei, kennung] of LAGEN) {
   if (NUR.length && !NUR.includes(kennung)) continue;
-  const page = await browser.newPage({ viewport: { width: 1300, height: 4600 }, deviceScaleFactor: 2 });   /* hoch genug fuer das laengste Blatt:
+  const page = await browser.newPage({ viewport: { width: 1300, height: SPALTEN === "1" ? 9000 : 4600 }, deviceScaleFactor: 2 });   /* hoch genug fuer das laengste Blatt:
      bei 1000 px Hoehe blieben die untersten Karten ohne Figur (gemessen 6.10.: Morwen, Thalor, Steinkoenig -
      Bilder weit unter dem Fenster blendet der Browser nicht ein) */
   const errs = []; page.on("pageerror", (e) => errs.push(String(e.message).slice(0, 200)));
-  await page.goto(`http://127.0.0.1:${port}/?${abfrage}`, { waitUntil: "load" });
+  await page.goto(`http://127.0.0.1:${port}/?${abfrage}${SPALTEN ? "&spalten=" + SPALTEN : ""}`, { waitUntil: "load" });
   await page.waitForSelector("#ziel", { timeout: 20000 });
   await page.evaluate(async () => {
     await document.fonts.ready;
