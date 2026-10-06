@@ -3025,7 +3025,9 @@ print(json.dumps({"gezaehlt": gezaehlt, "schlecht": schlecht}))
   for (const [id, k] of Object.entries(LEISTE_KURZ)) for (const t of [k.de, k.en]) if (t.length > LEISTE_TEXT_MAX) zuLang.push(`${id}:${t.length}`);
   ok(`Kampfleiste: kein Erklaertext laenger als ${LEISTE_TEXT_MAX} Zeichen (zu lang: ${zuLang.join(", ") || "keiner"})`, zuLang.length === 0);
   ok("Kampfleiste: Textfenster und Hinweiszeile haben feste Hoehe",
-    kl.includes("data-talent-fenster style={{ height: TEXT_HOEHE") && kl.includes("data-talent-hinweis style={{ height: HINWEIS_HOEHE"));
+    kl.includes("data-talent-fenster style={{ height: TEXT_HOEHE") && kl.includes("data-talent-hinweis style={{ height: HINWEIS_HOEHE")
+      /* v1.92.1: und die Leiste selbst hat eine feste Hoehe - sonst schrumpft das Brett beim Anwaehlen */
+      && kl.includes("height: H, boxSizing") && /LEISTE_HOCH = [^;]*TEXT_HOEHE[^;]*KARTE_HOEHE[^;]*HINWEIS_HOEHE/.test(kl));
   const { nameGroesse, KACHEL_TEXT } = await import("./src/app/ui/KampfLeiste.jsx");
   const eng = [];
   for (const a of Object.values(ABILITIES)) for (const n of [a.nameDe, a.nameEn]) {

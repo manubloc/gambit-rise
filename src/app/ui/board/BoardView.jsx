@@ -219,7 +219,7 @@ function Zustaende({ piece, feld, state, ruhig, en }) {
   </>;
 }
 
-export function BoardView({ lang = "de", state, onMove, interactive, lastMove, mattSeite = null, effekt = null, theme = null, maxPx = 520, animateFor = null, flip = false, fitBox = false, feldKontur = false, feld = null, feldDunkel = null, ruhig = false, pick = null, onPick = null, pov = "w", texture = null, ground = null, artStyle = "painted", showLevel = true, showCoords = false, pulse = 0.4, friendly = false, knownKinds = null, seerVision = false, onEnemyTap = null, introSpot = null, onInspect = null, hotseat = false, setzFelder = null, onSetz = null , scharf: scharfAussen = undefined, onScharf = null}) {
+export function BoardView({ lang = "de", state, onMove, interactive, lastMove, mattSeite = null, effekt = null, theme = null, maxPx = 520, animateFor = null, flip = false, fitBox = false, feldKontur = false, feld = null, feldDunkel = null, ruhig = false, pick = null, onPick = null, pov = "w", texture = null, ground = null, artStyle = "painted", showLevel = true, showCoords = false, pulse = 0.4, friendly = false, knownKinds = null, seerVision = false, onEnemyTap = null, introSpot = null, onInspect = null, hotseat = false, setzFelder = null, onSetz = null , scharf: scharfAussen = undefined, onScharf = null, ohneTalentzeile = false }) {
   const sqL0 = theme?.sqLight || T.sqLight, sqD0 = theme?.sqDark || T.sqDark;
   // a GROUND painting beneath the field: the squares open further so meadow,
   // stream and path shimmer through — the land itself hosts the battle
@@ -1094,6 +1094,7 @@ export function BoardView({ lang = "de", state, onMove, interactive, lastMove, m
      Brett das gleiche Zeichen (✦). */
   const selPiece = sel != null ? state.board[sel] : null;
   const talentBand = (() => {
+    if (ohneTalentzeile) return null;   /* v1.92.1: im Gefecht sagt es die Kampfleiste - hier lag die Zeile auf dem Hofwert */
     /* v1.0.90 (Besitzer: "Faehigkeiten als Button unter dem Schachbrett, und
        erst wenn man die Figur anklickt"): DAS BAND GAB ES SEIT v1.0.85, aber
        der Besitzer hat es nie gesehen - er spielt Klassik, und dort ist jede

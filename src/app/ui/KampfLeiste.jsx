@@ -85,6 +85,28 @@ export const leistenText = (id, quelle, en) => {
 };
 const TEXT_HOEHE = 96;   // Kopfzeile + vier Textzeilen
 const HINWEIS_HOEHE = 28;   // zwei Zeilen: auf schmalen Geraeten bricht der Hinweis um
+/* ── v1.92.1: DIE LEISTE IST IMMER GLEICH HOCH ─────────────────────────────────
+   Besitzer 6.10., mit zwei Fotos: "In dem Moment, wo ich eine Figur ausgewaehlt
+   habe, wird das Schachbrett kleiner. Das darf nicht passieren ... das
+   Schachbrett muss immer komplett statisch in der Groesse bleiben." GEMESSEN:
+   ohne Auswahl war die Leiste 96 px hoch (minHeight), mit Auswahl 242 (Textfenster
+   96 + Karten + Hinweis) - und weil der Brettkasten den REST des Schirms nimmt,
+   gab das Brett auf jedem Geraet, dem die Hoehe knapp ist, 146 px ab (auf
+   seinem Foto 848 -> 762 breit). Dieselbe Klasse: die Pille "letztes Talent"
+   (+24 px beim ersten Einsatz), die Kroenungswahl (+170 px), eine Karte mit
+   zweizeiligem Namen (+10 px), das Banner (Leiste fort, Brett waechst).
+
+   Jetzt hat die Leiste EINE Hoehe je Geraet, die an nichts haengt, was im Spiel
+   geschieht. Der Spielschirm misst, wie viel Platz unter einem Brett in voller
+   Breite bleibt, und gibt eine von zwei Bauarten vor:
+     hoch   (>= LEISTE_HOCH frei): wie bisher - Text ueber den Karten.
+     flach  (weniger): Figur klein, daneben die Karten; die Erklaerung steht
+            RECHTS daneben, wenn die Leiste breit genug ist, sonst legt sie sich
+            UEBER die Kartenreihe (ein Tipp schliesst sie). Das Brett bleibt frei. */
+export const KARTE_HOEHE = 98;   // 12 Rand + 42 Ring + 4 + zwei Namenszeilen + 4 + Fusszeile (94 war fuer "Frühe Krönung" mit Fusszeile zu knapp: pruefe-leiste L1 rot)
+export const LEISTE_HOCH = 6 + 4 + TEXT_HOEHE + 6 + KARTE_HOEHE + 2 + 6 + HINWEIS_HOEHE;   // 246
+export const LEISTE_FLACH = 6 + 4 + KARTE_HOEHE;   // 108
+export const LEISTE_BREIT_AB = 640;   // ab dieser Breite steht die Erklaerung neben den Karten
 
 /* Gemessen im Browser (tools/pruefe-leiste.mjs): Grossbuchstaben in fetter
    Schrift brauchen rund 0,78 em je Zeichen, und aus "ß" wird in Grossschrift
@@ -107,7 +129,7 @@ function Karte({ icon, label, unter, dry, gruen, active, lock, onTap, scharf = f
        die scharfe Kachel traegt die laufende Kontur .gg-funkenkontur, dieselbe
        wie der Verbessern-Knopf im Hofstaat. */
     <button onClick={onTap} title={label} className={scharf ? "gg-funkenkontur" : undefined}
-      style={{ width: 78, minHeight: 78, flex: "0 0 auto", cursor: "pointer", fontFamily: "inherit",
+      style={{ width: 78, height: KARTE_HOEHE, flex: "0 0 auto", cursor: "pointer", fontFamily: "inherit", /* v1.92.1: fest - eine Karte mit zweizeiligem Namen war 10 px hoeher und schob das Brett */
         display: "flex", flexDirection: "column", alignItems: "center", gap: 4, padding: "7px 3px 5px",
         borderRadius: 12,
         /* v1.38.0: SCHARF leuchtet violett - dieselbe Farbe, die das Brett fuer
@@ -126,7 +148,7 @@ function Karte({ icon, label, unter, dry, gruen, active, lock, onTap, scharf = f
           nach dem LAENGSTEN WORT des Namens (ein Wort bricht nicht um). */}
       <span data-kachel-name style={{ fontSize: nameGroesse(label), fontWeight: 800, letterSpacing: ".02em", textTransform: "uppercase",
         color: lock ? T.faint : gruen ? "#9fe0b0" : T.goldBright, lineHeight: 1.15, textAlign: "center",
-        maxWidth: KACHEL_TEXT, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
+        maxWidth: KACHEL_TEXT, flex: "0 0 auto", overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
         {label}</span>
       {unter && <span style={{ fontSize: 8.5, fontWeight: 800, color: T.faint }}>{unter}</span>}
       {/* v1.38.0: die Fusszeile der Pillen zog mit um - dauerhaft, antippen,
@@ -137,8 +159,11 @@ function Karte({ icon, label, unter, dry, gruen, active, lock, onTap, scharf = f
   );
 }
 
-export function KampfLeiste({ state, inspect, en, myColor = "w", banner = false, stil = "painted", scharf = null, onScharf = null }) {
+export function KampfLeiste({ state, inspect, en, myColor = "w", banner = false, stil = "painted", scharf = null, onScharf = null,
+  raum = "hoch", hoehe = null, breit = false, fest = true }) {
   const [offen, setOffen] = useState(null);
+  const flach = raum === "flach";
+  const H = fest ? (hoehe || (flach ? LEISTE_FLACH : LEISTE_HOCH)) : null;
   /* v1.0.44: Ob die gesperrten Kuenste wach sind, entscheidet hier die
      PARTIE, nicht der Spielstand: unter Schachregeln ruhen sie immer - auch
      im Schnellspiel-Klassik, wo ein laengst erwachter Spielstand sonst
@@ -149,8 +174,12 @@ export function KampfLeiste({ state, inspect, en, myColor = "w", banner = false,
   const [letztes, setLetztes] = useState(null);
   useEffect(() => {
     const lm = state?.lastMove;
-    if (lm?.consumed && ABILITIES[lm.consumed]) setLetztes({ id: lm.consumed, color: lm.color });
-  }, [state]); // { art: "ab"|"sonder"|"lock", id, level? }
+    if (lm?.consumed && ABILITIES[lm.consumed]) { setLetztes({ id: lm.consumed, color: lm.color }); setPilleFrisch(true); }
+  }, [state]);
+  /* v1.92.1: in der flachen Leiste ohne Luft ueber den Karten steht die Pille
+     nur einen Augenblick da (sie laege sonst dauerhaft auf den Karten). */
+  const [pilleFrisch, setPilleFrisch] = useState(false);
+  useEffect(() => { if (!pilleFrisch) return; const t = setTimeout(() => setPilleFrisch(false), 3600); return () => clearTimeout(t); }, [pilleFrisch, letztes]); // { art: "ab"|"sonder"|"lock", id, level? }
   // v0.71.8: die Leiste dient BEIDEN Seiten - eigene Figuren voll, fremde
   // mit Nebelregel (ein Talent bleibt "???", bis die Figur es gezeigt hat).
   const pc = inspect && state.board[inspect.i] ? state.board[inspect.i] : null;
@@ -166,7 +195,9 @@ export function KampfLeiste({ state, inspect, en, myColor = "w", banner = false,
   const istZauber = (id) => !!ABILITIES[id] && !PASSIVE_TALENTE.has(id);
   const schaltbar = (id) => amZug && istZauber(id) && !(pc.used || {})[id];
   useEffect(() => { setOffen(null); }, [inspect && inspect.i, state]);
-  if (banner) return null;
+  /* v1.92.1: auch unter dem Siegbanner bleibt der Platz stehen - vorher fiel die
+     Leiste weg und das Brett wuchs hinter dem Banner. */
+  if (banner) return H ? <div aria-hidden data-kampfleiste="leer" style={{ flex: "0 0 auto", height: H }} /> : null;
 
   /* v1.0.44: DIE LEISTE BIETET NUR AN, WAS AUCH GEHT. Vorher zeigte sie
      jede lebende Faehigkeit als Karte - auch die beiden Reichweiten-Kuenste,
@@ -202,17 +233,67 @@ export function KampfLeiste({ state, inspect, en, myColor = "w", banner = false,
         descEn: "Still veiled: this talent reveals itself only once the piece uses it in battle." }
     : offen.art === "sonder" ? SONDER[offen.id] : ABILITIES[offen.id]);
 
+  const pille = letztes ? (
+    <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: ".04em", borderRadius: 999, whiteSpace: "nowrap",
+      padding: "3px 10px", border: "1px solid rgba(167,139,250,.4)",
+      background: "linear-gradient(165deg, rgba(40,27,70,.96), rgba(18,12,36,.97))",
+      color: letztes.color === myColor ? "#cdebd2" : "#e8c9cf" }}>
+      {ABILITIES[letztes.id].icon} {en ? ABILITIES[letztes.id].nameEn : ABILITIES[letztes.id].nameDe}
+      {" — "}{letztes.color === myColor ? (en ? "you" : "Du") : (en ? "foe" : "Gegner")}</span>) : null;
+  /* Wo die Pille steht, ohne Platz zu nehmen: hoch im (meist leeren) Textfenster,
+     solange keine Erklaerung offen ist; flach ueber den Karten, wenn dort Luft
+     ist, sonst kurz als Einblendung. */
+  const flachLuft = flach && H != null && H >= LEISTE_FLACH + 26;
+  const pilleZeigen = !!pille && (flach ? (flachLuft || pilleFrisch) : !beschreibung);
+  const bildH = flach ? Math.max(56, Math.min(108, (H || LEISTE_FLACH) - 42)) : 108;
+  const textBlock = beschreibung ? (
+    <div onClick={() => setOffen(null)} data-talent-text style={{ padding: "2px 4px 4px", cursor: "pointer", textAlign: "center" }}>
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "center", gap: 8, marginBottom: 2, flexWrap: "wrap" }}>
+        <span className="gg-serif" style={{ fontSize: flach ? 13 : 14, color: T.goldBright, letterSpacing: ".04em" }}>
+          {en ? beschreibung.nameEn : beschreibung.nameDe}</span>
+        {offen.art === "ab" && ABILITIES[offen.id]?.once && (
+          <span style={{ fontSize: 10.5, fontWeight: 800, color: dry ? T.faint : "#cbbcf5" }}>
+            {dry ? (en ? "spell spent" : "Zauber verbraucht") : (en ? "once per battle" : "einmal pro Gefecht")}</span>)}
+        {offen.art === "sonder" && (
+          <span style={{ fontSize: 10.5, fontWeight: 800, color: "#9fe0b0" }}>
+            {en ? "available now" : "jetzt möglich"}</span>)}
+        {offen.art === "lock" && (
+          <span style={{ fontSize: 10.5, fontWeight: 800, color: "#cbbcf5" }}>
+            {en ? `locked · from Lv ${offen.level}` : `gesperrt · ab Lv ${offen.level}`}</span>)}
+      </div>
+      <div style={{ fontSize: flach ? 11.5 : 12, lineHeight: flach ? 1.36 : 1.5, color: T.text,
+        overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 4, WebkitBoxOrient: "vertical" }}>
+        {offen.nebel ? (en ? beschreibung.descEn : beschreibung.descDe) : leistenText(offen.id, beschreibung, en)}</div>
+    </div>) : null;
+  const hinweis = (<>
+    {!scharf && dry && amZug && abIds.some((id) => istZauber(id)) && (
+      <span style={{ fontSize: 10.5, color: "#b8a7ea", paddingLeft: 2 }}>
+        {en ? "One spell per battle — it is spent."
+            : "Das Buch ist geschlossen — der Zauber ist eingesetzt."}</span>
+    )}
+    {scharf && ABILITIES[scharf] && (
+      <span style={{ fontSize: 10.5, fontWeight: 700, color: "#cbbcf5", paddingLeft: 2 }}>
+        {en ? "ready — tap a ✦ square · tap again to cancel"
+            : "bereit — tippe ein ✦-Feld · nochmal tippen bricht ab"}</span>
+    )}
+     {/* v1.92.1: der Satz stand als Zeile UNTER dem Brett (BoardView) und lag dort
+        auf dem Hofwert der eigenen Seite - er gehoert zu den Karten. */}
+    {!scharf && pc && eigen && amZug && abIds.length === 0 && (sonder.length > 0 || naechste) && (
+      <span style={{ fontSize: 10.5, fontStyle: "italic", color: "rgba(226,218,246,.62)", paddingLeft: 2 }}>
+        {state.rules === "chess" && (pc.level || 1) <= 1
+          ? (en ? "Classic — only chess counts here. Pieces learn talents in the HP Battle."
+                : "Klassisch — hier zählt nur Schach. Talente lernen die Figuren im Gambit-Modus.")
+          : (en ? "This piece has no talents yet — it learns them in your court."
+                : "Diese Figur hat noch keine Talente — im Hofstaat lernt sie welche.")}</span>
+    )}
+  </>);
+
   return (
-    <div style={{ position: "relative", flex: "0 0 auto", padding: "0 10px 6px" }}>
-      {letztes && !banner && (
-        <div style={{ display: "flex", justifyContent: "center", marginBottom: 4 }}>
-          <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: ".04em", borderRadius: 999,
-            padding: "3px 10px", border: "1px solid rgba(167,139,250,.4)",
-            background: "linear-gradient(165deg, rgba(40,27,70,.9), rgba(18,12,36,.94))",
-            color: letztes.color === myColor ? "#cdebd2" : "#e8c9cf" }}>
-            {ABILITIES[letztes.id].icon} {en ? ABILITIES[letztes.id].nameEn : ABILITIES[letztes.id].nameDe}
-            {" — "}{letztes.color === myColor ? (en ? "you" : "Du") : (en ? "foe" : "Gegner")}</span>
-        </div>
+    <div data-kampfleiste={flach ? "flach" : "hoch"} style={{ position: "relative", flex: "0 0 auto", padding: "0 10px 6px",
+      ...(H ? { height: H, boxSizing: "border-box", overflow: "hidden" } : null) }}>
+      {pilleZeigen && (
+        <div data-talent-pille style={{ position: "absolute", left: 0, right: 0, top: flach ? (flachLuft ? 2 : 4) : 6, zIndex: 3,
+          display: "flex", justifyContent: "center", pointerEvents: "none" }}>{pille}</div>
       )}
       {/* v1.89.0: die Beschreibung steht nicht mehr als Kasten UEBER der
           Leiste (gemessen: sie lag ueber dem Hinweis unter dem Brett), sondern
@@ -221,7 +302,8 @@ export function KampfLeiste({ state, inspect, en, myColor = "w", banner = false,
       {/* v0.71.7 (Besitzer): KEINE Panel-Kachel mehr - die Leiste steht frei
           auf dem Schwarz: links die gewaehlte Figur FREIGESTELLT, daneben
           Kopfzeile und die Karten-Knoepfe. */}
-      <div style={{ minHeight: 96, display: "flex", alignItems: "center", gap: 10, padding: "2px 2px" }}>
+      <div style={{ height: H ? H - 6 : undefined, minHeight: H ? undefined : 96, boxSizing: "border-box", display: "flex", alignItems: "center", gap: 10, padding: "2px 2px",
+        paddingTop: flachLuft ? 24 : 2 }}>
         {pc && (() => { const bild = paintedForPiece(pc); /* v1.0.41: ueberall derselbe eine Satz */ return bild ? (
           <div style={{ position: "relative", flex: "0 0 auto", alignSelf: "flex-end",
             display: "flex", flexDirection: "column", alignItems: "center" }}>
@@ -233,7 +315,7 @@ export function KampfLeiste({ state, inspect, en, myColor = "w", banner = false,
               {nm}{(pc.level || 1) > 1 ? ` · Lv ${pc.level}` : ""}</span>
             {/* v1.90.26: die gewaehlte Figur traegt hier DASSELBE Band wie auf dem
                 Brett - im Gefecht mit ihren Werten, im Schach schwarz. */}
-            <BandBild kennung="leiste" src={bild} style={{ height: 108,
+            <BandBild kennung="leiste" src={bild} style={{ height: bildH,
               filter: "drop-shadow(0 3px 8px rgba(0,0,0,.6))" }}
               {...(state?.rules === "hp" && pc.maxHp > 0 ? rohrAnteile(pc) : null)} />
             {/* v0.71.12 (Besitzer): die Kugeln stehen wie auf dem Brett DIREKT
@@ -250,35 +332,11 @@ export function KampfLeiste({ state, inspect, en, myColor = "w", banner = false,
             )}
           </div>
         ) : null; })()}
-        <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", justifyContent: "center", gap: 6 }}>
+        <div style={{ flex: flach && breit ? "0 1 auto" : 1, minWidth: 0, position: "relative", display: "flex", flexDirection: "column", justifyContent: "center", gap: 6 }}>
         {pc ? (<>
-          <div data-talent-fenster style={{ height: TEXT_HOEHE, display: "flex", flexDirection: "column", justifyContent: "flex-end", overflow: "hidden" }}>
-          {beschreibung && (
-            /* v1.89.0 (Besitzer: "wenn ich Ausweichen klicke, moechte ich die
-               Erklaerung vielleicht haben, aber nicht eingekaestelt in so eine
-               Rundung mit Lila, sondern einfach schoen mittig ausgerichtete
-               Texte ... nicht uebertreiben mit Kacheln"): kein Kasten, kein
-               Rahmen - der Text steht mittig ueber den Karten, im Fluss. */
-            <div onClick={() => setOffen(null)} data-talent-text style={{ padding: "2px 4px 4px", cursor: "pointer", textAlign: "center" }}>
-              <div style={{ display: "flex", alignItems: "baseline", justifyContent: "center", gap: 8, marginBottom: 2, flexWrap: "wrap" }}>
-                <span className="gg-serif" style={{ fontSize: 14, color: T.goldBright, letterSpacing: ".04em" }}>
-                  {en ? beschreibung.nameEn : beschreibung.nameDe}</span>
-                {offen.art === "ab" && ABILITIES[offen.id]?.once && (
-                  <span style={{ fontSize: 10.5, fontWeight: 800, color: dry ? T.faint : "#cbbcf5" }}>
-                    {dry ? (en ? "spell spent" : "Zauber verbraucht") : (en ? "once per battle" : "einmal pro Gefecht")}</span>)}
-                {offen.art === "sonder" && (
-                  <span style={{ fontSize: 10.5, fontWeight: 800, color: "#9fe0b0" }}>
-                    {en ? "available now" : "jetzt möglich"}</span>)}
-                {offen.art === "lock" && (
-                  <span style={{ fontSize: 10.5, fontWeight: 800, color: "#cbbcf5" }}>
-                    {en ? `locked · from Lv ${offen.level}` : `gesperrt · ab Lv ${offen.level}`}</span>)}
-              </div>
-              <div style={{ fontSize: 12, lineHeight: 1.5, color: T.text,
-                overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 4, WebkitBoxOrient: "vertical" }}>
-                {offen.nebel ? (en ? beschreibung.descEn : beschreibung.descDe) : leistenText(offen.id, beschreibung, en)}</div>
-            </div>
-          )}
-          </div>
+          {!flach && <div data-talent-fenster style={{ height: TEXT_HOEHE, display: "flex", flexDirection: "column", justifyContent: "flex-end", overflow: "hidden" }}>
+          {textBlock}
+          </div>}
           {/* v0.71.8 (Besitzer): kein Kopfzeilen-Balken mehr - der Name steht
               WINZIG in der besonderen Schrift oben links, nimmt keinen Platz
               und traegt keine Pille; die Kugeln haengen klein daneben. */}
@@ -324,24 +382,32 @@ export function KampfLeiste({ state, inspect, en, myColor = "w", banner = false,
               mit und wurde am Rand abgeschnitten (im Browser gesehen). */}
           {/* v1.38.0: der Satz aus dem alten Talentband - er sagt, warum keine
               Karte mehr schaltet, wenn der eine Zauber der Partie fort ist. */}
-          <div data-talent-hinweis style={{ height: HINWEIS_HOEHE, overflow: "hidden", fontSize: 10.5, lineHeight: 1.3 }}>
-          {!scharf && dry && amZug && abIds.some((id) => istZauber(id)) && (
-            <span style={{ fontSize: 10.5, color: "#b8a7ea", paddingLeft: 2 }}>
-              {en ? "One spell per battle — it is spent."
-                  : "Das Buch ist geschlossen — der Zauber ist eingesetzt."}</span>
+          {!flach && <div data-talent-hinweis style={{ height: HINWEIS_HOEHE, overflow: "hidden", fontSize: 10.5, lineHeight: 1.3 }}>
+          {hinweis}
+          </div>}
+          {/* v1.92.1, FLACH UND SCHMAL: die Erklaerung legt sich ueber die
+              Kartenreihe - ueber nichts sonst. Ein Tipp schliesst sie. */}
+          {flach && !breit && textBlock && (
+            <div data-talent-fenster style={{ position: "absolute", inset: 0, zIndex: 4, display: "flex", flexDirection: "column",
+              justifyContent: "center", overflow: "hidden", borderRadius: 12,
+              background: "linear-gradient(180deg, rgba(24,18,42,.985), rgba(12,9,22,.985))", border: "1px solid rgba(167,139,250,.35)" }}>
+              {textBlock}
+            </div>
           )}
-          {scharf && ABILITIES[scharf] && (
-            <span style={{ fontSize: 10.5, fontWeight: 700, color: "#cbbcf5", paddingLeft: 2 }}>
-              {en ? "ready — tap a ✦ square · tap again to cancel"
-                  : "bereit — tippe ein ✦-Feld · nochmal tippen bricht ab"}</span>
-          )}
-          </div>
         </>) : (
           <span style={{ fontSize: 11.5, color: T.faint, padding: "0 4px" }}>
             {en ? "Tap one of your pieces — its talents and special moves appear here."
                 : "Tippe eine deiner Figuren an — ihre Talente und Sonderzüge erscheinen hier."}</span>
         )}
         </div>
+        {/* v1.92.1, FLACH UND BREIT: die Erklaerung steht rechts neben den Karten. */}
+        {flach && breit && pc && (
+          <div data-talent-fenster style={{ flex: "1 0 240px", minWidth: 0, alignSelf: "stretch", display: "flex", flexDirection: "column",
+            justifyContent: "center", overflow: "hidden" }}>
+            {textBlock}
+            {!textBlock && <div data-talent-hinweis style={{ textAlign: "center", lineHeight: 1.3 }}>{hinweis}</div>}
+          </div>
+        )}
       </div>
     </div>
   );

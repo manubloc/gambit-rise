@@ -19,7 +19,8 @@ function Stand() {
   if (i < 0) throw new Error("kein weisser Bauer gefunden");
   s.board[i] = { ...s.board[i], level: 2, abilities: Object.keys(ABILITIES).filter((k) => ABILITIES[k].live) };
   return <div id="ziel" style={{ width: "100%", background: "#0b0814" }}>
-    <KampfLeiste state={s} inspect={{ i }} en={en} myColor="w" scharf={scharf} onScharf={setScharf} />
+    <KampfLeiste state={s} inspect={{ i }} en={en} myColor="w" scharf={scharf} onScharf={setScharf}
+      raum={q.get("raum") || "hoch"} breit={q.get("breit") === "1"} />
   </div>;
 }
 const st = document.createElement("style"); st.textContent = GLOBAL_CSS; document.head.appendChild(st);

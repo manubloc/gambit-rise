@@ -190,6 +190,22 @@ gambitrise.com zeigt darauf).
   Navigationsprobe misst seit v1.90.34 auch jedes Stationsfenster (kein
   Bildlauf, ganz im Schirm); `GEKLAERT=1` klärt dafür alle Stationen — dann
   meldet sie erwartungsgemäß „keine Station lässt sich betreten“.
+- `node tools/pruefe-brettruhe.mjs` — **BLEIBT DAS BRETT STEHEN?** (v1.92.1,
+  ~5 min; `--nur=schach,hp` für einzelne Spielarten, `--fotos=<ordner>`). Baut
+  `tools/brettruhe-pruefstand.jsx` (der ECHTE GameScreen) und fährt sechs
+  Spielarten in neun Schirmgrößen: jede Figur antippen, jede Karte öffnen,
+  ziehen, krönen, aufgeben — nach JEDEM Schritt wird das Brett am lebenden DOM
+  gemessen. B1: es steht still (≤ 0,5 px), B2: es ist so groß, wie der Schirm es
+  hergibt. **Warum:** Besitzer 6.10. mit zwei Fotos — beim Anwählen einer Figur
+  schrumpfte das Brett (848 → 762 px), weil der Brettkasten den Rest des Schirms
+  nimmt und die Kampfleiste darunter von 96 auf 242 px wuchs. **Regel seither:
+  NICHTS über oder unter dem Brett darf im Spiel seine Höhe ändern.** Die
+  Kampfleiste hat zwei Bauarten fester Höhe (`hoch` 246 px, `flach` ab 108 px;
+  der Spielschirm wählt nach gemessenem Platz, `frei` in GameScreen.jsx), die
+  Krönungswahl liegt als Auflage über Leiste und Ausrüstung, Beutereihen und
+  Ausrüstungszeile sind fest. Wer dort etwas einbaut, das erscheint und
+  verschwindet: als Auflage (position absolute) oder in reserviertem Platz —
+  und diese Probe laufen lassen. Die Leistenprobe misst beide Bauarten.
 - **`node tools/uebersicht-fotos.mjs <ordner>`** — **DIE GANZE SAMMLUNG AUF EINEN
   BLICK** (v1.91.0, ~3 min, nicht in der Kette): je Bund, für die Großmeister
   und die Bestien ein Blatt aus den ECHTEN Bauteilen (HofKachel, MoveDiagram,
@@ -254,8 +270,9 @@ starten, sonst reißen Werkzeug-Zeitlimits den Lauf ab.
 3. `node test_boot.mjs` (3/3) und `node scripts/verify-boot.mjs` (grün)
 4. `timeout 250 node drive3.mjs` (keine Fehler),
    `node tools/pruefe-figurenmass.mjs` (0 Befunde),
-   `node tools/pruefe-duell.mjs` (RESULT ohne failed) und
-   `node tools/pruefe-leiste.mjs` (RESULT ohne failed); bei Arbeit an Karte,
+   `node tools/pruefe-duell.mjs` (RESULT ohne failed),
+   `node tools/pruefe-leiste.mjs` (RESULT ohne failed) und
+   `node tools/pruefe-brettruhe.mjs` (RESULT ohne failed, ~5 min); bei Arbeit an Karte,
    Kampagne oder Navigation zusätzlich `node tools/pruefe-navigation.mjs`
 5. REINRAUM: `git clone . /tmp/rr && cp -r node_modules /tmp/rr/` und dort
    Schritte 1–4 wiederholen. **Währenddessen nichts Schweres nebenher laufen
@@ -570,7 +587,7 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
   Auswahl-Lichtspektakel.
 - Alles Optionale abschaltbar (Klang, Online).
 
-## Offene Baustellen (Stand v1.92.0, 6.10.2026)
+## Offene Baustellen (Stand v1.92.1, 6.10.2026)
 
 **Einstieg für jede neue Sitzung: `design/CHAT-EINSTIEG-2026-09-27.md`** (zehn
 Minuten, mit dem Startsatz für den Chat), dann **`design/UEBERGABE-2026-09-27.md`** — Stand,

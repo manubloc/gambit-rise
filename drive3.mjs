@@ -293,45 +293,45 @@ await ruhe(2800, 400);
   else if (!zug.geantwortet) errors.push("ein Zug gespielt, aber der Gegner hat binnen 8 s nicht geantwortet");
   else console.log("   ein Zug gespielt, der Gegner hat geantwortet");
 
-  /* 3. DAS TALENTBAND liegt UNTER dem Brett, nicht dahinter (v1.0.92). */
-  /* ZWEIMAL MESSEN, den besseren Wert nehmen. Ein Lauf meldete 220 px, zwei
-     andere 6 px - der Ausreisser fiel mitten in die Antwort des Gegners, wo
-     Brett und Band in Bewegung sind. Eine Probe, die bei jedem dritten Lauf
-     grundlos Alarm schlaegt, wird ignoriert und ist dann wertlos. */
+  /* 3. DIE KAMPFLEISTE zeigt die gewaehlte Figur, liegt NEBEN oder UNTER dem
+     Brett, nie darauf - und das Brett ruehrt sich beim Anwaehlen nicht.
+     v1.92.1: bis hierher mass diese Stelle die Zeile "noch keine Talente", die
+     BoardView unter das Brett haengte (v1.0.92). Die Zeile ist im Gefecht fort
+     (sie lag auf dem Hofwert), ihr Satz steht in der Leiste. Geblieben ist,
+     worum es ging: nichts darf hinter oder auf dem Brett liegen. Neu: das Brett
+     wird vor und nach dem Anwaehlen gemessen - der Besitzerbefund vom 6.10.
+     (848 -> 762 px) am ausgelieferten Stand. tools/pruefe-brettruhe.mjs prueft
+     dasselbe gruendlich, diese Stelle prueft es in der ECHTEN App. */
   const messeBand = async () => page.evaluate(async () => {
-    const felder = () => {
-      const alle = [...document.querySelectorAll("div")].filter((d) => {
-        const r = d.getBoundingClientRect();
-        return r.width > 28 && r.width < 90 && Math.abs(r.width - r.height) < 4;
-      });
-      const k = Math.min(...alle.map((d) => d.getBoundingClientRect().width));
-      return alle.filter((d) => Math.abs(d.getBoundingClientRect().width - k) < 2);
-    };
-    const eigene = felder().filter((d) => d.querySelector("img,svg") && d.getBoundingClientRect().top > innerHeight * 0.42);
+    const zellen = [...document.querySelectorAll("[data-zelle]")];
+    const huelle = () => { let l = 1e9, t = 1e9, r = -1e9, b = -1e9;
+      for (const z of zellen) { const q = z.getBoundingClientRect(); l = Math.min(l, q.left); t = Math.min(t, q.top); r = Math.max(r, q.right); b = Math.max(b, q.bottom); }
+      return { l, t, r, b }; };
+    const vorher = huelle();
+    /* abwaehlen, dann eine eigene Figur der vorderen Reihe waehlen */
+    const eigene = zellen.filter((d) => d.querySelector("img,svg") && d.getBoundingClientRect().top > (vorher.t + vorher.b) / 2);
     if (eigene.length) { eigene[Math.floor(eigene.length / 2)].click(); await new Promise((r) => setTimeout(r, 450)); }
-    /* v1.55.0: die Talent-Zeile ist keine Box mehr (Klasse gg-talentband
-       fort), sondern eine ruhige Auskunft mit data-talent-hinweis. Gemessen
-       wird wie bisher: sie muss unter dem Brett erscheinen und anschliessen. */
-    const b = document.querySelector("[data-talent-hinweis]");
-    if (!b) return { da: false };
-    const r = b.getBoundingClientRect();
-    const unten = Math.max(...felder().map((d) => d.getBoundingClientRect().bottom));
-    return { da: true, ueberlappung: +(unten - r.top).toFixed(1) };
+    const nachher = huelle();
+    const le = document.querySelector("[data-kampfleiste]");
+    if (!le) return { da: false };
+    const r = le.getBoundingClientRect();
+    const quer = Math.min(r.right, nachher.r) - Math.max(r.left, nachher.l), hoch = Math.min(r.bottom, nachher.b) - Math.max(r.top, nachher.t);
+    return { da: true, bauart: le.getAttribute("data-kampfleiste"), figur: !!le.querySelector("img,svg"),
+      ueberlappung: +(Math.min(quer, hoch)).toFixed(1),
+      ruck: +Math.max(Math.abs(vorher.l - nachher.l), Math.abs(vorher.t - nachher.t), Math.abs(vorher.r - nachher.r), Math.abs(vorher.b - nachher.b)).toFixed(2),
+      breite: Math.round(nachher.r - nachher.l) };
   });
   let band = await messeBand();
-  if (!band.da || band.ueberlappung > 1 || band.ueberlappung < -60) {
+  if (!band.da || !band.figur || band.ueberlappung > 1 || band.ruck > 0.5) {
     await ruhe(1500, 300);                    // Zuganimation auslaufen lassen
     const zweit = await messeBand();
-    if (zweit.da && zweit.ueberlappung <= 1 && zweit.ueberlappung >= -60) band = zweit;
+    if (zweit.da && zweit.figur && zweit.ueberlappung <= 1 && zweit.ruck <= 0.5) band = zweit;
   }
-  /* ZWEI Schranken, nicht eine. Beim Schaerfen dieser Probe habe ich ihr
-     absichtlich einen Fehler untergeschoben (Band 120 px verschoben) - sie
-     meldete brav "263 px unter dem Brett" und liess es durch. Ein Band, das
-     sich irgendwo unten verliert, ist genauso falsch wie eines dahinter. */
-  if (!band.da) errors.push("Talentband erscheint nicht, obwohl eine eigene Figur gewaehlt ist");
-  else if (band.ueberlappung > 1) errors.push(`Talentband liegt ${band.ueberlappung} px hinter dem Brett`);
-  else if (band.ueberlappung < -60) errors.push(`Talentband haengt ${Math.abs(band.ueberlappung)} px unter dem Brett - es soll daran anschliessen`);
-  else console.log(`   Talentband: ${Math.abs(band.ueberlappung)} px unter dem Brett`);
+  if (!band.da) errors.push("Kampfleiste fehlt im Gefecht");
+  else if (!band.figur) errors.push("Kampfleiste zeigt die gewaehlte Figur nicht");
+  else if (band.ueberlappung > 1) errors.push(`Kampfleiste liegt ${band.ueberlappung} px auf dem Brett`);
+  else if (band.ruck > 0.5) errors.push(`das Brett bewegt sich beim Anwaehlen einer Figur um ${band.ruck} px (es muss stehen bleiben)`);
+  else console.log(`   Kampfleiste (${band.bauart}) zeigt die Figur, frei vom Brett; Brett ${band.breite} px, steht beim Anwaehlen still`);
 }
 
 await browser.close(); srv.close();

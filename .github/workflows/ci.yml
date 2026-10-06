@@ -69,6 +69,7 @@ jobs:
       # die echte Hallen-Logik (routeWebSocket, kein Netz) - siehe CLAUDE.md
       - run: node tools/pruefe-duell.mjs
       - run: node tools/pruefe-leiste.mjs
+      - run: node tools/pruefe-brettruhe.mjs
       - uses: actions/upload-artifact@v7
         with:
           name: gambit-rise-singlefile

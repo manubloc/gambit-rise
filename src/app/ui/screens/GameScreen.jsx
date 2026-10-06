@@ -21,7 +21,7 @@ import { LeaveMatchAsk } from "../../App.jsx";
 import { FELD_KAPITEL, FELD_CLASSIC, FELD_FINALE } from "../board/feldArt.js";
 import { BoardView, zugDauerMs } from "../board/BoardView.jsx";
 import { CHARACTERS, ABILITIES } from "../../../content/index.js";
-import { KampfLeiste } from "../KampfLeiste.jsx";
+import { KampfLeiste, LEISTE_HOCH, LEISTE_FLACH, LEISTE_BREIT_AB } from "../KampfLeiste.jsx";
 import { paintedById, paintedForPiece, ENEMY_FILTER } from "../board/paintedArt.js";
 import { SkillStar, GoldCoin, SkullIc, BladesIc, LockIc, FlagIc, HourglassIc, ZoomIc, OrbIc } from "../icons.jsx";
 import { animAn, schlagArt } from "../anim.js";
@@ -92,9 +92,15 @@ const boardTexture = (match, profile) => {
 import { PieceGlyph, JewelIc } from "../board/PieceGlyph.jsx";
 import { StartMark } from "../HubSeals.jsx";
 
+/* v1.92.1: DIE BEUTEREIHE IST IMMER 18 px HOCH. Gemessen: der Strich "—" der
+   leeren Reihe war niedriger als die erste geschlagene Figur (+1,7 px, auf
+   breiten Schirmen +8), und ab einem Dutzend Figuren brach die Reihe um - beides
+   schob das Brett. Jetzt eine Zeile fester Hoehe; wird es voll, werden die
+   Figuren kleiner statt mehr Zeilen. */
 function Tray({ kinds, color }) {
-  if (!kinds.length) return <span style={{ color: T.faint, fontSize: 13 }}>—</span>;
-  return <span style={{ display: "inline-flex", flexWrap: "wrap", fontSize: 18, lineHeight: 1 }}>
+  if (!kinds.length) return <span style={{ color: T.faint, fontSize: 13, lineHeight: "18px", height: 18, display: "inline-block" }}>—</span>;
+  return <span style={{ display: "inline-flex", flexWrap: "nowrap", alignItems: "center", height: 18, overflow: "hidden",
+    fontSize: kinds.length > 14 ? 11 : kinds.length > 10 ? 14 : 18, lineHeight: 1 }}>
     {kinds.map((k, i) => <span key={i} style={{ width: "1em", height: "1em", display: "inline-grid" }}><PieceGlyph piece={{ kind: k, color, level: 1, abilities: [], used: {}, shield: 0 }} /></span>)}
   </span>;
 }
@@ -333,21 +339,44 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
   const topChromeRef = useRef(null);
   const botChromeRef = useRef(null);
   const [chrome, setChrome] = useState({ top: 0, bottom: 0 });
+  /* v1.92.1: DAS BRETT BLEIBT, WIE ES IST. Der Brettkasten nimmt den Rest des
+     Schirms - also darf unter ihm nichts wachsen. Gemessen wird hier, wie viel
+     Hoehe unter einem Brett in VOLLER BREITE bleibt (`frei`); danach richtet
+     sich die Bauart der Kampfleiste (siehe KampfLeiste.jsx), und die bekommt
+     eine feste Hoehe. Auch der Ausgleichsrand (boardPad) gibt jetzt nach, wenn
+     der Platz knapp ist: bei 360 x 640 nahm er dem Brett 41 px. */
+  const rootRef = useRef(null);
+  const ruestRef = useRef(null);
+  const [raumMass, setRaumMass] = useState({ w: 0, h: 0, ruest: 0 });
   useMeasureEffect(() => {
     const measure = () => {
       const t = topChromeRef.current?.getBoundingClientRect().height || 0;
       const b = botChromeRef.current?.getBoundingClientRect().height || 0;
       setChrome((c) => (Math.abs(c.top - t) < 0.5 && Math.abs(c.bottom - b) < 0.5 ? c : { top: t, bottom: b }));
+      const r = rootRef.current?.getBoundingClientRect();
+      const ru = ruestRef.current?.getBoundingClientRect().height || 0;
+      if (r) setRaumMass((m) => (Math.abs(m.w - r.width) < 0.5 && Math.abs(m.h - r.height) < 0.5 && Math.abs(m.ruest - ru) < 0.5 ? m : { w: r.width, h: r.height, ruest: ru }));
     };
     measure();
     if (typeof ResizeObserver === "undefined") return;
     const ro = new ResizeObserver(measure);
-    if (topChromeRef.current) ro.observe(topChromeRef.current);
-    if (botChromeRef.current) ro.observe(botChromeRef.current);
+    for (const ref of [topChromeRef, botChromeRef, rootRef, ruestRef]) if (ref.current) ro.observe(ref.current);
     return () => ro.disconnect();
   }, []);
-  const boardPadTop = Math.max(0, Math.round(chrome.bottom - chrome.top));
-  const boardPadBottom = Math.max(0, Math.round(chrome.top - chrome.bottom));
+  /* Der Brettkasten braucht fuer ein Brett in voller Breite mehr als die Breite:
+     ueber der hintersten Reihe steht eine Zelle Luft fuer die Koepfe (BoardView,
+     byH). Sein Deckel ist 110vw + 2 - mehr nimmt er nie. */
+  /* Der eine Rand, den die Messung nicht sieht: die Ausruestung haelt 4 px
+     Abstand (marginTop). Die negativen Raender der beiden Zeilen stecken schon
+     in ihrer gemessenen Hoehe - ihre Huellen sind Flex-Kinder, da faellt kein
+     Rand nach aussen durch (nachgemessen: mit +16 stand das Brett zwei Zellen
+     kleiner als moeglich). */
+  const frei = raumMass.h ? raumMass.h - chrome.top - chrome.bottom - (raumMass.ruest ? raumMass.ruest + 4 : 0) - 4 - (1.1 * raumMass.w + 2) : 9999;
+  const leisteRaum = frei >= LEISTE_HOCH ? "hoch" : "flach";
+  const leisteHoehe = leisteRaum === "hoch" ? LEISTE_HOCH : Math.max(LEISTE_FLACH, Math.floor(frei));
+  const padRest = raumMass.h ? Math.max(0, Math.floor(frei - leisteHoehe)) : 9999;
+  const boardPadTop = Math.min(padRest, Math.max(0, Math.round(chrome.bottom - chrome.top)));
+  const boardPadBottom = Math.min(padRest, Math.max(0, Math.round(chrome.top - chrome.bottom)));
 
   const potionsUsedRef = useRef(resume?.potionsUsed || 0);
   const hourglassUsedRef = useRef(resume?.hourglassUsed || 0);   // time-turners burned this match
@@ -1419,7 +1448,7 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
           negativer Unterrand), unten ebenso - die Zahlen gehoeren zum Brett,
           nicht zum Bildschirmrand. */}
       <div style={{ display: "flex", alignItems: "center", gap: 8, padding: `0 ${HUD_PAD}px`,
-        minHeight: 20, marginBottom: -10, flex: "0 0 auto" }}>
+        height: 20, marginBottom: -10, flex: "0 0 auto" }}>
         <span data-gg-tray="w"><Tray kinds={state.captured.b} color="w" /></span>
         <div style={{ flex: 1 }} />
         {hpMode && <ForceBadge hp={F.b.hp} atk={F.b.atk} neon={T.magenta} t={t} wert={F.b.hp + F.b.atk} />}
@@ -1492,7 +1521,7 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
               <span style={{ fontWeight: 400, fontSize: 11.5, color: "#a99bc6", marginLeft: 8 }}>{en ? "new" : "neu"}</span></div>
             <div className="gg-serif" style={{ fontSize: 12.5, lineHeight: 1.5, color: "#cfc4e2" }}>{en ? ab.descEn : ab.descDe}</div>
           </div>; })()}
-        <BoardView lang={profile.lang} state={state} onMove={spielerZug} interactive={myTurn && !kroenung} scharf={scharf} onScharf={setScharf} showCoords={klassikOptik} lastMove={state.lastMove} animateFor={null} hotseat={hotseat} feld={feld} feldDunkel={feldDunkel} feldKontur={!campaign && !hpMode} ruhig={armResign || !!banner} mattSeite={banner && (banner.reason === "checkmate" || banner.reason === "regicide") ? (banner.result === "win" ? (myColor === "w" ? "b" : "w") : myColor) : null} effekt={brettEffekt}
+        <BoardView lang={profile.lang} state={state} onMove={spielerZug} interactive={myTurn && !kroenung} ohneTalentzeile scharf={scharf} onScharf={setScharf} showCoords={klassikOptik} lastMove={state.lastMove} animateFor={null} hotseat={hotseat} feld={feld} feldDunkel={feldDunkel} feldKontur={!campaign && !hpMode} ruhig={armResign || !!banner} mattSeite={banner && (banner.reason === "checkmate" || banner.reason === "regicide") ? (banner.result === "win" ? (myColor === "w" ? "b" : "w") : myColor) : null} effekt={brettEffekt}
           flip={viewColor === BLACK} theme={{ ...(map.theme || {}), ...boardPalette(profile, match) }} fitBox pick={scout && pvp ? myColor : potionArm ? WHITE : null}
           onPick={scout && pvp ? scoutTap : usePotion} pov={viewColor}
           /* v1.12.1: im Geleit-Modus dienen dieselben Regler der Figurenwahl.
@@ -1644,6 +1673,7 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
       {/* your strip: badges · status · captured · undo */}
       <div style={{ display: "flex", alignItems: "center", gap: 8, flex: "0 0 auto",
         marginTop: -6,   /* v1.2.3: naeher ans Brett */
+        height: 22, boxSizing: "content-box",   /* v1.92.1: feste Hoehe, siehe Tray */
         padding: `2px ${HUD_PAD}px calc(10px + env(safe-area-inset-bottom))` }}>
         {hotseat && <Chip color={state.turn === BLACK ? T.magentaInk : T.limeInk} bg={state.turn === BLACK ? T.magenta : T.lime}>{t(state.turn === WHITE ? "hs.white" : "hs.black")}</Chip>}
         {/* v0.79: DIE MELDUNGSPLAKETTE - ein fester, gefasster Ort fuer die
@@ -1675,8 +1705,9 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
   // Zeitenwender sind figurunabhaengige Gegenstaende - sie bekommen ihre
   // eigene lila Zeile UNTER der Kampfleiste, am Fuss des Gefechts.
   const ruestungsZeile = (
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, flex: "0 0 auto",
-      borderTop: `1px solid ${T.selLine}22`, marginTop: 4, paddingTop: 8,
+    <div ref={ruestRef} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, flex: "0 0 auto",
+      borderTop: `1px solid ${T.selLine}22`, marginTop: 4, paddingTop: 8, boxSizing: "content-box",
+      minHeight: 56,   /* v1.92.1: die Zeile haelt ihre Hoehe, auch wenn der letzte Knopf verbraucht ist - sonst waechst das Brett mitten im Spiel */
       padding: "8px 10px calc(8px + env(safe-area-inset-bottom))" }}>
       {/* v0.71.11 (Besitzer): ALLE Knoepfe GLEICH GROSS und quadratisch -
           schwarzer Grund, lila Kontur, das Icon gross und perfekt mittig,
@@ -1811,7 +1842,7 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
   );
 
   return (
-    <div style={{ position: "relative", overflow: "hidden", flex: "1 1 auto", minHeight: 0, height: "100%",
+    <div ref={rootRef} style={{ position: "relative", overflow: "hidden", flex: "1 1 auto", minHeight: 0, height: "100%",
       display: "flex", flexDirection: "column",
       /* v0.86: im reinen Schach fallen die Leisten weg - dann bliebe unten
          ein grosses Loch und das Brett klebte oben. Also rueckt es in die
@@ -1846,9 +1877,16 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
             tiefer als in allen anderen Kapiteln (gemessen 384 px ab 259 statt
             283 px ab 154). Sie hat dort auch etwas zu sagen: Rochade und En
             passant sind Sonderzuege des Schachs. */}
-        {kroenungsKarte}
-        {<KampfLeiste state={state} inspect={inspect} en={en} myColor={hotseat ? state.turn : WHITE} banner={!!banner} stil={profile.pieceStyle} scharf={scharf} onScharf={setScharf} />}
-      {!schlichteRegeln && ruestungsZeile}
+        {/* v1.92.1: Leiste und Ausruestung stehen in EINEM Fuss fester Hoehe; die
+            Kroenungswahl legt sich darueber (vom unteren Rand aufwaerts), statt
+            sich in den Fluss zu schieben - sie nahm dem Brett 170 px. */}
+        <div data-spielfuss style={{ position: "relative", flex: "0 0 auto" }}>
+          <KampfLeiste state={state} inspect={inspect} en={en} myColor={hotseat ? state.turn : WHITE} banner={!!banner} stil={profile.pieceStyle} scharf={scharf} onScharf={setScharf}
+            raum={leisteRaum} hoehe={leisteHoehe} breit={raumMass.w >= LEISTE_BREIT_AB} />
+          {!schlichteRegeln && ruestungsZeile}
+          {kroenungsKarte && <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, zIndex: 7, background: "#0b0814",
+            boxShadow: "0 -10px 18px rgba(0,0,0,.6)" }}>{kroenungsKarte}</div>}
+        </div>
       {dailyDoneEl}
       {bannerEl}{raus}
     </div>

@@ -1,5 +1,37 @@
 # Changelog - Gambit Rise
 
+## 1.92.1 - Das Brett bleibt stehen
+
+Besitzer 6.10., mit zwei Fotos: "In dem Moment, wo ich eine Figur ausgewaehlt
+habe, wird das Schachbrett kleiner. Das darf nicht passieren ... das Schachbrett
+muss immer komplett statisch in der Groesse bleiben."
+
+- **Ursache:** der Brettkasten nimmt den REST des Schirms, und unter ihm stand
+  eine Kampfleiste, die ohne Auswahl 96 px hoch war und mit Auswahl 242
+  (Textfenster, Karten, Hinweis). Auf jedem Geraet, dem die Hoehe knapp ist, gab
+  das Brett diese 146 px ab - auf dem Foto 848 -> 762 px. Dieselbe Klasse, alle
+  gemessen: die Pille "letztes Talent" (+24 px beim ersten Einsatz), die
+  Kroenungswahl (+170), eine Karte mit zweizeiligem Namen (+10), die erste
+  geschlagene Figur in der Beutereihe (+1,7 bis +8), die Ausruestungszeile, wenn
+  ihr letzter Knopf verbraucht ist, und das Banner (Leiste fort, Brett waechst).
+- **Jetzt hat alles unter und ueber dem Brett eine feste Hoehe.** Der Spielschirm
+  misst, wie viel Platz unter einem Brett in voller Groesse bleibt, und waehlt
+  eine von zwei Bauarten der Leiste: **hoch** (Text ueber den Karten, wie bisher)
+  oder **flach** (Figur klein, daneben die Karten; die Erklaerung rechts daneben,
+  wenn der Schirm breit genug ist, sonst legt sie sich ueber die Kartenreihe -
+  ueber nichts sonst, ein Tipp schliesst sie). Die Kroenungswahl legt sich ueber
+  Leiste und Ausruestung statt sich in den Fluss zu schieben.
+- **Kleine Handys bekommen ein groesseres Brett:** der Ausgleichsrand, der das
+  Brett in die Schirmmitte rueckt, gibt nach, wenn der Platz knapp ist (bei
+  360 x 640 nahm er 41 px - das Brett ist dort jetzt 344 statt 312 px breit).
+- Der Satz "Diese Figur hat noch keine Talente" stand als Zeile unter dem Brett
+  und lag dort auf dem Hofwert der eigenen Seite; er steht jetzt bei den Karten.
+- **Neue Probe `tools/pruefe-brettruhe.mjs`** (der echte Spielschirm, sechs
+  Spielarten, neun Schirmgroessen): jede Figur antippen, jede Karte oeffnen,
+  ziehen, kroenen, aufgeben - nach jedem Schritt das Brett am lebenden DOM
+  gemessen. Haengt in Schritt 4 der Kette und in der CI. `pruefe-leiste` misst
+  jetzt beide Bauarten (60 statt 24 Pruefungen).
+
 ## 1.92.0 - Fruehe Kapitel ohne Magie, Figuren entkommen und stellen sich wieder, zwei Spielarten im Netz
 
 Besitzer 6.10. abends, vier Auftraege in einer Nachricht.
