@@ -127,8 +127,10 @@ const Kopf = ({ titel, unter, text }) => <div style={{ marginBottom: 12 }}>
   {unter && <div style={{ fontSize: 13, color: "#c9b26a", marginTop: 2 }}>{unter}</div>}
   {text && <div style={{ fontSize: 13.5, color: "#e4dcc6", marginTop: 6, lineHeight: 1.45, maxWidth: 760 }}>{text}</div>}
 </div>;
-const Raster = ({ children, spalten = 3 }) => <div style={{ display: "grid", gridTemplateColumns: `repeat(${spalten}, 372px)`, gap: 12, alignItems: "start" }}>{children}</div>;
-const Blatt = ({ children, spalten = 3 }) => <div id="ziel" data-fertig="1" style={{ boxSizing: "content-box", width: spalten * 372 + (spalten - 1) * 12, padding: 22, background: "#0b0d18", fontFamily: "Georgia, serif" }}>{children}</div>;
+/* ?spalten=1 legt jedes Blatt einspaltig an - so ist es am Handy ohne Zoomen lesbar */
+const SPALTEN_FEST = Number(Q.get("spalten")) || 0;
+const Raster = ({ children, spalten = 3 }) => <div style={{ display: "grid", gridTemplateColumns: `repeat(${SPALTEN_FEST || spalten}, 372px)`, gap: 12, alignItems: "start" }}>{children}</div>;
+const Blatt = ({ children, spalten = 3 }) => <div id="ziel" data-fertig="1" style={{ boxSizing: "content-box", width: (SPALTEN_FEST || spalten) * 372 + ((SPALTEN_FEST || spalten) - 1) * 12, padding: 22, background: "#0b0d18", fontFamily: "Georgia, serif" }}>{children}</div>;
 
 function Wurzel() {
   try {
