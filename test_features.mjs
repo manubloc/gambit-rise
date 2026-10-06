@@ -112,13 +112,15 @@ ok("paths do not open each other", nodeStatus(prof, H1[10].id) === "locked");
 /* v1.90.20: der Drache ist Meister von Kapitel I und kommt mit dem ERSTEN Sieg -
    die Probe fuer "zwei Siege, ueber Wiederholungen gezaehlt" nimmt darum den
    Hexenmeister (Kapitel VIII, wins 2). */
-const hawkN = figurStation("hawk"), dragonN = figurStation("warlock");
-ok("the hawk waits in its own chapter, locked to a fresh profile", !unlockedCharacterIds(prof).includes("hawk"));
+/* v1.92.0: die Probe nimmt die Baeuerin - die erste Figur am Hauptweg, sie kommt mit EINEM Sieg.
+   Der Spaeher steht seither auf einem Nebenweg von Kapitel II. */
+const hawkN = figurStation("farmwife"), dragonN = figurStation("warlock");
+ok("the farmwife waits at her station, locked to a fresh profile", !unlockedCharacterIds(prof).includes("farmwife"));
 {
   let p2 = { xp: 0, campaign: { league: hawkN.league, cleared: [], unlocked: [] } };
   const vor = hauptast(hawkN.league);
   for (const n of vor) { p2 = advanceCampaign(p2, n.id); if (n.id === hawkN.id) break; }
-  ok("an early champion falls in a single win", unlockedCharacterIds(p2).includes("hawk"));
+  ok("an early champion falls in a single win", unlockedCharacterIds(p2).includes("farmwife"));
   ok("campaign clears feed the achievement stats", p2.stats.stagesCleared >= 1 && p2.stats.recruits >= 1);   /* v1.91.0: auf dem Weg zum Falken liegt jetzt auch die Heilerin (Erwachen) */
   ok("a cleared champion station deals the FRIENDLY table", buildStageMatch(hawkN.id, p2).friendly === true && !buildStageMatch(startOf(hawkN.league).id, p2).friendly);
   ok("a friendly against a recruited champion pays a quarter XP", (() => {
@@ -141,8 +143,9 @@ ok("the dragon waits in his hall in chapter VII and yields in a single win", (()
   ok("beating chapter I: the chapter counts as won, Zahir is the trophy, no dragon yet",
     !unlockedCharacterIds(d).includes("dragon") && d.stats.leaguesWon === 1 && ownedLeagueBosses(d).join() === "b26");
 }
-ok("early chapters yield in one win, the deep road demands two",
-  winsNeeded(figurStation("mage")) === 1 && winsNeeded(figurStation("warlock")) === 2);
+/* v1.92.0: am HAUPTWEG entkommt eine Figur einmal (zwei Siege), am Nebenweg kommt sie sofort */
+ok("side-path figures yield in one win, main-path figures escape once",
+  winsNeeded(figurStation("beggar")) === 1 && winsNeeded(figurStation("jester")) === 2 && winsNeeded(figurStation("warlock")) === 2 && winsNeeded(figurStation("farmwife")) === 1);
 {
   let d = { xp: 0, campaign: { league: dragonN.league, cleared: [], unlocked: [] } };
   for (const n of hauptast(dragonN.league)) { if (n.id === dragonN.id) break; d = advanceCampaign(d, n.id); }
@@ -207,15 +210,15 @@ ok("stepping through the gate rolls into league 2 with clears reset", lg.campaig
 ok("unlocked pieces survive the rollover, gold is untouched by it", lg.campaign.unlocked.length >= 2 && (lg.gold || 0) === (typeof lg.gold === "number" ? lg.gold : 0));
 ok("paid tolls reset with the league — every climate has its own gatekeeper", (lg.campaign.tolls || []).length === 0);
 {
-  const hawk2 = fig2("hawk");
+  const hawk2 = fig2("healer");
   for (const n of ha2(2)) { lg = advanceCampaign(lg, n.id); if (n.id === hawk2.id) break; }
-  ok("the hawk joins in its home chapter", lg.campaign.unlocked.includes("hawk"));
-  ok("the win tally survives across fights", bossWinsFor(lg, "hawk") >= 1);
+  ok("the healer joins in her home chapter (v1.92.0: the hawk moved to a side path)", lg.campaign.unlocked.includes("healer"));
+  ok("the win tally survives across fights", bossWinsFor(lg, "healer") >= 1);
   // Duplikatsterne gibt es beim WIEDERSEHEN: im naechsten Weltdurchlauf
   // (Liga 14 = Kapitel II erneut) ist die Station wieder ein Erstsieg.
-  let lap = { xp: 0, campaign: { league: 14, cleared: [], unlocked: ["hawk"], bossWins: { hawk: 1 }, dupes: {} } };
+  let lap = { xp: 0, campaign: { league: 14, cleared: [], unlocked: ["healer"], bossWins: { healer: 1 }, dupes: {} } };
   for (const n of ha2(2)) { lap = advanceCampaign(lap, n.id); if (n.id === hawk2.id) break; }
-  ok("re-beating recruited piece bosses on the next world lap grants duplication stars", dupeCount(lap, "hawk") === 1);
+  ok("re-beating recruited piece bosses on the next world lap grants duplication stars", dupeCount(lap, "healer") === 1);
   // Die Buehnenstaffelung folgt dem REGELWERK: reine Schachpartien bleiben
   // Stufe 1, HP-Schlachten skalieren - unabhaengig vom Brett.
   /* v1.2.2 (Besitzerentscheid "Ab 5"): HP-Gefechte beginnen in Kapitel V,
@@ -1088,6 +1091,74 @@ console.log("\n== DIE WIRKUNG DER BUENDE (v1.10.0) ==");
   ok("zubrot: das Studium hebt die Erfahrung der Partie um 15 %", nach.xpEarned === ohneStudium + Math.round(ohneStudium * 0.15) && gained.studiert === Math.round(ohneStudium * 0.15));
   const auf = M.applyResult(vor, { ...sum, resigned: true });
   ok("zubrot: beim Aufgeben bleibt der Beutel leer", auf.profile.gold === 0 && auf.gained.gold === 0);
+}
+
+
+/* ══ v1.92.0: WER ENTKOMMT, STELLT SICH NOCH EINMAL (Besitzer 6.10. abends) ══════
+   "Figuren ... koennen auch, wenn man gegen sie gewonnen hat, fluechten - und
+    dann treten sie in dem gleichen Kapitel nochmal gegen einen an ... nur
+    innerhalb eines Kapitels ... und es muss ueber die Meldung sauber dargestellt
+    werden, wann eine Figur einem beitritt." */
+{
+  const M = await import("./src/meta/index.js");
+  const { CAMPAIGN: C, CHARACTERS: CH } = await import("./src/content/index.js");
+  const st = (id) => C.find((n) => n.boss?.piece === id);
+  const jester = st("jester"), smith = st("smith");
+  let p = { ...M.defaultProfile(), campaign: { league: 1, cleared: C.filter((n) => n.league === 1 && n.haupt && n.id < jester.id).map((n) => n.id), unlocked: ["farmwife"], bossWins: { farmwife: 1 } } };
+  const mJ = M.buildStageMatch(jester.id, p);
+  ok("Flucht: an der eigenen Station tritt der Narr beim ersten Sieg NICHT bei (boss.unlocks leer)", mJ.boss.unlocks === null && mJ.gaeste.length === 0);
+  p = M.advanceCampaign(p, jester.id);
+  ok("Flucht: nach dem Sieg ist er entkommen - einmal geschlagen, nicht im Hof", M.entkommene(p, 1).join() === "jester" && !p.campaign.unlocked.includes("jester") && p.campaign.bossWins.jester === 1);
+  const offen = C.filter((n) => n.league === 1 && !n.boss && !p.campaign.cleared.includes(n.id));
+  ok("Flucht: er steht an JEDER noch offenen gewoehnlichen Station des Kapitels", offen.length > 10 && offen.every((n) => M.fluechtlingeAn(n, p).join() === "jester"));
+  ok("Flucht: nicht an Stationen mit eigenem Boss, nicht an geklaerten, nicht in einem anderen Kapitel",
+    M.fluechtlingeAn(smith, p).length === 0 && M.fluechtlingeAn(C.find((n) => n.id === p.campaign.cleared[0]), p).length === 0
+    && M.fluechtlingeAn(C.find((n) => n.league === 2 && !n.boss), p).length === 0);
+  const hier = offen.find((n) => M.nodeStatus(p, n.id) === "available");
+  const m = M.buildStageMatch(hier.id, p);
+  ok(`Flucht: in der Aufstellung nimmt er den Platz eines Springers, Koenig und Dame bleiben (${m.aiArmy.back.map((x) => x.charId || x.kind).join(",")})`,
+    m.gaeste.join() === "jester" && m.gaesteTreten.join() === "jester" && m.aiArmy.back.some((x) => x.charId === "jester")
+    && m.aiArmy.back.filter((x) => x.kind === "N").length === 1 && m.aiArmy.back.some((x) => x.kind === "Q") && m.aiArmy.back.some((x) => x.kind === "K"));
+  ok("Flucht: zweimal gebaut, zweimal dieselbe Aufstellung", JSON.stringify(M.buildStageMatch(hier.id, p).aiArmy) === JSON.stringify(m.aiArmy));
+  const vorher = p.stats?.recruits || 0;
+  p = M.advanceCampaign(p, hier.id);
+  ok("Flucht: wer diese Station gewinnt, bekommt ihn - und er steht nirgends mehr", p.campaign.unlocked.includes("jester") && (p.stats.recruits || 0) === vorher + 1
+    && M.entkommene(p, 1).length === 0 && C.filter((n) => n.league === 1).every((n) => M.fluechtlingeAn(n, p).length === 0));
+  /* das Tor: alle, die noch frei sind, stehen beim Meister und schliessen sich an */
+  let q = { ...M.defaultProfile(), campaign: { league: 1, cleared: [], unlocked: [], bossWins: { jester: 1, smith: 1, banker: 1 } } };
+  const tor = C.find((n) => n.league === 1 && n.final);
+  q = { ...q, campaign: { ...q.campaign, cleared: C.filter((n) => n.league === 1 && n.haupt && n.id !== tor.id).map((n) => n.id) } };
+  const mT = M.buildStageMatch(tor.id, q);
+  ok(`Flucht: am Tor stehen die drei beim Meister, der die Dame ersetzt (${mT.aiArmy.back.map((x) => x.charId || x.bossId || x.kind).join(",")})`,
+    mT.gaeste.length === 3 && ["jester", "smith", "banker"].every((g) => mT.aiArmy.back.some((x) => x.charId === g)) && mT.aiArmy.back.some((x) => x.bossId === "b26") && !mT.aiArmy.back.some((x) => x.kind === "Q"));
+  q = M.advanceCampaign(q, tor.id);
+  ok("Flucht: faellt der Meister, schliessen sich alle an - niemand entkommt in ein anderes Kapitel", ["jester", "smith", "banker"].every((g) => q.campaign.unlocked.includes(g)) && M.entkommene(q, 1).length === 0);
+  /* der Drache entkommt nie; jede Figur mit zwei Siegen liegt am Hauptweg */
+  const zwei = C.filter((n) => n.boss?.piece && (n.boss.wins || 1) > 1);
+  ok(`Flucht: nur Figuren am Hauptweg entkommen (${zwei.length}), der Drache nie, die erste Figur des Spiels kommt sofort`,
+    zwei.length >= 15 && zwei.every((n) => n.haupt && n.boss.piece !== "dragon") && (st("farmwife").boss.wins || 1) === 1 && (st("healer").boss.wins || 1) === 1);
+  ok("Flucht: jede Entkommene hat nach ihrer Station noch mindestens das Tor vor sich", zwei.every((n) => !n.final));
+  /* die Texte */
+  const { makeT } = await import("./src/app/i18n/strings.js").catch(() => ({ makeT: null }));
+  if (makeT) ok("Flucht: Banner und Stationsfenster sagen es in beiden Sprachen",
+    ["de", "en"].every((l) => ["camp.fledFigur", "game.unlockedMany", "camp.gast", "camp.gastTor", "camp.stFled"].every((k) => makeT(l)(k, { name: "X", n: 1 }).includes("X"))));
+}
+
+/* ══ v1.92.0: DIE FRUEHEN KAPITEL SIND EINE MITTELALTERLICHE WELT ═══════════════
+   Besitzer 6.10.: "in Kapitel 1 und 2 vorrangig normale Figuren, nicht dieses
+   Fantasy-Zeug wie Hexer und Magier ... zwei Buende oder so sollen schon in
+   Kapitel 1 zustande kommen ... Turnier in Kapitel 3." */
+{
+  const { CAMPAIGN: C } = await import("./src/content/index.js");
+  const { BUENDE } = await import("./src/content/buende.js");
+  const kap = (id) => { if (["pawn", "gambit", "knight", "bishop", "rook", "queen", "king"].includes(id)) return 0; const n = C.find((x) => x.boss?.piece === id && x.league <= 12); return n ? n.league : 99; };
+  const voll = (bund) => Math.max(...BUENDE[bund].figuren.map(kap));
+  const magie = ["mage", "sorceress", "warlock", "alchemist", "seeress", "assassin", "dragon"];
+  ok("in Kapitel I und II tritt keine Gestalt mit Magie bei - der Magier kommt in III", magie.every((id) => kap(id) >= 3) && kap("mage") === 3);
+  ok(`in Kapitel I schliessen sich Dorf, Werkstatt, Kontor und Krone (${["dorf", "werkstatt", "kontor", "krone"].map(voll).join(",")})`,
+    ["dorf", "werkstatt", "kontor", "krone", "geleit"].every((b) => voll(b) <= 1));
+  ok("in Kapitel II Kueche, Kloster und Jagd; der Ritter kommt als Erster des Turniers", ["kueche", "kloster", "jagd"].every((b) => voll(b) === 2) && kap("cavalier") === 2);
+  ok("in Kapitel III sind Turnier und Nachtwache vollzaehlig", voll("turnier") === 3 && voll("nachtwache") === 3);
 }
 
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);

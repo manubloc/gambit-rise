@@ -326,7 +326,8 @@ export default function App() {
     setMatch(null);
     setPvp({ matchId: m.matchId, seed: m.seed, mapId: m.map, color: m.youAre, rules: m.rules,
       // the clock both sides agreed on in the lobby, handed to the board
-      tc: m.tc || "rush", clock: clockFor(m.tc || "rush"),
+      /* v1.92.0: im schnellen Spiel hat jede Seite ihre eigene Bedenkzeit (tc / tcOpp) */
+      tc: m.tc || "b180", clock: clockFor(m.tc || "b180", m.tcOpp || null),
       oppName: m.opp?.name || "?", oppScore: m.opp?.score || 0, oppArmy: m.oppArmy, net: netRef.current });
   }), []);
 

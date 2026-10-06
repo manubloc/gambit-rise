@@ -1,64 +1,78 @@
-// ── THE FOUR GAMBITS: how much time a duel is given ─────────────────────────
+// ── ZWEI SPIELARTEN IM NETZ (v1.92.0, Besitzer 6.10.2026) ────────────────────
 //
-// One table, read by the lobby (cards), by the clock in the match and by the
-// worker's matchmaking — a player waiting for Rush must never be paired with
-// one waiting for Prime, so the pairing key lives here too.
+// "Ich wuerde maximal zwei Spielmodi beim Online haben ... 30 Sekunden bis 5
+//  Minuten, alle in einen Topf - wer schnell spielen will, darf schnell
+//  spielen ... und die andere waere diese Langzeitvariante, wo man sich 24
+//  Stunden oder so Zeit nehmen darf."
 //
-// `base` is each side's budget in seconds, `inc` the seconds handed back after
-// every move (Fischer). `perMove` marks the correspondence format, where the
-// budget is not a shared pool but a fresh deadline per move.
+// Bis v1.91.2 gab es vier Uhren (Quick 1 min, Rush 3 min, Prime 10 min, Classic
+// ueber Tage), und zwei Spieler trafen sich nur, wenn sie DIESELBE gewaehlt
+// hatten - vier duenne Warteschlangen statt einer vollen.
+//
+// Jetzt:
+//   blitz   EIN Topf. Jeder waehlt SEINE Bedenkzeit zwischen 30 Sekunden und
+//           5 Minuten und spielt mit ihr - der Gegner mit seiner. Wer schnell
+//           spielen will, zwingt niemanden dazu. Die Kennung auf der Leitung
+//           ist "b<Sekunden>" (b30 ... b300).
+//   daily   die Fernpartie: bis zu drei Tage je Zug (unveraendert; die Halle
+//           erinnert am letzten Tag und entscheidet nach Fristablauf).
+//
+// Diese Tabelle lesen die Lobby (Karten), die Uhr im Gefecht und - als Regel,
+// nicht als Import - die Halle (worker/src/logic.mjs: normTc, tcKlasse).
+
+/** Die waehlbaren Bedenkzeiten des schnellen Spiels, in Sekunden. */
+export const BLITZ_ZEITEN = [30, 60, 120, 180, 300];
+export const BLITZ_VORGABE = 180;
+/** Fischer-Aufschlag je Zug: wer unter zwei Minuten waehlt, bekommt eine Sekunde zurueck, sonst zwei. */
+export const blitzAufschlag = (sekunden) => (sekunden < 120 ? 1 : 2);
+export const blitzTc = (sekunden) => "b" + (BLITZ_ZEITEN.includes(sekunden) ? sekunden : BLITZ_VORGABE);
+export const blitzText = (sekunden, en = false) => (sekunden < 60 ? `${sekunden} s` : `${sekunden / 60} ${en ? "min" : "Min"}`);
 
 export const TIME_MODES = [
   {
-    id: "quick",
-    de: { name: "Quick Gambit", tag: "1–2 Min",
-      blurb: "Kugelschnell und pure Reflexe. Ein einziger Fehler entscheidet über Sieg oder Niederlage. Hast du die Nerven für das schnellste Gambit?" },
-    en: { name: "Quick Gambit", tag: "1–2 min",
-      blurb: "Bullet speed and pure reflex. A single slip decides the game. Do you have the nerve for the fastest gambit?" },
-    base: 60, inc: 1, color: "#e05a4a", glyph: "bolt",
-  },
-  {
-    id: "rush",
-    de: { name: "Rush Gambit", tag: "3–5 Min",
-      blurb: "Der beliebteste Arena-Modus. Das Zusammenspiel aus Taktik, Zeitdruck und Intuition — ideal für den schnellen Wettkampf zwischendurch." },
-    en: { name: "Rush Gambit", tag: "3–5 min",
-      blurb: "The arena's favourite. Tactics, time pressure and intuition in balance — the sweet spot for a quick contest." },
-    base: 180, inc: 2, color: "#e5a13d", glyph: "clock", featured: true,
-  },
-  {
-    id: "prime",
-    de: { name: "Prime Gambit", tag: "10–15 Min",
-      blurb: "Tiefe Strategie ohne Hektik. Rechne deine Züge voraus, entfalte Kombinationen und zeige echtes Schachverständnis." },
-    en: { name: "Prime Gambit", tag: "10–15 min",
-      blurb: "Deep strategy without haste. Calculate ahead, unfold combinations and show real understanding." },
-    base: 600, inc: 0, color: "#4aa3e8", glyph: "shield",
-    // a Prime duel can run half an hour — say so before the horn sounds
-    warnDe: "Bedenke: Eine Partie kann 20–30 Minuten dauern.",
-    warnEn: "Mind the hour: a game can run 20–30 minutes.",
+    id: "blitz",
+    de: { name: "Schnelles Gambit", tag: "30 s – 5 Min",
+      blurb: "Ein Topf für alle. Du wählst deine Bedenkzeit, dein Gegner seine — wer schnell spielen will, spielt schnell." },
+    en: { name: "Quick Gambit", tag: "30 s – 5 min",
+      blurb: "One pool for everyone. You pick your clock, your opponent picks theirs — play as fast as you like." },
+    base: BLITZ_VORGABE, inc: blitzAufschlag(BLITZ_VORGABE), color: "#e5a13d", glyph: "bolt", featured: true,
   },
   {
     id: "daily",
-    de: { name: "Classic Gambit", tag: "1–3 Tage",
-      blurb: "Das Großmeister-Format für unterwegs. Ziehe, wann immer du Zeit hast, und studiere das Brett in aller Ruhe über mehrere Tage." },
-    en: { name: "Classic Gambit", tag: "1–3 days",
-      blurb: "The grandmaster's format for the road. Move whenever you have a moment and study the board over days." },
+    de: { name: "Langes Gambit", tag: "bis 3 Tage je Zug",
+      blurb: "Die Fernpartie. Zieh, wann du Zeit hast, und studiere das Brett in Ruhe — für jeden Zug hast du bis zu drei Tage." },
+    en: { name: "Long Gambit", tag: "up to 3 days a move",
+      blurb: "The correspondence game. Move when you have a moment and study the board at leisure — up to three days for every move." },
     base: 86400, inc: 0, perMove: true, color: "#a78bfa", glyph: "crown",
-    // Both legs of the format stand now: the game lives on the server (seed,
-    // both armies, every command — it outlasts both players closing the app),
-    // and Web Push knocks on the closed app when it is your move. The Hall
-    // signs with its own self-made VAPID pair; the bell in the lobby opts in.
+    // Both legs of the format stand: the game lives on the server (seed, both
+    // armies, every command — it outlasts both players closing the app), and
+    // Web Push knocks on the closed app when it is your move.
     noteDe: "Deine Fernpartien warten auf dem Server und stehen in der Lobby unter Fernpartien. Erlaube die Benachrichtigung, dann meldet sich das Spiel, sobald du am Zug bist. Wer drei Tage nicht zieht, verliert auf Zeit.",
     noteEn: "Your correspondence games wait on the server and appear in the lobby. Allow the notification and the game will call the moment it is your move. Three days without a move loses on time.",
   },
 ];
 
-export const timeModeById = (id) => TIME_MODES.find((m) => m.id === id) || TIME_MODES[1];
+/* Die alten Kennungen kommen noch von Geraeten, die die neue Fassung nicht
+   geladen haben, und aus laufenden Partien der Halle. */
+const ALT = { quick: 60, rush: 180, prime: 300 };
+/** Sekunden einer Blitz-Kennung ("b120", aber auch die alten "quick"/"rush"/"prime"); null bei "daily". */
+export function blitzSekunden(tc) {
+  if (tc === "daily") return null;
+  if (ALT[tc]) return ALT[tc];
+  const m = /^b(\d{1,3})$/.exec(String(tc || ""));
+  const n = m ? Number(m[1]) : BLITZ_VORGABE;
+  return Math.max(BLITZ_ZEITEN[0], Math.min(BLITZ_ZEITEN[BLITZ_ZEITEN.length - 1], n));
+}
+export const timeModeById = (id) => (id === "daily" ? TIME_MODES[1] : TIME_MODES[0]);
 
-/** Two players may only meet if they asked for the SAME clock. */
-export const timeModeKey = (id) => (TIME_MODES.some((m) => m.id === id) ? id : "rush");
+/** In welchem Topf wartet diese Kennung? Zwei Spieler treffen sich nur im selben. */
+export const timeModeKey = (tc) => (tc === "daily" ? "daily" : "blitz");
 
-/** The clock a match starts with, as the board's timer understands it. */
-export function clockFor(id) {
-  const m = timeModeById(id);
-  return { type: m.perMove ? "move" : "total", seconds: m.base, inc: m.inc || 0 };
+/** Die Uhr einer Partie, wie der Zeitnehmer des Bretts sie versteht. `tcGegner`
+ *  ist die Kennung der anderen Seite - im schnellen Spiel hat jede ihre eigene
+ *  Zeit; fehlt sie (alte Halle, Fernpartie), gilt die eigene fuer beide. */
+export function clockFor(tc, tcGegner = null) {
+  if (tc === "daily") return { type: "move", seconds: TIME_MODES[1].base, inc: 0 };
+  const ich = blitzSekunden(tc), er = tcGegner && tcGegner !== "daily" ? blitzSekunden(tcGegner) : ich;
+  return { type: "total", seconds: ich, inc: blitzAufschlag(ich), foeSeconds: er, foeInc: blitzAufschlag(er) };
 }

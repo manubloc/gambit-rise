@@ -673,7 +673,7 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
   // completed move hands its owner the increment back (Fischer).
   const timer = campaign ? match.timer : (pvp?.clock || null);
   const [clock, setClock] = useState(resume?.clock ?? (timer ? timer.seconds : null));
-  const [foeClock, setFoeClock] = useState(timer && pvp ? timer.seconds : null);
+  const [foeClock, setFoeClock] = useState(timer && pvp ? (timer.foeSeconds ?? timer.seconds) : null);   /* v1.92.0: der Gegner spielt mit SEINER Zeit */
   const lastTurn = useRef(state?.turn);
   useEffect(() => {
     if (timer?.type === "move" && state.turn === myColor) setClock(timer.seconds);
@@ -683,10 +683,9 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
     if (!timer || !pvp || state.turn === lastTurn.current) { lastTurn.current = state?.turn; return; }
     const moved = lastTurn.current;
     lastTurn.current = state.turn;
-    const inc = timer.inc || 0;
-    if (!inc) return;
-    if (moved === myColor) setClock((c) => (c == null ? c : c + inc));
-    else setFoeClock((c) => (c == null ? c : c + inc));
+    const inc = timer.inc || 0, foeInc = timer.foeInc ?? inc;   /* v1.92.0: jeder bekommt den Aufschlag SEINER Uhr */
+    if (moved === myColor) { if (inc) setClock((c) => (c == null ? c : c + inc)); }
+    else if (foeInc) setFoeClock((c) => (c == null ? c : c + foeInc));
   }, [state.turn]); // eslint-disable-line
   useEffect(() => {
     // the foe's glass runs while it is his move
@@ -734,7 +733,7 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
        beitritt), oder das KAPITELENDE mit Glocke und Blatt. */
     if (result === "win") {
       klang("sieg");
-      const beitritt = campaign && match?.boss?.unlocks;
+      const beitritt = campaign && beitritte(match).length > 0;   /* v1.92.0: auch wenn eine Entkommene gefangen wird */
       const kapitelZu = campaign && match?.node?.final;
       /* v1.90.20: am Ende von Kapitel I tritt der Drache bei UND das Kapitel
          schliesst - das Kapitelende hat Vorrang (es ist der groessere Moment),
@@ -1765,9 +1764,16 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
   const bannerEl = banner ? <ResultBanner banner={banner} t={t} onNew={pvp ? onExit : newGame} campaign={campaign} onExit={onExit} boss={match?.boss || null} profile={profile}
     onSettings={!campaign && !pvp ? onExit : null}
     pvpInfo={pvp ? { rated, rematch, onRematch: () => { pvp.net.send({ t: "rematch", matchId: pvp.matchId }); setRematch("wait"); } } : null}
-    unlockName={match?.boss?.unlocks ? (profile.lang === "en" ? CHARACTERS_BY_ID[match.boss.unlocks]?.nameEn : CHARACTERS_BY_ID[match.boss.unlocks]?.nameDe) : null}
+    /* v1.92.0: WER SICH ANSCHLIESST, STEHT IM BANNER - die Figur der Station UND
+       die Entkommenen, die in dieser Aufstellung standen (match.gaesteTreten).
+       Und wer entkommt, wird beim Namen genannt, mit dem Satz, wo man ihn wiederfindet. */
+    unlockName={(() => { const ids = beitritte(match); if (!ids.length) return null;
+      const namen = ids.map((id) => (profile.lang === "en" ? CHARACTERS_BY_ID[id]?.nameEn : CHARACTERS_BY_ID[id]?.nameDe)).filter(Boolean);
+      return namen.length > 1 ? namen.slice(0, -1).join(", ") + (profile.lang === "en" ? " and " : " und ") + namen[namen.length - 1] : namen[0]; })()}
+    unlockMehrere={beitritte(match).length > 1}
     fledName={match?.boss && !match?.boss?.unlocks ? (match.boss.name?.[profile.lang === "en" ? "en" : "de"] || null) : null}
-    unlockId={match?.boss?.unlocks || null} en={profile.lang === "en"} onArmy={onArmy} newSkills={newSkills} /> : null;
+    fledFigur={!!(match?.boss && !match.boss.unlocks && match.boss.kind !== "X" && !match.turncoat)}
+    unlockId={beitritte(match)[0] || null} en={profile.lang === "en"} onArmy={onArmy} newSkills={newSkills} /> : null;
 
   if (wideMatch) return (
     <div style={{ position: "relative", overflow: "hidden", flex: "1 1 auto", minHeight: 0, height: "100%", display: "flex" }}>
@@ -2024,14 +2030,24 @@ function StoryIntro({ node, boss, t, en, onBegin, timer = null, profile = null }
    in der Stimme des Meisters (mitHeld), bekam es aber nie - ReferenceError
    beim Rendern, bei JEDEM Kampagnensieg gegen einen Gegner mit Stimme, schon
    in Kapitel I. Das ist ein Absturz genau im Moment des Sieges. */
-function ResultBanner({ banner, t, onNew, campaign = false, onExit = null, onSettings = null, unlockName = null, unlockId = null, fledName = null, en = false, onArmy = null, pvpInfo = null, boss = null, newSkills = [], profile = null }) {
+/* v1.92.0: wer tritt mit diesem Sieg bei? Die Figur der Station, wenn sie nicht
+   mehr entkommt, und die Entkommenen, die hier in der Aufstellung standen. Nur
+   beim ERSTEN Sieg an der Station zaehlen die Gaeste. */
+export function beitritte(match) {
+  if (!match) return [];
+  const ids = [];
+  if (match.boss?.unlocks) ids.push(match.boss.unlocks);
+  if (match.firstClear !== false) for (const g of match.gaesteTreten || []) if (!ids.includes(g)) ids.push(g);
+  return ids;
+}
+function ResultBanner({ banner, t, onNew, campaign = false, onExit = null, onSettings = null, unlockName = null, unlockId = null, fledName = null, unlockMehrere = false, fledFigur = false, en = false, onArmy = null, pvpInfo = null, boss = null, newSkills = [], profile = null }) {
   const win = banner.result === "win";
   const color = banner.hotseat ? T.gold : win ? T.lime : banner.result === "draw" ? T.gold : "#b4636c";
   const title = banner.hotseat
     ? (banner.result === "draw" ? t("game.draw") : t(win ? "hs.winWhite" : "hs.winBlack"))
     : win ? t("game.win") : banner.result === "draw" ? t("game.draw") : t("game.lose");
-  const sub = campaign && win && unlockName ? t("game.unlocked", { name: unlockName })
-    : campaign && win && fledName ? t("camp.fled", { name: fledName })
+  const sub = campaign && win && unlockName ? t(unlockMehrere ? "game.unlockedMany" : "game.unlocked", { name: unlockName })
+    : campaign && win && fledName ? t(fledFigur ? "camp.fledFigur" : "camp.fled", { name: fledName })
     : campaign && win ? t("game.stageCleared")
     : banner.reason === "checkmate" ? t("game.checkmate")
     : banner.reason === "regicide" ? t("game.regicide")

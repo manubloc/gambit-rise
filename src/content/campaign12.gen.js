@@ -306,7 +306,7 @@ export const CAMPAIGN12 = [
   "storyEn": "The path leads on across Klingenschlucht.",
   "boss": {
    "piece": "jester",
-   "wins": 1
+   "wins": 2
   },
   "tier": 2
  },
@@ -500,7 +500,7 @@ export const CAMPAIGN12 = [
   "storyEn": "The trial waits at Nebelmoor.",
   "boss": {
    "piece": "smith",
-   "wins": 1
+   "wins": 2
   },
   "tier": 2
  },
@@ -667,12 +667,7 @@ export const CAMPAIGN12 = [
    "xp": 78
   },
   "storyDe": "Die Prüfung wartet bei Lindenhain.",
-  "storyEn": "The trial waits at Lindenhain.",
-  "boss": {
-   "piece": "mage",
-   "wins": 1
-  },
-  "tier": 2
+  "storyEn": "The trial waits at Lindenhain."
  },
  {
   "id": "L01s31",
@@ -862,7 +857,12 @@ export const CAMPAIGN12 = [
    "xp": 87
   },
   "storyDe": "Der letzte Anstieg:  Grenzwall.",
-  "storyEn": "The final ascent:  Grenzwall."
+  "storyEn": "The final ascent:  Grenzwall.",
+  "boss": {
+   "piece": "banker",
+   "wins": 2
+  },
+  "tier": 2
  },
  {
   "id": "L01s40",
@@ -883,12 +883,7 @@ export const CAMPAIGN12 = [
    "xp": 90
   },
   "storyDe": "Der letzte Anstieg:  Hohes Heiligtum.",
-  "storyEn": "The final ascent:  Hohes Heiligtum.",
-  "boss": {
-   "piece": "banker",
-   "wins": 1
-  },
-  "tier": 2
+  "storyEn": "The final ascent:  Hohes Heiligtum."
  },
  {
   "id": "L01s41",
@@ -1323,8 +1318,8 @@ export const CAMPAIGN12 = [
   "storyDe": "Der Pfad führt weiter über Spreugericht.",
   "storyEn": "The path leads on across Spreugericht.",
   "boss": {
-   "piece": "hawk",
-   "wins": 1
+   "piece": "cavalier",
+   "wins": 2
   },
   "tier": 2
  },
@@ -1431,7 +1426,7 @@ export const CAMPAIGN12 = [
   "storyEn": "The trial waits at Dreschhof.",
   "boss": {
    "piece": "cook",
-   "wins": 1
+   "wins": 2
   },
   "tier": 2
  },
@@ -1654,7 +1649,7 @@ export const CAMPAIGN12 = [
   "storyEn": "The trial waits at Volle Scheuer.",
   "boss": {
    "piece": "monk",
-   "wins": 1
+   "wins": 2
   },
   "tier": 2
  },
@@ -1781,7 +1776,7 @@ export const CAMPAIGN12 = [
   "storyEn": "The final ascent:  Fürstenmahd.",
   "boss": {
    "piece": "huntress",
-   "wins": 1
+   "wins": 2
   },
   "tier": 2
  },
@@ -1844,7 +1839,7 @@ export const CAMPAIGN12 = [
   "storyDe": "Ein stiller Umweg führt zu Welkgart.",
   "storyEn": "A quiet detour leads to Welkgart.",
   "boss": {
-   "piece": "bard",
+   "piece": "hawk",
    "wins": 1
   },
   "tier": 1
@@ -2371,7 +2366,7 @@ export const CAMPAIGN12 = [
   "storyDe": "Ein Seitenpfad zweigt ab nach Moderpforte.",
   "storyEn": "A side path branches toward Moderpforte.",
   "boss": {
-   "piece": "cavalier",
+   "piece": "bard",
    "wins": 1
   },
   "tier": 1
@@ -2420,7 +2415,7 @@ export const CAMPAIGN12 = [
   "storyEn": "The trial waits at Drosselsang.",
   "boss": {
    "piece": "alchemist",
-   "wins": 1
+   "wins": 2
   },
   "tier": 3
  },
@@ -2589,7 +2584,12 @@ export const CAMPAIGN12 = [
    "xp": 81
   },
   "storyDe": "Die Prüfung wartet bei Falbes Licht.",
-  "storyEn": "The trial waits at Falbes Licht."
+  "storyEn": "The trial waits at Falbes Licht.",
+  "boss": {
+   "piece": "mage",
+   "wins": 2
+  },
+  "tier": 3
  },
  {
   "id": "L03s32",
@@ -2685,11 +2685,15 @@ export const CAMPAIGN12 = [
   "bump": 2,
   "next": [],
   "reward": {
-   "xp": 72,
-   "gold": 64
+   "xp": 72
   },
   "storyDe": "Ein Seitenpfad zweigt ab nach Der Stumme Hain.",
-  "storyEn": "A side path branches toward Der Stumme Hain."
+  "storyEn": "A side path branches toward Der Stumme Hain.",
+  "boss": {
+   "piece": "gladiator",
+   "wins": 1
+  },
+  "tier": 1
  },
  {
   "id": "L03s37",
@@ -2713,7 +2717,7 @@ export const CAMPAIGN12 = [
   "storyEn": "The final ascent:  Zwillingsfeste.",
   "boss": {
    "piece": "fencer",
-   "wins": 1
+   "wins": 2
   },
   "tier": 3
  },
@@ -3171,7 +3175,7 @@ export const CAMPAIGN12 = [
   "storyEn": "The trial waits at Hochleger.",
   "boss": {
    "piece": "sorceress",
-   "wins": 1
+   "wins": 2
   },
   "tier": 3
  },
@@ -3554,12 +3558,7 @@ export const CAMPAIGN12 = [
    "xp": 102
   },
   "storyDe": "Der letzte Anstieg:  Lärchentor.",
-  "storyEn": "The final ascent:  Lärchentor.",
-  "boss": {
-   "piece": "gladiator",
-   "wins": 1
-  },
-  "tier": 3
+  "storyEn": "The final ascent:  Lärchentor."
  },
  {
   "id": "L04s34",
@@ -4352,7 +4351,7 @@ export const CAMPAIGN12 = [
   "storyEn": "The trial waits at Eisburg.",
   "boss": {
    "piece": "executioner",
-   "wins": 1
+   "wins": 2
   },
   "tier": 3
  },
@@ -5072,7 +5071,7 @@ export const CAMPAIGN12 = [
   "storyEn": "The trial waits at Zwergkiefer.",
   "boss": {
    "piece": "assassin",
-   "wins": 1
+   "wins": 2
   },
   "tier": 2
  },
@@ -5562,7 +5561,7 @@ export const CAMPAIGN12 = [
   "storyEn": "The final ascent:  Sieben Riegel.",
   "boss": {
    "piece": "samurai",
-   "wins": 1
+   "wins": 2
   },
   "tier": 2
  },

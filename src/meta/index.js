@@ -51,3 +51,4 @@ export { FREIGABEN, freigegeben, darfHeldSetzen, darfReiheStellen,
   buendeOffen, meineBuende, aufgestellteIds } from "./freigaben.js";
 export { DECK_ANZAHL, deckStand, deckName, mitAktivemDeck, mitDeckName, mitAufstellung } from "./decks.js";   /* v1.15.0 */
 export { zubrot, zehntStaffel, ALMOSEN_DECKEL, ZINS_ANTEIL, ZEHNT_GOLD, STUDIUM_ANTEIL, DORF_GOLD_JE_BAUER, KONTOR_ANTEIL } from "./zubrot.js";   /* v1.91.0 */
+export { entkommene, fluechtlingeAn } from "./campaign.js";   /* v1.92.0 */

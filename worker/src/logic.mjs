@@ -36,6 +36,19 @@ function cleanStats(s) {
 // is lost on time. Long enough for a holiday weekend, short enough that a game
 // cannot rot forever.
 const DAILY_MS = 3 * 24 * 60 * 60 * 1000;
+/* ── v1.92.0: ZWEI TOEPFE STATT VIER UHREN ────────────────────────────────────
+   "30 Sekunden bis 5 Minuten, alle in einen Topf" und die Fernpartie. Im
+   schnellen Spiel bringt jede Seite IHRE Bedenkzeit mit ("b<Sekunden>"); die
+   alten Kennungen quick/rush/prime kommen noch von Geraeten mit alter Fassung.
+   Dieselbe Regel steht fuer die Seite in src/content/timeModes.js. */
+const TC_ALT = { quick: 60, rush: 180, prime: 300 };
+export function normTc(tc) {
+  if (tc === "daily") return "daily";
+  if (TC_ALT[tc]) return "b" + TC_ALT[tc];
+  const m = /^b(\d{1,3})$/.exec(String(tc || ""));
+  return "b" + Math.max(30, Math.min(300, m ? Number(m[1]) : 180));
+}
+export const tcKlasse = (tc) => (normTc(tc) === "daily" ? "daily" : "blitz");
 // One day before the deadline the absent player gets a last tap on the
 // shoulder — enough to save a game over a busy weekend.
 const REMIND_MS = 24 * 60 * 60 * 1000;
@@ -322,7 +335,7 @@ export class HallCore {
       const waited = this.now() - Math.min(a.since, b.since);
       if (Math.abs(a.score - b.score) > BAND(waited)) continue;
       if ((a.mode || "duel") !== (b.mode || "duel")) continue; // classic meets classic, duel meets duel
-      if ((a.tc || "rush") !== (b.tc || "rush")) continue;      // and one clock only ever meets its own
+      if (tcKlasse(a.tc) !== tcKlasse(b.tc)) continue;           // v1.92.0: ein Topf fuer das schnelle Spiel, einer fuer die Fernpartie
       const maps = a.maps.filter((m) => b.maps.includes(m));
       if (!maps.length) continue;
       q.splice(j, 1); q.splice(i, 1); this.queue = q;
@@ -342,7 +355,7 @@ export class HallCore {
     // never accidentally uses the arrangement someone saved for "arena".
     const armyOf = (side) => (side.armies && side.armies[map]) || side.army;
     const armyW = armyOf(w), armyB = armyOf(bl);
-    const tcPick = a.tc || b.tc || "rush";
+    const tcPick = normTc(a.tc || b.tc);
     if (tcPick === "daily") {
       // CORRESPONDENCE: no live seat is opened at all. The game is filed, both
       // players are told it exists, and it waits — days if it must.
@@ -365,15 +378,17 @@ export class HallCore {
        selbst weiterreicht. Fuer die Rueckkehr nach einem Abbruch braucht es
        genau das. */
     ms[matchId] = { w: w.id, b: bl.id, armyW, armyB, map, n: 0, mode,
-      seed, rules: mode === "classic" ? "chess" : "hp", tc: a.tc || b.tc || "rush" };
+      seed, rules: mode === "classic" ? "chess" : "hp", tcW: normTc(w.tc || bl.tc), tcB: normTc(bl.tc || w.tc) };
     this.matches = ms;
     // classic rooms play pure mate chess; duels keep the HP arena
     // the clock both sides asked for travels with the match, so neither can
     // start on a different budget than the other
-    const tc = a.tc || b.tc || "rush";
-    const base = { t: "match", matchId, seed, map, rules: mode === "classic" ? "chess" : "hp", mode, tc };
-    this.send(w.id, { ...base, youAre: "w", opp: { name: this.player(bl.id).name, score: bl.score }, oppArmy: armyB });
-    this.send(bl.id, { ...base, youAre: "b", opp: { name: this.player(w.id).name, score: w.score }, oppArmy: armyW });
+    /* v1.92.0: jede Seite erfaehrt IHRE Uhr (tc) und die des Gegners (tcOpp) -
+       im schnellen Spiel duerfen sie verschieden sein */
+    const tcW = ms[matchId].tcW, tcB = ms[matchId].tcB;
+    const base = { t: "match", matchId, seed, map, rules: mode === "classic" ? "chess" : "hp", mode };
+    this.send(w.id, { ...base, tc: tcW, tcOpp: tcB, youAre: "w", opp: { name: this.player(bl.id).name, score: bl.score }, oppArmy: armyB });
+    this.send(bl.id, { ...base, tc: tcB, tcOpp: tcW, youAre: "b", opp: { name: this.player(w.id).name, score: w.score }, oppArmy: armyW });
     return matchId;
   }
   // ── correspondence: the long game ──────────────────────────────────────────
@@ -480,7 +495,9 @@ export class HallCore {
       const gegner = m.w === id ? m.b : m.w;
       this.send(gegner, { t: "oppBack", matchId: mid });
       this.send(id, { t: "match", matchId: mid, seed: m.seed, map: m.map, rules: m.rules,
-        youAre: meineSeite, tc: m.tc || "rush", mode: m.mode,
+        youAre: meineSeite, mode: m.mode,
+        /* v1.92.0: eigene und fremde Uhr; eine Partie von vor der Umstellung traegt noch EIN tc */
+        tc: normTc(meineSeite === "w" ? (m.tcW || m.tc) : (m.tcB || m.tc)), tcOpp: normTc(meineSeite === "w" ? (m.tcB || m.tc) : (m.tcW || m.tc)),
         oppArmy: meineSeite === "w" ? m.armyB : m.armyW,
         opp: { name: this.player(gegner)?.name || "?", score: this.player(gegner)?.score || 0 },
         fortsetzung: true });
@@ -751,7 +768,9 @@ export class HallCore {
       this.pruefePaket({ maps: msg.maps, army: msg.army, armies: msg.armies });   // v1.90.8 (A22)
       const maps = c.maps.filter((m) => (msg.maps || ["classic"]).includes(m));
       this.startMatch({ id: c.from, army: c.army, armies: c.armies, score: this.player(c.from).score, mode: c.mode, tc: c.tc },
-                      { id: me, army: msg.army, armies: msg.armies || null, score: p.score, mode: c.mode, tc: c.tc },
+                      { id: me, army: msg.army, armies: msg.armies || null, score: p.score, mode: c.mode,
+                        /* v1.92.0: wer annimmt, spielt mit SEINER Bedenkzeit - ausser die Forderung ist eine Fernpartie */
+                        tc: normTc(c.tc) === "daily" ? "daily" : (msg.tc && normTc(msg.tc) !== "daily" ? msg.tc : c.tc) },
                       maps[0] || "classic");
       return me;
     }
@@ -889,8 +908,9 @@ export class HallCore {
       const other = f.w === me ? f.b : f.w;
       if (f.want.includes(other)) {
         delete fin[msg.matchId]; this.finished = fin;
-        this.startMatch({ id: f.b, army: f.armyB, score: this.player(f.b).score, mode: f.mode },
-                        { id: f.w, army: f.armyW, score: this.player(f.w).score, mode: f.mode }, f.map, true);
+        /* v1.92.0: die Revanche behaelt die Uhren beider Seiten (vorher fiel sie auf die Vorgabe zurueck) */
+        this.startMatch({ id: f.b, army: f.armyB, score: this.player(f.b).score, mode: f.mode, tc: f.tcB || f.tc },
+                        { id: f.w, army: f.armyW, score: this.player(f.w).score, mode: f.mode, tc: f.tcW || f.tc }, f.map, true);
       } else {
         this.finished = fin;
         if (this.isOnline(other)) this.send(other, { t: "rematchOffer", matchId: msg.matchId });

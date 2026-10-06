@@ -252,24 +252,40 @@ function mkHall(t0 = 1000) {
   ok("oppArmy shown to each side is also the map-correct one", msgs.every((mm) => mm.oppArmy[0] === "GAUNTLET_ARMY_E1" || mm.oppArmy[0] === "GAUNTLET_ARMY_E2"));
 }
 
-// ── ONE CLOCK ONLY EVER MEETS ITS OWN ───────────────────────────────────────
-// A bullet player pulled into a rapid game would lose on time through no fault
-// of their own — the matchmaker must keep the formats apart, and must tell the
-// board which clock was agreed.
+// ── ZWEI TOEPFE (v1.92.0, Besitzer 6.10.2026) ────────────────────────────────
+// "30 Sekunden bis 5 Minuten, alle in einen Topf - wer schnell spielen will,
+//  darf schnell spielen ... und die Langzeitvariante." Bis v1.91.2 traf eine Uhr
+// nur ihresgleichen (vier Warteschlangen). Jetzt bringt im schnellen Spiel jede
+// Seite IHRE Bedenkzeit mit, und nur die Fernpartie bleibt fuer sich.
+{
+  const { normTc, tcKlasse } = await import("./worker/src/logic.mjs");
+  ok("normTc: die neuen Kennungen, die alten Namen, Unsinn und die Grenzen 30 s / 5 min",
+    normTc("b30") === "b30" && normTc("b300") === "b300" && normTc("quick") === "b60" && normTc("rush") === "b180" && normTc("prime") === "b300"
+    && normTc("b5") === "b30" && normTc("b999") === "b300" && normTc(undefined) === "b180" && normTc("x") === "b180" && normTc("daily") === "daily");
+  ok("zwei Toepfe: alles Schnelle ist einer, die Fernpartie der andere", tcKlasse("b30") === "blitz" && tcKlasse("prime") === "blitz" && tcKlasse("daily") === "daily");
+
+  const { hall, last } = mkHall();
+  hall.handle(null, { t: "hello", id: "a", secret: "s", name: "A", score: 500 });
+  hall.handle(null, { t: "hello", id: "b", secret: "s", name: "B", score: 500 });
+  hall.handle("a", { t: "queue", maps: ["classic"], army: ["p"], tc: "b30" });
+  hall.handle("b", { t: "queue", maps: ["classic"], army: ["q"], tc: "b300" });
+  ok("30 Sekunden trifft 5 Minuten - ein Topf", Object.keys(hall.matches).length === 1);
+  const ma = last("match", "a"), mb = last("match", "b");
+  ok("jede Seite erfaehrt IHRE Uhr und die des Gegners", ma && mb && ma.tc === "b30" && ma.tcOpp === "b300" && mb.tc === "b300" && mb.tcOpp === "b30");
+  const rec = Object.values(hall.matches)[0];
+  ok("die Partie haelt beide Uhren je Farbe fest", [rec.tcW, rec.tcB].sort().join() === "b30,b300" && (rec.w === "a" ? rec.tcW : rec.tcB) === "b30");
+}
 {
   const { hall, last } = mkHall();
   hall.handle(null, { t: "hello", id: "a", secret: "s", name: "A", score: 500 });
   hall.handle(null, { t: "hello", id: "b", secret: "s", name: "B", score: 500 });
-  hall.handle("a", { t: "queue", maps: ["classic"], army: ["p"], tc: "quick" });
-  hall.handle("b", { t: "queue", maps: ["classic"], army: ["q"], tc: "prime" });
-  ok("a bullet player is not thrown into a rapid game", Object.keys(hall.matches).length === 0);
-
+  hall.handle("a", { t: "queue", maps: ["classic"], army: ["p"], tc: "b60" });
+  hall.handle("b", { t: "queue", maps: ["classic"], army: ["q"], tc: "daily" });
+  ok("das schnelle Spiel und die Fernpartie treffen sich nie", Object.keys(hall.matches).length === 0 && !last("daily:new", "a"));
   hall.handle("b", { t: "dequeue" });
   hall.handle("b", { t: "queue", maps: ["classic"], army: ["q"], tc: "quick" });
-  ok("two players on the same clock are paired", Object.keys(hall.matches).length === 1);
-  const ma = last("match", "a"), mb = last("match", "b");
-  ok("the match names that clock", ma && ma.tc === "quick");
-  ok("both sides are told the same clock", ma && mb && ma.tc === mb.tc);
+  const mb = last("match", "b");
+  ok("ein Geraet mit alter Fassung (\"quick\") spielt mit - als 1 Minute", Object.keys(hall.matches).length === 1 && mb.tc === "b60" && mb.tcOpp === "b60");
 }
 
 // ── CORRESPONDENCE: THE GAME THAT SURVIVES GOING OFFLINE ────────────────────

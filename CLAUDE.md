@@ -41,8 +41,8 @@ gambitrise.com zeigt darauf).
   pruefe-navigation, pruefe-textfluss, test_layout) lesen den Chromium-Pfad aus
   `PW_CHROMIUM`; ohne die Variable gilt der Pfad des Cloud-Containers. Lokal:
   `npx playwright install chromium` und `PW_CHROMIUM=<Pfad zur chrome-Datei>`.
-- `npm test` — volle Batterie. MUSS **31 Suiten / 2913 Prüfungen** melden
-  (Stand v1.91.2; der Runner stoppt nach der ersten roten Suite, also
+- `npm test` — volle Batterie. MUSS **31 Suiten / 2939 Prüfungen** melden
+  (Stand v1.92.0; der Runner stoppt nach der ersten roten Suite, also
   Suitenzahl prüfen, nicht nur Assertions! **Zählweise seit v1.90.18
   (Audit A74): JEDE Suite der Kette meldet eine RESULT-Zeile** — alle Zeilen
   `RESULT…: N passed` summieren; test_balance meldet zwei, darum stehen im
@@ -385,6 +385,23 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
   paintedArt.js, `STAERKE` in besetzung.js (aus dem Balance-Lauf), Station in
   `tools/build-campaign12.mjs` (Tabelle `FIGUREN`). **Eine Gangart ohne `range`
   gleitet beliebig weit** (Kern und Zugbild lesen `|| 99`).
+- **Entkommene (v1.92.0, `entkommene` / `fluechtlingeAn` in meta/campaign.js):**
+  eine Figur mit `wins: 2` (dritte Spalte der Tabelle `FIGUREN` im Generator —
+  alle am HAUPTWEG außer der Bäuerin und der Heilerin) entkommt nach dem ersten
+  Sieg und steht dann in der Aufstellung JEDER noch offenen gewöhnlichen Station
+  ihres Kapitels (eine je Station, fest; Platz eines Springers). Wer so eine
+  Station gewinnt, bekommt sie; am Tor stehen alle beim Meister und schließen
+  sich mit seinem Fall an. `match.gaeste` / `match.gaesteTreten` tragen es ins
+  Gefecht, `beitritte(match)` (GameScreen) ins Banner, `data-gast` ins
+  Stationsfenster. **Figuren stehen in jedem Kapitel NEBEN der Dame** (Platz des
+  Damenspringers), Großmeister und Bestien an ihrer Stelle; der Drache behält
+  seinen Block.
+- **Online: zwei Spielarten (v1.92.0, `content/timeModes.js`).** `blitz` ist EIN
+  Topf: jede Seite schickt ihre Bedenkzeit als `tc: "b<Sekunden>"` (30–300) und
+  spielt mit ihr; die Halle (`normTc`, `tcKlasse` in worker/src/logic.mjs) hält
+  `tcW`/`tcB` an der Partie und schickt jeder Seite `tc` und `tcOpp`. `daily`
+  ist die Fernpartie (drei Tage je Zug, `DAILY_MS`). Die alten Kennungen
+  quick/rush/prime werden als 1/3/5 Minuten gelesen.
 - **Gold neben dem Kampf (`meta/zubrot.js`):** Almosen, Zins, Zehnt, Studium und
   die Bünde Dorf und Kontor ändern am Brett nichts und werden an EINER Stelle
   gerechnet; `applyResult` zahlt aus, das Banner zeigt die Posten. Wer aufgibt,
@@ -553,7 +570,7 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
   Auswahl-Lichtspektakel.
 - Alles Optionale abschaltbar (Klang, Online).
 
-## Offene Baustellen (Stand v1.91.2, 6.10.2026)
+## Offene Baustellen (Stand v1.92.0, 6.10.2026)
 
 **Einstieg für jede neue Sitzung: `design/CHAT-EINSTIEG-2026-09-27.md`** (zehn
 Minuten, mit dem Startsatz für den Chat), dann **`design/UEBERGABE-2026-09-27.md`** — Stand,

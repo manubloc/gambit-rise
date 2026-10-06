@@ -1,5 +1,30 @@
 # Changelog - Gambit Rise
 
+## 1.92.0 - Fruehe Kapitel ohne Magie, Figuren entkommen und stellen sich wieder, zwei Spielarten im Netz
+
+Besitzer 6.10. abends, vier Auftraege in einer Nachricht.
+
+- **Kapitel I und II sind eine mittelalterliche Welt:** der Magier kommt erst in
+  Kapitel III. In I schliessen sich Dorf, Werkstatt, Kontor und (mit dem Koenig)
+  die Krone; in II Kueche, Kloster und Jagd, dazu der Ritter als Erster des
+  Turniers; in III werden Turnier und Nachtwache vollzaehlig.
+- **Wer entkommt, stellt sich im selben Kapitel noch einmal.** Bis hierher hiess
+  "zwei Siege": dieselbe Station wiederholen, und der Text versprach ein
+  Wiedersehen "in einem neuen Kapitel". Jetzt entkommt eine Figur am Hauptweg
+  nach dem ersten Sieg, steht dann in der Aufstellung jeder noch offenen
+  gewoehnlichen Station ihres Kapitels (auf dem Platz eines Springers) und
+  schliesst sich an, sobald man eine davon gewinnt - spaetestens am Tor, wo alle
+  Entkommenen beim Meister stehen. Figuren an Nebenwegen und die erste Figur des
+  Spiels kommen sofort. Das Banner nennt, wer beitritt und wer entkommt, das
+  Stationsfenster sagt vor dem Antritt, wer dort steht.
+- **Figuren stehen in jedem Kapitel NEBEN der Dame** (vorher nur in I und II);
+  Grossmeister und Bestien stehen an ihrer Stelle.
+- **Zwei Spielarten im Netz statt vier Uhren:** das schnelle Spiel ist EIN Topf,
+  jeder waehlt seine Bedenkzeit zwischen 30 Sekunden und 5 Minuten und spielt
+  mit ihr, der Gegner mit seiner. Vorher traf eine Uhr nur ihresgleichen - vier
+  duenne Warteschlangen. Die Fernpartie bleibt (bis drei Tage je Zug). Die
+  Revanche behaelt die Uhren beider Seiten (vorher fiel sie auf die Vorgabe).
+
 ## 1.91.2 - Das Springerbild ohne Linien, und jeder Zug steht als Satz daneben
 
 Besitzer 6.10., zum vierten Mal und mit Foto: "Wieso kriegst du dieses bloede

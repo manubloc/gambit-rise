@@ -49,7 +49,7 @@ import { MAP_BITMAPS12 as MAP_BITMAPS } from "../mapBitmaps12.gen.js";
 import { WORLD_MAP, loreText } from "../worldMap.js";
 import { useMedia } from "../../App.jsx";
 import { voiceFor } from "../../../content/index.js";
-import { placeFor } from "../../../meta/index.js";
+import { placeFor, fluechtlingeAn, entkommene } from "../../../meta/index.js";   /* v1.92.0: die Entkommenen */
 import { MP, GEO, buildCampaignScenery, themeForLeague, Pine, Leafy, Rock, RidgeCluster, Cloud, Keep, Cottage, Mill, Bridge, Field, Boat, Birds, Mist, Wisp, StoneCircle, Crystal, DeadTree, RuinArch, Cactus, Dune, Grass, SnowDrift, Palm, Wave, Isle, Lighthouse, SiteGlyph, siteTypeFor, WandererArt } from "../mapArt.jsx";
 import { besetzungsPlan } from "../../../meta/besetzung.js";   /* v1.35.0 */
 import { hinterSchranke } from "../../../meta/schranke.js";   /* v1.47.0 */
@@ -1382,6 +1382,16 @@ export function CampaignScreen({ profile, dispatch, t, onStart, onBack, onOpenTr
               </div>
             </div>
             );
+          })()}
+          {/* v1.92.0: STEHT HIER EINE ENTKOMMENE? Dann sagt das Fenster es, bevor man
+              antritt - sonst wuesste niemand, an welcher Station die Figur zu holen ist. */}
+          {status !== "cleared" && status !== "locked" && (() => {
+            const gaeste = fluechtlingeAn(node, profile);
+            if (!gaeste.length) return null;
+            const namen = (node.final ? entkommene(profile, node.league) : gaeste).map((g) => CHARACTERS[g]?.[en ? "nameEn" : "nameDe"]).filter(Boolean).join(", ");
+            return <div data-gast={gaeste.join(",")} style={{ marginTop: 8, padding: "7px 10px", borderRadius: 9, fontSize: 12, lineHeight: 1.4,
+              border: `1px solid ${T.gold}66`, background: "rgba(40,32,14,.55)", color: "#f1e6c4" }}>
+              {t(node.final ? "camp.gastTor" : "camp.gast", { name: namen })}</div>;
           })()}
           {/* the aftermath, told on the spot: joined the retinue, fled again (with tally), or simply done */}
           {status === "cleared" && (() => {

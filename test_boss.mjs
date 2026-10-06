@@ -109,8 +109,8 @@ const ERWACHEN = CAMPAIGN.find((st) => /erwacht|magic wakes/.test(st.storyDe || 
   ok("the twelve chapters field 85 boss stages", bossStages.length === 85);
   ok("no beast before chapter III - chapters I and II hold figures and their two grandmasters only",
     bossStages.filter((st) => st.league <= 2 && st.boss.pure).map((st) => st.boss.pure).sort().join() === "b26,b27");
-  ok("most figures join early: ten each in chapters I and II, ever fewer after",
-    [1, 2, 3, 4, 5, 6, 7].map((l) => bossStages.filter((st) => st.league === l && st.boss.piece).length).join() === "10,10,5,4,3,3,2");
+  ok("most figures join early: nine in chapter I, ten in II, seven in III, ever fewer after",
+    [1, 2, 3, 4, 5, 6, 7].map((l) => bossStages.filter((st) => st.league === l && st.boss.piece).length).join() === "9,10,7,3,3,3,2");
   /* ... und zwar AUF dem Weg zum Drachen, nicht auf einem Parallelzweig: der
      erste Anlauf setzte sie an das Blatt L07s38 (next = []), der Drache stand
      auf dem anderen Zweig. Geprueft ueber die echten Kanten (next). */
@@ -186,8 +186,14 @@ const ERWACHEN = CAMPAIGN.find((st) => /erwacht|magic wakes/.test(st.storyDe || 
   { const mm = buildStageMatch("L03s06", { campaign: { league: 3 } });
     ok("the first beast waits in chapter III: the Harrier replaces the queen", heerVon(mm).some((sp) => sp.kind === "X") && !heerVon(mm).some((sp) => sp.kind === "Q") && mm.boss.bossId === "b02"); }
   const pm = buildStageMatch("L06s12", { campaign: { league: 6 } }); // der Attentaeter wohnt in Kapitel VI
-  ok("piece boss fields its own kind with boosted stats", heerVon(pm).some((sp) => sp.kind === "S" && sp.hp >= 8)
-    && buildStageMatch("L06s12", { campaign: { league: 6 } }).boss.unlocks === "assassin");
+  /* v1.92.0: der Attentaeter liegt am Hauptweg - er entkommt einmal (boss.unlocks leer) und
+     steht wie jede Figur NEBEN der Dame, in jedem Kapitel */
+  ok("piece boss fields its own kind with boosted stats, beside the queen", heerVon(pm).some((sp) => sp.kind === "S" && sp.hp >= 8) && heerVon(pm).some((sp) => sp.kind === "Q")
+    && buildStageMatch("L06s12", { campaign: { league: 6 } }).boss.unlocks === null
+    && buildStageMatch("L06s12", { campaign: { league: 6, bossWins: { assassin: 1 } } }).boss.unlocks === "assassin");
+  ok("in every chapter a figure boss stands beside the queen; masters and beasts replace her",
+    CAMPAIGN.filter((st) => st.boss?.piece && st.boss.piece !== "dragon").every((st) => heerVon(buildStageMatch(st.id, { campaign: { league: st.league } })).some((sp) => sp.kind === "Q"))
+    && CAMPAIGN.filter((st) => st.boss?.pure).every((st) => !heerVon(buildStageMatch(st.id, { campaign: { league: st.league } })).some((sp) => sp.kind === "Q")));
   /* v1.91.0: der Starrkopf der Probe ist der Inquisitor (Kapitel VIII, zwei
      Siege); der Hexenmeister wohnt jetzt in Kapitel XI (Bund Sturm: sehr spaet) */
   ok("a stubborn champion resists until his last demanded win (the Inquisitor wants two)",

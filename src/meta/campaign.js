@@ -245,7 +245,7 @@ const FORMATION_REIHE = ["mauer", "leibwache", "vorgeschoben", "leicht"];
 /* v1.91.0: in Kapitel II stehen nur Figuren (neben der Dame, siehe buildStageMatch)
    und Varek im Finale - die Szenen beginnen mit den Bestien in Kapitel III */
 const ohneFormation = (n) => !n?.boss || n.final || (n.league || 1) <= 1 || n.boss.piece === "dragon" || n.erwachen
-  || ((n.league || 1) <= 2 && !!n.boss.piece);
+  || !!n.boss.piece;   /* v1.92.0: Figuren stehen in jedem Kapitel neben der Dame - die Szenen gehoeren den Bestien und Meistern */
 const formationsStationen = (lg) => CAMPAIGN
   .filter((n) => n.league === lg && !ohneFormation(n))
   .map((n) => String(n.id)).sort();
@@ -256,6 +256,44 @@ export function bossFormation(node) {
   if (i < 0) return "mauer";
   return FORMATION_REIHE[(lg + i) % FORMATION_REIHE.length];
 }
+/* ── v1.92.0: WER ENTKOMMT, STELLT SICH NOCH EINMAL (Besitzer 6.10. abends) ────
+   "Figuren, gegen die man kaempft, koennen auch, wenn man gegen sie gewonnen
+    hat, fluechten - und dann treten sie in dem gleichen Kapitel nochmal gegen
+    einen an ... eine Figur kann nur innerhalb eines Kapitels fluechten, und
+    spaetestens beim zweiten oder dritten Mal wechselt sie zum Hofstaat."
+
+   Bis hierher hiess "zwei Siege": dieselbe Station noch einmal spielen. Jetzt:
+     1. Der Sieg an der Station einer Figur mit `wins: 2` laesst sie ENTKOMMEN.
+     2. Solange sie frei ist, steht sie in der AUFSTELLUNG einer noch nicht
+        geklaerten gewoehnlichen Station desselben Kapitels - an jeder genau
+        eine der Entkommenen, fest je Station. Wer diese Station gewinnt,
+        bekommt sie.
+     3. Am Tor des Kapitels stehen alle, die noch frei sind, beim Meister (bis
+        zu fuenf); faellt der Meister, schliessen sich ALLE an. Niemand
+        entkommt in ein anderes Kapitel, und niemand geht verloren.
+   Der Drache entkommt nie (er deckt vier Felder und haelt seine Halle).
+   Rein und fest: dieselbe Antwort beim Bau des Gefechts und beim Abrechnen. */
+const kapitelVon = (liga) => ((Math.max(1, liga || 1) - 1) % 12) + 1;
+export function entkommene(profile, liga) {
+  const kap = kapitelVon(liga);
+  const siege = profile?.campaign?.bossWins || {};
+  const hof = new Set(profile?.campaign?.unlocked || []);
+  return CAMPAIGN.filter((n) => n.league === kap && n.boss && n.boss.piece && n.boss.piece !== "dragon"
+      && (n.boss.wins || 1) > 1 && (siege[n.boss.piece] || 0) >= 1 && !hof.has(n.boss.piece))
+    .map((n) => n.boss.piece);
+}
+const stationsZahl = (text) => { let h = 2166136261; for (let i = 0; i < text.length; i++) { h ^= text.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; };
+/** Welche Entkommenen stehen an DIESER Station in der gegnerischen Aufstellung? */
+export function fluechtlingeAn(node, profile) {
+  if (!node || !profile || (node.boss && !node.final)) return [];
+  if ((profile.campaign?.cleared || []).includes(node.id)) return [];      // geklaert: dort steht niemand mehr
+  if (kapitelVon(profile.campaign?.league || 1) !== node.league) return [];   // Rueckblick in ein altes Kapitel
+  const frei = entkommene(profile, node.league);
+  if (!frei.length) return [];
+  if (node.final) return frei.slice(0, 5);
+  return [frei[stationsZahl(String(node.id)) % frei.length]];
+}
+
 /** Stellt ein Gegnerheer in die Szene `art`. qi = Platz des Bosses in der
  *  Grundreihe. Passt die Reihe nicht zum Muster (andere Breite, Boss nicht
  *  links neben dem Koenig), bleibt alles, wie es ist. Rein. */
@@ -347,15 +385,23 @@ export function buildStageMatch(id, profile = null, leagueOverride = null, opts 
   const plan = besetzungsPlan(node);
   const besetzung = profile && !looking
     ? besetzungFuer(node, profile, node.formation || map.defaultFormation, [boss0?.bossId ? "boss:" + boss0.bossId : null, recruitId].filter(Boolean)) : null;
-  const formation = profile && !looking
+  let formation = profile && !looking
     ? gegnerAufstellung(node, node.formation || map.defaultFormation, besetzung, profile?.stats?.games || 0)
     : (node.formation || map.defaultFormation);
+  /* v1.92.0: die Entkommenen nehmen freie Plaetze - erst die Springer, dann
+     Laeufer, dann Tuerme; Koenig und Dame bleiben */
+  const gaeste = profile && !looking ? fluechtlingeAn(node, profile) : [];
+  if (gaeste.length) {
+    formation = [...formation];
+    const plaetze = ["knight", "bishop", "rook"].flatMap((art) => formation.map((e, i) => (e === art ? i : -1)).filter((i) => i >= 0));
+    gaeste.forEach((g, k) => { if (plaetze[k] != null) formation[plaetze[k]] = g; });
+  }
   /* wer einen freien Platz einnimmt, erbt dessen Stufe - die Schwierigkeit
      kennt Stufen nur fuer die Grundfiguren, sonst stuende ein Fremder auf
      Stufe 1 neben einem Springer auf 3 (gemessen: das besetzte Heer war so
      SCHWAECHER als das klassische) */
   const platzStufe = Math.max(base("rook"), base("bishop"), base("knight"));
-  const gesetzt = new Set((besetzung?.eintraege || []).filter((e) => e && !e.startsWith("boss:")));
+  const gesetzt = new Set([...(besetzung?.eintraege || []).filter((e) => e && !e.startsWith("boss:")), ...gaeste]);
   const aiArmy = buildArmyFromFormation((cid) => chess ? 1 : (gesetzt.has(cid) ? platzStufe : base(cid)) + (node.bump || 0) + leagueBump(lgMap), formation);
   /* ein Monster auf einem freien Platz waechst in seinen Faehigkeiten mit der
      Liga wie der Stationsboss (I in 1-4, II in 5-8, III ab 9) */
@@ -377,7 +423,13 @@ export function buildStageMatch(id, profile = null, leagueOverride = null, opts 
        Dort nimmt die Figur darum den Platz des Damenspringers; die Dame bleibt.
        Ab Kapitel III bleibt es beim Alten: die wenigen Figuren dort treten mit
        den Zuschlaegen ihrer Stufe (tier) an und fuellen den Damenplatz. */
-    const nebenDame = boss.kind !== "X" && boss.kind !== "D" && lg <= 2;
+    /* v1.92.0 (Besitzer 6.10. abends): "die Figuren duerfen nicht nur ab Kapitel 3,
+       sondern auch schon frueher neben der Dame stehen ... wenn es ein Meister
+       ist, wie ein Kapitelmeister, dann muss er anstelle der Dame stehen." Die
+       Regel gilt jetzt in JEDEM Kapitel: eine Figur steht neben der Dame, ein
+       Grossmeister oder eine Bestie an ihrer Stelle. Nur der Drache behaelt
+       seinen Block am Damenplatz. */
+    const nebenDame = boss.kind !== "X" && boss.kind !== "D";
     if (nebenDame) { const si = formation.indexOf("knight"); if (si !== -1) qi = si; }
     // Ein GROSSER Drache entfaltet sich beim Aufbau auf die Nachbarspalte
     // einwaerts und raeumt sie leer - stuende dort der Koenig, waere die
@@ -419,6 +471,9 @@ export function buildStageMatch(id, profile = null, leagueOverride = null, opts 
     nodeId: id,
     /* v1.35.0: was die Besetzung brauchte - App haelt sie beim Betreten fest */
     besetzung, wechselnd: plan.wechselnd,
+    /* v1.92.0: wer an dieser Station als Entkommener steht - und wer sich mit dem
+       Sieg anschliesst (am Tor alle, auch die, fuer die kein Platz mehr war) */
+    gaeste, gaesteTreten: !gaeste.length && !node.final ? [] : (node.final && profile && !looking ? entkommene(profile, node.league) : gaeste),
     /* v1.90.18: in welcher Szene der Boss steht (BOSS_FORMATIONEN) */
     bossFormation: formationArt,
     map: mapId, rules: node.rules,
@@ -481,6 +536,17 @@ export function advanceCampaign(profile, id) {
     } else if (bossWins[bossPiece] >= winsNeeded(node, profile?.campaign?.league || 1)) {
       unlocked.add(bossPiece);
       joined = true;
+      stats.recruits = (stats.recruits || 0) + 1;
+    }
+  }
+  /* v1.92.0: die ENTKOMMENEN dieser Station schliessen sich an - am Tor alle,
+     die im Kapitel noch frei sind (siehe fluechtlingeAn) */
+  if (firstClear) {
+    const fangen = node.final ? entkommene(profile, node.league) : fluechtlingeAn(node, profile);
+    for (const g of fangen) {
+      if (unlocked.has(g)) continue;
+      bossWins[g] = (bossWins[g] || 0) + 1;
+      unlocked.add(g);
       stats.recruits = (stats.recruits || 0) + 1;
     }
   }

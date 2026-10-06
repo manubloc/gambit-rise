@@ -1180,34 +1180,29 @@ const erloschen = (m) => m.includes("#2f2a3d");
   ok("the emblems are lifted brighter", /brightness\(1\.[23]/.test(m));
 }
 
-// ── 17. THE FOUR GAMBITS ────────────────────────────────────────────────────
-// A duel is only fair if both sides start on the same budget, so the table of
-// clocks is one source of truth for lobby, board and matchmaker.
+// ── 17. ZWEI SPIELARTEN IM NETZ (v1.92.0, Besitzer 6.10.2026) ────────────────
+// "Maximal zwei Spielmodi ... 30 Sekunden bis 5 Minuten, alle in einen Topf ...
+//  und die Langzeitvariante." Eine Tabelle fuer Lobby, Brett und Halle.
 {
-  ok("there are four gambits", TIME_MODES.length === 4);
+  const { BLITZ_ZEITEN, blitzTc, blitzSekunden, blitzText, timeModeKey } = await import("./src/content/index.js");
+  ok("es gibt genau zwei Spielarten: das schnelle Spiel und die Fernpartie", TIME_MODES.map((m) => m.id).join() === "blitz,daily");
   ok("every one names itself in both tongues",
-    TIME_MODES.every((m) => m.de.name && m.en.name && m.de.blurb && m.en.blurb));
-  ok("every one shows its clock at a glance", TIME_MODES.every((m) => m.de.tag && m.en.tag));
+    TIME_MODES.every((m) => m.de.name && m.en.name && m.de.blurb && m.en.blurb && m.de.tag && m.en.tag));
   ok("every one carries a colour and a mark", TIME_MODES.every((m) => /^#/.test(m.color) && m.glyph));
-
-  const ids = TIME_MODES.map((m) => m.id);
-  ok("the ids are unique", new Set(ids).size === 4);
-  ok("exactly one is featured", TIME_MODES.filter((m) => m.featured).length === 1);
-
-  // the clocks must climb: bullet < blitz < rapid < correspondence
-  const secs = ["quick", "rush", "prime", "daily"].map((id) => timeModeById(id).base);
-  ok("the budgets rise from bullet to correspondence",
-    secs.every((v, i) => i === 0 || v > secs[i - 1]));
-  ok("the fast formats hand time back", timeModeById("quick").inc > 0 && timeModeById("rush").inc > 0);
-
-  const c = clockFor("rush");
-  ok("a clock arrives in the board's own shape", c.type === "total" && c.seconds === 180 && c.inc === 2);
+  ok("fuenf Bedenkzeiten von 30 Sekunden bis 5 Minuten", BLITZ_ZEITEN.join() === "30,60,120,180,300" && blitzText(30) === "30 s" && blitzText(300) === "5 Min" && blitzText(300, true) === "5 min");
+  ok("die Kennung traegt die Sekunden, Unbekanntes faellt auf 3 Minuten", blitzTc(30) === "b30" && blitzTc(77) === "b180" && blitzSekunden("b120") === 120);
+  ok("die alten Kennungen bleiben lesbar (Geraete mit alter Fassung)", blitzSekunden("quick") === 60 && blitzSekunden("rush") === 180 && blitzSekunden("prime") === 300);
+  ok("zwei Toepfe", timeModeKey("b30") === "blitz" && timeModeKey("rush") === "blitz" && timeModeKey("daily") === "daily");
+  const c = clockFor("b30", "b300");
+  ok("jede Seite spielt mit IHRER Zeit und ihrem Aufschlag", c.type === "total" && c.seconds === 30 && c.inc === 1 && c.foeSeconds === 300 && c.foeInc === 2);
+  ok("fehlt die Uhr des Gegners (alte Halle), gilt die eigene fuer beide", clockFor("b120").foeSeconds === 120 && clockFor("b120").seconds === 120);
   ok("correspondence is a per-move deadline", clockFor("daily").type === "move");
-  ok("an unknown clock falls back rather than crashing", clockFor("nonsense").seconds > 0);
-  // correspondence is playable now — its card explains how the format behaves
+  ok("an unknown clock falls back rather than crashing", clockFor("nonsense").seconds === 180);
   ok("correspondence explains itself in both tongues",
-    TIME_MODES.some((m) => m.id === "daily" && m.noteDe && m.noteEn));
-  ok("no gambit is left merely announced", TIME_MODES.every((m) => !m.pending));
+    TIME_MODES.some((m) => m.id === "daily" && m.noteDe && m.noteEn && /drei Tage/.test(m.noteDe)));
+  const on = readFileSync("src/app/ui/screens/OnlineScreen.jsx", "utf8"), gsQ = readFileSync("src/app/ui/screens/GameScreen.jsx", "utf8");
+  ok("die Lobby laesst die Bedenkzeit waehlen und schickt sie mit", /data-blitzwahl/.test(on) && /tc: meinTc/.test(on) && /BLITZ_ZEITEN\.map/.test(on));
+  ok("das Brett fuehrt die Uhr des Gegners getrennt", /timer\.foeSeconds \?\? timer\.seconds/.test(gsQ) && /foeInc = timer\.foeInc \?\? inc/.test(gsQ));
 }
 
 // ── 18. THE CHEST IS PAINTED ────────────────────────────────────────────────
@@ -3091,6 +3086,23 @@ print(json.dumps({"gezaehlt": gezaehlt, "schlecht": schlecht}))
   const { kulisseFuer: kf91 } = await import("./src/app/ui/kulissen.js");
   ok("v1.91.0: jede neue Figur traegt die Kulisse ihres Bundes, jeder Grossmeister seine eigene",
     neu24.every((id) => /bund-/.test(String(kf91({ charId: id })))) && new Set(GM91.map((id) => String(kf91({ bossId: id })))).size === GM91.length);
+}
+
+
+/* ══ v1.92.0: DAS BANNER SAGT, WER BEITRITT UND WER ENTKOMMT ═══════════════════ */
+{
+  const { beitritte } = await import("./src/app/ui/screens/GameScreen.jsx");
+  ok("v1.92.0: mit dem Sieg treten die Figur der Station UND die Entkommenen ihrer Aufstellung bei",
+    beitritte({ boss: { unlocks: "smith" }, gaesteTreten: ["jester"], firstClear: true }).join() === "smith,jester"
+    && beitritte({ boss: { unlocks: null }, gaesteTreten: ["jester", "banker"], firstClear: true }).join() === "jester,banker");
+  ok("v1.92.0: bei einer Wiederholung (kein Erstsieg) tritt keine Entkommene bei, und ohne Kampagne niemand",
+    beitritte({ boss: { unlocks: null }, gaesteTreten: ["jester"], firstClear: false }).length === 0 && beitritte(null).length === 0);
+  const gsQ = readFileSync("src/app/ui/screens/GameScreen.jsx", "utf8"), csQ = readFileSync("src/app/ui/screens/CampaignScreen.jsx", "utf8");
+  ok("v1.92.0: das Banner unterscheidet 'entkommt' (Figur) von 'konnte fluechten' (Bestie) und nennt mehrere Beitritte",
+    /fledFigur \? "camp\.fledFigur" : "camp\.fled"/.test(gsQ) && /unlockMehrere \? "game\.unlockedMany" : "game\.unlocked"/.test(gsQ));
+  ok("v1.92.0: das Stationsfenster sagt vor dem Antritt, wer dort als Entkommene steht", /data-gast=/.test(csQ) && /"camp\.gastTor" : "camp\.gast"/.test(csQ));
+  ok("v1.92.0: die Texte sagen, wo man die Figur wiederfindet - nicht mehr 'in einem neuen Kapitel'",
+    /in diesem Kapitel/.test(makeT("de")("camp.fledFigur", { name: "X" })) && /in diesem Kapitel/.test(makeT("de")("camp.stFled", { name: "X", n: 1 })) && !/neuen Kapitel/.test(makeT("de")("camp.stFled", { name: "X", n: 1 })));
 }
 
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);

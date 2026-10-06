@@ -9,7 +9,7 @@ import { LaurelIc, PigeonIc, CloudIc, BladesIc, DiceIc, TrophyIc } from "../icon
 import { JewelIc } from "../board/PieceGlyph.jsx";
 import { Button, Chip, Panel, Segmented, PanelTitle } from "../primitives.jsx";
 import { retinueScore, mapUnlocked, buildArmy, buildArmyFromFormation, listSaves, fmtPlaytime } from "../../../meta/index.js";
-import { MAPS, mapById, TIME_MODES, timeModeById, clockFor } from "../../../content/index.js";
+import { MAPS, mapById, TIME_MODES, timeModeById, clockFor, BLITZ_ZEITEN, BLITZ_VORGABE, blitzTc, blitzText } from "../../../content/index.js";
 import { SERVER_URL } from "../../config.js";
 import { hasItem } from "../../../content/index.js";
 import { serializeSave, parseSave, getAdminToken } from "../../../meta/index.js";
@@ -49,9 +49,16 @@ export function OnlineScreen({ profile, dispatch, t, net, account, onDaily = nul
   const armyFor = (mapId) => buildArmy(profile, mapById(mapId));
   // classic online: pure standard chess — the plain level-1 side, mate rules
   const [duelMode, setDuelMode] = useState("duel"); // duel | classic
-  // THE FOUR GAMBITS: how long a duel is given. The choice travels with the
-  // queue entry, so two players only meet when they asked for the same clock.
-  const [timeMode, setTimeMode] = useState("rush");
+  /* v1.92.0 (Besitzer 6.10.): ZWEI SPIELARTEN. Das schnelle Spiel ist EIN Topf
+     - jeder waehlt seine Bedenkzeit zwischen 30 Sekunden und 5 Minuten und
+     spielt mit ihr, der Gegner mit seiner. Daneben die Fernpartie. Die Wahl
+     der Bedenkzeit merkt sich das Geraet. */
+  const [timeMode, setTimeMode] = useState("blitz");
+  const [blitzZeit, setBlitzZeitRoh] = useState(() => {
+    try { const n = Number(localStorage.getItem("gg:blitz")); return BLITZ_ZEITEN.includes(n) ? n : BLITZ_VORGABE; } catch { return BLITZ_VORGABE; }
+  });
+  const setBlitzZeit = (n) => { setBlitzZeitRoh(n); try { localStorage.setItem("gg:blitz", String(n)); } catch {} };
+  const meinTc = timeMode === "daily" ? "daily" : blitzTc(blitzZeit);
   // the correspondence shelf: games that wait for you, however long that takes
   const [daily, setDaily] = useState([]);
   const [duelMapChoice, setDuelMapChoice] = useState("random"); // "random" | a map id from myMaps
@@ -255,10 +262,10 @@ export function OnlineScreen({ profile, dispatch, t, net, account, onDaily = nul
   }
   function findRandom() {
     if (searching) { net.send({ t: "dequeue" }); setSearching(false); return; }
-    net.send({ t: "queue", maps: queueMaps(), army: queueArmy(), armies: queueArmies(), mode: duelMode, tc: timeMode });
+    net.send({ t: "queue", maps: queueMaps(), army: queueArmy(), armies: queueArmies(), mode: duelMode, tc: meinTc });
     setSearching(true);
   }
-  const challengeFriend = (f) => { const maps = queueMaps(); net.send({ t: "challenge", targetId: f.id, maps, army: duelMode === "classic" ? classicSide() : armyFor(maps[0]), armies: armiesFor(maps), mode: duelMode, tc: timeMode }); };
+  const challengeFriend = (f) => { const maps = queueMaps(); net.send({ t: "challenge", targetId: f.id, maps, army: duelMode === "classic" ? classicSide() : armyFor(maps[0]), armies: armiesFor(maps), mode: duelMode, tc: meinTc }); };
 
   const Line = ({ children }) => <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>{children}</div>;
   const input = { flex: 1, minWidth: 120, background: T.bg2, border: `1px solid ${T.line}`, color: T.text,
@@ -421,6 +428,25 @@ export function OnlineScreen({ profile, dispatch, t, net, account, onDaily = nul
                         <span style={{ display: "block", fontSize: 11.5, lineHeight: 1.45, color: T.dim, marginTop: 3 }}>
                           {txt.blurb}
                         </span>
+                        {/* v1.92.0: die eigene Bedenkzeit - fuenf Stufen von 30 Sekunden bis 5 Minuten */}
+                        {on && m.id === "blitz" && (
+                          <span data-blitzwahl style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 8 }}>
+                            {BLITZ_ZEITEN.map((sek) => (
+                              <span key={sek} role="button" tabIndex={0} data-blitz={sek} aria-pressed={blitzZeit === sek}
+                                onClick={(e) => { e.stopPropagation(); if (searching) { net.send({ t: "dequeue" }); setSearching(false); } setBlitzZeit(sek); }}
+                                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.stopPropagation(); setBlitzZeit(sek); } }}
+                                style={{ padding: "6px 11px", borderRadius: 999, fontSize: 12.5, fontWeight: 800, cursor: "pointer",
+                                  border: `1.5px solid ${blitzZeit === sek ? m.color : "rgba(120,130,160,.4)"}`,
+                                  background: blitzZeit === sek ? `${m.color}33` : "transparent", color: blitzZeit === sek ? "#fdf6e2" : T.dim }}>
+                                {blitzText(sek, en)}</span>))}
+                          </span>
+                        )}
+                        {on && m.id === "blitz" && (
+                          <span style={{ display: "block", fontSize: 11, color: m.color, marginTop: 6 }}>
+                            {en ? `Your clock: ${blitzText(blitzZeit, true)} for the whole game. Your opponent plays with the clock they chose.`
+                              : `Deine Uhr: ${blitzText(blitzZeit)} für die ganze Partie. Dein Gegner spielt mit der Zeit, die er gewählt hat.`}
+                          </span>
+                        )}
                         {on && (en ? (m.warnEn || m.noteEn) : (m.warnDe || m.noteDe)) && (
                           <span style={{ display: "block", fontSize: 11, color: m.color, marginTop: 4 }}>
                             {en ? (m.warnEn || m.noteEn) : (m.warnDe || m.noteDe)}
@@ -659,7 +685,7 @@ export function OnlineScreen({ profile, dispatch, t, net, account, onDaily = nul
             <div style={{ fontSize: 12.5, color: T.dim, marginBottom: 12 }}>{t("online.score")}: {challenge.from.score}</div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
               <Button variant="primary" onClick={() => {
-                net.send({ t: "challengeRespond", challengeId: challenge.challengeId, accept: true, maps: myMaps, army: challenge.mode === "classic" ? classicSide() : armyFor(myMaps[0]), armies: challenge.mode === "classic" ? { classic: classicSide() } : armiesFor(myMaps) });
+                net.send({ t: "challengeRespond", challengeId: challenge.challengeId, accept: true, maps: myMaps, army: challenge.mode === "classic" ? classicSide() : armyFor(myMaps[0]), armies: challenge.mode === "classic" ? { classic: classicSide() } : armiesFor(myMaps), tc: blitzTc(blitzZeit) });
                 setChallenge(null);
               }}>{t("online.accept")}</Button>
               <Button variant="subtle" onClick={() => {

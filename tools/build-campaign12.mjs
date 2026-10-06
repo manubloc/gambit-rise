@@ -83,15 +83,33 @@ const BRUT = { liga: 7, schritte: 2, boss: "b03",
    keine Bestie geben, und eine Heilerin ist die richtige Gestalt fuer die
    Station, an der Figuren zum ersten Mal bluten. */
 const ERWACHEN_FIGUR = "healer";
+/* ── v1.92.0 (Besitzer 6.10. abends) ──────────────────────────────────────────
+   "In Kapitel 1 und 2 vorrangig normale Figuren, nicht dieses Fantasy-Zeug wie
+    Hexer und Magier - als waere man in einer ganz normalen mittelalterlichen
+    Welt ... zwei Buende oder so sollen schon in Kapitel 1 zustande kommen ...
+    Turnier in Kapitel 3 zusammengesammelt, einer davon darf frueher kommen."
+   - Kapitel I: der Magier ist fort (jetzt III). Dort schliessen sich Dorf,
+     Werkstatt, Kontor und - mit dem Koenig - die Krone.
+   - Kapitel II: Kueche, Kloster, Jagd; der Ritter kommt als Erster des
+     Turniers. Der Barde geht zu seiner Nachtwache nach III.
+   - Kapitel III: Turnier (Fechter, Lanzentraeger, Gladiator) und Nachtwache
+     werden vollzaehlig; der Magier ist die erste Gestalt mit Magie.
+   DRITTE SPALTE = SIEGE. 2 heisst: die Figur ENTKOMMT nach dem ersten Sieg und
+   stellt sich im selben Kapitel in der Aufstellung einer spaeteren Station noch
+   einmal (meta/campaign.js, fluechtlingeAn). Das trifft die Figuren am
+   HAUPTWEG - an ihnen kommt jeder vorbei, sie bringen die Abwechslung in die
+   spaeteren Aufstellungen. Wer den Umweg auf einen Nebenweg geht, bekommt seine
+   Figur sofort. Die allererste Figur (Baeuerin) kommt ebenfalls sofort: der
+   erste Sieg soll etwas geben. */
 const FIGUREN = {
-  1: [["farmwife", .14], ["beggar", "neben"], ["jester", .32], ["smith", .5], ["craftsman", "neben"], ["mage", .68],
-      ["scholar", "neben"], ["taxman", "neben"], ["banker", .86], ["paladin", "neben"]],
-  2: [["hawk", .4], ["cook", .55], ["monk", .7], ["huntress", .85],
-      ["bard", "neben"], ["butcher", "neben"], ["miller", "neben"], ["ranger", "neben"], ["trapper", "neben"]],   // + die Heilerin am Erwachen
-  3: [["alchemist", .55], ["fencer", .8], ["watchman", "neben"], ["cavalier", "neben"], ["spearman", "neben"]],
-  4: [["sorceress", .55], ["gladiator", .8], ["pathfinder", "neben"], ["guardian", "neben"]],
-  5: [["executioner", .55], ["jailer", "neben"], ["engineer", "neben"]],
-  6: [["assassin", .55], ["samurai", .82], ["captain", "neben"]],
+  1: [["farmwife", .14, 1], ["beggar", "neben"], ["jester", .32, 2], ["smith", .5, 2], ["craftsman", "neben"],
+      ["scholar", "neben"], ["taxman", "neben"], ["banker", .8, 2], ["paladin", "neben"]],
+  2: [["cavalier", .4, 2], ["cook", .55, 2], ["monk", .7, 2], ["huntress", .85, 2],
+      ["hawk", "neben"], ["butcher", "neben"], ["miller", "neben"], ["ranger", "neben"], ["trapper", "neben"]],   // + die Heilerin am Erwachen
+  3: [["alchemist", .55, 2], ["mage", .68, 2], ["fencer", .8, 2], ["watchman", "neben"], ["bard", "neben"], ["spearman", "neben"], ["gladiator", "neben"]],
+  4: [["sorceress", .55, 2], ["pathfinder", "neben"], ["guardian", "neben"]],
+  5: [["executioner", .55, 2], ["jailer", "neben"], ["engineer", "neben"]],
+  6: [["assassin", .55, 2], ["samurai", .82, 2], ["captain", "neben"]],
   7: [["strategist", "neben"]],                      // + der Drache in seiner Halle
   8: [["inquisitor", .55]],
   9: [["chancellor", .55]],
