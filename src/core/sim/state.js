@@ -1,4 +1,5 @@
 import { createInitialState, defaultArmy, DEFAULT_MAP } from "../domain/setup.js";
+import { bundAufbau } from "../rules/buende.js";
 
 /**
  * A GameState is the initial position plus two things that make the engine
@@ -33,6 +34,8 @@ export function createGame(whiteArmy = defaultArmy(), blackArmy = defaultArmy(),
     if (Array.isArray(opts.buende)) s.buende = opts.buende.slice();
     else if (typeof opts.buende === "object") s.buende = { w: (opts.buende.w || []).slice(), b: (opts.buende.b || []).slice() };
   }
+  /* v1.91.0: Kueche (+1 Leben) und Turnier (+1 Angriff) wirken beim Aufbau */
+  bundAufbau(s);
   /* Einmal-je-Partie-Buende brauchen ein Gedaechtnis. */
   s.sturmVerbraucht = {};
   s.konzilVerbraucht = {};

@@ -19,7 +19,7 @@
      4. Gold ist erreicht (Hoechststufe, erwacht), Violett ist unterwegs,
         Grau ist fremd. */
 import { BUENDE, bundVon, bundErwacht } from "../../content/buende.js";
-import { CHARACTERS, LEAGUE_BOSSES, kapitelVonGrossmeister } from "../../content/index.js";
+import { CHARACTERS, LEAGUE_BOSSES, kapitelVonGrossmeister, MITTE_MEISTER } from "../../content/index.js";
 import { characterLevel, maxLevelFor, aufgestellteIds, buendeOffen, isUnlocked } from "../../meta/index.js";
 import { kulisseFuer, MONSTER_GRUPPE } from "./kulissen.js";
 import { KULISSE_URL } from "./KulissenBilder.jsx";
@@ -109,8 +109,10 @@ export function BundTafel({ profile, charId = null, bossId = null, status = null
     const gruppe = MONSTER_GRUPPE[bossId];
     const links = kap >= 0 ? `${en ? "Grandmaster" : "Großmeister"} · ${en ? "Chapter" : "Kapitel"} ${ROEMISCH[kap] || kap + 1}`
       : gruppe ? `${en ? "Group" : "Gruppe"} · ${GRUPPE_NAME[gruppe]?.[en ? 1 : 0] || gruppe}` : (en ? "Monster" : "Ungeheuer");
-    const text = bossId === "b12"
-      ? (en ? "Holds court in the middle of the second chapter." : "Hält Gericht mitten im zweiten Kapitel.")
+    /* v1.91.0: Grossmeister ohne eigenes Kapitel (Morwen VI, Thalor IX) stehen
+       als Mitte-Boss - sie halten kein Kapitel, also sagt der Satz das auch nicht */
+    const text = MITTE_MEISTER[bossId]
+      ? (en ? "Stands in the middle of this chapter. Once met, gold may win this one over." : "Steht mitten in diesem Kapitel. Einmal begegnet, lässt sich dieser Großmeister bestechen.")
       : kap >= 0
       ? (en ? "Keeper of a chapter. Beat it, and it may follow you." : "Hält ein Kapitel. Wer es schlägt, kann es in den Hof holen.")
       : { brut: [en ? "Brood of the wild: nests, chitin, hunger." : "Brut der Wildnis: Nester, Chitin, Hunger."],

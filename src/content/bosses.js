@@ -124,11 +124,13 @@ export const BOSSES = [
      und der Waechter (b01, alle acht Richtungen) bleibt klar der andere. */
   B("b06", "Das Bollwerk",     "The Bulwark",     "golem",   "#9aa5b7", 21, 3, { slides: ORTHO, range: 1 }, { flavorDe: "Man baute es, um etwas fernzuhalten. Niemand weiß mehr, was — es selbst weiß es noch.", flavorEn: "It was built to keep something out. No one remembers what — it still does.", abilities: ["steinhaut", "widerhall", "unsterblich", "schrecken"] }),  // 18->11: Kapitel-I-Grenze (12 Schlaege atk-2)
   B("b07", "Der Geist",        "The Ghost",       "wraith",  "#7dd3fc",  15, 9, { leaps: RING2 }, { flavorDe: "Er ist der Rest eines Eides, der nicht sterben durfte, ehe er erfüllt war.", flavorEn: "He is the remnant of an oath that was not allowed to die before it was kept.", abilities: ["blenden"] }),  // Glaskanone, jetzt fluechtig
-  B("b08", "Kanonier",         "Cannoneer",       "golem",   "#a3adb8", 16, 8, { slides: ORTHO, range: 3 }, { flavorDe: "Er zählt bis drei und die Mauer fällt; er hat nie weiter zählen müssen.", flavorEn: "He counts to three and the wall falls; he has never needed to count further.", aura: { type: "courtHp", n: 2 }, abilities: ["wegelagerei", "steinhaut", "schrecken", "blenden", "widerhall"] }),  // 10->9
+  B("b08", "Kanonier", "Cannoneer", "golem", "#a3adb8", 16, 8, { slides: ORTHO, range: 3 }, { flavorDe: "Er zählt bis drei und die Mauer fällt; er hat nie weiter zählen müssen.", flavorEn: "He counts to three and the wall falls; he has never needed to count further.", abilities: ["wegelagerei", "steinhaut"] }),
   B("b09", "Skorpion",         "Scorpion",        "serpent", "#c9a24a",  16, 8, { leaps: [...sym(2, 2), ...ORTHO] }, { flavorDe: "Sein Stich schmerzt nicht sofort — das ist das Heimtückische daran.", flavorEn: "His sting does not hurt at once — that is the treachery of it.", abilities: ["gift", "aderlass", "schrecken"] }),
-  B("b10", "Doppelritter",     "Twin Knight",     "beast",   "#3d9bff", 19, 5, { leaps: [...KNIGHT, ...KING] }, { flavorDe: "Zwei Köpfe, ein Wille: Wo einer täuscht, beißt der andere.", flavorEn: "Two heads, one will: where one feints, the other bites.", aura: { type: "wardAdj" }, abilities: ["wegelagerei", "blenden", "aderlass"] }),
+  /* b10 (Doppelritter) ist mit v1.91.0 gestrichen (Besitzer 6.10.2026: "Der Doppelritter muss weg.
+     Ersetze ihn durch den schwarzen Ritter"). Die Kennung wird NIE neu vergeben - alte Spielstaende
+     fuehren sie; die Wanderung in meta/profile.js raeumt sie aus und erstattet. */
   B("b11", "Die Flüsterin",    "The Whisperer",   "wraith",  "#c4b5fd",  20, 4, { slides: KING, range: 1, spawn: { max: 1 } }, { flavorDe: "Sie spricht mit dem Riss, und der Riss antwortet in Dingen, die dann geschehen.", flavorEn: "She speaks with the rift, and the rift replies in things that then come to pass.", abilities: ["geistwandel", "gift"] }),  // spawn 3->2: Blink + Brut kombinierte auf +19 Feldwirkung; HP-Senkung war wirkungslos (sie steht hinten), die Brut ist der Hebel
-  B("b12", "Der Richter",      "The Judge",       "tyrant",  "#ffb454", 19, 5, { slides: KING, range: 2 }, { flavorDe: "Sein Urteil ist gefällt, ehe der Fall beginnt — die Verhandlung ist die Vollstreckung.", flavorEn: "His verdict is set before the case begins — the trial is the execution.", aura: { type: "noEnemyPotions" }, abilities: ["schrecken", "widerhall", "blenden"] }),  // 12->11
+  B("b12", "Der Richter", "The Judge", "tyrant", "#ffb454", 19, 5, { slides: KING, range: 2 }, { flavorDe: "Sein Urteil ist gefällt, ehe der Fall beginnt — die Verhandlung ist die Vollstreckung.", flavorEn: "His verdict is set before the case begins — the trial is the execution.", abilities: ["schrecken"] }),
   /* b13 bleibt ABSICHTLICH farbgebunden: unbegrenzte Diagonalen sind die
      Laeufer-Verwandtschaft, die jeder Schachspieler kennt und einzuschaetzen
      weiss. Die Bindung ist hier kein Fehler, sondern Lesbarkeit.
@@ -142,18 +144,56 @@ export const BOSSES = [
      Flaechen tragen die doppelte Leuchtdichte (umfaerben.py ... 1.0 2.0),
      Figurfarbe nachgemessen #2f439e. */
   B("b13", "Brandstifter",     "Firestarter",     "serpent", "#ff5a1f",  14, 10, { slides: DIAG }, { flavorDe: "Er sammelt keine Beute; er hinterlässt nur Asche, ordentlich verteilt.", flavorEn: "He gathers no spoils; he leaves only ash, evenly spread.", abilities: ["aderlass", "gift"] }),  // scharf, aber glas
-  B("b14", "Der Koloss",       "The Colossus",    "golem",   "#a855f7", 21, 3, { slides: ORTHO, range: 2, leaps: DIAG }, { flavorDe: "Er trägt die Rüstung nicht — er ist sie, bis hinunter zum Herzen aus Stein.", flavorEn: "He does not wear the armour — he is it, down to the heart of stone.", aura: { type: "grant", id: "bulwark" }, abilities: ["steinhaut", "unsterblich", "widerhall", "schrecken", "aderlass"] }),  // seine AURA ist die Gabe: Eigenpanzer + Panzer-Aura kaskadierte in der Sim (+77 Feldwirkung)
+  B("b14", "Der Rissbrocken", "The Riftboulder", "golem", "#a855f7", 21, 3, { slides: ORTHO, range: 1, leaps: sym(0, 2) }, { flavorDe: "Er trägt die Rüstung nicht — er ist sie, bis hinunter zum Herzen aus Stein.", flavorEn: "He does not wear the armour — he is it, down to the heart of stone.", abilities: ["steinhaut", "widerhall", "unsterblich"] }),
   B("b15", "Die Sturmklaue",   "The Stormclaw",   "beast",   "#38bdf8",  16, 8, { leaps: [...CAMEL, ...sym(0, 3)] }, { flavorDe: "Sie kommt mit dem Wetter und geht mit ihm; dazwischen liegt der Schaden.", flavorEn: "She comes with the weather and leaves with it; the damage lies between.", abilities: ["blenden", "wegelagerei"] }),
-  B("b16", "Die Blutmagd",     "The Bloodmaid",   "serpent", "#dc2626", 17, 7, { slides: KING, range: 1, leaps: [[0, 2], [0, -2]] }, { flavorDe: "Aus dem Lazarett verschwand erst der Aderlass, dann die Magd. Was der Riss aus ihr machte, windet sich noch immer um sein Werk.", flavorEn: "First the bloodletting vanished from the infirmary, then the maid. What the Rift made of her still coils around its work.", aura: { type: "grant", id: "lifesteal" }, abilities: ["gift", "aderlass", "unsterblich", "schrecken"] }),
-  B("b17", "Lanzenmeister",    "Lancemaster",     "tyrant",  "#eab308", 19, 5, { leaps: [...sym(0, 2), ...KING] }, { flavorDe: "Zehntausend Stöße, jeden Morgen; der elfte gilt dir.", flavorEn: "Ten thousand thrusts, every morning; the eleventh is for you.", aura: { type: "wardAdj" }, abilities: ["widerhall", "schrecken", "aderlass", "unsterblich"] }),  // der Feldherr haelt sich
-  B("b18", "Eisenfaust",       "Ironfist",        "golem",   "#f97316", 18, 6, { slides: ORTHO }, { flavorDe: "Was seine Faust einmal hält, gehört der Faust — so einfach ist sein Gesetz.", flavorEn: "What his fist once holds belongs to the fist — his law is that simple.", aura: { type: "courtAtk", n: 1 }, abilities: ["steinhaut", "widerhall", "schrecken", "wegelagerei"] }),  // 13->11
-  B("b19", "Schattenfürst",    "Shadowlord",      "wraith",  "#a78bfa",  16, 8, { slides: DIAG, leaps: KNIGHT }, { flavorDe: "Sein Reich beginnt, wo die Lampen enden; er hat Geduld mit jedem Docht.", flavorEn: "His realm begins where the lamps end; he has patience with every wick.", aura: { type: "courtAtk", n: 1 }, abilities: ["geistwandel", "schrecken", "blenden"] }),
-  B("b20", "Der Hüter",        "The Keeper",      "tyrant",  "#34d399", 21, 3, { slides: KING, range: 1, leaps: sym(0, 2) }, { flavorDe: "Er bewacht keine Tür — er bewacht das Nein, das dahinter wohnt.", flavorEn: "He guards no door — he guards the No that lives behind it.", aura: { type: "courtHp", n: 2 }, abilities: ["unsterblich", "widerhall", "steinhaut", "schrecken"] }),
+  B("b16", "Die Blutmagd", "The Bloodmaid", "serpent", "#dc2626", 17, 7, { slides: KING, range: 1, leaps: [[0, 2], [0, -2]] }, { flavorDe: "Aus dem Lazarett verschwand erst der Aderlass, dann die Magd. Was der Riss aus ihr machte, windet sich noch immer um sein Werk.", flavorEn: "First the bloodletting vanished from the infirmary, then the maid. What the Rift made of her still coils around its work.", abilities: ["gift", "aderlass", "schrecken"] }),
+  B("b17", "Lanzenmeister", "Lancemaster", "tyrant", "#eab308", 19, 5, { leaps: [...sym(0, 2), ...KING] }, { flavorDe: "Zehntausend Stöße, jeden Morgen; der elfte gilt dir.", flavorEn: "Ten thousand thrusts, every morning; the eleventh is for you.", abilities: ["widerhall", "aderlass"] }),
+  B("b18", "Eisenfaust", "Ironfist", "golem", "#f97316", 18, 6, { slides: ORTHO }, { flavorDe: "Was seine Faust einmal hält, gehört der Faust — so einfach ist sein Gesetz.", flavorEn: "What his fist once holds belongs to the fist — his law is that simple.", abilities: ["steinhaut", "wegelagerei"] }),
+  B("b19", "Der Hornschatten", "The Hornshade", "wraith", "#a78bfa", 16, 8, { leaps: [...sym(2, 2), ...sym(0, 3)] }, { flavorDe: "Sein Reich beginnt, wo die Lampen enden; er hat Geduld mit jedem Docht.", flavorEn: "His realm begins where the lamps end; he has patience with every wick.", abilities: ["geistwandel", "schrecken", "blenden"] }),
+  B("b20", "Der Waldschrat", "The Woodwose", "tyrant", "#34d399", 21, 3, { leaps: [...DIAG, ...sym(0, 3)] }, { flavorDe: "Er bewacht keine Tür — er bewacht das Nein, das dahinter wohnt.", flavorEn: "He guards no door — he guards the No that lives behind it.", abilities: ["unsterblich", "widerhall", "steinhaut"] }),
   B("b21", "Die Wandlerin",    "The Shifter",     "wraith",  "#f0abfc",  17, 7, { leaps: RING2, spawn: { max: 2 } }, { flavorDe: "Frag nicht, wie sie wirklich aussieht; sie hat die Antwort selbst vergessen.", flavorEn: "Do not ask what she truly looks like; she has forgotten the answer herself.", abilities: ["schrecken"] }),  // die Wandlerin wandelt
   B("b22", "Der Zerreißer",    "The Render",      "beast",   "#ef4444", 16, 8, { leaps: [...KNIGHT, ...CAMEL] }, { flavorDe: "Man erkennt sein Werk am Rand: nichts ist geschnitten, alles gerissen.", flavorEn: "You know his work by the edges: nothing cut, everything torn.", abilities: ["aderlass"] }),
-  B("b23", "Asra, die Erzfeindin", "Asra, the Archenemy",   "tyrant",  "#fbbf24", 18, 6, { slides: KING, range: 3 }, { flavorDe: "Vom Hof blieb ihr nichts als der Name. Der Riss gab ihr Stacheln dafür — und einen Groll, der durch Rüstungen wächst.", flavorEn: "Nothing of the court is left to her but the name. The Rift gave her thorns in its place — and a grudge that grows through armour.", abilities: ["unsterblich", "widerhall", "blenden", "schrecken", "geistwandel"] }),
-  B("b24", "Seuchenkönig",     "Plaguelord",      "serpent", "#84cc16",  20, 4, { slides: KING, range: 1, spawn: { max: 3 } }, { flavorDe: "Wo er hoftritt, keimt es falsch; seine Gefolgschaft wächst ihm aus dem Boden nach.", flavorEn: "Where he treads, things sprout wrong; his following grows after him out of the ground.", abilities: ["gift", "schrecken", "aderlass"] }),
-  B("b25", "Osric, der Großmeister", "Osric, the Grandmaster", "tyrant", "#ffd166", 19, 5, { slides: KING, range: 4, leaps: KNIGHT }, { flavorDe: "Er hat nie eine Partie beendet — seine Gegner haben nur aufgehört zu ziehen.", flavorEn: "He has never finished a game — his opponents merely stopped moving.", aura: { type: "courtHp", n: 1 }, abilities: ["unsterblich", "widerhall", "schrecken", "blenden", "aderlass"] }),
+  B("b23", "Der Strahlengötze", "The Radiant Idol", "tyrant", "#fbbf24", 18, 6, { slides: DIAG, range: 2, leaps: sym(0, 3) }, { flavorDe: "Vom Hof blieb ihr nichts als der Name. Der Riss gab ihr Stacheln dafür — und einen Groll, der durch Rüstungen wächst.", flavorEn: "Nothing of the court is left to her but the name. The Rift gave her thorns in its place — and a grudge that grows through armour.", abilities: ["blenden", "widerhall"] }),
+  B("b24", "Malrik, der Seuchenkönig", "Malrik, the Plaguelord",      "serpent", "#84cc16",  20, 4, { slides: KING, range: 1, spawn: { max: 3 } }, { flavorDe: "Wo er hoftritt, keimt es falsch; seine Gefolgschaft wächst ihm aus dem Boden nach.", flavorEn: "Where he treads, things sprout wrong; his following grows after him out of the ground.", abilities: ["gift", "schrecken", "aderlass"] }),
+  B("b25", "Der Steinkönig", "The Stone King", "tyrant", "#ffd166", 19, 5, { slides: ORTHO, range: 2, leaps: sym(2, 2) }, { flavorDe: "Er hat nie eine Partie beendet — seine Gegner haben nur aufgehört zu ziehen.", flavorEn: "He has never finished a game — his opponents merely stopped moving.", abilities: ["unsterblich", "widerhall", "schrecken"] }),
+  /* ══ v1.91.0: DIE GROSSMEISTER SIND IM URSPRUNG FIGUREN (Besitzer 6.10.2026) ══
+     "wichtig ist mir tatsaechlich, dass die Grossmeister ... eher im Ursprung
+      eben so aussehen wie Figuren und nicht wie Bestien." Dreizehn neue
+     Gestalten; nur der Seuchenkoenig (b24) bleibt ("das Gesicht im Dunkeln
+     ist schon in Ordnung"). Je spaeter das Kapitel, desto staerker hat der
+     Riss sie verdorben: unberuehrt (I-V), gezeichnet (VI-IX), verdorben
+     (X-XII).
+
+     Die ALTEN Bilder bleiben im Spiel - als Bestien, unter neuem Namen und
+     OHNE Aura (b19 Hornschatten, b20 Waldschrat, b14 Rissbrocken, b23
+     Strahlengoetze, b25 Steinkoenig; Richter, Kanonier, Blutmagd,
+     Lanzenmeister und Eisenfaust behalten ihre Namen). Als Bestie steht ein
+     Wesen auf einem FREIEN Platz der Reihe statt auf dem Damenplatz - mit den
+     alten Meister-Gangarten (Dame-plus-Springer, Turm, Erzbischof) waere das
+     eine zweite Dame gewesen. Darum ziehen die fuenf Umbenannten bescheidener,
+     und die Zahl der Faehigkeiten folgt bei allen zehn wieder der
+     Beweglichkeit, wie bei jeder Bestie. Ihre alten Gangarten und Auren
+     tragen jetzt die neuen Grossmeister desselben Namens (Veyl, Thalor,
+     Brakk, Asra, Osric). */
+  B("b26", "Zahir, der Pfauenfürst", "Zahir, the Peacock Prince", "tyrant", "#1fa58a", 18, 6, { slides: DIAG, range: 3, leaps: ORTHO }, { flavorDe: "Er schlägt sein Rad, und der halbe Hof vergisst, weshalb er gekommen war.", flavorEn: "He spreads his fan, and half the court forgets why it came.", abilities: ["blenden", "schrecken", "wegelagerei"] }),
+  B("b27", "Varek, der Schwarze Ritter", "Varek, the Black Knight", "tyrant", "#8a1c2b", 17, 7, { slides: ORTHO, range: 2, leaps: KNIGHT }, { flavorDe: "Niemand hat je sein Gesicht gesehen. Die es beinahe hätten, erinnern sich an zwei rote Lichter.", flavorEn: "Nobody has ever seen his face. Those who nearly did remember two red lights.", aura: { type: "wardAdj" }, abilities: ["steinhaut", "widerhall", "aderlass"] }),
+  B("b28", "Isolde, die Dornenkönigin", "Isolde, the Thorn Queen", "tyrant", "#b3202e", 16, 8, { slides: KING, range: 2, leaps: sym(0, 3) }, { flavorDe: "Ihr Garten blüht das ganze Jahr. Gegossen wird er nicht mit Wasser.", flavorEn: "Her garden blooms all year. It is not watered with water.", aura: { type: "grant", id: "lifesteal" }, abilities: ["gift", "aderlass", "schrecken"] }),
+  B("b29", "Halvar, der Gezeitenkönig", "Halvar, the Tide King", "tyrant", "#19a3a8", 20, 4, { slides: ORTHO, range: 4, leaps: DIAG }, { flavorDe: "Er herrscht über alles, was die Flut bringt — und nimmt es mit der Ebbe wieder mit.", flavorEn: "He rules all the flood brings — and takes it back with the ebb.", aura: { type: "courtHp", n: 2 }, abilities: ["steinhaut", "widerhall", "schrecken", "wegelagerei"] }),
+  B("b30", "Seraphine, die Maskenfürstin", "Seraphine, the Mask Princess", "tyrant", "#7a3fb5", 15, 9, { leaps: [...KNIGHT, ...sym(2, 2)] }, { flavorDe: "Auf ihrem Ball trägt jeder eine Maske. Nur sie trägt keine darunter.", flavorEn: "At her ball everyone wears a mask. Only she wears nothing beneath it.", abilities: ["geistwandel", "blenden", "schrecken", "gift"] }),
+  B("b31", "Yorrik, der Winterkönig", "Yorrik, the Winter King", "tyrant", "#7fb6e6", 21, 3, { slides: KING, range: 1, leaps: sym(0, 3) }, { flavorDe: "Sein Reich ist still geworden. Er hält das für Frieden.", flavorEn: "His realm has fallen silent. He takes it for peace.", aura: { type: "grant", id: "bulwark" }, abilities: ["steinhaut", "unsterblich", "schrecken", "widerhall"] }),
+  B("b32", "Cassian, der Intrigant", "Cassian, the Schemer", "tyrant", "#c9952b", 17, 7, { slides: DIAG, leaps: ORTHO }, { flavorDe: "Er hat nie eine Schlacht geschlagen. Er hat sie alle gewonnen, bevor sie begannen.", flavorEn: "He has never fought a battle. He won them all before they began.", aura: { type: "courtAtk", n: 1 }, abilities: ["blenden", "wegelagerei", "schrecken", "aderlass"] }),
+  B("b33", "Veyl, der Schattenfürst", "Veyl, the Shadowlord", "tyrant", "#6d4bb8", 16, 8, { slides: DIAG, leaps: KNIGHT }, { flavorDe: "Sein Reich beginnt, wo die Lampen enden; er hat Geduld mit jedem Docht.", flavorEn: "His realm begins where the lamps end; he has patience with every wick.", aura: { type: "courtAtk", n: 1 }, abilities: ["geistwandel", "schrecken", "blenden", "aderlass", "gift"] }),
+  B("b34", "Brakk, der Koloss", "Brakk, the Colossus", "tyrant", "#8d5fd0", 21, 3, { slides: ORTHO, range: 2, leaps: DIAG }, { flavorDe: "Er war ein Mann, bevor seine Fäuste zu Stein wurden. Er vermisst es nicht.", flavorEn: "He was a man before his fists turned to stone. He does not miss it.", aura: { type: "grant", id: "bulwark" }, abilities: ["steinhaut", "unsterblich", "widerhall", "schrecken", "aderlass"] }),
+  B("b35", "Asra, die Erzfeindin", "Asra, the Archenemy", "tyrant", "#e08a2b", 18, 6, { slides: KING, range: 3 }, { flavorDe: "Vom Hof blieb ihr nichts als der Name. Der Riss gab ihr eine Klaue dafür — und einen Groll, der durch Rüstungen wächst.", flavorEn: "Nothing of the court is left to her but the name. The Rift gave her a claw in its place — and a grudge that grows through armour.", abilities: ["unsterblich", "widerhall", "blenden", "schrecken", "geistwandel"] }),
+  B("b36", "Osric, der Großmeister", "Osric, the Grandmaster", "tyrant", "#5a2a8a", 19, 5, { slides: KING, range: 4, leaps: KNIGHT }, { flavorDe: "Er hat nie eine Partie beendet — seine Gegner haben nur aufgehört zu ziehen.", flavorEn: "He has never finished a game — his opponents merely stopped moving.", aura: { type: "courtHp", n: 1 }, abilities: ["unsterblich", "widerhall", "schrecken", "blenden", "aderlass"] }),
+  B("b37", "Morwen, die Rabenmutter", "Morwen, the Raven Mother", "tyrant", "#4a3a6e", 17, 7, { slides: KING, range: 1, leaps: CAMEL }, { flavorDe: "Jeder Rabe im Land bringt ihr ein Gerücht. Die meisten sind wahr, sobald sie sie weitererzählt.", flavorEn: "Every raven in the land brings her a rumour. Most are true once she has passed them on.", aura: { type: "noEnemyPotions" }, abilities: ["blenden", "schrecken", "gift", "geistwandel"] }),
+  B("b38", "Thalor, der Hüter", "Thalor, the Keeper", "tyrant", "#3f9b6b", 21, 3, { slides: KING, range: 1, leaps: sym(2, 2) }, { flavorDe: "Er bewacht keine Tür — er bewacht das Nein, das dahinter wohnt.", flavorEn: "He guards no door — he guards the No that lives behind it.", aura: { type: "courtHp", n: 2 }, abilities: ["unsterblich", "widerhall", "steinhaut", "schrecken"] }),
+  /* ── fuenf neue Bestien (freigegeben 6.10.2026) ── */
+  B("b39", "Der Schlinger", "The Gulper", "beast", "#6aa84f", 20, 4, { leaps: [...sym(0, 2), ...KNIGHT] }, { flavorDe: "Er kaut nicht. Er hat es nie für nötig gehalten.", flavorEn: "He does not chew. He never saw the need.", abilities: ["aderlass", "unsterblich"] }),
+  B("b40", "Die Weberin", "The Weaver", "wraith", "#9a8fb5", 16, 8, { slides: DIAG, range: 3, leaps: [[0, 1], [0, -1]] }, { flavorDe: "Zwischen ihren Händen hängt ein Faden. Am anderen Ende hängst du.", flavorEn: "A thread hangs between her hands. At the other end hang you.", abilities: ["blenden", "gift"] }),
+  B("b41", "Die Harpyie", "The Harpy", "beast", "#c9a0a8", 14, 10, { leaps: [...ZEBRA, ...DIAG] }, { flavorDe: "Sie singt nicht. Das Geräusch, das du hörst, sind ihre Krallen auf dem Stein.", flavorEn: "She does not sing. The sound you hear is her claws on the stone.", abilities: ["aderlass", "blenden"] }),
+  B("b42", "Der Grabhüter", "The Gravewarden", "wraith", "#4f8f7a", 20, 4, { slides: ORTHO, range: 2 }, { flavorDe: "Er hat jeden hier selbst zur Ruhe gelegt. Er sieht es nicht gern, wenn einer wieder aufsteht — außer ihm.", flavorEn: "He laid everyone here to rest himself. He dislikes seeing anyone rise again — except himself.", abilities: ["unsterblich", "schrecken", "gift"] }),
+  B("b43", "Die Donnerkrähe", "The Thundercrow", "beast", "#2fb7e0", 13, 11, { leaps: [...KNIGHT, ...sym(0, 3)] }, { flavorDe: "Erst der Schatten, dann der Schlag, dann das Krächzen — in dieser Reihenfolge.", flavorEn: "First the shadow, then the strike, then the caw — in that order.", abilities: ["blenden", "schrecken"] }),
 ];
 
 export const bossById = (id) => BOSSES.find((b) => b.id === id) || null;
@@ -185,14 +225,34 @@ export const bossById = (id) => BOSSES.find((b) => b.id === id) || null;
      KAPITEL_TROPHAEE  je Kapitel der Meister, den der Sieg dir GIBT (Index
                        = Kapitel - 1). Kapitel I gibt den Drachen als Figur
                        (campaign.unlocked), darum steht dort null. */
-export const LEAGUE_BOSSES = ["b12", "b10", "b24", "b19", "b20", "b16", "b17", "b18", "b08", "b14", "b23", "b25"];
-export const KAPITEL_TROPHAEE = [null, "b10", "b24", "b19", "b20", "b16", "b17", "b18", "b08", "b14", "b23", "b25"];
+/* v1.91.0: VIERZEHN Grossmeister. Die ersten zwoelf sind die Kapitelmeister
+   in Kapitelfolge (ihr Sieg gibt sie dir: KAPITEL_TROPHAEE); Morwen und Thalor
+   halten kein Kapitel - sie stehen als Mitte-Boss in VI und IX und lassen
+   sich, einmal begegnet, bestechen. */
+export const LEAGUE_BOSSES = ["b26", "b27", "b24", "b28", "b29", "b30", "b31", "b32", "b33", "b34", "b35", "b36", "b37", "b38"];
+export const KAPITEL_TROPHAEE = ["b26", "b27", "b24", "b28", "b29", "b30", "b31", "b32", "b33", "b34", "b35", "b36"];
+/** Grossmeister ohne eigenes Kapitel: in welchem stehen sie als Mitte-Boss? */
+export const MITTE_MEISTER = { b37: 6, b38: 9 };
 /** In welchem Kapitel steht dieser Grossmeister? (Bundtafel, Hofstaat) */
 export const kapitelVonGrossmeister = (id) => {
   const i = KAPITEL_TROPHAEE.indexOf(id);
   if (i >= 0) return i + 1;
-  return id === "b12" ? 2 : null;          // der Richter: Mitte von Kapitel II
+  return MITTE_MEISTER[id] || null;
 };
+/* ── v1.91.0: WER LAESST SICH BESTECHEN? Die Regel stand dreimal im Haus
+   (ArmyScreen Kachel, ArmyScreen Blatt, saves.js) und widersprach sich schon:
+   die Kachel liess sieben Kapitelmeister vorab kaufen, das Blatt nannte sie
+   "Trophaee". Jetzt EINE Antwort mit Grund:
+     "trophaee"  ein Kapitelmeister - er gehoert dir mit dem Sieg, nicht gegen Gold
+     null        alle Bestien und die beiden Grossmeister ohne Kapitel */
+export const NIE_BESTECHLICH = ["b35", "b36"];   // Asra und Osric (bis v1.90.36: b23, b25)
+export const bestechGrund = (id) =>
+  (NIE_BESTECHLICH.includes(id) ? "nie" : KAPITEL_TROPHAEE.includes(id) ? "trophaee" : null);
+export const istBestechlich = (id) => bestechGrund(id) === null;
+/* Die zehn Bestien, die bis v1.90.36 Grossmeister waren - die Wanderung
+   (meta/profile.js) und die Aufstellung muessen sie kennen: wer sie auf dem
+   Damenplatz stehen hatte, findet dort wieder die Dame. */
+export const EHEMALIGE_MEISTER = ["b12", "b08", "b16", "b17", "b18", "b19", "b20", "b14", "b23", "b25"];
 export const bossName = (b, en) => (en ? b.nameEn : b.nameDe);
 
 /** Army-spec entry for a boss piece (drops into a back-rank slot). */

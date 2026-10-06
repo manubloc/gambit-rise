@@ -28,7 +28,18 @@ ORDNER = "src/app/ui/assets/painted"
 # andere Figuren mit tiefem Tellerbogen (Schatzkammer um 8,5 px) - darum ein
 # Handwert wie in messe_tellerkante.py: sein Teller ist breitester Punkt bei
 # 4,9 %, die Zone fuer ihn endet bei 7 %.
-SUCHZONE = {"boss-b25": 0.07}
+SUCHZONE = {"boss-b25": 0.07, "boss-b36": 0.08}   # v1.91.0: der neue Osric - sein Mantelsaum haengt bei 12 % und ist breiter als der Teller
+# ── HANDWERTE: DER SCHEITEL (v1.91.0) ───────────────────────────────────────
+# `oben` ist sonst die erste deckende Zeile. Bei zwei Figuren soll aber etwas
+# UEBER die gemeinsame Hoehenlinie ragen duerfen (Besitzer 6.10.2026):
+#   gladiator  "seine Kugel auf dem Helm darf ueber die Linie hinausgehen" -
+#              der Helm reicht bis y 40, die Kugel steht darueber (ab y 1)
+#   boss-b36   Osric: "die Krone darf ueber die 100-%-Marke gehen ... er darf
+#              definitiv der Groesste im Spiel sein" - die Zacken stehen ueber
+#              y 66; gemessen wird ab dort (96 % am Brett), sichtbar sind 108 %
+# Ohne den Handwert hielte die Hoehenklammer (paintedArt.js, mStreck) Kugel und
+# Krone fuer den Kopf und druckte die ganze Figur samt Band zusammen.
+OBEN_VON_HAND = {"gladiator": 40, "boss-b36": 66}
 erg = {}
 for f in sorted(os.listdir(ORDNER)):
     if not (f.startswith("painted-") and f.endswith(".webp")): continue
@@ -71,7 +82,7 @@ for f in sorted(os.listdir(ORDNER)):
     schatten = mitte - y
     while y > oben and px[x0, y][3] > 40 and (max(px[x0, y][:3]) - min(px[x0, y][:3])) > 46: y -= 1; ring += 1
     ring = max(8, ring)
-    erg[fid] = {"W": W, "H": H, "cx": round(cx, 1), "rx": round(rx, 1), "ry": round(ry, 1), "boden": mitte, "ring": ring, "schatten": schatten, "oben": oben}   # oben: erste deckende Zeile = Scheitel der Figur
+    erg[fid] = {"W": W, "H": H, "cx": round(cx, 1), "rx": round(rx, 1), "ry": round(ry, 1), "boden": mitte, "ring": ring, "schatten": schatten, "oben": OBEN_VON_HAND.get(fid, oben), **({"obenVonHand": True} if fid in OBEN_VON_HAND else {})}   # oben: erste deckende Zeile = Scheitel der Figur
     print(f"{fid:16} Teller {tB}px breit, Boden y={mitte}, Bogen ry={ry:.1f}, Farbring {ring}px, Schatten {schatten}px")
 os.makedirs("src/app/ui/board", exist_ok=True)
 json.dump(erg, open(os.environ.get("AUS", "src/app/ui/board/sockelband.json"), "w"), indent=1)

@@ -19,7 +19,15 @@ export const KIND = {
   ASSASSIN: "S", GUARDIAN: "G", DRAGON: "D", MAGE: "E", SORCERESS: "Z",
   ALCHEMIST: "L", WARLOCK: "W", PALADIN: "U", INQUISITOR: "I", BARD: "J",
   SEERESS: "SE",   // two-char kind: the single letters are all spoken for
-  ENGINEER: "T", STANDARD: "F", STRATEGIST: "Y", PATHFINDER: "O", AMAZON: "M", CAPTAIN: "V" };
+  ENGINEER: "T", STRATEGIST: "Y", PATHFINDER: "O", AMAZON: "M", CAPTAIN: "V",
+  /* v1.91.0: 24 neue Figuren (Besitzerfreigabe 6.10.2026). Die Einzelbuchstaben
+     sind vergeben - sie tragen Zweibuchstaben-Kuerzel wie die Seherin. "F"
+     (Flaggentraeger, mit v1.91.0 gestrichen) bleibt UNBESETZT: alte Spielstaende
+     fuehren den Buchstaben im Codex, und ein neuer Traeger wuerde dort als
+     "schon begegnet" gelten. */
+  FARMWIFE: "FW", BEGGAR: "BG", JESTER: "JE", SMITH: "SM", CRAFTSMAN: "CR", SCHOLAR: "SL", TAXMAN: "TX", BANKER: "BK",
+  BUTCHER: "BU", COOK: "CK", MILLER: "ML", MONK: "MK", HEALER: "HL", HUNTRESS: "HU", RANGER: "RG", TRAPPER: "TR",
+  CAVALIER: "CV", FENCER: "FN", SPEARMAN: "SP", GLADIATOR: "GL", EXECUTIONER: "EX", SAMURAI: "SA", JAILER: "JL", WATCHMAN: "NW" };
 
 // Movement vectors.
 export const DIAG = [[1, 1], [1, -1], [-1, 1], [-1, -1]];
@@ -32,7 +40,10 @@ export const LONG_LEAPS = [[1, 3], [3, 1], [-1, 3], [-3, 1], [1, -3], [3, -1], [
 export const DIAG_LEAPS = [[2, 2], [2, -2], [-2, 2], [-2, -2]];
 
 // Material values used by the AI. Fairy pieces are worth more.
-export const VALUE = { P: 100, N: 320, B: 330, H: 380, R: 500, A: 700, C: 800, Q: 900, M: 1150, K: 20000, X: 850, S: 430, G: 380, D: 840, E: 360, Z: 470, L: 330, W: 450, U: 560, I: 470, J: 300, T: 440, F: 340, Y: 480, O: 360, V: 560, };
+export const VALUE = { P: 100, N: 320, B: 330, H: 380, R: 500, A: 700, C: 800, Q: 900, M: 1150, K: 20000, X: 850, S: 430, G: 380, D: 840, E: 360, Z: 470, L: 330, W: 450, U: 560, I: 470, J: 300, T: 440, Y: 480, O: 360, V: 560,
+  SE: 480,   /* v1.91.0: fehlte - die KI wertete die Seherin mit 0 */
+  FW: 280, BG: 150, JE: 310, SM: 260, CR: 290, SL: 300, TX: 330, BK: 230, BU: 380, CK: 290, ML: 300, MK: 420, HL: 320,
+  HU: 330, RG: 400, TR: 300, CV: 600, FN: 400, SP: 330, GL: 480, EX: 260, SA: 520, JL: 290, NW: 340, };
 export const SHIELD_VALUE = 70; // each shield charge is worth ~this to the AI
 
 // ── HP ruleset stats ──────────────────────────────────────────────────────────
@@ -42,8 +53,12 @@ export const SHIELD_VALUE = 70; // each shield charge is worth ~this to the AI
 // because killing it wins the game (regicide).
 /* v1.18.0 (Besitzer): der Drache ist ein Koloss - mehr Leben, weniger
    Angriff, "weil er ja eh schon flaechig angreift". D: 6/4 -> 10/2. */
-export const BASE_HP = { P: 2, N: 3, B: 3, H: 3, R: 5, A: 5, C: 6, Q: 7, M: 8, K: 10, X: 10, S: 3, G: 6, D: 10, E: 3, Z: 3, L: 4, W: 4, U: 6, I: 5, J: 4, T: 5, F: 5, Y: 4, O: 3, V: 4, SE: 3, };
-export const BASE_ATK = { P: 1, N: 2, B: 2, H: 2, R: 3, A: 3, C: 4, Q: 4, M: 5, K: 3, X: 3, S: 4, G: 2, D: 2, E: 3, Z: 3, L: 2, W: 4, U: 3, I: 3, J: 2, T: 3, F: 2, Y: 2, O: 2, V: 2, SE: 2, };
+export const BASE_HP = { P: 2, N: 3, B: 3, H: 3, R: 5, A: 5, C: 6, Q: 7, M: 8, K: 10, X: 10, S: 3, G: 6, D: 10, E: 3, Z: 3, L: 4, W: 4, U: 6, I: 5, J: 4, T: 5, Y: 4, O: 3, V: 4, SE: 3,
+  FW: 4, BG: 4, JE: 3, SM: 5, CR: 4, SL: 3, TX: 4, BK: 4, BU: 4, CK: 4, ML: 5, MK: 4, HL: 3, HU: 3, RG: 3, TR: 4,
+  CV: 5, FN: 3, SP: 4, GL: 5, EX: 3, SA: 4, JL: 6, NW: 5, };
+export const BASE_ATK = { P: 1, N: 2, B: 2, H: 2, R: 3, A: 3, C: 4, Q: 4, M: 5, K: 3, X: 3, S: 4, G: 2, D: 2, E: 3, Z: 3, L: 2, W: 4, U: 3, I: 3, J: 2, T: 3, Y: 2, O: 2, V: 2, SE: 2,
+  FW: 1, BG: 1, JE: 2, SM: 2, CR: 2, SL: 2, TX: 2, BK: 1, BU: 3, CK: 2, ML: 2, MK: 2, HL: 2, HU: 3, RG: 2, TR: 2,
+  CV: 3, FN: 3, SP: 2, GL: 3, EX: 4, SA: 3, JL: 2, NW: 2, };
 
 /* ── DAS ZIELPROFIL JEDER FIGUR AUF DER HOECHSTSTUFE (v1.22.0) ────────────────
    Besitzerentscheid: "Die sind alle viel zu nah beieinander. Es darf welche
@@ -78,7 +93,14 @@ export const BUDGET_DRACHE = 48;
    15/9, Spaeher 9/15 -> 15/9, Amazone 9/15 -> 18/6. Nachgemessen mit reifen Heeren (tools/balance.mjs
    reif): Vesna 15/9 -> 17/7, Erzbischof 15/9 -> 17/7. Die Summe bleibt 24. */
 export const ZIEL_PROFIL = {
-  K: [21, 3], D: [41, 7], G: [20, 4], F: [19, 5], U: [18, 6], L: [18, 6], R: [18, 6], P: [17, 7], J: [16, 8], T: [16, 8], SE: [17, 7], A: [17, 7], V: [14, 10], Y: [14, 10], B: [14, 10], Q: [14, 10], C: [15, 9], I: [13, 11], N: [16, 8], O: [10, 14], Z: [9, 15], H: [15, 9], M: [18, 6], E: [8, 16], W: [5, 19], S: [4, 20],
+  K: [21, 3], D: [41, 7], G: [20, 4], U: [18, 6],
+  /* v1.91.0: die 24 Neuen. Dieselbe Norm (24), andere Verteilung. Die
+     FRIEDLICHEN der ersten Kapitel sind zaeh und harmlos (Bettler 20/4,
+     Bankier 19/5) - sie kosten einen Platz und bringen dafuer Gold oder
+     Erfahrung; die SPAETEN sind Klingen (Henker 6/18, Fechter 8/16). */
+  FW: [18, 6], BG: [20, 4], JE: [11, 13], SM: [19, 5], CR: [16, 8], SL: [15, 9], TX: [16, 8], BK: [19, 5],
+  BU: [12, 12], CK: [17, 7], ML: [18, 6], MK: [15, 9], HL: [17, 7], HU: [9, 15], RG: [13, 11], TR: [14, 10],
+  CV: [15, 9], FN: [8, 16], SP: [16, 8], GL: [12, 12], EX: [6, 18], SA: [10, 14], JL: [20, 4], NW: [19, 5], L: [18, 6], R: [18, 6], P: [17, 7], J: [16, 8], T: [16, 8], SE: [17, 7], A: [17, 7], V: [14, 10], Y: [14, 10], B: [14, 10], Q: [14, 10], C: [15, 9], I: [13, 11], N: [16, 8], O: [10, 14], Z: [9, 15], H: [15, 9], M: [18, 6], E: [8, 16], W: [5, 19], S: [4, 20],
 };
 export const HOECHSTSTUFE = 10;
 

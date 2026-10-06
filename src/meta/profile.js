@@ -1,5 +1,8 @@
-import { formationLegalOn, abilityCost, maxLevelFor } from "./leveling.js";
+import { formationLegalOn, abilityCost, maxLevelFor, bossUpgradeCost } from "./leveling.js";
 import { mapById } from "../content/maps.js";
+import { CHARACTERS } from "../content/characters.js";
+import { bossById, LEAGUE_BOSSES } from "../content/bosses.js";
+import { CAMPAIGN12 } from "../content/campaign12.gen.js";
 
 
 export function emptyStats() {
@@ -21,7 +24,7 @@ export function defaultProfile() {
     sp: 0,
     claims: {},
     items: { potion: 0 },
-    campaign: { league: 1, cleared: [], unlocked: [], dupes: {}, meister20: true }, // per-league clears; unlocks + duplication stars persist; meister20: v1.90.20, siehe migrate
+    campaign: { league: 1, cleared: [], unlocked: [], dupes: {}, meister20: true, figuren91: true }, // figuren91: v1.91.0, siehe figurenUmbau; per-league clears; unlocks + duplication stars persist; meister20: v1.90.20, siehe migrate
     online: { id: rid(6), secret: rid(18), privacy: "public", server: "" }, // multiplayer identity
     difficulty: "easy",
     stats: emptyStats(),
@@ -138,6 +141,118 @@ export function fliegenZusammengelegt(p) {
   return { ...p, pieces: { ...p.pieces, abilities: { ...p.pieces.abilities, dragon: ohne }, stufen } };
 }
 
+/* ── v1.91.0: DER FIGUREN-UMBAU ZIEHT ALTE STAENDE NACH (Besitzer 6.10.) ──────
+   Einmalig (Merkzeichen campaign.figuren91; neue Staende tragen es von Anfang
+   an). Was sich fuer einen alten Stand aendert, und was er dafuer bekommt:
+
+   1. DER FLAGGENTRAEGER IST FORT. An seiner Stelle steht der Nachtwaechter -
+      dieselbe Gangart, dieselbe Leiter. Alles wandert mit: Besitz, Sterne,
+      Siege, Stufe, Gelerntes, Aufstellungen.
+   2. DER DOPPELRITTER (b10) IST FORT. Kapitel II haelt jetzt Varek; wer das
+      Kapitel gewonnen hat, bekommt ihn ueber die Trophaeenliste von selbst.
+      Was in den Doppelritter gesteckt wurde, kommt zurueck: Raenge und
+      Gelerntes als Skillpunkte, ein Bestechpreis (1800) als Gold. In den
+      Aufstellungen tritt die Dame an seinen Platz.
+   3. DIE ALTEN GROSSMEISTER SIND BESTIEN. Wer ihr Kapitel gewonnen hat,
+      BEHAELT sie (als bestochen gefuehrt) und bekommt den neuen Grossmeister
+      dazu. Eine Aufstellung, die einen von ihnen fuehrt, bleibt gueltig
+      (ownedLeagueBosses fuehrt die Bestochenen mit).
+   4. GELERNTES, DAS ES NICHT MEHR GIBT. Die herabgestuften Meister tragen
+      andere Faehigkeiten. Was ein Monster gelernt hat und nicht mehr auf
+      seiner Leiter steht, kommt als Skillpunkte zurueck (2 je Faehigkeit,
+      3 je weiterer Stufe - mehr hat keine Monstersprosse je gekostet).
+   5. DIE NEUEN FRUEHEN FIGUREN. 24 Figuren stehen jetzt an Stationen, die ein
+      alter Stand laengst hinter sich hat. Er bekommt jede Figur, deren
+      Station er geklaert hat oder die in einem Kapitel liegt, das er schon
+      verlassen hat - sonst kaeme er nie mehr an sie heran.
+   6. Ein pausiertes Gefecht faellt weg: sein Brett kann Figuren tragen, die
+      es nicht mehr gibt. */
+const ALTE_TROPHAEE = [null, "b10", "b24", "b19", "b20", "b16", "b17", "b18", "b08", "b14", "b23", "b25"];
+const tausche = (liste, von, nach) => (Array.isArray(liste) ? liste.map((e) => (e === von ? nach : e)) : liste);
+const umhaengen = (obj, von, nach, wie = (a, b) => (b == null ? a : (typeof a === "number" && typeof b === "number" ? Math.max(a, b) : b))) => {
+  if (!obj || typeof obj !== "object" || !(von in obj)) return obj;
+  const neu = { ...obj }; neu[nach] = wie(neu[von], neu[nach]); delete neu[von]; return neu;
+};
+export function figurenUmbau(p) {
+  const camp = (p?.campaign && typeof p.campaign === "object") ? p.campaign : {};
+  if (camp.figuren91 === true) return p;
+  let gold = p.gold || 0, sp = p.sp || 0;
+  const pieces = { ...(p.pieces || {}) };
+  const c = { ...camp };
+
+  /* 1. Flaggentraeger -> Nachtwaechter */
+  const unlocked = new Set(tausche(c.unlocked || [], "standard", "watchman"));
+  c.dupes = umhaengen(c.dupes || {}, "standard", "watchman");
+  if (c.bossWins) c.bossWins = umhaengen(c.bossWins, "standard", "watchman");
+  for (const fach of ["levels", "abilities", "stufen"]) if (pieces[fach]) pieces[fach] = umhaengen(pieces[fach], "standard", "watchman");
+
+  /* 2. Doppelritter */
+  const bestochen = new Set(c.bribedBosses || []);
+  if (bestochen.delete("b10")) gold += 1800;
+  const rang = pieces.bossLevels?.b10 || 1;
+  for (let l = 2; l <= rang; l++) sp += bossUpgradeCost(l);
+  if (pieces.bossLevels && "b10" in pieces.bossLevels) { pieces.bossLevels = { ...pieces.bossLevels }; delete pieces.bossLevels.b10; }
+
+  /* 3. alte Meister gewonnener Kapitel bleiben als Bestien */
+  const gewonnen = Math.min(12, (p.stats && p.stats.leaguesWon) || 0);
+  for (const id of ALTE_TROPHAEE.slice(0, gewonnen)) if (id && id !== "b10" && !LEAGUE_BOSSES.includes(id) && bossById(id)) bestochen.add(id);
+
+  /* 4. Gelerntes, das nicht mehr auf der Leiter steht (nur Monster) */
+  if (pieces.abilities) {
+    const ab = { ...pieces.abilities }, st = { ...(pieces.stufen || {}) };
+    for (const [cid, liste] of Object.entries(ab)) {
+      if (!cid.startsWith("X:") || !Array.isArray(liste)) continue;
+      const leiter = new Set((bossById(cid.slice(2))?.ladder || []).map((e) => e.ability));
+      const bleibt = liste.filter((a) => leiter.has(a));
+      for (const a of liste) if (!leiter.has(a)) sp += 2 + 3 * Math.max(0, ((st[cid] || {})[a] || 1) - 1);
+      if (bleibt.length !== liste.length) {
+        if (leiter.size) ab[cid] = bleibt; else delete ab[cid];
+        if (st[cid]) { const s2 = {}; for (const [a, n] of Object.entries(st[cid])) if (leiter.has(a)) s2[a] = n; if (leiter.size) st[cid] = s2; else delete st[cid]; }
+      }
+    }
+    pieces.abilities = ab; if (pieces.stufen) pieces.stufen = st;
+  }
+
+  /* 5. Figuren hinter dem Spieler */
+  const liga = Math.max(1, c.league || 1);
+  const klar = new Set(Array.isArray(c.cleared) ? c.cleared : []);
+  const gespielt = liga > 1 || klar.size > 0;
+  if (gespielt) for (const n of CAMPAIGN12) {
+    const figur = n.boss && n.boss.piece;
+    if (!figur || !CHARACTERS[figur]) continue;
+    if (n.league < Math.min(liga, 13) || (n.league === ((liga - 1) % 12) + 1 && klar.has(n.id)) || liga > 12) unlocked.add(figur);
+  }
+
+  /* Aufstellungen und Faecher */
+  const ersetze = (f) => (Array.isArray(f) ? f.map((e) => (e === "standard" ? "watchman" : e === "boss:b10" ? "queen" : e)) : f);
+  const lo = { ...(p.loadout || {}) };
+  if (lo.formations) lo.formations = Object.fromEntries(Object.entries(lo.formations).map(([k, f]) => [k, ersetze(f)]));
+  if (Array.isArray(lo.formation)) lo.formation = ersetze(lo.formation);
+  if (lo.decks) lo.decks = Object.fromEntries(Object.entries(lo.decks).map(([k, d]) => [k, tiefErsetzt(d, ersetze)]));
+  if (c.besetzung) { c.besetzung = {}; }   // die Gegnerbesetzung wird neu gewuerfelt (sie kann den Flaggentraeger fuehren)
+
+  let codex = p.codex;
+  if (codex && typeof codex === "object") {
+    const raus = (l) => (Array.isArray(l) ? l.filter((e) => e !== "X:b10" && e !== "b10") : l);
+    codex = { ...codex, met: raus(codex.met), beaten: raus(codex.beaten) };
+  }
+  let charXp = p.charXp;
+  if (charXp && "standard" in charXp) charXp = umhaengen(charXp, "standard", "watchman");
+
+  const aus = { ...p, gold, sp, pieces, loadout: lo, pausedMatch: null,
+    campaign: { ...c, unlocked: [...unlocked], ...(bestochen.size || c.bribedBosses ? { bribedBosses: [...bestochen] } : {}), figuren91: true } };
+  if (codex) aus.codex = codex;
+  if (charXp) aus.charXp = charXp;
+  return aus;
+}
+/* ein Fach (decks.js) haelt Aufstellungen in einer kleinen Schachtelung -
+   jede Liste darin, die wie eine Grundreihe aussieht, wird umgeschrieben */
+function tiefErsetzt(x, ersetze) {
+  if (Array.isArray(x)) return x.some((e) => e && typeof e === "object") ? x.map((e) => tiefErsetzt(e, ersetze)) : ersetze(x);
+  if (x && typeof x === "object") return Object.fromEntries(Object.entries(x).map(([k, v]) => [k, tiefErsetzt(v, ersetze)]));
+  return x;
+}
+
 export function ohneDauerfeuer(p) {
   p = stufenGekappt(p);   /* v1.33.2: beide Ladewege laufen hier durch */
   p = geschenkteErstattet(p);   /* v1.34.0 */
@@ -178,6 +293,7 @@ export function ohneDauerfeuer(p) {
    jedes Feld stehen, die Migration ergaenzt und formt nur um. */
 export function migrate(p) {
   p = ohneDauerfeuer(p);
+  const brauchtUmbau = !(p?.campaign && p.campaign.figuren91 === true);
   const d = defaultProfile();
   const lo = p.loadout || {};
   const formations = {};
@@ -232,7 +348,7 @@ export function migrate(p) {
     bestochen.add("b12");
     unlocked.add("dragon");
   }
-  return {
+  const fertig = {
     ...d, ...p,
     v: 2,
     online: { ...d.online, ...(p.online || {}) },
@@ -261,8 +377,12 @@ export function migrate(p) {
       unlocked: [...unlocked],
       ...(bestochen.size ? { bribedBosses: [...bestochen] } : {}),
       meister20: true,
+      ...(brauchtUmbau ? {} : { figuren91: true }),
     },
   };
+  /* v1.91.0: NACH meister20 - der Umbau liest leaguesWon und die fertige Liste */
+  if (brauchtUmbau) delete fertig.campaign.figuren91;
+  return figurenUmbau(fertig);
 }
 /* v1.90.18 (A40): loadProfile und saveProfile sind fort - keiner hatte noch
    einen Aufrufer (App.jsx importierte loadProfile nur, den Spiegel "profile"

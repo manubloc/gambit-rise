@@ -225,3 +225,59 @@ export function faehrteFolgt(state, gezogen) {
   if (pf == null) return null;
   return pf;
 }
+
+/* ══ v1.91.0: DIE ACHT NEUEN BUENDE ════════════════════════════════════════
+   Dorf, Werkstatt und Kontor haben KEINE Wirkung im Kern: sie zahlen nach
+   der Partie aus (meta/rewards.js) oder geben in der Setzphase einen Zaun
+   (GameScreen). Hier stehen die fuenf, die das Brett beruehren. Jede fragt
+   ZUERST nach dem Bund der betroffenen Seite und sucht erst dann das Brett
+   ab - diese Fragen laufen in jedem Knoten der Zugsuche. */
+const KUECHE = ["butcher", "cook", "miller"];
+const TURNIER = ["cavalier", "fencer", "spearman", "gladiator"];
+const JAGD = ["huntress", "ranger", "trapper"];
+const FINSTERNIS = ["executioner", "samurai", "jailer"];
+
+/* ── KUECHE und TURNIER: einmal beim Aufbau der Partie ────────────────────
+   "Alle drei beginnen jede Partie mit einem Leben mehr" / "Alle vier treffen
+   mit einem Angriff mehr". Wie die Auren der Grossmeister (setup.js) - nur
+   dass der Aufbau die Buende noch nicht kennt; createGame ruft darum hier
+   an, sobald sie im Zustand stehen. Nur im HP-Gefecht: im Schach gibt es
+   weder Leben noch Angriff. */
+export function bundAufbau(state) {
+  if (!state || state.rules !== "hp" || !state.buende) return state;
+  for (const p of state.board) {
+    if (!p || !p.charId) continue;
+    if (KUECHE.includes(p.charId) && hat(state, "kueche", p.color) && p.maxHp != null) { p.maxHp += 1; p.hp += 1; }
+    if (TURNIER.includes(p.charId) && hat(state, "turnier", p.color) && p.atk != null) p.atk += 1;
+  }
+  return state;
+}
+
+/* ── KLOSTER: Bauern neben Moench oder Heilerin nehmen 1 Schaden weniger ── */
+export function klosterDeckt(state, feld) {
+  const p = state.board[feld];
+  if (!p || p.kind !== KIND.PAWN) return false;
+  if (!hat(state, "kloster", p.color)) return false;
+  for (const id of ["monk", "healer"]) {
+    const f = finde(state, p.color, id);
+    if (f != null && nebenan(f, feld, state.w)) return true;
+  }
+  return false;
+}
+
+/* ── JAGD: wer eine der drei schlaegt, ist gefesselt ──────────────────────
+   Gefragt wird nach dem OPFER. Der Koenig wird nie gefesselt: ein Koenig
+   ohne Zug waere im Schach ein Patt aus dem Nichts. */
+export function jagdFesselt(state, opfer, angreifer) {
+  if (!opfer || !opfer.charId || !JAGD.includes(opfer.charId)) return false;
+  if (!angreifer || angreifer.kind === KIND.KING) return false;
+  return hat(state, "jagd", opfer.color);
+}
+
+/* ── FINSTERNIS: was einer der drei schlaegt, steht nicht wieder auf ──────
+   Gefragt wird nach dem ANGREIFER. Sperrt Unsterblich, Geistwandel und die
+   Rueckkehr der Amazone (Sturm) - der Gegenzug zu allem, was zweimal lebt. */
+export function finsternisBannt(state, angreifer) {
+  if (!angreifer || !angreifer.charId || !FINSTERNIS.includes(angreifer.charId)) return false;
+  return hat(state, "finsternis", angreifer.color);
+}

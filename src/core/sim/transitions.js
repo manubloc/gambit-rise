@@ -1,7 +1,8 @@
 import { other, WHITE, BLACK, FILES, BASE_HP, BASE_ATK, HP_REMIS_HALBZUEGE, HELD_PUNKTE, werteBeiStufe, KIND, kroenbar } from "../domain/constants.js";
 import { cloneBoard, findKing } from "../domain/board.js";
 import { pseudoMoves, pieceMoves, talentWirkt, verbuche, zauberRest, stufeVon, kroenungsReihe } from "../rules/moves.js";
-import { kroneFaengtAb, schildwachtDeckt, nachtwacheHeilt, faehrteFolgt, konzilLehntAb, sturmRuftZurueck, hinterstenBauern } from "../rules/buende.js";
+import { kroneFaengtAb, schildwachtDeckt, nachtwacheHeilt, faehrteFolgt, konzilLehntAb, sturmRuftZurueck, hinterstenBauern,
+  klosterDeckt, jagdFesselt, finsternisBannt } from "../rules/buende.js";
 import { inCheck } from "../rules/attacks.js";
 import { schlageSperre, loeseFalleAus, zerfalleSperren, versperrt } from "../rules/sperren.js";
 import { familyOf, familyCount, crownWallSoak } from "../rules/families.js";
@@ -430,7 +431,11 @@ export function applyMove(state, move, opts) {
         q.steinhaut = n + 1;
         return true;
       };
+      /* v1.91.0: FINSTERNIS - was Henker, Samurai oder Kerkermeister schlagen,
+         steht nicht wieder auf */
+      const gebannt = finsternisBannt(state, piece);
       const stehtAuf = (q, sq) => {
+        if (gebannt) return false;
         /* v1.31.0: GEISTWANDEL - einmal je Partie kehrt es als Geist zurueck:
            3 Leben, doppelter Angriff, bleich (das Brett liest q.geist) */
         if (q && q.hp <= 0 && !q.geist && traegt(q, "geistwandel", sq)
@@ -471,7 +476,8 @@ export function applyMove(state, move, opts) {
         const gold = [0, 2, 4, 6][stufeVon(piece, "wegelagerei")] || 2;
         ns.beute = { ...(ns.beute || {}), [piece.color]: ((ns.beute && ns.beute[piece.color]) || 0) + gold };
       };
-      const wacht = schildwachtDeckt(state, ti) ? 1 : 0;
+      /* v1.91.0: Schildwacht und Kloster - je ein Schaden weniger */
+      const wacht = (schildwachtDeckt(state, ti) ? 1 : 0) + (klosterDeckt(state, ti) ? 1 : 0);
       /* v1.37.0: BOLLWERK nach Stufe - 1 oder 2 Schaden weniger */
       const soak = (target.abilities.includes("bulwark") && talentWirkt("bulwark", state.rules, state, ti, target.color)
         ? Math.min(2, stufeVon(target, "bulwark")) : 0) + wall + (warded ? 1 : 0) + wacht;
@@ -554,7 +560,7 @@ export function applyMove(state, move, opts) {
         }
         if (welle.length) damaged = true;
       }
-      if (target.hp <= 0 && sturmRuftZurueck(state, target)) {
+      if (target.hp <= 0 && !gebannt && sturmRuftZurueck(state, target)) {
         /* ── DER STURM: DIE AMAZONE KEHRT ZURUECK (v1.11.1) ─────────────────
            "Sie fiel. Er rief. Sie stand wieder auf, und niemand sprach je
            darueber." Einmal je Partie, und nur solange der Warlock steht.
@@ -597,6 +603,10 @@ export function applyMove(state, move, opts) {
         ns.aufstand = ti;
       } else if (target.hp <= 0) {                 // kill
         lethal = true;
+        /* v1.91.0: JAGD - wer Jaegerin, Waldlaeufer oder Fallensteller erlegt,
+           steht im Eisen: sein naechster Zug faellt aus (derselbe Marker wie
+           die Baerenfalle; moveCount zaehlt erst am Ende dieses Zuges weiter). */
+        if (jagdFesselt(state, target, piece)) { piece.fesselBis = (state.moveCount || 0) + 3; ns.jagdFessel = move.noAdvance ? move.from : move.to; }
         ns.captured[piece.color].push(target.kind);
         if (dragonAnchor >= 0) clearDragon(dragonAnchor);  // the beast falls: all four squares clear
         if (move.noAdvance) {                      // ranged kill: target gone, shooter stays

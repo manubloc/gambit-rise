@@ -32,7 +32,7 @@ import { paintedFitById, paintedFitFor, paintedById, paintedForPiece, schlichtAn
 import { KronenGlut } from "../board/KronenGlut.jsx";
 import { GAMBIT_STUFEN } from "../board/gambitStufen.js";
 import { kulisseFuer } from "../kulissen.js";
-import { LEAGUE_BOSSES, KAPITEL_TROPHAEE } from "../../../content/index.js";   /* v1.23.0: Grossmeister-Rahmen; v1.90.20 Trophaeen */
+import { LEAGUE_BOSSES, KAPITEL_TROPHAEE, istBestechlich, bestechGrund } from "../../../content/index.js";   /* v1.23.0: Grossmeister-Rahmen; v1.90.20 Trophaeen */
 import { KulisseHinterGrund, KULISSE_URL } from "../KulissenBilder.jsx";
 import { BundTafel } from "../BundTafel.jsx";
 import { SockelBand, bandBekannt, bodenAusgleichProzent, sockelSkalierung, figurStreckung, tellerMitteProzent } from "../SockelBand.jsx";   /* v1.17.0: das Band im Sockel */
@@ -2336,8 +2336,14 @@ const FAMILIES = {
  * "sighted" (a dark silhouette with a name to earn); the rest is night.
  * Champions you have beaten at least once can be BRIBED — gold instead of
  * the remaining victories, the friendly duel politely skipped. */
-const CROWN_IDS = ["mage","guardian","bard","paladin","inquisitor","archbishop","chancellor","engineer","standard","seeress"];
-const SHADOW_IDS = ["hawk","assassin","pathfinder","dragon","sorceress","alchemist","warlock","amazon","strategist","captain"];
+/* v1.91.0: die Listen folgen der Reihenfolge, in der die Kampagne die Figuren
+   bringt - erst die Buergerlichen der ersten Kapitel, dann die Streiter. Wer
+   hier fehlt, erscheint im Hofstaat NIE (auch nicht freigeschaltet); eine
+   Probe haelt die Listen darum an CHARACTER_LIST. */
+const CROWN_IDS = ["farmwife","beggar","jester","smith","craftsman","scholar","taxman","banker","mage","paladin",
+  "butcher","cook","miller","monk","healer","bard","watchman","cavalier","spearman","guardian","inquisitor","archbishop","chancellor","engineer","seeress"];
+const SHADOW_IDS = ["hawk","huntress","ranger","trapper","alchemist","fencer","sorceress","pathfinder","gladiator","executioner","jailer",
+  "assassin","captain","samurai","dragon","strategist","warlock","amazon"];
 const COURT_IDS = ["gambit","pawn","knight","bishop","rook","queen","king"];
 const FAM_LABEL = { golem: ["Golems","Golems"], beast: ["Bestien","Beasts"], serpent: ["Schlangen","Serpents"], wraith: ["Schemen","Wraiths"], tyrant: ["Tyrannen","Tyrants"] };
 /* v1.90.25: am Blatt steht nicht mehr die Familie (Golems, Schlangen, Schemen,
@@ -2773,7 +2779,7 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
      kauft ihn nicht". Der Richter ist seit v1.90.20 Tyrann OHNE Kapitel (Mitte
      von Kapitel II) - ihn darf man bestechen wie jedes Monster, sonst gaebe es
      keinen Weg mehr zu ihm. */
-  const monsterBribable = (b) => bestechenOffen && (b.art !== "tyrant" || !KAPITEL_TROPHAEE.includes(b.id)) && b.id !== "b23" && b.id !== "b25" && met.has("X:" + b.id) && !bribedSet.has(b.id);
+  const monsterBribable = (b) => bestechenOffen && istBestechlich(b.id) && met.has("X:" + b.id) && !bribedSet.has(b.id);
   const bribeMonster = (bossId) => {
     const preis = monsterBestechPreis(bossById(bossId));
     if (gold < preis) return;
@@ -3141,7 +3147,7 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
                      holen, und keinen Satz, warum nicht. Jetzt steht hier
                      derselbe Handel (mit Rueckfrage) oder der Grund. */
                   : <BestechBlatt b={b} preis={monsterBestechPreis(b)} gold={gold} kann={monsterBribable(b)}
-                      grund={KAPITEL_TROPHAEE.includes(b.id) ? "trophaee" : (b.id === "b23" || b.id === "b25") ? "nie"
+                      grund={bestechGrund(b.id) ? bestechGrund(b.id)
                         : !bestechenOffen ? "freigabe" : !met.has("X:" + b.id) ? "fremd" : null}
                       frage={bestechFrage === b.id} onFrage={(an) => setBestechFrage(an ? b.id : null)}
                       onKauf={() => { klang("stufe"); bribeMonster(b.id); }} en={en} />} />;

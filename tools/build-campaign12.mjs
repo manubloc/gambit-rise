@@ -39,57 +39,72 @@ const SLOTS = [
    und tauscht mit dem Hetzer - er ist jetzt der Meister von Kapitel III, der
    Hetzer steht dort und in Kapitel X unterwegs. Asra war schon Meisterin von
    Kapitel XI. Die zwoelf Kapitelmeister sind die Grossmeister des Spiels. */
-const ENDBOSS = [null,"b10","b24","b19","b20","b16","b17","b18","b08","b14","b23","b25"]; // v0.38.1: Osric ans Ende (war faelschlich Kapitel-I-Finale)
-/* ── v1.90.20 (Besitzerentscheid 1.10.): DER DRACHE IST MEISTER VON KAPITEL I ──
-   "Mach den Drachen gerne frueher - nicht als Endgegner, sondern als
-    Kapitelmeister 1 und als Vorstufe fuer HP-Kaempfe." Im klassischen Schach
-   hat er vier Leben (core/domain/setup.js), und wer ihn besiegt, bekommt ihn
-   sofort (Besitzer: "Ja, sofort") - eine FIGUR als Meister, darum steht hier
-   kein Monster, sondern eine Figur mit wins 1.
-   Der RICHTER, bis hierher Meister von Kapitel I, haelt jetzt Gericht in
-   Kapitel II - als Mitte-Boss, wo seine Geschichte ohnehin spielt ("Mittendrin
-   haelt der Richter Gericht", worldMap.js Kapitel II). Der Hetzer, der dort
-   stand, rueckt an das Erwachen; der Waechter, der am Erwachen stand, huetet
-   die leere Drachenhalle in Kapitel VII (DRACHENHALLE unten) - sonst fiele er
-   aus dem ersten Durchlauf, und "13 Monster" stuende nicht mehr. */
-const MEISTER_FIGUR = { 1: "dragon" };
-// Zwischen-Monster fuer die Mitte des Hauptastes, je Liga eine kleine Rotation.
-/* v1.90.16 (Besitzerentscheid 30.9.): VIER GEMALTE BESTIEN KAMEN NIE VOR.
-   Brutmutter, Schleicher, Bollwerk und Fluesterin standen nur an ZWEITER
-   Stelle einer Rotation - also erst im zweiten Weltdurchlauf -, und die
-   Besetzung nimmt nur Monster, denen man schon begegnet ist. Gleichzeitig
-   kamen drei Bestien doppelt: Hetzer (II und III), Waechter (Erwachen II und
-   VIII), Sturmklaue (VII und XII). Die Doppelungen weichen jetzt den
-   Stummen: III Schleicher, VIII Bollwerk, XII Fluesterin; der bisherige
-   Mitte-Boss rueckt in der Rotation nach hinten. Die Brutmutter bekommt
-   ihre eigene Station in Kapitel VII (BRUT unten). */
-const MITTE = [["b01","b03"],["b12","b11"],["b04","b02"],["b09","b13"],["b22","b04"],
-  ["b21","b07"],["b15","b06"],["b06","b01"],["b13","b22"],["b05","b02"],["b07","b21"],["b11","b15"]];
-/* DIE BRUTMUTTER VOR DEM DRACHEN (v1.90.16, Besitzerentscheid): in Kapitel VII
-   hinter dem Mitte-Boss und VOR der Drachenstation - erst das Gelege, dann
-   der geschluepfte Drache. Ihre Geschichte stand bis v1.90.15 als toter Code
-   an einer Station "a4", die es seit den zwoelf Graphen nicht mehr gibt. */
-/* v1.90.20: in Kapitel VII stand an dieser Stelle der Drache (Schluesselfigur
-   bei 55 % des Hauptastes). Er ist jetzt Meister von Kapitel I - die Station
-   bleibt, und der Waechter haelt die leere Halle. Die Brutmutter steht weiter
-   zwei Schritte davor; ihr Anker ist die Halle, nicht mehr die Figur. */
-const DRACHENHALLE = { liga: 7, anteil: 0.55, boss: "b01",
-  /* ohne das Wort "Drache": test_story duldet keine Station, die eine Figur
-     nennt, die sie nicht stellt */
-  storyDe: "Der Hort ist leer, sein Bewohner ausgeflogen. Geblieben ist der Wächter, und er hütet die Halle, als käme jemand zurück.",
-  storyEn: "The hoard is empty, its keeper flown. The Warden stayed behind, guarding the hall as if someone might return." };
+/* ── v1.91.0 (Besitzerauftrag 6.10.2026): DIE KAMPAGNE WIRD NEU BESETZT ───────
+   "in den ersten beiden Kapiteln sollten schon die meisten Figuren dazukommen
+    ... je weiter hinten in den Kapiteln, desto weniger Figuren und desto
+    boeser die Figuren. D.h. am Anfang auch noch keine Bestien - die kommen
+    erst in Kapitel 3 zum Vorschein. Und auch der Drache kann deutlich
+    spaeter kommen."
+   Vier Tabellen tragen das jetzt (vorher: HAUPTFIGUR, NEBENFIGUR, MITTE und
+   drei Sonderfaelle):
+     ENDBOSS        je Kapitel der Grossmeister am Ende - seit v1.91.0 im
+                    Ursprung FIGUREN (content/bosses.js); Kapitel I hat wieder
+                    einen Meister (Zahir), der Drache ist keiner mehr
+     FIGUREN        je Kapitel, was man dort gewinnt: [id, Ort]. Ort ist ein
+                    Anteil am Hauptast (0..1) oder "neben" (Blatt eines
+                    Seitenwegs); ein dritter Eintrag setzt die noetigen Siege
+     BESTIEN        je Kapitel die Bestien am Hauptast: [id, Anteil]
+     MITTE_MEISTER  die beiden Grossmeister ohne Kapitel
+   Jede Station traegt hoechstens EINEN Boss. Faellt ein Anteil auf eine
+   schon vergebene Station, rueckt der Spaetere zur naechsten freien vor -
+   so verschwindet nichts stumm (genau das war der Fehler beim ersten
+   Erwachen, v1.0.20). Am Ende zaehlt das Skript nach und bricht ab, wenn
+   eine Figur oder Bestie keinen Platz bekam. */
+const ENDBOSS = ["b26","b27","b24","b28","b29","b30","b31","b32","b33","b34","b35","b36"];
+const MEISTER_FIGUR = {};   // v1.91.0: kein Kapitel hat mehr eine Figur als Meister (bis v1.90.36: I der Drache)
+/* DIE BRUTMUTTER VOR DEM DRACHEN (v1.90.16): in Kapitel VII zwei Schritte vor
+   der Drachenhalle - erst das Gelege, dann der geschluepfte Drache. Seit
+   v1.91.0 wohnt der Drache wieder dort: wer die Halle nimmt, gewinnt ihn. */
+const DRACHENHALLE = { liga: 7, anteil: 0.55, figur: "dragon",
+  storyDe: "Der Hort ist nicht leer. Sein Bewohner ist jung, gierig und zu Hause - ein Drache auf vier Feldern.",
+  storyEn: "The hoard is not empty. Its keeper is young, greedy and at home - a dragon on four squares." };
 const BRUT = { liga: 7, schritte: 2, boss: "b03",
   storyDe: "Hier ist es warm - zu warm. Die Brutmutter hütet ein Gelege, das noch niemand schlüpfen sah. Noch nicht.",
   storyEn: "It is warm here - too warm. The Broodmother tends a clutch that no one has seen hatch. Not yet." };
-// Schluesselfiguren: [liga, anteilImHauptast 0..1] bzw. Nebenast-Pool je Liga.
-const HAUPTFIGUR = {
-  1:[["mage",.62],["paladin",.86]],   /* v0.77: beide Werbungen liegen HINTER dem Erwachen - die Schachhaelfte kommt ohne neue Figuren aus */ 2:[["hawk",.55]], 3:[["alchemist",.55]],
-  4:[["sorceress",.55]], 5:[["guardian",.55]], 6:[["assassin",.55]],
-  7:[], 8:[["warlock",.55]], 9:[["inquisitor",.55]],   /* v1.90.20: der Drache ist Meister von Kapitel I */
-  10:[["archbishop",.42],["engineer",.75]], 11:[["chancellor",.42],["standard",.75]],
-  12:[["seeress",.5]],
+/* Das Erwachen (erste HP-Station, Kapitel II) stellt seit v1.91.0 eine FIGUR:
+   die Heilerin. Vorher stand dort der Hetzer - aber vor Kapitel III soll es
+   keine Bestie geben, und eine Heilerin ist die richtige Gestalt fuer die
+   Station, an der Figuren zum ersten Mal bluten. */
+const ERWACHEN_FIGUR = "healer";
+const FIGUREN = {
+  1: [["farmwife", .14], ["beggar", "neben"], ["jester", .32], ["smith", .5], ["craftsman", "neben"], ["mage", .68],
+      ["scholar", "neben"], ["taxman", "neben"], ["banker", .86], ["paladin", "neben"]],
+  2: [["hawk", .4], ["cook", .55], ["monk", .7], ["huntress", .85],
+      ["bard", "neben"], ["butcher", "neben"], ["miller", "neben"], ["ranger", "neben"], ["trapper", "neben"]],   // + die Heilerin am Erwachen
+  3: [["alchemist", .55], ["fencer", .8], ["watchman", "neben"], ["cavalier", "neben"], ["spearman", "neben"]],
+  4: [["sorceress", .55], ["gladiator", .8], ["pathfinder", "neben"], ["guardian", "neben"]],
+  5: [["executioner", .55], ["jailer", "neben"], ["engineer", "neben"]],
+  6: [["assassin", .55], ["samurai", .82], ["captain", "neben"]],
+  7: [["strategist", "neben"]],                      // + der Drache in seiner Halle
+  8: [["inquisitor", .55]],
+  9: [["chancellor", .55]],
+  10: [["archbishop", .55]],
+  11: [["warlock", .55]],                             // der Bund Sturm kommt zuletzt: Warlock XI, Amazone XII
+  12: [["amazon", .4], ["seeress", .72]],
 };
-const NEBENFIGUR = { 2:"bard", 4:"pathfinder", 6:"captain", 8:"amazon", 10:"strategist" };
+const BESTIEN = {
+  3: [["b02", .14], ["b04", .3], ["b01", .42]],
+  4: [["b09", .3], ["b12", .68]],
+  5: [["b22", .3], ["b40", .42], ["b42", .76]],
+  6: [["b21", .3], ["b16", .42], ["b41", .7]],
+  7: [["b15", .3], ["b17", .76]],                      // + die Brutmutter vor der Drachenhalle
+  8: [["b06", .3], ["b18", .42], ["b13", .76]],
+  9: [["b08", .24], ["b19", .4], ["b43", .7]],
+  10: [["b05", .3], ["b20", .42], ["b14", .76]],
+  11: [["b07", .3], ["b23", .42], ["b39", .76]],      // der Schlinger: "ein Monster, das sehr spaet erscheinen sollte"
+  12: [["b11", .2], ["b25", .56]],
+};
+const MITTE_MEISTER = { 6: ["b37", .62], 9: ["b38", .84] };   // Morwen, Thalor
 
 const PHASEN = [
   ["Der Weg beginnt bei", "The road begins at"],
@@ -282,49 +297,50 @@ SLOTS.forEach(([key, name, roman], si) => {
   const namen = namenFuer(roman, pk.length, liga, haupt);
   const H = haupt.length;
   const schwer = Math.max(0, Math.round((30 - H) / 8));   // kurzer Hauptast = schwerer
-  let hpAb = liga === HP_AB_LIGA ? Math.round(H * HP_AB_ANTEIL) : 0;  // Hauptast-Rang, ab dem HP gilt
 
-  const figuren = (HAUPTFIGUR[liga] || []).map(([f, a]) => [haupt[Math.min(H - 1, Math.round(a * (H - 1)))], f]);
-  const figAt = Object.fromEntries(figuren);
-  const mitteAt = haupt[Math.round(0.3 * (H - 1))];
-  const hallenAt = liga === DRACHENHALLE.liga ? haupt[Math.round(DRACHENHALLE.anteil * (H - 1))] : -1;
-  /* Die Brutmutter steht AUF DEM WEG zum Drachen: zwei Schritte vor seiner
-     Station, rueckwaerts entlang der kuerzesten Wege (dist - 1).
-     Erster Anlauf (gemessen, verworfen): ein Anteil am Hauptast wie beim
-     Mitte-Boss (0.45). Die Liste `hauptast` des Kartenpruefers ist aber
-     keine Weg-Reihenfolge - der Rang fiel auf "Der Ferne Riegel" (L07s38),
-     das Blatt eines PARALLELEN Zweigs (s02 -> s09 ... s31 -> s38, next = []),
-     waehrend der Drache auf dem anderen Zweig steht (s02 -> s05 ... s40 ->
-     s41). Die Brutmutter waere ein ueberspringbares Ende gewesen, nicht
-     "erst das Gelege, dann der geschluepfte Drache". */
-  let brutAt = -1;
-  if (liga === BRUT.liga) {
-    const drache = hallenAt;                       // v1.90.20: die (leere) Drachenhalle
-    let u = drache;
+  /* ── v1.91.0: DIE VERGABE AM HAUPTAST ─────────────────────────────────────
+     Jede Station traegt hoechstens einen Boss. `nimm` sucht ab dem
+     gewuenschten Rang die naechste freie Station (nie der Start, nie das
+     Finale) und merkt sie sich. */
+  const belegt = new Map();                                  // Punktindex -> { art, id, ... }
+  const nimm = (anteil, eintrag) => {
+    let r = Math.max(1, Math.min(H - 2, Math.round(anteil * (H - 1))));
+    while (r < H - 1 && belegt.has(haupt[r])) r++;
+    if (r >= H - 1) { r = Math.max(1, Math.min(H - 2, Math.round(anteil * (H - 1)))); while (r > 0 && belegt.has(haupt[r])) r--; }
+    if (r <= 0) throw new Error(`Kapitel ${liga}: kein freier Platz am Hauptast fuer ${eintrag.id}`);
+    belegt.set(haupt[r], eintrag); return haupt[r];
+  };
+  let hpAb = liga === HP_AB_LIGA ? Math.round(H * HP_AB_ANTEIL) : 0;  // Hauptast-Rang, ab dem HP gilt
+  if (hpAb) belegt.set(haupt[hpAb], { art: "erwachen", id: ERWACHEN_FIGUR });
+  let hallenAt = -1, brutAt = -1;
+  if (liga === DRACHENHALLE.liga) {
+    hallenAt = nimm(DRACHENHALLE.anteil, { art: "halle", id: DRACHENHALLE.figur });
+    /* Die Brutmutter steht AUF DEM WEG zum Drachen: zwei Schritte vor seiner
+       Station, rueckwaerts entlang der kuerzesten Wege (dist - 1). Die Liste
+       `hauptast` des Kartenpruefers ist keine Weg-Reihenfolge - ein Anteil
+       fiele auf das Blatt eines PARALLELEN Zweigs (gemessen, v1.90.16). */
+    let u = hallenAt;
     for (let schritt = 0; u != null && schritt < BRUT.schritte; schritt++) {
-      const vor = (nb[u] || []).filter(w => dist[w] === dist[u] - 1)
+      u = (nb[u] || []).filter(w => dist[w] === dist[u] - 1)
         .sort((a, b) => (rangH.has(b) - rangH.has(a)) || a - b)[0];
-      u = vor;
     }
-    if (u != null && u !== drache && !figAt[u] && u !== mitteAt && rangH.has(u)) brutAt = u;
-    if (drache == null || drache < 0) throw new Error(`Kapitel ${liga}: keine Drachenhalle`);
+    if (u != null && u !== hallenAt && !belegt.has(u) && rangH.has(u)) { brutAt = u; belegt.set(u, { art: "bestie", id: BRUT.boss, brut: true }); }
     if (brutAt < 0) throw new Error(`Kapitel ${liga}: keine freie Station fuer die Brutmutter vor dem Drachen`);
   }
-  /* v1.0.20: DAS ERWACHEN BRAUCHT EINE FREIE STATION. Faellt der berechnete
-     Rang auf eine, die schon eine Figur oder den Mitte-Boss traegt, gewinnt
-     dort der andere Boss und das Erwachen verschwindet spurlos - genau das
-     passierte beim ersten Anlauf. Also weicht es nach hinten aus, bis eine
-     Station frei ist. */
-  if (hpAb) {
-    while (hpAb < H - 2 && (figAt[haupt[hpAb]] || haupt[hpAb] === mitteAt)) hpAb++;
+  if (MITTE_MEISTER[liga]) nimm(MITTE_MEISTER[liga][1], { art: "meister", id: MITTE_MEISTER[liga][0] });
+  const nebenFiguren = [];
+  for (const [fid, ort, siege] of (FIGUREN[liga] || [])) {
+    if (ort === "neben") nebenFiguren.push([fid, siege]);
+    else nimm(ort, { art: "figur", id: fid, siege });
   }
-  const nebenPool = NEBENFIGUR[liga] ? [NEBENFIGUR[liga]] : [];
-  // Die Nebenfigur sitzt GENAU EINMAL: am tiefsten Punkt des laengsten Asts.
-  const astNachLen = Object.entries(astLen).sort((a, b) => b[1] - a[1]);
-  // Notfalls tut es auch ein kuerzerer Ast - die Figur MUSS vergeben werden,
-  // sonst ist sie im ganzen Spiel nicht freischaltbar.
-  const figurAst = nebenPool.length && astNachLen.length
-    ? (astNachLen.find(a => a[1] >= 4) || astNachLen[0])[0] : null;
+  const bestienHier = (BESTIEN[liga] || []).map(([bid]) => bid);
+  for (const [bid, anteil] of (BESTIEN[liga] || []))
+    nimm(anteil, { art: "bestie", id: bid, rotation: [bid, bestienHier[(bestienHier.indexOf(bid) + 1) % bestienHier.length]] });
+
+  // Die Nebenfiguren sitzen je am tiefsten Punkt eines Seitenwegs - die
+  // laengsten Wege zuerst. Reichen die Wege nicht, rueckt der Rest auf den
+  // Hauptast (sonst waere die Figur im ganzen Spiel nicht zu gewinnen).
+  const astNachLen = Object.entries(astLen).sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1));
   // Zoll: der laengste Nebenast jedes Kapitels beginnt mit einer Mautstation.
   const zollAst = astNachLen.length ? astNachLen[0][0] : null;
   /* v1.36.0: die Seitenwege eines Kapitels in fester Folge (Abzweig, dann
@@ -333,18 +349,25 @@ SLOTS.forEach(([key, name, roman], si) => {
     const [a1, a2] = String(a).split(".").map(Number), [b1, b2] = String(b).split(".").map(Number);
     return a1 - b1 || a2 - b2;
   });
-  let figurBlatt = -1;
-  if (figurAst) {
+  const blattVon = (ast) => {
     // Das echte Blatt ist der Punkt mit der GROESSTEN Wegdistanz im Ast -
     // die Nummerntiefe taugt nicht, weil mehrere Punkte Tiefe drei haben
     // und der erste davon mitten im Ast liegen kann.
-    let tief = -1;
+    let tief = -1, blatt = -1;
     Object.entries(astVon).forEach(([idx, g]) => {
-      if (g !== figurAst) return;
+      if (g !== ast) return;
       const d = dist[Number(idx)] ?? -1;
-      if (d > tief) { tief = d; figurBlatt = Number(idx); }
+      if (d > tief) { tief = d; blatt = Number(idx); }
     });
-  }
+    return blatt;
+  };
+  const nebenAt = new Map();                                 // Punktindex -> [figur, siege]
+  nebenFiguren.forEach(([fid, siege], k) => {
+    const ast = astNachLen[k];
+    const blatt = ast && ast[1] >= 2 ? blattVon(ast[0]) : -1;
+    if (blatt >= 0 && !nebenAt.has(blatt)) nebenAt.set(blatt, [fid, siege]);
+    else nimm(0.2 + 0.6 * (k / Math.max(1, nebenFiguren.length)), { art: "figur", id: fid, siege });
+  });
 
   pk.forEach((p, i) => {
     const id = `L${String(liga).padStart(2, "0")}s${String(i).padStart(2, "0")}`;
@@ -402,36 +425,33 @@ SLOTS.forEach(([key, name, roman], si) => {
         n.difficulty = "hard";
         n.storyDe = `${n.place}: Hier wartet der Meister von Kapitel ${roman}.`;
         n.storyEn = `${n.place}: here waits the master of chapter ${roman}.`;
-        if (MEISTER_FIGUR[liga] === "dragon") {
-          n.storyDe = `${n.place}: Hier wartet der Meister von Kapitel ${roman} - ein junger Drache. Vier Felder, vier Leben.`;
-          n.storyEn = `${n.place}: here waits the master of chapter ${roman} - a young dragon. Four squares, four lives.`;
-        }
         n.reward.gold = 20 + 4 * liga;
-      } else if (figAt[i]) {
-        n.boss = { piece: figAt[i], wins: liga >= 7 ? 2 : 1 };
-        n.tier = Math.min(4, 1 + Math.floor(liga / 4) + schwer);
-      } else if (liga === HP_AB_LIGA && rang === hpAb) {   // DAS ERWACHEN hat Vorrang
-        n.boss = { pure: "b02", rotation: ["b02", "b03", "b01"] };   /* v1.90.20: der Hetzer (vorher der Waechter) */
-        n.tier = 1;
-        /* v1.90.18: ausdruecklich markiert - die erste HP-Schlacht behaelt die
-           alte Szene (Bossformationen, meta/campaign.js). Vorher war das
-           Erwachen nur an seiner Erzaehlung zu erkennen. */
-        n.erwachen = true;
-        n.storyDe = `${ort}: die alte Magie erwacht - Figuren bluten, Figuren halten stand.`;
-        n.storyEn = `${ort}: the old magic wakes - pieces bleed, pieces endure.`;
-      } else if (i === hallenAt) {                 // v1.90.20: die leere Drachenhalle
-        n.boss = { pure: DRACHENHALLE.boss };
-        n.tier = Math.min(4, 1 + Math.floor(liga / 5) + schwer);
-        n.storyDe = `${ort}: ${DRACHENHALLE.storyDe}`;
-        n.storyEn = `${ort}: ${DRACHENHALLE.storyEn}`;
-      } else if (i === brutAt) {
-        n.boss = { pure: BRUT.boss };
-        n.tier = Math.min(4, 1 + Math.floor(liga / 5) + schwer);
-        n.storyDe = `${ort}: ${BRUT.storyDe}`;
-        n.storyEn = `${ort}: ${BRUT.storyEn}`;
-      } else if (i === mitteAt && liga > 1) {
-        n.boss = { pure: MITTE[si][0], rotation: MITTE[si] };
-        n.tier = Math.min(4, 1 + Math.floor(liga / 5) + schwer);
+      } else if (belegt.has(i)) {
+        const e = belegt.get(i);
+        if (e.art === "erwachen") {                          // DAS ERWACHEN - seit v1.91.0 mit einer Figur
+          n.boss = { piece: e.id, wins: 1 };
+          n.tier = 1;
+          /* v1.90.18: ausdruecklich markiert - die erste HP-Schlacht behaelt die
+             alte Szene (Bossformationen, meta/campaign.js). */
+          n.erwachen = true;
+          n.storyDe = `${ort}: die alte Magie erwacht - Figuren bluten, Figuren halten stand.`;
+          n.storyEn = `${ort}: the old magic wakes - pieces bleed, pieces endure.`;
+        } else if (e.art === "halle") {                      // die Drachenhalle
+          n.boss = { piece: e.id, wins: 1 };
+          n.tier = Math.min(4, 1 + Math.floor(liga / 4) + schwer);
+          n.storyDe = `${ort}: ${DRACHENHALLE.storyDe}`;
+          n.storyEn = `${ort}: ${DRACHENHALLE.storyEn}`;
+        } else if (e.art === "figur") {
+          n.boss = { piece: e.id, wins: e.siege || (liga >= 7 ? 2 : 1) };
+          n.tier = Math.min(4, 1 + Math.floor(liga / 4) + schwer);
+        } else if (e.art === "meister") {                    // Grossmeister ohne Kapitel
+          n.boss = { pure: e.id };
+          n.tier = Math.min(4, 2 + Math.floor(liga / 5) + schwer);
+        } else {                                             // eine Bestie
+          n.boss = e.brut ? { pure: e.id } : { pure: e.id, rotation: e.rotation };
+          n.tier = Math.min(4, 1 + Math.floor(liga / 5) + schwer);
+          if (e.brut) { n.storyDe = `${ort}: ${BRUT.storyDe}`; n.storyEn = `${ort}: ${BRUT.storyEn}`; }
+        }
       }
     } else {
       const b = AST_DE.length;
@@ -443,8 +463,9 @@ SLOTS.forEach(([key, name, roman], si) => {
         n.gate = { gold: 15 + 10 * liga };
         n.tagDe = "Zollstation"; n.tagEn = "Toll station";
       }
-      if (i === figurBlatt) {                   // die eine Nebenast-Figur
-        n.boss = { piece: NEBENFIGUR[liga], wins: 1 };
+      if (nebenAt.has(i)) {                     // eine Nebenast-Figur
+        const [fid, siege] = nebenAt.get(i);
+        n.boss = { piece: fid, wins: siege || 1 };
         n.tier = Math.min(4, 1 + Math.floor(liga / 4));
       } else if (blatt) {                        // Belohnung nach Astlaenge
         if (len >= 4) n.reward.gold = 40 + 8 * liga;
@@ -483,6 +504,16 @@ writeFileSync("src/app/ui/mapBitmaps12.gen.js",
   + "\n};\n");
 
 const fig = knoten.filter(n => n.boss?.piece).map(n => n.boss.piece);
+/* v1.91.0: NACHZAEHLEN. Jede Figur und jede Bestie der Tabellen muss genau
+   eine Station bekommen haben - sonst ist sie im Spiel nicht zu erreichen. */
+const sollFig = [...Object.values(FIGUREN).flat().map(e => e[0]), ERWACHEN_FIGUR, DRACHENHALLE.figur];
+const fehltFig = sollFig.filter(f => !fig.includes(f));
+const purAlle = knoten.filter(n => n.boss?.pure).map(n => n.boss.pure);
+const sollBest = [...Object.values(BESTIEN).flat().map(e => e[0]), BRUT.boss, ...Object.values(MITTE_MEISTER).map(e => e[0]), ...ENDBOSS];
+const fehltBest = sollBest.filter(b => !purAlle.includes(b));
+if (fehltFig.length || fehltBest.length) { console.error("OHNE STATION:", [...fehltFig, ...fehltBest].join(", ")); process.exit(1); }
+const vorDrei = knoten.filter(n => n.league < 3 && n.boss?.pure && !ENDBOSS.includes(n.boss.pure));
+if (vorDrei.length) { console.error("BESTIE VOR KAPITEL III:", vorDrei.map(n => n.id + "=" + n.boss.pure).join(", ")); process.exit(1); }
 const doppelt = fig.filter((f, i) => fig.indexOf(f) !== i);
 console.log(`geschrieben: ${knoten.length} Stationen, ${fig.length} Figuren-Stationen, ${knoten.filter(n=>n.boss?.pure).length} Monster-Bosse`);
 if (doppelt.length) console.log("DOPPELT VERGEBEN:", [...new Set(doppelt)].join(", "));

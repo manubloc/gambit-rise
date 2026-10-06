@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="6 0 36 42" data-gg="piece:MK">
+<!-- nachgezogen aus dem Gemaelde monk (tools/figuren-einbau.py) -->
+<path d="M22.7 2.0 L19.1 7.7 L20.6 12.4 L15.4 18.7 L18.4 24.7 L18.7 33.5 L14.6 35.0 L14.6 38.3 L28.4 39.9 L33.3 38.4 L33.3 35.1 L29.4 33.7 L29.8 23.8 L32.3 18.9 L30.9 14.4 L26.9 11.7 L29.2 8.5 L27.6 4.1 Z" fill-rule="evenodd" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" style="fill:var(--fill, #c9a45c);stroke:var(--rim, none);stroke-width:var(--rimW, 1);paint-order:stroke fill"></path>
+</svg>

@@ -6,7 +6,8 @@ export { CHARACTERS, CHARACTER_LIST, KIND_TO_CHAR } from "./characters.js";
 export { DIFFICULTIES, difficultyById } from "./difficulties.js";
 export { CAMPAIGN, nodeById, BRANCHES, campaignTag, CHAPTERS, chapterForRow, chapterTitle } from "./campaign.js";
 export { MAPS, mapById, validateMap, inMap, isHole, holeSet, mapIdx, playableCount } from "./maps.js";
-export { BOSSES, bossById, LEAGUE_BOSSES, KAPITEL_TROPHAEE, kapitelVonGrossmeister, bossName, bossSpec } from "./bosses.js";
+export { BOSSES, bossById, LEAGUE_BOSSES, KAPITEL_TROPHAEE, kapitelVonGrossmeister, bossName, bossSpec,
+  MITTE_MEISTER, NIE_BESTECHLICH, bestechGrund, istBestechlich, EHEMALIGE_MEISTER } from "./bosses.js";
 
 export { ITEMS, ITEM_LIST, hasItem, buyItem, itemPrice } from "./items.js";
 export { PLACE_EN, placeEn } from "./placeNamesEn.js";

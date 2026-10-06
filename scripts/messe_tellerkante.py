@@ -81,7 +81,17 @@ ORDNER = "src/app/ui/assets/painted"
 #             Handwert ist gestrichen. Am Kanonier haelt er weiter die Stufe am
 #             Ring fuer den Knick (13): die Wand steht von y 520 bis 472 auf
 #             243-258 px und faellt bei 468 auf 227. Gesetzt auf 49.
-HANDWERTE = {"boss-b22": 48, "gambit-t2": 45, "boss-b25": 24, "boss-b08": 49, "boss-b18": 44}   # b18 seit v1.90.32 gestaucht: Wand von y 530 bis 486 auf 252-260 px, bei 482 noch 248, bei 478 nur 233
+# v1.91.0: vier neue Figuren mit hoeher gerechnetem Sockel (Besitzer 6.10.2026:
+#             "der Sockel beim Henker, Samurai und schwarzen Ritter muss noch
+#             hoeher"). Der Automat haelt bei ihnen die Stufe am Farbring fuer
+#             die Standflaeche (37/38/20/12 statt 55/55/50/53) - das Band sass
+#             zu tief, ein Streifen der Sockelwand blieb darueber sichtbar.
+#             Abgelesen am vergroesserten Bild (Vorderkante der Standflaeche):
+#             Henker y 500, Samurai y 500, Corvan (boss-b27) y 505,
+#             Donnerkraehe (boss-b43) y 502; Boden jeweils 555.
+HANDWERTE = {"boss-b22": 48, "gambit-t2": 45, "boss-b25": 24, "boss-b08": 49, "boss-b18": 44,
+  "executioner": 55, "samurai": 55, "boss-b27": 50, "boss-b43": 53,
+  "boss-b36": 48}   # Osric: der Mantel verdeckt die Standflaeche, der Automat fand 120; Vorderkante y 507   # b18 seit v1.90.32 gestaucht: Wand von y 530 bis 486 auf 252-260 px, bei 482 noch 248, bei 478 nur 233
 MASSE = json.load(open("src/app/ui/board/sockelband.json"))
 
 def kante(fid, m):

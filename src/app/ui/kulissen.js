@@ -12,22 +12,27 @@ import { LEAGUE_BOSSES } from "../../content/index.js";
 /* Die zwoelf Grossmeister, in Kapitelfolge - dieselbe Reihenfolge wie
    LEAGUE_BOSSES. Eine Probe haelt beide Listen aneinander. */
 export const MEISTER_KULISSE = {
-  b12: "meister-richter",       // II   Der Richter (v1.90.20: Mitte von Kapitel II, nicht mehr Meister I - der Drache ist es)
-  b10: "meister-doppelritter",  // II   Doppelritter
-  b24: "meister-hetzer",        // III  Seuchenkoenig (v1.33.0: der naechtliche Marktplatz mit Galgen - die Kulisse
-                                //      von Kapitel III; der Dateiname blieb, damit kein Bildpfad bricht)
-  b19: "meister-schattenfuerst",// IV   Schattenfuerst
-  b20: "meister-hueter",        // V    Der Hueter
-  b16: "meister-blutmagd",      // VI   Die Blutmagd
-  b17: "meister-lanzenmeister", // VII  Lanzenmeister
-  b18: "meister-eisenfaust",    // VIII Eisenfaust
-  b08: "meister-kanonier",      // IX   Kanonier
-  b14: "meister-koloss",        // X    Der Koloss
-  b23: "meister-asra",          // XI   Asra, die Erzfeindin
-  b25: "meister-osric",         // XII  Osric, der Grossmeister
+  /* v1.91.0: vierzehn Grossmeister. Acht tragen neue Kulissen (Besitzer
+     6.10.2026: "erfinde noch fuer jeden Meister einen Hintergrund"); Veyl,
+     Brakk, Asra, Osric und Thalor uebernehmen die ihrer Vorgaenger - sie sind
+     genau fuer diese Gestalten gemalt. */
+  b26: "meister-zahir",          // I    Zahir, der Pfauenfuerst - Palastgarten
+  b27: "meister-varek",         // II   Varek, der Schwarze Ritter - Turnierplatz bei Nacht
+  b24: "meister-hetzer",         // III  Malrik, der Seuchenkoenig (der naechtliche Marktplatz; der Dateiname blieb)
+  b28: "meister-isolde",         // IV   Isolde, die Dornenkoenigin - Rosengarten
+  b29: "meister-halvar",         // V    Halvar, der Gezeitenkoenig - versunkener Thronsaal
+  b30: "meister-seraphine",      // VI   Seraphine, die Maskenfuerstin - Ballsaal
+  b31: "meister-yorrik",         // VII  Yorrik, der Winterkoenig - gefrorene Thronhalle
+  b32: "meister-cassian",        // VIII Cassian, der Intrigant - geheime Ratskammer
+  b33: "meister-schattenfuerst", // IX   Veyl, der Schattenfuerst
+  b34: "meister-koloss",         // X    Brakk, der Koloss
+  b35: "meister-asra",           // XI   Asra, die Erzfeindin
+  b36: "meister-osric",          // XII  Osric, der Grossmeister
+  b37: "meister-morwen",         // Mitte VI  Morwen, die Rabenmutter - Glockenturm
+  b38: "meister-hueter",         // Mitte IX  Thalor, der Hueter
 };
 
-/* Die dreizehn uebrigen Monster, nach dem, was sie sind:
+/* Die Bestien, nach dem, was sie sind:
    Brut - Getier, Nester, Chitin. Untot - Nebel, Graeber, fahles Licht.
    Gesindel - Gassen, Rauch, Diebesgut. Gemaeuer - Stein, Wehrgang, Fallgitter. */
 export const MONSTER_GRUPPE = {
@@ -35,12 +40,23 @@ export const MONSTER_GRUPPE = {
   b07: "untot", b11: "untot", b21: "untot",                    // Geist, Fluesterin, Wandlerin
   b04: "gesindel", b05: "gesindel", b13: "gesindel",            // Schleicher, Streuner, Brandstifter
   b01: "gemaeuer", b06: "gemaeuer",                             // Waechter, Bollwerk
+  /* v1.91.0: die zehn frueheren Grossmeister und die fuenf neuen Bestien */
+  b12: "gesindel", b17: "gesindel", b08: "gemaeuer", b18: "gemaeuer", b14: "gemaeuer", b25: "gemaeuer",
+  b16: "brut", b20: "brut", b23: "brut", b19: "untot",
+  b39: "brut", b41: "brut", b43: "gesindel", b40: "untot", b42: "untot",
+};
+/* v1.91.0 (Besitzer 6.10.2026: "die Hintergruende bei den Bestien duerfen
+   schon auch noch ein bisschen variieren"): fuenf fruehere Grossmeister
+   behalten als Bestie die Kulisse, die fuer sie gemalt wurde. */
+export const EIGENE_KULISSE = {
+  b12: "meister-richter", b08: "meister-kanonier", b16: "meister-blutmagd", b17: "meister-lanzenmeister", b18: "meister-eisenfaust",
 };
 
 /* Liefert den Kulissennamen (ohne Endung) oder null, wenn es keine gibt. */
 export function kulisseFuer({ charId = null, bossId = null } = {}) {
   if (bossId) {
     if (MEISTER_KULISSE[bossId]) return MEISTER_KULISSE[bossId];
+    if (EIGENE_KULISSE[bossId]) return EIGENE_KULISSE[bossId];
     if (MONSTER_GRUPPE[bossId]) return `monster-${MONSTER_GRUPPE[bossId]}`;
     return null;
   }
@@ -63,7 +79,10 @@ export const GROSSMEISTER_IDS = LEAGUE_BOSSES;
    das Gesindel klaut sie; Siegel fuer das Arkane und das, was nicht
    menschlich ist. */
 const FORM_BUND = { krone: "medaillon", nachtwache: "medaillon", geleit: "schild", schildwacht: "schild", sturm: "schild",
-  konzil: "banner", faehrte: "banner", gezeiten: "banner", schatten: "siegel", bannkreis: "siegel" };
+  konzil: "banner", faehrte: "banner", gezeiten: "banner", schatten: "siegel", bannkreis: "siegel",
+  /* v1.91.0: Buerger tragen das Medaillon, Streiter den Schild, Jagd und Kontor das Banner, das Finstere das Siegel */
+  dorf: "medaillon", kueche: "medaillon", kloster: "medaillon", werkstatt: "schild", turnier: "schild",
+  kontor: "banner", jagd: "banner", finsternis: "siegel" };
 const FORM_GRUPPE = { gemaeuer: "schild", gesindel: "banner", brut: "siegel", untot: "siegel" };
 export function formFuer({ charId = null, bossId = null } = {}) {
   if (bossId) return MEISTER_KULISSE[bossId] ? "medaillon" : FORM_GRUPPE[MONSTER_GRUPPE[bossId]] || "siegel";

@@ -386,7 +386,7 @@ export const ownedLeagueBosses = (profile) => {
   const won = KAPITEL_TROPHAEE.slice(0, Math.min(KAPITEL_TROPHAEE.length, profile?.stats?.leaguesWon || 0)).filter(Boolean);
   // monsters BOUGHT with gold fight for you too (bis v1.90.32 kostete das zusaetzlich eine Kronenfigur)
   const bribed = profile?.campaign?.bribedBosses || [];
-  return [...new Set([...won, ...bribed])];
+  return [...new Set([...won, ...bribed])].filter((id) => bossById(id));   /* v1.91.0: nur, wen es noch gibt */
 };
 export const isBossEntry = (id) => typeof id === "string" && id.startsWith("boss:");
 export const bossEntryId = (id) => (isBossEntry(id) ? id.slice(5) : null);
@@ -438,8 +438,12 @@ export const BOSS_BUDGET = 24;
 export const ZIEL_PROFIL_BOSS = {
   b14: [21, 3], b20: [20, 4], b06: [20, 4], b01: [19, 5],
   b03: [17, 7], b17: [17, 7], b25: [16, 8], b12: [16, 8], b24: [16, 8],
-  b10: [13, 11], b18: [12, 12], b23: [12, 12], b21: [13, 11], b16: [11, 13], b08: [10, 14],
+  b18: [12, 12], b23: [12, 12], b21: [13, 11], b16: [11, 13], b08: [10, 14],
   b11: [8, 16], b04: [8, 16], b05: [9, 15], b02: [18, 6], b19: [7, 17], b09: [6, 18], b15: [17, 7], b22: [5, 19], b13: [5, 19], b07: [16, 8],
+  /* v1.91.0: die dreizehn neuen Grossmeister und fuenf neuen Bestien */
+  b26: [18, 6], b27: [17, 7], b28: [16, 8], b29: [20, 4], b30: [15, 9], b31: [21, 3], b32: [17, 7], b33: [16, 8],
+  b34: [21, 3], b35: [18, 6], b36: [19, 5], b37: [17, 7], b38: [21, 3],
+  b39: [20, 4], b40: [16, 8], b41: [14, 10], b42: [20, 4], b43: [13, 11],
 };
 /* ── v1.26.1: DAS MONSTER WAECHST IN SEINE WERTE HINEIN ────────────────────
    Besitzer: "Warum haben die Monster schon von Beginn an so viel Leben? Das
@@ -517,7 +521,9 @@ export function buildArmyFromFormation(levelOf, formation, chosenOf = null, boos
         if (chosenOf) { const gelernt = chosenOf("X:" + b.id) || []; return { ...spec, abilities: (spec.abilities || []).filter((a) => gelernt.includes(a)), ...(stufenOf ? { stufen: stufenOf("X:" + b.id) } : {}) }; }
         return spec;
       }
+      id = "queen";   /* v1.91.0: ein Monster, das es nicht mehr gibt (b10) - die Dame nimmt ihren Platz zurueck */
     }
+    if (!CHARACTERS[id]) id = "knight";   /* v1.91.0: eine Figur, die es nicht mehr gibt, darf kein Gefecht abstuerzen lassen */
     const ch = CHARACTERS[id];
     const level = Math.max(1, levelOf(id) || 1);
     const { abilities, shield } = resolveCharacter(ch, level, chosenOf ? chosenOf(id) : null);

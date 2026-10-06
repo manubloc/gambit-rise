@@ -72,7 +72,7 @@ gelernte Fähigkeiten werden erstattet).
 | Kap. | id | Name | Stufe |
 |---|---|---|---|
 | I | b26 | Zahir, der Pfauenfürst | unberührt |
-| II | b27 | Corvan, der Schwarze Ritter | unberührt |
+| II | b27 | Varek, der Schwarze Ritter | unberührt |
 | III | b24 | Malrik, der Seuchenkönig (bleibt, neuer Name) | — |
 | IV | b28 | Isolde, die Dornenkönigin | unberührt |
 | V | b29 | Halvar, der Gezeitenkönig | unberührt |

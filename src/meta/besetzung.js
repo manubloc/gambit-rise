@@ -163,7 +163,6 @@ export const STAERKE = {
   "pathfinder": 46,
   "alchemist": 45,
   "bard": 45,
-  "standard": 44,
   "guardian": 43,
   "strategist": 43,
   "boss:b01": 41,

@@ -49,7 +49,6 @@ import pPaladin from "../assets/painted/painted-paladin.webp";
 import pInquisitor from "../assets/painted/painted-inquisitor.webp";
 import pBard from "../assets/painted/painted-bard.webp";
 import pEngineer from "../assets/painted/painted-engineer.webp";
-import pStandard from "../assets/painted/painted-standard.webp";
 import pStrategist from "../assets/painted/painted-strategist.webp";
 import bArchenemy from "../assets/painted/painted-boss-archenemy.webp";
 // every named monster of the road now sits for his own portrait (b01–b22, b24)
@@ -62,7 +61,6 @@ import pbb06 from "../assets/painted/painted-boss-b06.webp";
 import pbb07 from "../assets/painted/painted-boss-b07.webp";
 import pbb08 from "../assets/painted/painted-boss-b08.webp";
 import pbb09 from "../assets/painted/painted-boss-b09.webp";
-import pbb10 from "../assets/painted/painted-boss-b10.webp";
 import pbb11 from "../assets/painted/painted-boss-b11.webp";
 import pbb12 from "../assets/painted/painted-boss-b12.webp";
 import pbb13 from "../assets/painted/painted-boss-b13.webp";
@@ -78,6 +76,49 @@ import pbb22 from "../assets/painted/painted-boss-b22.webp";
 import pbb23 from "../assets/painted/painted-boss-b23.webp";
 import pbb24 from "../assets/painted/painted-boss-b24.webp";
 import pbb25 from "../assets/painted/painted-boss-b25.webp";
+/* v1.91.0: 24 neue Figuren und 18 neue Bestien/Grossmeister (b26-b43) */
+import pNFarmwife from "../assets/painted/painted-farmwife.webp";
+import pNBeggar from "../assets/painted/painted-beggar.webp";
+import pNJester from "../assets/painted/painted-jester.webp";
+import pNSmith from "../assets/painted/painted-smith.webp";
+import pNCraftsman from "../assets/painted/painted-craftsman.webp";
+import pNScholar from "../assets/painted/painted-scholar.webp";
+import pNTaxman from "../assets/painted/painted-taxman.webp";
+import pNBanker from "../assets/painted/painted-banker.webp";
+import pNButcher from "../assets/painted/painted-butcher.webp";
+import pNCook from "../assets/painted/painted-cook.webp";
+import pNMiller from "../assets/painted/painted-miller.webp";
+import pNMonk from "../assets/painted/painted-monk.webp";
+import pNHealer from "../assets/painted/painted-healer.webp";
+import pNHuntress from "../assets/painted/painted-huntress.webp";
+import pNRanger from "../assets/painted/painted-ranger.webp";
+import pNTrapper from "../assets/painted/painted-trapper.webp";
+import pNCavalier from "../assets/painted/painted-cavalier.webp";
+import pNFencer from "../assets/painted/painted-fencer.webp";
+import pNSpearman from "../assets/painted/painted-spearman.webp";
+import pNGladiator from "../assets/painted/painted-gladiator.webp";
+import pNExecutioner from "../assets/painted/painted-executioner.webp";
+import pNSamurai from "../assets/painted/painted-samurai.webp";
+import pNJailer from "../assets/painted/painted-jailer.webp";
+import pNWatchman from "../assets/painted/painted-watchman.webp";
+import pbb26 from "../assets/painted/painted-boss-b26.webp";
+import pbb27 from "../assets/painted/painted-boss-b27.webp";
+import pbb28 from "../assets/painted/painted-boss-b28.webp";
+import pbb29 from "../assets/painted/painted-boss-b29.webp";
+import pbb30 from "../assets/painted/painted-boss-b30.webp";
+import pbb31 from "../assets/painted/painted-boss-b31.webp";
+import pbb32 from "../assets/painted/painted-boss-b32.webp";
+import pbb33 from "../assets/painted/painted-boss-b33.webp";
+import pbb34 from "../assets/painted/painted-boss-b34.webp";
+import pbb35 from "../assets/painted/painted-boss-b35.webp";
+import pbb36 from "../assets/painted/painted-boss-b36.webp";
+import pbb37 from "../assets/painted/painted-boss-b37.webp";
+import pbb38 from "../assets/painted/painted-boss-b38.webp";
+import pbb39 from "../assets/painted/painted-boss-b39.webp";
+import pbb40 from "../assets/painted/painted-boss-b40.webp";
+import pbb41 from "../assets/painted/painted-boss-b41.webp";
+import pbb42 from "../assets/painted/painted-boss-b42.webp";
+import pbb43 from "../assets/painted/painted-boss-b43.webp";
 
 // ── the CLASSIC set: frozen copies of the original standard pieces. The
 // campaign's standard figures may be repainted (human setting), but classic
@@ -161,7 +202,6 @@ import k_pPaladin from "../assets/painted/klein/painted-paladin.webp";
 import k_pInquisitor from "../assets/painted/klein/painted-inquisitor.webp";
 import k_pBard from "../assets/painted/klein/painted-bard.webp";
 import k_pEngineer from "../assets/painted/klein/painted-engineer.webp";
-import k_pStandard from "../assets/painted/klein/painted-standard.webp";
 import k_pStrategist from "../assets/painted/klein/painted-strategist.webp";
 import k_bArchenemy from "../assets/painted/klein/painted-boss-archenemy.webp";
 import k_pbb01 from "../assets/painted/klein/painted-boss-b01.webp";
@@ -173,7 +213,6 @@ import k_pbb06 from "../assets/painted/klein/painted-boss-b06.webp";
 import k_pbb07 from "../assets/painted/klein/painted-boss-b07.webp";
 import k_pbb08 from "../assets/painted/klein/painted-boss-b08.webp";
 import k_pbb09 from "../assets/painted/klein/painted-boss-b09.webp";
-import k_pbb10 from "../assets/painted/klein/painted-boss-b10.webp";
 import k_pbb11 from "../assets/painted/klein/painted-boss-b11.webp";
 import k_pbb12 from "../assets/painted/klein/painted-boss-b12.webp";
 import k_pbb13 from "../assets/painted/klein/painted-boss-b13.webp";
@@ -189,6 +228,48 @@ import k_pbb22 from "../assets/painted/klein/painted-boss-b22.webp";
 import k_pbb23 from "../assets/painted/klein/painted-boss-b23.webp";
 import k_pbb24 from "../assets/painted/klein/painted-boss-b24.webp";
 import k_pbb25 from "../assets/painted/klein/painted-boss-b25.webp";
+import k_pNFarmwife from "../assets/painted/klein/painted-farmwife.webp";
+import k_pNBeggar from "../assets/painted/klein/painted-beggar.webp";
+import k_pNJester from "../assets/painted/klein/painted-jester.webp";
+import k_pNSmith from "../assets/painted/klein/painted-smith.webp";
+import k_pNCraftsman from "../assets/painted/klein/painted-craftsman.webp";
+import k_pNScholar from "../assets/painted/klein/painted-scholar.webp";
+import k_pNTaxman from "../assets/painted/klein/painted-taxman.webp";
+import k_pNBanker from "../assets/painted/klein/painted-banker.webp";
+import k_pNButcher from "../assets/painted/klein/painted-butcher.webp";
+import k_pNCook from "../assets/painted/klein/painted-cook.webp";
+import k_pNMiller from "../assets/painted/klein/painted-miller.webp";
+import k_pNMonk from "../assets/painted/klein/painted-monk.webp";
+import k_pNHealer from "../assets/painted/klein/painted-healer.webp";
+import k_pNHuntress from "../assets/painted/klein/painted-huntress.webp";
+import k_pNRanger from "../assets/painted/klein/painted-ranger.webp";
+import k_pNTrapper from "../assets/painted/klein/painted-trapper.webp";
+import k_pNCavalier from "../assets/painted/klein/painted-cavalier.webp";
+import k_pNFencer from "../assets/painted/klein/painted-fencer.webp";
+import k_pNSpearman from "../assets/painted/klein/painted-spearman.webp";
+import k_pNGladiator from "../assets/painted/klein/painted-gladiator.webp";
+import k_pNExecutioner from "../assets/painted/klein/painted-executioner.webp";
+import k_pNSamurai from "../assets/painted/klein/painted-samurai.webp";
+import k_pNJailer from "../assets/painted/klein/painted-jailer.webp";
+import k_pNWatchman from "../assets/painted/klein/painted-watchman.webp";
+import k_pbb26 from "../assets/painted/klein/painted-boss-b26.webp";
+import k_pbb27 from "../assets/painted/klein/painted-boss-b27.webp";
+import k_pbb28 from "../assets/painted/klein/painted-boss-b28.webp";
+import k_pbb29 from "../assets/painted/klein/painted-boss-b29.webp";
+import k_pbb30 from "../assets/painted/klein/painted-boss-b30.webp";
+import k_pbb31 from "../assets/painted/klein/painted-boss-b31.webp";
+import k_pbb32 from "../assets/painted/klein/painted-boss-b32.webp";
+import k_pbb33 from "../assets/painted/klein/painted-boss-b33.webp";
+import k_pbb34 from "../assets/painted/klein/painted-boss-b34.webp";
+import k_pbb35 from "../assets/painted/klein/painted-boss-b35.webp";
+import k_pbb36 from "../assets/painted/klein/painted-boss-b36.webp";
+import k_pbb37 from "../assets/painted/klein/painted-boss-b37.webp";
+import k_pbb38 from "../assets/painted/klein/painted-boss-b38.webp";
+import k_pbb39 from "../assets/painted/klein/painted-boss-b39.webp";
+import k_pbb40 from "../assets/painted/klein/painted-boss-b40.webp";
+import k_pbb41 from "../assets/painted/klein/painted-boss-b41.webp";
+import k_pbb42 from "../assets/painted/klein/painted-boss-b42.webp";
+import k_pbb43 from "../assets/painted/klein/painted-boss-b43.webp";
 
 const KLASSIK_HELL = { P: kPawnH, N: kKnightH, B: kBishopH, R: kRookH, Q: kQueenH, K: kKingH };
 const KLASSIK_DUNKEL = { P: kPawnD, N: kKnightD, B: kBishopD, R: kRookD, Q: kQueenD, K: kKingD };
@@ -196,7 +277,10 @@ const KLASSIK_DUNKEL = { P: kPawnD, N: kKnightD, B: kBishopD, R: kRookD, Q: kQue
 export const klassikFor = (piece) =>
   (piece?.color === "w" ? KLASSIK_HELL : KLASSIK_DUNKEL)[piece?.kind] || null;
 
-export const PAINTED_KLEIN = { "pawn": k_pPawn, "pawn-t2": k_pPawnT2, "pawn-t3": k_pPawnT3, "haendler": k_pHaendler, "schatzkammer": k_pSchatzkammer, "gambit": k_pGambit, "gambit-t2": k_pGambitT2, "gambit-t3": k_pGambitT3, "gambit-t4": k_pGambitT4, "gambit-t5": k_pGambitT5, "gambit-t6": k_pGambitT6, "seeress": k_pSeeress, "knight": k_pKnight, "bishop": k_pBishop, "queen": k_pQueen, "archbishop": k_pArchbishop, "hawk": k_pHawk, "amazon": k_pAmazon, "assassin": k_pAssassin, "guardian": k_pGuardian, "captain": k_pCaptain, "sorceress": k_pSorceress, "pathfinder": k_pPathfinder, "rook": k_pRook, "king": k_pKing, "chancellor": k_pChancellor, "dragon": k_pDragon, "mage": k_pMage, "alchemist": k_pAlchemist, "warlock": k_pWarlock, "paladin": k_pPaladin, "inquisitor": k_pInquisitor, "bard": k_pBard, "engineer": k_pEngineer, "standard": k_pStandard, "strategist": k_pStrategist, "boss-archenemy": k_bArchenemy, "boss-b01": k_pbb01, "boss-b02": k_pbb02, "boss-b03": k_pbb03, "boss-b04": k_pbb04, "boss-b05": k_pbb05, "boss-b06": k_pbb06, "boss-b07": k_pbb07, "boss-b08": k_pbb08, "boss-b09": k_pbb09, "boss-b10": k_pbb10, "boss-b11": k_pbb11, "boss-b12": k_pbb12, "boss-b13": k_pbb13, "boss-b14": k_pbb14, "boss-b15": k_pbb15, "boss-b16": k_pbb16, "boss-b17": k_pbb17, "boss-b18": k_pbb18, "boss-b19": k_pbb19, "boss-b20": k_pbb20, "boss-b21": k_pbb21, "boss-b22": k_pbb22, "boss-b23": k_pbb23, "boss-b24": k_pbb24, "boss-b25": k_pbb25 };
+export const PAINTED_KLEIN = { "pawn": k_pPawn, "pawn-t2": k_pPawnT2, "pawn-t3": k_pPawnT3, "haendler": k_pHaendler, "schatzkammer": k_pSchatzkammer, "gambit": k_pGambit, "gambit-t2": k_pGambitT2, "gambit-t3": k_pGambitT3, "gambit-t4": k_pGambitT4, "gambit-t5": k_pGambitT5, "gambit-t6": k_pGambitT6, "seeress": k_pSeeress, "knight": k_pKnight, "bishop": k_pBishop, "queen": k_pQueen, "archbishop": k_pArchbishop, "hawk": k_pHawk, "amazon": k_pAmazon, "assassin": k_pAssassin, "guardian": k_pGuardian, "captain": k_pCaptain, "sorceress": k_pSorceress, "pathfinder": k_pPathfinder, "rook": k_pRook, "king": k_pKing, "chancellor": k_pChancellor, "dragon": k_pDragon, "mage": k_pMage, "alchemist": k_pAlchemist, "warlock": k_pWarlock, "paladin": k_pPaladin, "inquisitor": k_pInquisitor, "bard": k_pBard, "engineer": k_pEngineer, "strategist": k_pStrategist, "boss-archenemy": k_bArchenemy, "boss-b01": k_pbb01, "boss-b02": k_pbb02, "boss-b03": k_pbb03, "boss-b04": k_pbb04, "boss-b05": k_pbb05, "boss-b06": k_pbb06, "boss-b07": k_pbb07, "boss-b08": k_pbb08, "boss-b09": k_pbb09, "boss-b11": k_pbb11, "boss-b12": k_pbb12, "boss-b13": k_pbb13, "boss-b14": k_pbb14, "boss-b15": k_pbb15, "boss-b16": k_pbb16, "boss-b17": k_pbb17, "boss-b18": k_pbb18, "boss-b19": k_pbb19, "boss-b20": k_pbb20, "boss-b21": k_pbb21, "boss-b22": k_pbb22, "boss-b23": k_pbb23, "boss-b24": k_pbb24, "boss-b25": k_pbb25,
+  /* v1.91.0 */
+  "farmwife": k_pNFarmwife, "beggar": k_pNBeggar, "jester": k_pNJester, "smith": k_pNSmith, "craftsman": k_pNCraftsman, "scholar": k_pNScholar, "taxman": k_pNTaxman, "banker": k_pNBanker, "butcher": k_pNButcher, "cook": k_pNCook, "miller": k_pNMiller, "monk": k_pNMonk, "healer": k_pNHealer, "huntress": k_pNHuntress, "ranger": k_pNRanger, "trapper": k_pNTrapper, "cavalier": k_pNCavalier, "fencer": k_pNFencer, "spearman": k_pNSpearman, "gladiator": k_pNGladiator, "executioner": k_pNExecutioner, "samurai": k_pNSamurai, "jailer": k_pNJailer, "watchman": k_pNWatchman,
+  "boss-b26": k_pbb26, "boss-b27": k_pbb27, "boss-b28": k_pbb28, "boss-b29": k_pbb29, "boss-b30": k_pbb30, "boss-b31": k_pbb31, "boss-b32": k_pbb32, "boss-b33": k_pbb33, "boss-b34": k_pbb34, "boss-b35": k_pbb35, "boss-b36": k_pbb36, "boss-b37": k_pbb37, "boss-b38": k_pbb38, "boss-b39": k_pbb39, "boss-b40": k_pbb40, "boss-b41": k_pbb41, "boss-b42": k_pbb42, "boss-b43": k_pbb43 };
 
 export const PAINTED = {
   haendler: pHaendler, schatzkammer: pSchatzkammer, pawn: pPawn, "pawn-t2": pPawnT2, "pawn-t3": pPawnT3, gambit: pGambit, "gambit-t2": pGambitT2, "gambit-t3": pGambitT3, "gambit-t4": pGambitT4, "gambit-t5": pGambitT5, "gambit-t6": pGambitT6, seeress: pSeeress, knight: pKnight, bishop: pBishop, queen: pQueen,
@@ -204,10 +288,13 @@ export const PAINTED = {
   captain: pCaptain, pathfinder: pPathfinder, sorceress: pSorceress,
   rook: pRook, king: pKing, chancellor: pChancellor, dragon: pDragon, mage: pMage,
   alchemist: pAlchemist, warlock: pWarlock, paladin: pPaladin, inquisitor: pInquisitor,
-  bard: pBard, engineer: pEngineer, standard: pStandard, strategist: pStrategist, "boss-archenemy": bArchenemy,
+  bard: pBard, engineer: pEngineer, strategist: pStrategist, "boss-archenemy": bArchenemy,
   "boss-b01": pbb01, "boss-b02": pbb02, "boss-b03": pbb03, "boss-b04": pbb04, "boss-b05": pbb05, "boss-b06": pbb06, "boss-b07": pbb07, "boss-b08": pbb08,
-  "boss-b09": pbb09, "boss-b10": pbb10, "boss-b11": pbb11, "boss-b12": pbb12, "boss-b13": pbb13, "boss-b14": pbb14, "boss-b15": pbb15, "boss-b16": pbb16,
+  "boss-b09": pbb09, "boss-b11": pbb11, "boss-b12": pbb12, "boss-b13": pbb13, "boss-b14": pbb14, "boss-b15": pbb15, "boss-b16": pbb16,
   "boss-b17": pbb17, "boss-b18": pbb18, "boss-b19": pbb19, "boss-b20": pbb20, "boss-b21": pbb21, "boss-b22": pbb22, "boss-b23": pbb23, "boss-b24": pbb24, "boss-b25": pbb25,
+  /* v1.91.0 */
+  farmwife: pNFarmwife, beggar: pNBeggar, jester: pNJester, smith: pNSmith, craftsman: pNCraftsman, scholar: pNScholar, taxman: pNTaxman, banker: pNBanker, butcher: pNButcher, cook: pNCook, miller: pNMiller, monk: pNMonk, healer: pNHealer, huntress: pNHuntress, ranger: pNRanger, trapper: pNTrapper, cavalier: pNCavalier, fencer: pNFencer, spearman: pNSpearman, gladiator: pNGladiator, executioner: pNExecutioner, samurai: pNSamurai, jailer: pNJailer, watchman: pNWatchman,
+  "boss-b26": pbb26, "boss-b27": pbb27, "boss-b28": pbb28, "boss-b29": pbb29, "boss-b30": pbb30, "boss-b31": pbb31, "boss-b32": pbb32, "boss-b33": pbb33, "boss-b34": pbb34, "boss-b35": pbb35, "boss-b36": pbb36, "boss-b37": pbb37, "boss-b38": pbb38, "boss-b39": pbb39, "boss-b40": pbb40, "boss-b41": pbb41, "boss-b42": pbb42, "boss-b43": pbb43,
 };
 /* v1.90.21: Osrics Sockelkante von Hand (Begruendung in sockelmass.js) */
 kanteVonHand(pbb25, 0.12);
@@ -244,7 +331,9 @@ const KIND2ID = {
   P: "pawn", N: "knight", B: "bishop", R: "rook", Q: "queen", K: "king",
   A: "archbishop", C: "chancellor", H: "hawk", M: "amazon", V: "captain", S: "assassin", SE: "seeress",
   G: "guardian", D: "dragon", E: "mage", Z: "sorceress", L: "alchemist", W: "warlock",
-  U: "paladin", I: "inquisitor", J: "bard", T: "engineer", F: "standard", Y: "strategist", O: "pathfinder",
+  U: "paladin", I: "inquisitor", J: "bard", T: "engineer", Y: "strategist", O: "pathfinder",
+  /* v1.91.0: die 24 Neuen */
+  FW: "farmwife", BG: "beggar", JE: "jester", SM: "smith", CR: "craftsman", SL: "scholar", TX: "taxman", BK: "banker", BU: "butcher", CK: "cook", ML: "miller", MK: "monk", HL: "healer", HU: "huntress", RG: "ranger", TR: "trapper", CV: "cavalier", FN: "fencer", SP: "spearman", GL: "gladiator", EX: "executioner", SA: "samurai", JL: "jailer", NW: "watchman",
 };
 
 /** Painting for a live board piece — or null when the gallery has none yet. */

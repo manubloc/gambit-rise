@@ -58,11 +58,15 @@ export const CAMPAIGN12 = [
   "bump": 1,
   "next": [],
   "reward": {
-   "xp": 60,
-   "gold": 48
+   "xp": 60
   },
   "storyDe": "Ein Seitenpfad zweigt ab nach Verlassene Ruinen.",
-  "storyEn": "A side path branches toward Verlassene Ruinen."
+  "storyEn": "A side path branches toward Verlassene Ruinen.",
+  "boss": {
+   "piece": "taxman",
+   "wins": 1
+  },
+  "tier": 1
  },
  {
   "id": "L01s03",
@@ -105,7 +109,12 @@ export const CAMPAIGN12 = [
    "xp": 45
   },
   "storyDe": "Der Weg beginnt bei Nordwacht.",
-  "storyEn": "The road begins at Nordwacht."
+  "storyEn": "The road begins at Nordwacht.",
+  "boss": {
+   "piece": "farmwife",
+   "wins": 1
+  },
+  "tier": 2
  },
  {
   "id": "L01s05",
@@ -294,7 +303,12 @@ export const CAMPAIGN12 = [
    "xp": 57
   },
   "storyDe": "Der Pfad führt weiter über Klingenschlucht.",
-  "storyEn": "The path leads on across Klingenschlucht."
+  "storyEn": "The path leads on across Klingenschlucht.",
+  "boss": {
+   "piece": "jester",
+   "wins": 1
+  },
+  "tier": 2
  },
  {
   "id": "L01s14",
@@ -331,11 +345,15 @@ export const CAMPAIGN12 = [
   "bump": 1,
   "next": [],
   "reward": {
-   "xp": 60,
-   "gold": 48
+   "xp": 60
   },
   "storyDe": "Abseits des Weges liegt Mühlensteg.",
-  "storyEn": "Off the road lies Mühlensteg."
+  "storyEn": "Off the road lies Mühlensteg.",
+  "boss": {
+   "piece": "scholar",
+   "wins": 1
+  },
+  "tier": 1
  },
  {
   "id": "L01s16",
@@ -479,7 +497,12 @@ export const CAMPAIGN12 = [
    "xp": 69
   },
   "storyDe": "Die Prüfung wartet bei Nebelmoor.",
-  "storyEn": "The trial waits at Nebelmoor."
+  "storyEn": "The trial waits at Nebelmoor.",
+  "boss": {
+   "piece": "smith",
+   "wins": 1
+  },
+  "tier": 2
  },
  {
   "id": "L01s23",
@@ -563,12 +586,7 @@ export const CAMPAIGN12 = [
    "xp": 75
   },
   "storyDe": "Die Prüfung wartet bei Waldfeste.",
-  "storyEn": "The trial waits at Waldfeste.",
-  "boss": {
-   "piece": "mage",
-   "wins": 1
-  },
-  "tier": 2
+  "storyEn": "The trial waits at Waldfeste."
  },
  {
   "id": "L01s27",
@@ -649,7 +667,12 @@ export const CAMPAIGN12 = [
    "xp": 78
   },
   "storyDe": "Die Prüfung wartet bei Lindenhain.",
-  "storyEn": "The trial waits at Lindenhain."
+  "storyEn": "The trial waits at Lindenhain.",
+  "boss": {
+   "piece": "mage",
+   "wins": 1
+  },
+  "tier": 2
  },
  {
   "id": "L01s31",
@@ -664,11 +687,15 @@ export const CAMPAIGN12 = [
   "bump": 1,
   "next": [],
   "reward": {
-   "xp": 60,
-   "gold": 27
+   "xp": 60
   },
   "storyDe": "Ein stiller Umweg führt zu Hirtenruh.",
-  "storyEn": "A quiet detour leads to Hirtenruh."
+  "storyEn": "A quiet detour leads to Hirtenruh.",
+  "boss": {
+   "piece": "paladin",
+   "wins": 1
+  },
+  "tier": 1
  },
  {
   "id": "L01s32",
@@ -683,11 +710,15 @@ export const CAMPAIGN12 = [
   "bump": 1,
   "next": [],
   "reward": {
-   "xp": 60,
-   "gold": 48
+   "xp": 60
   },
   "storyDe": "Ein Seitenpfad zweigt ab nach Königsallee.",
-  "storyEn": "A side path branches toward Königsallee."
+  "storyEn": "A side path branches toward Königsallee.",
+  "boss": {
+   "piece": "beggar",
+   "wins": 1
+  },
+  "tier": 1
  },
  {
   "id": "L01s33",
@@ -854,7 +885,7 @@ export const CAMPAIGN12 = [
   "storyDe": "Der letzte Anstieg:  Hohes Heiligtum.",
   "storyEn": "The final ascent:  Hohes Heiligtum.",
   "boss": {
-   "piece": "paladin",
+   "piece": "banker",
    "wins": 1
   },
   "tier": 2
@@ -872,11 +903,15 @@ export const CAMPAIGN12 = [
   "bump": 1,
   "next": [],
   "reward": {
-   "xp": 60,
-   "gold": 48
+   "xp": 60
   },
   "storyDe": "Ein Seitenpfad zweigt ab nach Torfstich.",
-  "storyEn": "A side path branches toward Torfstich."
+  "storyEn": "A side path branches toward Torfstich.",
+  "boss": {
+   "piece": "craftsman",
+   "wins": 1
+  },
+  "tier": 1
  },
  {
   "id": "L01s42",
@@ -937,12 +972,11 @@ export const CAMPAIGN12 = [
    "xp": 99,
    "gold": 24
   },
-  "storyDe": "Bannerhöhe: Hier wartet der Meister von Kapitel I - ein junger Drache. Vier Felder, vier Leben.",
-  "storyEn": "Bannerhöhe: here waits the master of chapter I - a young dragon. Four squares, four lives.",
+  "storyDe": "Bannerhöhe: Hier wartet der Meister von Kapitel I.",
+  "storyEn": "Bannerhöhe: here waits the master of chapter I.",
   "final": true,
   "boss": {
-   "piece": "dragon",
-   "wins": 1
+   "pure": "b26"
   },
   "tier": 4
  },
@@ -980,11 +1014,15 @@ export const CAMPAIGN12 = [
   "bump": 1,
   "next": [],
   "reward": {
-   "xp": 66,
-   "gold": 32
+   "xp": 66
   },
   "storyDe": "Ein Seitenpfad zweigt ab nach Waage und Wort.",
-  "storyEn": "A side path branches toward Waage und Wort."
+  "storyEn": "A side path branches toward Waage und Wort.",
+  "boss": {
+   "piece": "trapper",
+   "wins": 1
+  },
+  "tier": 1
  },
  {
   "id": "L02s02",
@@ -1048,12 +1086,7 @@ export const CAMPAIGN12 = [
    "xp": 58
   },
   "storyDe": "Ein Seitenpfad zweigt ab nach Glutstoppel.",
-  "storyEn": "A side path branches toward Glutstoppel.",
-  "gate": {
-   "gold": 35
-  },
-  "tagDe": "Zollstation",
-  "tagEn": "Toll station"
+  "storyEn": "A side path branches toward Glutstoppel."
  },
  {
   "id": "L02s05",
@@ -1117,12 +1150,8 @@ export const CAMPAIGN12 = [
   "storyDe": "Krähenschreck: die alte Magie erwacht - Figuren bluten, Figuren halten stand.",
   "storyEn": "Krähenschreck: the old magic wakes - pieces bleed, pieces endure.",
   "boss": {
-   "pure": "b02",
-   "rotation": [
-    "b02",
-    "b03",
-    "b01"
-   ]
+   "piece": "healer",
+   "wins": 1
   },
   "tier": 1,
   "erwachen": true
@@ -1186,15 +1215,7 @@ export const CAMPAIGN12 = [
    "xp": 57
   },
   "storyDe": "Der Pfad führt weiter über Der lange Acker.",
-  "storyEn": "The path leads on across Der lange Acker.",
-  "boss": {
-   "pure": "b12",
-   "rotation": [
-    "b12",
-    "b11"
-   ]
-  },
-  "tier": 2
+  "storyEn": "The path leads on across Der lange Acker."
  },
  {
   "id": "L02s11",
@@ -1209,11 +1230,15 @@ export const CAMPAIGN12 = [
   "bump": 1,
   "next": [],
   "reward": {
-   "xp": 66,
-   "gold": 32
+   "xp": 66
   },
   "storyDe": "Abseits des Weges liegt Wende des Lichts.",
-  "storyEn": "Off the road lies Wende des Lichts."
+  "storyEn": "Off the road lies Wende des Lichts.",
+  "boss": {
+   "piece": "miller",
+   "wins": 1
+  },
+  "tier": 1
  },
  {
   "id": "L02s12",
@@ -1296,7 +1321,12 @@ export const CAMPAIGN12 = [
    "xp": 63
   },
   "storyDe": "Der Pfad führt weiter über Spreugericht.",
-  "storyEn": "The path leads on across Spreugericht."
+  "storyEn": "The path leads on across Spreugericht.",
+  "boss": {
+   "piece": "hawk",
+   "wins": 1
+  },
+  "tier": 2
  },
  {
   "id": "L02s16",
@@ -1400,7 +1430,7 @@ export const CAMPAIGN12 = [
   "storyDe": "Die Prüfung wartet bei Dreschhof.",
   "storyEn": "The trial waits at Dreschhof.",
   "boss": {
-   "piece": "hawk",
+   "piece": "cook",
    "wins": 1
   },
   "tier": 2
@@ -1509,7 +1539,12 @@ export const CAMPAIGN12 = [
    "xp": 58
   },
   "storyDe": "Ein Seitenpfad zweigt ab nach Mohnwerder.",
-  "storyEn": "A side path branches toward Mohnwerder."
+  "storyEn": "A side path branches toward Mohnwerder.",
+  "gate": {
+   "gold": 35
+  },
+  "tagDe": "Zollstation",
+  "tagEn": "Toll station"
  },
  {
   "id": "L02s26",
@@ -1524,11 +1559,15 @@ export const CAMPAIGN12 = [
   "bump": 1,
   "next": [],
   "reward": {
-   "xp": 66,
-   "gold": 32
+   "xp": 66
   },
   "storyDe": "Abseits des Weges liegt Gebeugte Kapelle.",
-  "storyEn": "Off the road lies Gebeugte Kapelle."
+  "storyEn": "Off the road lies Gebeugte Kapelle.",
+  "boss": {
+   "piece": "ranger",
+   "wins": 1
+  },
+  "tier": 1
  },
  {
   "id": "L02s27",
@@ -1568,7 +1607,7 @@ export const CAMPAIGN12 = [
   "storyDe": "Ein Seitenpfad zweigt ab nach Flammenfurt.",
   "storyEn": "A side path branches toward Flammenfurt.",
   "boss": {
-   "piece": "bard",
+   "piece": "butcher",
    "wins": 1
   },
   "tier": 1
@@ -1612,7 +1651,12 @@ export const CAMPAIGN12 = [
    "xp": 81
   },
   "storyDe": "Die Prüfung wartet bei Volle Scheuer.",
-  "storyEn": "The trial waits at Volle Scheuer."
+  "storyEn": "The trial waits at Volle Scheuer.",
+  "boss": {
+   "piece": "monk",
+   "wins": 1
+  },
+  "tier": 2
  },
  {
   "id": "L02s31",
@@ -1734,7 +1778,12 @@ export const CAMPAIGN12 = [
    "xp": 87
   },
   "storyDe": "Der letzte Anstieg:  Fürstenmahd.",
-  "storyEn": "The final ascent:  Fürstenmahd."
+  "storyEn": "The final ascent:  Fürstenmahd.",
+  "boss": {
+   "piece": "huntress",
+   "wins": 1
+  },
+  "tier": 2
  },
  {
   "id": "L02s37",
@@ -1790,11 +1839,15 @@ export const CAMPAIGN12 = [
   "bump": 1,
   "next": [],
   "reward": {
-   "xp": 66,
-   "gold": 56
+   "xp": 66
   },
   "storyDe": "Ein stiller Umweg führt zu Welkgart.",
-  "storyEn": "A quiet detour leads to Welkgart."
+  "storyEn": "A quiet detour leads to Welkgart.",
+  "boss": {
+   "piece": "bard",
+   "wins": 1
+  },
+  "tier": 1
  },
  {
   "id": "L02s40",
@@ -1838,7 +1891,7 @@ export const CAMPAIGN12 = [
   "storyEn": "Kanzel im Weizen: here waits the master of chapter II.",
   "final": true,
   "boss": {
-   "pure": "b10"
+   "pure": "b27"
   },
   "tier": 4
  },
@@ -1916,11 +1969,15 @@ export const CAMPAIGN12 = [
   "bump": 2,
   "next": [],
   "reward": {
-   "xp": 72,
-   "gold": 64
+   "xp": 72
   },
   "storyDe": "Ein Seitenpfad zweigt ab nach Wipfelkanzel.",
-  "storyEn": "A side path branches toward Wipfelkanzel."
+  "storyEn": "A side path branches toward Wipfelkanzel.",
+  "boss": {
+   "piece": "watchman",
+   "wins": 1
+  },
+  "tier": 1
  },
  {
   "id": "L03s04",
@@ -1982,7 +2039,15 @@ export const CAMPAIGN12 = [
    "xp": 54
   },
   "storyDe": "Der Weg beginnt bei Bernsteinaltar.",
-  "storyEn": "The road begins at Bernsteinaltar."
+  "storyEn": "The road begins at Bernsteinaltar.",
+  "boss": {
+   "pure": "b02",
+   "rotation": [
+    "b02",
+    "b04"
+   ]
+  },
+  "tier": 3
  },
  {
   "id": "L03s07",
@@ -2131,7 +2196,7 @@ export const CAMPAIGN12 = [
    "pure": "b04",
    "rotation": [
     "b04",
-    "b02"
+    "b01"
    ]
   },
   "tier": 3
@@ -2217,7 +2282,15 @@ export const CAMPAIGN12 = [
    "xp": 69
   },
   "storyDe": "Der Pfad führt weiter über Klingenwald.",
-  "storyEn": "The path leads on across Klingenwald."
+  "storyEn": "The path leads on across Klingenwald.",
+  "boss": {
+   "pure": "b01",
+   "rotation": [
+    "b01",
+    "b02"
+   ]
+  },
+  "tier": 3
  },
  {
   "id": "L03s18",
@@ -2293,11 +2366,15 @@ export const CAMPAIGN12 = [
   "bump": 2,
   "next": [],
   "reward": {
-   "xp": 72,
-   "gold": 64
+   "xp": 72
   },
   "storyDe": "Ein Seitenpfad zweigt ab nach Moderpforte.",
-  "storyEn": "A side path branches toward Moderpforte."
+  "storyEn": "A side path branches toward Moderpforte.",
+  "boss": {
+   "piece": "cavalier",
+   "wins": 1
+  },
+  "tier": 1
  },
  {
   "id": "L03s22",
@@ -2633,7 +2710,12 @@ export const CAMPAIGN12 = [
    "xp": 87
   },
   "storyDe": "Der letzte Anstieg:  Zwillingsfeste.",
-  "storyEn": "The final ascent:  Zwillingsfeste."
+  "storyEn": "The final ascent:  Zwillingsfeste.",
+  "boss": {
+   "piece": "fencer",
+   "wins": 1
+  },
+  "tier": 3
  },
  {
   "id": "L03s38",
@@ -2689,11 +2771,15 @@ export const CAMPAIGN12 = [
   "bump": 2,
   "next": [],
   "reward": {
-   "xp": 72,
-   "gold": 64
+   "xp": 72
   },
   "storyDe": "Abseits des Weges liegt Reisigschneise.",
-  "storyEn": "Off the road lies Reisigschneise."
+  "storyEn": "Off the road lies Reisigschneise.",
+  "boss": {
+   "piece": "spearman",
+   "wins": 1
+  },
+  "tier": 1
  },
  {
   "id": "L03s41",
@@ -2972,7 +3058,7 @@ export const CAMPAIGN12 = [
    "pure": "b09",
    "rotation": [
     "b09",
-    "b13"
+    "b12"
    ]
   },
   "tier": 2
@@ -3123,11 +3209,15 @@ export const CAMPAIGN12 = [
   "bump": 1,
   "next": [],
   "reward": {
-   "xp": 78,
-   "gold": 72
+   "xp": 78
   },
   "storyDe": "Ein Seitenpfad zweigt ab nach Wildheuplatz.",
-  "storyEn": "A side path branches toward Wildheuplatz."
+  "storyEn": "A side path branches toward Wildheuplatz.",
+  "boss": {
+   "piece": "guardian",
+   "wins": 1
+  },
+  "tier": 2
  },
  {
   "id": "L04s18",
@@ -3271,7 +3361,15 @@ export const CAMPAIGN12 = [
    "xp": 96
   },
   "storyDe": "Die Prüfung wartet bei Die Schindelhütte.",
-  "storyEn": "The trial waits at Die Schindelhütte."
+  "storyEn": "The trial waits at Die Schindelhütte.",
+  "boss": {
+   "pure": "b12",
+   "rotation": [
+    "b12",
+    "b09"
+   ]
+  },
+  "tier": 2
  },
  {
   "id": "L04s25",
@@ -3393,7 +3491,7 @@ export const CAMPAIGN12 = [
   "storyEn": "Bergahornhof: here waits the master of chapter IV.",
   "final": true,
   "boss": {
-   "pure": "b19"
+   "pure": "b28"
   },
   "tier": 4
  },
@@ -3456,7 +3554,12 @@ export const CAMPAIGN12 = [
    "xp": 102
   },
   "storyDe": "Der letzte Anstieg:  Lärchentor.",
-  "storyEn": "The final ascent:  Lärchentor."
+  "storyEn": "The final ascent:  Lärchentor.",
+  "boss": {
+   "piece": "gladiator",
+   "wins": 1
+  },
+  "tier": 3
  },
  {
   "id": "L04s34",
@@ -3743,11 +3846,15 @@ export const CAMPAIGN12 = [
   "bump": 2,
   "next": [],
   "reward": {
-   "xp": 84,
-   "gold": 80
+   "xp": 84
   },
   "storyDe": "Ein Seitenpfad zweigt ab nach Königsgrat.",
-  "storyEn": "A side path branches toward Königsgrat."
+  "storyEn": "A side path branches toward Königsgrat.",
+  "boss": {
+   "piece": "jailer",
+   "wins": 1
+  },
+  "tier": 2
  },
  {
   "id": "L05s05",
@@ -4005,7 +4112,7 @@ export const CAMPAIGN12 = [
    "pure": "b22",
    "rotation": [
     "b22",
-    "b04"
+    "b40"
    ]
   },
   "tier": 3
@@ -4151,7 +4258,15 @@ export const CAMPAIGN12 = [
    "xp": 90
   },
   "storyDe": "Der Pfad führt weiter über Raureifgitter.",
-  "storyEn": "The path leads on across Raureifgitter."
+  "storyEn": "The path leads on across Raureifgitter.",
+  "boss": {
+   "pure": "b40",
+   "rotation": [
+    "b40",
+    "b42"
+   ]
+  },
+  "tier": 3
  },
  {
   "id": "L05s24",
@@ -4236,7 +4351,7 @@ export const CAMPAIGN12 = [
   "storyDe": "Die Prüfung wartet bei Eisburg.",
   "storyEn": "The trial waits at Eisburg.",
   "boss": {
-   "piece": "guardian",
+   "piece": "executioner",
    "wins": 1
   },
   "tier": 3
@@ -4384,7 +4499,15 @@ export const CAMPAIGN12 = [
    "xp": 111
   },
   "storyDe": "Die Prüfung wartet bei Fährtenfeld.",
-  "storyEn": "The trial waits at Fährtenfeld."
+  "storyEn": "The trial waits at Fährtenfeld.",
+  "boss": {
+   "pure": "b42",
+   "rotation": [
+    "b42",
+    "b22"
+   ]
+  },
+  "tier": 3
  },
  {
   "id": "L05s35",
@@ -4603,11 +4726,15 @@ export const CAMPAIGN12 = [
   "bump": 2,
   "next": [],
   "reward": {
-   "xp": 84,
-   "gold": 80
+   "xp": 84
   },
   "storyDe": "Ein stiller Umweg führt zu Rabenkanzel.",
-  "storyEn": "A quiet detour leads to Rabenkanzel."
+  "storyEn": "A quiet detour leads to Rabenkanzel.",
+  "boss": {
+   "piece": "engineer",
+   "wins": 1
+  },
+  "tier": 2
  },
  {
   "id": "L05s46",
@@ -4670,7 +4797,7 @@ export const CAMPAIGN12 = [
   "storyEn": "Lawinenhang: here waits the master of chapter V.",
   "final": true,
   "boss": {
-   "pure": "b20"
+   "pure": "b29"
   },
   "tier": 4
  },
@@ -4974,7 +5101,7 @@ export const CAMPAIGN12 = [
    "pure": "b21",
    "rotation": [
     "b21",
-    "b07"
+    "b16"
    ]
   },
   "tier": 2
@@ -5082,7 +5209,11 @@ export const CAMPAIGN12 = [
    "xp": 114
   },
   "storyDe": "Die Prüfung wartet bei Das Verlorene Schloss.",
-  "storyEn": "The trial waits at Das Verlorene Schloss."
+  "storyEn": "The trial waits at Das Verlorene Schloss.",
+  "boss": {
+   "pure": "b37"
+  },
+  "tier": 3
  },
  {
   "id": "L06s19",
@@ -5103,7 +5234,15 @@ export const CAMPAIGN12 = [
    "xp": 99
   },
   "storyDe": "Der Pfad führt weiter über Dohlenflug.",
-  "storyEn": "The path leads on across Dohlenflug."
+  "storyEn": "The path leads on across Dohlenflug.",
+  "boss": {
+   "pure": "b16",
+   "rotation": [
+    "b16",
+    "b41"
+   ]
+  },
+  "tier": 2
  },
  {
   "id": "L06s20",
@@ -5252,7 +5391,15 @@ export const CAMPAIGN12 = [
    "xp": 120
   },
   "storyDe": "Die Prüfung wartet bei Adlerkanzel.",
-  "storyEn": "The trial waits at Adlerkanzel."
+  "storyEn": "The trial waits at Adlerkanzel.",
+  "boss": {
+   "pure": "b41",
+   "rotation": [
+    "b41",
+    "b21"
+   ]
+  },
+  "tier": 2
  },
  {
   "id": "L06s27",
@@ -5416,7 +5563,12 @@ export const CAMPAIGN12 = [
    "xp": 129
   },
   "storyDe": "Der letzte Anstieg:  Sieben Riegel.",
-  "storyEn": "The final ascent:  Sieben Riegel."
+  "storyEn": "The final ascent:  Sieben Riegel.",
+  "boss": {
+   "piece": "samurai",
+   "wins": 1
+  },
+  "tier": 2
  },
  {
   "id": "L06s35",
@@ -5723,7 +5875,7 @@ export const CAMPAIGN12 = [
   "storyEn": "Grauer Atem: here waits the master of chapter VI.",
   "final": true,
   "boss": {
-   "pure": "b16"
+   "pure": "b30"
   },
   "tier": 3
  },
@@ -5802,11 +5954,15 @@ export const CAMPAIGN12 = [
   "bump": 1,
   "next": [],
   "reward": {
-   "xp": 96,
-   "gold": 96
+   "xp": 96
   },
   "storyDe": "Ein stiller Umweg führt zu Murmeltierstadt.",
-  "storyEn": "A quiet detour leads to Murmeltierstadt."
+  "storyEn": "A quiet detour leads to Murmeltierstadt.",
+  "boss": {
+   "piece": "strategist",
+   "wins": 1
+  },
+  "tier": 2
  },
  {
   "id": "L07s02",
@@ -6182,7 +6338,7 @@ export const CAMPAIGN12 = [
    "pure": "b15",
    "rotation": [
     "b15",
-    "b06"
+    "b17"
    ]
   },
   "tier": 2
@@ -6644,10 +6800,11 @@ export const CAMPAIGN12 = [
   "reward": {
    "xp": 129
   },
-  "storyDe": "Halle des einen Gangs: Der Hort ist leer, sein Bewohner ausgeflogen. Geblieben ist der Wächter, und er hütet die Halle, als käme jemand zurück.",
-  "storyEn": "Halle des einen Gangs: The hoard is empty, its keeper flown. The Warden stayed behind, guarding the hall as if someone might return.",
+  "storyDe": "Halle des einen Gangs: Der Hort ist nicht leer. Sein Bewohner ist jung, gierig und zu Hause - ein Drache auf vier Feldern.",
+  "storyEn": "Halle des einen Gangs: The hoard is not empty. Its keeper is young, greedy and at home - a dragon on four squares.",
   "boss": {
-   "pure": "b01"
+   "piece": "dragon",
+   "wins": 1
   },
   "tier": 2
  },
@@ -6775,7 +6932,15 @@ export const CAMPAIGN12 = [
    "xp": 153
   },
   "storyDe": "Der letzte Anstieg:  Der Meister der Lanze.",
-  "storyEn": "The final ascent:  Der Meister der Lanze."
+  "storyEn": "The final ascent:  Der Meister der Lanze.",
+  "boss": {
+   "pure": "b17",
+   "rotation": [
+    "b17",
+    "b15"
+   ]
+  },
+  "tier": 2
  },
  {
   "id": "L07s48",
@@ -6924,7 +7089,7 @@ export const CAMPAIGN12 = [
   "storyEn": "Hufeisenglück: here waits the master of chapter VII.",
   "final": true,
   "boss": {
-   "pure": "b17"
+   "pure": "b31"
   },
   "tier": 3
  },
@@ -7082,15 +7247,11 @@ export const CAMPAIGN12 = [
   "bump": 2,
   "next": [],
   "reward": {
-   "xp": 102
+   "xp": 102,
+   "gold": 104
   },
   "storyDe": "Ein Seitenpfad zweigt ab nach Steinschlag.",
-  "storyEn": "A side path branches toward Steinschlag.",
-  "boss": {
-   "piece": "amazon",
-   "wins": 1
-  },
-  "tier": 3
+  "storyEn": "A side path branches toward Steinschlag."
  },
  {
   "id": "L08s05",
@@ -7259,7 +7420,7 @@ export const CAMPAIGN12 = [
    "pure": "b06",
    "rotation": [
     "b06",
-    "b01"
+    "b18"
    ]
   },
   "tier": 3
@@ -7389,7 +7550,7 @@ export const CAMPAIGN12 = [
   "storyDe": "Die Prüfung wartet bei Glutofen.",
   "storyEn": "The trial waits at Glutofen.",
   "boss": {
-   "piece": "warlock",
+   "piece": "inquisitor",
    "wins": 2
   },
   "tier": 4
@@ -7454,7 +7615,15 @@ export const CAMPAIGN12 = [
    "xp": 105
   },
   "storyDe": "Der Pfad führt weiter über Kupferader.",
-  "storyEn": "The path leads on across Kupferader."
+  "storyEn": "The path leads on across Kupferader.",
+  "boss": {
+   "pure": "b18",
+   "rotation": [
+    "b18",
+    "b13"
+   ]
+  },
+  "tier": 3
  },
  {
   "id": "L08s22",
@@ -7765,7 +7934,15 @@ export const CAMPAIGN12 = [
    "xp": 129
   },
   "storyDe": "Der letzte Anstieg:  Schwalbennische.",
-  "storyEn": "The final ascent:  Schwalbennische."
+  "storyEn": "The final ascent:  Schwalbennische.",
+  "boss": {
+   "pure": "b13",
+   "rotation": [
+    "b13",
+    "b06"
+   ]
+  },
+  "tier": 3
  },
  {
   "id": "L08s37",
@@ -8030,7 +8207,7 @@ export const CAMPAIGN12 = [
   "storyEn": "Verlassener Stollen: here waits the master of chapter VIII.",
   "final": true,
   "boss": {
-   "pure": "b18"
+   "pure": "b32"
   },
   "tier": 4
  },
@@ -8177,7 +8354,15 @@ export const CAMPAIGN12 = [
    "xp": 96
   },
   "storyDe": "Der Pfad führt weiter über Splitterknochen.",
-  "storyEn": "The path leads on across Splitterknochen."
+  "storyEn": "The path leads on across Splitterknochen.",
+  "boss": {
+   "pure": "b08",
+   "rotation": [
+    "b08",
+    "b19"
+   ]
+  },
+  "tier": 4
  },
  {
   "id": "L09s07",
@@ -8218,15 +8403,7 @@ export const CAMPAIGN12 = [
    "xp": 99
   },
   "storyDe": "Der Pfad führt weiter über Der Galgenpfad.",
-  "storyEn": "The path leads on across Der Galgenpfad.",
-  "boss": {
-   "pure": "b13",
-   "rotation": [
-    "b13",
-    "b22"
-   ]
-  },
-  "tier": 4
+  "storyEn": "The path leads on across Der Galgenpfad."
  },
  {
   "id": "L09s09",
@@ -8295,7 +8472,15 @@ export const CAMPAIGN12 = [
    "xp": 102
   },
   "storyDe": "Der Pfad führt weiter über Wo die Erde trank.",
-  "storyEn": "The path leads on across Wo die Erde trank."
+  "storyEn": "The path leads on across Wo die Erde trank.",
+  "boss": {
+   "pure": "b19",
+   "rotation": [
+    "b19",
+    "b43"
+   ]
+  },
+  "tier": 4
  },
  {
   "id": "L09s12",
@@ -8498,7 +8683,7 @@ export const CAMPAIGN12 = [
   "storyDe": "Die Prüfung wartet bei Fahles Land.",
   "storyEn": "The trial waits at Fahles Land.",
   "boss": {
-   "piece": "inquisitor",
+   "piece": "chancellor",
    "wins": 2
   },
   "tier": 4
@@ -8543,7 +8728,15 @@ export const CAMPAIGN12 = [
    "xp": 117
   },
   "storyDe": "Die Prüfung wartet bei Grauschleier.",
-  "storyEn": "The trial waits at Grauschleier."
+  "storyEn": "The trial waits at Grauschleier.",
+  "boss": {
+   "pure": "b43",
+   "rotation": [
+    "b43",
+    "b08"
+   ]
+  },
+  "tier": 4
  },
  {
   "id": "L09s24",
@@ -8626,7 +8819,11 @@ export const CAMPAIGN12 = [
    "xp": 123
   },
   "storyDe": "Der letzte Anstieg:  Dornenfeste.",
-  "storyEn": "The final ascent:  Dornenfeste."
+  "storyEn": "The final ascent:  Dornenfeste.",
+  "boss": {
+   "pure": "b38"
+  },
+  "tier": 4
  },
  {
   "id": "L09s28",
@@ -8769,7 +8966,7 @@ export const CAMPAIGN12 = [
   "storyEn": "Das Ausgeblutete Tor: here waits the master of chapter IX.",
   "final": true,
   "boss": {
-   "pure": "b08"
+   "pure": "b33"
   },
   "tier": 4
  },
@@ -9073,15 +9270,11 @@ export const CAMPAIGN12 = [
   "bump": 2,
   "next": [],
   "reward": {
-   "xp": 114
+   "xp": 114,
+   "gold": 120
   },
   "storyDe": "Ein Seitenpfad zweigt ab nach Bleichgart.",
-  "storyEn": "A side path branches toward Bleichgart.",
-  "boss": {
-   "piece": "strategist",
-   "wins": 1
-  },
-  "tier": 3
+  "storyEn": "A side path branches toward Bleichgart."
  },
  {
   "id": "L10s15",
@@ -9125,8 +9318,11 @@ export const CAMPAIGN12 = [
   "storyDe": "Der letzte Anstieg:  Königsdüne.",
   "storyEn": "The final ascent:  Königsdüne.",
   "boss": {
-   "piece": "engineer",
-   "wins": 2
+   "pure": "b14",
+   "rotation": [
+    "b14",
+    "b05"
+   ]
   },
   "tier": 3
  },
@@ -9383,7 +9579,12 @@ export const CAMPAIGN12 = [
    "xp": 144
   },
   "storyDe": "Die Prüfung wartet bei Geierkanzel.",
-  "storyEn": "The trial waits at Geierkanzel."
+  "storyEn": "The trial waits at Geierkanzel.",
+  "boss": {
+   "piece": "archbishop",
+   "wins": 2
+  },
+  "tier": 3
  },
  {
   "id": "L10s29",
@@ -9617,7 +9818,7 @@ export const CAMPAIGN12 = [
    "pure": "b05",
    "rotation": [
     "b05",
-    "b02"
+    "b20"
    ]
   },
   "tier": 3
@@ -9726,8 +9927,11 @@ export const CAMPAIGN12 = [
   "storyDe": "Der Pfad führt weiter über Dattelhain.",
   "storyEn": "The path leads on across Dattelhain.",
   "boss": {
-   "piece": "archbishop",
-   "wins": 2
+   "pure": "b20",
+   "rotation": [
+    "b20",
+    "b14"
+   ]
   },
   "tier": 3
  },
@@ -9834,7 +10038,7 @@ export const CAMPAIGN12 = [
   "storyEn": "Palmschatten: here waits the master of chapter X.",
   "final": true,
   "boss": {
-   "pure": "b14"
+   "pure": "b34"
   },
   "tier": 3
  },
@@ -9859,7 +10063,7 @@ export const CAMPAIGN12 = [
   "storyEn": "Königsklippe: here waits the master of chapter XI.",
   "final": true,
   "boss": {
-   "pure": "b23"
+   "pure": "b35"
   },
   "tier": 4
  },
@@ -10245,7 +10449,7 @@ export const CAMPAIGN12 = [
    "pure": "b07",
    "rotation": [
     "b07",
-    "b21"
+    "b23"
    ]
   },
   "tier": 4
@@ -10433,8 +10637,11 @@ export const CAMPAIGN12 = [
   "storyDe": "Der Pfad führt weiter über Milchsee.",
   "storyEn": "The path leads on across Milchsee.",
   "boss": {
-   "piece": "chancellor",
-   "wins": 2
+   "pure": "b23",
+   "rotation": [
+    "b23",
+    "b39"
+   ]
   },
   "tier": 4
  },
@@ -10619,7 +10826,12 @@ export const CAMPAIGN12 = [
    "xp": 138
   },
   "storyDe": "Die Prüfung wartet bei Tangwald.",
-  "storyEn": "The trial waits at Tangwald."
+  "storyEn": "The trial waits at Tangwald.",
+  "boss": {
+   "piece": "warlock",
+   "wins": 2
+  },
+  "tier": 4
  },
  {
   "id": "L11s37",
@@ -10746,8 +10958,11 @@ export const CAMPAIGN12 = [
   "storyDe": "Der letzte Anstieg:  Halle der herrenlosen Fracht.",
   "storyEn": "The final ascent:  Halle der herrenlosen Fracht.",
   "boss": {
-   "piece": "standard",
-   "wins": 2
+   "pure": "b39",
+   "rotation": [
+    "b39",
+    "b07"
+   ]
   },
   "tier": 4
  },
@@ -10829,12 +11044,7 @@ export const CAMPAIGN12 = [
    "xp": 118
   },
   "storyDe": "Ein Seitenpfad zweigt ab nach Leuchtfeuerrest.",
-  "storyEn": "A side path branches toward Leuchtfeuerrest.",
-  "gate": {
-   "gold": 135
-  },
-  "tagDe": "Zollstation",
-  "tagEn": "Toll station"
+  "storyEn": "A side path branches toward Leuchtfeuerrest."
  },
  {
   "id": "L12s01",
@@ -10915,15 +11125,7 @@ export const CAMPAIGN12 = [
    "xp": 111
   },
   "storyDe": "Der Pfad führt weiter über Einsame Boje.",
-  "storyEn": "The path leads on across Einsame Boje.",
-  "boss": {
-   "pure": "b11",
-   "rotation": [
-    "b11",
-    "b15"
-   ]
-  },
-  "tier": 4
+  "storyEn": "The path leads on across Einsame Boje."
  },
  {
   "id": "L12s05",
@@ -11009,7 +11211,7 @@ export const CAMPAIGN12 = [
   "storyEn": "Blitzfeste des Grossmeisters: here waits the master of chapter XII.",
   "final": true,
   "boss": {
-   "pure": "b25"
+   "pure": "b36"
   },
   "tier": 4
  },
@@ -11032,7 +11234,12 @@ export const CAMPAIGN12 = [
    "xp": 114
   },
   "storyDe": "Der Pfad führt weiter über Riff der Rippen.",
-  "storyEn": "The path leads on across Riff der Rippen."
+  "storyEn": "The path leads on across Riff der Rippen.",
+  "boss": {
+   "piece": "amazon",
+   "wins": 2
+  },
+  "tier": 4
  },
  {
   "id": "L12s10",
@@ -11054,7 +11261,15 @@ export const CAMPAIGN12 = [
    "xp": 108
   },
   "storyDe": "Der Weg beginnt bei Mastbruch.",
-  "storyEn": "The road begins at Mastbruch."
+  "storyEn": "The road begins at Mastbruch.",
+  "boss": {
+   "pure": "b11",
+   "rotation": [
+    "b11",
+    "b25"
+   ]
+  },
+  "tier": 4
  },
  {
   "id": "L12s11",
@@ -11074,7 +11289,12 @@ export const CAMPAIGN12 = [
    "xp": 118
   },
   "storyDe": "Ein stiller Umweg führt zu Sturmauge.",
-  "storyEn": "A quiet detour leads to Sturmauge."
+  "storyEn": "A quiet detour leads to Sturmauge.",
+  "gate": {
+   "gold": 135
+  },
+  "tagDe": "Zollstation",
+  "tagEn": "Toll station"
  },
  {
   "id": "L12s12",
@@ -11097,8 +11317,11 @@ export const CAMPAIGN12 = [
   "storyDe": "Die Prüfung wartet bei Treibholzfeld.",
   "storyEn": "The trial waits at Treibholzfeld.",
   "boss": {
-   "piece": "seeress",
-   "wins": 2
+   "pure": "b25",
+   "rotation": [
+    "b25",
+    "b11"
+   ]
   },
   "tier": 4
  },
@@ -11142,7 +11365,12 @@ export const CAMPAIGN12 = [
    "xp": 126
   },
   "storyDe": "Die Prüfung wartet bei Salzfels.",
-  "storyEn": "The trial waits at Salzfels."
+  "storyEn": "The trial waits at Salzfels.",
+  "boss": {
+   "piece": "seeress",
+   "wins": 2
+  },
+  "tier": 4
  },
  {
   "id": "L12s15",

@@ -50,6 +50,15 @@ export const BUND_Z = {
   bund_bannkreis:   ["riss",     <g key="g"><circle cx="12" cy="12" r="7" strokeDasharray="3 2" /><path d="M9 9l6 6M15 9l-6 6" /></g>],
   bund_sturm:       ["schlag",   <g key="g"><path d="M13 4l-5 8h4l-2 8 6-9h-4z" /></g>],
   bund_nachtwache:  ["leben",    <g key="g"><path d="M16 5a6.5 6.5 0 11-7 9.5A6.5 6.5 0 0016 5z" /><circle cx="8" cy="8" r="1" fill="currentColor" stroke="none" /><circle cx="6.5" cy="11.5" r="0.8" fill="currentColor" stroke="none" /></g>],
+  /* v1.91.0: die acht neuen Buende - wieder das DING, nach dem der Bund heisst */
+  bund_dorf:        ["leben",    <g key="g"><path d="M5 12l7-6 7 6" /><path d="M7 11v7h10v-7" /><path d="M11 18v-4h2v4" /></g>],
+  bund_werkstatt:   ["geschoss", <g key="g"><path d="M6 15h12v3H6z" /><path d="M8 15l2-4h4l2 4" /><path d="M10 8h7v3h-5" /><path d="M10 8v3" /></g>],
+  bund_kontor:      ["krone",    <g key="g"><path d="M12 5v14" /><path d="M6 8h12" /><path d="M6 8l-2 5h4zM18 8l-2 5h4z" /><path d="M9 19h6" /></g>],
+  bund_kueche:      ["leben",    <g key="g"><path d="M6 12h12v2a5 5 0 0 1-5 5h-2a5 5 0 0 1-5-5z" /><path d="M4 12h16" /><path d="M10 9c0-1.5 1-1.5 1-3M14 9c0-1.5 1-1.5 1-3" /></g>],
+  bund_kloster:     ["leben",    <g key="g"><path d="M12 4v16" /><path d="M8 8h8" /><path d="M7 20h10" /></g>],
+  bund_jagd:        ["schritt",  <g key="g"><path d="M7 5c6 2 6 12 0 14" /><path d="M7 5v14" /><path d="M5 12h14" /><path d="M16 9.5l3 2.5-3 2.5" /></g>],
+  bund_turnier:     ["schlag",   <g key="g"><path d="M5 19L17 7" /><path d="M19 19L7 7" /><path d="M15 7h2v2M9 7H7v2" /></g>],
+  bund_finsternis:  ["riss",     <g key="g"><circle cx="12" cy="11" r="4.5" /><path d="M12 15.5V20" /><path d="M10 18h4" /><path d="M12 9v3" /></g>],
 };
 
 const Z = {
@@ -97,6 +106,12 @@ const Z = {
   widerhall:           ["leben",   <g key="g"><path d="M17.2 9.5A6 6 0 1 0 18 13" /><path d="M17.6 5.4v4.4h-4.4" /></g>],
   unsterblich:         ["krone",   <g key="g"><path d="M12 4.2l2.1 4.6 5 .5-3.8 3.4 1.1 4.9L12 15l-4.4 2.6 1.1-4.9L4.9 9.3l5-.5z" /><path d="M9.5 20h5" opacity=".7" /></g>],
   geistwandel:         ["riss",    <g key="g"><path d="M7 19.5V11a5 5 0 0 1 10 0v8.5l-1.7-1.3-1.6 1.3-1.7-1.3-1.7 1.3-1.6-1.3z" /><circle cx="10.2" cy="11" r=".9" fill="currentColor" stroke="none" /><circle cx="13.8" cy="11" r=".9" fill="currentColor" stroke="none" /></g>],
+  /* ── v1.91.0: Gold, Wissen, Fallen ── */
+  almosen:             ["krone",   <g key="g"><path d="M5 11h14c0 4-3 7-7 7s-7-3-7-7z" /><circle cx="12" cy="7" r="1.6" /><path d="M9 20h6" opacity=".7" /></g>],
+  zins:                ["krone",   <g key="g"><circle cx="8.5" cy="8.5" r="2" /><circle cx="15.5" cy="15.5" r="2" /><path d="M17 7L7 17" /></g>],
+  zehnt:               ["krone",   <g key="g"><path d="M7 9h10l1.5 9h-13z" /><path d="M9 9c0-2 1.3-3.5 3-3.5S15 7 15 9" /><path d="M12 12.5v3" /></g>],
+  studium:             ["krone",   <g key="g"><path d="M5 7.5c2.6-1 5-1 7 .5 2-1.5 4.4-1.5 7-.5v9.5c-2.6-1-5-1-7 .5-2-1.5-4.4-1.5-7-.5z" /><path d="M12 8v9.5" /></g>],
+  fallenkunde:         ["riss",    <g key="g"><path d="M5 15a7 7 0 0 1 14 0" /><path d="M7.5 15l1-2.4 1.2 2.4 1.2-2.4 1.1 2.4 1.1-2.4 1.2 2.4 1.2-2.4 1 2.4" /><path d="M5 15h14" /><circle cx="12" cy="18" r="1" fill="currentColor" stroke="none" /></g>],
 };
 
 /** Das Zeichen einer Fähigkeit - ein abgerundetes Viereck wie die Kachel-Kästen

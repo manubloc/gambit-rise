@@ -18,6 +18,11 @@ export const PASSIVE_TALENTE = new Set([
   /* v1.31.0: Gift, Aderlass, Schrecken wirken von selbst. Blenden und
      Geistwandel sind Einmal-Faehigkeiten (Stufen zaehlen die Einsaetze). */
   "gift", "aderlass", "schrecken",
+  /* v1.91.0: die Faehigkeiten des Kontors, des Bettlers und des
+     Fallenstellers. Sie haben KEINE Wirkung im Kern - sie zahlen nach der
+     Partie aus (meta/rewards.js) bzw. geben in der Setzphase eine Falle
+     (GameScreen). Hier stehen sie, weil sie dauerhaft sind. */
+  "almosen", "zins", "zehnt", "studium", "fallenkunde",
 ]);
 
 /* ── TALENTE, DIE OHNE LEBENSPUNKTE KEINEN SINN ERGEBEN (v1.2.0) ───────────

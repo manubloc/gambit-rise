@@ -74,6 +74,21 @@ export const ABILITIES = {
   chain:                { id: "chain",                icon: "↯", tag: "aoe", hpOnly: true, sperre: "verborgen", once: true,  live: false, nameDe: "Kettenblitz",  nameEn: "Chain",          descDe: "Schaden springt auf einen weiteren nahen Gegner über.", descEn: "Damage arcs to another nearby enemy." },
   pull:                 { id: "pull",                 icon: "⇲", tag: "control", hpOnly: true, sperre: "verborgen", once: true, live: false, nameDe: "Enterhaken",  nameEn: "Hook",           descDe: "Zieht einen Gegner in Sichtlinie zu dir heran.",      descEn: "Pulls an enemy in line toward you." },
 
+  /* ── v1.91.0: GOLD, WISSEN UND FALLEN (Besitzer 6.10.2026) ────────────────
+     "Der Bettler hat als Faehigkeit einfach, dass er bei jedem Zug Geld
+      verdient - wenig, aber dafuer bei jedem Zug; auch wenn man verliert,
+      behaelt man dieses Geld." Dazu das Kontor: der Bankier mehrt das Gold
+      (Prozent), der Steuereintreiber bringt festes Gold, der Gelehrte Wissen.
+     Diese vier wirken NICHT auf dem Brett. Sie kosten einen Platz in der
+     Reihe und zahlen nach der Partie aus (meta/rewards.js) - das ist ihr
+     Preis und ihr Reiz: Gold oder Kampfkraft, nicht beides. Der Fallensteller
+     legt vor dem Gefecht eine Baerenfalle, ohne dass sie gekauft sein muss. */
+  almosen:              { id: "almosen",              icon: "◔", tag: "gold", once: false, live: true, nameDe: "Almosen",      nameEn: "Alms",          descDe: "Jeder eigene Zug bringt 1 Gold — bis zu 20 je Partie, auf Stufe II 30, auf III 40. Es bleibt dir auch nach einer Niederlage.", descEn: "Each move of yours earns 1 gold — up to 20 per battle, 30 at tier II, 40 at III. You keep it even after a defeat." },
+  zins:                 { id: "zins",                 icon: "％", tag: "gold", once: false, live: true, nameDe: "Zins",         nameEn: "Interest",      descDe: "Jeder Sieg bringt mehr Gold — 10 %, auf Stufe II 20 %, auf III 30 %.", descEn: "Every win pays more gold — 10 %, 20 % at tier II, 30 % at III." },
+  zehnt:                { id: "zehnt",                icon: "⛁", tag: "gold", once: false, live: true, nameDe: "Zehnt",        nameEn: "Tithe",         descDe: "Jeder Sieg bringt festes Gold dazu — 4, auf Stufe II 8, auf III 12; in späteren Kapiteln mehr.", descEn: "Every win adds fixed gold — 4, 8 at tier II, 12 at III; more in later chapters." },
+  studium:              { id: "studium",              icon: "✎", tag: "gold", once: false, live: true, nameDe: "Studium",      nameEn: "Study",         descDe: "Jede Partie bringt mehr Erfahrung — 15 %, auf Stufe II 30 %, auf III 45 %. So kommen Fähigkeitspunkte schneller.", descEn: "Every battle grants more experience — 15 %, 30 % at tier II, 45 % at III. Skill points come sooner." },
+  fallenkunde:          { id: "fallenkunde",          icon: "⋈", tag: "control", hpOnly: true, sperre: "verborgen", once: false, live: true, nameDe: "Fallenkunde",  nameEn: "Trapcraft",     descDe: "Vor jedem HP-Gefecht legst du eine Bärenfalle, ohne sie kaufen zu müssen.", descEn: "Before every HP battle you lay one bear trap without having to buy it." },
+
   /* ── v1.25.2: DIE FAEHIGKEITEN DER MONSTER (Besitzerentscheid) ─────────────
      "Die Faehigkeiten, die die Monster haben, sollte grundsaetzlich keine der
       anderen Figuren haben - dass die Monster sich dadurch auszeichnen."
@@ -140,6 +155,15 @@ export const STAERKE_STUFEN = {
                  en: ["rises with a quarter of its life", "rises with half its life"] },
   wegelagerei: { de: ["2 Gold je Treffer", "4 Gold je Treffer", "6 Gold je Treffer"],
                  en: ["2 gold per hit", "4 gold per hit", "6 gold per hit"] },
+  /* v1.91.0: was nach der Partie auszahlt, waechst in seinem Betrag */
+  almosen:     { de: ["bis zu 20 Gold je Partie", "bis zu 30 Gold je Partie", "bis zu 40 Gold je Partie"],
+                 en: ["up to 20 gold per battle", "up to 30 gold per battle", "up to 40 gold per battle"] },
+  zins:        { de: ["10 % mehr Gold je Sieg", "20 % mehr Gold je Sieg", "30 % mehr Gold je Sieg"],
+                 en: ["10 % more gold per win", "20 % more gold per win", "30 % more gold per win"] },
+  zehnt:       { de: ["4 Gold je Sieg dazu", "8 Gold je Sieg dazu", "12 Gold je Sieg dazu"],
+                 en: ["4 extra gold per win", "8 extra gold per win", "12 extra gold per win"] },
+  studium:     { de: ["15 % mehr Erfahrung", "30 % mehr Erfahrung", "45 % mehr Erfahrung"],
+                 en: ["15 % more experience", "30 % more experience", "45 % more experience"] },
   /* v1.31.0 */
   gift:        { de: ["1 Leben je Zug, drei Runden", "2 Leben je Zug, drei Runden", "3 Leben je Zug, drei Runden"],
                  en: ["1 life per move, three rounds", "2 life per move, three rounds", "3 life per move, three rounds"] },

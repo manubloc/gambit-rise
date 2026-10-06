@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="6 0 36 42" data-gg="piece:GL">
+<!-- nachgezogen aus dem Gemaelde gladiator (tools/figuren-einbau.py) -->
+<path d="M25.8 2.0 L19.5 15.0 L17.8 26.2 L13.3 24.9 L11.3 29.6 L16.3 31.6 L21.5 26.0 L22.0 33.4 L17.7 38.3 L30.7 39.9 L35.2 37.9 L30.7 28.5 L35.2 30.8 L36.7 23.6 Z" fill-rule="evenodd" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" style="fill:var(--fill, #c9a45c);stroke:var(--rim, none);stroke-width:var(--rimW, 1);paint-order:stroke fill"></path>
+</svg>

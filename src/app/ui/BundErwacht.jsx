@@ -48,12 +48,22 @@ import kulisseGezeiten from "./assets/kulissen/bund-gezeiten.webp";
 import kulisseBannkreis from "./assets/kulissen/bund-bannkreis.webp";
 import kulisseSturm from "./assets/kulissen/bund-sturm.webp";
 import kulisseNachtwache from "./assets/kulissen/bund-nachtwache.webp";
+import kulisseDorf from "./assets/kulissen/bund-dorf.webp";
+import kulisseWerkstatt from "./assets/kulissen/bund-werkstatt.webp";
+import kulisseKontor from "./assets/kulissen/bund-kontor.webp";
+import kulisseKueche from "./assets/kulissen/bund-kueche.webp";
+import kulisseKloster from "./assets/kulissen/bund-kloster.webp";
+import kulisseJagd from "./assets/kulissen/bund-jagd.webp";
+import kulisseTurnier from "./assets/kulissen/bund-turnier.webp";
+import kulisseFinsternis from "./assets/kulissen/bund-finsternis.webp";
 
 const BILD = {
   krone: kulisseKrone, konzil: kulisseKonzil, geleit: kulisseGeleit,
   faehrte: kulisseFaehrte, schatten: kulisseSchatten, schildwacht: kulisseSchildwacht,
   gezeiten: kulisseGezeiten, bannkreis: kulisseBannkreis, sturm: kulisseSturm,
   nachtwache: kulisseNachtwache,
+  /* v1.91.0 */
+  dorf: kulisseDorf, werkstatt: kulisseWerkstatt, kontor: kulisseKontor, kueche: kulisseKueche, kloster: kulisseKloster, jagd: kulisseJagd, turnier: kulisseTurnier, finsternis: kulisseFinsternis,
 };
 const KULISSE = {
   hof: "radial-gradient(120% 90% at 50% 10%, #3a2d5e 0%, #241a3e 46%, #14102a 100%)",

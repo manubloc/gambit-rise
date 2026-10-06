@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="6 0 36 42" data-gg="piece:SL">
+<!-- nachgezogen aus dem Gemaelde scholar (tools/figuren-einbau.py) -->
+<path d="M22.9 2.0 L19.6 3.8 L20.4 12.7 L15.2 19.8 L18.5 26.2 L18.0 33.9 L14.8 35.2 L14.8 38.4 L28.5 39.9 L33.2 38.4 L33.2 35.4 L30.2 34.2 L29.9 27.1 L33.2 19.6 L27.2 12.2 L29.2 9.9 L28.5 4.1 Z" fill-rule="evenodd" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" style="fill:var(--fill, #c9a45c);stroke:var(--rim, none);stroke-width:var(--rimW, 1);paint-order:stroke fill"></path>
+</svg>

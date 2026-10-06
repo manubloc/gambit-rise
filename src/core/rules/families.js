@@ -18,11 +18,16 @@
 // Family derives from the piece KIND so the core stays self-contained.
 export const FAMILY_BY_KIND = {
   // the Crown — shields, banners, law and light-benders
-  G: "crown", J: "crown", U: "crown", I: "crown", F: "crown",
+  G: "crown", J: "crown", U: "crown", I: "crown",
   T: "crown", C: "crown", A: "crown", V: "crown", E: "crown",
+  SE: "crown",   /* v1.91.0: fehlte, obwohl die Seherin im Hofstaat unter der Krone steht */
+  NW: "crown", MK: "crown", HL: "crown", CV: "crown", SP: "crown", SM: "crown",
   // the Shadows — killers, beasts and moonlit alchemy
   H: "shadow", S: "shadow", O: "shadow", D: "shadow", M: "shadow",
   L: "shadow", Z: "shadow", W: "shadow", Y: "shadow",
+  EX: "shadow", SA: "shadow", JL: "shadow", GL: "shadow", FN: "shadow", HU: "shadow", RG: "shadow", TR: "shadow",
+  /* Die zehn Buergerlichen (Dorf, Kueche, Kontor, Handwerker) gehoeren keinem
+     Haus an - sie sind weder Schild noch Klinge. */
 };
 
 export const familyOf = (kindOrPiece) =>

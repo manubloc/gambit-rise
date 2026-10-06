@@ -132,11 +132,11 @@ export const VOICES = {
     afterDe: "Die Tore öffnen sich für dich, {held}. Frag nicht, womit ich sie geölt habe.",
     afterEn: "The gates will open for you, {held}. Do not ask what I oiled them with.",
   },
-  standard: {
-    heraldDe: "Die Standarte trägt das alte Banner des ungeteilten Hofes; wer ihr folgt, folgt einer Erinnerung.",
-    heraldEn: "The Standard bears the old banner of the undivided court; whoever follows it follows a memory.",
-    afterDe: "Das Banner erkennt seinen Träger, wenn es ihn sieht. Heb es auf, {held}.",
-    afterEn: "The banner knows its bearer on sight. Pick it up, {held}.",
+  watchman: {
+    heraldDe: "Der Nachtwächter ruft die Stunden aus, seit der Hof schläft — und er hat aufgehört zu zählen, wie viele es waren.",
+    heraldEn: "The Night Watchman has called the hours since the court fell asleep — and has stopped counting how many there were.",
+    afterDe: "Du bist wach geblieben, {held}. Dann halten wir die nächste Wache zu zweit.",
+    afterEn: "You stayed awake, {held}. Then we keep the next watch together.",
   },
 
   // ── what came THROUGH: the rift's own ─────────────────────────────────────
@@ -186,8 +186,8 @@ export const VOICES = {
     afterEn: "At last someone looks AT me instead of through me. Thank you, {held}. That is all I ever wanted.",
   },
   b08: {
-    heraldDe: "Der Kanonier hütet das Tor des neunten Kapitels und zahlt die Miete pünktlich — er hat gelernt, wohin man besser nicht zielt.",
-    heraldEn: "The Cannoneer keeps the ninth chapter's gate and pays his rent on time — he has learned where one had better not aim.",
+    heraldDe: "Der Kanonier zählt bis drei, und die Mauer fällt — seit der Hof ihn fortschickte, zählt er für jeden, der ihn bezahlt.",
+    heraldEn: "The Cannoneer counts to three and the wall falls — since the court sent him away he counts for anyone who pays.",
     afterDe: "Nimm die Lunte, {held}. Und wenn du je ans Meer kommst: ziele auf gar nichts.",
     afterEn: "Take the fuse, {held}. And should you ever reach the sea: aim at nothing at all.",
   },
@@ -196,12 +196,6 @@ export const VOICES = {
     heraldEn: "The Scorpion nested in the first crack when it was but a hand's width; it grew as the crack grew.",
     afterDe: "…der Spalt war einmal mein Zuhause, {held}… jetzt ist er nur noch hungrig…",
     afterEn: "…the crack was my home once, {held}… now it is merely hungry…",
-  },
-  b10: {
-    heraldDe: "Der Doppelritter hütet das Tor des dritten Kapitels — zwei Leiber, ein Eid, und keiner von beiden erinnert sich, wem er galt.",
-    heraldEn: "The Twin Knight keeps the third chapter's gate — two bodies, one oath, and neither remembers to whom it was sworn.",
-    afterDe: "Wir erinnern uns jetzt, {held}: Der Eid galt dem, der uns schlägt. Er galt dir.",
-    afterEn: "We remember now, {held}: the oath was to whoever bests us. It was to you.",
   },
   b11: {
     heraldDe: "Die Flüsterin übersetzt, was der Riss murmelt — und lässt bei jedem Satz ein Wort aus.",
@@ -212,10 +206,10 @@ export const VOICES = {
   /* v1.90.20: der Richter haelt nicht mehr das Tor, sondern Gericht mitten im
      Korn von Kapitel II (Besitzerentscheid; die Chronik erzaehlt ihn dort) */
   b12: {
-    heraldDe: "Der Richter hält mitten im Korn Gericht, im Namen eines Hofes, den es nicht mehr gibt.",
-    heraldEn: "The Judge holds court in the middle of the wheat, in the name of a court that no longer exists.",
-    afterDe: "Das Urteil lautet: schuldig — ich, des Wartens. Geh weiter, {held}; das Korn gehört dir.",
-    afterEn: "The verdict: guilty — I, of waiting. Walk on, {held}; the wheat is yours.",
+    heraldDe: "Der Richter hält Gericht im Namen eines Hofes, den es nicht mehr gibt — sein Urteil ist gefällt, ehe der Fall beginnt.",
+    heraldEn: "The Judge holds court in the name of a court that no longer exists — his verdict is set before the case begins.",
+    afterDe: "Das Urteil lautet: schuldig — ich, des Wartens. Geh weiter, {held}.",
+    afterEn: "The verdict: guilty — I, of waiting. Walk on, {held}.",
   },
   b13: {
     heraldDe: "Der Brandstifter glaubt, man könne den Riss ausbrennen; bisher brannte nur alles andere.",
@@ -224,10 +218,10 @@ export const VOICES = {
     afterEn: "Fire was the wrong answer, {held}. But admit it: it was a BEAUTIFUL wrong answer.",
   },
   b14: {
-    heraldDe: "Der Koloss hütet das Tor des zehnten Kapitels — er ist der Deckel auf dem Brunnen, und der Brunnen ist das Meer.",
-    heraldEn: "The Colossus keeps the tenth chapter's gate — he is the lid upon the well, and the well is the sea.",
-    afterDe: "Ich hebe mich beiseite, {held}. Was im Brunnen wohnt, gehört jetzt zu deiner Wache.",
-    afterEn: "I move aside, {held}. What lives in the well is your watch now.",
+    heraldDe: "Der Rissbrocken war einmal ein Stück Mauer. Der Riss hat ihm Beine gegeben und vergessen, ihm zu sagen, wohin.",
+    heraldEn: "The Riftboulder was once a piece of wall. The rift gave it legs and forgot to tell it where to go.",
+    afterDe: "Ich hebe mich beiseite, {held}. Mehr habe ich nie gewollt.",
+    afterEn: "I move aside, {held}. I never wanted more than that.",
   },
   b15: {
     heraldDe: "Die Sturmklaue nistet im Gewitter über dem Riss und trägt Nachrichten, die niemand abgeschickt hat.",
@@ -236,34 +230,34 @@ export const VOICES = {
     afterEn: "A message for you, {held} — unsigned, as always: 'Do not come to the sea.'",
   },
   b16: {
-    heraldDe: "Die Blutmagd hütet das Tor des sechsten Kapitels; sie schenkt aus einem Kelch, der nie geleert und nie gefüllt wird.",
-    heraldEn: "The Bloodmaid keeps the sixth chapter's gate, pouring from a chalice never emptied and never filled.",
+    heraldDe: "Die Blutmagd schenkt aus einem Kelch, der nie geleert und nie gefüllt wird — was der Riss aus ihr machte, windet sich noch um sein Werk.",
+    heraldEn: "The Bloodmaid pours from a chalice never emptied and never filled — what the rift made of her still coils around its work.",
     afterDe: "Der Kelch bleibt hier, {held}. Manche Gaben soll man verlieren dürfen.",
     afterEn: "The chalice stays here, {held}. Some gifts one should be allowed to lose.",
   },
   b17: {
-    heraldDe: "Der Lanzenmeister hütet das Tor des siebten Kapitels und reitet Turnier um Turnier gegen einen Gegner, den nur er sieht.",
-    heraldEn: "The Lancemaster keeps the seventh chapter's gate, riding tilt after tilt against a foe only he can see.",
+    heraldDe: "Der Lanzenmeister reitet Turnier um Turnier gegen einen Gegner, den nur er sieht.",
+    heraldEn: "The Lancemaster rides tilt after tilt against a foe only he can see.",
     afterDe: "Du hast ihn auch gesehen, im letzten Gang — nicht wahr, {held}? Dann war es kein Wahn.",
     afterEn: "You saw him too, in the final pass — didn't you, {held}? Then it was no madness.",
   },
   b18: {
-    heraldDe: "Eisenfaust hütet das Tor des achten Kapitels; die Faust ballte sich am Tag des Risses und ging nie wieder auf.",
-    heraldEn: "Ironfist keeps the eighth chapter's gate; the fist clenched on the day of the rift and never opened again.",
+    heraldDe: "Eisenfaust ballte die Faust am Tag des Risses und bekam sie nie wieder auf.",
+    heraldEn: "Ironfist clenched his fist on the day of the rift and never got it open again.",
     afterDe: "Sieh, {held} … sie öffnet sich. Was Jahre in ihr lag, gebe ich dir: einen Schlüssel.",
     afterEn: "Look, {held} … it opens. What lay inside for years, I give to you: a key.",
   },
   b19: {
-    heraldDe: "Der Schattenfürst hütet das Tor des vierten Kapitels — halb Mensch, halb das, was der Riss aus Menschen macht.",
-    heraldEn: "The Shadowlord keeps the fourth chapter's gate — half a man, half what the rift makes of men.",
-    afterDe: "Merke dir meine Hälften gut, {held}. Der Riss zeigt dir gerade deine eigene Wahl.",
-    afterEn: "Mark my halves well, {held}. The rift is showing you your own choice.",
+    heraldDe: "Der Hornschatten ist, was übrig bleibt, wenn ein Schatten seinen Herrn überlebt.",
+    heraldEn: "The Hornshade is what remains when a shadow outlives its master.",
+    afterDe: "Merke dir meine Umrisse gut, {held}. Du wirst sie an anderen wiedersehen.",
+    afterEn: "Mark my outline well, {held}. You will see it again on others.",
   },
   b20: {
-    heraldDe: "Der Hüter hütet das Tor des fünften Kapitels und trägt Schlüssel zu Türen, die längst niemand mehr findet.",
-    heraldEn: "The Keeper keeps the fifth chapter's gate, carrying keys to doors no one can find anymore.",
-    afterDe: "Nimm den Ring, {held}. Ein Schlüssel darunter passt ans Meer — ich habe nie gewagt, ihn zu prüfen.",
-    afterEn: "Take the ring, {held}. One key on it fits the sea — I never dared to try it.",
+    heraldDe: "Der Waldschrat hat länger im Wald gestanden als mancher Baum — und mag Besuch genauso wenig.",
+    heraldEn: "The Woodwose has stood in the forest longer than many a tree — and cares for visitors just as little.",
+    afterDe: "Nimm einen Zweig mit, {held}. Er zeigt immer dorthin, wo es still ist.",
+    afterEn: "Take a twig with you, {held}. It always points to where it is quiet.",
   },
   b21: {
     heraldDe: "Die Wandlerin kam als etwas anderes durch den Riss und probiert seither Gestalten an wie Gewänder.",
@@ -278,24 +272,133 @@ export const VOICES = {
     afterEn: "…no more chain… your hand does not smell of chains, {held}… good. Then walk ahead.",
   },
   b24: {
-    heraldDe: "Der Seuchenkönig ist der Atem des Meeres, der zu früh an Land ging — was er berührt, erinnert sich an den Riss.",
-    heraldEn: "The Plaguelord is the sea's breath come ashore too soon — whatever he touches remembers the rift.",
+    heraldDe: "Malrik, der Seuchenkönig, ist der Atem des Meeres, der zu früh an Land ging — was er berührt, erinnert sich an den Riss.",
+    heraldEn: "Malrik, the Plaguelord, is the sea's breath come ashore too soon — whatever he touches remembers the rift.",
     afterDe: "Huste mich aus, {held}, und merke dir den Geschmack: So schmeckt das Meer, das dich erwartet.",
     afterEn: "Cough me out, {held}, and remember the taste: this is how the sea that awaits you tastes.",
   },
 
   // ── the two who hold the tale together ─────────────────────────────────────
   b23: {
-    heraldDe: "Sie war die erste Klinge der Krone, ehe der Riss ihren Namen flüsterte — jetzt flüstert Asra ihn zurück.",
-    heraldEn: "She was the Crown's first blade before the rift whispered her name — now Asra whispers it back.",
+    heraldDe: "Der Strahlengötze wurde angebetet, bis niemand mehr wusste, wofür. Jetzt betet er sich selbst an.",
+    heraldEn: "The Radiant Idol was worshipped until nobody knew what for. Now it worships itself.",
+    afterDe: "Du hast nicht gekniet, {held}. Das hat lange keiner gewagt.",
+    afterEn: "You did not kneel, {held}. Nobody has dared that in a long time.",
+  },
+  b25: {
+    heraldDe: "Der Steinkönig trägt eine Krone, die ihm niemand aufgesetzt hat, und einen Mantel, den niemand vermisst.",
+    heraldEn: "The Stone King wears a crown nobody placed on him and a cloak nobody misses.",
+    afterDe: "Ein König ohne Reich folgt dem, der eines hat, {held}.",
+    afterEn: "A king without a realm follows one who has one, {held}.",
+  },
+  /* ── v1.91.0: die dreizehn neuen Grossmeister und fuenf neuen Bestien ── */
+  b26: {
+    heraldDe: "Zahir, der Pfauenfürst, hütet das Tor des ersten Kapitels — er kämpft nicht gern, aber er verliert noch weniger gern Zuschauer.",
+    heraldEn: "Zahir, the Peacock Prince, keeps the first chapter's gate — he dislikes fighting, but dislikes losing an audience even more.",
+    afterDe: "Was für ein Auftritt, {held}. Den nächsten geben wir zusammen.",
+    afterEn: "What an entrance, {held}. We shall make the next one together.",
+  },
+  b27: {
+    heraldDe: "Varek, der Schwarze Ritter, hütet das Tor des zweiten Kapitels; er hat das Turnier nie verlassen, obwohl die Tribünen längst leer sind.",
+    heraldEn: "Varek, the Black Knight, keeps the second chapter's gate; he never left the tourney, though the stands have long been empty.",
+    afterDe: "Zum ersten Mal seit Jahren hat jemand zurückgeschlagen, {held}. Ich hatte vergessen, wie sich das anfühlt.",
+    afterEn: "For the first time in years someone struck back, {held}. I had forgotten how that feels.",
+  },
+  b28: {
+    heraldDe: "Isolde, die Dornenkönigin, hütet das Tor des vierten Kapitels; in ihrem Garten wächst alles, was sie je betrauert hat.",
+    heraldEn: "Isolde, the Thorn Queen, keeps the fourth chapter's gate; in her garden grows everything she ever mourned.",
+    afterDe: "Brich eine Rose ab, {held}. Es ist die erste, die ich hergebe.",
+    afterEn: "Break off a rose, {held}. It is the first I have ever given away.",
+  },
+  b29: {
+    heraldDe: "Halvar, der Gezeitenkönig, hütet das Tor des fünften Kapitels von einem Thron aus, über dem seit dem Riss das Wasser steht.",
+    heraldEn: "Halvar, the Tide King, keeps the fifth chapter's gate from a throne that has stood under water since the rift.",
+    afterDe: "Die Flut zieht sich zurück, {held}. Sie folgt jetzt dir.",
+    afterEn: "The tide withdraws, {held}. It follows you now.",
+  },
+  b30: {
+    heraldDe: "Seraphine, die Maskenfürstin, hütet das Tor des sechsten Kapitels; ihr Ball dauert an, weil niemand wagt, als Erster die Maske abzunehmen.",
+    heraldEn: "Seraphine, the Mask Princess, keeps the sixth chapter's gate; her ball goes on because nobody dares to be the first to unmask.",
+    afterDe: "Du hast hingesehen, {held}. Die meisten sehen lieber die Maske.",
+    afterEn: "You looked, {held}. Most would rather see the mask.",
+  },
+  b31: {
+    heraldDe: "Yorrik, der Winterkönig, hütet das Tor des siebten Kapitels; er ließ sein Reich gefrieren, damit ihm niemand mehr etwas nimmt.",
+    heraldEn: "Yorrik, the Winter King, keeps the seventh chapter's gate; he let his realm freeze so that nobody could take anything from it again.",
+    afterDe: "Es taut, {held}. Ich hatte vergessen, dass darunter etwas lag.",
+    afterEn: "It is thawing, {held}. I had forgotten something lay beneath.",
+  },
+  b32: {
+    heraldDe: "Cassian, der Intrigant, hütet das Tor des achten Kapitels; er hat Osric den Riss empfohlen und sich nie dafür verantworten müssen.",
+    heraldEn: "Cassian, the Schemer, keeps the eighth chapter's gate; he recommended the rift to Osric and never had to answer for it.",
+    afterDe: "Gut gespielt, {held}. Darf ich dir einen Rat geben? … Nein? Klug.",
+    afterEn: "Well played, {held}. May I offer you some advice? … No? Wise.",
+  },
+  b33: {
+    heraldDe: "Veyl, der Schattenfürst, hütet das Tor des neunten Kapitels — halb Mensch, halb das, was der Riss aus Menschen macht.",
+    heraldEn: "Veyl, the Shadowlord, keeps the ninth chapter's gate — half a man, half what the rift makes of men.",
+    afterDe: "Merke dir meine Hälften gut, {held}. Der Riss zeigt dir gerade deine eigene Wahl.",
+    afterEn: "Mark my halves well, {held}. The rift is showing you your own choice.",
+  },
+  b34: {
+    heraldDe: "Brakk, der Koloss, hütet das Tor des zehnten Kapitels — er ist der Deckel auf dem Brunnen, und der Brunnen ist das Meer.",
+    heraldEn: "Brakk, the Colossus, keeps the tenth chapter's gate — he is the lid upon the well, and the well is the sea.",
+    afterDe: "Ich hebe mich beiseite, {held}. Was im Brunnen wohnt, gehört jetzt zu deiner Wache.",
+    afterEn: "I move aside, {held}. What lives in the well is your watch now.",
+  },
+  b35: {
+    heraldDe: "Sie war die erste Klinge der Krone, ehe der Riss ihren Namen flüsterte — jetzt flüstert Asra, die Erzfeindin, ihn zurück.",
+    heraldEn: "She was the Crown's first blade before the rift whispered her name — now Asra, the Archenemy, whispers it back.",
     afterDe: "Du hörst ihn inzwischen auch, nicht wahr, {held}? … Bis zum nächsten Brett.",
     afterEn: "You hear it too by now, don't you, {held}? … Until the next board.",
   },
-  b25: {
-    heraldDe: "Er öffnete den Riss, um einen Krieg zu gewinnen — jetzt hütet Osric das letzte Tor und zahlt die Miete in fremden Niederlagen.",
-    heraldEn: "He opened the rift to win a war — now Osric keeps the last gate and pays the rent in other people's defeats.",
+  b36: {
+    heraldDe: "Er öffnete den Riss, um einen Krieg zu gewinnen — jetzt hütet Osric, der Großmeister, das letzte Tor und zahlt die Miete in fremden Niederlagen.",
+    heraldEn: "He opened the rift to win a war — now Osric, the Grandmaster, keeps the last gate and pays the rent in other people's defeats.",
     afterDe: "Das Tor gehört dir, {held}. Was dahinter wartet, hat mir nie gehört.",
     afterEn: "The gate is yours, {held}. What waits beyond it was never mine.",
+  },
+  b37: {
+    heraldDe: "Morwen, die Rabenmutter, sitzt im Glockenturm und weiß, dass du kommst — ihre Raben waren schneller als du.",
+    heraldEn: "Morwen, the Raven Mother, sits in the bell tower and knows you are coming — her ravens were faster than you.",
+    afterDe: "Das werden sie weitererzählen, {held}. Ich sorge dafür, dass es stimmt.",
+    afterEn: "They will pass this on, {held}. I shall see to it that it is true.",
+  },
+  b38: {
+    heraldDe: "Thalor, der Hüter, trägt Schlüssel zu Türen, die längst niemand mehr findet — und an einem Arm schon die Rinde des Waldes.",
+    heraldEn: "Thalor, the Keeper, carries keys to doors no one can find anymore — and on one arm already the bark of the forest.",
+    afterDe: "Nimm den Ring, {held}. Ein Schlüssel darunter passt ans Meer — ich habe nie gewagt, ihn zu prüfen.",
+    afterEn: "Take the ring, {held}. One key on it fits the sea — I never dared to try it.",
+  },
+  b39: {
+    heraldDe: "Der Schlinger sitzt, wo der Weg am engsten ist, und wartet, bis ihm etwas in den Mund läuft.",
+    heraldEn: "The Gulper sits where the road is narrowest and waits for something to walk into his mouth.",
+    afterDe: "Satt, {held}. Zum ersten Mal.",
+    afterEn: "Full, {held}. For the first time.",
+  },
+  b40: {
+    heraldDe: "Die Weberin spinnt einen Faden für jeden, der hier vorbeikam. Deiner liegt schon bereit.",
+    heraldEn: "The Weaver spins a thread for everyone who has passed here. Yours lies ready.",
+    afterDe: "Ich schneide ihn nicht ab, {held}. Ich gebe ihn dir in die Hand.",
+    afterEn: "I shall not cut it, {held}. I place it in your hand.",
+  },
+  b41: {
+    heraldDe: "Die Harpyie hat das Singen verlernt, das Stürzen nicht.",
+    heraldEn: "The Harpy has unlearned singing, but not the dive.",
+    afterDe: "Du hast nicht weggesehen, {held}. Dann fliege ich für dich.",
+    afterEn: "You did not look away, {held}. Then I fly for you.",
+  },
+  b42: {
+    heraldDe: "Der Grabhüter kennt jeden hier beim Namen — auch die, deren Namen der Riss gefressen hat.",
+    heraldEn: "The Gravewarden knows everyone here by name — even those whose names the rift has eaten.",
+    afterDe: "Für dich habe ich noch kein Grab gegraben, {held}. Lass es dabei.",
+    afterEn: "I have dug no grave for you yet, {held}. Let us keep it that way.",
+  },
+  b43: {
+    heraldDe: "Die Donnerkrähe fliegt dem Gewitter voraus; wer sie sieht, hat noch drei Atemzüge.",
+    heraldEn: "The Thundercrow flies ahead of the storm; whoever sees her has three breaths left.",
+    afterDe: "Der Donner kam nach dir, {held}. Das ist mir neu.",
+    afterEn: "The thunder came after you, {held}. That is new to me.",
   },
 };
 

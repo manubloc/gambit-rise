@@ -6,7 +6,8 @@
    man diese Figuren gleichzeitig in seine Aufstellung nimmt, dann bekommt
    man irgendeinen Bonus."
 
-   ZEHN BUENDE, 23 FIGUREN, JEDE GENAU EINMAL. Draussen bleiben nur Bauer,
+   ACHTZEHN BUENDE (seit v1.91.0; vorher zehn), 47 FIGUREN, JEDE GENAU EINMAL.
+   Draussen bleiben nur Bauer,
    Gambit und der Drache - die Grundlage und das Monster. Der Drache
    bleibt ausdruecklich allein ("Der Drache muss aber allein bleiben").
 
@@ -141,10 +142,106 @@ export const BUENDE = {
        Schildwacht, Gezeiten, Bannkreis, Sturm - alles Dinge, keine
        Handlungen. */
     nameDe: "Nachtwache", nameEn: "Night Watch",
-    figuren: ["alchemist", "bard", "standard"],
+    /* v1.91.0 (Besitzer 6.10.2026): "der Nachtwaechter muss natuerlich in den
+       Bund Nachtwache" - er nimmt den Platz des gestrichenen Flaggentraegers. */
+    figuren: ["alchemist", "bard", "watchman"],
     regelDe: "Der Alchemist heilt zu Beginn deines Zuges eine angrenzende eigene Figur um einen Punkt.",
     regelEn: "At the start of your turn the alchemist heals one adjacent friendly piece by one.",
     storyDe: "Drei, die aufbleiben, während der Hof schläft. Am Morgen ist jeder wieder heil.",
+    storyEn: "Three who stay up while the court sleeps. By morning everyone is whole again.",
+  },
+
+  /* ══ v1.91.0: ACHT NEUE BUENDE (Besitzer 6.10.2026) ═══════════════════════
+     "Also Metzger, Koch und Mueller gehoeren zusammen, Gelehrter,
+      Steuereintreiber und Bankier - und mach gerne noch Vorschlaege fuer die
+      anderen." Die uebrigen sechs sind am 6.10. vorgeschlagen und mit der
+      Gesamtuebersicht freigegeben worden.
+
+     DIE FRUEHEN SECHS SIND FRIEDLICH: Gold, Sperren, ein Leben mehr - nichts,
+     was eine Partie allein entscheidet. Dorf, Werkstatt und Kontor wirken auch
+     im reinen Schach von Kapitel I (sie zahlen nach der Partie oder in der
+     Setzphase); Kueche, Kloster und Jagd brauchen Lebenspunkte und kommen mit
+     dem Erwachen in Kapitel II. Turnier und Finsternis sind Kampfbuende.
+     Jede Regel bleibt EIN Satz. */
+  dorf: {
+    id: "dorf",
+    stimmung: "wildnis",
+    nameDe: "Dorf", nameEn: "Village",
+    figuren: ["farmwife", "beggar", "jester"],
+    regelDe: "Jeder eigene Bauer, der die Partie überlebt, bringt 2 Gold.",
+    regelEn: "Every pawn of yours that survives the match earns 2 gold.",
+    storyDe: "Niemand im Dorf fragt, wer gewonnen hat. Man zählt, wer zum Abendbrot wieder da ist.",
+    storyEn: "Nobody in the village asks who won. They count who is back for supper.",
+  },
+  werkstatt: {
+    id: "werkstatt",
+    stimmung: "schmiede",
+    nameDe: "Werkstatt", nameEn: "Workshop",
+    figuren: ["smith", "craftsman"],
+    regelDe: "Vor jeder Partie setzt du einen Zaun, ohne ihn kaufen zu müssen.",
+    regelEn: "Before every match you place one fence without having to buy it.",
+    storyDe: "Der eine schlägt das Eisen, der andere setzt den Pfosten. Bis der Feind kommt, steht der Zaun.",
+    storyEn: "One strikes the iron, the other sets the post. By the time the enemy comes, the fence stands.",
+  },
+  kontor: {
+    id: "kontor",
+    stimmung: "hof",
+    nameDe: "Kontor", nameEn: "Counting House",
+    figuren: ["scholar", "taxman", "banker"],
+    regelDe: "Jeder Sieg bringt ein Viertel mehr Gold.",
+    regelEn: "Every win pays a quarter more gold.",
+    storyDe: "Einer rechnet, einer treibt ein, einer legt an. Am Ende gehört ihnen der Tisch, an dem gespielt wird.",
+    storyEn: "One reckons, one collects, one invests. In the end they own the table the game is played on.",
+  },
+  kueche: {
+    id: "kueche",
+    stimmung: "schmiede",
+    nameDe: "Küche", nameEn: "Kitchen",
+    figuren: ["butcher", "cook", "miller"],
+    regelDe: "Alle drei beginnen jede Partie mit einem Leben mehr.",
+    regelEn: "All three begin every match with one more life.",
+    storyDe: "Mehl, Fleisch und Feuer. Wer bei diesen dreien am Tisch sitzt, steht länger.",
+    storyEn: "Flour, meat and fire. Whoever eats at their table stands longer.",
+  },
+  kloster: {
+    id: "kloster",
+    stimmung: "hof",
+    nameDe: "Kloster", nameEn: "Cloister",
+    figuren: ["monk", "healer"],
+    regelDe: "Bauern neben Mönch oder Heilerin nehmen bei jedem Treffer einen Schaden weniger.",
+    regelEn: "Pawns beside the monk or the healer take one damage less from every hit.",
+    storyDe: "Er betet für die Kleinen, sie verbindet sie. Beides hilft — niemand weiß, was mehr.",
+    storyEn: "He prays for the small ones, she binds their wounds. Both help — nobody knows which helps more.",
+  },
+  jagd: {
+    id: "jagd",
+    stimmung: "wildnis",
+    nameDe: "Jagd", nameEn: "Hunt",
+    figuren: ["huntress", "ranger", "trapper"],
+    regelDe: "Wer eine der drei schlägt, ist seinen nächsten Zug lang gefesselt.",
+    regelEn: "Whoever strikes down one of the three is fettered for their next move.",
+    storyDe: "Wer einen von ihnen erlegt, steht schon im Eisen des nächsten.",
+    storyEn: "Whoever brings one of them down already stands in the next one's iron.",
+  },
+  turnier: {
+    id: "turnier",
+    stimmung: "hof",
+    nameDe: "Turnier", nameEn: "Tournament",
+    figuren: ["cavalier", "fencer", "spearman", "gladiator"],
+    regelDe: "Alle vier treffen mit einem Angriff mehr.",
+    regelEn: "All four strike with one more attack.",
+    storyDe: "Vier, die einander oft genug gegenüberstanden, um zu wissen, wohin der andere schlägt.",
+    storyEn: "Four who have faced one another often enough to know where the other will strike.",
+  },
+  finsternis: {
+    id: "finsternis",
+    stimmung: "riss",
+    nameDe: "Finsternis", nameEn: "Darkness",
+    figuren: ["executioner", "samurai", "jailer"],
+    regelDe: "Was einer der drei schlägt, steht nicht wieder auf — kein Unsterblich, kein Geist, keine Rückkehr.",
+    regelEn: "What one of the three strikes down does not rise again — no undying, no wraith, no return.",
+    storyDe: "Der eine schließt ab, der andere vollstreckt, der dritte sieht nach, ob es getan ist.",
+    storyEn: "One locks the door, one carries it out, the third makes sure it is done.",
   },
 };
 

@@ -14,7 +14,6 @@ import k_bund_bannkreis from "./assets/kulissen/bund-bannkreis.webp";
 import k_bund_sturm from "./assets/kulissen/bund-sturm.webp";
 import k_bund_nachtwache from "./assets/kulissen/bund-nachtwache.webp";
 import k_meister_richter from "./assets/kulissen/meister-richter.webp";
-import k_meister_doppelritter from "./assets/kulissen/meister-doppelritter.webp";
 import k_meister_hetzer from "./assets/kulissen/meister-hetzer.webp";
 import k_meister_schattenfuerst from "./assets/kulissen/meister-schattenfuerst.webp";
 import k_meister_hueter from "./assets/kulissen/meister-hueter.webp";
@@ -30,6 +29,23 @@ import k_monster_untot from "./assets/kulissen/monster-untot.webp";
 import k_monster_gesindel from "./assets/kulissen/monster-gesindel.webp";
 import k_monster_gemaeuer from "./assets/kulissen/monster-gemaeuer.webp";
 import k_drache from "./assets/kulissen/drache.webp";
+/* v1.91.0: acht neue Buende, acht neue Grossmeister */
+import k_bund_dorf from "./assets/kulissen/bund-dorf.webp";
+import k_bund_werkstatt from "./assets/kulissen/bund-werkstatt.webp";
+import k_bund_kontor from "./assets/kulissen/bund-kontor.webp";
+import k_bund_kueche from "./assets/kulissen/bund-kueche.webp";
+import k_bund_kloster from "./assets/kulissen/bund-kloster.webp";
+import k_bund_jagd from "./assets/kulissen/bund-jagd.webp";
+import k_bund_turnier from "./assets/kulissen/bund-turnier.webp";
+import k_bund_finsternis from "./assets/kulissen/bund-finsternis.webp";
+import k_meister_zahir from "./assets/kulissen/meister-zahir.webp";
+import k_meister_varek from "./assets/kulissen/meister-varek.webp";
+import k_meister_isolde from "./assets/kulissen/meister-isolde.webp";
+import k_meister_halvar from "./assets/kulissen/meister-halvar.webp";
+import k_meister_seraphine from "./assets/kulissen/meister-seraphine.webp";
+import k_meister_yorrik from "./assets/kulissen/meister-yorrik.webp";
+import k_meister_cassian from "./assets/kulissen/meister-cassian.webp";
+import k_meister_morwen from "./assets/kulissen/meister-morwen.webp";
 import k_figur_bauer from "./assets/kulissen/figur-bauer.webp";
 import k_figur_gambit from "./assets/kulissen/figur-gambit.webp";
 
@@ -44,8 +60,23 @@ export const KULISSE_URL = {
   "bund-bannkreis": k_bund_bannkreis,
   "bund-sturm": k_bund_sturm,
   "bund-nachtwache": k_bund_nachtwache,
+  "bund-dorf": k_bund_dorf,
+  "bund-werkstatt": k_bund_werkstatt,
+  "bund-kontor": k_bund_kontor,
+  "bund-kueche": k_bund_kueche,
+  "bund-kloster": k_bund_kloster,
+  "bund-jagd": k_bund_jagd,
+  "bund-turnier": k_bund_turnier,
+  "bund-finsternis": k_bund_finsternis,
+  "meister-zahir": k_meister_zahir,
+  "meister-varek": k_meister_varek,
+  "meister-isolde": k_meister_isolde,
+  "meister-halvar": k_meister_halvar,
+  "meister-seraphine": k_meister_seraphine,
+  "meister-yorrik": k_meister_yorrik,
+  "meister-cassian": k_meister_cassian,
+  "meister-morwen": k_meister_morwen,
   "meister-richter": k_meister_richter,
-  "meister-doppelritter": k_meister_doppelritter,
   "meister-hetzer": k_meister_hetzer,
   "meister-schattenfuerst": k_meister_schattenfuerst,
   "meister-hueter": k_meister_hueter,
