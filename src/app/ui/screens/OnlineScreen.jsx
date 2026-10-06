@@ -54,11 +54,8 @@ export function OnlineScreen({ profile, dispatch, t, net, account, onDaily = nul
      spielt mit ihr, der Gegner mit seiner. Daneben die Fernpartie. Die Wahl
      der Bedenkzeit merkt sich das Geraet. */
   const [timeMode, setTimeMode] = useState("blitz");
-  const [blitzZeit, setBlitzZeitRoh] = useState(() => {
-    try { const n = Number(localStorage.getItem("gg:blitz")); return BLITZ_ZEITEN.includes(n) ? n : BLITZ_VORGABE; } catch { return BLITZ_VORGABE; }
-  });
-  const setBlitzZeit = (n) => { setBlitzZeitRoh(n); try { localStorage.setItem("gg:blitz", String(n)); } catch {} };
-  const meinTc = timeMode === "daily" ? "daily" : blitzTc(blitzZeit);
+  const meinTc = timeMode === "daily" ? "daily" : blitzTc();   /* v1.93.0: das kurze Gambit hat EINE Uhr, fuenf Minuten */
+  const [anpassen, setAnpassen] = useState(false);
   // the correspondence shelf: games that wait for you, however long that takes
   const [daily, setDaily] = useState([]);
   const [duelMapChoice, setDuelMapChoice] = useState("random"); // "random" | a map id from myMaps
@@ -314,16 +311,15 @@ export function OnlineScreen({ profile, dispatch, t, net, account, onDaily = nul
                   </div>
                 )}
       </Panel>}
-      <Panel>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div className="gg-serif" style={{ fontSize: 18, color: T.gold, letterSpacing: ".05em", marginBottom: 4 }}>{t("online.title")}</div>
-            <div style={{ fontSize: 12.5, color: T.dim, marginBottom: 10 }}>{t("online.sub")}</div>
-          </div>
-          {/* the crest of the keep watches over every online bout */}
-          <img src={crestArt(3)} alt="" aria-hidden style={{ width: 52, height: 62, objectFit: "contain", flex: "0 0 auto",
-            marginTop: -2, filter: "drop-shadow(0 3px 7px rgba(0,0,0,.5))" }} />
-        </div>
+      {/* v1.93.0 (Besitzer 7.10., mit Foto): "dass zweimal Online-Duell steht, sieht
+          bloed aus ... dieses Schild-Symbol ist doof ... vielleicht wuerde ich sogar
+          auf die komplette Box verzichten ... am Ende moechte ich einfach nur ein
+          paar wenige Optionen, wie ich spiele." Die Tafel mit zweitem Titel,
+          Untertitel und Wappen ist fort: der Schirm traegt seinen Namen schon im
+          Kopf. Was bleibt, steht frei auf dem Grund - zwei Wahlen (Duell oder
+          Klassisch, kurz oder lang), ein Knopf "Losspielen", und alles Weitere
+          hinter "Anpassen". */}
+      <div data-online-spiel style={{ display: "grid", gap: 0, padding: "2px 2px 0" }}>
         {!o.tagSet ? (
           <div style={{ padding: "12px 13px", background: T.panel2, border: `1.5px solid ${T.gold}88`, borderRadius: T.radiusSm }}>
             <div style={{ fontSize: 13.5, fontWeight: 800, color: T.gold, marginBottom: 4 }}>{t("online.tagTitle")}</div>
@@ -342,14 +338,27 @@ export function OnlineScreen({ profile, dispatch, t, net, account, onDaily = nul
           </div>
         ) : conn !== "on" ? (
           <div style={{ display: "grid", gap: 10 }}>
+            {/* v1.93.0 (Besitzer 7.10.: "sieht ein bisschen arg oldschool aus ... so, wie
+                das im Spielen ueblich ist"): die Zustimmung als ruhige Karte - was
+                uebertragen wird, als kurze Liste; der Verweis auf die
+                Datenschutzerklaerung; EIN klarer Knopf und ein leiser zweiter. */}
             {askConsent && (
-              <div style={{ padding: "11px 12px", background: T.panel2, border: `1.5px solid ${T.gold}88`, borderRadius: T.radiusSm }}>
-                <div style={{ fontSize: 13, fontWeight: 800, color: T.gold, marginBottom: 5 }}><PigeonIc size={13} /> {t("online.consentTitle")}</div>
-                <div style={{ fontSize: 12.5, color: T.dim, lineHeight: 1.55, marginBottom: 10 }}>{t("online.consentBody")}{" "}
-                  <a href="./privacy.html" target="_blank" rel="noreferrer" style={{ color: T.gold }}>{t("privacy.link")}</a></div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+              <div data-zustimmung style={{ padding: "16px 16px 14px", borderRadius: 16,
+                background: "linear-gradient(170deg, rgba(34,24,62,.92), rgba(12,9,22,.96))", border: "1px solid rgba(167,139,250,.35)" }}>
+                <div className="gg-serif" style={{ fontSize: 17, color: "#fdf6e2", letterSpacing: ".03em", marginBottom: 8 }}>{t("online.consentTitle")}</div>
+                <div style={{ fontSize: 13, color: T.text, lineHeight: 1.55, marginBottom: 8 }}>{t("online.consentBody")}</div>
+                <ul style={{ margin: "0 0 10px", padding: "0 0 0 18px", fontSize: 12.5, color: T.dim, lineHeight: 1.6 }}>
+                  {(en ? ["Display name, court value and friend code", "The moves of your online games and your game statistics", "No e-mail address, no real name, no advertising"]
+                       : ["Anzeigename, Hofwert und Freundes-Code", "Die Züge deiner Online-Partien und deine Spielstatistik", "Keine E-Mail-Adresse, kein Klarname, keine Werbung"]).map((z) => <li key={z}>{z}</li>)}
+                </ul>
+                <div style={{ fontSize: 12, color: T.dim, lineHeight: 1.55, marginBottom: 12 }}>
+                  {en ? "Details in our " : "Einzelheiten stehen in der "}
+                  <a href="./privacy.html#online" target="_blank" rel="noreferrer" style={{ color: "#c3aaf5", textDecoration: "underline" }}>{en ? "privacy policy" : "Datenschutzerklärung"}</a>
+                  {en ? ". You can disconnect at any time." : ". Du kannst die Verbindung jederzeit trennen."}</div>
+                <div style={{ display: "grid", gap: 8 }}>
                   <Button variant="primary" onClick={() => { setAskConsent(false); dispatch({ type: "SET_NOTICE", key: "online" }); connect(true); }}>{t("online.consentOk")}</Button>
-                  <Button variant="subtle" onClick={() => setAskConsent(false)}>{t("online.cancel")}</Button>
+                  <button onClick={() => setAskConsent(false)} style={{ fontFamily: "inherit", cursor: "pointer", background: "none", border: "none", color: T.dim, fontSize: 13, padding: "6px" }}>
+                    {en ? "Not now" : "Nicht jetzt"}</button>
                 </div>
               </div>
             )}
@@ -385,101 +394,52 @@ export function OnlineScreen({ profile, dispatch, t, net, account, onDaily = nul
             )}
           </div>
         ) : (
-          <div style={{ display: "grid", gap: 10 }}>
-            <Line>
-              <Chip color={T.limeInk} bg={T.lime}>{t("online.connected")}</Chip>
-              <Chip color={T.text} bg={T.panel2}>{t("online.players", { n: onlineN })}</Chip>
-              <Chip color={T.gold} bg={T.panel2}>{t("online.score")}: {score}</Chip>
-              <span style={{ flex: 1 }} />
-              <Button variant="subtle" onClick={() => net.close()} style={{ padding: "7px 12px", fontSize: 12.5 }}>{t("online.disconnect")}</Button>
-            </Line>
+          <div style={{ display: "grid", gap: 12 }}>
+            <div data-online-stand style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 12, color: T.dim }}>
+              <span aria-hidden style={{ width: 8, height: 8, borderRadius: "50%", background: T.green, boxShadow: `0 0 8px ${T.green}` }} />
+              <span>{t("online.connected")} · {t("online.players", { n: onlineN })}</span>
+            </div>
                         {!searching ? (<>
               <Segmented value={duelMode} onChange={(m) => { if (searching) { net.send({ t: "dequeue" }); setSearching(false); } setDuelMode(m); }}
                 options={[{ value: "duel", label: t("online.duel") }, { value: "classic", label: t("mode.classic") }]} />
+              <div style={{ fontSize: 11.5, color: T.faint, margin: "-6px 2px 0", lineHeight: 1.45 }}>
+                {duelMode === "classic" ? t("online.infoClassic")
+                  : (en ? "Your court, your formation, your talents." : "Dein Hofstaat, deine Aufstellung, deine Talente.")}</div>
 
-              {/* THE FOUR GAMBITS, as cards: name, clock and one line on what
-                  the format asks of you. Rush stands a little taller — that is
-                  where most duels are actually played. */}
-              <div style={{ display: "grid", gap: 7, marginTop: 10 }}>
+              {/* KURZ ODER LANG: zwei Karten nebeneinander, mehr gibt es nicht zu waehlen */}
+              <div data-gambitwahl style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
                 {TIME_MODES.map((m) => {
                   const txt = en ? m.en : m.de;
                   const on = timeMode === m.id;
                   return (
-                    <button key={m.id} disabled={m.pending}
-                      onClick={() => { if (m.pending) return; if (searching) { net.send({ t: "dequeue" }); setSearching(false); } setTimeMode(m.id); }}
-                      style={{ textAlign: "left", fontFamily: "inherit", cursor: m.pending ? "default" : "pointer",
-                        display: "flex", alignItems: "flex-start", gap: 11, width: "100%",
-                        padding: m.featured ? "13px 13px" : "11px 13px", borderRadius: 13,
-                        background: on ? `linear-gradient(150deg, ${m.color}2e, rgba(12,16,26,.9) 62%)`
-                          : "linear-gradient(150deg, rgba(30,36,54,.5), rgba(10,12,20,.75))",
-                        border: `1.5px solid ${on ? m.color : "rgba(120,130,160,.28)"}`,
-                        boxShadow: on ? `0 0 16px ${m.color}44` : "none",
-                        opacity: m.pending ? 0.62 : 1 }}>
-                      <span aria-hidden style={{ width: 30, height: 30, flex: "0 0 auto", borderRadius: "50%",
-                        display: "grid", placeItems: "center", background: `${m.color}22`, border: `1px solid ${m.color}77` }}>
-                        <ModeGlyph glyph={m.glyph} color={m.color} />
-                      </span>
-                      <span style={{ minWidth: 0, flex: 1 }}>
-                        <span style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "baseline" }}>
-                          <span className="gg-serif" style={{ fontSize: m.featured ? 15.5 : 14.5, color: on ? "#fdf6e2" : T.text,
-                            letterSpacing: ".03em" }}>{txt.name}</span>
-                          <span style={{ fontSize: 11.5, fontWeight: 800, color: m.color, whiteSpace: "nowrap" }}>{txt.tag}</span>
-                        </span>
-                        <span style={{ display: "block", fontSize: 11.5, lineHeight: 1.45, color: T.dim, marginTop: 3 }}>
-                          {txt.blurb}
-                        </span>
-                        {/* v1.92.0: die eigene Bedenkzeit - fuenf Stufen von 30 Sekunden bis 5 Minuten */}
-                        {on && m.id === "blitz" && (
-                          <span data-blitzwahl style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 8 }}>
-                            {BLITZ_ZEITEN.map((sek) => (
-                              <span key={sek} role="button" tabIndex={0} data-blitz={sek} aria-pressed={blitzZeit === sek}
-                                onClick={(e) => { e.stopPropagation(); if (searching) { net.send({ t: "dequeue" }); setSearching(false); } setBlitzZeit(sek); }}
-                                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.stopPropagation(); setBlitzZeit(sek); } }}
-                                style={{ padding: "6px 11px", borderRadius: 999, fontSize: 12.5, fontWeight: 800, cursor: "pointer",
-                                  border: `1.5px solid ${blitzZeit === sek ? m.color : "rgba(120,130,160,.4)"}`,
-                                  background: blitzZeit === sek ? `${m.color}33` : "transparent", color: blitzZeit === sek ? "#fdf6e2" : T.dim }}>
-                                {blitzText(sek, en)}</span>))}
-                          </span>
-                        )}
-                        {on && m.id === "blitz" && (
-                          <span style={{ display: "block", fontSize: 11, color: m.color, marginTop: 6 }}>
-                            {en ? `Your clock: ${blitzText(blitzZeit, true)} for the whole game. Your opponent plays with the clock they chose.`
-                              : `Deine Uhr: ${blitzText(blitzZeit)} für die ganze Partie. Dein Gegner spielt mit der Zeit, die er gewählt hat.`}
-                          </span>
-                        )}
-                        {on && (en ? (m.warnEn || m.noteEn) : (m.warnDe || m.noteDe)) && (
-                          <span style={{ display: "block", fontSize: 11, color: m.color, marginTop: 4 }}>
-                            {en ? (m.warnEn || m.noteEn) : (m.warnDe || m.noteDe)}
-                          </span>
-                        )}
-                      </span>
+                    <button key={m.id} data-gambit={m.id} aria-pressed={on}
+                      onClick={() => { if (searching) { net.send({ t: "dequeue" }); setSearching(false); } setTimeMode(m.id); }}
+                      style={{ fontFamily: "inherit", cursor: "pointer", textAlign: "center", padding: "14px 8px 12px", borderRadius: 14,
+                        display: "flex", flexDirection: "column", alignItems: "center", gap: 6, minWidth: 0,
+                        background: on ? "linear-gradient(165deg, rgba(124,58,237,.30), rgba(18,12,36,.92) 70%)"
+                          : "linear-gradient(165deg, rgba(30,24,52,.55), rgba(10,9,18,.8))",
+                        border: `1.5px solid ${on ? T.riftBright : "rgba(124,58,237,.30)"}`,
+                        boxShadow: on ? "0 0 16px rgba(124,58,237,.35)" : "none" }}>
+                      <ModeGlyph glyph={m.glyph} color={on ? "#e9dcff" : "#9d8fc4"} />
+                      <span className="gg-serif" style={{ fontSize: 15, letterSpacing: ".03em", color: on ? "#fdf6e2" : T.text }}>{txt.name}</span>
+                      <span style={{ fontSize: 11.5, fontWeight: 800, color: on ? T.goldBright : T.dim }}>{txt.tag}</span>
                     </button>
                   );
                 })}
               </div>
-              {duelMode === "duel" && myMaps.length > 1 && (
-                <div style={{ marginTop: 8 }}>
-                  <div style={{ fontSize: 11.5, color: T.faint, marginBottom: 5 }}>{t("online.mapChoice")}</div>
-                  <Segmented value={duelMapChoice} onChange={setDuelMapChoice}
-                    options={[{ value: "random", label: t("online.mapRandom") },
-                      ...myMaps.map((m) => ({ value: m, label: en ? mapById(m).nameEn : mapById(m).nameDe }))]} />
-                </div>
-              )}
-              <div style={{ fontSize: 11.5, color: T.dim, margin: "8px 2px 0", lineHeight: 1.5 }}>
-                {duelMode === "classic" ? t("online.infoClassic") :
-                  duelMapChoice === "random" ? t("online.infoRandomMap") :
-                  t("online.infoFixedMap", { map: en ? mapById(duelMapChoice).nameEn : mapById(duelMapChoice).nameDe })}
-              </div>
+              <div data-gambittext style={{ fontSize: 12, color: T.dim, margin: "-4px 2px 0", lineHeight: 1.5, minHeight: 36 }}>
+                {(en ? timeModeById(timeMode).en : timeModeById(timeMode).de).blurb}</div>
               {/* THE CORRESPONDENCE SHELF: every long game you have running,
                   the ones waiting on YOU first. This list is the whole point of
                   the format — it is what you come back to, days later. */}
 
-              {daily.length === 0 && timeMode === "daily" && pushRow(10)}
+              {daily.length === 0 && timeMode === "daily" && pushRow(0)}
 
-              <div style={{ height: 8 }} />
-              <Button variant="primary" onClick={findRandom} style={{ padding: "14px", fontSize: 15.5 }}>
+              <Button variant="primary" onClick={findRandom} style={{ padding: "15px", fontSize: 16 }}>
                 <JewelIc kind="power" size={13} /> {t("online.random")}
               </Button>
+              <div style={{ fontSize: 11.5, color: T.faint, textAlign: "center", marginTop: -6 }}>
+                {en ? "The hall finds a foe near your court value." : "Die Halle sucht dir einen Gegner mit ähnlichem Hofwert."}</div>
             </>) : (
               <div style={{ display: "grid", placeItems: "center", gap: 10, padding: "18px 10px 14px",
                 background: T.panel2, borderRadius: T.radius, border: `1px solid ${T.gold}44` }}>
@@ -498,33 +458,43 @@ export function OnlineScreen({ profile, dispatch, t, net, account, onDaily = nul
                 <Button variant="subtle" onClick={findRandom} style={{ padding: "8px 18px" }}>{t("online.cancel")}</Button>
               </div>
             )}
-                      {/* EINSTELLUNGEN ANS ENDE: erst spielen, dann verwalten - der
-                Spielmodus (Gambit/Klassisch) steht jetzt ganz oben. */}
-{/* v1.0.82 (Besitzer: "die Buttons laenger, so dass nur einzeilig"): das
-                Etikett stand NEBEN der Schiene und nahm ihr die Breite -
-                "Nur Freunden" brach dreizeilig um. Jetzt steht es DARUEBER
-                und die Schiene laeuft ueber die volle Breite. */}
-            <div style={{ marginTop: 10 }}>
-              <div style={{ fontSize: 12.5, color: T.dim, marginBottom: 6, width: "100%" }}>{t("online.privacy")}:</div>
-              <Segmented value={o.privacy || "public"} onChange={setPrivacy}
-                options={[{ value: "public", label: t("online.public") }, { value: "friends", label: t("online.friendsOnly") }]} />
-            </div>
-            {/* KEIN ZWANG: die Halle steht beim Start von selbst offen - wer
-                das nicht will, stellt es hier ab und verbindet wieder von Hand. */}
-            {/* v1.0.82 (Besitzer: "die Buttons laenger, so dass nur einzeilig"): das
-                Etikett stand NEBEN der Schiene und nahm ihr die Breite -
-                "Nur Freunden" brach dreizeilig um. Jetzt steht es DARUEBER
-                und die Schiene laeuft ueber die volle Breite. */}
-            <div style={{ marginTop: 10 }}>
-              <div style={{ fontSize: 12.5, color: T.dim, marginBottom: 6, width: "100%" }}>{en ? "Connect on start" : "Beim Start verbinden"}:</div>
-              <Segmented value={o.autoConnect === false ? "off" : "on"}
-                onChange={(v) => dispatch({ type: "SET_ONLINE", online: { ...o, autoConnect: v !== "off" } })}
-                options={[{ value: "on", label: en ? "automatic" : "automatisch" }, { value: "off", label: en ? "manual" : "von Hand" }]} />
-            </div>
+            <button data-anpassen aria-expanded={anpassen} onClick={() => setAnpassen((v) => !v)}
+              style={{ justifySelf: "center", fontFamily: "inherit", cursor: "pointer", background: "none", border: "none",
+                color: "#c3aaf5", fontSize: 13, fontWeight: 700, padding: "6px 14px", letterSpacing: ".03em" }}>
+              {en ? "Customise" : "Anpassen"} <span aria-hidden style={{ display: "inline-block", transform: anpassen ? "rotate(180deg)" : "none", transition: "transform .15s" }}>▾</span>
+            </button>
+            {anpassen && (
+              <div data-anpassen-feld style={{ display: "grid", gap: 12, padding: "12px 12px 14px", borderRadius: 14,
+                background: "rgba(18,13,34,.6)", border: "1px solid rgba(124,58,237,.22)" }}>
+                {duelMode === "duel" && myMaps.length > 1 && (
+                  <div>
+                    <div style={{ fontSize: 12.5, color: T.dim, marginBottom: 6 }}>{t("online.mapChoice")}</div>
+                    <Segmented value={duelMapChoice} onChange={setDuelMapChoice}
+                      options={[{ value: "random", label: t("online.mapRandom") },
+                        ...myMaps.map((m) => ({ value: m, label: en ? mapById(m).nameEn : mapById(m).nameDe }))]} />
+                    <div style={{ fontSize: 11.5, color: T.faint, margin: "6px 2px 0", lineHeight: 1.45 }}>
+                      {duelMapChoice === "random" ? t("online.infoRandomMap")
+                        : t("online.infoFixedMap", { map: en ? mapById(duelMapChoice).nameEn : mapById(duelMapChoice).nameDe })}</div>
+                  </div>
+                )}
+                <div>
+                  <div style={{ fontSize: 12.5, color: T.dim, marginBottom: 6 }}>{t("online.privacy")}</div>
+                  <Segmented value={o.privacy || "public"} onChange={setPrivacy}
+                    options={[{ value: "public", label: t("online.public") }, { value: "friends", label: t("online.friendsOnly") }]} />
+                </div>
+                <div>
+                  <div style={{ fontSize: 12.5, color: T.dim, marginBottom: 6 }}>{en ? "Connect on start" : "Beim Start verbinden"}</div>
+                  <Segmented value={o.autoConnect === false ? "off" : "on"}
+                    onChange={(v) => dispatch({ type: "SET_ONLINE", online: { ...o, autoConnect: v !== "off" } })}
+                    options={[{ value: "on", label: en ? "automatic" : "automatisch" }, { value: "off", label: en ? "manual" : "von Hand" }]} />
+                </div>
+                <Button variant="subtle" onClick={() => net.close()} style={{ padding: "9px 12px", fontSize: 13 }}>{t("online.disconnect")}</Button>
+              </div>
+            )}
 </div>
         )}
         {note && <div style={{ marginTop: 8, fontSize: 12.5, color: T.gold }}>{note}</div>}
-      </Panel>
+      </div>
 
       {conn === "on" && (
         <Panel>

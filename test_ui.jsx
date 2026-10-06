@@ -1190,18 +1190,27 @@ const erloschen = (m) => m.includes("#2f2a3d");
     TIME_MODES.every((m) => m.de.name && m.en.name && m.de.blurb && m.en.blurb && m.de.tag && m.en.tag));
   ok("every one carries a colour and a mark", TIME_MODES.every((m) => /^#/.test(m.color) && m.glyph));
   ok("fuenf Bedenkzeiten von 30 Sekunden bis 5 Minuten", BLITZ_ZEITEN.join() === "30,60,120,180,300" && blitzText(30) === "30 s" && blitzText(300) === "5 Min" && blitzText(300, true) === "5 min");
-  ok("die Kennung traegt die Sekunden, Unbekanntes faellt auf 3 Minuten", blitzTc(30) === "b30" && blitzTc(77) === "b180" && blitzSekunden("b120") === 120);
+  ok("die Kennung traegt die Sekunden, Unbekanntes und Fehlendes faellt auf 5 Minuten (v1.93.0)", blitzTc(30) === "b30" && blitzTc(77) === "b300" && blitzTc() === "b300" && blitzSekunden("b120") === 120);
   ok("die alten Kennungen bleiben lesbar (Geraete mit alter Fassung)", blitzSekunden("quick") === 60 && blitzSekunden("rush") === 180 && blitzSekunden("prime") === 300);
   ok("zwei Toepfe", timeModeKey("b30") === "blitz" && timeModeKey("rush") === "blitz" && timeModeKey("daily") === "daily");
   const c = clockFor("b30", "b300");
   ok("jede Seite spielt mit IHRER Zeit und ihrem Aufschlag", c.type === "total" && c.seconds === 30 && c.inc === 1 && c.foeSeconds === 300 && c.foeInc === 2);
   ok("fehlt die Uhr des Gegners (alte Halle), gilt die eigene fuer beide", clockFor("b120").foeSeconds === 120 && clockFor("b120").seconds === 120);
   ok("correspondence is a per-move deadline", clockFor("daily").type === "move");
-  ok("an unknown clock falls back rather than crashing", clockFor("nonsense").seconds === 180);
+  ok("an unknown clock falls back rather than crashing", clockFor("nonsense").seconds === 300);
   ok("correspondence explains itself in both tongues",
     TIME_MODES.some((m) => m.id === "daily" && m.noteDe && m.noteEn && /drei Tage/.test(m.noteDe)));
   const on = readFileSync("src/app/ui/screens/OnlineScreen.jsx", "utf8"), gsQ = readFileSync("src/app/ui/screens/GameScreen.jsx", "utf8");
-  ok("die Lobby laesst die Bedenkzeit waehlen und schickt sie mit", /data-blitzwahl/.test(on) && /tc: meinTc/.test(on) && /BLITZ_ZEITEN\.map/.test(on));
+  /* v1.93.0 (Besitzer 7.10.: "der eine Modus geht einfach bis 5 Minuten, Punkt"): keine Auswahl der Bedenkzeit mehr */
+  ok("v1.93.0: das kurze Gambit hat EINE Uhr (5 Minuten) - die Lobby bietet keine Auswahl mehr und schickt b300",
+    !/data-blitzwahl/.test(on) && !/BLITZ_ZEITEN\.map/.test(on) && /tc: meinTc/.test(on) && /blitzTc\(\)/.test(on)
+    && TIME_MODES[0].de.name === "Kurzes Gambit" && TIME_MODES[0].de.tag === "bis 5 Min" && !/30 s/.test(TIME_MODES[0].de.tag + TIME_MODES[0].de.blurb));
+  ok("v1.93.0: die Lobby ohne zweite Tafel - kein doppelter Titel, kein Wappen; zwei Wahlen, Losspielen, der Rest hinter Anpassen",
+    !/t\("online\.sub"\)/.test(on) && !/crestArt\(3\)/.test(on) && /data-gambitwahl/.test(on) && /data-anpassen-feld/.test(on)
+    && on.indexOf('t("online.disconnect")') > on.indexOf("data-anpassen-feld") && on.indexOf('t("online.mapChoice")') > on.indexOf("data-anpassen-feld")
+    && makeT("de")("online.random") === "Losspielen");
+  ok("v1.93.0: die Zustimmung nennt, was uebertragen wird, und verweist auf die Datenschutzerklaerung",
+    /data-zustimmung/.test(on) && /privacy\.html#online/.test(on) && /Keine E-Mail-Adresse, kein Klarname, keine Werbung/.test(on));
   ok("das Brett fuehrt die Uhr des Gegners getrennt", /timer\.foeSeconds \?\? timer\.seconds/.test(gsQ) && /foeInc = timer\.foeInc \?\? inc/.test(gsQ));
 }
 

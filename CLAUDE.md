@@ -41,8 +41,8 @@ gambitrise.com zeigt darauf).
   pruefe-navigation, pruefe-textfluss, test_layout) lesen den Chromium-Pfad aus
   `PW_CHROMIUM`; ohne die Variable gilt der Pfad des Cloud-Containers. Lokal:
   `npx playwright install chromium` und `PW_CHROMIUM=<Pfad zur chrome-Datei>`.
-- `npm test` — volle Batterie. MUSS **31 Suiten / 2944 Prüfungen** melden
-  (Stand v1.92.2; der Runner stoppt nach der ersten roten Suite, also
+- `npm test` — volle Batterie. MUSS **31 Suiten / 2946 Prüfungen** melden
+  (Stand v1.93.0; der Runner stoppt nach der ersten roten Suite, also
   Suitenzahl prüfen, nicht nur Assertions! **Zählweise seit v1.90.18
   (Audit A74): JEDE Suite der Kette meldet eine RESULT-Zeile** — alle Zeilen
   `RESULT…: N passed` summieren; test_balance meldet zwei, darum stehen im
@@ -414,12 +414,24 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
   Stationsfenster. **Figuren stehen in jedem Kapitel NEBEN der Dame** (Platz des
   Damenspringers), Großmeister und Bestien an ihrer Stelle; der Drache behält
   seinen Block.
-- **Online: zwei Spielarten (v1.92.0, `content/timeModes.js`).** `blitz` ist EIN
-  Topf: jede Seite schickt ihre Bedenkzeit als `tc: "b<Sekunden>"` (30–300) und
-  spielt mit ihr; die Halle (`normTc`, `tcKlasse` in worker/src/logic.mjs) hält
-  `tcW`/`tcB` an der Partie und schickt jeder Seite `tc` und `tcOpp`. `daily`
-  ist die Fernpartie (drei Tage je Zug, `DAILY_MS`). Die alten Kennungen
-  quick/rush/prime werden als 1/3/5 Minuten gelesen.
+- **Online: zwei Spielarten (`content/timeModes.js`).** `blitz` heißt seit
+  v1.93.0 **Kurzes Gambit und hat EINE Uhr: fünf Minuten** (`tc: "b300"`; der
+  Besitzer am 7.10.: „geht einfach bis 5 Minuten, Punkt“ — die Stufenwahl aus
+  v1.92.0 ist wieder fort). Die Halle (`normTc`, `tcKlasse` in
+  worker/src/logic.mjs) liest weiter jede Kennung `b30`–`b300` und die alten
+  quick/rush/prime, hält `tcW`/`tcB` an der Partie und schickt `tc`/`tcOpp` —
+  Geräte mit älterer Fassung spielen mit ihrer Zeit. `daily` ist die Fernpartie
+  (drei Tage je Zug, `DAILY_MS`; am 7.10. vom Besitzer so bestätigt).
+  **Die Lobby (v1.93.0):** keine Tafel, kein zweiter Titel, kein Wappen — zwei
+  Wahlen, „Losspielen“, alles Weitere hinter „Anpassen“ (`data-anpassen-feld`).
+  `FOTOS=<ordner> node tools/pruefe-duell.mjs` legt Zustimmung und Lobby als
+  Bilder ab.
+- **Rechtstexte (v1.93.0):** `public/privacy.html`, `terms.html`,
+  `konto-loeschen.html` sind als Dokument gesetzt (ein gemeinsamer Stil, Kopf mit
+  Stand, Inhaltsverzeichnis, Druckfassung). Überschriften bleiben `<h2>N. Titel</h2>`
+  (pruefe-buttons prüft die Nummernfolge), die Sprungmarke steht als
+  `<a class="anker" id="aN">` davor; `#online` zeigt auf Abschnitt 5, `#impressum`
+  aufs Impressum. Nicht anwaltlich geprüft — das steht offen beim Besitzer.
 - **Gold neben dem Kampf (`meta/zubrot.js`):** Almosen, Zins, Zehnt, Studium und
   die Bünde Dorf und Kontor ändern am Brett nichts und werden an EINER Stelle
   gerechnet; `applyResult` zahlt aus, das Banner zeigt die Posten. Wer aufgibt,
@@ -598,7 +610,7 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
   Auswahl-Lichtspektakel.
 - Alles Optionale abschaltbar (Klang, Online).
 
-## Offene Baustellen (Stand v1.92.2, 7.10.2026)
+## Offene Baustellen (Stand v1.93.0, 7.10.2026)
 
 **Einstieg für jede neue Sitzung: `design/CHAT-EINSTIEG-2026-09-27.md`** (zehn
 Minuten, mit dem Startsatz für den Chat), dann **`design/UEBERGABE-2026-09-27.md`** — Stand,

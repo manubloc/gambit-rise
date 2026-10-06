@@ -375,10 +375,11 @@ try {
     await klick(S.page, "^Verbinden$");
     /* Das Zustimmungsfenster steht, BEVOR etwas an die Halle geht
        (privacy.html §5: "nach gesondertem Hinweis im Spiel"). */
-    const gefragt = await warte(async () => /Online-Modus verbinden\?/.test(await text(S.page)), 2500);
+    const gefragt = await warte(async () => /Mit der Duell-Halle verbinden/.test(await text(S.page)), 2500);
     const helloVorher = von(S.seite, "hello").length;
+    if (gefragt && process.env.FOTOS && S.seite === "A") await S.page.screenshot({ path: `${process.env.FOTOS}/1-zustimmung.png` });   /* v1.93.0: FOTOS=<ordner> legt Zustimmung und Lobby ab */
     if (gefragt) await klick(S.page, "^Zustimmen & verbinden$");
-    const da = await warte(async () => an(S.seite, "welcome").length > 0 && /Spiel starten/.test(await text(S.page)), 10000);
+    const da = await warte(async () => an(S.seite, "welcome").length > 0 && /Losspielen/.test(await text(S.page)), 10000);
     return { gefragt, helloVorher, da };
   };
   const [vA, vB] = await Promise.all([verbinde(A), verbinde(B)]);
@@ -386,10 +387,14 @@ try {
     ok(`Seite ${S.seite}: 'Verbinden' fragt zuerst nach der Zustimmung - kein hello vor 'Zustimmen'`,
       v.gefragt && v.helloVorher === 0,
       v.gefragt ? `${v.helloVorher} hello schon vor der Zustimmung` : `kein Zustimmungsfenster, ${v.helloVorher} hello ging ohne Zustimmung an die Halle`);
-    ok(`Seite ${S.seite}: hello -> welcome, die Lobby steht ("Spiel starten")`, v.da);
+    ok(`Seite ${S.seite}: hello -> welcome, die Lobby steht ("Losspielen")`, v.da);
   }
   if (!vA.da || !vB.da) throw new Error("keine Verbindung");
   await Promise.all([A, B].map((S) => S.page.waitForTimeout(600)));
+  if (process.env.FOTOS) { await A.page.screenshot({ path: `${process.env.FOTOS}/2-lobby.png` });
+    await A.page.evaluate(() => { const b = document.querySelector("[data-anpassen]"); b && b.click(); }); await A.page.waitForTimeout(300);
+    await A.page.screenshot({ path: `${process.env.FOTOS}/3-anpassen.png`, fullPage: true });
+    await A.page.evaluate(() => { const b = document.querySelector("[data-anpassen]"); b && b.click(); }); }
   /* Die Lobby fragt nach dem welcome Rangliste und Tresor an
      (OnlineScreen: zwei eigene welcome-Zuhoerer). Stirbt ein frueherer
      Zuhoerer an einer Ausnahme, kommen diese Anfragen nie an. */
@@ -401,7 +406,7 @@ try {
   // ── 3. Zufalls-Warteschlange im Modus Klassisch -> ein Brett fuer beide ───
   for (const S of [A, B]) { S.schritt = "Warteschlange"; await klick(S.page, "^Klassisch$"); }
   await A.page.waitForTimeout(300);
-  for (const S of [A, B]) await klick(S.page, "^Spiel starten$");
+  for (const S of [A, B]) await klick(S.page, "^Losspielen$");
   const gepaart = await warte(() => an("A", "match").length && an("B", "match").length, 8000);
   const mA = an("A", "match")[0], mB = an("B", "match")[0];
   const qA = von("A", "queue")[0], qB = von("B", "queue")[0];

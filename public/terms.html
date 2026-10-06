@@ -7,31 +7,89 @@
   <link rel="icon" href="./favicon.ico" sizes="any" />
   <title>Nutzungsbedingungen — Gambit Rise</title>
   <style>
-    :root { color-scheme: dark; }
-    body { margin: 0; background: #0c111e; color: #d7d2c4; font: 15px/1.65 Georgia, serif; }
-    main { max-width: 720px; margin: 0 auto; padding: 40px 22px 80px; }
-    h1 { color: #c9a45c; letter-spacing: .08em; font-size: 26px; }
-    h2 { color: #e3c07a; font-size: 18px; margin-top: 34px; letter-spacing: .04em; }
-    a { color: #c9a45c; }
-    .box { background: #141b2c; border: 1px solid #2a3350; border-radius: 12px; padding: 14px 16px; margin: 14px 0; }
-    .nav { margin: 8px 0 24px; font-size: 13.5px; }
-    footer { margin-top: 48px; font-size: 12.5px; color: #6b7186; }
-    hr { border: 0; border-top: 1px solid #2a3350; margin: 40px 0; }
-    ul { padding-left: 20px; } li { margin: 4px 0; }
+    /* v1.93.0: die Rechtstexte als Dokument - ruhige Schrift, klare Gliederung,
+       Inhaltsverzeichnis, Druckfassung. Kein Spielgewand: ein Rechtstext soll
+       sich wie einer lesen. */
+    :root { color-scheme: dark; --grund: #0d0c14; --blatt: #14121e; --linie: #2b2740; --text: #dcd9e6; --leise: #9a95ad; --kopf: #ffffff; --marke: #b9a4f7; }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: var(--grund); color: var(--text);
+      font: 16px/1.7 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; -webkit-text-size-adjust: 100%; }
+    main { max-width: 760px; margin: 0 auto; padding: 28px 22px 72px; }
+    .kopf { border-bottom: 1px solid var(--linie); padding-bottom: 22px; margin-bottom: 26px; }
+    .marke { font-size: 12px; letter-spacing: .22em; text-transform: uppercase; color: var(--marke); font-weight: 600; margin-bottom: 14px; }
+    h1 { color: var(--kopf); font-size: 30px; line-height: 1.2; font-weight: 650; letter-spacing: -.01em; margin: 0 0 10px; }
+    .stand { color: var(--leise); font-size: 14px; margin: 0 0 16px; }
+    .nav { display: flex; flex-wrap: wrap; gap: 8px; font-size: 13.5px; margin: 0; }
+    .nav a { text-decoration: none; color: var(--text); border: 1px solid var(--linie); border-radius: 999px; padding: 5px 13px; }
+    .nav a:hover { border-color: var(--marke); color: var(--kopf); }
+    h2 { color: var(--kopf); font-size: 19px; line-height: 1.35; font-weight: 650; margin: 40px 0 10px; padding-top: 18px; border-top: 1px solid var(--linie); }
+    h3 { color: var(--kopf); font-size: 16px; font-weight: 600; margin: 24px 0 6px; }
+    p { margin: 0 0 12px; }
+    a { color: var(--marke); text-underline-offset: 2px; }
+    b, strong { color: var(--kopf); font-weight: 600; }
+    .box { background: var(--blatt); border: 1px solid var(--linie); border-left: 3px solid var(--marke); border-radius: 10px; padding: 16px 18px; margin: 18px 0; }
+    .box .titel { display: block; font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--marke); font-weight: 600; margin-bottom: 8px; }
+    .inhalt { background: var(--blatt); border: 1px solid var(--linie); border-radius: 10px; padding: 16px 18px; margin: 18px 0 8px; }
+    .inhalt .titel { font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--leise); font-weight: 600; margin-bottom: 8px; }
+    .inhalt ol { margin: 0; padding: 0; list-style: none; columns: 2; column-gap: 28px; font-size: 14.5px; }
+    .inhalt li { margin: 0 0 5px; break-inside: avoid; }
+    .inhalt a { text-decoration: none; color: var(--text); }
+    .inhalt a:hover { color: var(--kopf); text-decoration: underline; }
+    .anker { display: block; position: relative; top: -12px; visibility: hidden; }
+    hr { border: 0; border-top: 1px solid var(--linie); margin: 44px 0; }
+    ul, ol { padding-left: 22px; margin: 0 0 12px; }
+    li { margin: 5px 0; }
+    code { font: 14px/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; background: var(--blatt); border: 1px solid var(--linie); border-radius: 5px; padding: 1px 5px; }
+    table { border-collapse: collapse; width: 100%; margin: 14px 0; font-size: 14.5px; }
+    th, td { border: 1px solid var(--linie); padding: 9px 11px; text-align: left; vertical-align: top; }
+    th { color: var(--kopf); font-weight: 600; background: var(--blatt); }
+    .englisch { color: var(--leise); font-size: 14.5px; }
+    footer { margin-top: 52px; padding-top: 18px; border-top: 1px solid var(--linie); font-size: 13px; color: var(--leise); }
+    footer a { color: var(--leise); }
+    @media (max-width: 560px) { h1 { font-size: 25px; } .inhalt ol { columns: 1; } main { padding: 22px 18px 60px; } }
+    @media print { :root { --grund: #fff; --blatt: #fff; --linie: #bbb; --text: #111; --leise: #444; --kopf: #000; --marke: #333; } .nav { display: none; } a { color: #000; } }
   </style>
 </head>
 <body>
 <main>
-  <h1>Gambit Rise — Nutzungsbedingungen</h1>
-  <p><em>Stand: 3. August 2026</em></p>
-  <div class="nav">→ <a href="./privacy.html">Datenschutz &amp; Impressum</a> · <a href="./">zurück zum Spiel</a></div>
+  <header class="kopf">
+    <div class="marke">Gambit Rise</div>
+    <h1>Nutzungsbedingungen</h1>
+    <p class="stand">Stand: 7. Oktober 2026 · Anbieter: Manuel Frey, Konstanz</p>
+    <nav class="nav"><a href="./privacy.html">Datenschutzerklärung</a><a href="./privacy.html#impressum">Impressum</a><a href="./konto-loeschen.html">Konto löschen</a><a href="./">Zurück zum Spiel</a></nav>
+  </header>
 
-  <div class="box"><b>Kurzfassung:</b> Gambit Rise ist ein kostenloses Browserspiel.
-  Du darfst es privat und unentgeltlich nutzen. Sei fair (kein Cheaten, keine
-  Manipulation, keine automatisierten Zugriffe), respektiere die Rechte anderer, und
-  denk daran: Da das Spiel gratis ist, gibt es keine Garantie für ununterbrochene
-  Verfügbarkeit — sichere wichtige Spielstände selbst über die Export-Funktion.</div>
+  <div class="box"><span class="titel">Das Wichtigste in Kürze</span>
+  Gambit Rise ist ein kostenloses Spiel für die private Nutzung. Es gelten die Regeln
+  des fairen Spiels: kein Cheaten, keine Manipulation, keine automatisierten Zugriffe,
+  Respekt vor den Rechten anderer. Das Spiel wird unentgeltlich bereitgestellt; ein
+  Anspruch auf ununterbrochene Verfügbarkeit besteht nicht. Wichtige Spielstände lassen
+  sich jederzeit über die Export-Funktion sichern.</div>
 
+  <nav class="inhalt" aria-label="Inhalt">
+    <div class="titel">Inhalt</div>
+    <ol>
+      <li><a href="#a1">1. Geltungsbereich und Anbieter</a></li>
+      <li><a href="#a2">2. Leistung und Kosten</a></li>
+      <li><a href="#a3">3. Nutzerkonto</a></li>
+      <li><a href="#a4">4. Pflichten der Nutzer / unzulässige Nutzung</a></li>
+      <li><a href="#a5">5. Faires Spiel im Mehrspieler-Betrieb</a></li>
+      <li><a href="#a6">6. Rechte am Spiel</a></li>
+      <li><a href="#a7">7. Von dir eingegebene Inhalte</a></li>
+      <li><a href="#a8">8. Verfügbarkeit, Sicherung, Gewährleistung</a></li>
+      <li><a href="#a9">9. Haftung</a></li>
+      <li><a href="#a10">10. Sperrung und Beendigung</a></li>
+      <li><a href="#a11">11. Änderungen dieser Nutzungsbedingungen</a></li>
+      <li><a href="#a12">12. Anwendbares Recht und Streitbeilegung</a></li>
+      <li><a href="#a13">13. Schlussbestimmungen</a></li>
+      <li><a href="#a14">14. Virtuelle Inhalte</a></li>
+      <li><a href="#a15">15. Bezug über App-Stores</a></li>
+      <li><a href="#a16">16. Fairness im Online-Modus</a></li>
+    </ol>
+  </nav>
+
+    <a class="anker" id="a1"></a>
   <h2>1. Geltungsbereich und Anbieter</h2>
   <p>Diese Nutzungsbedingungen regeln die Nutzung des Browserspiels „Gambit Rise"
   (nachfolgend „Spiel"), erreichbar unter gambitrise.com und zugehörigen Adressen.
@@ -39,6 +97,7 @@
   (nachfolgend „wir"/„Anbieter"; Kontakt siehe <a href="./privacy.html">Impressum</a>).
   Mit der Nutzung des Spiels erklärst du dich mit diesen Bedingungen einverstanden.</p>
 
+  <a class="anker" id="a2"></a>
   <h2>2. Leistung und Kosten</h2>
   <p>Das Spiel wird unentgeltlich als Freizeitangebot bereitgestellt. Es besteht kein
   Anspruch auf Bereitstellung, einen bestimmten Funktionsumfang oder eine bestimmte
@@ -47,6 +106,7 @@
   aktive Internetverbindung erforderlich; hierfür anfallende Kosten deines
   Zugangsanbieters trägst du selbst.</p>
 
+  <a class="anker" id="a3"></a>
   <h2>3. Nutzerkonto</h2>
   <p>Zum Spielen wird ein Konto benötigt (per E-Mail oder „Mit Google anmelden").
   Dabei gilt: Du bist für die Geheimhaltung deiner
@@ -55,6 +115,7 @@
   zulässig sein. Die Verarbeitung von Kontodaten ist in der
   <a href="./privacy.html">Datenschutzerklärung</a> beschrieben.</p>
 
+  <a class="anker" id="a4"></a>
   <h2>4. Pflichten der Nutzer / unzulässige Nutzung</h2>
   <p>Bei der Nutzung des Spiels unterlässt du insbesondere:</p>
   <ul>
@@ -65,6 +126,7 @@
     <li>jede rechtswidrige Nutzung des Spiels.</li>
   </ul>
 
+  <a class="anker" id="a5"></a>
   <h2>5. Faires Spiel im Mehrspieler-Betrieb</h2>
   <p>Im Online-Modus spielst du gegen andere Menschen. Untersagt sind insbesondere:
   der Einsatz von Schachprogrammen, Analysehilfen oder Automatisierung zur
@@ -78,7 +140,8 @@
   deinem Gerät, deinem Browser und dem Push-Dienst des Herstellers ab. Versäumte
   Fristen in Fernpartien gehen nicht zu unseren Lasten.</p>
 
-<h2>6. Rechte am Spiel</h2>
+<a class="anker" id="a6"></a>
+  <h2>6. Rechte am Spiel</h2>
   <p>Das Spiel einschließlich seiner Software, Grafiken, Figuren, Texte, Musik, des
   Namens und des Logos ist urheber- und ggf. markenrechtlich geschützt und verbleibt
   beim Anbieter bzw. den jeweiligen Rechteinhabern. Du erhältst ein einfaches, nicht
@@ -87,6 +150,7 @@
   Bearbeitung oder kommerzielle Verwertung ist ohne unsere vorherige Zustimmung nicht
   gestattet, soweit nicht das Gesetz dies ausdrücklich erlaubt.</p>
 
+  <a class="anker" id="a7"></a>
   <h2>7. Von dir eingegebene Inhalte</h2>
   <p>Für Inhalte, die du eingibst (insbesondere deinen Anzeigenamen), bleibst du
   verantwortlich und sicherst zu, dass sie keine Rechte Dritter verletzen und nicht
@@ -94,6 +158,7 @@
   deines Namens im Online-Modus), räumst du uns das dafür nötige, einfache Nutzungsrecht
   ein. Wir dürfen offensichtlich rechtswidrige oder unzulässige Inhalte entfernen.</p>
 
+  <a class="anker" id="a8"></a>
   <h2>8. Verfügbarkeit, Sicherung, Gewährleistung</h2>
   <p>Das Spiel wird mit der gebotenen Sorgfalt, jedoch ohne Zusicherung einer
   ununterbrochenen oder fehlerfreien Verfügbarkeit bereitgestellt. Wartungen, Störungen
@@ -102,6 +167,7 @@
   Spiel angebotene Export-Funktion. Ein gesetzlicher Gewährleistungsanspruch besteht
   bei diesem unentgeltlichen Angebot nur nach Maßgabe der gesetzlichen Vorschriften.</p>
 
+  <a class="anker" id="a9"></a>
   <h2>9. Haftung</h2>
   <p>Wir haften unbeschränkt bei Vorsatz und grober Fahrlässigkeit, bei Schäden aus der
   Verletzung des Lebens, des Körpers oder der Gesundheit, im Rahmen einer übernommenen
@@ -117,6 +183,7 @@
   Beschränkungen gelten auch für die persönliche Haftung unserer Erfüllungsgehilfen.
   Eine Änderung der Beweislast zu deinem Nachteil ist damit nicht verbunden.</p>
 
+  <a class="anker" id="a10"></a>
   <h2>10. Sperrung und Beendigung</h2>
   <p>Du kannst die Nutzung jederzeit beenden und dein Konto löschen (lassen). Bei
   Verstößen gegen diese Bedingungen — insbesondere gegen Ziffer 4 — dürfen wir den
@@ -124,6 +191,7 @@
   deine berechtigten Interessen angemessen berücksichtigen. Schwerwiegende Verstöße
   können zur sofortigen Sperrung führen.</p>
 
+  <a class="anker" id="a11"></a>
   <h2>11. Änderungen dieser Nutzungsbedingungen</h2>
   <p>Wir dürfen diese Nutzungsbedingungen mit Wirkung für die Zukunft ändern, soweit
   dies aus triftigem Grund (z. B. geänderte Rechtslage, neue Funktionen) erforderlich
@@ -131,6 +199,7 @@
   veröffentlichte Fassung mit dem angegebenen Stand. Nutzt du das Spiel nach einer
   Änderung weiter, gilt dies als Zustimmung zur jeweils aktuellen Fassung.</p>
 
+  <a class="anker" id="a12"></a>
   <h2>12. Anwendbares Recht und Streitbeilegung</h2>
   <p>Es gilt das Recht der Bundesrepublik Deutschland unter Ausschluss des
   UN-Kaufrechts. Bist du Verbraucher mit gewöhnlichem Aufenthalt in der EU, bleiben die
@@ -140,14 +209,34 @@
   vor einer Verbraucherschlichtungsstelle teilzunehmen (§ 36
   Verbraucherstreitbeilegungsgesetz).</p>
 
+  <a class="anker" id="a13"></a>
   <h2>13. Schlussbestimmungen</h2>
   <p>Sollte eine Bestimmung dieser Nutzungsbedingungen unwirksam sein oder werden,
   bleibt die Wirksamkeit der übrigen Bestimmungen unberührt. An die Stelle einer
   unwirksamen Bestimmung tritt die gesetzliche Regelung.</p>
 
+  <a class="anker" id="a14"></a>
+  <h2>14. Virtuelle Inhalte</h2>
+  <p>Gold, Tränke, Figuren und alle weiteren Inhalte im Spiel sind rein virtuell, haben keinen
+  Geldwert und können weder gekauft noch ausgezahlt oder übertragen werden. Es gibt keine
+  In-App-Käufe.</p>
+
+  <a class="anker" id="a15"></a>
+  <h2>15. Bezug über App-Stores</h2>
+  <p>Wird Gambit Rise über einen App-Store (z.&nbsp;B. Google Play) bezogen, gelten ergänzend die
+  Bedingungen des jeweiligen Store-Betreibers. Der Store-Betreiber ist nicht Vertragspartner
+  dieser Nutzungsbedingungen und übernimmt keine Gewährleistung für das Spiel.</p>
+
+  <a class="anker" id="a16"></a>
+  <h2>16. Fairness im Online-Modus</h2>
+  <p>Untersagt sind das Ausnutzen technischer Fehler zum eigenen Vorteil, automatisiertes Spielen
+  im Online-Modus sowie beleidigende oder rechtswidrige Anzeigenamen. Bei Verstößen können wir
+  einzelne Konten vom Online-Modus ausschließen.</p>
+
   <hr>
 
   <h2>English summary</h2>
+  <div class="englisch">
   <p>Gambit Rise is a free browser game. You may use it privately and free of charge.
   Play fair: no cheating, manipulation, bots or automated access; do not disrupt the
   service or other players; do not use unlawful or offensive display names or content.
@@ -162,21 +251,9 @@
   country of residence remain unaffected. This English text is a convenience summary;
   the German version above is authoritative. Contact: Manuel Frey, Macairestraße 3,
   78467 Konstanz, Germany, frey.manu@gmail.com.</p>
+  </div>
 
-  <footer>Gambit Rise · <a href="./privacy.html">Datenschutz &amp; Impressum</a> · <a href="./">zurück zum Spiel</a></footer>
-
-  <h2>Virtuelle Inhalte</h2>
-  <p>Gold, Tränke, Figuren und alle weiteren Inhalte im Spiel sind rein virtuell, haben keinen
-  Geldwert und können weder gekauft noch ausgezahlt oder übertragen werden. Es gibt keine
-  In-App-Käufe.</p>
-  <h2>Bezug über App-Stores</h2>
-  <p>Wird Gambit Rise über einen App-Store (z.&nbsp;B. Google Play) bezogen, gelten ergänzend die
-  Bedingungen des jeweiligen Store-Betreibers. Der Store-Betreiber ist nicht Vertragspartner
-  dieser Nutzungsbedingungen und übernimmt keine Gewährleistung für das Spiel.</p>
-  <h2>Fairness</h2>
-  <p>Untersagt sind das Ausnutzen technischer Fehler zum eigenen Vorteil, automatisiertes Spielen
-  im Online-Modus sowie beleidigende oder rechtswidrige Anzeigenamen. Bei Verstößen können wir
-  einzelne Konten vom Online-Modus ausschließen.</p>
+  <footer>Gambit Rise · Stand 7. Oktober 2026 · <a href="./privacy.html">Datenschutzerklärung</a> · <a href="./privacy.html#impressum">Impressum</a> · <a href="./">Zurück zum Spiel</a></footer>
 </main>
 </body>
 </html>

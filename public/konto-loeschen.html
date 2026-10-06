@@ -7,32 +7,61 @@
   <title>Konto und Daten löschen — Gambit Rise</title>
   <meta name="description" content="So löschst du dein Gambit-Rise-Konto und alle zugehörigen Daten - in der App oder per E-Mail." />
   <style>
-    :root { color-scheme: dark; }
-    body { margin: 0; background: #0c111e; color: #d7d2c4; font: 15px/1.65 Georgia, serif; }
-    main { max-width: 720px; margin: 0 auto; padding: 40px 22px 80px; }
-    h1 { color: #c9a45c; letter-spacing: .08em; font-size: 26px; }
-    h2 { color: #e3c07a; font-size: 18px; margin-top: 36px; letter-spacing: .04em; }
-    a { color: #c9a45c; }
-    .box { background: #141b2c; border: 1px solid #2a3350; border-radius: 12px; padding: 14px 16px; margin: 14px 0; }
-    .nav { margin: 8px 0 24px; font-size: 13.5px; }
-    footer { margin-top: 48px; font-size: 12.5px; color: #6b7186; }
-    hr { border: 0; border-top: 1px solid #2a3350; margin: 40px 0; }
-    ul, ol { padding-left: 20px; }
-    li { margin: 6px 0; }
-    table { border-collapse: collapse; width: 100%; margin: 14px 0; font-size: 14px; }
-    th, td { border: 1px solid #2a3350; padding: 8px 10px; text-align: left; vertical-align: top; }
-    th { color: #e3c07a; font-weight: normal; }
+    /* v1.93.0: die Rechtstexte als Dokument - ruhige Schrift, klare Gliederung,
+       Inhaltsverzeichnis, Druckfassung. Kein Spielgewand: ein Rechtstext soll
+       sich wie einer lesen. */
+    :root { color-scheme: dark; --grund: #0d0c14; --blatt: #14121e; --linie: #2b2740; --text: #dcd9e6; --leise: #9a95ad; --kopf: #ffffff; --marke: #b9a4f7; }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: var(--grund); color: var(--text);
+      font: 16px/1.7 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; -webkit-text-size-adjust: 100%; }
+    main { max-width: 760px; margin: 0 auto; padding: 28px 22px 72px; }
+    .kopf { border-bottom: 1px solid var(--linie); padding-bottom: 22px; margin-bottom: 26px; }
+    .marke { font-size: 12px; letter-spacing: .22em; text-transform: uppercase; color: var(--marke); font-weight: 600; margin-bottom: 14px; }
+    h1 { color: var(--kopf); font-size: 30px; line-height: 1.2; font-weight: 650; letter-spacing: -.01em; margin: 0 0 10px; }
+    .stand { color: var(--leise); font-size: 14px; margin: 0 0 16px; }
+    .nav { display: flex; flex-wrap: wrap; gap: 8px; font-size: 13.5px; margin: 0; }
+    .nav a { text-decoration: none; color: var(--text); border: 1px solid var(--linie); border-radius: 999px; padding: 5px 13px; }
+    .nav a:hover { border-color: var(--marke); color: var(--kopf); }
+    h2 { color: var(--kopf); font-size: 19px; line-height: 1.35; font-weight: 650; margin: 40px 0 10px; padding-top: 18px; border-top: 1px solid var(--linie); }
+    h3 { color: var(--kopf); font-size: 16px; font-weight: 600; margin: 24px 0 6px; }
+    p { margin: 0 0 12px; }
+    a { color: var(--marke); text-underline-offset: 2px; }
+    b, strong { color: var(--kopf); font-weight: 600; }
+    .box { background: var(--blatt); border: 1px solid var(--linie); border-left: 3px solid var(--marke); border-radius: 10px; padding: 16px 18px; margin: 18px 0; }
+    .box .titel { display: block; font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--marke); font-weight: 600; margin-bottom: 8px; }
+    .inhalt { background: var(--blatt); border: 1px solid var(--linie); border-radius: 10px; padding: 16px 18px; margin: 18px 0 8px; }
+    .inhalt .titel { font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--leise); font-weight: 600; margin-bottom: 8px; }
+    .inhalt ol { margin: 0; padding: 0; list-style: none; columns: 2; column-gap: 28px; font-size: 14.5px; }
+    .inhalt li { margin: 0 0 5px; break-inside: avoid; }
+    .inhalt a { text-decoration: none; color: var(--text); }
+    .inhalt a:hover { color: var(--kopf); text-decoration: underline; }
+    .anker { display: block; position: relative; top: -12px; visibility: hidden; }
+    hr { border: 0; border-top: 1px solid var(--linie); margin: 44px 0; }
+    ul, ol { padding-left: 22px; margin: 0 0 12px; }
+    li { margin: 5px 0; }
+    code { font: 14px/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; background: var(--blatt); border: 1px solid var(--linie); border-radius: 5px; padding: 1px 5px; }
+    table { border-collapse: collapse; width: 100%; margin: 14px 0; font-size: 14.5px; }
+    th, td { border: 1px solid var(--linie); padding: 9px 11px; text-align: left; vertical-align: top; }
+    th { color: var(--kopf); font-weight: 600; background: var(--blatt); }
+    .englisch { color: var(--leise); font-size: 14.5px; }
+    footer { margin-top: 52px; padding-top: 18px; border-top: 1px solid var(--linie); font-size: 13px; color: var(--leise); }
+    footer a { color: var(--leise); }
+    @media (max-width: 560px) { h1 { font-size: 25px; } .inhalt ol { columns: 1; } main { padding: 22px 18px 60px; } }
+    @media print { :root { --grund: #fff; --blatt: #fff; --linie: #bbb; --text: #111; --leise: #444; --kopf: #000; --marke: #333; } .nav { display: none; } a { color: #000; } }
   </style>
 </head>
 <body>
 <main>
-  <h1>Konto und Daten löschen</h1>
-  <p><em>Gambit Rise · App-Paket <code>com.gambitrise.app</code> · Anbieter: Manuel Frey,
-  Konstanz, Deutschland</em></p>
-  <div class="nav">→ <a href="./privacy.html">Datenschutz &amp; Impressum</a> ·
-  <a href="./terms.html">Nutzungsbedingungen</a> · <a href="./">Startseite</a></div>
+  <header class="kopf">
+    <div class="marke">Gambit Rise</div>
+    <h1>Konto und Daten löschen</h1>
+    <p class="stand">App-Paket <code>com.gambitrise.app</code> · Anbieter: Manuel Frey, Konstanz, Deutschland</p>
+    <nav class="nav"><a href="./privacy.html">Datenschutzerklärung</a><a href="./terms.html">Nutzungsbedingungen</a><a href="./">Startseite</a></nav>
+  </header>
 
-  <div class="box"><b>Kurz:</b> Du kannst dein Konto jederzeit selbst und ohne Rückfrage
+  <div class="box"><span class="titel">Auf einen Blick</span>
+  Du kannst dein Konto jederzeit selbst und ohne Rückfrage
   löschen — direkt im Spiel unter <b>Profil → Konto löschen</b>. Die Löschung erfolgt
   sofort und ist endgültig; niemand muss sie freigeben.</div>
 
@@ -87,6 +116,7 @@
   <hr />
 
   <h2>English summary</h2>
+  <div class="englisch">
   <p>Gambit Rise (package <code>com.gambitrise.app</code>), provided by Manuel Frey,
   Konstanz, Germany.</p>
   <p><b>Delete your account in the app:</b> open Gambit Rise, sign in, go to the
@@ -105,9 +135,9 @@
   provider's connection logs for a short period; anonymous crash reports (no e-mail
   address, newest 500 only), which can no longer be linked to a person once the
   account is gone.</p>
+  </div>
 
-  <footer>Gambit Rise · <a href="./privacy.html">Datenschutz &amp; Impressum</a> ·
-  <a href="./terms.html">Nutzungsbedingungen</a> · <a href="./">Startseite</a></footer>
+  <footer>Gambit Rise · <a href="./privacy.html">Datenschutzerklärung</a> · <a href="./terms.html">Nutzungsbedingungen</a> · <a href="./">Startseite</a></footer>
 </main>
 </body>
 </html>

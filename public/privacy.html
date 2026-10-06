@@ -7,43 +7,99 @@
   <link rel="icon" href="./favicon.ico" sizes="any" />
   <title>Datenschutz &amp; Impressum — Gambit Rise</title>
   <style>
-    :root { color-scheme: dark; }
-    body { margin: 0; background: #0c111e; color: #d7d2c4; font: 15px/1.65 Georgia, serif; }
-    main { max-width: 720px; margin: 0 auto; padding: 40px 22px 80px; }
-    h1 { color: #c9a45c; letter-spacing: .08em; font-size: 26px; }
-    h2 { color: #e3c07a; font-size: 18px; margin-top: 36px; letter-spacing: .04em; }
-    h3 { color: #d9bd86; font-size: 15.5px; margin-top: 22px; }
-    a { color: #c9a45c; }
-    .box { background: #141b2c; border: 1px solid #2a3350; border-radius: 12px; padding: 14px 16px; margin: 14px 0; }
-    .nav { margin: 8px 0 24px; font-size: 13.5px; }
-    footer { margin-top: 48px; font-size: 12.5px; color: #6b7186; }
-    hr { border: 0; border-top: 1px solid #2a3350; margin: 40px 0; }
-    ul { padding-left: 20px; }
-    li { margin: 4px 0; }
+    /* v1.93.0: die Rechtstexte als Dokument - ruhige Schrift, klare Gliederung,
+       Inhaltsverzeichnis, Druckfassung. Kein Spielgewand: ein Rechtstext soll
+       sich wie einer lesen. */
+    :root { color-scheme: dark; --grund: #0d0c14; --blatt: #14121e; --linie: #2b2740; --text: #dcd9e6; --leise: #9a95ad; --kopf: #ffffff; --marke: #b9a4f7; }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: var(--grund); color: var(--text);
+      font: 16px/1.7 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; -webkit-text-size-adjust: 100%; }
+    main { max-width: 760px; margin: 0 auto; padding: 28px 22px 72px; }
+    .kopf { border-bottom: 1px solid var(--linie); padding-bottom: 22px; margin-bottom: 26px; }
+    .marke { font-size: 12px; letter-spacing: .22em; text-transform: uppercase; color: var(--marke); font-weight: 600; margin-bottom: 14px; }
+    h1 { color: var(--kopf); font-size: 30px; line-height: 1.2; font-weight: 650; letter-spacing: -.01em; margin: 0 0 10px; }
+    .stand { color: var(--leise); font-size: 14px; margin: 0 0 16px; }
+    .nav { display: flex; flex-wrap: wrap; gap: 8px; font-size: 13.5px; margin: 0; }
+    .nav a { text-decoration: none; color: var(--text); border: 1px solid var(--linie); border-radius: 999px; padding: 5px 13px; }
+    .nav a:hover { border-color: var(--marke); color: var(--kopf); }
+    h2 { color: var(--kopf); font-size: 19px; line-height: 1.35; font-weight: 650; margin: 40px 0 10px; padding-top: 18px; border-top: 1px solid var(--linie); }
+    h3 { color: var(--kopf); font-size: 16px; font-weight: 600; margin: 24px 0 6px; }
+    p { margin: 0 0 12px; }
+    a { color: var(--marke); text-underline-offset: 2px; }
+    b, strong { color: var(--kopf); font-weight: 600; }
+    .box { background: var(--blatt); border: 1px solid var(--linie); border-left: 3px solid var(--marke); border-radius: 10px; padding: 16px 18px; margin: 18px 0; }
+    .box .titel { display: block; font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--marke); font-weight: 600; margin-bottom: 8px; }
+    .inhalt { background: var(--blatt); border: 1px solid var(--linie); border-radius: 10px; padding: 16px 18px; margin: 18px 0 8px; }
+    .inhalt .titel { font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--leise); font-weight: 600; margin-bottom: 8px; }
+    .inhalt ol { margin: 0; padding: 0; list-style: none; columns: 2; column-gap: 28px; font-size: 14.5px; }
+    .inhalt li { margin: 0 0 5px; break-inside: avoid; }
+    .inhalt a { text-decoration: none; color: var(--text); }
+    .inhalt a:hover { color: var(--kopf); text-decoration: underline; }
+    .anker { display: block; position: relative; top: -12px; visibility: hidden; }
+    hr { border: 0; border-top: 1px solid var(--linie); margin: 44px 0; }
+    ul, ol { padding-left: 22px; margin: 0 0 12px; }
+    li { margin: 5px 0; }
+    code { font: 14px/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; background: var(--blatt); border: 1px solid var(--linie); border-radius: 5px; padding: 1px 5px; }
+    table { border-collapse: collapse; width: 100%; margin: 14px 0; font-size: 14.5px; }
+    th, td { border: 1px solid var(--linie); padding: 9px 11px; text-align: left; vertical-align: top; }
+    th { color: var(--kopf); font-weight: 600; background: var(--blatt); }
+    .englisch { color: var(--leise); font-size: 14.5px; }
+    footer { margin-top: 52px; padding-top: 18px; border-top: 1px solid var(--linie); font-size: 13px; color: var(--leise); }
+    footer a { color: var(--leise); }
+    @media (max-width: 560px) { h1 { font-size: 25px; } .inhalt ol { columns: 1; } main { padding: 22px 18px 60px; } }
+    @media print { :root { --grund: #fff; --blatt: #fff; --linie: #bbb; --text: #111; --leise: #444; --kopf: #000; --marke: #333; } .nav { display: none; } a { color: #000; } }
   </style>
 </head>
 <body>
 <main>
-  <h1>Gambit Rise — Datenschutzerklärung</h1>
-  <p><em>Stand: 1. Oktober 2026</em></p>
-  <div class="nav">→ <a href="./terms.html">Nutzungsbedingungen</a> · <a href="./konto-loeschen.html">Konto löschen</a> · <a href="./">zurück zum Spiel</a></div>
+  <header class="kopf">
+    <div class="marke">Gambit Rise</div>
+    <h1>Datenschutzerklärung</h1>
+    <p class="stand">Stand: 7. Oktober 2026 · Verantwortlicher: Manuel Frey, Konstanz</p>
+    <nav class="nav"><a href="#impressum">Impressum</a><a href="./terms.html">Nutzungsbedingungen</a><a href="./konto-loeschen.html">Konto löschen</a><a href="./">Zurück zum Spiel</a></nav>
+  </header>
 
-  <div class="box"><b>Kurzfassung:</b> Gambit Rise läuft in deinem Browser.
-  Es gibt <b>keine Cookies</b> zu Werbe- oder Analysezwecken, keine Analyse-Tools und keine Werbung.
-  Spielstände liegen auf deinem Gerät und — bei angemeldeten Konten — in deinem persönlichen
-  Konto-Speicher. Zum Spielen wird ein Konto benötigt (E-Mail oder Google); ohne Konto ließe sich kein Fortschritt sichern.
-  Der Online-Duell-Modus überträgt nur die unten genannten Spieldaten, wenn du ihn aktiv verbindest.</div>
+  <div class="box"><span class="titel">Das Wichtigste in Kürze</span>
+  Gambit Rise setzt <b>keine Cookies</b> zu Werbe- oder Analysezwecken ein, bindet keine
+  Analyse-Werkzeuge ein und zeigt keine Werbung. Spielstände werden auf deinem Gerät und
+  in deinem persönlichen Konto-Speicher abgelegt. Für die Nutzung ist ein Konto
+  erforderlich (E-Mail-Adresse oder Google-Anmeldung), damit dein Fortschritt gesichert
+  werden kann. Der Online-Modus überträgt die in Abschnitt 5 genannten Spieldaten erst,
+  nachdem du der Verbindung zugestimmt hast.</div>
 
+  <nav class="inhalt" aria-label="Inhalt">
+    <div class="titel">Inhalt</div>
+    <ol>
+      <li><a href="#a1">1. Verantwortlicher</a></li>
+      <li><a href="#a2">2. Lokale Speicherung im Browser (technisch notwendig)</a></li>
+      <li><a href="#a3">3. Konto und Anmeldung</a></li>
+      <li><a href="#a4">4. Hosting und Server-Logfiles</a></li>
+      <li><a href="#a5">5. Online-Modus (nur nach Zustimmung)</a></li>
+      <li><a href="#a6">6. Benachrichtigungen bei Fernpartien (optional)</a></li>
+      <li><a href="#a7">7. Fehler- und Absturzberichte, freiwilliges Feedback</a></li>
+      <li><a href="#a8">8. Speicherdauer</a></li>
+      <li><a href="#a9">9. Minderjährige</a></li>
+      <li><a href="#a10">10. Keine automatisierte Entscheidungsfindung</a></li>
+      <li><a href="#a11">11. Deine Rechte</a></li>
+      <li><a href="#a12">12. Beschwerderecht bei der Aufsichtsbehörde</a></li>
+      <li><a href="#a13">13. Änderungen dieser Datenschutzerklärung</a></li>
+    </ol>
+  </nav>
+
+    <a class="anker" id="a1"></a>
   <h2>1. Verantwortlicher</h2>
   <p>Verantwortlich für die Datenverarbeitung auf dieser Website ist:</p>
   <p>Manuel Frey<br>
   Macairestraße 3<br>
   78467 Konstanz, Deutschland<br>
   E-Mail: <a href="mailto:frey.manu@gmail.com">frey.manu@gmail.com</a></p>
-  <p>Für alle Anliegen rund um den Datenschutz (Auskunft, Löschung usw.) genügt eine
-  E-Mail an die vorstehende Adresse. Einen Datenschutzbeauftragten müssen wir nicht
-  bestellen; die gesetzlichen Voraussetzungen dafür liegen nicht vor.</p>
+  <p>Für alle Anliegen zum Datenschutz (Auskunft, Berichtigung, Löschung und die weiteren
+  Rechte nach Abschnitt 11) genügt eine E-Mail an die vorstehende Adresse. Ein
+  Datenschutzbeauftragter ist nicht bestellt, da die gesetzlichen Voraussetzungen einer
+  Bestellpflicht nicht vorliegen.</p>
 
+  <a class="anker" id="a2"></a>
   <h2>2. Lokale Speicherung im Browser (technisch notwendig)</h2>
   <p>Das Spiel speichert im lokalen Speicher deines Browsers (localStorage/IndexedDB)
   ausschließlich technisch notwendige Daten für den Spielbetrieb:</p>
@@ -62,7 +118,8 @@
   soweit personenbezogen, Art. 6 Abs. 1 lit. f DSGVO (Bereitstellung eines
   funktionsfähigen Spiels).</p>
 
-  <h2>3. Konto &amp; Anmeldung (optional)</h2>
+  <a class="anker" id="a3"></a>
+  <h2>3. Konto und Anmeldung</h2>
   <p>Zum Spielen legst du ein <b>Konto</b> an. Dabei verarbeiten
   wir zur Bereitstellung und Verwaltung des Kontos (Art. 6 Abs. 1 lit. b DSGVO):
   deine E-Mail-Adresse, einen Anzeigenamen, Anmeldezeitpunkte sowie deine an das
@@ -99,6 +156,7 @@
   wie lange erhalten bleibt, steht auf der Seite
   <a href="./konto-loeschen.html">Konto und Daten löschen</a>.</p>
 
+  <a class="anker" id="a4"></a>
   <h2>4. Hosting und Server-Logfiles</h2>
   <p>Beim Aufruf der Seite verarbeitet unser Hosting-Anbieter technisch notwendige
   Verbindungsdaten (IP-Adresse, Datum und Uhrzeit, abgerufene Datei, übertragene
@@ -121,9 +179,10 @@
   <a href="https://policies.google.com/privacy" rel="noopener">Datenschutzhinweise von Google</a>.
   Die App selbst (unter /spielen/) lädt das Abzeichen nicht.</p>
 
-  <h2>5. Optionaler Online-Modus</h2>
+  <a class="anker" id="a5"></a><a class="anker" id="online"></a>
+  <h2>5. Online-Modus (nur nach Zustimmung)</h2>
   <p>Der Mehrspieler-Modus ist standardmäßig <b>aus</b>. Erst wenn du dich aktiv
-  verbindest (nach gesondertem Hinweis im Spiel), überträgt das Spiel an unseren
+  verbindest (nach gesondertem Hinweis im Spiel, dem du zustimmst), überträgt das Spiel an unseren
   Spielserver: deinen gewählten Anzeigenamen, deine Spielstärke-Punktzahl, deinen
   zufällig erzeugten Freundes-Code, Freundschafts- und Herausforderungsanfragen, die
   Spielzüge deiner Online-Partien, deine Spracheinstellung sowie deine Spielstatistik
@@ -157,11 +216,13 @@
   Zukunft widersprechen (Kontakt siehe Abschnitt 1); der Online-Modus bleibt ohne sie nutzbar,
   die Angaben werden dann nicht weiter vorgehalten.</p>
 
+  <a class="anker" id="a6"></a>
   <h2>6. Benachrichtigungen bei Fernpartien (optional)</h2>
   <p>Für Fernpartien kannst du dich benachrichtigen lassen, wenn dein Gegner gezogen hat. Diese Funktion ist <strong>standardmäßig aus</strong> und wird erst aktiv, wenn du sie im Online-Bereich einschaltest und dein Browser die Erlaubnis erteilt. Dabei erzeugt dein Browser eine Zustelladresse („Push-Endpunkt“) beim Push-Dienst deines Browserherstellers – je nach Gerät etwa Google (Chrome/Android), Mozilla (Firefox) oder Apple (Safari/iOS). Wir speichern zu deinem Konto ausschließlich diese Zustelladresse und zwei technische Schlüssel, die zum Verschlüsseln der Nachricht nötig sind, für bis zu fünf Geräte; das älteste fällt heraus, wenn ein sechstes dazukommt.</p>
   <p>Der Inhalt der Benachrichtigung beschränkt sich auf den Hinweis, dass du am Zug bist. Rechtsgrundlage ist deine Einwilligung (Art. 6 Abs. 1 lit. a DSGVO), die du jederzeit widerrufen kannst – im Spiel über denselben Schalter oder in den Einstellungen deines Browsers. Nach dem Abschalten löschen wir die gespeicherte Zustelladresse. Die Zustellung erfolgt technisch über den Push-Dienst deines Browserherstellers, der dabei Zustelladresse und Metadaten verarbeitet; bei Anbietern außerhalb der EU stützt sich die Übermittlung auf einen Angemessenheitsbeschluss bzw. die EU-Standardvertragsklauseln.</p>
 
-<h2>7. Fehler- und Absturzberichte, freiwilliges Feedback</h2>
+<a class="anker" id="a7"></a>
+  <h2>7. Fehler- und Absturzberichte, freiwilliges Feedback</h2>
   <p>Stürzt das Spiel ab oder tritt ein technischer Fehler auf, kann ein anonymer
   Fehlerbericht an unseren Spielserver gesendet werden. Er enthält technische Angaben
   zur Fehlersuche (u. a. Fehlermeldung, Programmversion, Browserkennung/User-Agent,
@@ -173,12 +234,13 @@
   melden" kannst du uns zusätzlich selbst eine Meldung schicken: eine grobe Rubrik
   (z. B. Absturz, Balance, Vorschlag), einen frei formulierten Text und wahlweise bis
   zu zwei Bildschirmfotos, die vor dem Senden auf deinem Gerät verkleinert werden.
-  Achte bitte selbst darauf, in Text und Bildern keine sensiblen Inhalte mitzuschicken.
+  Bitte übermittle in Text und Bildern keine sensiblen personenbezogenen Daten.
   Rechtsgrundlage ist deine Einwilligung durch das aktive Absenden (Art. 6 Abs. 1
   lit. a DSGVO); die Meldung dient allein der Verbesserung des Spiels. Es werden
   jeweils nur die neuesten Berichte (derzeit höchstens 500) vorgehalten und ältere
   automatisch gelöscht.</p>
 
+  <a class="anker" id="a8"></a>
   <h2>8. Speicherdauer</h2>
   <ul>
     <li>Lokal auf deinem Gerät gespeicherte Daten bleiben, bis du sie selbst löschst.</li>
@@ -190,16 +252,19 @@
     <li>Fehlerberichte werden nur in begrenzter Zahl (neueste Einträge) vorgehalten.</li>
   </ul>
 
+  <a class="anker" id="a9"></a>
   <h2>9. Minderjährige</h2>
   <p>Das Spiel richtet sich nicht gezielt an Kinder. Für die Anlage eines Kontos durch
   Minderjährige gilt Art. 8 DSGVO: Ist die Einwilligung einer Person unter 16 Jahren
   erforderlich, sollte sie nur mit Zustimmung der Sorgeberechtigten erfolgen.</p>
 
+  <a class="anker" id="a10"></a>
   <h2>10. Keine automatisierte Entscheidungsfindung</h2>
   <p>Eine automatisierte Entscheidungsfindung einschließlich Profiling im Sinne des
   Art. 22 DSGVO findet nicht statt. Die im Spiel berechnete Spielstärke-Punktzahl dient
   ausschließlich der Paarung im Online-Modus und hat keine rechtliche Wirkung.</p>
 
+  <a class="anker" id="a11"></a>
   <h2>11. Deine Rechte</h2>
   <p>Dir stehen nach der DSGVO folgende Rechte zu:</p>
   <ul>
@@ -214,6 +279,7 @@
   exportieren oder lokal löschen — und für die vollständige Löschung die eingebaute
   Funktion „Profil → Konto löschen" (siehe Abschnitt 3).</p>
 
+  <a class="anker" id="a12"></a>
   <h2>12. Beschwerderecht bei der Aufsichtsbehörde</h2>
   <p>Du hast das Recht, dich bei einer Datenschutz-Aufsichtsbehörde zu beschweren. Die
   für den Verantwortlichen zuständige Behörde ist:</p>
@@ -223,6 +289,7 @@
   <a href="https://www.baden-wuerttemberg.datenschutz.de" rel="noopener">www.baden-wuerttemberg.datenschutz.de</a></p>
   <p>Du kannst dich auch an die Aufsichtsbehörde deines gewöhnlichen Aufenthaltsorts wenden.</p>
 
+  <a class="anker" id="a13"></a>
   <h2>13. Änderungen dieser Datenschutzerklärung</h2>
   <p>Wir passen diese Erklärung an, wenn sich die Rechtslage oder die
   Datenverarbeitung ändert. Es gilt jeweils die hier veröffentlichte Fassung mit dem
@@ -230,7 +297,8 @@
 
   <hr>
 
-  <h1 id="impressum">Impressum</h1>
+  <a class="anker" id="impressum"></a>
+  <h1>Impressum</h1>
   <p>Angaben gemäß § 5 Digitale-Dienste-Gesetz (DDG):</p>
   <p>Manuel Frey<br>
   Macairestraße 3<br>
@@ -249,6 +317,7 @@
   <hr>
 
   <h2>English summary</h2>
+  <div class="englisch">
   <p>Gambit Rise runs in your browser. No advertising or analytics cookies, no ads.
   Save data lives on your device; with an optional account (email or Google via
   Supabase, data stored on EU servers) your saves and cloud backups are bound to that
@@ -265,8 +334,9 @@
   complaint with a supervisory authority. Controller / contact: Manuel Frey,
   Macairestraße 3, 78467 Konstanz, Germany, frey.manu@gmail.com. This English text is a
   convenience summary; the German version above is authoritative.</p>
+  </div>
 
-  <footer>Gambit Rise · <a href="./terms.html">Nutzungsbedingungen</a> · <a href="./konto-loeschen.html">Konto löschen</a> · <a href="./">zurück zum Spiel</a></footer>
+  <footer>Gambit Rise · Stand 7. Oktober 2026 · <a href="./terms.html">Nutzungsbedingungen</a> · <a href="./konto-loeschen.html">Konto löschen</a> · <a href="./">Zurück zum Spiel</a></footer>
 </main>
 </body>
 </html>

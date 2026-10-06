@@ -1,5 +1,29 @@
 # Changelog - Gambit Rise
 
+## 1.93.0 - Die Duell-Halle aufgeraeumt, das kurze Gambit hat eine Uhr, Rechtstexte als Dokument
+
+Besitzer 7.10., mit Foto der Lobby.
+
+- **Lobby ohne zweite Tafel:** "Online-Duell" stand zweimal uebereinander, dazu
+  Untertitel, Wappen, drei Plaketten und "Trennen" - alles fort. Der Schirm zeigt
+  zwei Wahlen (Duell oder Klassisch, kurzes oder langes Gambit) und EINEN Knopf
+  "Losspielen"; die Halle sucht den Gegner nach Hofwert. Karte, Sichtbarkeit,
+  Startverbindung und Trennen stehen hinter "Anpassen".
+- **Das kurze Gambit geht bis 5 Minuten, Punkt.** Die Auswahl 30 s / 1 / 2 / 3 / 5
+  Minuten aus v1.92.0 ist wieder weg (der Besitzer wollte zwei Spielarten, keine
+  Stufen in der einen). Die Halle liest die alten Kennungen weiter - Geraete mit
+  1.92 spielen mit ihrer Zeit zu Ende.
+- **Die Zustimmung zum Online-Modus** als ruhige Karte: was uebertragen wird, als
+  kurze Liste; Verweis auf die Datenschutzerklaerung (springt zu Abschnitt 5);
+  "Zustimmen & verbinden" und ein leises "Nicht jetzt".
+- **Datenschutzerklaerung, Nutzungsbedingungen, Loeschseite als Dokument:**
+  nuechterne Schrift, Kopf mit Stand, Inhaltsverzeichnis mit Sprungmarken,
+  Druckfassung. Inhaltlich unveraendert bis auf Formulierungen, die nach
+  Ausweichen klangen (Datenschutzbeauftragter, "Kurzfassung", "achte bitte
+  selbst darauf"), die widerspruechliche Ueberschrift "Konto (optional)" und drei
+  Abschnitte der Nutzungsbedingungen, die HINTER der Fusszeile standen (jetzt
+  14-16). Kein Rechtsrat: die Texte sind nicht anwaltlich geprueft.
+
 ## 1.92.2 - Hofstaat: der Zoom ist stufenlos und gleichmaessig, das Blatt oeffnet weich und schliesst mit zwei Fingern
 
 Besitzer 6.10.: "die Elemente auf den Karten sollten sich komplett gleich

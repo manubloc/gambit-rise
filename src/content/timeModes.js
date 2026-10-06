@@ -22,27 +22,32 @@
 
 /** Die waehlbaren Bedenkzeiten des schnellen Spiels, in Sekunden. */
 export const BLITZ_ZEITEN = [30, 60, 120, 180, 300];
-export const BLITZ_VORGABE = 180;
+/* v1.93.0 (Besitzer 7.10.: "es gibt nur zwei Modi, und der eine geht einfach bis
+   5 Minuten, Punkt - nicht von bis"): die Lobby bietet keine Auswahl mehr an,
+   jeder spielt das kurze Gambit mit fuenf Minuten. Die uebrigen Stufen bleiben
+   LESBAR - Geraete mit der Fassung 1.92 schicken sie noch, und die Halle haelt
+   laufende Partien damit. */
+export const BLITZ_VORGABE = 300;
 /** Fischer-Aufschlag je Zug: wer unter zwei Minuten waehlt, bekommt eine Sekunde zurueck, sonst zwei. */
 export const blitzAufschlag = (sekunden) => (sekunden < 120 ? 1 : 2);
-export const blitzTc = (sekunden) => "b" + (BLITZ_ZEITEN.includes(sekunden) ? sekunden : BLITZ_VORGABE);
+export const blitzTc = (sekunden = BLITZ_VORGABE) => "b" + (BLITZ_ZEITEN.includes(sekunden) ? sekunden : BLITZ_VORGABE);
 export const blitzText = (sekunden, en = false) => (sekunden < 60 ? `${sekunden} s` : `${sekunden / 60} ${en ? "min" : "Min"}`);
 
 export const TIME_MODES = [
   {
     id: "blitz",
-    de: { name: "Schnelles Gambit", tag: "30 s – 5 Min",
-      blurb: "Ein Topf für alle. Du wählst deine Bedenkzeit, dein Gegner seine — wer schnell spielen will, spielt schnell." },
-    en: { name: "Quick Gambit", tag: "30 s – 5 min",
-      blurb: "One pool for everyone. You pick your clock, your opponent picks theirs — play as fast as you like." },
+    de: { name: "Kurzes Gambit", tag: "bis 5 Min",
+      blurb: "Eine Partie am Stück: jeder hat fünf Minuten Bedenkzeit für das ganze Spiel." },
+    en: { name: "Short Gambit", tag: "up to 5 min",
+      blurb: "One game in one sitting: each side has five minutes on the clock for the whole game." },
     base: BLITZ_VORGABE, inc: blitzAufschlag(BLITZ_VORGABE), color: "#e5a13d", glyph: "bolt", featured: true,
   },
   {
     id: "daily",
     de: { name: "Langes Gambit", tag: "bis 3 Tage je Zug",
-      blurb: "Die Fernpartie. Zieh, wann du Zeit hast, und studiere das Brett in Ruhe — für jeden Zug hast du bis zu drei Tage." },
+      blurb: "Die Fernpartie: zieh, wann du Zeit hast. Für jeden Zug hast du bis zu drei Tage." },
     en: { name: "Long Gambit", tag: "up to 3 days a move",
-      blurb: "The correspondence game. Move when you have a moment and study the board at leisure — up to three days for every move." },
+      blurb: "The correspondence game: move when you have a moment. Up to three days for every move." },
     base: 86400, inc: 0, perMove: true, color: "#a78bfa", glyph: "crown",
     // Both legs of the format stand: the game lives on the server (seed, both
     // armies, every command — it outlasts both players closing the app), and
