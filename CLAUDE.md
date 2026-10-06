@@ -41,8 +41,8 @@ gambitrise.com zeigt darauf).
   pruefe-navigation, pruefe-textfluss, test_layout) lesen den Chromium-Pfad aus
   `PW_CHROMIUM`; ohne die Variable gilt der Pfad des Cloud-Containers. Lokal:
   `npx playwright install chromium` und `PW_CHROMIUM=<Pfad zur chrome-Datei>`.
-- `npm test` — volle Batterie. MUSS **31 Suiten / 2910 Prüfungen** melden
-  (Stand v1.91.1; der Runner stoppt nach der ersten roten Suite, also
+- `npm test` — volle Batterie. MUSS **31 Suiten / 2913 Prüfungen** melden
+  (Stand v1.91.2; der Runner stoppt nach der ersten roten Suite, also
   Suitenzahl prüfen, nicht nur Assertions! **Zählweise seit v1.90.18
   (Audit A74): JEDE Suite der Kette meldet eine RESULT-Zeile** — alle Zeilen
   `RESULT…: N passed` summieren; test_balance meldet zwei, darum stehen im
@@ -473,13 +473,18 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
   — sonst steht die Figur wieder auf ihrem gemalten grauen Teller. Bewusst ohne
   Band: Gegnerbildnis über dem Brett (Sockel verdeckt), 22-px-Köpfe der
   Bundtafel, Händler und Schatzkammer (`hatBand`), die Gambit-Marke der Karte.
-- **Zugbild (MoveDiagram), v1.90.35:** der Springersprung wird als WEG
-  gezeichnet (L-Linien: zwei gerade, eins zur Seite) — der Besitzer hat die
-  acht richtigen Felder dreimal für falsch gehalten, weil acht Punkte im Kreis
-  nicht nach Springer aussehen. test_ui prüft JEDE Figur gegen den Kern (leeres
-  9×9-Brett); wer eine Gangart ändert, sieht dort sofort, ob Bild und Kern
-  auseinanderlaufen. Der Magier (zwei Felder schräg) hat in der Grundstellung
-  keinen Zug — das ist richtig, wird aber im Spiel nicht erklärt.
+- **Zugbild (MoveDiagram), v1.91.2: KEINE LINIEN, DER ZUG STEHT ALS SATZ
+  DANEBEN.** Der Besitzer hat das Springerbild viermal für falsch gehalten —
+  zuerst die acht Felder allein (v1.90.25), dann die L-Linien (v1.90.35: je
+  zwei Zielfelder verschmolzen über den Querbalken zu einer Hantel, „was sollen
+  diese Linien?“). Die Felder stimmten jedes Mal. Was ihm fehlte, war der Weg in
+  Worten — und er zählt ihn anders („eins schräg und zwei geradeaus“; das wären
+  drei Felder, der Sprung von Hetzer und Kundschafter). Darum steht jetzt
+  `describeMoves` am Bild: „Springt im L: zwei Felder gerade, dann eins zur
+  Seite.“ **Nie wieder Linien oder Pfeile ins Zugbild zeichnen.** test_ui prüft
+  JEDE Figur gegen den Kern (leeres 9×9-Brett) und dass kein Satz ein
+  Verlegenheitssatz ist. Der Magier (zwei Felder schräg) hat in der
+  Grundstellung keinen Zug — das ist richtig, wird aber im Spiel nicht erklärt.
 - **Zugbild (MoveDiagram):** die leeren Felder sind seit v1.90.25 sichtbar
   (13 % / 6 % Weiß) — vorher sah der Besitzer im Springer-L acht Punkte im
   Kreis und hielt es für falsch. Die Aufstellungskarte legt gelernte
@@ -548,7 +553,7 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
   Auswahl-Lichtspektakel.
 - Alles Optionale abschaltbar (Klang, Online).
 
-## Offene Baustellen (Stand v1.91.1, 6.10.2026)
+## Offene Baustellen (Stand v1.91.2, 6.10.2026)
 
 **Einstieg für jede neue Sitzung: `design/CHAT-EINSTIEG-2026-09-27.md`** (zehn
 Minuten, mit dem Startsatz für den Chat), dann **`design/UEBERGABE-2026-09-27.md`** — Stand,

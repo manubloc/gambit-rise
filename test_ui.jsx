@@ -2955,9 +2955,24 @@ print(json.dumps({"gezaehlt": gezaehlt, "schlecht": schlecht}))
   }
   ok(`Zugbilder: ${gezaehlt} Figuren - jedes Bild zeigt genau die Felder, die der Kern auf leerem Brett gibt (schief: ${schief.join(" || ") || "keine"})`, gezaehlt >= 20 && schief.length === 0);
   const spL = html(<MoveDiagram kind="N" />);
-  ok("v1.90.35: das Zugbild des Springers zeichnet den WEG - acht L-Linien (zwei gerade, eins zur Seite)",
-    spL.includes('data-springer-l="8"') && (spL.match(/<polyline/g) || []).length === 8 && spL.includes('points="3.5,3.5 3.5,1.5 4.5,1.5"'));
-  ok("v1.90.35: der Laeufer traegt keine L-Linien", !html(<MoveDiagram kind="B" />).includes("data-springer-l"));
+/* v1.91.2 (Besitzer 6.10., zum vierten Mal, mit Foto: "was sollen diese Linien ... mach doch
+     einfach, wie ein Pferd ziehen kann"): die L-Linien aus v1.90.35 sind fort - sie verbanden je
+     zwei Zielfelder zu einer Hantel. Acht Felder wie bei jeder Figur, der Weg steht als SATZ daneben. */
+  ok("v1.91.2: das Zugbild des Springers traegt keine Linien mehr - acht gelbe Felder, kein SVG",
+    !spL.includes("<polyline") && !spL.includes("data-springer-l") && !spL.includes("<svg") && (spL.match(/rgba\(233,197,63,\.5\)/g) || []).length === 8);
+  {
+    const { describeMoves: dm } = await import("./src/app/ui/screens/ArmyScreen.jsx");
+    const { CHARACTERS: CH92, BOSSES: B92 } = await import("./src/content/index.js");
+    ok("v1.91.2: der Satz zum Springer sagt den Weg in Worten - zwei gerade, eins zur Seite (de und en)",
+      dm(CH92.knight, false).includes("zwei Felder gerade, dann eins zur Seite") && dm(CH92.knight, true).includes("two squares straight, then one sideways"));
+    ok("v1.91.2: der Satz kennt seitliches Gleiten, 'beliebig weit' und nennt jede Sprungform",
+      dm(CH92.taxman, false) === "Gleitet zur Seite, beliebig weit; zieht ein Feld vor oder zurück."
+      && dm(CH92.pathfinder, false).includes("drei gerade und eins zur Seite") && dm(CH92.scholar, false).includes("nur nach vorn und hinten"));
+    const stumm = [...Object.values(CH92), ...B92.map((b) => ({ id: "x", nameDe: b.nameDe, moveSpec: b.moveSpec }))]
+      .filter((c) => /feste Felder|fixed squares|99|Gattung|its kind/.test(dm(c, false) + dm(c, true))).map((c) => c.nameDe);
+    ok(`v1.91.2: keine Figur und kein Boss bekommt einen Verlegenheitssatz (ohne: ${stumm.join(", ") || "keine"})`, stumm.length === 0);
+    ok("v1.91.2: das Blatt zeigt den Satz unter dem Zugbild", /data-zugsatz/.test(readFileSync("src/app/ui/screens/ArmyScreen.jsx", "utf8")));
+  }
 }
 
 /* ── v1.90.35: BESTECHEN IM BLATT, GROSSMEISTER ALS WORT, ZOOM, VERWANDLUNG ───── */

@@ -1,5 +1,24 @@
 # Changelog - Gambit Rise
 
+## 1.91.2 - Das Springerbild ohne Linien, und jeder Zug steht als Satz daneben
+
+Besitzer 6.10., zum vierten Mal und mit Foto: "Wieso kriegst du dieses bloede
+Pferd nicht richtig dargestellt ... was sollen diese Linien? Mach doch einfach,
+wie ein Pferd ziehen kann."
+
+- **Ursache:** v1.90.35 zeichnete den Weg des Springers als L-Linien ins Bild.
+  Je zwei Spruenge teilten sich den geraden Arm, und der Querbalken lief ueber
+  das Feld ZWISCHEN zwei Zielfeldern - aus acht Feldern wurden vier Hanteln an
+  einem Kreuz. Die Felder stimmten (die Probe zaehlt sie gegen den Kern), das
+  Bild las sich trotzdem falsch. Die Linien sind fort: acht gelbe Felder wie bei
+  jeder anderen Figur.
+- **Der Zug steht jetzt in Worten am Bild** (Blatt, Chronik, Uebersicht):
+  "Springt im L: zwei Felder gerade, dann eins zur Seite." Fuer jede Figur und
+  jeden Boss - der Satz kannte bisher nur gerade, diagonal und "alle acht". Der
+  Steuereintreiber (gleitet nur seitlich) hiess "in alle acht Richtungen", eine
+  Gangart ohne Reichweite "bis zu 99 Felder", und unbekannte Spruenge "auf n
+  feste Zielfelder".
+
 ## 1.91.1 - Die Meister stehen in ihrer Landschaft; jeder Bund am echten Weg geprueft
 
 Besitzer 6.10. abends: "sind die Buende jetzt wirklich alle aktiv und

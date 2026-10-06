@@ -300,6 +300,10 @@ function BlattBuehne({ kennung, name, haus, satz, portraet, pid, ton, kul, form,
             <div style={{ width: 154, maxWidth: 154, overflow: "hidden" }}>
               <MoveDiagram kind={zugKind} moveSpec={moveSpec} talente={talente} breite={154} />
             </div>
+            {/* v1.91.2: der Zug in WORTEN unter dem Bild - "zwei Felder gerade, dann eins zur Seite".
+                Die langen Saetze (Gambit, Drache) stehen weiter unten im Blatt und bleiben hier weg. */}
+            {(() => { const satz = describeMoves({ id: kennung, kind: zugKind, moveSpec }, en); return satz && satz.length <= 120
+              ? <div data-zugsatz style={{ fontSize: 10.5, lineHeight: 1.35, color: "#ddd6bd", textShadow: "0 1px 4px rgba(0,0,0,.9)" }}>{satz}</div> : null; })()}
             {/* v1.25.4 (Besitzer): "wenn mehrere Faehigkeiten wie hier
                 zweiteilig, mehr Abstand nach unten lassen - das wirkt zu
                 gedrungen." Die zweite Reihe stiess bisher direkt an die
@@ -625,13 +629,13 @@ function AbilityAccordion({ ab, tg, price, cost, owned, reach, can, kind, en, op
 // base moves are INBORN and never change; abilities are LEARNED by level.
 const DIRS_ORTHO = JSON.stringify([[1,0],[-1,0],[0,1],[0,-1]].sort());
 const DIRS_DIAG = JSON.stringify([[1,1],[1,-1],[-1,1],[-1,-1]].sort());
-function describeMoves(ch, en) {
+export function describeMoves(ch, en) {
   const FIX = {
     pawn: ["Zieht ein Feld voran (zwei aus der Grundreihe), schlägt schräg nach vorn.",
            "Moves one square forward (two from home), captures diagonally forward."],
     gambit: ["Zieht wie ein Bauer — doch er ist der Feldherr: Fällt er, ist die Schlacht verloren. Seine sechs Siegel-Stufen schärfen Fähigkeiten und Rüstzeug, nie die Schrittart.",
              "Moves like a pawn — but he is the commander: lose him and the battle is lost. His six seal tiers sharpen abilities and gear, never the stride."],
-    knight: ["Springt im L (zwei vor, eins zur Seite) — über alles hinweg.", "Leaps in an L (two then one) — over everything."],
+    knight: ["Springt im L: zwei Felder gerade, dann eins zur Seite — über alles hinweg.", "Leaps in an L: two squares straight, then one sideways — over everything."],
     bishop: ["Gleitet diagonal, beliebig weit.", "Slides diagonally, any distance."],
     rook: ["Gleitet gerade — waagerecht und senkrecht, beliebig weit.", "Slides straight — files and ranks, any distance."],
     queen: ["Gleitet in alle acht Richtungen, beliebig weit.", "Slides in all eight directions, any distance."],
@@ -646,42 +650,58 @@ function describeMoves(ch, en) {
   if (FIX[ch.id]) return FIX[ch.id][en ? 1 : 0];
   const ms = ch.moveSpec || {};
   const parts = [];
+  /* v1.91.2: DER SATZ SAGT, WAS DER KERN TUT. Bis hierher kannte er drei
+     Richtungen (gerade, diagonal, "alle acht") - der Steuereintreiber, der nur
+     SEITLICH gleitet, hiess "in alle acht Richtungen"; eine Gangart ohne
+     Reichweite hiess "bis zu 99 Felder"; und jeder Sprung, der in kein Muster
+     passte, hiess "auf n feste Zielfelder". Jetzt wird jede Sprungform beim
+     Namen genannt, mit denselben Worten, die der Besitzer benutzt: gerade,
+     schraeg, zur Seite. */
   if (ms.slides?.length) {
     const key = JSON.stringify([...ms.slides].sort());
-    const dir = key === DIRS_ORTHO ? (en ? "straight" : "gerade")
-      : key === DIRS_DIAG ? (en ? "diagonally" : "diagonal")
+    const nurSeite = ms.slides.every(([a, b]) => a && !b), nurVor = ms.slides.every(([a, b]) => !a && b);
+    const dir = nurSeite ? (en ? "sideways" : "zur Seite") : nurVor ? (en ? "forward and back" : "vor und zurück")
+      : key === DIRS_ORTHO ? (en ? "straight" : "gerade")
+      : key === DIRS_DIAG ? (en ? "diagonally" : "schräg")
       : (en ? "in all eight directions" : "in alle acht Richtungen");
     const r = ms.range || 99;
-    parts.push(en ? `Slides ${dir}, up to ${r} square${r > 1 ? "s" : ""}` : `Gleitet ${dir}, bis zu ${r} ${r > 1 ? "Felder" : "Feld"}`);
+    const weit = r >= 8 ? (en ? "any distance" : "beliebig weit") : r === 1 ? (en ? "one square" : "ein Feld") : (en ? `up to ${r} squares` : `bis zu ${r} Felder`);
+    parts.push(r === 1 ? (en ? `steps one square ${dir}` : `zieht ein Feld ${dir}`) : (en ? `slides ${dir}, ${weit}` : `gleitet ${dir}, ${weit}`));
   }
   /* v1.62.0 (Besitzer: "ein Feld schraeg springen macht keinen Sinn - beim
      Springen muss man immer mindestens zwei Felder, sonst ist es keiner"):
-     RICHTIG. Ein Einfeld-"Sprung" hat kein Feld dazwischen, ueber das man
-     springen koennte - er ist ein SCHRITT. Die Regeln bleiben gleich; die
-     Beschreibung trennt jetzt Schritte von echten Spruengen. */
+     ein Einfeld-"Sprung" ist ein SCHRITT. */
   const schritte = (ms.leaps || []).filter(([a, b]) => Math.max(Math.abs(a), Math.abs(b)) === 1);
   if (schritte.length) {
     const schraeg = schritte.every(([a, b]) => a && b), gerade = schritte.every(([a, b]) => !a || !b);
-    parts.push(en ? `steps one square ${schraeg ? "diagonally" : gerade ? "straight" : "in any direction"}`
-      : `zieht ein Feld ${schraeg ? "schräg" : gerade ? "gerade" : "in jede Richtung"}`);
+    const nurSeite = schritte.every(([a, b]) => a && !b), nurVor = schritte.every(([a, b]) => !a && b);
+    const wie = nurSeite ? (en ? "sideways" : "zur Seite") : nurVor ? (en ? "forward or back" : "vor oder zurück")
+      : schraeg ? (en ? "diagonally" : "schräg") : gerade ? (en ? "straight" : "gerade") : (en ? "in any direction" : "in jede Richtung");
+    parts.push(en ? `steps one square ${wie}` : `zieht ein Feld ${wie}`);
   }
   const echteSpruenge = (ms.leaps || []).filter(([a, b]) => Math.max(Math.abs(a), Math.abs(b)) >= 2);
   if (echteSpruenge.length) {
-    const L = echteSpruenge, n = L.length;
-    const allDiag1 = false;
-    const diag2 = n === 4 && L.every(([a, b]) => Math.abs(a) === 2 && Math.abs(b) === 2);
-    const diag12 = n === 8 && L.every(([a, b]) => Math.abs(a) === Math.abs(b) && Math.abs(a) <= 2);
-    const ring2 = n === 16 && L.every(([a, b]) => Math.max(Math.abs(a), Math.abs(b)) === 2);
-    const ortho2 = n === 4 && L.every(([a, b]) => (a === 0) !== (b === 0) && Math.max(Math.abs(a), Math.abs(b)) === 2);
-    const knightL = n === 8 && L.every(([a, b]) => Math.abs(a) + Math.abs(b) === 3 && a && b);
-    const what = allDiag1 ? (en ? "one square diagonally (leaping)" : "ein Feld diagonal (springend)")
-      : diag2 ? (en ? "two squares diagonally, over pieces" : "zwei Felder schräg, über Figuren hinweg")
-      : diag12 ? (en ? "one or two squares diagonally, over pieces" : "ein bis zwei Felder diagonal, über Figuren hinweg")
-      : ring2 ? (en ? "anywhere on the 2-ring around it, over pieces" : "auf den gesamten 2er-Ring, über Figuren hinweg")
-      : ortho2 ? (en ? "two squares straight, over pieces" : "zwei Felder gerade, über Figuren hinweg")
-      : knightL ? (en ? "the knight's L" : "im Springer-L")
-      : (en ? `to ${n} fixed squares, over pieces` : `auf ${n} feste Zielfelder, über Figuren hinweg`);
-    parts.push((en ? "leaps " : "springt ") + what);
+    const L = echteSpruenge;
+    const ring2 = L.length === 16 && L.every(([a, b]) => Math.max(Math.abs(a), Math.abs(b)) === 2);
+    const FORM = {
+      "0,2": ["zwei Felder gerade", "two squares straight", 4], "2,2": ["zwei Felder schräg", "two squares diagonally", 4],
+      "1,2": ["im Springer-L (zwei gerade, eins zur Seite)", "the knight's L (two straight, one sideways)", 8],
+      "0,3": ["drei Felder gerade", "three squares straight", 4], "1,3": ["drei gerade und eins zur Seite", "three straight and one sideways", 8],
+      "2,3": ["drei gerade und zwei zur Seite", "three straight and two sideways", 8], "3,3": ["drei Felder schräg", "three squares diagonally", 4],
+    };
+    const gruppen = new Map();
+    for (const [a, b] of L) { const k = [Math.abs(a), Math.abs(b)].sort((x, y) => x - y).join(","); if (!gruppen.has(k)) gruppen.set(k, []); gruppen.get(k).push([a, b]); }
+    const teile = ring2 ? [en ? "to any square two away" : "auf jedes Feld im Abstand zwei"] : [...gruppen.entries()].map(([k, felder]) => {
+      const f = FORM[k]; if (!f) return en ? `to ${felder.length} fixed squares` : `auf ${felder.length} feste Felder`;
+      let zusatz = "";
+      if (felder.length < f[2]) {
+        /* nur ein Teil der Form: laenger nach vorn/hinten oder laenger zur Seite? */
+        const hoch = felder.every(([a, b]) => Math.abs(b) > Math.abs(a)), quer = felder.every(([a, b]) => Math.abs(a) > Math.abs(b));
+        zusatz = hoch ? (en ? ", only forward and back" : ", nur nach vorn und hinten") : quer ? (en ? ", only to the sides" : ", nur zur Seite") : "";
+      }
+      return (en ? f[1] : f[0]) + zusatz;
+    });
+    parts.push((en ? "leaps " : "springt ") + teile.join(en ? " or " : " oder ") + (en ? ", over pieces" : ", über Figuren hinweg"));
   }
   if (!parts.length) return en ? "Moves as its kind." : "Zieht nach Art seiner Gattung.";
   const txt = parts.join(en ? "; " : "; ");
@@ -827,29 +847,19 @@ export function MoveDiagram({ kind, moveSpec, extra = null, breite = null, talen
     const light = (f + r + 100) % 2 === 0;
     cells.push({ f, r, here, mark, light });
   }
-  /* ── v1.90.35: DAS L DES SPRINGERS WIRD GEZEICHNET ────────────────────────
-     Besitzer 5.10., zum dritten Mal: "du hast immer noch nicht das Pferd von
-     den Zuegen richtig dargestellt". GEMESSEN stimmen die acht gelben Felder
-     (test_ui zaehlt sie gegen den Kern) - aber acht Punkte im Kreis sehen
-     nicht nach einem Springerzug aus; die Aufhellung des Rasters (v1.90.25)
-     hat das nicht geloest. Jetzt zeichnet das Bild den WEG: von der Figur zwei
-     Felder gerade, dann eines zur Seite. Je zwei Spruenge teilen sich den
-     geraden Teil, es entstehen vier Arme mit Querbalken. Nur fuer echte
-     Springerspruenge (1/2) der GRUNDGANGART; Talente bleiben Felder. */
-  const springerL = (sp?.leaps || []).filter(([df, dr]) => {
-    const a = Math.abs(df), b = Math.abs(dr); return (a === 1 && b === 2) || (a === 2 && b === 1); });
-  const mitte = (f, r) => `${f - lo + 0.5},${hi - r + 0.5}`;
+  /* ── v1.91.2: KEINE LINIEN MEHR IM SPRINGERBILD ───────────────────────────
+     Besitzer 6.10., zum VIERTEN Mal, diesmal mit Foto: "was sollen diese
+     Linien? ... mach doch einfach, wie ein Pferd ziehen kann." v1.90.35 hatte
+     den Weg als L-Linien eingezeichnet. Je zwei Spruenge teilten sich den
+     geraden Arm, der Querbalken lief UEBER das Feld zwischen zwei Zielfeldern -
+     aus acht Feldern wurden vier Hanteln an einem Kreuz. Das Bild war dadurch
+     schlechter lesbar als ohne. Jetzt wieder: acht Felder wie bei jeder
+     anderen Figur, und der SATZ steht daneben (describeMoves) - "zwei Felder
+     gerade, dann eins zur Seite". Die Felder selbst stimmten immer (test_ui
+     zaehlt sie gegen den Kern). */
   return <div data-zugbild={grossDrache ? "drache" : undefined} style={{ display: "grid", gridTemplateColumns: `repeat(${NN}, 1fr)`, gap: 1.5, width: breite || "min(150px, 52vw)",
     position: "relative",
     padding: 4, borderRadius: 8, background: "rgba(8,12,22,.55)", border: "1px solid #ffffff10" }}>
-    {springerL.length > 0 && <svg data-springer-l={springerL.length} viewBox={`0 0 ${NN} ${NN}`} aria-hidden
-      style={{ position: "absolute", inset: 4, width: "calc(100% - 8px)", height: "calc(100% - 8px)", pointerEvents: "none", zIndex: 1 }}>
-      {springerL.map(([df, dr], i) => {
-        const knick = Math.abs(df) === 2 ? [df, 0] : [0, dr];
-        return <polyline key={i} points={`${mitte(0, 0)} ${mitte(knick[0], knick[1])} ${mitte(df, dr)}`}
-          fill="none" stroke="rgba(255,226,130,.9)" strokeWidth={0.1} strokeLinecap="round" strokeLinejoin="round" />;
-      })}
-    </svg>}
     {cells.map((c, i) => <div key={i} style={{ aspectRatio: "1", borderRadius: 3, position: "relative",
       background: c.here ? "linear-gradient(160deg,#e7c877,#b1863c)"
         : c.mark === "slide" ? "rgba(74,163,232,.42)"
@@ -1383,6 +1393,7 @@ function CharCard({ char, profile, dispatch, t, en, onZoom, open = true, onToggl
     {open && unlocked && char.kind !== "P" && !bigArt && (
       <div style={{ marginTop: 12 }}>
         <div className="gg-serif" style={{ fontSize: 10, letterSpacing: ".12em", color: "#c9b26a", marginBottom: 5 }}>{(en ? "Base moves" : "Grundzüge").toUpperCase()}</div>
+        <div data-zugsatz style={{ fontSize: 12, lineHeight: 1.45, color: "#ddd6bd", marginBottom: 6 }}>{describeMoves(char, en)}</div>
         <MoveDiagram kind={char.kind} moveSpec={char.moveSpec} />
         <div style={{ fontSize: 9.5, color: "#8a856f", marginTop: 3, fontStyle: "italic" }}>{en ? MOVE_LEGEND.en : MOVE_LEGEND.de}</div>
       </div>

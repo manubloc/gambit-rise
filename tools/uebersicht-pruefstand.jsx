@@ -17,7 +17,7 @@ import { createRoot } from "react-dom/client";
 import { GLOBAL_CSS, T } from "../src/app/ui/theme.js";
 import { setAnimAn } from "../src/app/ui/anim.js";
 import { paintedById, paintedForPiece } from "../src/app/ui/board/paintedArt.js";
-import { HofKachel, MoveDiagram, kachelWerteFuer } from "../src/app/ui/screens/ArmyScreen.jsx";
+import { HofKachel, MoveDiagram, kachelWerteFuer, describeMoves } from "../src/app/ui/screens/ArmyScreen.jsx";
 import { AbilityIcon } from "../src/app/ui/AbilityIcons.jsx";
 import { rohrAnteile } from "../src/app/ui/board/PieceGlyph.jsx";
 import { CHARACTERS, ABILITIES, BOSSES, CAMPAIGN, LEAGUE_BOSSES, KAPITEL_TROPHAEE, auraText, istBestechlich } from "../src/content/index.js";
@@ -86,6 +86,7 @@ function FigurKarte({ id }) {
         <MoveDiagram kind={c.kind} moveSpec={c.moveSpec} breite={"128px"} />
       </div>
     </div>
+    <div style={{ fontSize: 11.5, color: "#e4dcc6", marginTop: 7, lineHeight: 1.4 }}><b style={{ color: "#c9b26a" }}>Zug:</b> {describeMoves(c, false)}</div>
     <div style={{ fontSize: 11, fontStyle: "italic", color: "#a9a28a", marginTop: 7, lineHeight: 1.4 }}>{c.flavorDe}</div>
     <Faehigkeiten leiter={c.ladder || []} />
   </div>;
@@ -115,6 +116,7 @@ function BossKarte({ b }) {
         <MoveDiagram kind={null} moveSpec={b.moveSpec} breite={"128px"} />
       </div>
     </div>
+    <div style={{ fontSize: 11.5, color: "#e4dcc6", marginTop: 7, lineHeight: 1.4 }}><b style={{ color: "#c9b26a" }}>Zug:</b> {describeMoves({ id: "boss-" + b.id, moveSpec: b.moveSpec }, false)}</div>
     {b.flavorDe && <div style={{ fontSize: 11, fontStyle: "italic", color: "#a9a28a", marginTop: 7, lineHeight: 1.4 }}>{b.flavorDe}</div>}
     {auraText(b.aura, false) && <div style={{ marginTop: 7, padding: "6px 8px", borderRadius: 9, border: "1px solid rgba(167,139,250,.55)", background: "rgba(30,24,52,.7)", fontSize: 11.5, color: "#e4dcc6" }}>
       <b style={{ color: "#c3aaf5", letterSpacing: ".1em", fontSize: 10 }}>AURA</b> · {auraText(b.aura, false)}</div>}
