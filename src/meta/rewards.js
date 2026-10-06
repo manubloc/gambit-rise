@@ -22,8 +22,11 @@ export function applyResult(profile, summary) {
     + (summary.captures || 0) * XP.perCapture
     + (summary.checkmate ? XP.checkmate : 0)
     + (summary.promotions || 0) * XP.promotion;
+  /* v1.91.0: STUDIUM (Gelehrter) hebt die Erfahrung der Partie - zubrot.js */
+  const zb = (!summary.resigned && summary.zubrot) || null;
+  const studiert = zb && zb.xpAnteil ? Math.round(gain * zb.xpAnteil) : 0;
   const beforeXp = p.xpEarned || 0;
-  p.xpEarned = (p.xpEarned || 0) + gain;
+  p.xpEarned = (p.xpEarned || 0) + gain + studiert;
 
   p.charXp = p.charXp || {};
   if (!summary.resigned) for (const [id, xp] of Object.entries(summary.charXpGains || {})) p.charXp[id] = (p.charXp[id] || 0) + xp;
@@ -43,7 +46,8 @@ export function applyResult(profile, summary) {
   const spGain = spForXpJump(beforeXp, p.xpEarned);
   p.sp = (p.sp || 0) + spGain;
   p.xp = p.xpEarned; // legacy mirror: XP is no longer spendable
-  const goldGain = summary.resigned ? 0 : (GOLD[summary.result] || 0) + (summary.result === "win" ? (summary.gold || 0) : 0);
+  const goldGain = summary.resigned ? 0 : (GOLD[summary.result] || 0) + (summary.result === "win" ? (summary.gold || 0) : 0)
+    + (zb ? (zb.gold || 0) : 0);   /* v1.91.0: Almosen, Zins, Zehnt, Dorf, Kontor */
   /* v1.30.0: WEGELAGEREI - Geraubtes wechselt den Besitzer. Wer aufgibt,
      verliert die EIGENE Beute, das ihm Geraubte bleibt aber fort. Nie unter 0. */
   const raub = Number(summary.beute) || 0;
@@ -66,5 +70,5 @@ export function applyResult(profile, summary) {
   const before = completedSet(profile.stats), after = completedSet(st);
   const newAchievements = [...after].filter((k) => !before.has(k));
 
-  return { profile: p, gained: { gold: goldGain, beute: beuteEcht, sp: spGain, xp: p.xp - profile.xp, levelBefore, levelAfter: playerLevelForXp(p.xpEarned), newAchievements } };
+  return { profile: p, gained: { gold: goldGain, zubrot: zb, studiert, beute: beuteEcht, sp: spGain, xp: p.xp - profile.xp, levelBefore, levelAfter: playerLevelForXp(p.xpEarned), newAchievements } };
 }

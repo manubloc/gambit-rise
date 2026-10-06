@@ -89,6 +89,8 @@ function loneBoss(boss) {
     }).map((b) => b.id);
     ok(`every herald names its boss by its current name (wrong: ${falsch.join(", ") || "none"})`, falsch.length === 0);
   }
+  /* v1.91.0: beim Herabstufen der alten Meister trugen drei Bestien den Beitext des neuen Grossmeisters weiter */
+  ok("every boss has its own flavour line (de and en)", new Set(BOSSES.map((b) => b.flavorDe)).size === BOSSES.length && new Set(BOSSES.map((b) => b.flavorEn)).size === BOSSES.length && BOSSES.every((b) => b.flavorDe && b.flavorEn));
   ok("every boss has a unique move spec", new Set(BOSSES.map((b) => JSON.stringify(b.moveSpec))).size === BOSSES.length);
   const bossStages = CAMPAIGN.filter((st) => st.boss);
   // v0.77: Die ERWACHENS-Station wandert mit der Schachhaelfte von Kapitel I -
@@ -101,15 +103,22 @@ function loneBoss(boss) {
 const ERWACHEN = CAMPAIGN.find((st) => /erwacht|magic wakes/.test(st.storyDe || "")).id;
   /* v1.90.16: 45 statt 44 - die Brutmutter hat ihre eigene Station in
      Kapitel VII vor dem Drachen bekommen (Besitzerentscheid 30.9.). */
-  ok("the twelve chapters field 45 boss stages", bossStages.length === 45);
+  /* v1.91.0 (Figuren-Umbau, Besitzer 6.10.): 85 statt 45 - 43 Figurenstationen
+     (24 neue Figuren, die meisten in Kapitel I und II) und 42 Stationen fuer
+     Grossmeister und Bestien. */
+  ok("the twelve chapters field 85 boss stages", bossStages.length === 85);
+  ok("no beast before chapter III - chapters I and II hold figures and their two grandmasters only",
+    bossStages.filter((st) => st.league <= 2 && st.boss.pure).map((st) => st.boss.pure).sort().join() === "b26,b27");
+  ok("most figures join early: ten each in chapters I and II, ever fewer after",
+    [1, 2, 3, 4, 5, 6, 7].map((l) => bossStages.filter((st) => st.league === l && st.boss.piece).length).join() === "10,10,5,4,3,3,2");
   /* ... und zwar AUF dem Weg zum Drachen, nicht auf einem Parallelzweig: der
      erste Anlauf setzte sie an das Blatt L07s38 (next = []), der Drache stand
      auf dem anderen Zweig. Geprueft ueber die echten Kanten (next). */
-  /* v1.90.20: der Drache ist Meister von Kapitel I; seine Halle in Kapitel VII
-     huetet der Waechter (b01). Die Brutmutter steht weiter auf dem Weg dorthin. */
+  /* v1.91.0: der Drache huetet seine Halle in Kapitel VII wieder selbst
+     (L07s41); die Brutmutter steht weiter auf dem Weg dorthin. */
   ok("... the Broodmother among them, on the path to the chapter VII dragon hall", (() => {
     const brut = bossStages.find((st) => st.boss.pure === "b03");
-    const drache = CAMPAIGN.find((st) => st.league === 7 && st.boss && st.boss.pure === "b01");
+    const drache = CAMPAIGN.find((st) => st.league === 7 && st.boss && st.boss.piece === "dragon");
     if (!brut || brut.league !== 7 || !drache) return false;
     const seen = new Set([brut.id]); const q = [brut.id];
     while (q.length) { const id = q.shift(); const u = CAMPAIGN.find((st) => st.id === id); for (const w of u?.next || []) if (!seen.has(w)) { seen.add(w); q.push(w); } }
@@ -137,7 +146,9 @@ const ERWACHEN = CAMPAIGN.find((st) => /erwacht|magic wakes/.test(st.storyDe || 
     { const { m, g } = brett(beispiel("leibwache")); ok(`leibwache: the rooks flank boss and king (${reihe(g, 7)})`, m.bossFormation === "leibwache" && reihe(g, 7) === "NBRXKRBN" && reihe(g, 6) === "PPPPPPPP"); }
     { const { m, g } = brett(beispiel("vorgeschoben")); ok(`vorgeschoben: the boss stands in the pawn rank, his throne empty (${reihe(g, 7)} / ${reihe(g, 6)})`, m.bossFormation === "vorgeschoben" && reihe(g, 7) === "RNB.KBNR" && reihe(g, 6) === "PPPXPPPP"); }
     { const { m, g } = brett(beispiel("leicht")); ok(`leicht: knights instead of rooks (${reihe(g, 7)})`, m.bossFormation === "leicht" && reihe(g, 7) === "NNBXKBNN"); }
-    { const { m, g } = brett(beispiel("mauer")); ok(`mauer: the old scene (${reihe(g, 7)})`, m.bossFormation === "mauer" && reihe(g, 7) === "RNBXKBNR"); }
+    { const { m, g } = brett(stationen.find((st) => bossFormation(st) === "mauer" && st.rules === "hp" && st.boss.pure)); ok(`mauer: the old scene (${reihe(g, 7)})`, m.bossFormation === "mauer" && reihe(g, 7) === "RNBXKBNR"); }
+    /* v1.91.0: die Figurenstation der fruehen Kapitel - die Figur auf b8, die Dame bleibt */
+    { const { m, g } = brett(stationen.find((st) => st.league === 2 && st.boss.piece)); ok(`chapter II figure station: the figure on the knight's square, the queen stays (${reihe(g, 7)})`, m.bossFormation === "mauer" && reihe(g, 7) === "RXBQKBNR"); }
     const st = beispiel("vorgeschoben");
     ok("the scene is fixed: built twice, identical", JSON.stringify(brett(st).m.aiArmy) === JSON.stringify(brett(st).m.aiArmy));
   }
@@ -148,40 +159,62 @@ const ERWACHEN = CAMPAIGN.find((st) => /erwacht|magic wakes/.test(st.storyDe || 
     const { LEAGUE_BOSSES } = await import("./src/content/bosses.js");
     const monster = BOSSES.filter((b) => !LEAGUE_BOSSES.includes(b.id)).map((b) => b.id);
     const erstRunde = new Set(bossStages.filter((st) => st.boss.pure).map((st) => st.boss.pure));
-    ok(`every one of the ${monster.length} monsters has a station in the first world lap`, monster.length === 13 && monster.every((id) => erstRunde.has(id)));
+    ok(`every one of the ${monster.length} beasts has a station in the first world lap`, monster.length === 28 && monster.every((id) => erstRunde.has(id)));
+    ok("... and so has every one of the 14 grandmasters", LEAGUE_BOSSES.length === 14 && LEAGUE_BOSSES.every((id) => erstRunde.has(id)));
   }
-  ok("20 of them are recruitable piece bosses, one per key figure", bossStages.filter((st) => st.boss.piece).length === 20
-    && new Set(bossStages.filter((st) => st.boss.piece).map((st) => st.boss.piece)).size === 20);
+  ok("43 of them are recruitable piece bosses, one per figure", bossStages.filter((st) => st.boss.piece).length === 43
+    && new Set(bossStages.filter((st) => st.boss.piece).map((st) => st.boss.piece)).size === 43);
+  {
+    /* v1.91.0: JEDE Figur ausser den sieben, mit denen man beginnt, hat ihre Station */
+    const { CHARACTER_LIST } = await import("./src/content/index.js");
+    const start = CHARACTER_LIST.filter((c) => c.unlock?.type === "start").map((c) => c.id);
+    const mitStation = new Set(bossStages.filter((st) => st.boss.piece).map((st) => st.boss.piece));
+    const ohne = CHARACTER_LIST.map((c) => c.id).filter((id) => !start.includes(id) && !mitStation.has(id));
+    ok(`every figure you do not start with can be won somewhere (without: ${ohne.join(", ") || "none"})`, ohne.length === 0);
+  }
   ok("every pure boss resolves", bossStages.filter((st) => st.boss.pure).every((st) => bossById(st.boss.pure)));
   const m = buildStageMatch(ERWACHEN);
   /* v1.90.18: mit den Bossformationen kann ein Platz der Reihe leer sein und
      der Boss in der Bauernreihe stehen (front) - beide Reihen zusammen */
   const heerVon = (mm) => [...mm.aiArmy.back, ...(mm.aiArmy.front || [])].filter(Boolean);
-  ok("boss replaces the enemy queen", heerVon(m).some((sp) => sp.kind === "X") && !heerVon(m).some((sp) => sp.kind === "Q"));
-  ok("stage match exposes the boss for the UI (v1.90.20: the Harrier wakes the magic)", m.boss && m.boss.bossId === "b02");
+  /* v1.91.0: am Erwachen steht eine FIGUR (die Heilerin) - vor Kapitel III gibt es keine Bestie */
+  ok("in chapters I and II a figure boss stands BESIDE the queen (in the queen's knight's place), not instead of her",
+    heerVon(m).some((sp) => sp.kind === "HL") && heerVon(m).some((sp) => sp.kind === "Q") && heerVon(m).filter((sp) => sp.kind === "N").length === 1 && m.bossFormation === "mauer");
+  ok("... so no figure station in chapters I and II fields an army without its queen",
+    CAMPAIGN.filter((st) => st.league <= 2 && st.boss?.piece).every((st) => heerVon(buildStageMatch(st.id, { campaign: { league: st.league } })).some((sp) => sp.kind === "Q")));
+  ok("stage match exposes the boss for the UI (v1.91.0: the Healer stands where the magic wakes)", m.boss && m.boss.bossId === "pb_healer" && m.boss.unlocks === "healer");
+  { const mm = buildStageMatch("L03s06", { campaign: { league: 3 } });
+    ok("the first beast waits in chapter III: the Harrier replaces the queen", heerVon(mm).some((sp) => sp.kind === "X") && !heerVon(mm).some((sp) => sp.kind === "Q") && mm.boss.bossId === "b02"); }
   const pm = buildStageMatch("L06s12", { campaign: { league: 6 } }); // der Attentaeter wohnt in Kapitel VI
   ok("piece boss fields its own kind with boosted stats", heerVon(pm).some((sp) => sp.kind === "S" && sp.hp >= 8)
     && buildStageMatch("L06s12", { campaign: { league: 6 } }).boss.unlocks === "assassin");
-  /* v1.90.20: der Drache kommt jetzt mit dem ersten Sieg (Meister von Kapitel
-     I); der Starrkopf der Probe ist der Hexenmeister (Kapitel VIII, zwei Siege) */
-  ok("a stubborn champion resists until his last demanded win (the Warlock wants two)",
+  /* v1.91.0: der Starrkopf der Probe ist der Inquisitor (Kapitel VIII, zwei
+     Siege); der Hexenmeister wohnt jetzt in Kapitel XI (Bund Sturm: sehr spaet) */
+  ok("a stubborn champion resists until his last demanded win (the Inquisitor wants two)",
     buildStageMatch("L08s18", { campaign: { league: 8 } }).boss.unlocks === null
-    && buildStageMatch("L08s18", { campaign: { league: 8, bossWins: { warlock: 1 } } }).boss.unlocks === "warlock");
-  ok("the dragon, master of chapter I, joins on the first win",
-    buildStageMatch("L01s44", { campaign: { league: 1 } }).boss.unlocks === "dragon");
-  ok("the awakening rotates its monster with the world laps", (() => {
-    const a = buildStageMatch(ERWACHEN, { campaign: { league: 1 } });
-    const b = buildStageMatch(ERWACHEN, { campaign: { league: 13 } });
-    return a.boss.bossId === "b02" && b.boss.bossId === "b03" && a.boss.unlocks === null;   /* v1.90.20: Hetzer zuerst */
+    && buildStageMatch("L08s18", { campaign: { league: 8, bossWins: { inquisitor: 1 } } }).boss.unlocks === "inquisitor");
+  ok("the dragon in his hall in chapter VII joins on the first win",
+    buildStageMatch("L07s41", { campaign: { league: 7 } }).boss.unlocks === "dragon");
+  ok("the first beast station rotates its monster with the world laps", (() => {
+    const a = buildStageMatch("L03s06", { campaign: { league: 3 } });
+    const b = buildStageMatch("L03s06", { campaign: { league: 15 } });
+    return a.boss.bossId === "b02" && b.boss.bossId === "b04" && a.boss.unlocks === null;
   })());
   // monster stations rotate their champion by league — the whole bestiary marches
   const nA5 = (id) => CAMPAIGN.find((n) => n.id === id);
-  ok("each chapter ends at its own fixed master", nodeBossSpec(nA5("L01s44"), 1).bossId === "pb_dragon"  // v1.90.20: Kapitel I endet beim Drachen
-    && nodeBossSpec(nA5("L02s10"), 2).bossId === "b12"   // der Richter haelt Gericht mitten in Kapitel II
+  ok("each chapter ends at its own fixed master", nodeBossSpec(nA5("L01s44"), 1).bossId === "b26"  // v1.91.0: Kapitel I endet bei Zahir
+    && nodeBossSpec(nA5("L02s41"), 2).bossId === "b27"   // Varek, der Schwarze Ritter
+    && nodeBossSpec(nA5("L04s24"), 4).bossId === "b12"   // der Richter ist eine Bestie in Kapitel IV
     && nA5("L05s16").boss.rotation[0] === "b22" && nodeBossSpec(nA5("L05s16"), 5).bossId === "b22"
-    && nodeBossSpec(nA5("L05s16"), 17).bossId === "b04");
-  ok("every rotated monster resolves to a real boss", [ERWACHEN,"L05s16"].every((id) =>
-    (nA5(id).boss.rotation || []).every((b) => bossById(b))));
+    && nodeBossSpec(nA5("L05s16"), 17).bossId === "b40");
+  ok("every rotated monster resolves to a real boss", CAMPAIGN.filter((n) => n.boss?.rotation).length === 27
+    && CAMPAIGN.filter((n) => n.boss?.rotation).every((n) => n.boss.rotation.every((b) => bossById(b))));
+  {
+    /* v1.91.0: eine Rotation fuehrt nie einen Grossmeister und nie eine Bestie
+       in ein Kapitel vor III */
+    const { LEAGUE_BOSSES } = await import("./src/content/bosses.js");
+    ok("no rotation ever fields a grandmaster", CAMPAIGN.filter((n) => n.boss?.rotation).every((n) => n.league >= 3 && n.boss.rotation.every((b) => !LEAGUE_BOSSES.includes(b))));
+  }
 }
 
 // 6) AI plays a boss without crashing; codec roundtrips boss fields
@@ -263,8 +296,17 @@ const ERWACHEN = CAMPAIGN.find((st) => /erwacht|magic wakes/.test(st.storyDe || 
      der Drache Kapitel I haelt, ist KAPITELMEISTER[0] eine Figur ("figur:dragon") */
   const { LEAGUE_BOSSES: GM } = await import("./src/content/bosses.js");
   const reihe = GM.map((id) => BOSSES.find((b) => b.id === id).abilities.length);
-  ok("Grossmeister: I-IV drei, V-VIII vier, IX-XII fuenf (" + reihe.join(",") + ")",
-    JSON.stringify(reihe) === JSON.stringify([3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5]));
+  /* v1.91.0: vierzehn Grossmeister - die zwoelf Kapitelmeister in Kapitelfolge,
+     dazu Morwen (Mitte VI) und Thalor (Mitte IX) mit je vier */
+  ok("Grossmeister: I-IV drei, V-VIII vier, IX-XII fuenf, Morwen und Thalor vier (" + reihe.join(",") + ")",
+    JSON.stringify(reihe) === JSON.stringify([3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 4, 4]));
+  {
+    /* v1.91.0: jeder Grossmeister traegt eine Aura und einen Satz dazu, keine Bestie */
+    const { auraText } = await import("./src/content/bosses.js");
+    ok("jeder der 14 Grossmeister traegt eine Aura mit einem Satz in beiden Sprachen",
+      GM.every((id) => { const b = BOSSES.find((x) => x.id === id); return b.aura && auraText(b.aura, false) && auraText(b.aura, true); }));
+    ok("keine Bestie traegt eine Aura", BOSSES.filter((b) => !GM.includes(b.id)).every((b) => !b.aura && auraText(b.aura) === null));
+  }
   const zahl = (id) => BOSSES.find((b) => b.id === id).abilities.length;
   ok("gewoehnliche Monster nach Beweglichkeit: 16 Felder 1, 12-14 zwei, 8 drei, Bollwerk vier",
     ["b07", "b21", "b22"].every((id) => zahl(id) === 1) && ["b02", "b04", "b15", "b13", "b03", "b11"].every((id) => zahl(id) === 2)
@@ -285,11 +327,11 @@ const ERWACHEN = CAMPAIGN.find((st) => /erwacht|magic wakes/.test(st.storyDe || 
   ok("jedes Monster traegt auf Hoechststufe dieselben 24 Punkte",
     BOSSES.every((b) => ZIEL_PROFIL_BOSS[b.id] && ZIEL_PROFIL_BOSS[b.id][0] + ZIEL_PROFIL_BOSS[b.id][1] === BOSS_BUDGET));
   { const { KAPITEL_TROPHAEE } = await import("./src/content/bosses.js");
-    /* v1.90.20: die TROPHAEEN je Kapitel sind die Kapitelmeister - Kapitel I
-       haelt der Drache (null in der Trophaeenliste, "figur:dragon" im Finale) */
-    ok("die Trophaeen je Kapitel sind die Kapitelmeister (I: der Drache als Figur)",
-      JSON.stringify(KAPITEL_TROPHAEE.map((id, i) => id || KAPITELMEISTER[i])) === JSON.stringify(KAPITELMEISTER)
-      && KAPITELMEISTER[0] === "figur:dragon" && KAPITEL_TROPHAEE[0] === null); }
+    /* v1.91.0: die TROPHAEEN je Kapitel sind die Kapitelmeister - alle zwoelf
+       sind jetzt Grossmeister (Kapitel I: Zahir, keine Figur mehr) */
+    ok("die Trophaeen je Kapitel sind die Kapitelmeister, alle zwoelf Grossmeister",
+      JSON.stringify(KAPITEL_TROPHAEE) === JSON.stringify(KAPITELMEISTER)
+      && KAPITELMEISTER.length === 12 && KAPITELMEISTER.every((id) => GM.includes(id)) && KAPITELMEISTER[0] === "b26"); }
   ok("Brut hoechstens drei Bauern (Seuchenkoenig 3, Brutmutter 2, Fluesterin 1, Wandlerin 2)",
     BOSSES.every((b) => !b.moveSpec.spawn || b.moveSpec.spawn.max <= 3)
     && ["b24:3", "b03:2", "b11:1", "b21:2"].every((x) => { const [id, n] = x.split(":"); return BOSSES.find((b) => b.id === id).moveSpec.spawn.max === +n; }));

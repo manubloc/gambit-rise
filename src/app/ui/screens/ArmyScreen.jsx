@@ -8,18 +8,20 @@ import { useMedia } from "../../App.jsx";
 import { GildedFrame, goldText, GoldShineButton } from "../Gilded.jsx";
 import { SP_SHARD_GOLD, SP_VAULT_MIN_CLEARED, spShardCap, bossLevelOf, bossUpgradeCost, bossSpecLeveled, BOSS_MAX_LEVEL, gambitWach,
   darfHeldSetzen, darfReiheStellen, freigegeben, meineBuende } from "../../../meta/index.js";
-import { CHARACTER_LIST, CHARACTERS, ABILITIES, TAGS, SPERRGRUND, faehigkeitZustand, MAPS, mapById, ITEM_LIST, bossById, BOSSES, ITEMS, itemPrice } from "../../../content/index.js";
+import { CHARACTER_LIST, CHARACTERS, ABILITIES, TAGS, SPERRGRUND, faehigkeitZustand, MAPS, mapById, ITEM_LIST, bossById, BOSSES, ITEMS, itemPrice, auraText } from "../../../content/index.js";
 import LebensRohr from "../board/LebensRohr.jsx";
 import { rohrAnteile } from "../board/PieceGlyph.jsx";
 import { talentFarbe, maxStufe, stufenText } from "../../../content/abilities.js";
 import { ABILITY_MOVE, MOVE_LEGEND_ABILITY, zugbildLegende } from "../../../content/zugbilder.js";   /* v1.89.1: Zugbilder gegen den Kern pruefbar */
 import { iconFarbe } from "../AbilityIcons.jsx";   /* v1.26.6 */
+import { BUENDE, bundVon } from "../../../content/buende.js";   /* v1.91.0: der Bund im Blatt */
+import { aufgestellteIds } from "../../../meta/index.js";
 import { BASE_HP, BASE_ATK, SHIELD_HP, HELD_PUNKTE, NORM_PUNKTE, werteBeiStufe, createGame, familyOf, crownHp, crownWallSoak, shadowRifts, shadowAtk } from "../../../core/index.js";
 import {
   characterLevel, resolveCharacter, isUnlocked, upgradeCost, canUpgrade, maxLevelFor, gambitTier, clearedCount,
   formationKey, gespeicherteAufstellung, formationLegalOn, formationCounts, hoechstzahl, buildArmyFromFormation, buildArmyFrom, defaultFormation, buildAiArmyForMap, hpUnlocked, ownedLeagueBosses, isBossEntry, bossEntryId, crownSlots,
   chosenAbilities, abilityCost, canUnlockAbility, faehigkeitsStufe, stufeBenoetigt, canUpgradeAbility, dupeCount, RESPEC_GOLD, heroColFor, mapUnlocked,
-  itemRevealed, bossWinsFor, effectiveNodeBoss, nodeStatus, hpWach, monsterBestechPreis } from "../../../meta/index.js";
+  itemRevealed, bossWinsFor, effectiveNodeBoss, nodeStatus, hpWach, monsterBestechPreis, unlockedCharacterIds } from "../../../meta/index.js";
 import { CAMPAIGN } from "../../../content/index.js";
 import { klang } from "../klang.js";   /* v0.77: Stufe, Freischalten, Gold bekommen ihren Klang */
 import { T } from "../theme.js";
@@ -361,6 +363,48 @@ function BlattBuehne({ kennung, name, haus, satz, portraet, pid, ton, kul, form,
    verhuellten -, aber ohne Erlernen, Aufstufen und Vergessen. So sieht man
    bei einem Monster, das einem nicht gehoert, was es lernen kann, statt nur
    seine Buehne. */
+/* ═══ DER BUND IM BLATT (v1.91.0, Besitzer 6.10.) ═══════════════════════════
+   "Den Bund auch im Popup der Figur bei den Faehigkeiten zeigen" - und zwar
+   so, dass man die fehlenden Figuren HABEN will: wer gehoert dazu, wen habe
+   ich schon, wer steht in der Aufstellung, was gibt der Bund. Er wirkt,
+   sobald alle seine Figuren aufgestellt sind (Stufe egal). */
+export function BundZeile({ charId, profile, en }) {
+  const bundId = bundVon(charId);
+  const b = bundId && BUENDE[bundId];
+  if (!b) return null;
+  const besitz = new Set(unlockedCharacterIds(profile));
+  const heer = new Set(aufgestellteIds(profile));
+  const steht = b.figuren.filter((f) => heer.has(f)).length;
+  /* dieselbe Frage wie das Gefecht (meineBuende): alle aufgestellt UND die hintere Reihe ist freigegeben */
+  const wach = meineBuende(profile, [...heer]).includes(bundId);
+  const farbe = iconFarbe("bund_" + bundId);
+  return <div data-bundzeile={bundId} data-wach={wach ? "1" : "0"} style={{ marginTop: 6, padding: "10px 11px", borderRadius: 11,
+    border: `1px solid ${wach ? farbe : T.line}`, background: wach ? "rgba(30, 24, 52, .72)" : "rgba(10, 14, 26, .5)" }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
+      <AbilityIcon id={"bund_" + bundId} size={30} />
+      <div style={{ minWidth: 0, flex: 1 }}>
+        <div className="gg-serif" style={{ fontSize: 10, letterSpacing: ".14em", color: "#c9b26a" }}>{(en ? "Bond" : "Bund").toUpperCase()}</div>
+        <div style={{ fontWeight: 800, fontSize: 13.5, color: T.text }}>{en ? b.nameEn : b.nameDe}</div>
+      </div>
+      <span style={{ fontSize: 11.5, fontWeight: 800, color: wach ? farbe : "#a9a28a", whiteSpace: "nowrap" }}>
+        {wach ? (en ? "active" : "wirkt") : `${steht} ${en ? "of" : "von"} ${b.figuren.length} ${en ? "fielded" : "aufgestellt"}`}</span>
+    </div>
+    <div style={{ fontSize: 12, lineHeight: 1.45, color: "#cfc9b4", marginTop: 6 }}>{en ? b.regelEn : b.regelDe}</div>
+    <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginTop: 7 }}>
+      {b.figuren.map((f) => {
+        const ch = CHARACTERS[f]; if (!ch) return null;
+        const hat = besitz.has(f), imHeer = heer.has(f);
+        return <span key={f} data-bundfigur={f} style={{ fontSize: 11.5, padding: "3px 8px", borderRadius: 999, whiteSpace: "nowrap",
+          border: `1px solid ${imHeer ? farbe : hat ? "#5a6385" : T.line}`, color: imHeer ? T.text : hat ? "#b9b295" : "#7d7868",
+          background: imHeer ? "rgba(124,58,237,.18)" : "transparent" }}>
+          {imHeer ? "● " : hat ? "○ " : "? "}{hat || f === charId ? (en ? ch.nameEn : ch.nameDe) : (en ? "not yet yours" : "noch nicht dein")}</span>;
+      })}
+    </div>
+    {!wach && <div style={{ fontSize: 11, color: "#8a856f", marginTop: 6 }}>
+      {en ? "The bond works as soon as all of them stand in your formation." : "Der Bund wirkt, sobald alle in deiner Aufstellung stehen."}</div>}
+  </div>;
+}
+
 function Aufstiegsplan({ schluessel, kind, rungs, level, chosen, profile, en, t, dispatch, setFeier, bild,
   frisch = null, glanz = 0, nurLesen = false }) {
   const [openAb, setOpenAb] = useState(null);
@@ -439,6 +483,7 @@ function Aufstiegsplan({ schluessel, kind, rungs, level, chosen, profile, en, t,
             desc: faehigkeitsText(ab, schluessel, en), once: ab.once } });
         }} />{stufenZeile}</div>;
     })}
+    {!String(schluessel).startsWith("X:") && <BundZeile charId={schluessel} profile={profile} en={en} />}
     {!nurLesen && chosen.length > 0 && (() => {
       /* v1.0.11 (Besitzer): Vergessen kostet einen VERGESSENSTRANK aus
          dem Lager (steigender Preis beim Händler), keine Goldgebühr mehr. */
@@ -711,7 +756,10 @@ export function MoveDiagram({ kind, moveSpec, extra = null, breite = null, talen
   const N = R * 2 + 1;
   const reach = new Map();                          // "df,dr" → "slide" | "leap" | "extra"
   if (sp) {
-    const rng = Math.min(sp.range || 1, R);
+    /* v1.91.0: OHNE Angabe gleitet eine Figur BELIEBIG weit - so liest es der Kern
+       (moves.js: sp.range || 99). Hier stand "|| 1": Brandstifter und Eisenfaust
+       zeigten im Zugbild einen Schritt und zogen am Brett ueber die ganze Linie. */
+    const rng = Math.min(sp.range || 99, R);
     for (const [df, dr] of sp.slides || [])
       for (let k = 1; k <= rng; k++) reach.set(`${df * k},${dr * k}`, "slide");
     /* v1.62.0: ein Einfeld-"Sprung" ist ein Schritt - blau, nicht gelb */
@@ -2422,6 +2470,7 @@ const AUFST_TALENT_MAX = 4;
    Eckverzierung, dasselbe Stufenabzeichen, dasselbe Lebensrohr. Neu:
      unten     - was unter dem Namen steht (Aufstellung: Zugbild, Faehigkeiten)
      gewaehlt  - der goldene Rand der gewaehlten Karte */
+export const DRACHE_KACHEL = 1.2;
 export function HofKachel({ img, name, dim, dark, action, glow, origin, onOpen, sigil = null, sigilBig = null, stufe = null, kind = null, hero = false, lvl = 1,
     werte = null, xpAnteil = null, artId = null, bossId = null, talente = [], ton = null, meister = false,
     unten = null, gewaehlt = false, rang = null }) {
@@ -2622,7 +2671,11 @@ export function HofKachel({ img, name, dim, dark, action, glow, origin, onOpen, 
       : img ? <div data-boden={bodenAusgleichProzent(paintedIdOf(img)).toFixed(2)} style={{ position: "relative", width: "118%", aspectRatio: "1 / 1", margin: "0 0 -7px -9%",
           /* v1.20.1: alle Figuren auf dieselbe Bodenlinie (siehe bodenAusgleichProzent) */
           /* v1.23.0: und alle auf dieselbe Tellerbreite (sockelSkalierung), um den Fuss herum */
-          transformOrigin: "50% 100%", "--skala": sockelSkalierung(paintedIdOf(img)).toFixed(3), "--streck": figurStreckung(paintedIdOf(img)).toFixed(3),
+          /* v1.91.0 (Besitzer 6.10.: "der Drache auf der Karte groesser, im Spiel soll
+             er bleiben, wie er war"): nur HIER, auf der Kachel, waechst der Drache um
+             ein Fuenftel um seinen Fuss - Bild und Band im selben Kasten, also gemeinsam.
+             sockelSkalierung laesst ihn bei 1 (sein Teller ist kein Mass: er deckt vier Felder). */
+          transformOrigin: "50% 100%", "--skala": (paintedIdOf(img) === "dragon" ? DRACHE_KACHEL : sockelSkalierung(paintedIdOf(img))).toFixed(3), "--streck": figurStreckung(paintedIdOf(img)).toFixed(3),
           /* v1.23.2: auf den Teller zentriert, auf Bauernhoehe gestreckt (siehe SockelBand.jsx) */
           transform: `translate(${tellerMitteProzent(paintedIdOf(img)).toFixed(2)}%, ${bodenAusgleichProzent(paintedIdOf(img)).toFixed(2)}%) scale(var(--skala), calc(var(--skala) * var(--streck)))` }}>
         {/* v1.17.0: Bild und Sockelband in EINEM Kasten mit denselben
@@ -2692,7 +2745,9 @@ export function HofKachel({ img, name, dim, dark, action, glow, origin, onOpen, 
           Es erscheint nur, wenn die Figur ueberhaupt Werte hat. */}
       {/* v1.15.1: das Rohr sitzt jetzt oben in der Kopfzeile */}
       <div className="gg-quill" style={{ fontSize: 12.5, marginTop: 5, color: dark ? T.faint : glow ? T.goldBright : T.text,
-        whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{name}</div>
+        whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{/* v1.91.0: die Grossmeister heissen "Varek, der Schwarze Ritter" -
+          auf der schmalen Kachel steht der RUFNAME (der Beiname waere abgeschnitten: "Varek, der Schwarze Ri…"); das Blatt nennt beides */
+        typeof name === "string" && bossId && name.includes(", ") ? name.split(", ")[0] : name}</div>
       {rang && <div data-rang style={{ fontSize: 8.5, fontWeight: 800, letterSpacing: ".14em", textTransform: "uppercase",
         marginTop: 1, color: dark ? T.faint : "#c3aaf5", whiteSpace: "nowrap" }}>{rang}</div>}
       {unten}
@@ -3158,6 +3213,14 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
                  dasselbe Bauteil Aufstiegsplan wie das Figurenblatt. Seine
                  Leiter traegt 1 bis 5 Faehigkeiten ueber die fuenf Stufen (v1.32.0),
                  und es lernt sie wie jede Figur - mit Skillpunkten. */}
+            {/* v1.91.0 (Besitzer 6.10.: "die Grossmeister sind noch nicht besonders
+                genug"): DIE AURA STEHT IM BLATT. Sie wirkte seit jeher im Kern,
+                aber kein Schirm nannte sie. */}
+            {auraText(b.aura, en) && <div data-aura={b.aura.type} style={{ marginTop: 12, padding: "10px 11px", borderRadius: 11,
+              border: "1px solid rgba(167,139,250,.6)", background: "rgba(30, 24, 52, .72)" }}>
+              <div className="gg-serif" style={{ fontSize: 10, letterSpacing: ".14em", color: "#c3aaf5", marginBottom: 3 }}>AURA</div>
+              <div style={{ fontSize: 12.5, lineHeight: 1.45, color: "#e4dcc6" }}>{auraText(b.aura, en)}</div>
+            </div>}
             {(profile.campaign?.bribedBosses || []).includes(b.id) || ownedBossSet.has(b.id)
               ? <Aufstiegsplan schluessel={"X:" + b.id} kind={null}
                   rungs={(b.ladder || []).map((r) => ({ level: r.level, id: r.ability }))}

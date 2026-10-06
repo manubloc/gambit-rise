@@ -194,9 +194,9 @@ console.log("\n== DIE KARTEN KOMMEN NACH UND NACH (v1.13.0) ==");
 {
   const { KAPITELMEISTER, istKapitelmeister, CAMPAIGN } = await import("./src/content/campaign.js");
   ok("zwoelf Kapitelmeister, je Liga einer", KAPITELMEISTER.length === 12 && new Set(KAPITELMEISTER).size === 12);
-  ok("Seuchenkoenig und Asra sind Kapitelmeister", istKapitelmeister("b24") && istKapitelmeister("b23"));
+  ok("Seuchenkoenig und Asra sind Kapitelmeister", istKapitelmeister("b24") && istKapitelmeister("b35") && !istKapitelmeister("b23"));   /* v1.91.0: Asra ist b35; b23 ist der Strahlengoetze, eine Bestie */
   ok("der Hetzer nicht mehr", !istKapitelmeister("b02"));
-  ok("Osric schliesst Kapitel XII", KAPITELMEISTER[11] === "b25");
+  ok("Osric schliesst Kapitel XII", KAPITELMEISTER[11] === "b36");   /* v1.91.0: Osric ist b36; b25 ist der Steinkoenig */
   ok("ein Kapitelmeister steht nie zugleich unterwegs",
     CAMPAIGN.every((n) => !n.boss?.pure || n.final || !istKapitelmeister(n.boss.pure)));
 }

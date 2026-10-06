@@ -167,7 +167,9 @@ ok("and the rift bites early in chapter II, not before",
    Liga 5 keine Uhr laeuft. */
 ok("no clock before league 5", stageTimer(nb2("L01s44"), 4) === null && stageTimer(nb2(ERWACHEN), 1) === null);
 ok("plain stages never get a clock", stageTimer(nb2("L01s00"), 7) === null);
-const tMon = stageTimer(nb2(ERWACHEN), 5);
+/* v1.91.0: das Erwachen ist eine FIGURENstation (die Heilerin) - die Monster-Uhr
+   wird an der ersten reinen Bestienstation von Kapitel V geprueft (Zerreisser) */
+const tMon = stageTimer(nb2("L05s16"), 5);
 ok("league 5 monster boss: 6-minute total budget", tMon?.type === "total" && tMon.seconds === 360);
 const tEli = stageTimer(nb2("L03s23"), 5);
 ok("league 5 elite piece boss: 20s per move", tEli?.type === "move" && tEli.seconds === 20);
@@ -317,13 +319,14 @@ ok("nine leagues of income cover the boat (" + income9 + " vs " + boat3.gold + "
     ok("player dragon unfolds 2x2 (3 wings)", g.board.filter((x) => x && x.kind === "D+" && x.color === "w").length === 3);
   }
   {
-    const p = withProgressPct(defaultProfile(), 40, 2);
-    /* v1.90.20: der Drache ist Meister von Kapitel I (Bannerhoehe, L01s44) -
-       die Halle in Kapitel VII (L07s41) huetet seither der Waechter */
-    const m = buildStageMatch("L01s44", p);
-    ok("hoard boss dragon carries the big flag (chapter I master)", !!m.aiArmy.back.find((s) => s && s.kind === "D" && s.big));
-    const halle = buildStageMatch("L07s41", p);
-    ok("the empty hall in chapter VII holds the Warden", halle.boss?.bossId === "b01");
+    /* v1.91.0 (Besitzer 6.10.: "der Drache kann deutlich spaeter kommen"): er
+       huetet wieder seine Halle in Kapitel VII (L07s41); Kapitel I endet bei
+       Zahir, dem Pfauenfuersten */
+    const p = withProgressPct(defaultProfile(), 40, 7);
+    const m = buildStageMatch("L07s41", p);
+    ok("hoard boss dragon carries the big flag (dragon hall, chapter VII)", !!m.aiArmy.back.find((s) => s && s.kind === "D" && s.big));
+    const ende1 = buildStageMatch("L01s44", withProgressPct(defaultProfile(), 40, 1));
+    ok("chapter I ends at Zahir, a grandmaster - no dragon there", ende1.boss?.bossId === "b26" && !ende1.aiArmy.back.find((s) => s && s.kind === "D"));
   }
   ok("potion veiled at the very start", !itemRevealed(fresh, ITEMS.potion));
   // v0.77: Der Trank kommt NICHT mehr nach dem ersten Sieg - erst wenn die

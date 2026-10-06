@@ -86,10 +86,11 @@ ok("classic stages field base-level enemies", s0.aiArmy.back.every((p) => (p.lev
 ok("later stages open new boards", CAMPAIGN.some((s) => s.map === "courtyard") && CAMPAIGN.some((s) => s.map === "gauntlet") && CAMPAIGN.some((s) => s.rules === "hp"));
 
 const last = buildStageMatch("L01s44");
-/* v1.90.20 (Besitzerentscheid): Meister von Kapitel I ist der DRACHE - eine
-   Figur (kind D, gross), kein Monster (X). Sein Fluegelplatz ist leer (null). */
-ok("final stage is a boss fight - the dragon holds chapter I", last.boss && last.boss.bossId === "pb_dragon"
-  && last.aiArmy.back.some((s) => s && s.kind === "D" && s.big));
+/* v1.91.0 (Besitzer 6.10.): Kapitel I endet bei ZAHIR, dem Pfauenfuersten -
+   einem Grossmeister, der wie eine Figur aussieht. Der Drache wartet in
+   Kapitel VII ("der Drache kann deutlich spaeter kommen"). */
+ok("final stage is a boss fight - Zahir holds chapter I, no dragon", last.boss && last.boss.bossId === "b26"
+  && !last.aiArmy.back.some((s) => s && s.kind === "D"));
 
 import { hauptast, figurStation, startOf } from "./test_helpers12.mjs";
 import * as metaAll from "./src/meta/index.js";
@@ -118,7 +119,7 @@ ok("the hawk waits in its own chapter, locked to a fresh profile", !unlockedChar
   const vor = hauptast(hawkN.league);
   for (const n of vor) { p2 = advanceCampaign(p2, n.id); if (n.id === hawkN.id) break; }
   ok("an early champion falls in a single win", unlockedCharacterIds(p2).includes("hawk"));
-  ok("campaign clears feed the achievement stats", p2.stats.stagesCleared >= 1 && p2.stats.recruits === 1);
+  ok("campaign clears feed the achievement stats", p2.stats.stagesCleared >= 1 && p2.stats.recruits >= 1);   /* v1.91.0: auf dem Weg zum Falken liegt jetzt auch die Heilerin (Erwachen) */
   ok("a cleared champion station deals the FRIENDLY table", buildStageMatch(hawkN.id, p2).friendly === true && !buildStageMatch(startOf(hawkN.league).id, p2).friendly);
   ok("a friendly against a recruited champion pays a quarter XP", (() => {
     const xp = p2.xpEarned || 0;
@@ -130,15 +131,15 @@ import { bossPieceFor, effectiveMap, winsNeeded, bossWinsFor, recruitOnWin } fro
 import { nodeById as nbId } from "./src/content/index.js";
 ok("wins demands are read off the boss (late champions resist twice)",
   winsNeeded(dragonN, dragonN.league) === 2 && winsNeeded(hawkN, hawkN.league) === 1 && winsNeeded(figurStation("seeress")) === 2);
-ok("the dragon, master of chapter I, yields in a single win", (() => {
+ok("the dragon waits in his hall in chapter VII and yields in a single win", (() => {
   const dn = figurStation("dragon");
-  return dn.id === "L01s44" && dn.final === true && winsNeeded(dn, 1) === 1;
+  return dn.id === "L07s41" && !dn.final && winsNeeded(dn, 7) === 1;
 })());
 {
   let d = { xp: 0, campaign: { league: 1, cleared: [], unlocked: [] } };
   for (const n of hauptast(1)) d = advanceCampaign(d, n.id);
-  ok("beating chapter I: the dragon joins, the chapter counts as won, no monster trophy",
-    unlockedCharacterIds(d).includes("dragon") && d.stats.leaguesWon === 1 && ownedLeagueBosses(d).length === 0);
+  ok("beating chapter I: the chapter counts as won, Zahir is the trophy, no dragon yet",
+    !unlockedCharacterIds(d).includes("dragon") && d.stats.leaguesWon === 1 && ownedLeagueBosses(d).join() === "b26");
 }
 ok("early chapters yield in one win, the deep road demands two",
   winsNeeded(figurStation("mage")) === 1 && winsNeeded(figurStation("warlock")) === 2);
@@ -154,18 +155,17 @@ import { formationLegalOn as fLegal, buildArmyFromFormation as bFromForm, ownedL
 import { mapById as mapOf } from "./src/content/index.js";
 {
   const karte = mapOf("classic");   /* v1.24.0: die Arena ist gestrichen */
-  const ids = ["hawk","assassin","pathfinder","dragon","guardian","bard","paladin","inquisitor","standard","engineer","chancellor","archbishop","mage","alchemist","sorceress","warlock","strategist","amazon","captain","knight","bishop","rook","queen","king","pawn"];
+  const ids = ["hawk","assassin","pathfinder","dragon","guardian","bard","paladin","inquisitor","watchman","engineer","chancellor","archbishop","mage","alchemist","sorceress","warlock","strategist","amazon","captain","knight","bishop","rook","queen","king","pawn"];
   const base = ["rook","knight","bishop","queen","king","bishop","knight","rook"];
-  const withBoss = [...base]; withBoss[3] = "boss:b12";  // der Richter: Grossmeister, auf dem Damenplatz (v1.90.20 nur noch per Bestechung/Altstand)
-  /* v1.90.20: Kapitel I gibt den Drachen (Figur), keine Monster-Trophaee; ab
-     Kapitel II wieder je Kapitel ein Meister */
+  const withBoss = [...base]; withBoss[3] = "boss:b37";  // v1.91.0: Morwen - Grossmeisterin ohne Kapitel (nur per Bestechung), auf dem Damenplatz
+  /* v1.91.0: jedes Kapitel gibt seinen Grossmeister, Kapitel I Zahir */
   const prof1 = { stats: { leaguesWon: 1 } }, prof0 = { stats: {} }, prof2 = { stats: { leaguesWon: 2 } };
-  ok("league bosses are trophies of finished leagues", ownedLeagueBosses(prof1).length === 0 && ownedLeagueBosses(prof2).join() === "b10" && ownedLeagueBosses(prof0).length === 0);
-  ok("a boss stands in for the queen — if you own him", fLegal(withBoss, ids, karte, ["b12"]) && !fLegal(withBoss, ids, karte, []));
-  const twoBosses = [...withBoss]; twoBosses[0] = "boss:b12";
-  ok("one boss at most on the field", !fLegal(twoBosses, ids, karte, ["b12"]));
+  ok("league bosses are trophies of finished leagues", ownedLeagueBosses(prof1).join() === "b26" && ownedLeagueBosses(prof2).join() === "b26,b27" && ownedLeagueBosses(prof0).length === 0);
+  ok("a boss stands in for the queen — if you own him", fLegal(withBoss, ids, karte, ["b37"]) && !fLegal(withBoss, ids, karte, []));
+  const twoBosses = [...withBoss]; twoBosses[0] = "boss:b37";
+  ok("one boss at most on the field", !fLegal(twoBosses, ids, karte, ["b37"]));
   const army = bFromForm(() => 1, withBoss);
-  ok("the fielded boss brings his stats and aura", army.back[3].bossId === "b12" && army.back[3].aura.type === "noEnemyPotions");
+  ok("the fielded boss brings his stats and aura", army.back[3].bossId === "b37" && army.back[3].aura.type === "noEnemyPotions");
   /* v1.33.0 (Besitzer): die GEWOEHNLICHEN Monster stehen auf freien Plaetzen -
      anstelle von Turm, Laeufer, Springer; die Kapitelmeister nur anstelle der
      Dame. Jedes Monster hoechstens einmal. */
@@ -181,14 +181,14 @@ import { mapById as mapOf } from "./src/content/index.js";
   ok("... aber jedes nur einmal", !fLegal(zweimal, ids, karte, ["b05"]));
   const monsterAlsDame = [...base]; monsterAlsDame[3] = "boss:b05";
   ok("ein gewoehnliches Monster steht NIE anstelle der Dame", !fLegal(monsterAlsDame, ids, karte, ["b05"]));
-  const meisterAufFlanke = [...base]; meisterAufFlanke[0] = "boss:b12";
-  ok("ein Kapitelmeister steht NUR anstelle der Dame, nie auf einem freien Platz", !fLegal(meisterAufFlanke, ids, karte, ["b12"]));
+  const meisterAufFlanke = [...base]; meisterAufFlanke[0] = "boss:b37";
+  ok("ein Kapitelmeister steht NUR anstelle der Dame, nie auf einem freien Platz", !fLegal(meisterAufFlanke, ids, karte, ["b37"]));
   const beides = [...withBoss]; beides[7] = "boss:b05";
-  ok("Meister auf dem Damenplatz und Monster auf der Flanke zugleich", fLegal(beides, ids, karte, ["b12", "b05"]));
+  ok("Meister auf dem Damenplatz und Monster auf der Flanke zugleich", fLegal(beides, ids, karte, ["b37", "b05"]));
   const heer = bFromForm(() => 1, beides);
-  ok("... und beide marschieren mit ihren Werten", heer.back[3].bossId === "b12" && heer.back[7].bossId === "b05" && heer.back[7].kind === "X");
-  ok("Kapitel III gewonnen: der Seuchenkoenig gehoert einem, nicht der Hetzer (v1.90.20: Kapitel I gab den Drachen)",
-    ownedLeagueBosses({ stats: { leaguesWon: 3 } }).join() === "b10,b24");
+  ok("... und beide marschieren mit ihren Werten", heer.back[3].bossId === "b37" && heer.back[7].bossId === "b05" && heer.back[7].kind === "X");
+  ok("Kapitel III gewonnen: Zahir, Varek und der Seuchenkoenig gehoeren einem, nicht der Hetzer",
+    ownedLeagueBosses({ stats: { leaguesWon: 3 } }).join() === "b26,b27,b24");
 }
 ok("from chapter IV every station fields its own stage; the finale always does",
   ["L01s02","L01s16","L07s41","L01s22"].every((id) => effectiveMap(nbId(id), 4) === nbId(id).map)
@@ -468,7 +468,7 @@ ok("frisch steht keine der beiden neuen Buehnen offen",
      Probe zaehlt darum zwei gewonnene Kapitel (Trophaee b10) und besticht b05 */
   const pb = { stats: { leaguesWon: 2 }, campaign: { bribedBosses: ["b05"] } };
   const owned = ownedLeagueBosses(pb);
-  ok("league victory grants its boss", owned.includes("b10"));
+  ok("league victory grants its boss", owned.includes("b27"));   /* v1.91.0: Varek haelt Kapitel II */
   ok("a bribed monster fights for you too", owned.includes("b05"));
   ok("no double entries in the ranks", new Set(owned).size === owned.length);
 }
@@ -836,11 +836,11 @@ console.log("\n== DIE WIRKUNG DER BUENDE (v1.10.0) ==");
   ok("kein Kapitelmeister steht im Vorrat", !B.BESETZUNGS_VORRAT.some((e) => LEAGUE_BOSSES.includes(e.replace("boss:", ""))));
   // ein Stand, der drei Figuren und zwei Monster getroffen hat; einer davon gehoert ihm
   const getroffen = ["amazon", "archbishop", "mage"];
-  const stand = (extra = {}) => ({ stats: { games: 7 }, codex: { met: [...getroffen.map((id) => CH[id].kind), "X:b05", "X:b01", "X:b12"] },
+  const stand = (extra = {}) => ({ stats: { games: 7 }, codex: { met: [...getroffen.map((id) => CH[id].kind), "X:b05", "X:b01", "X:b24"] },
     campaign: { unlocked: ["mage"], bribedBosses: [], ...extra } });
   ok("Kandidat ist, wer begegnet ist und nicht gehoert", B.istKandidat(stand(), "amazon") && B.istKandidat(stand(), "boss:b05"));
   ok("... nicht, wer gehoert (Magier) oder nie begegnet ist (Kanzler)", !B.istKandidat(stand(), "mage") && !B.istKandidat(stand(), "chancellor"));
-  ok("... und nie ein Kapitelmeister, auch begegnet (Richter)", !B.istKandidat(stand(), "boss:b12"));
+  ok("... und nie ein Grossmeister, auch begegnet (Seuchenkoenig)", !B.istKandidat(stand(), "boss:b24"));
   const fest = besetzt.find((n) => !B.besetzungsPlan(n).wechselnd && n.league >= 9 && B.besetzungsPlan(n).k >= 2);
   const GRUNDREIHE = ["rook","knight","bishop","queen","king","bishop","knight","rook"];
   const b1 = B.besetzungFuer(fest, stand(), GRUNDREIHE);
@@ -1025,6 +1025,69 @@ console.log("\n== DIE WIRKUNG DER BUENDE (v1.10.0) ==");
     .join("\n");
   ok("A35: keine Logik vergleicht mehr gegen die alte Kennung n22",
     !/["']n22["']/.test(logik));
+}
+
+
+/* ══ v1.91.0: DAS ZUBROT - Almosen, Zins, Zehnt, Studium (meta/zubrot.js) ══════
+   Besitzer 6.10.: der Bettler "verdient bei jedem Zug ein bisschen Gold, das
+   man behaelt, auch wenn man verliert". Vier Faehigkeiten, die am Brett nichts
+   aendern - geprueft wird die Rechnung, die Auszahlung und der ganze Weg vom
+   Heer ueber die nachgespielte Partie bis in den Geldbeutel. */
+{
+  const M = await import("./src/meta/index.js");
+  const { CHARACTERS: CH, ABILITIES: AB, mapById: karteVon } = await import("./src/content/index.js");
+  const { createGame: cg, legalMoves: lm, reduce: red, moveCommand: mc, status: st } = await import("./src/core/index.js");
+  const form = ["rook", "beggar", "banker", "queen", "king", "taxman", "scholar", "rook"];
+  const gelernt = { beggar: ["almosen"], banker: ["zins"], taxman: ["zehnt"], scholar: ["studium"] };
+  const heer = (stufen = {}) => M.buildArmyFromFormation(() => 10, form, (id) => gelernt[id] || [], null, (id) => stufen[id] || {});
+  const z = (extra = {}, stufen) => M.zubrot({ heer: heer(stufen), buende: [], eigeneZuege: 25, bauernUebrig: 8, result: "win", gold: 50, liga: 1, ...extra });
+  ok("zubrot: die vier Faehigkeiten gibt es, sie sind passiv und wirken (live)",
+    ["almosen", "zins", "zehnt", "studium"].every((a) => AB[a] && AB[a].live && AB[a].once === false));
+  ok("zubrot: Almosen - 1 Gold je eigenem Zug, Deckel 8, auf Stufe II 12, III 16",
+    z().almosen === 8 && z({ eigeneZuege: 7 }).almosen === 7 && z({}, { beggar: { almosen: 2 } }).almosen === 12 && z({ eigeneZuege: 99 }, { beggar: { almosen: 3 } }).almosen === 16);
+  ok("zubrot: ... der Deckel waechst mit dem Kapitel (IV-VI doppelt, X-XII vierfach)", z({ liga: 4 }).almosen === 16 && z({ liga: 12, eigeneZuege: 99 }, { beggar: { almosen: 3 } }).almosen === 64);
+  ok("zubrot: Almosen bleibt nach Niederlage und Remis", z({ result: "loss" }).almosen === 8 && z({ result: "draw" }).almosen === 8);
+  {
+    /* das Mass: der Bettler bringt in jedem Kapitel einen spuerbaren, aber nie den groesseren Teil dessen, was die Stationen zahlen */
+    const { CAMPAIGN: C91 } = await import("./src/content/index.js");
+    const anteile = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((l) => {
+      const st = C91.filter((n) => n.league === l); const schnitt = st.reduce((s, n) => s + M.stageGold(n, l) + 2, 0) / st.length;
+      return Math.round(100 * z({ liga: l, eigeneZuege: 99 }).almosen / schnitt);
+    });
+    ok(`zubrot: das Almosen (Stufe I) liegt in jedem Kapitel bei 10-45 % des Stationsgolds (${anteile.join(", ")})`, anteile.every((a) => a >= 10 && a <= 45));
+  }
+  ok("zubrot: wer aufgibt, bekommt nichts - kein Gold, keine Erfahrung", (() => { const a = z({ result: "loss", resigned: true }); return a.gold === 0 && a.xpAnteil === 0; })());
+  ok("zubrot: Zins - 10/20/30 % des Siegergolds, nur bei Sieg",
+    z().zins === 5 && z({}, { banker: { zins: 3 } }).zins === 15 && z({ result: "loss" }).zins === 0);
+  ok("zubrot: Zehnt - 4/8/12 je Sieg, in spaeteren Kapiteln mehr (IV-VI doppelt, X-XII vierfach)",
+    z().zehnt === 4 && z({}, { taxman: { zehnt: 2 } }).zehnt === 8 && z({ liga: 5 }).zehnt === 8 && z({ liga: 12 }, { taxman: { zehnt: 3 } }).zehnt === 48 && z({ result: "draw" }).zehnt === 0);
+  ok("zubrot: Studium - 15/30/45 % mehr Erfahrung, auch bei Niederlage", z().xpAnteil === 0.15 && z({ result: "loss" }, { scholar: { studium: 3 } }).xpAnteil === 0.45);
+  ok("zubrot: die Summe stimmt", (() => { const a = z(); return a.gold === a.almosen + a.zins + a.zehnt + a.dorf + a.kontor && a.gold === 17; })());
+  ok("zubrot: nur wer im Heer STEHT, verdient - ein Heer ohne die vier bringt nichts",
+    M.zubrot({ heer: M.buildArmyFromFormation(() => 10, ["rook", "knight", "bishop", "queen", "king", "bishop", "knight", "rook"]), eigeneZuege: 30, result: "win", gold: 50 }).gold === 0);
+  ok("zubrot: ... und nur, wer es GELERNT hat (der Bankier ohne Zins)",
+    M.zubrot({ heer: M.buildArmyFromFormation(() => 10, form, () => []), eigeneZuege: 30, result: "win", gold: 50 }).zins === 0);
+  ok("zubrot: das Almosen ist dem Bettler geschenkt (Stufe 1), die anderen drei lernt man",
+    CH.beggar.ladder.some((r) => r.ability === "almosen" && r.geschenkt && r.level === 1)
+    && M.buildArmyFromFormation(() => 1, form).back[1].abilities.includes("almosen")
+    && ["banker:zins", "taxman:zehnt", "scholar:studium"].every((x) => { const [c, a] = x.split(":"); return CH[c].ladder.some((r) => r.ability === a && !r.geschenkt); }));
+  /* der ganze Weg: echte Partie, nachgespielt, ausgezahlt */
+  const karte = karteVon("classic");
+  const a = heer(), b = M.buildArmyFromFormation(() => 1, karte.defaultFormation);
+  let g = cg(a, b, { map: karte, rules: "hp", seed: 3 });
+  for (let i = 0; i < 12 && !st(g).over; i++) g = red(g, mc(lm(g)[0])).state;   /* ueber reduce: nur so waechst die Befehlsliste, die nachgespielt wird */
+  const sum = M.summarizeMatch(a, b, 3, g.log, "loss", "w", { map: karte, rules: "hp" });
+  ok(`zubrot: die Zusammenfassung zaehlt die EIGENEN Zuege (${sum.eigeneZuege} von ${sum.moveCount}) und die Bauern, die noch stehen (${sum.bauernUebrig})`,
+    sum.eigeneZuege === 6 && sum.moveCount === 12 && sum.bauernUebrig >= 1 && sum.bauernUebrig <= 8);
+  ok("zubrot: die Figuren-Erfahrung kennt jetzt jede Figur im Heer, nicht nur die zehn der Standardreihe",
+    ["beggar", "banker", "taxman", "scholar"].every((id) => sum.charXpGains[id] >= 12));
+  sum.gold = 0; sum.zubrot = M.zubrot({ heer: a, eigeneZuege: sum.eigeneZuege, bauernUebrig: sum.bauernUebrig, result: "loss", gold: 0, liga: 1 });
+  const vor = M.defaultProfile(), { profile: nach, gained } = M.applyResult(vor, sum);
+  ok("zubrot: nach einer NIEDERLAGE liegt das Almosen im Beutel (6 Zuege = 6 Gold)", nach.gold === 6 && gained.gold === 6 && gained.zubrot.almosen === 6);
+  const ohneStudium = M.applyResult(vor, { ...sum, zubrot: null }).profile.xpEarned;
+  ok("zubrot: das Studium hebt die Erfahrung der Partie um 15 %", nach.xpEarned === ohneStudium + Math.round(ohneStudium * 0.15) && gained.studiert === Math.round(ohneStudium * 0.15));
+  const auf = M.applyResult(vor, { ...sum, resigned: true });
+  ok("zubrot: beim Aufgeben bleibt der Beutel leer", auf.profile.gold === 0 && auf.gained.gold === 0);
 }
 
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);

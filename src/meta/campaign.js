@@ -242,7 +242,10 @@ const FORMATION_REIHE = ["mauer", "leibwache", "vorgeschoben", "leicht"];
 /* Auch das ERWACHEN (Kapitel II, die erste Schlacht mit Lebenspunkten)
    behaelt die alte Szene: wer dort zum ersten Mal Leben sieht, soll nicht
    zugleich eine fremde Aufstellung lesen muessen. */
-const ohneFormation = (n) => !n?.boss || n.final || (n.league || 1) <= 1 || n.boss.piece === "dragon" || n.erwachen;
+/* v1.91.0: in Kapitel II stehen nur Figuren (neben der Dame, siehe buildStageMatch)
+   und Varek im Finale - die Szenen beginnen mit den Bestien in Kapitel III */
+const ohneFormation = (n) => !n?.boss || n.final || (n.league || 1) <= 1 || n.boss.piece === "dragon" || n.erwachen
+  || ((n.league || 1) <= 2 && !!n.boss.piece);
 const formationsStationen = (lg) => CAMPAIGN
   .filter((n) => n.league === lg && !ohneFormation(n))
   .map((n) => String(n.id)).sort();
@@ -366,6 +369,16 @@ export function buildStageMatch(id, profile = null, leagueOverride = null, opts 
   if (boss) {
     let qi = formation.indexOf("queen");
     if (qi === -1) qi = Math.max(0, Math.floor(formation.length / 2) - 1);
+    /* ── v1.91.0: IN KAPITEL I UND II STEHT DIE FIGUR NEBEN DER DAME, NICHT AN
+       IHRER STELLE. Seit dem Figuren-Umbau liegen zwanzig Figurenstationen in
+       den ersten beiden Kapiteln (vorher sieben). Naehme jede davon dem Gegner
+       die Dame, spielte man fast die Haelfte des Lernkapitels gegen ein Heer
+       ohne Dame - und ein Bettler mit vier Zuegen ist kein Ersatz fuer sie.
+       Dort nimmt die Figur darum den Platz des Damenspringers; die Dame bleibt.
+       Ab Kapitel III bleibt es beim Alten: die wenigen Figuren dort treten mit
+       den Zuschlaegen ihrer Stufe (tier) an und fuellen den Damenplatz. */
+    const nebenDame = boss.kind !== "X" && boss.kind !== "D" && lg <= 2;
+    if (nebenDame) { const si = formation.indexOf("knight"); if (si !== -1) qi = si; }
     // Ein GROSSER Drache entfaltet sich beim Aufbau auf die Nachbarspalte
     // einwaerts und raeumt sie leer - stuende dort der Koenig, waere die
     // Partie vor dem ersten Zug verloren. Also einen Slot waehlen, dessen
@@ -393,7 +406,7 @@ export function buildStageMatch(id, profile = null, leagueOverride = null, opts 
         for (let j = 0; j < w2; j++) if (j !== ki && inward(j) !== ki) { qi = j; break; }
     }
     aiArmy.back = aiArmy.back.map((spec, j) => (j === qi ? boss : j === fluegel ? null : spec));
-    if (fluegel < 0) formationArt = opts.formation && BOSS_FORMATIONEN[opts.formation] ? opts.formation : bossFormation(node);
+    if (fluegel < 0 && !nebenDame) formationArt = opts.formation && BOSS_FORMATIONEN[opts.formation] ? opts.formation : bossFormation(node);
     if (formationArt !== "mauer") {
       const neu = formiereBoss(aiArmy, qi, formationArt);
       if (neu === aiArmy) formationArt = "mauer"; else Object.assign(aiArmy, neu);

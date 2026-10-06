@@ -155,7 +155,7 @@ gambitrise.com zeigt darauf).
   Bilder sind eingecheckt), also zeigt sonst die Startseite das alte Spiel.
   Einzeln: `figuren|karten|zugbilder|bretter`.
 - **Aufstellungskammer** `?aufstellung` bzw. `?aufstellung=<Station>` (hinter
-  dem Werkzeug-Schloss, v1.90.15): jede der 45 Schlüsselstationen, wie sie
+  dem Werkzeug-Schloss, v1.90.15): jede der 85 Schlüsselstationen (seit v1.91.0), wie sie
   beim ersten Zug steht, mit der BOSSFORMATION im Kopf (v1.90.18) — dasselbe buildStageMatch/createGame wie das
   Gefecht. `node tools/foto-aufstellungen.mjs <ordner>` fotografiert alle
   (braucht `npx vite build`). Die Befunde vom 30.9. (Drache in der Ecke,
@@ -163,7 +163,7 @@ gambitrise.com zeigt darauf).
   Besetzungen) stehen im Changelog v1.90.15.
 - `node tools/pruefe-figurenmass.mjs` — **wie groß und wo steht jede Figur
   auf dem ECHTEN Brett?** (v1.90.16) Fährt die Aufstellungskammer
-  (`?aufstellung=<Station>`) für alle 45 Schlüsselstationen und misst an
+  (`?aufstellung=<Station>`) für alle 85 Schlüsselstationen und misst an
   jeder Figur im lebenden DOM Band (Breite, Mitte, Unterkante) und Sockelfuß
   (Alphakanal). Sechs Zusagen: kein Band breiter als das des breitesten
   Offiziers +3 % (der große Drache höchstens doppelt), Band mittig ±2 px,
@@ -190,6 +190,16 @@ gambitrise.com zeigt darauf).
   Navigationsprobe misst seit v1.90.34 auch jedes Stationsfenster (kein
   Bildlauf, ganz im Schirm); `GEKLAERT=1` klärt dafür alle Stationen — dann
   meldet sie erwartungsgemäß „keine Station lässt sich betreten“.
+- **`node tools/uebersicht-fotos.mjs <ordner>`** — **DIE GANZE SAMMLUNG AUF EINEN
+  BLICK** (v1.91.0, ~3 min, nicht in der Kette): je Bund, für die Großmeister
+  und die Bestien ein Blatt aus den ECHTEN Bauteilen (HofKachel, MoveDiagram,
+  Leiter, Werte, Fundort aus der Kampagne). Nach jeder Änderung an Figuren,
+  Bestien oder Bünden für den Besitzer neu bauen; `--nur=bund:dorf,bosse:meister:1`.
+- **`npm run balance`** (reife Heere, jede gegen jede, **~45 min seit v1.91.0** —
+  75 Einträge) und danach `node .balance.mjs ziel boss:b23,smith` (nur die
+  Genannten gegen den ganzen Vorrat, ~1 min je Eintrag). Regel des Besitzers:
+  keine Figur und keine Bestie über 60 %. Die Großmeister sind ausgenommen.
+  Die Quoten gehören als `STAERKE` nach besetzung.js.
 - `node tools/pruefe-duell.mjs` — **DAS ONLINE-DUELL VON BEIDEN SEITEN**
   (v1.90.18, Audit A73, ~10 s). Zwei Browser-Kontexte der gebauten App legen
   lokale Konten an, verbinden (MIT Zustimmungsfenster), spielen im Modus
@@ -336,16 +346,48 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
   das). Freistellen über `tools/freistellen.py` (Greenscreen #00FF66;
   Magenta nur bei grünlastigen Motiven wie Meer/Boot; GPT-Bilder kommen oft
   mit ECHTER Transparenz — Alpha ≥ 150 härten, nie über RGB flatten).
-- **Kapitelmeister ≠ Großmeister (seit v1.90.20).** `LEAGUE_BOSSES` ist die
-  KLASSE der zwölf Großmeister (Damenplatz, Goldrahmen, nie Gast, nicht
-  bestechlich – außer dem Richter). Wem ein gewonnenes Kapitel gehört, steht in
-  `KAPITEL_TROPHAEE` (Index = Kapitel − 1); Kapitel I hält der **Drache** (eine
-  Figur, `boss: {piece: "dragon", wins: 1}`, kommt mit dem Sieg), dort steht
-  `null`. Der Richter (b12) ist Mitte-Boss von Kapitel II. Alte Stände nach
-  Kapitel I behalten ihn über den einmaligen Umzug `campaign.meister20`
-  (profile.js). Im **klassischen Schach hat der große Drache vier Leben**
-  (`DRACHE_LEBEN`, setup.js, über den Schild-Abprall des Schachkerns), sichtbar
-  als vier Punkte auf dem Sockel.
+- **Großmeister, Kapitelmeister, Bestien (seit v1.91.0, Figuren-Umbau).**
+  `LEAGUE_BOSSES` ist die KLASSE der **vierzehn Großmeister** (Damenplatz, Aura,
+  nie Gast): die zwölf Kapitelmeister b26 Zahir, b27 Varek, b24 Malrik, b28–b36
+  (Isolde, Halvar, Seraphine, Yorrik, Cassian, Veyl, Brakk, Asra, Osric) und
+  zwei ohne Kapitel, b37 Morwen (Mitte VI) und b38 Thalor (Mitte IX,
+  `MITTE_MEISTER`). `KAPITEL_TROPHAEE` (Index = Kapitel − 1) sagt, wen ein
+  gewonnenes Kapitel gibt — alle zwölf sind Großmeister, **Kapitel I gibt Zahir,
+  nicht mehr den Drachen**. Alles andere sind **28 Bestien** (freie Plätze,
+  keine Aura, bestechlich): die alten Meister b08, b12, b14, b16–b20, b23, b25
+  (`EHEMALIGE_MEISTER`; b14/b19/b20/b23/b25 unter neuem Namen — das alte
+  Osric-Bild b25 heißt „Der Steinkönig“) und fünf neue b39–b43. **b10
+  (Doppelritter) und die Figur `standard` (Flaggenträger) gibt es nicht mehr.**
+  Nie bestechlich: b35, b36 (`NIE_BESTECHLICH`); die Kapitelmeister bekommt man
+  nur durch den Kapitelsieg (`bestechGrund`). **Jeder Großmeister trägt eine
+  Aura** (`auraText` in bosses.js, steht im Blatt), keine Bestie. Die Werte im
+  `B(…)`-Eintrag sind die des GEGNERS an der Station, `ZIEL_PROFIL_BOSS`
+  (leveling.js) die des eigenen Monsters auf Höchststufe — **beide sind getrennt
+  gepflegt, nie das eine aus dem anderen überschreiben** (am 6.10. versehentlich
+  getan und zurückgenommen). Der Drache ist eine Figur und wartet in Kapitel VII
+  (L07s41, `wins: 1`). Im **klassischen Schach hat der große Drache vier Leben**
+  (`DRACHE_LEBEN`, setup.js). Alte Stände zieht `figurenUmbau` (profile.js,
+  einmalig `campaign.figuren91`) nach — dort steht, was wandert.
+- **Figuren und Bünde (v1.91.0):** 50 Figuren, 18 Bünde (nur Bauer, Gambit und
+  Drache stehen außerhalb). **Ein Bund wirkt, sobald ALLE seine Figuren im
+  gespielten Heer stehen** (Stufe egal) und die hintere Reihe freigegeben ist
+  (`meineBuende`, freigaben.js). Der Kern findet die Figuren über **`charId`** —
+  das Feld setzen die Heeres-Specs (leveling.js) und `makePiece` reicht es
+  durch; **bis v1.90.36 fehlte es, und kein Bund wirkte je im echten Spiel**
+  (die Proben setzten es von Hand). `state.buende` ist `{ w: […], b: […] }`.
+  Wer eine Figur neu anlegt: `KIND` + `VALUE` + `BASE_HP/ATK` + `ZIEL_PROFIL`
+  (constants.js), Familie (families.js), Eintrag in characters.js, Bund in
+  buende.js, Bild über `python3 tools/figuren-einbau.py` (schreibt Spielfassung,
+  Kleinfassung, misst NUR den neuen Eintrag, zeichnet die Glyphe), Imports in
+  paintedArt.js, `STAERKE` in besetzung.js (aus dem Balance-Lauf), Station in
+  `tools/build-campaign12.mjs` (Tabelle `FIGUREN`). **Eine Gangart ohne `range`
+  gleitet beliebig weit** (Kern und Zugbild lesen `|| 99`).
+- **Gold neben dem Kampf (`meta/zubrot.js`):** Almosen, Zins, Zehnt, Studium und
+  die Bünde Dorf und Kontor ändern am Brett nichts und werden an EINER Stelle
+  gerechnet; `applyResult` zahlt aus, das Banner zeigt die Posten. Wer aufgibt,
+  bekommt nichts. Der Bund Werkstatt und die Fallenkunde legen Zaun bzw.
+  Bärenfalle in den Vorrat der Setzphase (`geschenkt` im GameScreen) und werden
+  nicht abgerechnet.
 - **Bilder rechnen statt malen:** `tools/umfaerben.py` (Farbton drehen, z. B.
   Brandstifter blau, mit Helligkeitsfaktor) und `tools/monster-aufhellen.py`
   (Monsterkörper auf Leuchtdichte 0,24, Sockel/Alpha/Glutaugen bleiben). Beide
@@ -484,14 +526,17 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
 
 - Deutsche Begriffe im Spiel (Kapitel, Riss, Halle, Hofstaat, Meister …).
 - **Im Verzeichnis gibt es nur FIGUREN und BESTIEN** (v1.90.25, Besitzer 3.10.);
-  die zwölf Großmeister tragen seit v1.90.35 das WORT „Großmeister“ unter dem
-  Namen (`rang` an der HofKachel) statt der leuchtenden Kontur — die bleibt am
+  die vierzehn Großmeister tragen seit v1.90.35 das WORT „Großmeister“ unter dem
+  Namen (`rang` an der HofKachel, dort seit v1.91.0 nur der Rufname: „Varek“)
+  statt der leuchtenden Kontur — die bleibt am
   Damenplatz der Aufstellung. Wem man begegnet ist, der steht in FARBE da — dunkel ist nur
   Unbekanntes. Krone/Schatten und die Monsterfamilien leben im Regelwerk
   weiter (Bünde, Gaben; das Opfer einer Kronenfigur beim Bestechen ist seit
-  v1.90.33 gestrichen, der Preis folgt der Zahl der Fähigkeiten: 1200–2400), werden aber nicht mehr als
+  v1.90.33 gestrichen, der Preis folgt der Zahl der Fähigkeiten: seit v1.91.0 800–1600, weil aus 14 käuflichen 30 wurden), werden aber nicht mehr als
   Überschrift gezeigt.
-- GOLD gehört allein dem Helden (auch der Sockelstreifen); eigene Bauern
+- GOLD gehört allein dem Helden (auch der Sockelstreifen; **eine Ausnahme,
+  vom Besitzer am 6.10. ausdrücklich verlangt: Cassian, der Intrigant, in
+  Goldrüstung mit Goldkrone und dunkelrotem Umhang**); eigene Bauern
   GRÜN, Gegnerseite RISS-VIOLETT (lila Sockel-Glut, Stil "getoent" ist der
   Standard; die Stil-Auswahl sieht nur der Admin).
 - Stil: "geschnitzt, vereinfacht" — mattes bemaltes Holz, flache Facetten,
@@ -500,7 +545,7 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
   Auswahl-Lichtspektakel.
 - Alles Optionale abschaltbar (Klang, Online).
 
-## Offene Baustellen (Stand v1.90.36, 6.10.2026)
+## Offene Baustellen (Stand v1.91.0, 6.10.2026)
 
 **Einstieg für jede neue Sitzung: `design/CHAT-EINSTIEG-2026-09-27.md`** (zehn
 Minuten, mit dem Startsatz für den Chat), dann **`design/UEBERGABE-2026-09-27.md`** — Stand,
@@ -511,7 +556,18 @@ Deploy-Weg (der Push auf `main` IST der Deploy), wo die Geheimnisse liegen
 Tabelle „STAND DER ABARBEITUNG“ oben — erst dort nachsehen),
 **`design/SPIELTEST-2026-09-27.md`**, **`design/FAEHIGKEITEN-2026-09-27.md`**,
 **`design/MONSTER-PROMPTS-2026-09-30.md`** (Neuzeichnung der Monster).
+**`design/FIGUREN-UMBAU-2026-10-06.md`** (der Umbau v1.91.0: Entscheidungen,
+Tabellen, Messwerte).
 Hier nur der Überblick:
+
+- **Nach dem Figuren-Umbau offen:** die Kapiteltexte der Weltkarte
+  (`LEAGUE_LORE`) sind nur für Kapitel II und III auf die neuen Meister
+  umgeschrieben, IV–IX nennen noch die alten · die Kronenglut liegt weiter auf
+  dem alten Osric-Bild (jetzt „Der Steinkönig“, b25), der neue Osric (b36)
+  leuchtet nicht · die Startseite zeigt noch keine der neuen Figuren
+  (`tools/landing-fotos.mjs`) · der Store-Eintrag nennt noch 27 Helden und 25
+  Bestien · der Gegner bekommt keine Bünde · im Online-Duell gibt es keinen
+  Fassungsabgleich (ein alter Client kennt die neuen Arten nicht).
 
 - **Monster überarbeiten, vier je Runde** (Besitzer 1.10.): per fal-Edit am
   bestehenden Bild (nur mit Freigabe), dann lokal auf Höhe gerechnet wie

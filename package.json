@@ -1,7 +1,7 @@
 {
   "name": "gambit",
   "private": true,
-  "version": "1.90.36",
+  "version": "1.91.0",
   "engines": {
     "node": ">=22"
   },

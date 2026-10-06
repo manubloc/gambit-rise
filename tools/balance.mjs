@@ -179,8 +179,21 @@ if (process.argv[2] === "reif") {
   /* v1.32.0: die 13 GEWOEHNLICHEN MONSTER laufen mit - sie stehen kuenftig
      auf freien Plaetzen wie die Figuren und fallen unter dieselbe 60-%-Grenze.
      Die zwoelf Kapitelmeister sind Grossmeister und bleiben ausgenommen. */
-  const { KAPITELMEISTER } = await import("../src/content/campaign.js");
-  const gewoehnlich = BOSSES.filter((b) => !KAPITELMEISTER.includes(b.id)).map((b) => "boss:" + b.id);
+  /* v1.91.0: ausgenommen sind die GROSSMEISTER (LEAGUE_BOSSES, vierzehn) - mit
+     KAPITELMEISTER liefen Morwen und Thalor mit, die keinen Kapitelschluss
+     halten, aber auf dem Damenplatz stehen und eine Aura tragen. */
+  const { LEAGUE_BOSSES } = await import("../src/content/bosses.js");
+  const gewoehnlich = BOSSES.filter((b) => !LEAGUE_BOSSES.includes(b.id)).map((b) => "boss:" + b.id);
   console.log("== ALLE ANDEREN FIGUREN UND DIE GEWOEHNLICHEN MONSTER - der Rest beider Heere auf Hoechststufe ==");
   zeige(durchlauf({ proPaar: 8, figuren: [...CHARACTER_LIST.map((c) => c.id).filter((id) => !AUS.has(id)), ...gewoehnlich] }));
+}
+
+/* v1.91.0: GEZIELT NACHMESSEN - `node .balance.mjs ziel boss:b23,boss:b18` laesst nur
+   die genannten gegen den ganzen reifen Vorrat laufen (~1 min je Eintrag). */
+if (process.argv[2] === "ziel") {
+  REST_STUFE = 10;
+  const AUS = new Set(["pawn", "gambit", "king", "dragon", "queen"]);
+  const { LEAGUE_BOSSES } = await import("../src/content/bosses.js");
+  const vorrat = [...CHARACTER_LIST.map((c) => c.id).filter((id) => !AUS.has(id)), ...BOSSES.filter((b) => !LEAGUE_BOSSES.includes(b.id)).map((b) => "boss:" + b.id)];
+  zeige(gegenAlle((process.argv[3] || "").split(",").filter(Boolean), vorrat, Number(process.argv[4] || 8)));
 }

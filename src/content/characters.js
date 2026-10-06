@@ -480,3 +480,9 @@ flavorDe: "Hört ihr Leut und lasst euch sagen — er hat es kommen sehen.", fla
 export const CHARACTER_LIST = Object.values(CHARACTERS);
 // Standard back-rank slots map a kind to its character id.
 export const KIND_TO_CHAR = { P: "pawn", N: "knight", B: "bishop", R: "rook", Q: "queen", K: "king", A: "archbishop", C: "chancellor", H: "hawk", M: "amazon" };
+/* v1.91.0: JEDE Art -> ihre Figur. KIND_TO_CHAR kennt nur die zehn Arten der
+   Standard-Grundreihe; wer damit einen Namen oder Erfahrung nachschlug, fand
+   fuer Magier, Kapitaen und alle neuen Figuren nichts ("Figur gefallen",
+   keine Figuren-Erfahrung). */
+export const CHAR_VON_ART = { ...KIND_TO_CHAR };
+for (const c of CHARACTER_LIST) if (c.kind && !(c.kind in CHAR_VON_ART) && c.id !== "gambit") CHAR_VON_ART[c.kind] = c.id;

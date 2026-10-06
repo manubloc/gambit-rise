@@ -19,7 +19,8 @@ import { buildArmyFromFormation } from "./src/meta/index.js";
 const einfachesHeer = () => buildArmyFromFormation(() => 1, ["rook", "knight", "bishop", "queen", "king", "bishop", "knight", "rook"]);
 import { ABILITIES, BOSSES } from "./src/content/index.js";
 import { KAPITEL_TROPHAEE as KAPITEL_TROPHAEE33 } from "./src/content/index.js";
-import { monsterBestechPreis, MONSTER_PREIS_STUFEN } from "./src/meta/index.js";
+import { monsterBestechPreis, MONSTER_PREIS_STUFEN, stageGold as stageGoldUi } from "./src/meta/index.js";
+import { istBestechlich } from "./src/content/bosses.js";
 import { ACHIEVEMENTS } from "./src/meta/achievements.js";
 import { PIECE_ART, BOSS_ART } from "./src/app/ui/art.generated.js";
 import { itemArt } from "./src/app/ui/assets/items/itemArt.js";
@@ -256,8 +257,8 @@ const piece = (x = {}) => ({ id: 1, kind: "Q", color: "w", level: 1, abilities: 
     /* v1.90.30 (Besitzer 5.10.): der Doppelritter 10 % hoeher ("muss noch
        etwas hoeher sein"), Schattenfuerst mit Knochenhoernern und Schleicher
        mit Knochenklaue ("sind gut"). */
-    ok("v1.90.30: Doppelritter, Schattenfuerst und Schleicher tragen neue Bilder (Hoehen seit v1.90.31 in der Probe darunter)",
-      ["boss-b10", "boss-b19", "boss-b04"].every((id) => SB5[id].boden === 555 && SB5[id].oben === 21));
+    ok("v1.90.30: Hornschatten (einst Schattenfuerst) und Schleicher tragen neue Bilder; der Doppelritter ist seit v1.91.0 fort",
+      !SB5["boss-b10"] && ["boss-b19", "boss-b04"].every((id) => SB5[id].boden === 555 && SB5[id].oben === 21));
     /* ── v1.90.31: KEIN MONSTER MEHR UNTER 95 % ───────────────────────────────
        Besitzer 5.10.: "aendere alle so ab, dass sie mindestens 95 Prozent
        erreichen" - und zuvor: "mach erstmal alle vom Urspruenglichen einfach
@@ -268,10 +269,10 @@ const piece = (x = {}) => ({ id: 1, kind: "Q", color: "w", level: 1, abilities: 
        Seuchenkoenig steht seit v1.90.29 bei 94,8 und war nicht Teil dieser
        Runde. Und kein Band ist geschrumpft: keine Figur ueber 100,5 %. */
     const alleMonster = Object.keys(SB5).filter((id) => /^boss-b\d\d$/.test(id));
-    const zuKlein = alleMonster.filter((id) => monsterAmBrett(id) < 95), neu31 = ["b02", "b04", "b05", "b06", "b07", "b08", "b09", "b10", "b11", "b12", "b15", "b16", "b17", "b19", "b20", "b21", "b23"].map((b) => "boss-" + b), zuGross = neu31.filter((id) => (SB5[id].boden - SB5[id].oben) * Math.max(0.55, Math.min(1.35, 136 / SB5[id].rx)) > 561 * 1.03);
+    const zuKlein = alleMonster.filter((id) => monsterAmBrett(id) < 95), neu31 = ["b02", "b04", "b05", "b06", "b07", "b08", "b09", "b11", "b12", "b15", "b16", "b17", "b19", "b20", "b21", "b23"].map((b) => "boss-" + b), zuGross = neu31.filter((id) => (SB5[id].boden - SB5[id].oben) * Math.max(0.55, Math.min(1.35, 136 / SB5[id].rx)) > 561 * 1.03);
     ok(`v1.90.31: alle ${alleMonster.length} Bestien und Grossmeister stehen bei mindestens 95 % der Offiziere (seit v1.90.32 auch der Seuchenkoenig) (darunter: ${zuKlein.map((id) => id.slice(5) + " " + monsterAmBrett(id).toFixed(1)).join(", ") || "keine"})`,
-      alleMonster.length === 25 && zuKlein.length === 0);
-    ok(`v1.90.31: keine der 17 neuen Fassungen ist so schlank, dass die Hoehenklammer ihr Band schmaler macht (zu hoch: ${zuGross.join(", ") || "keine"}), die Blutmagd traegt Rot`,
+      alleMonster.length === 42 && zuKlein.length === 0);   /* v1.91.0: 24 alte (ohne b10) + 13 Grossmeister + 5 neue Bestien */
+    ok(`v1.90.31: keine der 16 neuen Fassungen ist so schlank, dass die Hoehenklammer ihr Band schmaler macht (zu hoch: ${zuGross.join(", ") || "keine"}), die Blutmagd traegt Rot`,
       zuGross.length === 0 && BOSSES.find((b) => b.id === "b16").accent === "#dc2626" && SB5["boss-b08"].tellerVonHand === true);
     /* v1.90.32: die Eisenfaust (v1.90.29) war die letzte, deren Band die
        Hoehenklammer schmaler machte (95 % der Nachbarn) - 6 % gestaucht. Jetzt
@@ -285,14 +286,18 @@ const piece = (x = {}) => ({ id: 1, kind: "Q", color: "w", level: 1, abilities: 
        gutes ... wenn man alle Wege spielt, alle Monster kaufen koennen." */
     {
       const preise = BOSSES.map((b) => [b, monsterBestechPreis(b)]);
-      ok(`v1.90.33: der Bestechpreis folgt der Zahl der Faehigkeiten und liegt bei 1200-2400 (Geist ${monsterBestechPreis(BOSSES.find((b) => b.id === "b07"))}, Hetzer ${monsterBestechPreis(BOSSES.find((b) => b.id === "b02"))}, Bollwerk ${monsterBestechPreis(BOSSES.find((b) => b.id === "b06"))})`,
-        preise.every(([b, p]) => p >= 1200 && p <= 2400 && p === MONSTER_PREIS_STUFEN[b.abilities.length])
+      ok(`v1.90.33: der Bestechpreis folgt der Zahl der Faehigkeiten und liegt bei 800-1600 (seit v1.91.0; Geist ${monsterBestechPreis(BOSSES.find((b) => b.id === "b07"))}, Hetzer ${monsterBestechPreis(BOSSES.find((b) => b.id === "b02"))}, Bollwerk ${monsterBestechPreis(BOSSES.find((b) => b.id === "b06"))})`,
+        preise.every(([b, p]) => p >= 800 && p <= 1600 && p === MONSTER_PREIS_STUFEN[b.abilities.length])
         && preise.every(([a, pa]) => preise.every(([b, pb]) => a.abilities.length <= b.abilities.length || pa >= pb))
-        && monsterBestechPreis(BOSSES.find((b) => b.id === "b07")) === 1200 && monsterBestechPreis(BOSSES.find((b) => b.id === "b06")) === 2100);
-      const gewoehnlich = BOSSES.filter((b) => !KAPITEL_TROPHAEE33.includes(b.id));
-      const summe = gewoehnlich.reduce((s, b) => s + monsterBestechPreis(b), 0);
-      ok(`v1.90.33: die 14 Bestien ohne Kapitel (mit dem Richter) kosten zusammen ${summe} Gold - unter der Haelfte der 53613, die alle Wege einbringen`,
-        gewoehnlich.length === 14 && summe < 53613 / 2);
+        && monsterBestechPreis(BOSSES.find((b) => b.id === "b07")) === 800 && monsterBestechPreis(BOSSES.find((b) => b.id === "b06")) === 1400);
+      /* v1.91.0: 30 kaeufliche (28 Bestien, Morwen, Thalor) statt 14. Der Ertrag
+         wird hier GERECHNET (stageGold ueber alle Stationen + 2 je Sieg), nicht
+         mehr als feste Zahl gefuehrt - er aendert sich mit jeder Kampagne. */
+      const kaeuflich = BOSSES.filter((b) => istBestechlich(b.id));
+      const summe = kaeuflich.reduce((s, b) => s + monsterBestechPreis(b), 0);
+      const ertrag = CAMPAIGN.filter((n) => n.league <= 12).reduce((s, n) => s + stageGoldUi(n, n.league) + 2, 0);
+      ok(`v1.91.0: die ${kaeuflich.length} kaeuflichen Bestien und Meister kosten zusammen ${summe} Gold - hoechstens zwei Drittel der ${ertrag}, die alle Wege einbringen`,
+        kaeuflich.length === 30 && summe <= ertrag * 2 / 3 && !istBestechlich("b35") && !istBestechlich("b36") && KAPITEL_TROPHAEE33.every((id) => !istBestechlich(id)));
       const armySrc = readFileSync("src/app/ui/screens/ArmyScreen.jsx", "utf8"), strSrc = readFileSync("src/app/i18n/strings.js", "utf8"), frSrc = readFileSync("src/meta/freigaben.js", "utf8");
       ok("v1.90.33: das Opfer ist fort - keine Opferwahl mehr im Hofstaat, kein Opfer in den Texten, dafuer eine Rueckfrage vor dem Kauf",
         !/pickSacrifice|noCrown|sacrificeFor|MONSTER_BRIBE_GOLD/.test(armySrc) && !/Opfer einer Kron|sacrifice of a crown|pickSacrifice|noCrown/.test(strSrc + frSrc)
@@ -319,7 +324,9 @@ const piece = (x = {}) => ({ id: 1, kind: "Q", color: "w", level: 1, abilities: 
       makeT("de")("tree.figuren") === "FIGUREN" && makeT("de")("tree.masters") === "BESTIEN" && makeT("en")("tree.masters") === "BEASTS" && makeT("de")("tree.crown") === "tree.crown" && /\[\.\.\.CROWN_IDS, \.\.\.SHADOW_IDS\]\.filter/.test(hofQ));
     ok("v1.90.25: am Blatt steht 'Bestien' oder 'Großmeister', keine Familie mehr",
       monsterHaus({ id: "b22", art: "beast" }, false) === "Bestien" && monsterHaus({ id: "b01", art: "golem" }, false) === "Bestien"
-      && monsterHaus({ id: "b25", art: "tyrant" }, false) === "Großmeister" && monsterHaus({ id: "b25" }, true) === "Grandmaster");
+      && monsterHaus({ id: "b36", art: "tyrant" }, false) === "Großmeister" && monsterHaus({ id: "b36" }, true) === "Grandmaster"
+      /* v1.91.0: die alten Meister sind Bestien - auch der Steinkoenig (b25), das alte Osric-Bild */
+      && monsterHaus({ id: "b25", art: "tyrant" }, false) === "Bestien" && monsterHaus({ id: "b12", art: "tyrant" }, false) === "Bestien");
     /* ── DAS ZUGBILD IST ABZAEHLBAR, DIE STARTSEITE ZEIGT DAS ECHTE SPIEL ────
        Besitzer 3.10. am Springer: "das ist doch nicht richtig, was du da
        darstellst - eins, zwei geradeaus und eins schraeg." Das L stimmte; die
@@ -1060,7 +1067,7 @@ const erloschen = (m) => m.includes("#2f2a3d");
   ok("Krone: Medaillon, Geleit: Schild, Konzil: Banner, Schatten: Siegel",
     formFuer({ charId: "king" }) === "medaillon" && formFuer({ charId: "knight" }) === "schild" && formFuer({ charId: "queen" }) === "banner" && formFuer({ charId: "mage" }) === "siegel");
   ok("Grossmeister: Medaillon, Gemaeuer: Schild, Gesindel: Banner, Brut: Siegel, Drache: Siegel",
-    formFuer({ bossId: "b12" }) === "medaillon" && formFuer({ bossId: "b01" }) === "schild" && formFuer({ bossId: "b04" }) === "banner" && formFuer({ bossId: "b03" }) === "siegel" && formFuer({ charId: "dragon" }) === "siegel");
+    formFuer({ bossId: "b26" }) === "medaillon" && formFuer({ bossId: "b01" }) === "schild" && formFuer({ bossId: "b04" }) === "banner" && formFuer({ bossId: "b03" }) === "siegel" && formFuer({ charId: "dragon" }) === "siegel");
   const m = html(<StufenAbzeichen form="medaillon" stufe={10} maxStufe={10} farbe="#05479e" />);
   ok("auf Zehn: goldenes Medaillon mit Lorbeer", m.includes('data-metall="gold"') && m.includes('data-lorbeer="1"') && m.includes("#sa-medaillon") && m.includes("#sa-zier-gold"));
   const sch10 = html(<StufenAbzeichen form="schild" stufe={10} farbe="#9e1d05" />);
@@ -2936,7 +2943,7 @@ print(json.dumps({"gezaehlt": gezaehlt, "schlecht": schlecht}))
     for (const mv of kernZuege(st, MIT)) { const df = (mv.to % W) - 4, dr = Math.floor(mv.to / W) - 4; if (Math.abs(df) <= R && Math.abs(dr) <= R) kern.add(`${df},${dr}`); }
     const sp = specForKind(ch.kind, ch.moveSpec); const bild = new Set();
     if (sp) {
-      const rng = Math.min(sp.range || 1, R);
+      const rng = Math.min(sp.range || 99, R);   /* v1.91.0: wie der Kern - ohne Angabe beliebig weit */
       for (const [df, dr] of sp.slides || []) for (let k = 1; k <= rng; k++) bild.add(`${df * k},${dr * k}`);
       for (const [df, dr] of sp.leaps || []) if (Math.abs(df) <= R && Math.abs(dr) <= R) bild.add(`${df},${dr}`);
     }
@@ -3020,6 +3027,55 @@ print(json.dumps({"gezaehlt": gezaehlt, "schlecht": schlecht}))
   ok("Stationsfenster: nimmt die Hoehe, die der Inhalt braucht (bis zum ganzen Rahmen)",
     cs34.includes("const PANEL_HOCH = Math.max(180, frameH - LEISTE - 22)") && !cs34.includes("maxHeight: Math.max(180, platzUnten)"));
   ok("Stationsfenster: der Gefolge-Kasten schreibt hell auf dunkel", cs34.includes('color: erfolg ? "#f6e3b0" : PP.dim') && !cs34.includes('erfolg ? "#5a4210"'));
+}
+
+
+/* ══ v1.91.0: DER FIGUREN-UMBAU AM BAUTEIL ═════════════════════════════════════ */
+{
+  const { BundZeile, DRACHE_KACHEL, HofKachel } = await import("./src/app/ui/screens/ArmyScreen.jsx");
+  const { CHAR_VON_ART, CHARACTERS: CH91, auraText: aura91, LEAGUE_BOSSES: GM91 } = await import("./src/content/index.js");
+  const M91 = await import("./src/meta/index.js");
+  /* der Bund im Blatt: ein Stand, der Bettler und Baeuerin hat, den Narren nicht */
+  /* halb durch Kapitel I: die hintere Reihe ist frei (Freigabe "hinterereihe") - vorher schlafen alle Buende */
+  const basis91 = M91.withProgressPct(M91.defaultProfile(), 60, 1);
+  const mitZwei = { ...basis91, campaign: { ...basis91.campaign, unlocked: ["beggar", "farmwife"] },
+    loadout: { formations: { classic: ["rook", "beggar", "bishop", "queen", "king", "bishop", "knight", "rook"] } } };
+  const zeile = html(<BundZeile charId="beggar" profile={mitZwei} en={false} />);
+  ok("v1.91.0: das Blatt des Bettlers zeigt seinen Bund - Name, Regel, die drei Figuren",
+    zeile.includes('data-bundzeile="dorf"') && zeile.includes("Dorf") && zeile.includes("2 Gold") && (zeile.match(/data-bundfigur=/g) || []).length === 3);
+  ok("v1.91.0: ... wer fehlt, wird nicht verraten ('noch nicht dein'), und der Bund schlaeft (1 von 3 aufgestellt)",
+    zeile.includes("noch nicht dein") && !zeile.includes("Hofnarr") && zeile.includes('data-wach="0"') && /1 von 3 aufgestellt/.test(zeile));
+  const alleDrei = { ...mitZwei, campaign: { ...mitZwei.campaign, unlocked: ["beggar", "farmwife", "jester"] },
+    loadout: { formations: { classic: ["rook", "beggar", "farmwife", "queen", "king", "jester", "knight", "rook"] } } };
+  ok("v1.91.0: stehen alle drei in der Aufstellung, wirkt er - und das Gefecht bekommt ihn",
+    html(<BundZeile charId="jester" profile={alleDrei} en={false} />).includes('data-wach="1"')
+    && M91.meineBuende(alleDrei, M91.aufgestellteIds(alleDrei)).includes("dorf") && !M91.meineBuende(mitZwei, M91.aufgestellteIds(mitZwei)).includes("dorf"));
+  ok("v1.91.0: Bauer und Drache haben keinen Bund - das Blatt zeigt keine Zeile", html(<BundZeile charId="pawn" profile={mitZwei} en={false} />) === "" && html(<BundZeile charId="dragon" profile={mitZwei} en={false} />) === "");
+  /* die Kachel: Rufname der Grossmeister, groesserer Drache */
+  const varek = html(<HofKachel img={PAINTED["boss-b27"]} name="Varek, der Schwarze Ritter" bossId="b27" meister rang="Großmeister" />);
+  ok("v1.91.0: die Kachel eines Grossmeisters traegt den Rufnamen, nicht den abgeschnittenen Beinamen", varek.includes(">Varek<") && !varek.includes("Schwarze"));
+  const drache = html(<HofKachel img={PAINTED.dragon} name="Drache" artId="dragon" kind="D" />);
+  ok(`v1.91.0: der Drache steht auf der Kachel um ein Fuenftel groesser (--skala ${DRACHE_KACHEL}), am Brett bleibt er`,
+    DRACHE_KACHEL === 1.2 && drache.includes("--skala:1.200") && !readFileSync("src/app/ui/board/paintedArt.js", "utf8").includes("DRACHE_KACHEL"));
+  /* Namen im Gefecht und Erfahrung: jede Art kennt ihre Figur */
+  ok("v1.91.0: jede Art fuehrt zu ihrer Figur (CHAR_VON_ART) - 'Figur gefallen' gibt es fuer keine mehr",
+    Object.values(CH91).filter((c) => c.id !== "gambit").every((c) => CHAR_VON_ART[c.kind] === c.id) && CHAR_VON_ART.P === "pawn");
+  const gs = readFileSync("src/app/ui/screens/GameScreen.jsx", "utf8"), as = readFileSync("src/app/ui/screens/ArmyScreen.jsx", "utf8");
+  ok("v1.91.0: der Kampfschirm zahlt das Zubrot aus und nennt im Banner, woher das Gold kam",
+    /summary\.zubrot = zubrot\(\{ heer: playerArmy/.test(gs) && /data-zubrot/.test(gs) && /if \(!pvp && !daily && !classic\) \{\s*const wach/.test(gs));
+  ok("v1.91.0: der Fallensteller bringt seine Baerenfalle nur ins HP-Gefecht mit",
+    /rules === "hp" && \[\.\.\.\(playerArmy\?\.back \|\| \[\]\)\]\.some\(\(sp\) => sp && \(sp\.abilities \|\| \[\]\)\.includes\("fallenkunde"\)\)\) g\.baerenfalle = 1/.test(gs));
+  ok("v1.91.0: das Blatt eines Grossmeisters nennt seine Aura", /data-aura=\{b\.aura\.type\}/.test(as) && GM91.every((id) => aura91(BOSSES.find((b) => b.id === id).aura, false)));
+  /* jede neue Figur und jeder neue Boss hat Gemaelde, Kleinfassung, Sockelmass, Farbe, Kulisse */
+  const neu24 = ["farmwife", "beggar", "jester", "smith", "craftsman", "scholar", "taxman", "banker", "butcher", "cook", "miller", "monk", "healer",
+    "huntress", "ranger", "trapper", "cavalier", "fencer", "spearman", "gladiator", "executioner", "samurai", "jailer", "watchman"];
+  const neuB = Array.from({ length: 18 }, (_, i) => "boss-b" + (26 + i));
+  const sb91 = JSON.parse(readFileSync("src/app/ui/board/sockelband.json", "utf8"));
+  const fehlt = [...neu24, ...neuB].filter((id) => !PAINTED[id] || !sb91[id] || !existsSync(`src/app/ui/assets/painted/klein/${id}.webp`) && !existsSync(`src/app/ui/assets/painted/klein/painted-${id}.webp`));
+  ok(`v1.91.0: 24 neue Figuren und 18 neue Meister/Bestien tragen Gemaelde und Sockelmass (es fehlt: ${fehlt.join(", ") || "nichts"})`, fehlt.length === 0);
+  const { kulisseFuer: kf91 } = await import("./src/app/ui/kulissen.js");
+  ok("v1.91.0: jede neue Figur traegt die Kulisse ihres Bundes, jeder Grossmeister seine eigene",
+    neu24.every((id) => /bund-/.test(String(kf91({ charId: id })))) && new Set(GM91.map((id) => String(kf91({ bossId: id })))).size === GM91.length);
 }
 
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);

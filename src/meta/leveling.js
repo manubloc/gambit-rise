@@ -413,7 +413,14 @@ export const bossLevelOf = (profile, bossId) => Math.max(1, Math.min(BOSS_MAX_LE
    mit den sieben Grossmeistern, die man ohnehin durch den Kapitelsieg bekommt
    und nur vorab kaufen KANN, sind es 36300 (Probe in test_ui). "Man sollte,
    wenn man alle Wege spielt, alle Monster kaufen koennen." */
-export const MONSTER_PREIS_STUFEN = [1200, 1200, 1500, 1800, 2100, 2400];
+/* v1.91.0: DOPPELT SO VIELE BESTIEN, ALSO ZWEI DRITTEL DES PREISES. Mit dem
+   Figuren-Umbau sind aus 14 kaeuflichen Monstern 30 geworden (28 Bestien,
+   Morwen, Thalor). GEMESSEN zu den alten Preisen: zusammen 48300 Gold bei
+   53967 Gold, die alle Wege einbringen - 89 %. "Alle kaufen koennen" haette
+   nur noch gestimmt, wer nie einen Trank, eine Mauer oder eine Maut bezahlt.
+   Jetzt 800 bis 1600 (dieselbe Staffel nach Faehigkeiten): zusammen 32200,
+   60 % des Ertrags aller Wege. */
+export const MONSTER_PREIS_STUFEN = [800, 800, 1000, 1200, 1400, 1600];
 export const monsterBestechPreis = (b) => MONSTER_PREIS_STUFEN[Math.max(0, Math.min(5, (b?.abilities || []).length))];
 export const bossUpgradeCost = (level) => 1 + 2 * level;   // 2->3, 3->5, 4->7, 5->9
 /* ── DAS ZIELPROFIL JEDER MONSTERART (v1.23.0, Besitzer) ─────────────────────
@@ -437,13 +444,13 @@ export const bossUpgradeCost = (level) => 1 + 2 * level;   // 2->3, 3->5, 4->7, 
 export const BOSS_BUDGET = 24;
 export const ZIEL_PROFIL_BOSS = {
   b14: [21, 3], b20: [20, 4], b06: [20, 4], b01: [19, 5],
-  b03: [17, 7], b17: [17, 7], b25: [16, 8], b12: [16, 8], b24: [16, 8],
-  b18: [12, 12], b23: [12, 12], b21: [13, 11], b16: [11, 13], b08: [10, 14],
+  b03: [17, 7], b17: [17, 7], b25: [20, 4], b12: [16, 8], b24: [16, 8],
+  b18: [20, 4], b23: [20, 4], b21: [13, 11], b16: [11, 13], b08: [15, 9],
   b11: [8, 16], b04: [8, 16], b05: [9, 15], b02: [18, 6], b19: [7, 17], b09: [6, 18], b15: [17, 7], b22: [5, 19], b13: [5, 19], b07: [16, 8],
   /* v1.91.0: die dreizehn neuen Grossmeister und fuenf neuen Bestien */
   b26: [18, 6], b27: [17, 7], b28: [16, 8], b29: [20, 4], b30: [15, 9], b31: [21, 3], b32: [17, 7], b33: [16, 8],
   b34: [21, 3], b35: [18, 6], b36: [19, 5], b37: [17, 7], b38: [21, 3],
-  b39: [20, 4], b40: [16, 8], b41: [14, 10], b42: [20, 4], b43: [13, 11],
+  b39: [20, 4], b40: [20, 4], b41: [18, 6], b42: [20, 4], b43: [13, 11],
 };
 /* ── v1.26.1: DAS MONSTER WAECHST IN SEINE WERTE HINEIN ────────────────────
    Besitzer: "Warum haben die Monster schon von Beginn an so viel Leben? Das

@@ -124,14 +124,25 @@ Das „Erwachen“ (erste HP-Station, Kapitel II) bekommt eine Figur statt des H
 - Figuren 576 px: siehe Tabelle `QUELLEN` in `tools/figuren-einbau.py` (wird mit dem Einbau angelegt).
 - Kulissen 832×1248: `$S/kulissen/<bund>-1.png` (8 Bünde), `$S/kulissen/m/<meister>-1.png` (8).
 
-## Fortschritt (abhaken!)
-- [ ] S1 Fundament: charId an den Figuren, Bünde je Seite, Regel „ab Aufstellung“, Freigabe, codec, Gezeiten
-- [ ] S2 Figuren: Arten/Werte/Zugbilder/Leitern, Fähigkeiten (4 neue), Bilder, Glyphen, Listen, standard raus
-- [ ] S2b Bünde: 8 neue (Inhalt, Kern, Kulissen, Zeichen), Nachtwache neu
-- [ ] S3 Bosse: 18 neue Einträge, Umbenennungen, Klassen, b10 raus, Bilder, Kulissen, Stimmen, Chronik
-- [ ] S4 Kampagne: Generator (Figuren-/Bestientabellen), Neubau, Drachenhalle
-- [ ] S5 Wanderung alter Spielstände + Schutz gegen unbekannte ids
-- [ ] S6 Auszahlung (Gold/Erfahrung), Bund-Zeile im Blatt, Drache auf der Karte
-- [ ] S7 Balance messen (tools/balance.mjs reif), STAERKE eintragen, nachstellen
-- [ ] S8 Proben, eiserne Kette, Reinraum, CLAUDE.md, Changelog, Version, Push, Live-Abnahme
-- [ ] S9 Übersicht für den Besitzer (Figuren, Züge, Fähigkeiten)
+## Was beim Bau anders kam als geplant (6.10., abends)
+
+- **Figurenstationen in Kapitel I und II stehen NEBEN der Dame** (Platz des
+  Damenspringers), nicht an ihrer Stelle - sonst zwanzig Stationen ohne Dame.
+- **Almosen:** Deckel 8/12/16 mal Kapitelstaffel statt 20/30/40 fest (haette das
+  Gold von Kapitel I fast verdoppelt). Zehnt nutzt dieselbe Staffel.
+- **Bestechpreise** 800-1600 statt 1200-2400 (30 statt 14 kaeufliche; 89 % -> 60 %
+  des Goldes aller Wege).
+- **Jeder Grossmeister traegt eine Aura** (vier hatten keine): Zahir und Malrik
+  +1 Leben fuer den Hof, Seraphine Schutz daneben, Asra Regeneration fuer den Hof.
+- **Sechs Bestien nachgestellt** (ueber 60 % im reifen Lauf): Strahlengoetze
+  (20/4, Schrecken + Gift), Eisenfaust (20/4, Aderlass + Wegelagerei), Steinkoenig
+  (20/4), Harpyie (18/6), Kanonier (15/9, Wegelagerei + Schrecken), Weberin (20/4).
+- Die Wanderung setzt auf dem Damenplatz die Dame zurueck, wenn dort ein
+  herabgestufter Meister stand (er darf als Bestie nur noch auf freie Plaetze).
+- Offen geblieben: siehe CLAUDE.md "Nach dem Figuren-Umbau offen".
+
+## Fortschritt
+- [x] S1 Fundament · [x] S2 Figuren · [x] S2b Buende · [x] S3 Bosse · [x] S4 Kampagne
+- [x] S5 Wanderung · [x] S6 Auszahlung, Bund im Blatt, Drache auf der Karte
+- [x] S7 Balance (zwei reife Laeufe, STAERKE eingetragen) · [x] S8 Proben und Doku
+- [x] S9 Uebersicht (`tools/uebersicht-fotos.mjs`)

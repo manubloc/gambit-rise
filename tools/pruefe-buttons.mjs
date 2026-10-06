@@ -131,7 +131,7 @@ for (const f of dateien) {
 {
   const land = readFileSync("public/landing.html", "utf8");
   if (/\bLigen?\b|zehn Ligen/.test(land)) funde.push("Landingpage nennt noch Ligen statt Kapitel");
-  if (/26 Helden/.test(land)) funde.push("Landingpage nennt eine veraltete Heldenzahl");
+  if (/2[67] Helden|25 Bestien|13 Monster/.test(land + readFileSync("index.html", "utf8"))) funde.push("Landingpage oder index.html nennt eine veraltete Helden- oder Bestienzahl (v1.91.0: 50 Helden, 42 Bestien)");
   const dat = readFileSync("public/privacy.html", "utf8");
   const nut = readFileSync("public/terms.html", "utf8");
   const pushImCode = readFileSync("src/app/ui/screens/OnlineScreen.jsx", "utf8").includes("pushManager");

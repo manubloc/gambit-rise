@@ -224,7 +224,21 @@ export function figurenUmbau(p) {
   }
 
   /* Aufstellungen und Faecher */
-  const ersetze = (f) => (Array.isArray(f) ? f.map((e) => (e === "standard" ? "watchman" : e === "boss:b10" ? "queen" : e)) : f);
+  /* Die herabgestuften Meister duerfen als Bestien nur noch auf freie Plaetze
+     (formationLegalOn) - wer einen von ihnen auf dem DAMENPLATZ stehen hatte,
+     bekommt dort die Dame zurueck, sonst waere die ganze Aufstellung ungueltig
+     und fiele auf die Grundstellung. */
+  const ersetze = (f) => {
+    if (!Array.isArray(f)) return f;
+    const dame = Math.floor(f.length / 2) - 1;
+    return f.map((e, i) => {
+      if (e === "standard") return "watchman";
+      if (typeof e !== "string" || !e.startsWith("boss:")) return e;
+      const id = e.slice(5);
+      if (!bossById(id)) return "queen";
+      return i === dame && !LEAGUE_BOSSES.includes(id) ? "queen" : e;
+    });
+  };
   const lo = { ...(p.loadout || {}) };
   if (lo.formations) lo.formations = Object.fromEntries(Object.entries(lo.formations).map(([k, f]) => [k, ersetze(f)]));
   if (Array.isArray(lo.formation)) lo.formation = ersetze(lo.formation);

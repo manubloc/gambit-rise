@@ -9,8 +9,8 @@ import { WHITE, BLACK, createGame, reduce, moveCommand, potionCommand, shiftComm
   SPERR_ARTEN, MAX_SPERREN, setzFelder as sperrFelder, setzeSperre, nimmSperre, sperrenAnzahl,
   /* v1.90.9 (Audit A32): die Fallen. Dieselbe Setzphase, andere Regeln. */
   FALLEN_ARTEN, MAX_FALLEN, fallenFelder, legeFalle, nimmFalle, fallenAnzahl } from "../../../core/index.js";
-import { difficultyById, mapById, MAPS, campaignTag, chapterForRow, CHARACTERS as CHARACTERS_BY_ID, voiceFor, ITEMS, KIND_TO_CHAR, nodeById } from "../../../content/index.js";
-import { buildArmy, buildAiArmyForMap, buildArmyFromFormation, hasForesight, applyResult, summarizeMatch, mapUnlocked, hpUnlocked, winGold, characterLevel, gambitTier, itemRevealed, clearedCount, SP_VAULT_MIN_CLEARED, meineBuende as meineBuendeFuer, finaleGrundreihe } from "../../../meta/index.js";
+import { difficultyById, mapById, MAPS, campaignTag, chapterForRow, CHARACTERS as CHARACTERS_BY_ID, voiceFor, ITEMS, KIND_TO_CHAR, CHAR_VON_ART, nodeById } from "../../../content/index.js";
+import { buildArmy, buildAiArmyForMap, buildArmyFromFormation, hasForesight, applyResult, summarizeMatch, mapUnlocked, hpUnlocked, winGold, characterLevel, gambitTier, itemRevealed, clearedCount, SP_VAULT_MIN_CLEARED, meineBuende as meineBuendeFuer, finaleGrundreihe, zubrot } from "../../../meta/index.js";
 import { chooseMove } from "../../../ai/index.js";
 import { T } from "../theme.js";
 import { groundArt, livery } from "../livery.js";
@@ -367,10 +367,26 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
      waeren zwei Bedienungen fuer eine Handlung. Unterschieden wird an der
      Art: was in FALLEN_ARTEN steht, ist eine Falle. */
   const istFalle = (art) => !!FALLEN_ARTEN[art];
+  /* v1.91.0: WAS DAS HEER MITBRINGT. Der Bund WERKSTATT (Schmied und
+     Handwerker) stellt je Partie einen Zaun, der FALLENSTELLER (Fallenkunde)
+     vor jedem HP-Gefecht eine Baerenfalle - beides liegt im selben Vorrat wie
+     das Gekaufte, wird aber beim Abrechnen nicht vom Besitz abgezogen. */
+  const geschenkt = useMemo(() => {
+    const g = {};
+    if (pvp || daily || hotseat || classic) return g;
+    if ((meineBuende.w || []).includes("werkstatt")) g.zaun = 1;
+    if (rules === "hp" && [...(playerArmy?.back || [])].some((sp) => sp && (sp.abilities || []).includes("fallenkunde"))) g.baerenfalle = 1;
+    return g;
+  }, [meineBuende, playerArmy, rules]);   // eslint-disable-line
+  const ohneGeschenk = (zaehlung) => {
+    const z = { ...zaehlung };
+    for (const [art, n] of Object.entries(geschenkt)) if (z[art]) { z[art] = Math.max(0, z[art] - n); if (!z[art]) delete z[art]; }
+    return z;
+  };
   const [vorrat, setVorrat] = useState(() => {
     const v = {};
     if (sperrenErlaubt) for (const art of [...Object.keys(SPERR_ARTEN), ...Object.keys(FALLEN_ARTEN)]) {
-      const n = profile.items?.[art] || 0;
+      const n = (profile.items?.[art] || 0) + (geschenkt[art] || 0);
       if (n > 0) v[art] = n;
     }
     return v;
@@ -385,7 +401,7 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
     const z = {};
     for (const sp of Object.values(state.sperren || {})) if (sp?.von === WHITE) z[sp.art] = (z[sp.art] || 0) + 1;
     for (const f of Object.values(state.fallen || {})) if (f?.von === WHITE) z[f.art] = (z[f.art] || 0) + 1;
-    return z;
+    return ohneGeschenk(z);
   })());
   const vorratLeer = Object.values(vorrat).every((n) => !n);
   /* Die Felder kommen aus dem Regelwerk, nicht aus dem Schirm: dieselbe
@@ -474,7 +490,7 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
     /* v1.90.9 (A32): gelegte Fallen kosten genauso - wer nichts legt, zahlt
        nichts, aber was liegt, ist verbraucht. */
     for (const f of Object.values(state.fallen || {})) if (f?.von === WHITE) zaehlung[f.art] = (zaehlung[f.art] || 0) + 1;
-    sperrenVerbrauchtRef.current = zaehlung;
+    sperrenVerbrauchtRef.current = ohneGeschenk(zaehlung);   /* v1.91.0: Geschenktes kostet nichts */
     setSetzen(false);
   }
   function usePotion(i) {
@@ -598,7 +614,7 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
     const lm = state.lastMove;
     if (!lm || finished.current) return;
     const wer = (kind) => {
-      const ch = CHARACTERS_BY_ID[KIND_TO_CHAR[kind]];
+      const ch = CHARACTERS_BY_ID[CHAR_VON_ART[kind]];   /* v1.91.0: alle Arten - vorher hiess jede Figur ausserhalb der Standardreihe nur "Figur" */
       return ch ? (en ? ch.nameEn : ch.nameDe) : (en ? "Piece" : "Figur");
     };
     /* v1.1.2 (Besitzeridee): "Man koennte dieses Aufloesen der Perle immer mit
@@ -756,6 +772,16 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
       : campaign ? (match.firstClear ? (match.gold || 0) : match.friendly ? Math.max(3, Math.round((match.gold || 0) * 0.15)) : 0)
       : pvp ? 6
       : winGold(difficulty);
+    /* v1.91.0: DAS ZUBROT (meta/zubrot.js) - Almosen, Zins, Zehnt, Studium und
+       die Buende Dorf und Kontor. Nur gegen die KI und nur mit dem eigenen
+       Hof: im Duell, im Tagesraetsel und im reinen Schach steht kein eigenes
+       Heer auf dem Brett. */
+    if (!pvp && !daily && !classic) {
+      const wach = state.buende && !Array.isArray(state.buende) ? (state.buende[myColor] || []) : (state.buende || []);
+      summary.zubrot = zubrot({ heer: playerArmy, buende: wach, eigeneZuege: summary.eigeneZuege,
+        bauernUebrig: summary.bauernUebrig, result, resigned: summary.resigned, gold: summary.gold,
+        liga: campaign ? (match.league || profile.campaign?.league || 1) : 1 });
+    }
     const { profile: next, gained } = applyResult(profile, summary);
     // every rung climbed this battle becomes a tale: which piece learned what
     const lessons = [];
@@ -2070,6 +2096,13 @@ function ResultBanner({ banner, t, onNew, campaign = false, onExit = null, onSet
           {g.beute ? <Chip color={g.beute > 0 ? "#17110a" : "#ffe3de"} bg={g.beute > 0 ? "#e8c96a" : "#7a2a22"}>
             <GoldCoin size={12} /> {g.beute > 0 ? "+" + g.beute : g.beute} {t("banner.beute." + (g.beute > 0 ? "plus" : "minus"))}</Chip> : null}
           {g.newAchievements.length > 0 && <Chip color={T.gold} bg={T.panel2}>★ {g.newAchievements.length}</Chip>}
+        </div>}
+        {/* v1.91.0: woher das Gold kam - Almosen, Zins, Zehnt, Dorf, Kontor (im
+            Betrag oben schon enthalten) und was das Studium an Erfahrung gab */}
+        {!banner.hotseat && g.zubrot && (g.zubrot.gold > 0 || g.studiert > 0) && <div data-zubrot style={{ fontSize: 11.5, color: T.dim, margin: "-6px 0 10px", lineHeight: 1.45, ...tritt(2) }}>
+          {[["almosen", en ? "Alms" : "Almosen"], ["zins", en ? "Interest" : "Zins"], ["zehnt", en ? "Tithe" : "Zehnt"], ["dorf", en ? "Village" : "Dorf"], ["kontor", en ? "Counting house" : "Kontor"]]
+            .filter(([k]) => g.zubrot[k] > 0).map(([k, name]) => `${name} +${g.zubrot[k]}`)
+            .concat(g.studiert > 0 ? [`${en ? "Study" : "Studium"} +${g.studiert} ${en ? "XP" : "Erfahrung"}`] : []).join(" · ")}
         </div>}
         {leveled && <div style={{ color: T.lime, fontWeight: 800, marginBottom: 12, ...tritt(3) }}>
           {anAn && <span aria-hidden style={{ display: "inline-block", marginRight: 6, color: T.gold,

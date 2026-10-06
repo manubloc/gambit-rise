@@ -1,5 +1,5 @@
 import { WHITE, replay, createGame, other } from "../core/index.js";
-import { KIND_TO_CHAR } from "../content/index.js";
+import { CHAR_VON_ART as KIND_TO_CHAR } from "../content/index.js";   /* v1.91.0: alle Arten, nicht nur die zehn der Standardreihe */
 
 // XP a player character earns from a match (event-sourced, see below).
 const PARTICIPATION = 12, CAP_XP = 10, PROMO_XP = 15;
@@ -13,11 +13,11 @@ export function newSession(playerColor = WHITE, playerArmy = null) {
   const charXpGains = {};
   if (playerArmy) {
     const present = new Set(["pawn"]);
-    for (const spec of playerArmy.back) { const id = KIND_TO_CHAR[spec.kind]; if (id) present.add(id); }
+    for (const spec of playerArmy.back) { if (!spec) continue; const id = spec.bossId ? null : (spec.charId || KIND_TO_CHAR[spec.kind]); if (id) present.add(id); }
     if (playerArmy.hero) present.add("gambit"); // the commander always fights
     present.forEach((id) => { charXpGains[id] = PARTICIPATION; });
   }
-  return { playerColor, captures: 0, promotions: 0, lostQueen: false, checkmate: false, moveCount: 0, charXpGains, heroFell: false, heroCaptures: 0 };
+  return { playerColor, captures: 0, promotions: 0, lostQueen: false, checkmate: false, moveCount: 0, eigeneZuege: 0, charXpGains, heroFell: false, heroCaptures: 0 };
 }
 
 /** Fold a batch of core events into the session. */
@@ -26,6 +26,7 @@ export function applyEvents(session, events) {
     switch (e.type) {
       case "moved":
         session.moveCount++;
+        if (e.color === session.playerColor) session.eigeneZuege = (session.eigeneZuege || 0) + 1;   /* v1.91.0: fuer das Almosen (zubrot.js) */
         break;
       case "captured":
         if (e.by === session.playerColor) {
@@ -64,6 +65,7 @@ export function summarize(session, result) {
     checkmate: result === "win" && session.checkmate,
     lostQueen: session.lostQueen,
     moveCount: session.moveCount,
+    eigeneZuege: session.eigeneZuege || 0,
     heroCaptures: session.heroCaptures,
     heroSurvived: !session.heroFell,
     charXpGains: session.charXpGains,
@@ -89,5 +91,8 @@ export function summarizeMatch(playerArmy, aiArmy, seed, log, result, playerColo
   /* v1.30.0: WEGELAGEREI - was jede Seite geraubt hat, steht im Endzustand;
      die Zusammenfassung traegt den Saldo aus Sicht des Spielers. */
   const beute = (ende && ende.beute) || {};
-  return { ...summarize(session, result), beute: (beute[playerColor] || 0) - (beute[other(playerColor)] || 0) };
+  /* v1.91.0: wie viele eigene Bauern am Ende noch stehen (Bund Dorf, zubrot.js) */
+  let bauernUebrig = 0;
+  for (const f of (ende && ende.board) || []) if (f && f.kind === "P" && f.color === playerColor) bauernUebrig++;
+  return { ...summarize(session, result), bauernUebrig, beute: (beute[playerColor] || 0) - (beute[other(playerColor)] || 0) };
 }

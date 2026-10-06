@@ -473,5 +473,151 @@ console.log("\n== A33: GELEIT UND FAEHRTE ENTBLOESSEN DEN KOENIG NICHT ==");
     /inCheck\(ns, ns\.lastMove\.color\)/.test(tr));
 }
 
+
+/* ══ v1.91.0: DIE ACHT NEUEN BUENDE (Besitzer 6.10.) ═══════════════════════════
+   Derselbe Vierklang. Fuenf wirken am Brett (Kueche, Turnier, Kloster, Jagd,
+   Finsternis), drei neben dem Kampf: Dorf und Kontor zahlen aus (zubrot.js),
+   die Werkstatt stellt einen Zaun (Setzphase im Kampfschirm). */
+const { zubrot } = await import("./src/meta/index.js");
+const heerMit = (ids) => {
+  const f = ["rook", "knight", "bishop", "queen", "king", "bishop", "knight", "rook"];
+  const frei = [0, 1, 2, 5, 6, 7];
+  ids.forEach((id, i) => { f[frei[i]] = id; });
+  return buildArmyFromFormation(() => 10, f);
+};
+const partieMit = (ids, buende) => createGame(heerMit(ids), heerMit([]), { rules: "hp", map: mapById("classic"), buende: { w: buende, b: [] } });
+
+console.log("\n== KUECHE (Metzger · Koch · Mueller) ==");
+{
+  erwachen("kueche");
+  const ids = ["butcher", "cook", "miller"];
+  const mit = partieMit(ids, ["kueche"]), ohne = partieMit(ids, []);
+  const hp = (g, id) => g.board[wo(g, id)].maxHp;
+  ok("WIRKUNG: alle drei starten mit einem Leben mehr", ids.every((id) => hp(mit, id) === hp(ohne, id) + 1 && mit.board[wo(mit, id)].hp === hp(mit, id)));
+  ok("... und nur sie - der Koenig nicht", mit.board[wo(mit, "king")].maxHp === ohne.board[wo(ohne, "king")].maxHp);
+  const schach = createGame(heerMit(ids), heerMit([]), { rules: "chess", map: mapById("classic"), buende: { w: ["kueche"], b: [] } });
+  ok("GEGENPROBE: im reinen Schach gibt es keine Leben zu verschenken", schach.board[wo(schach, "cook")].maxHp === createGame(heerMit(ids), heerMit([]), { rules: "chess", map: mapById("classic") }).board[wo(schach, "cook")].maxHp);
+  kulisse("kueche");
+}
+
+console.log("\n== TURNIER (Ritter · Fechter · Lanzentraeger · Gladiator) ==");
+{
+  erwachen("turnier");
+  const ids = ["cavalier", "fencer", "spearman", "gladiator"];
+  const mit = partieMit(ids, ["turnier"]), ohne = partieMit(ids, []);
+  ok("WIRKUNG: die vier treffen mit +1 Angriff", ids.every((id) => mit.board[wo(mit, id)].atk === ohne.board[wo(ohne, id)].atk + 1));
+  ok("GEGENPROBE: der Bund gilt je Seite - der Gegner bekommt nichts", (() => {
+    const g = createGame(heerMit([]), heerMit(ids), { rules: "hp", map: mapById("classic"), buende: { w: ["turnier"], b: [] } });
+    const sw = g.board.find((p) => p && p.charId === "fencer" && p.color === "b");
+    return sw.atk === ohne.board[wo(ohne, "fencer")].atk;
+  })());
+  kulisse("turnier");
+}
+
+console.log("\n== KLOSTER (Moench · Heilerin) ==");
+{
+  erwachen("kloster");
+  const bau = (buende) => {
+    const g = leer({ w: buende, b: [] });
+    g.board[3 * w + 3] = fig("P", "pawn", "w", 6, 2);
+    g.board[3 * w + 4] = fig("MK", "monk", "w", 12);
+    g.board[0 * w + 5] = fig("HL", "healer", "w", 12);
+    g.board[5 * w + 3] = fig("R", "rook", "b", 12, 3);
+    g.turn = "b";
+    return g;
+  };
+  const mit = zug(bau(["kloster"]), 5 * w + 3, 3 * w + 3), ohne = zug(bau([]), 5 * w + 3, 3 * w + 3);
+  ok("WIRKUNG: der Bauer neben dem Moench nimmt 1 Schaden weniger", mit.board[3 * w + 3].hp === ohne.board[3 * w + 3].hp + 1);
+  const fern = bau(["kloster"]); fern.board[3 * w + 4] = null; fern.board[0 * w + 6] = fig("MK", "monk", "w", 12);
+  ok("GEGENPROBE: steht keiner von beiden daneben, trifft der Schlag voll", zug(fern, 5 * w + 3, 3 * w + 3).board[3 * w + 3].hp === ohne.board[3 * w + 3].hp);
+  kulisse("kloster");
+}
+
+console.log("\n== JAGD (Jaegerin · Waldlaeufer · Fallensteller) ==");
+{
+  erwachen("jagd");
+  const bau = (buende) => {
+    const g = leer({ w: buende, b: [] });
+    g.board[3 * w + 3] = fig("HU", "huntress", "w", 1);
+    g.board[0 * w + 5] = fig("RG", "ranger", "w", 12);
+    g.board[0 * w + 6] = fig("TR", "trapper", "w", 12);
+    g.board[5 * w + 3] = fig("R", "rook", "b", 12, 7);
+    g.turn = "b";
+    return g;
+  };
+  const weiter = (g) => { const k = wo(g, "king"); return applyMove(g, legalMovesFrom(g, g.board.findIndex((p) => p && p.kind === "K" && p.color === "w"))[0]); };
+  const mit = weiter(zug(bau(["jagd"]), 5 * w + 3, 3 * w + 3));
+  ok("WIRKUNG: wer die Jaegerin schlaegt, hat im naechsten Zug keinen Zug mit dieser Figur", mit.turn === "b" && mit.board[3 * w + 3]?.kind === "R" && legalMovesFrom(mit, 3 * w + 3).length === 0);
+  const ohne = weiter(zug(bau([]), 5 * w + 3, 3 * w + 3));
+  ok("GEGENPROBE: ohne Bund zieht der Turm frei weiter", legalMovesFrom(ohne, 3 * w + 3).length > 0);
+  const koenig = bau(["jagd"]); koenig.board[5 * w + 3] = null; koenig.board[7 * w + 7] = null; koenig.board[4 * w + 4] = fig("K", "king", "b", 20, 7);
+  const k2 = weiter(zug(koenig, 4 * w + 4, 3 * w + 3));
+  ok("der Koenig wird nie gefesselt (sonst waere es ein Patt aus dem Nichts)", legalMovesFrom(k2, 3 * w + 3).length > 0);
+  kulisse("jagd");
+}
+
+console.log("\n== FINSTERNIS (Henker · Samurai · Kerkermeister) ==");
+{
+  erwachen("finsternis");
+  const bau = (buende) => {
+    const g = leer({ w: buende, b: [] });
+    /* der Henker zieht hier wie ein Turm - der Bund fragt nach der FIGUR (charId), nicht nach der Gangart */
+    g.board[3 * w + 3] = fig("R", "executioner", "w", 6, 9);
+    g.board[0 * w + 5] = fig("SA", "samurai", "w", 12);
+    g.board[0 * w + 6] = fig("JL", "jailer", "w", 12);
+    g.board[5 * w + 3] = { ...fig("N", "knight", "b", 2, 3), abilities: ["unsterblich"], used: {} };
+    g.turn = "w";
+    return g;
+  };
+  const o = bau([]), m = bau(["finsternis"]);
+  const feld = 5 * w + 3;
+  const zo = legalMovesFrom(o, 3 * w + 3).find((x) => x.to === feld), zm = legalMovesFrom(m, 3 * w + 3).find((x) => x.to === feld);
+  const nachO = applyMove(o, zo), nachM = applyMove(m, zm);
+  const lebt = (g) => g.board.some((p) => p && p.color === "b" && p.kind === "N");
+  ok("GEGENPROBE: ohne Bund steht der Unsterbliche wieder auf", !!zo && lebt(nachO));
+  ok("WIRKUNG: was der Henker schlaegt, steht nicht wieder auf", !!zm && !lebt(nachM));
+  kulisse("finsternis");
+}
+
+console.log("\n== DORF (Baeuerin · Bettler · Hofnarr) ==");
+{
+  erwachen("dorf");
+  const z = (buende, extra = {}) => zubrot({ heer: heerMit(["farmwife", "beggar", "jester"]), buende, eigeneZuege: 0, bauernUebrig: 5, result: "win", gold: 40, liga: 1, ...extra });
+  ok("WIRKUNG: jeder ueberlebende Bauer bringt 2 Gold", z(["dorf"]).dorf === 10);
+  ok("... auch nach einer Niederlage, aber nicht nach dem Aufgeben", z(["dorf"], { result: "loss" }).dorf === 10 && z(["dorf"], { result: "loss", resigned: true }).gold === 0);
+  ok("GEGENPROBE: ohne Bund nichts", z([]).dorf === 0);
+  kulisse("dorf");
+}
+
+console.log("\n== KONTOR (Gelehrter · Steuereintreiber · Bankier) ==");
+{
+  erwachen("kontor");
+  const z = (buende, extra = {}) => zubrot({ heer: heerMit([]), buende, result: "win", gold: 40, liga: 1, ...extra });
+  ok("WIRKUNG: jeder Sieg bringt ein Viertel mehr Gold", z(["kontor"]).kontor === 10 && z(["kontor"]).gold === 10);
+  ok("GEGENPROBE: ohne Sieg oder ohne Bund nichts", z(["kontor"], { result: "loss" }).kontor === 0 && z([]).kontor === 0);
+  kulisse("kontor");
+}
+
+console.log("\n== WERKSTATT (Schmied · Handwerker) ==");
+{
+  erwachen("werkstatt");
+  const { readFileSync } = await import("node:fs");
+  const gs = readFileSync("src/app/ui/screens/GameScreen.jsx", "utf8");
+  ok("WIRKUNG: der Kampfschirm legt einen Zaun in den Vorrat und rechnet ihn nicht ab",
+    /includes\("werkstatt"\)\) g\.zaun = 1/.test(gs) && /sperrenVerbrauchtRef\.current = ohneGeschenk\(zaehlung\)/.test(gs) && /\(profile\.items\?\.\[art\] \|\| 0\) \+ \(geschenkt\[art\] \|\| 0\)/.test(gs));
+  kulisse("werkstatt");
+}
+
+console.log("\n== ALLE ACHTZEHN ==");
+{
+  const alle = Object.keys(BUENDE);
+  const inBund = alle.flatMap((id) => BUENDE[id].figuren);
+  ok("achtzehn Buende, jede Figur in hoechstens einem", alle.length === 18 && new Set(inBund).size === inBund.length);
+  const ohneBund = Object.keys(CHARACTERS).filter((id) => !bundVon(id));
+  ok(`nur Bauer, Gambit und Drache stehen ausserhalb (ohne Bund: ${ohneBund.join(", ")})`, ohneBund.sort().join() === "dragon,gambit,pawn");
+  ok("der Flaggentraeger ist fort, der Nachtwaechter haelt die Nachtwache", !CHARACTERS.standard && BUENDE.nachtwache.figuren.includes("watchman"));
+  ok("jeder Bund sagt in einem Satz, was er gibt (de und en)", alle.every((id) => BUENDE[id].regelDe && BUENDE[id].regelEn && BUENDE[id].storyDe));
+}
+
 console.log(`\nRESULT: ${passed} passed, ${failed} failed`);
 if (failed) process.exit(1);

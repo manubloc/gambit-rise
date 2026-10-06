@@ -164,11 +164,11 @@ import { bossSpec, bossById } from "./src/content/index.js";
     back[3] = { ...bossSpec(bossById(bid)) };
     return createGame({ back, pawn: spec("P") }, a8, { map: classic, rules: "hp" });
   };
-  const disc = withBoss("b25"); // courtHp 1
+  const disc = withBoss("b36"); // courtHp 1 (v1.91.0: Osric; der Steinkoenig b25 ist eine Bestie ohne Aura)
   ok("courtHp aura: the League Master grants his court +1 HP", disc.board[idx(4, 0, 8)].maxHp === 11); // king 10 → 11
-  const iron = withBoss("b14"); // grant bulwark
+  const iron = withBoss("b34"); // grant bulwark (v1.91.0: Brakk)
   ok("grant aura: the Colossus makes his court bulwarks", iron.board[idx(0, 0, 8)].abilities.includes("bulwark"));
-  const judge = withBoss("b12"); // noEnemyPotions
+  const judge = withBoss("b37"); // noEnemyPotions (v1.91.0: Morwen; der Richter ist eine Bestie ohne Aura)
   const js = { ...judge, potions: { w: 0, b: 1 }, turn: "b", board: judge.board.slice() };
   const hurtIx = js.board.findIndex((p) => p && p.color === "b" && p.kind === "P");
   js.board[hurtIx] = { ...js.board[hurtIx], hp: 1 };

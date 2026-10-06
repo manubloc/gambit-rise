@@ -91,7 +91,9 @@ const core = (nm) => (nm || "").split(/[\s,]+/)
     for (const c of charNames) {
       if (involved.has(c.id)) continue;
       if (c.de.length < 6) continue;                       // short names appear as common words
-      if ((n.storyDe || "").includes(c.de))
+      /* v1.91.0: der ORTSNAME zaehlt nicht - "Schmiedegrund" und
+         "Fallenstellerlager" gab es lange vor dem Schmied und dem Fallensteller */
+      if ((n.storyDe || "").split(n.place).join(" ").includes(c.de))
         liars.push(`${n.id} "${n.place}" names ${c.de}, but fields ${[...involved].join("/") || "no one"}`);
     }
   }

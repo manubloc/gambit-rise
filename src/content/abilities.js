@@ -83,7 +83,7 @@ export const ABILITIES = {
      Reihe und zahlen nach der Partie aus (meta/rewards.js) - das ist ihr
      Preis und ihr Reiz: Gold oder Kampfkraft, nicht beides. Der Fallensteller
      legt vor dem Gefecht eine Baerenfalle, ohne dass sie gekauft sein muss. */
-  almosen:              { id: "almosen",              icon: "◔", tag: "gold", once: false, live: true, nameDe: "Almosen",      nameEn: "Alms",          descDe: "Jeder eigene Zug bringt 1 Gold — bis zu 20 je Partie, auf Stufe II 30, auf III 40. Es bleibt dir auch nach einer Niederlage.", descEn: "Each move of yours earns 1 gold — up to 20 per battle, 30 at tier II, 40 at III. You keep it even after a defeat." },
+  almosen:              { id: "almosen",              icon: "◔", tag: "gold", once: false, live: true, nameDe: "Almosen",      nameEn: "Alms",          descDe: "Jeder eigene Zug bringt 1 Gold — bis zu 8 je Partie, auf Stufe II 12, auf III 16; in späteren Kapiteln mehr. Es bleibt dir auch nach einer Niederlage.", descEn: "Each move of yours earns 1 gold — up to 8 per battle, 12 at tier II, 16 at III; more in later chapters. You keep it even after a defeat." },
   zins:                 { id: "zins",                 icon: "％", tag: "gold", once: false, live: true, nameDe: "Zins",         nameEn: "Interest",      descDe: "Jeder Sieg bringt mehr Gold — 10 %, auf Stufe II 20 %, auf III 30 %.", descEn: "Every win pays more gold — 10 %, 20 % at tier II, 30 % at III." },
   zehnt:                { id: "zehnt",                icon: "⛁", tag: "gold", once: false, live: true, nameDe: "Zehnt",        nameEn: "Tithe",         descDe: "Jeder Sieg bringt festes Gold dazu — 4, auf Stufe II 8, auf III 12; in späteren Kapiteln mehr.", descEn: "Every win adds fixed gold — 4, 8 at tier II, 12 at III; more in later chapters." },
   studium:              { id: "studium",              icon: "✎", tag: "gold", once: false, live: true, nameDe: "Studium",      nameEn: "Study",         descDe: "Jede Partie bringt mehr Erfahrung — 15 %, auf Stufe II 30 %, auf III 45 %. So kommen Fähigkeitspunkte schneller.", descEn: "Every battle grants more experience — 15 %, 30 % at tier II, 45 % at III. Skill points come sooner." },
@@ -156,8 +156,8 @@ export const STAERKE_STUFEN = {
   wegelagerei: { de: ["2 Gold je Treffer", "4 Gold je Treffer", "6 Gold je Treffer"],
                  en: ["2 gold per hit", "4 gold per hit", "6 gold per hit"] },
   /* v1.91.0: was nach der Partie auszahlt, waechst in seinem Betrag */
-  almosen:     { de: ["bis zu 20 Gold je Partie", "bis zu 30 Gold je Partie", "bis zu 40 Gold je Partie"],
-                 en: ["up to 20 gold per battle", "up to 30 gold per battle", "up to 40 gold per battle"] },
+  almosen:     { de: ["bis zu 8 Gold je Partie", "bis zu 12 Gold je Partie", "bis zu 16 Gold je Partie"],
+                 en: ["up to 8 gold per battle", "up to 12 gold per battle", "up to 16 gold per battle"] },
   zins:        { de: ["10 % mehr Gold je Sieg", "20 % mehr Gold je Sieg", "30 % mehr Gold je Sieg"],
                  en: ["10 % more gold per win", "20 % more gold per win", "30 % more gold per win"] },
   zehnt:       { de: ["4 Gold je Sieg dazu", "8 Gold je Sieg dazu", "12 Gold je Sieg dazu"],

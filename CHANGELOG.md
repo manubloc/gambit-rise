@@ -1,5 +1,74 @@
 # Changelog - Gambit Rise
 
+## 1.91.0 - Der Figuren-Umbau: 24 neue Figuren, 8 neue Buende, 14 Grossmeister, 28 Bestien, Kampagne neu verteilt
+
+Besitzerauftrag 6.10.: "Freigabe fuer alle Figuren ... jetzt entsprechend auch
+in die Kapitel einbauen ... in den ersten beiden Kapiteln sollten schon die
+meisten Figuren dazu kommen ... am Anfang noch keine Bestien, die kommen erst
+in Kapitel 3 ... der Drache kann deutlich spaeter kommen ... saubere Zuege, HP
+und Staerke und passende Faehigkeiten ... es muss ein perfektes ausgeglichenes
+Grundspiel sein ... verschiedene Aufstellungen fuer verschiedene Gegner."
+
+**Vorher gemessen - fuenf Fehler, die es seit Langem gab:**
+- **Die zehn Buende wirkten im echten Spiel nie.** Der Kern sucht die Figuren
+  eines Bundes ueber `charId`; weder das Heer noch `makePiece` setzten das Feld.
+  Die Proben waren gruen, weil sie es von Hand setzten. Jetzt traegt jede Figur
+  ihre Kennung vom Heer bis aufs Brett.
+- Buende galten nicht je Seite, der Pausenstand verlor sie, Gezeiten konnte fuer
+  den Kapitaen nie wirken (er zieht ueber sein Zugbild), und die Seherin zaehlte
+  fuer die KI null (kein Wert, keine Familie).
+- Das Zugbild las eine fehlende Reichweite als EINEN Schritt, der Kern als
+  beliebig weit - Brandstifter und Eisenfaust zeigten im Blatt etwas anderes,
+  als sie am Brett zogen.
+- Im Gefecht hiess jede Figur ausserhalb der Standardreihe nur "Figur"
+  (Meldungsplakette), und sie bekam keine Figuren-Erfahrung.
+- Die Auren der Grossmeister wirkten, aber kein Schirm nannte sie.
+
+**Figuren (50 statt 27):** 24 neue, jede mit Gemaelde, Kleinfassung, Sockelmass,
+Glyphe, Gangart, Werten (24 Punkte auf Hoechststufe) und einer Leiter nach der
+Beweglichkeitsregel. Der Flaggentraeger ist fort; seine Gangart und Leiter
+traegt der Nachtwaechter. Im Balance-Lauf (reife Heere, jede gegen jede) liegt
+keine neue Figur ueber 60 % - siehe design/FIGUREN-UMBAU-2026-10-06.md.
+
+**Vier Faehigkeiten neben dem Kampf** (meta/zubrot.js, eine Stelle): Almosen
+(Bettler: 1 Gold je eigenem Zug, gedeckelt, bleibt auch nach einer Niederlage),
+Zins (Bankier), Zehnt (Steuereintreiber), Studium (Gelehrter: mehr Erfahrung).
+Dazu Fallenkunde (Fallensteller: eine Baerenfalle je HP-Gefecht umsonst). Wer
+aufgibt, bekommt nichts. Das Siegbanner nennt, woher das Gold kam.
+
+**Buende (18 statt 10), jetzt ab AUFSTELLUNG statt ab Hoechststufe:** ein Bund
+wirkt, sobald alle seine Figuren im Heer stehen. Neu: Dorf, Werkstatt, Kontor,
+Kueche, Kloster, Jagd, Turnier, Finsternis. Der Bund steht im Blatt jeder Figur
+bei den Faehigkeiten - mit denen, die noch fehlen.
+
+**Grossmeister und Bestien (42 statt 25):** die vierzehn Grossmeister sind im
+Ursprung FIGUREN (Zahir, Varek, Malrik, Isolde, Halvar, Seraphine, Yorrik,
+Cassian, Veyl, Brakk, Asra, Osric, dazu Morwen und Thalor), jeder mit Namen,
+eigener Kulisse und einer Aura, die jetzt im Blatt steht. Die alten Meister sind
+Bestien ohne Aura (fuenf unter neuem Namen), dazu fuenf neue. Der Doppelritter
+ist fort. Sechs Bestien lagen im ersten Lauf ueber 60 % und wurden nachgestellt
+(Strahlengoetze, Eisenfaust, Steinkoenig, Harpyie, Kanonier, Weberin).
+
+**Kampagne:** 43 Figurenstationen (je zehn in Kapitel I und II, dann 5, 4, 3, 3,
+2, ...), keine Bestie vor Kapitel III, der Drache in seiner Halle in Kapitel
+VII, Sturm (Hexenmeister XI, Amazone XII) ganz am Ende. In Kapitel I und II
+steht die Figur NEBEN der gegnerischen Dame (auf dem Platz des Damenspringers) -
+sonst spielte man zwanzig Stationen gegen ein Heer ohne Dame.
+
+**Preise:** aus 14 kaeuflichen Monstern sind 30 geworden; zu den alten Preisen
+haetten sie 89 % des Goldes aller Wege gekostet. Jetzt 800-1600 statt 1200-2400
+(60 %).
+
+**Alte Spielstaende** (einmalig, `campaign.figuren91`): Flaggentraeger wird
+Nachtwaechter (alles wandert mit); der Doppelritter kommt als Gold und Punkte
+zurueck; wer ein Kapitel gewonnen hat, behaelt den alten Meister als Bestie und
+bekommt den neuen dazu; die Figuren der Kapitel hinter dem Spieler werden
+nachgereicht; Aufstellungen bleiben gueltig.
+
+**Werkzeuge:** `tools/figuren-einbau.py` (Gemaelde -> Spielfassung, Mass,
+Glyphe), `tools/uebersicht-fotos.mjs` (die ganze Sammlung aus den echten
+Bauteilen), `node .balance.mjs ziel <ids>` (gezielt nachmessen).
+
 ## 1.90.36 - Hofstaat: Blatt ohne Kontur, Pfeile ohne Rahmen, ganz hineinzoomen oeffnet die Karte
 
 Besitzer 6.10., mit zwei Fotos vom Handy: "die Pfeile an der Seite bitte

@@ -267,7 +267,7 @@ await clearSession();
   const everything = withProgressPct(defaultProfile(), 100, 10);
   ok("league X at 100% recruits every character", Object.values(CHARACTERS).every((c) => isUnlocked(c, everything)));
   ok("league X at 100% has met every monster", BOSSES.every((b) => (everything.codex?.met || []).includes("X:" + b.id)));
-  ok("league X at 100% fields every reachable boss", ownedLeagueBosses(everything).length === 23 && everything.stats.leaguesWon === 10);  // v0.38.1: Asra (XI) und Osric (XII) warten hinter Kapitel X
+  ok("league X at 100% fields every reachable boss", ownedLeagueBosses(everything).length === 40 && everything.stats.leaguesWon === 10);  // v1.91.0: 42 Bosse, Asra (XI) und Osric (XII) warten hinter Kapitel X
   ok("league X at 100% fills the whole chest", Object.keys(ITEMS).every((id) => (everything.items || {})[id] >= 1));
   const mid = withProgressPct(defaultProfile(), 40, 5);
   ok("mid-journey counts earlier leagues as mastered", mid.stats.leaguesWon === 4 && mid.campaign.unlocked.length >= 8 && (mid.campaign.bribedBosses || []).length === 0);
@@ -281,7 +281,7 @@ const fullUn = new Set(fullB.campaign.unlocked), fullMet = new Set(fullB.codex.m
 ok("full build recruits every character", Object.keys(CHARACTERS).every((id) => fullUn.has(id) || COURT_T.includes(id)));
 ok("full build meets every monster in the codex", BOSSES.every((b) => fullMet.has("X:" + b.id)));
 const fullOwned = new Set([...ownedLeagueBosses(fullB), ...(fullB.campaign.bribedBosses || [])]);
-ok("full build fields every monster except the last two masters", BOSSES.every((b) => fullOwned.has(b.id) || b.id === "b23" || b.id === "b25"));  // v0.38.1: Erzfeindin und Grossmeister stehen jenseits von Kapitel X
+ok("full build fields every monster except the last two masters", BOSSES.every((b) => fullOwned.has(b.id) || b.id === "b35" || b.id === "b36"));  // v1.91.0: Asra und Osric stehen jenseits von Kapitel X
 ok("full build fills the chest", Object.values(ITEMS).every((it) => (fullB.items[it.id] || 0) > 0));
 ok("full build counts ten league crowns", fullB.stats.leaguesWon === 10);
 
@@ -888,8 +888,11 @@ const ohneSubtle = (() => {
     const neu = M.migrateProfile(alt);
     ok("v1.90.20: ein alter Stand nach Kapitel I behaelt den Richter und bekommt den Drachen",
       M.ownedLeagueBosses(neu).includes("b12") && neu.campaign.unlocked.includes("dragon") && neu.campaign.meister20 === true);
-    ok("v1.90.20: ... seine Aufstellung mit dem Richter auf dem Damenplatz bleibt gueltig",
-      M.formationLegalOn(neu.loadout.formations.classic, M.unlockedCharacterIds(neu), (await import("./src/content/index.js")).mapById("classic"), M.ownedLeagueBosses(neu)));
+    /* v1.91.0: der Richter ist eine Bestie und darf nur noch auf freie Plaetze -
+       auf dem Damenplatz steht nach dem Umbau wieder die Dame, die Aufstellung
+       bleibt dadurch gueltig statt auf die Grundstellung zu fallen */
+    ok("v1.91.0: ... seine Aufstellung bleibt gueltig - auf dem Damenplatz steht wieder die Dame",
+      neu.loadout.formations.classic[3] === "queen" && M.formationLegalOn(neu.loadout.formations.classic, M.unlockedCharacterIds(neu), (await import("./src/content/index.js")).mapById("classic"), M.ownedLeagueBosses(neu)));
     const zweit = M.migrateProfile(neu);
     ok("v1.90.20: der Umzug laeuft nur einmal", JSON.stringify(zweit.campaign.bribedBosses) === JSON.stringify(neu.campaign.bribedBosses));
     const frueh = M.migrateProfile({ stats: { leaguesWon: 0 }, campaign: { league: 1, unlocked: [] } });
@@ -905,6 +908,50 @@ const ohneSubtle = (() => {
   const g1 = await loadSave("acc-v1", s1.id);
   ok("A40: das normale Laden bringt einen v1-Stand auf den heutigen Plan", g1.v === 2 && Array.isArray(g1.campaign.cleared)
     && g1.campaign.unlocked.includes("knight") && g1.pieces.levels.knight > 1 && g1.sp === 10);
+}
+
+
+/* ── v1.91.0: DER FIGUREN-UMBAU ZIEHT ALTE STAENDE NACH (figuren91) ──────────── */
+{
+  const M = await import("./src/meta/index.js");
+  const { mapById } = await import("./src/content/index.js");
+  const alt = { name: "alt", gold: 100, sp: 5, stats: { leaguesWon: 4 },
+    pieces: { levels: { standard: 6 }, abilities: { standard: ["bulwark"], "X:b10": ["wegelagerei", "blenden"], "X:b19": ["gibtesnicht"] },
+      stufen: { "X:b10": { blenden: 2 } }, bossLevels: { b10: 3 } },
+    loadout: { formations: { classic: ["rook", "standard", "bishop", "boss:b10", "king", "bishop", "knight", "rook"] },
+      decks: { classic: { aktiv: 0, liste: [{ formation: ["rook", "standard", "bishop", "boss:b19", "king", "bishop", "knight", "rook"], name: "A" }, null, null] } } },
+    campaign: { league: 5, cleared: ["L05s00", "L05s04"], unlocked: ["standard", "mage", "dragon"], dupes: { standard: 1 },
+      bribedBosses: ["b10", "b02"], meister20: true, bossWins: { standard: 1 } },
+    pausedMatch: { v: 1, nodeId: "L05s01" } };
+  const neu = M.migrateProfile(alt);
+  const un = neu.campaign.unlocked;
+  ok("figuren91: der Flaggentraeger wird der Nachtwaechter - Besitz, Stufe, Sterne, Siege, Gelerntes",
+    un.includes("watchman") && !un.includes("standard") && neu.pieces.levels.watchman === 6 && neu.campaign.dupes.watchman === 1
+    && neu.campaign.bossWins.watchman === 1 && neu.pieces.abilities.watchman.join() === "bulwark" && !("standard" in neu.pieces.levels));
+  ok("figuren91: der Doppelritter kommt zurueck - 1800 Gold, Raenge (5+7) und Gelerntes (2 + 2+3) als Punkte",
+    neu.gold === 1900 && neu.sp === 5 + 12 + 2 + 5 + 2 && !(neu.campaign.bribedBosses || []).includes("b10") && !("b10" in (neu.pieces.bossLevels || {})));
+  ok("figuren91: wer Kapitel IV gewann, behaelt den alten Meister als Bestie (b19) und bekommt die vier neuen Grossmeister",
+    M.ownedLeagueBosses(neu).join() === "b26,b27,b24,b28,b02,b19");
+  ok("figuren91: Gelerntes, das nicht mehr auf der Leiter steht, ist fort (und erstattet)", (neu.pieces.abilities["X:b19"] || []).length === 0);
+  ok("figuren91: die Aufstellung - Nachtwaechter statt Flaggentraeger, Dame statt Doppelritter",
+    neu.loadout.formations.classic.join() === "rook,watchman,bishop,queen,king,bishop,knight,rook");
+  ok("figuren91: ... auch in den Faechern; eine Bestie auf dem Damenplatz weicht der Dame",
+    neu.loadout.decks.classic.liste[0].formation.join() === "rook,watchman,bishop,queen,king,bishop,knight,rook" && neu.loadout.decks.classic.liste[0].name === "A");
+  ok("figuren91: ... und sie ist gueltig",
+    M.formationLegalOn(neu.loadout.formations.classic, M.unlockedCharacterIds(neu), mapById("classic"), M.ownedLeagueBosses(neu)));
+  ok("figuren91: die Figuren der Kapitel hinter dem Spieler kommen nach (I-IV ganz, V nur Geklaertes)",
+    ["farmwife", "beggar", "banker", "healer", "huntress", "fencer", "gladiator"].every((id) => un.includes(id))
+    && un.includes("jailer") && !un.includes("executioner") && !un.includes("samurai"));
+  ok("figuren91: ein pausiertes Gefecht faellt weg, das Merkzeichen steht", neu.pausedMatch === null && neu.campaign.figuren91 === true);
+  ok("figuren91: einmalig - ein zweiter Lauf aendert nichts", JSON.stringify(M.migrateProfile(neu)) === JSON.stringify(neu));
+  const frisch = M.migrateProfile({ name: "neu" });
+  ok("figuren91: ein frischer Stand bekommt nichts geschenkt", frisch.campaign.unlocked.length === 0 && frisch.gold === 0 && frisch.campaign.figuren91 === true);
+  ok("figuren91: neue Staende und der Regler tragen das Merkzeichen von Anfang an",
+    M.defaultProfile().campaign.figuren91 === true && M.withProgressPct(M.defaultProfile(), 50, 3).campaign.figuren91 === true);
+  /* Schutz: eine Aufstellung mit Kennungen, die es nicht mehr gibt, baut trotzdem ein Heer */
+  const heer = M.buildArmyFromFormation(() => 1, ["rook", "standard", "bishop", "boss:b10", "king", "bishop", "knight", "rook"]);
+  ok("figuren91: unbekannte Kennungen stuerzen den Heeresbau nicht (Springer und Dame stehen ein)",
+    heer.back[1].kind === "N" && heer.back[3].kind === "Q");
 }
 
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
