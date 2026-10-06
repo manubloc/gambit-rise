@@ -2970,8 +2970,15 @@ print(json.dumps({"gezaehlt": gezaehlt, "schlecht": schlecht}))
   const mitRang = html(<HK img={null} name="Osric" meister rang="Großmeister" />), ohneRang = html(<HK img={null} name="Osric" meister />);
   ok("Uebersicht: der Grossmeister traegt sein WORT statt der leuchtenden Kontur",
     mitRang.includes("data-rang") && mitRang.includes("Großmeister") && !mitRang.includes("gg-funkenkontur-innen") && ohneRang.includes("gg-funkenkontur-innen") && !ohneRang.includes("data-rang"));
-  ok("Uebersicht: die Raster tragen den Zoom, zwei Finger und zwei Knoepfe stellen ihn",
-    as35.includes('gap: 7, zoom: hofZoom }') && as35.includes("onTouchMove={kneifZug}") && as35.includes('localStorage.setItem("gg:hofzoom", JSON.stringify(z))') && as35.includes("data-hofzoom={hofZoom}"));
+  ok("Uebersicht: die Raster tragen den Zoom, zwei Finger stellen ihn (v1.90.36: ohne Leiste und Knoepfe)",
+    as35.includes('gap: 7, zoom: hofZoom }') && as35.includes("onTouchMove={kneifZug}") && as35.includes('localStorage.setItem("gg:hofzoom", JSON.stringify(z))')
+    && as35.includes("data-hofuebersicht data-hofzoom={hofZoom}") && !as35.includes("zoomKnopf") && !as35.includes("Mit zwei Fingern zoomen"));
+  ok("v1.90.36: ganz hineinzoomen oeffnet das Blatt der Karte zwischen den Fingern",
+    as35.includes("roh > ZOOM_MAX * 1.18") && as35.includes('el.closest("[data-hofkachel]")') && as35.includes("kachel.click()")
+    && html(<HK img={null} name="x" onOpen={nix} />).includes("data-hofkachel") && !html(<HK img={null} name="x" />).includes("data-hofkachel"));
+  ok("v1.90.36: Figuren- und Monsterblatt ohne lila Kontur, die Blaetter-Pfeile ohne Rahmen",
+    (as35.match(/v1\.90\.36: ohne lila Kontur/g) || []).length === 2 && !as35.includes("0 0 26px ${T.riftGlow}`,\n          border: `1px solid ${T.riftLine}`")
+    && (as35.match(/background: "none", border: "none", color: "rgba\(236,228,255,\.82\)"/g) || []).length === 2);
   ok("Figurenblatt: Pfeile am Rand zeigen das Blaettern", (as35.match(/data-blatt-pfeil=\{r\}/g) || []).length === 2);
   const wandel = html(<AF art="rang" gambitTier={2} bild="neu.webp" bildAlt="alt.webp" t={(k) => k} onClose={nix} />);
   ok("Gambit: die Verwandlung zeigt erst das alte Antlitz, dann den Schein, dann das neue",

@@ -1,5 +1,25 @@
 # Changelog - Gambit Rise
 
+## 1.90.36 - Hofstaat: Blatt ohne Kontur, Pfeile ohne Rahmen, ganz hineinzoomen oeffnet die Karte
+
+Besitzer 6.10., mit zwei Fotos vom Handy: "die Pfeile an der Seite bitte
+anders, ohne Kontur auf jeden Fall ... ich wuerde in diesem Menue die lila
+Kontur weglassen ... intuitiv, wenn ich komplett reinzoome, dann lande ich am
+Ende in genau diesem Menue ... lass die Erklaerung mit Zoom weg und auch den
+Plus- und Minus-Button."
+
+- **Blatt ohne lila Kontur:** Figuren- und Monsterblatt tragen nur noch ihren
+  dunklen Schatten (vorher 1 px Riss-Lila plus 26 px Glut).
+- **Pfeile ohne Rahmen:** nur der Winkel, hell mit weichem Schatten, auf einer
+  Tippflaeche von 34 x 64 px.
+- **Ganz hineinzoomen oeffnet das Blatt:** wer mit zwei Fingern ueber die
+  groesste Stufe hinaus weiterzieht (18 % darueber), oeffnet die Karte zwischen
+  den Fingern. Im Browser mit echten Touch-Ereignissen gefahren: 200->120 px
+  ergibt sechs Spalten, 100->260 px zwei, 60->400 px oeffnet das Blatt.
+- **Zoomleiste fort:** Hinweistext und die Knoepfe - / + sind gestrichen,
+  gezoomt wird allein mit zwei Fingern.
+- test_ui +2: 31 Suiten / 2720.
+
 ## 1.90.35 - Hofstaat: zoomen, blaettern, bestechen im Blatt; der Springer zeigt sein L
 
 Besitzer 5.10. (abends, am Handy): Uebersicht zoomen "wie eine Fotouebersicht",

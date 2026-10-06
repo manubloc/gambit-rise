@@ -41,8 +41,8 @@ gambitrise.com zeigt darauf).
   pruefe-navigation, pruefe-textfluss, test_layout) lesen den Chromium-Pfad aus
   `PW_CHROMIUM`; ohne die Variable gilt der Pfad des Cloud-Containers. Lokal:
   `npx playwright install chromium` und `PW_CHROMIUM=<Pfad zur chrome-Datei>`.
-- `npm test` — volle Batterie. MUSS **31 Suiten / 2718 Prüfungen** melden
-  (Stand v1.90.35; der Runner stoppt nach der ersten roten Suite, also
+- `npm test` — volle Batterie. MUSS **31 Suiten / 2720 Prüfungen** melden
+  (Stand v1.90.36; der Runner stoppt nach der ersten roten Suite, also
   Suitenzahl prüfen, nicht nur Assertions! **Zählweise seit v1.90.18
   (Audit A74): JEDE Suite der Kette meldet eine RESULT-Zeile** — alle Zeilen
   `RESULT…: N passed` summieren; test_balance meldet zwei, darum stehen im
@@ -456,7 +456,11 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
   Dialogtext aus `[role=dialog]` lesen. Das Cloudflare-Dashboard braucht das
   nicht.
 - **Hofstaat-Übersicht zoomt (v1.90.35):** die Raster tragen CSS `zoom`
-  (`hofZoom`, 0,5–2,2, im localStorage `gg:hofzoom`), zwei Finger oder −/+.
+  (`hofZoom`, 0,5–2,2, im localStorage `gg:hofzoom`), NUR mit zwei Fingern
+  (Leiste und −/+ hat der Besitzer am 6.10. gestrichen); wer über die größte
+  Stufe hinaus weiterzieht, öffnet das Blatt der Karte zwischen den Fingern
+  (`data-hofkachel`). Die Blätter tragen seit v1.90.36 keine lila Kontur mehr,
+  die Blätter-Pfeile keinen Rahmen.
   Wer in die Kachel etwas mit fester Pixelgröße baut, muss nichts tun — `zoom`
   skaliert alles mit. **Bestechen steht auch im geöffneten Monsterblatt**
   (`BestechBlatt`) — mit dem Grund, wenn es nicht geht; der Knopf nur auf der
@@ -496,7 +500,7 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
   Auswahl-Lichtspektakel.
 - Alles Optionale abschaltbar (Klang, Online).
 
-## Offene Baustellen (Stand v1.90.35, 5.10.2026)
+## Offene Baustellen (Stand v1.90.36, 6.10.2026)
 
 **Einstieg für jede neue Sitzung: `design/CHAT-EINSTIEG-2026-09-27.md`** (zehn
 Minuten, mit dem Startsatz für den Chat), dann **`design/UEBERGABE-2026-09-27.md`** — Stand,

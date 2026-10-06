@@ -2443,7 +2443,7 @@ export function HofKachel({ img, name, dim, dark, action, glow, origin, onOpen, 
        eigenen Stapel, damit das Bild mit z -1 ueber dem Kachelgrund, aber
        unter Figur und Schrift liegt. overflow: hidden beschneidet es auf die
        runden Ecken. */
-    <div onClick={onOpen ? () => { klang("menue"); onOpen(); } : undefined}
+    <div data-hofkachel={onOpen ? "" : undefined} onClick={onOpen ? () => { klang("menue"); onOpen(); } : undefined}
       /* v1.55.0 (Besitzer: "leuchtend gut, aber nicht animiert - sonst zu
          viel, wenn die alle so glaenzen ... nicht, dass die ganze Zeit dieses
          Leuchten im Kreis rennt, nicht in der Uebersicht der Karten"): die
@@ -2847,8 +2847,19 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
   const kneif = useRef(null);
   const abstand = (e) => Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
   const kneifStart = (e) => { if (e.touches && e.touches.length === 2) kneif.current = { d: abstand(e), z: hofZoom }; };
+  /* v1.90.36 (Besitzer: "intuitiv, wenn ich komplett reinzoome, dann lande ich
+     am Ende in genau diesem Menue"): wer ueber die groesste Stufe hinaus
+     weiterzieht (ab 18 % darueber), oeffnet das Blatt der Karte ZWISCHEN den
+     beiden Fingern. Die Kachel wird dafuer schlicht angetippt - sie kennt
+     ihren eigenen Weg ins Blatt. Danach ist die Geste verbraucht. */
   const kneifZug = (e) => { const k = kneif.current; if (!k || !e.touches || e.touches.length !== 2 || k.d < 10) return;
-    const z = zoomKlemme(k.z * abstand(e) / k.d); if (z !== hofZoom) setHofZoom(z); };
+    const roh = k.z * abstand(e) / k.d;
+    if (roh > ZOOM_MAX * 1.18 && typeof document !== "undefined") {
+      const mx = (e.touches[0].clientX + e.touches[1].clientX) / 2, my = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+      const el = document.elementFromPoint(mx, my); const kachel = el && el.closest ? el.closest("[data-hofkachel]") : null;
+      if (kachel) { kneif.current = null; kachel.click(); return; }
+    }
+    const z = zoomKlemme(roh); if (z !== hofZoom) setHofZoom(z); };
   const kneifEnde = () => { kneif.current = null; };
   const wisch = useRef(null);
   const wischRichtung = useRef(0);
@@ -3016,17 +3027,12 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
         borderTopColor: T.gold, animation: "spin .8s linear infinite" }} />
     </div>
   </div>;
-  const zoomKnopf = (kann) => ({ width: 30, height: 30, borderRadius: 9, display: "grid", placeItems: "center", cursor: kann ? "pointer" : "default",
-    fontFamily: "inherit", fontSize: 17, fontWeight: 800, lineHeight: 1, opacity: kann ? 1 : 0.4,
-    background: "rgba(38,28,64,.78)", border: "1px solid rgba(167,139,250,.5)", color: T.riftBright });
-  return <div data-hofuebersicht onTouchStart={kneifStart} onTouchMove={kneifZug} onTouchEnd={kneifEnde} onTouchCancel={kneifEnde}
+  /* v1.90.36 (Besitzer 6.10.: "lass die Erklaerung mit Zoom weg und auch den
+     Plus- und Minus-Button"): die Leiste ueber dem Hofstaat ist fort, gezoomt
+     wird allein mit zwei Fingern. data-hofzoom traegt den Wert fuer die Proben. */
+  return <div data-hofuebersicht data-hofzoom={hofZoom} onTouchStart={kneifStart} onTouchMove={kneifZug} onTouchEnd={kneifEnde} onTouchCancel={kneifEnde}
     style={{ touchAction: "pan-y" }}>
     <Vorrede />
-    <div data-hofzoom={hofZoom} style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 7, marginTop: 6 }}>
-      <span style={{ fontSize: 10.5, color: T.faint, marginRight: "auto" }}>{en ? "Pinch with two fingers to zoom" : "Mit zwei Fingern zoomen"}</span>
-      <button aria-label={en ? "smaller" : "kleiner"} onClick={() => setHofZoom(hofZoom / 1.25)} disabled={hofZoom <= ZOOM_MIN} style={zoomKnopf(hofZoom > ZOOM_MIN)}>−</button>
-      <button aria-label={en ? "larger" : "größer"} onClick={() => setHofZoom(hofZoom * 1.25)} disabled={hofZoom >= ZOOM_MAX} style={zoomKnopf(hofZoom < ZOOM_MAX)}>+</button>
-    </div>
     <H>{t("tree.court")}</H><div style={grid}>
       {/* v0.81: DER GAMBIT FEHLT HIER, BIS ER ERWACHT. Vor dem dritten
           geschafften Gefecht gibt es ihn nicht - kein Name, kein Bild, kein
@@ -3078,8 +3084,7 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
           top: "calc(14px + var(--gg-popfrei-oben, 0px))",
           maxHeight: "calc(100dvh / var(--vhz, 1) - 30px - var(--gg-popfrei-oben, 0px) - var(--gg-popfrei-unten, 0px))",
           display: "flex", flexDirection: "column", width: "min(100vw - 20px, 420px)",
-          borderRadius: 22, overflow: "hidden", boxShadow: `0 18px 50px rgba(0,0,0,.6), 0 0 26px ${T.riftGlow}`,
-          border: `1px solid ${T.riftLine}`,
+          borderRadius: 22, overflow: "hidden", boxShadow: "0 18px 50px rgba(0,0,0,.6)",   /* v1.90.36: ohne lila Kontur */
           background: "radial-gradient(130% 110% at 50% -10%, rgba(124,58,237,.28) 0%, rgba(26,16,44,.97) 46%, rgba(8,5,14,.99) 100%)" }}>
           {/* v1.90.35 (Besitzer 5.10.: "aktuell sieht man nicht, dass man rechts
               und links wischen kann"): zwei Pfeile am Blattrand zeigen es - und
@@ -3087,9 +3092,13 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
               jeweilige Pfeil. */}
           {[-1, 1].map((r) => blattFolge[blattFolge.indexOf(detail) + r] && blattFolge.indexOf(detail) >= 0 ? (
             <button key={r} data-blatt-pfeil={r} aria-label={r < 0 ? "previous" : "next"} onClick={(e) => { e.stopPropagation(); klang("menue"); blaettern(r); }}
-              style={{ position: "absolute", top: 150, [r < 0 ? "left" : "right"]: 4, zIndex: 4, width: 26, height: 44, borderRadius: 13,
-                display: "grid", placeItems: "center", cursor: "pointer", fontFamily: "inherit", fontSize: 20, lineHeight: 1, padding: 0,
-                background: "rgba(10,13,20,.6)", border: `1px solid ${T.riftLine}`, color: T.riftBright,
+              /* v1.90.36 (Besitzer: "die Pfeile an der Seite bitte anders,
+                 ohne Kontur auf jeden Fall"): kein Rahmen, kein Grund - nur
+                 der Winkel selbst, hell mit weichem Schatten. Die Tippflaeche
+                 bleibt gross (34 x 64). */
+              style={{ position: "absolute", top: 140, [r < 0 ? "left" : "right"]: 0, zIndex: 4, width: 34, height: 64,
+                display: "grid", placeItems: "center", cursor: "pointer", fontFamily: "inherit", fontSize: 34, fontWeight: 300, lineHeight: 1, padding: 0,
+                background: "none", border: "none", color: "rgba(236,228,255,.82)", textShadow: "0 1px 6px rgba(0,0,0,.9)",
                 animation: animAn() ? `ggBlattWink${r < 0 ? "L" : "R"} 1.4s ease-in-out .5s 1` : "none" }}>{r < 0 ? "‹" : "›"}</button>) : null)}
           <button onClick={() => setDetail(null)} aria-label="close" style={{ position: "absolute", top: 9, right: 9, zIndex: 4,
             width: 30, height: 30, borderRadius: "50%", display: "grid", placeItems: "center", cursor: "pointer",
@@ -3173,8 +3182,7 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
           borderRadius: 22, overflow: "hidden",
           // dasselbe Gewand wie die Monsterkarte: Riss-Kontur, violetter
           // Schein, halbdurchsichtiger dunkler Grund
-          boxShadow: `0 18px 50px rgba(0,0,0,.6), 0 0 26px ${T.riftGlow}`,
-          border: `1px solid ${T.riftLine}`,
+          boxShadow: "0 18px 50px rgba(0,0,0,.6)",   /* v1.90.36: ohne lila Kontur */
           background: "radial-gradient(130% 110% at 50% -10%, rgba(124,58,237,.24) 0%, rgba(20,14,34,.97) 46%, rgba(8,5,14,.99) 100%)" }}>
           {/* v1.90.35 (Besitzer 5.10.: "aktuell sieht man nicht, dass man rechts
               und links wischen kann"): zwei Pfeile am Blattrand zeigen es - und
@@ -3182,9 +3190,13 @@ function CodexTree({ profile, dispatch, t, en, onZoom, account = null }) {
               jeweilige Pfeil. */}
           {[-1, 1].map((r) => blattFolge[blattFolge.indexOf(detail) + r] && blattFolge.indexOf(detail) >= 0 ? (
             <button key={r} data-blatt-pfeil={r} aria-label={r < 0 ? "previous" : "next"} onClick={(e) => { e.stopPropagation(); klang("menue"); blaettern(r); }}
-              style={{ position: "absolute", top: 150, [r < 0 ? "left" : "right"]: 4, zIndex: 4, width: 26, height: 44, borderRadius: 13,
-                display: "grid", placeItems: "center", cursor: "pointer", fontFamily: "inherit", fontSize: 20, lineHeight: 1, padding: 0,
-                background: "rgba(10,13,20,.6)", border: `1px solid ${T.riftLine}`, color: T.riftBright,
+              /* v1.90.36 (Besitzer: "die Pfeile an der Seite bitte anders,
+                 ohne Kontur auf jeden Fall"): kein Rahmen, kein Grund - nur
+                 der Winkel selbst, hell mit weichem Schatten. Die Tippflaeche
+                 bleibt gross (34 x 64). */
+              style={{ position: "absolute", top: 140, [r < 0 ? "left" : "right"]: 0, zIndex: 4, width: 34, height: 64,
+                display: "grid", placeItems: "center", cursor: "pointer", fontFamily: "inherit", fontSize: 34, fontWeight: 300, lineHeight: 1, padding: 0,
+                background: "none", border: "none", color: "rgba(236,228,255,.82)", textShadow: "0 1px 6px rgba(0,0,0,.9)",
                 animation: animAn() ? `ggBlattWink${r < 0 ? "L" : "R"} 1.4s ease-in-out .5s 1` : "none" }}>{r < 0 ? "‹" : "›"}</button>) : null)}
           <button onClick={() => setDetail(null)} aria-label="close" style={{ position: "absolute", top: 9, right: 9, zIndex: 4,
             width: 30, height: 30, borderRadius: "50%", display: "grid", placeItems: "center", cursor: "pointer",
