@@ -294,7 +294,8 @@ flavorDe: "Kennt den Weg. Auch den, den es nicht gibt.", flavorEn: "Knows the wa
 flavorDe: "Sie hat schon Hagel, Dürre und drei Könige überstanden. Ein vierter schreckt sie nicht.", flavorEn: "She has outlasted hail, drought and three kings. A fourth does not frighten her.",
     unlock: { type: "boss" }, flank: true,
     moveSpec: { slides: [[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]], range: 1 },
-    ladder: [{ level: 3, ability: "regen" }, { level: 5, ability: "bulwark" }, { level: 7, ability: "lifesteal" }, { level: 9, ability: "teleport" }],
+    /* v1.91.1: Sensenschwung (Schockwelle) statt Blinzeln - eine Baeuerin verschwindet nicht, sie maeht */
+    ladder: [{ level: 3, ability: "regen" }, { level: 5, ability: "bulwark" }, { level: 7, ability: "lifesteal" }, { level: 9, ability: "blast" }],
   },
   beggar: {
     id: "beggar", kind: KIND.BEGGAR, glyph: null, nameDe: "Bettler", nameEn: "Beggar",
@@ -310,7 +311,8 @@ flavorDe: "Er bittet um wenig — und am Ende des Tages hat er mehr als mancher 
 flavorDe: "Der Einzige, der dem König die Wahrheit sagen darf — und der Einzige, der es überlebt.", flavorEn: "The only one allowed to tell the king the truth — and the only one who survives it.",
     unlock: { type: "boss" }, flank: true,
     moveSpec: { slides: [[1,0],[-1,0],[0,1],[0,-1]], range: 1, leaps: [[2,2],[2,-2],[-2,2],[-2,-2]] },
-    ladder: [{ level: 3, ability: "teleport" }, { level: 6, ability: "blast" }, { level: 9, ability: "lifesteal" }],
+    /* v1.91.1: der Narr wirft (Fernschuss) - Lebensraub passte nicht zu ihm */
+    ladder: [{ level: 3, ability: "teleport" }, { level: 6, ability: "blast" }, { level: 9, ability: "ranged_shot" }],
   },
   // ── WERKSTATT ──
   smith: {

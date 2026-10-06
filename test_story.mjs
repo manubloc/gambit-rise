@@ -358,5 +358,29 @@ import { readdirSync as _lies, readdirSync as _liesOrdner, readFileSync as _lies
   if (zuGross.length) console.log("   zu gross:", zuGross.slice(0, 6).join(", "));
 }
 
+
+/* v1.91.1: DIE CHRONIK NENNT DEN MEISTER IHRES KAPITELS. Nach dem Figuren-Umbau
+   erzaehlten die Kapitel IV-IX noch von Meistern, die es dort nicht mehr gab. */
+{
+  /* worldMap.js laedt ein Bild und laesst sich ausserhalb des Bundlers nicht
+     importieren - die Tabelle wird aus dem Quelltext gelesen */
+  const { readFileSync } = await import("node:fs");
+  const quelle = readFileSync("src/app/ui/worldMap.js", "utf8");
+  const von = quelle.indexOf("export const LEAGUE_LORE"), bis = quelle.indexOf("/* v1.0.13", von);
+  let LORE = null; try { LORE = new Function(quelle.slice(von, bis).replace("export const LEAGUE_LORE =", "return") )(); } catch {}
+  const loreText = LORE ? (l, en) => (en ? LORE[l].en : LORE[l].de) : null;
+  const { KAPITEL_TROPHAEE, MITTE_MEISTER, BOSSES } = await import("./src/content/bosses.js");
+  if (loreText) {
+    const ruf = (id, en) => { const b = BOSSES.find((x) => x.id === id); return (en ? b.nameEn : b.nameDe).split(",")[0]; };
+    /* Kapitel I erzaehlt, wie alles begann (Osric, der Riss) - Zahir tritt erst am Tor auf */
+    const fehlt = [];
+    for (let l = 2; l <= 12; l++) for (const en of [false, true])
+      if (!loreText(l, en, "x").includes(ruf(KAPITEL_TROPHAEE[l - 1], en))) fehlt.push(`${l}${en ? "en" : "de"}`);
+    for (const [id, l] of Object.entries(MITTE_MEISTER)) for (const en of [false, true])
+      if (!loreText(l, en, "x").includes(ruf(id, en))) fehlt.push(`${id}@${l}${en ? "en" : "de"}`);
+    ok(`the chronicle of every chapter from II names its master, and the two masters without a chapter (missing: ${fehlt.join(", ") || "none"})`, fehlt.length === 0);
+  } else ok("the chronicle can be read outside the bundler", false);
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

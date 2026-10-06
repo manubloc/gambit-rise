@@ -619,5 +619,92 @@ console.log("\n== ALLE ACHTZEHN ==");
   ok("jeder Bund sagt in einem Satz, was er gibt (de und en)", alle.every((id) => BUENDE[id].regelDe && BUENDE[id].regelEn && BUENDE[id].storyDe));
 }
 
+
+/* ══ v1.91.0: DER ECHTE WEG - JEDER DER ACHTZEHN, VOM SPIELSTAND BIS AUFS BRETT ══
+   Besitzer 6.10.: "sind die Buende jetzt wirklich alle aktiv und funktionieren
+   auch? Das musst du wirklich sicherstellen."
+   Alles oben baut seine Figuren von Hand (fig(...) mit charId) - genau so blieb
+   diese Suite gruen, waehrend im Spiel KEIN Bund wirkte: den echten Figuren
+   fehlte die Kennung. Hier steht darum nichts von Hand auf dem Brett. Der Weg
+   ist der des Spiels: Spielstand -> gespeicherte Aufstellung -> buildArmyForMap
+   -> meineBuende -> createGame. Gefragt wird die Regel selbst, an den Figuren,
+   die createGame hingestellt hat - und zur Gegenprobe dieselbe Partie ohne Bund. */
+console.log("\n== DER ECHTE WEG: Spielstand -> Aufstellung -> Brett ==");
+{
+  const M = await import("./src/meta/index.js");
+  const K = await import("./src/core/rules/buende.js");
+  const karte = mapById("classic");
+  const voll = M.withProgressPct(M.defaultProfile(), 100, 12);
+  const frei = [0, 1, 2, 5, 6, 7];
+  const stand = (ids) => {
+    const f = ["rook", "knight", "bishop", "queen", "king", "bishop", "knight", "rook"];
+    ids.filter((id) => id !== "king" && id !== "queen").forEach((id, i) => { f[frei[i]] = id; });
+    return { ...voll, loadout: { ...(voll.loadout || {}), formations: { classic: f } } };
+  };
+  const partie = (profil, mitBund = true) => {
+    const heer = M.buildArmyForMap(profil, karte, null, "hp");
+    const wach = M.meineBuende(profil, heer);
+    const g = createGame(heer, M.buildArmyFromFormation(() => 5, karte.defaultFormation), { rules: "hp", map: karte, buende: { w: mitBund ? wach : [], b: [] } });
+    return { heer, wach, g };
+  };
+  const stueck = (g, id, farbe = "w") => g.board.find((p) => p && p.color === farbe && p.charId === id);
+  const feld = (g, id, farbe = "w") => g.board.findIndex((p) => p && p.color === farbe && p.charId === id);
+  const feind = (g) => g.board.find((p) => p && p.color === "b" && p.kind === "R");
+  /* Was jeder Bund am echten Brett tun muss. true = die Regel greift. */
+  const WIRKT = {
+    krone: (g) => { const k = feld(g, "king"), pf = feld(g, "paladin"); g.board[k + 1] = g.board[pf]; if (pf !== k + 1) g.board[pf] = null; return K.kroneFaengtAb(g, k) === k + 1; },
+    konzil: (g) => K.konzilLehntAb(g, feld(g, "king")) === true,
+    geleit: (g) => Array.isArray(K.geleitTauschbar(g, "w")),
+    faehrte: (g) => K.faehrteFolgt(g, feld(g, "hawk")) === feld(g, "pathfinder"),
+    schatten: (g) => K.schattenVerbirgt(g, stueck(g, "assassin")) === true,
+    schildwacht: (g) => K.schildwachtDeckt(g, feld(g, "king")) === true,
+    gezeiten: (g) => K.gezeitenDurchbruch(g, stueck(g, "captain")) === true && legalMovesFrom(g, feld(g, "captain")).length > 0,
+    bannkreis: (g) => K.bannkreisSperrt(g, feld(g, "seeress") + 8, "b") === true,
+    sturm: (g) => K.sturmRuftZurueck(g, stueck(g, "amazon")) === true,
+    nachtwache: (g) => { const a = feld(g, "alchemist"); const n = a + 8; g.board[n].hp -= 1; return K.nachtwacheHeilt(g, "w") === n; },
+    kloster: (g) => K.klosterDeckt(g, feld(g, "monk") + 8) === true,
+    jagd: (g) => K.jagdFesselt(g, stueck(g, "huntress"), feind(g)) === true,
+    finsternis: (g) => K.finsternisBannt(g, stueck(g, "executioner")) === true,
+  };
+  let alleWach = true, alleKennung = true;
+  for (const [id, b] of Object.entries(BUENDE)) {
+    const profil = stand(b.figuren);
+    const { heer, wach, g } = partie(profil);
+    const aufBrett = b.figuren.every((f) => !!stueck(g, f));
+    if (!aufBrett) alleKennung = false;
+    if (!wach.includes(id)) alleWach = false;
+    ok(`${b.nameDe}: steht die Aufstellung, ist er wach - und jede seiner Figuren traegt am Brett ihre Kennung`, wach.includes(id) && aufBrett && K.hat(g, id, "w") && !K.hat(g, id, "b"));
+    /* eine Figur fehlt: Koenig und Dame kann man nicht herausnehmen, also eine der anderen */
+    const raus = b.figuren.find((f) => f !== "king" && f !== "queen");
+    const ersatz = raus === "knight" ? ["bishop", "rook"] : raus === "bishop" || raus === "rook" ? null : b.figuren.filter((f) => f !== raus);
+    if (ersatz) {
+      const ohneEine = ersatz.length === 2 && raus === "knight"
+        ? { ...voll, loadout: { ...(voll.loadout || {}), formations: { classic: ["rook", "hawk", "bishop", "queen", "king", "bishop", "mage", "rook"] } } }
+        : stand(ersatz);
+      ok(`${b.nameDe}: fehlt ${CHARACTERS[raus].nameDe} in der Aufstellung, schlaeft er`, !partie(ohneEine).wach.includes(id));
+    }
+    if (WIRKT[id]) {
+      ok(`${b.nameDe}: die Regel greift an den Figuren, die createGame hingestellt hat`, WIRKT[id](partie(profil).g) === true);
+      ok(`${b.nameDe}: GEGENPROBE - dieselbe Partie ohne den Bund, und sie greift nicht`, WIRKT[id](partie(profil, false).g) === false);
+    }
+  }
+  ok("alle achtzehn sind auf dem echten Weg wach geworden", alleWach && alleKennung && Object.keys(BUENDE).length === 18);
+  /* Kueche und Turnier wirken beim Aufbau - an den Werten der echten Figuren */
+  { const p = stand(BUENDE.kueche.figuren); const mit = partie(p).g, ohne = partie(p, false).g;
+    ok("Kueche: Metzger, Koch und Mueller haben am echten Brett ein Leben mehr", BUENDE.kueche.figuren.every((f) => stueck(mit, f).maxHp === stueck(ohne, f).maxHp + 1 && stueck(mit, f).hp === stueck(mit, f).maxHp)); }
+  { const p = stand(BUENDE.turnier.figuren); const mit = partie(p).g, ohne = partie(p, false).g;
+    ok("Turnier: die vier treffen am echten Brett mit einem Angriff mehr", BUENDE.turnier.figuren.every((f) => stueck(mit, f).atk === stueck(ohne, f).atk + 1)); }
+  /* Dorf, Kontor und Werkstatt wirken neben dem Brett - mit den Buenden, die der echte Weg liefert */
+  { const p = stand(BUENDE.dorf.figuren); const { heer, wach } = partie(p);
+    ok("Dorf: mit den Buenden des echten Heeres bringen acht Bauern 16 Gold", M.zubrot({ heer, buende: wach, bauernUebrig: 8, result: "win", gold: 50, liga: 1 }).dorf === 16); }
+  { const p = stand(BUENDE.kontor.figuren); const { heer, wach } = partie(p);
+    ok("Kontor: mit den Buenden des echten Heeres bringt ein Sieg ein Viertel mehr", M.zubrot({ heer, buende: wach, result: "win", gold: 48, liga: 1 }).kontor === 12); }
+  ok("Werkstatt: der echte Weg liefert den Bund, an dem der Kampfschirm den Zaun festmacht", partie(stand(BUENDE.werkstatt.figuren)).wach.includes("werkstatt"));
+  /* vor der Freigabe der hinteren Reihe schlaeft alles - auch das Geleit, dessen drei Figuren jeder von Anfang an hat */
+  ok("ein frischer Stand: kein Bund wirkt, bevor die hintere Reihe freigegeben ist", partie(M.defaultProfile()).wach.length === 0);
+  const halb = M.withProgressPct(M.defaultProfile(), 60, 1);
+  ok("... danach wirkt das Geleit sofort (Springer, Laeufer, Turm stehen in jeder Grundstellung)", partie(halb).wach.join() === "geleit");
+}
+
 console.log(`\nRESULT: ${passed} passed, ${failed} failed`);
 if (failed) process.exit(1);

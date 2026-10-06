@@ -20,16 +20,16 @@ export const MEISTER_KULISSE = {
   b27: "meister-varek",         // II   Varek, der Schwarze Ritter - Turnierplatz bei Nacht
   b24: "meister-hetzer",         // III  Malrik, der Seuchenkoenig (der naechtliche Marktplatz; der Dateiname blieb)
   b28: "meister-isolde",         // IV   Isolde, die Dornenkoenigin - Rosengarten
-  b29: "meister-halvar",         // V    Halvar, der Gezeitenkoenig - versunkener Thronsaal
-  b30: "meister-seraphine",      // VI   Seraphine, die Maskenfuerstin - Ballsaal
-  b31: "meister-yorrik",         // VII  Yorrik, der Winterkoenig - gefrorene Thronhalle
+  b29: "meister-halvar",         // Mitte XI  Halvar, der Gezeitenkoenig - versunkener Thronsaal
+  b30: "meister-seraphine",      // VII  Seraphine, die Maskenfuerstin - Ballsaal
+  b31: "meister-yorrik",         // V    Yorrik, der Winterkoenig - gefrorene Thronhalle
   b32: "meister-cassian",        // VIII Cassian, der Intrigant - geheime Ratskammer
   b33: "meister-schattenfuerst", // IX   Veyl, der Schattenfuerst
   b34: "meister-koloss",         // X    Brakk, der Koloss
   b35: "meister-asra",           // XI   Asra, die Erzfeindin
   b36: "meister-osric",          // XII  Osric, der Grossmeister
-  b37: "meister-morwen",         // Mitte VI  Morwen, die Rabenmutter - Glockenturm
-  b38: "meister-hueter",         // Mitte IX  Thalor, der Hueter
+  b37: "meister-morwen",         // Mitte VIII  Morwen, die Rabenmutter - Glockenturm
+  b38: "meister-hueter",         // VI   Thalor, der Hueter
 };
 
 /* Die Bestien, nach dem, was sie sind:

@@ -1,5 +1,29 @@
 # Changelog - Gambit Rise
 
+## 1.91.1 - Die Meister stehen in ihrer Landschaft; jeder Bund am echten Weg geprueft
+
+Besitzer 6.10. abends: "sind die Buende jetzt wirklich alle aktiv und
+funktionieren auch? Das musst du wirklich sicherstellen ... ich moechte, dass
+das in die Gesamtstory super passt."
+
+- **Jeder der achtzehn Buende ist am ECHTEN Weg geprueft** (test_buende, 70 neue
+  Proben): Spielstand -> gespeicherte Aufstellung -> Heer -> createGame. Nichts
+  steht von Hand auf dem Brett; gefragt wird die Regel an den Figuren, die das
+  Spiel selbst hinstellt, und zur Gegenprobe dieselbe Partie ohne Bund. Die
+  alte Suite baute ihre Figuren von Hand - genau so blieb sie gruen, waehrend
+  im Spiel kein Bund wirkte.
+- **Die Meister passten nicht zu ihren Kapiteln:** der Winterkoenig hielt die
+  Sattelweite, der Gezeitenkoenig die Schneelande. Jetzt nach der Landschaft:
+  V Yorrik (Winter), VI Thalor (er traegt in der Chronik seit je die Schluessel
+  zum Archiv an den Paessen), VII Seraphine; Halvar sitzt als Meister ohne
+  Kapitel an der Kueste (XI), Morwen ueber dem Aschgrund (VIII). Blutmagd und
+  Eisenfaust stehen wieder dort, wo die Chronik sie nennt (VIII, IX).
+- **Die Chronik der Kapitel IV bis XI nennt die neuen Meister** (vorher nur II
+  und III); die Herolde nennen das richtige Tor.
+- **Zwei Leitern passten nicht zur Figur:** die Baeuerin maeht (Schockwelle
+  statt Blinzeln), der Narr wirft (Fernschuss statt Lebensraub). Nachgemessen:
+  43 % und 44 %.
+
 ## 1.91.0 - Der Figuren-Umbau: 24 neue Figuren, 8 neue Buende, 14 Grossmeister, 28 Bestien, Kampagne neu verteilt
 
 Besitzerauftrag 6.10.: "Freigabe fuer alle Figuren ... jetzt entsprechend auch

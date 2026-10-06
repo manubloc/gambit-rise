@@ -229,10 +229,10 @@ export const bossById = (id) => BOSSES.find((b) => b.id === id) || null;
    in Kapitelfolge (ihr Sieg gibt sie dir: KAPITEL_TROPHAEE); Morwen und Thalor
    halten kein Kapitel - sie stehen als Mitte-Boss in VI und IX und lassen
    sich, einmal begegnet, bestechen. */
-export const LEAGUE_BOSSES = ["b26", "b27", "b24", "b28", "b29", "b30", "b31", "b32", "b33", "b34", "b35", "b36", "b37", "b38"];
-export const KAPITEL_TROPHAEE = ["b26", "b27", "b24", "b28", "b29", "b30", "b31", "b32", "b33", "b34", "b35", "b36"];
+export const LEAGUE_BOSSES = ["b26", "b27", "b24", "b28", "b31", "b38", "b30", "b32", "b33", "b34", "b35", "b36", "b37", "b29"];
+export const KAPITEL_TROPHAEE = ["b26", "b27", "b24", "b28", "b31", "b38", "b30", "b32", "b33", "b34", "b35", "b36"];   /* v1.91.1: nach der Landschaft geordnet, siehe tools/build-campaign12.mjs */
 /** Grossmeister ohne eigenes Kapitel: in welchem stehen sie als Mitte-Boss? */
-export const MITTE_MEISTER = { b37: 6, b38: 9 };
+export const MITTE_MEISTER = { b37: 8, b29: 11 };
 /** In welchem Kapitel steht dieser Grossmeister? (Bundtafel, Hofstaat) */
 export const kapitelVonGrossmeister = (id) => {
   const i = KAPITEL_TROPHAEE.indexOf(id);
