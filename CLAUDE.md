@@ -41,8 +41,8 @@ gambitrise.com zeigt darauf).
   pruefe-navigation, pruefe-textfluss, test_layout) lesen den Chromium-Pfad aus
   `PW_CHROMIUM`; ohne die Variable gilt der Pfad des Cloud-Containers. Lokal:
   `npx playwright install chromium` und `PW_CHROMIUM=<Pfad zur chrome-Datei>`.
-- `npm test` — volle Batterie. MUSS **31 Suiten / 2839 Prüfungen** melden
-  (Stand v1.91.0; der Runner stoppt nach der ersten roten Suite, also
+- `npm test` — volle Batterie. MUSS **31 Suiten / 2910 Prüfungen** melden
+  (Stand v1.91.1; der Runner stoppt nach der ersten roten Suite, also
   Suitenzahl prüfen, nicht nur Assertions! **Zählweise seit v1.90.18
   (Audit A74): JEDE Suite der Kette meldet eine RESULT-Zeile** — alle Zeilen
   `RESULT…: N passed` summieren; test_balance meldet zwei, darum stehen im
@@ -348,10 +348,13 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
   mit ECHTER Transparenz — Alpha ≥ 150 härten, nie über RGB flatten).
 - **Großmeister, Kapitelmeister, Bestien (seit v1.91.0, Figuren-Umbau).**
   `LEAGUE_BOSSES` ist die KLASSE der **vierzehn Großmeister** (Damenplatz, Aura,
-  nie Gast): die zwölf Kapitelmeister b26 Zahir, b27 Varek, b24 Malrik, b28–b36
-  (Isolde, Halvar, Seraphine, Yorrik, Cassian, Veyl, Brakk, Asra, Osric) und
-  zwei ohne Kapitel, b37 Morwen (Mitte VI) und b38 Thalor (Mitte IX,
-  `MITTE_MEISTER`). `KAPITEL_TROPHAEE` (Index = Kapitel − 1) sagt, wen ein
+  nie Gast): die zwölf Kapitelmeister **in der Folge ihrer Landschaft (seit v1.91.1)**:
+  I b26 Zahir, II b27 Varek, III b24 Malrik, IV b28 Isolde, V b31 Yorrik
+  (Winter), VI b38 Thalor (Pässe, Archiv), VII b30 Seraphine, VIII b32 Cassian,
+  IX b33 Veyl, X b34 Brakk, XI b35 Asra, XII b36 Osric — und zwei ohne Kapitel,
+  b37 Morwen (Mitte VIII, Aschgrund) und b29 Halvar (Mitte XI, Küste;
+  `MITTE_MEISTER`). **Die Kennung sagt nichts über das Kapitel** — maßgeblich
+  sind `KAPITEL_TROPHAEE` und die Tabelle `ENDBOSS` im Generator. `KAPITEL_TROPHAEE` (Index = Kapitel − 1) sagt, wen ein
   gewonnenes Kapitel gibt — alle zwölf sind Großmeister, **Kapitel I gibt Zahir,
   nicht mehr den Drachen**. Alles andere sind **28 Bestien** (freie Plätze,
   keine Aura, bestechlich): die alten Meister b08, b12, b14, b16–b20, b23, b25
@@ -545,7 +548,7 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
   Auswahl-Lichtspektakel.
 - Alles Optionale abschaltbar (Klang, Online).
 
-## Offene Baustellen (Stand v1.91.0, 6.10.2026)
+## Offene Baustellen (Stand v1.91.1, 6.10.2026)
 
 **Einstieg für jede neue Sitzung: `design/CHAT-EINSTIEG-2026-09-27.md`** (zehn
 Minuten, mit dem Startsatz für den Chat), dann **`design/UEBERGABE-2026-09-27.md`** — Stand,
@@ -560,9 +563,7 @@ Tabelle „STAND DER ABARBEITUNG“ oben — erst dort nachsehen),
 Tabellen, Messwerte).
 Hier nur der Überblick:
 
-- **Nach dem Figuren-Umbau offen:** die Kapiteltexte der Weltkarte
-  (`LEAGUE_LORE`) sind nur für Kapitel II und III auf die neuen Meister
-  umgeschrieben, IV–IX nennen noch die alten · die Kronenglut liegt weiter auf
+- **Nach dem Figuren-Umbau offen:** die Kronenglut liegt weiter auf
   dem alten Osric-Bild (jetzt „Der Steinkönig“, b25), der neue Osric (b36)
   leuchtet nicht · die Startseite zeigt noch keine der neuen Figuren
   (`tools/landing-fotos.mjs`) · der Store-Eintrag nennt noch 27 Helden und 25

@@ -4797,7 +4797,7 @@ export const CAMPAIGN12 = [
   "storyEn": "Lawinenhang: here waits the master of chapter V.",
   "final": true,
   "boss": {
-   "pure": "b29"
+   "pure": "b31"
   },
   "tier": 4
  },
@@ -5101,7 +5101,7 @@ export const CAMPAIGN12 = [
    "pure": "b21",
    "rotation": [
     "b21",
-    "b16"
+    "b08"
    ]
   },
   "tier": 2
@@ -5209,11 +5209,7 @@ export const CAMPAIGN12 = [
    "xp": 114
   },
   "storyDe": "Die Prüfung wartet bei Das Verlorene Schloss.",
-  "storyEn": "The trial waits at Das Verlorene Schloss.",
-  "boss": {
-   "pure": "b37"
-  },
-  "tier": 3
+  "storyEn": "The trial waits at Das Verlorene Schloss."
  },
  {
   "id": "L06s19",
@@ -5236,9 +5232,9 @@ export const CAMPAIGN12 = [
   "storyDe": "Der Pfad führt weiter über Dohlenflug.",
   "storyEn": "The path leads on across Dohlenflug.",
   "boss": {
-   "pure": "b16",
+   "pure": "b08",
    "rotation": [
-    "b16",
+    "b08",
     "b41"
    ]
   },
@@ -5875,7 +5871,7 @@ export const CAMPAIGN12 = [
   "storyEn": "Grauer Atem: here waits the master of chapter VI.",
   "final": true,
   "boss": {
-   "pure": "b30"
+   "pure": "b38"
   },
   "tier": 3
  },
@@ -7089,7 +7085,7 @@ export const CAMPAIGN12 = [
   "storyEn": "Hufeisenglück: here waits the master of chapter VII.",
   "final": true,
   "boss": {
-   "pure": "b31"
+   "pure": "b30"
   },
   "tier": 3
  },
@@ -7420,7 +7416,7 @@ export const CAMPAIGN12 = [
    "pure": "b06",
    "rotation": [
     "b06",
-    "b18"
+    "b16"
    ]
   },
   "tier": 3
@@ -7617,9 +7613,9 @@ export const CAMPAIGN12 = [
   "storyDe": "Der Pfad führt weiter über Kupferader.",
   "storyEn": "The path leads on across Kupferader.",
   "boss": {
-   "pure": "b18",
+   "pure": "b16",
    "rotation": [
-    "b18",
+    "b16",
     "b13"
    ]
   },
@@ -7706,7 +7702,11 @@ export const CAMPAIGN12 = [
    "xp": 120
   },
   "storyDe": "Die Prüfung wartet bei Zinnendorn.",
-  "storyEn": "The trial waits at Zinnendorn."
+  "storyEn": "The trial waits at Zinnendorn.",
+  "boss": {
+   "pure": "b37"
+  },
+  "tier": 4
  },
  {
   "id": "L08s26",
@@ -8356,9 +8356,9 @@ export const CAMPAIGN12 = [
   "storyDe": "Der Pfad führt weiter über Splitterknochen.",
   "storyEn": "The path leads on across Splitterknochen.",
   "boss": {
-   "pure": "b08",
+   "pure": "b18",
    "rotation": [
-    "b08",
+    "b18",
     "b19"
    ]
   },
@@ -8733,7 +8733,7 @@ export const CAMPAIGN12 = [
    "pure": "b43",
    "rotation": [
     "b43",
-    "b08"
+    "b18"
    ]
   },
   "tier": 4
@@ -8819,11 +8819,7 @@ export const CAMPAIGN12 = [
    "xp": 123
   },
   "storyDe": "Der letzte Anstieg:  Dornenfeste.",
-  "storyEn": "The final ascent:  Dornenfeste.",
-  "boss": {
-   "pure": "b38"
-  },
-  "tier": 4
+  "storyEn": "The final ascent:  Dornenfeste."
  },
  {
   "id": "L09s28",
@@ -10892,7 +10888,11 @@ export const CAMPAIGN12 = [
    "xp": 144
   },
   "storyDe": "Die Prüfung wartet bei Das Berstende Gatter.",
-  "storyEn": "The trial waits at Das Berstende Gatter."
+  "storyEn": "The trial waits at Das Berstende Gatter.",
+  "boss": {
+   "pure": "b29"
+  },
+  "tier": 4
  },
  {
   "id": "L11s40",

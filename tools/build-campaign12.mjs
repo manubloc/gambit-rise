@@ -60,7 +60,14 @@ const SLOTS = [
    so verschwindet nichts stumm (genau das war der Fehler beim ersten
    Erwachen, v1.0.20). Am Ende zaehlt das Skript nach und bricht ab, wenn
    eine Figur oder Bestie keinen Platz bekam. */
-const ENDBOSS = ["b26","b27","b24","b28","b29","b30","b31","b32","b33","b34","b35","b36"];
+/* v1.91.1: DIE MEISTER STEHEN IN IHRER LANDSCHAFT. Der Winterkoenig hielt das
+   Tor der Sattelweite (VII), der Gezeitenkoenig das der Schneelande (V) - die
+   Kulisse des Meisters widersprach dem Brett seines Kapitels. Jetzt: Yorrik im
+   Winter (V), Thalor mit seinen Schluesseln an den Paessen des Archivs (VI, so
+   erzaehlt es die Chronik seit je), Seraphines Ball am Turnierhof (VII); Halvar
+   sitzt als Meister ohne Kapitel an der Kueste (XI), Morwen ueber dem
+   Aschgrund (VIII). */
+const ENDBOSS = ["b26","b27","b24","b28","b31","b38","b30","b32","b33","b34","b35","b36"];
 const MEISTER_FIGUR = {};   // v1.91.0: kein Kapitel hat mehr eine Figur als Meister (bis v1.90.36: I der Drache)
 /* DIE BRUTMUTTER VOR DEM DRACHEN (v1.90.16): in Kapitel VII zwei Schritte vor
    der Drachenhalle - erst das Gelege, dann der geschluepfte Drache. Seit
@@ -96,15 +103,15 @@ const BESTIEN = {
   3: [["b02", .14], ["b04", .3], ["b01", .42]],
   4: [["b09", .3], ["b12", .68]],
   5: [["b22", .3], ["b40", .42], ["b42", .76]],
-  6: [["b21", .3], ["b16", .42], ["b41", .7]],
+  6: [["b21", .3], ["b08", .42], ["b41", .7]],                      // v1.91.1: der Kanonier; die Blutmagd liest ihren Ritus im Aschgrund (VIII)
   7: [["b15", .3], ["b17", .76]],                      // + die Brutmutter vor der Drachenhalle
-  8: [["b06", .3], ["b18", .42], ["b13", .76]],
-  9: [["b08", .24], ["b19", .4], ["b43", .7]],
+  8: [["b06", .3], ["b16", .42], ["b13", .76]],
+  9: [["b18", .24], ["b19", .4], ["b43", .7]],                     // v1.91.1: Eisenfaust haelt die Wache an der Wunde (IX)
   10: [["b05", .3], ["b20", .42], ["b14", .76]],
   11: [["b07", .3], ["b23", .42], ["b39", .76]],      // der Schlinger: "ein Monster, das sehr spaet erscheinen sollte"
   12: [["b11", .2], ["b25", .56]],
 };
-const MITTE_MEISTER = { 6: ["b37", .62], 9: ["b38", .84] };   // Morwen, Thalor
+const MITTE_MEISTER = { 8: ["b37", .62], 11: ["b29", .62] };   // Morwen ueber dem Aschgrund, Halvar an der Kueste
 
 const PHASEN = [
   ["Der Weg beginnt bei", "The road begins at"],
