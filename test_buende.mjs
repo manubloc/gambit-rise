@@ -41,15 +41,14 @@ const leer = (buende) => {
 const wo = (g, charId) => g.board.findIndex((p) => p && p.charId === charId);
 const zug = (g, von, nach) => applyMove(g, legalMovesFrom(g, von).find((m) => m.to === nach));
 
-/* 1. ERWACHEN - fuer alle zehn nach demselben Muster. Die Stufe kommt aus
-   einer Funktion, wie im Spiel; alle auf 10 weckt, eine auf 9 nicht. */
+/* 1. ERWACHEN - fuer alle nach demselben Muster. Seit v1.91.0 (Besitzer
+   6.10.2026) zaehlt die AUFSTELLUNG, nicht mehr die Stufe: stehen alle
+   Figuren des Bundes im Heer, wirkt er; fehlt eine, schlaeft er. */
 const erwachen = (id) => {
   const b = BUENDE[id];
-  const alle = () => 10, max = () => 10;
   const einer = b.figuren[0];
-  const fastAlle = (cid) => (cid === einer ? 9 : 10);
-  ok(`${b.nameDe}: erwacht, wenn alle ${b.figuren.length} auf Hoechststufe stehen`, bundErwacht(id, alle, max) === true);
-  ok(`${b.nameDe}: schlaeft, solange eine Figur (${einer}) eine Stufe darunter steht`, bundErwacht(id, fastAlle, max) === false);
+  ok(`${b.nameDe}: erwacht, wenn alle ${b.figuren.length} in der Aufstellung stehen`, bundErwacht(id, () => true) === true);
+  ok(`${b.nameDe}: schlaeft, solange eine Figur (${einer}) nicht aufgestellt ist`, bundErwacht(id, (cid) => cid !== einer) === false);
 };
 /* 4. KULISSE - jede Figur des Bundes bekommt das Bild ihres Bundes. */
 const kulissen = new Set(readdirSync("src/app/ui/assets/kulissen").filter((f) => f.endsWith(".webp")));
@@ -317,31 +316,43 @@ console.log("\n== OHNE BUND: Bauer, Gambit, Drache ==");
    wird darum dieselbe Frage gestellt, die es stellt. */
 console.log("\n== A9: DER WEG VOM SPIELSTAND IN DEN KERN ==");
 {
-  const hatBund = (st, b) => !!(st && st.buende && st.buende.includes(b));
-  const { buendeFuer, maxLevelFor } = await import("./src/meta/index.js");
+  const { hat: hatBund } = await import("./src/core/rules/buende.js");
+  const { buendeFuer, meineBuende, heerIds, buildArmyForMap } = await import("./src/meta/index.js");
   const { defaultProfile } = await import("./src/meta/profile.js");
   const { createGame: mkGame, legalMoves: zuege, applyMove: zieh } = await import("./src/core/index.js");
   const { BUND_LISTE } = await import("./src/content/buende.js");
+  const { REIHE_FUENF } = await import("./src/meta/index.js");
 
   const frisch = defaultProfile();
-  ok("A9: ein frischer Stand hat keine erwachten Buende", buendeFuer(frisch).length === 0);
+  const heer0 = buildArmyForMap(frisch, mapById("classic"), null, "hp");
+  /* v1.91.0: die Werksaufstellung enthaelt Springer, Laeufer und Turm - das
+     Geleit STUENDE also beisammen. Es wirkt trotzdem erst, wenn der Spieler
+     seine Reihe selbst stellen darf: vorher ist ein Bund keine Entscheidung. */
+  ok("v1.91.0: die Werksaufstellung haelt das Geleit beisammen", buendeFuer(frisch, heer0).includes("geleit"));
+  ok("v1.91.0: ein frischer Stand hat trotzdem keinen wirkenden Bund (Reihe noch zu)", meineBuende(frisch, heer0).length === 0);
+  const offen = { ...frisch, campaign: { ...frisch.campaign, cleared: [REIHE_FUENF[0]] } };
+  ok("v1.91.0: ist die hintere Reihe frei, wirkt das Geleit", meineBuende(offen, buildArmyForMap(offen, mapById("classic"), null, "hp")).join() === "geleit");
+  ok("v1.91.0: jede Figur eines echten Heeres traegt ihre charId",
+    heer0.back.every((s) => s && typeof s.charId === "string") && heerIds(heer0).length === 8);
 
   const erster = BUND_LISTE[0];
-  const gestuft = { ...frisch, pieces: { ...(frisch.pieces || {}),
-    levels: Object.fromEntries(erster.figuren.map((f) => [f, maxLevelFor(f)])) } };
-  const liste = buendeFuer(gestuft);
-  ok("A9: sind alle Figuren eines Bundes auf Hoechststufe, ist er erwacht", liste.includes(erster.id));
+  const liste = buendeFuer(frisch, erster.figuren);
+  ok("A9: stehen alle Figuren eines Bundes im Heer, ist er erwacht", liste.includes(erster.id));
   ok("A9: und nur er - nicht gleich alle", liste.length === 1);
+  ok("v1.91.0: die Stufe spielt keine Rolle mehr - auch auf Stufe 1 wirkt er",
+    buendeFuer({ ...frisch, pieces: { levels: {} } }, erster.figuren).includes(erster.id));
 
   /* DER WEG IN DEN KERN. Das war der eigentliche Fehler. */
-  const g = mkGame(undefined, undefined, { rules: "hp", buende: liste });
-  ok("A9: createGame nimmt die Liste an und legt sie in den Zustand",
-    Array.isArray(g.buende) && g.buende.includes(erster.id));
-  ok("A9: und der Kern SIEHT ihn dort", hatBund(g, erster.id) === true);
+  const g = mkGame(undefined, undefined, { rules: "hp", buende: { w: liste, b: [] } });
+  ok("A9: createGame nimmt die Buende an und legt sie je Seite in den Zustand",
+    g.buende && Array.isArray(g.buende.w) && g.buende.w.includes(erster.id) && g.buende.b.length === 0);
+  ok("A9: und der Kern SIEHT ihn dort - fuer Weiss", hatBund(g, erster.id, "w") === true);
+  ok("v1.91.0: aber NICHT fuer den Gegner", hatBund(g, erster.id, "b") === false);
+  const flach = mkGame(undefined, undefined, { rules: "hp", buende: liste });
+  ok("v1.91.0: eine blanke Liste (alte Aufrufer) gilt weiter fuer beide Seiten", hatBund(flach, erster.id, "w") && hatBund(flach, erster.id, "b"));
   const ohne = mkGame(undefined, undefined, { rules: "hp" });
-  ok("A9: ohne Angabe bleibt es beim Nichts - kein Bund aus Versehen",
-    !ohne.buende || ohne.buende.length === 0);
-  ok("A9: und der Kern sieht dort auch keinen", hatBund(ohne, erster.id) === false);
+  ok("A9: ohne Angabe bleibt es beim Nichts - kein Bund aus Versehen", !ohne.buende);
+  ok("A9: und der Kern sieht dort auch keinen", hatBund(ohne, erster.id, "w") === false);
 
   /* Die Liste ueberlebt den Zug. */
   let lauf = g;
@@ -350,7 +361,29 @@ console.log("\n== A9: DER WEG VOM SPIELSTAND IN DEN KERN ==");
     if (!z) break;
     lauf = zieh(lauf, z);
   }
-  ok("A9: nach drei Zuegen steht der Bund noch im Zustand", (lauf.buende || []).includes(erster.id));
+  ok("A9: nach drei Zuegen steht der Bund noch im Zustand", hatBund(lauf, erster.id, "w"));
+
+  /* ── v1.91.0: DER BEFUND VOM 6.10.2026 ────────────────────────────────
+     Jede Wirkung sucht ihre Figuren ueber `charId`. Die Specs und makePiece
+     trugen das Feld nicht - in einem ECHTEN Heer wirkte kein Bund. Diese
+     Probe baut das Heer wie das Spiel und setzt NICHTS von Hand. */
+  const { buildArmyFromFormation: baf } = await import("./src/meta/index.js");
+  const form = ["rook", "knight", "bishop", "queen", "king", "paladin", "knight", "rook"];
+  const heerW = baf(() => 10, form), heerB = baf(() => 10, defaultFormation(mapById("classic")));
+  const echt = mkGame(heerW, heerB, { rules: "hp", map: mapById("classic"), buende: { w: buendeFuer(frisch, heerW), b: [] } });
+  const kf = echt.board.findIndex((p) => p && p.color === "w" && p.kind === "K");
+  const pf = echt.board.findIndex((p) => p && p.color === "w" && p.charId === "paladin");
+  ok("v1.91.0: im echten Heer steht der Paladin mit charId neben dem Koenig", pf >= 0 && Math.abs(pf - kf) === 1);
+  ok("v1.91.0: und die Krone ist wach, weil beide aufgestellt sind", hatBund(echt, "krone", "w"));
+  const { kroneFaengtAb } = await import("./src/core/rules/buende.js");
+  ok("v1.91.0: der Paladin faengt den Treffer auf den Koenig ab - ohne Handanlegen", kroneFaengtAb(echt, kf) === pf);
+  const ohneBund = mkGame(heerW, heerB, { rules: "hp", map: mapById("classic") });
+  ok("v1.91.0: ohne den Bund im Zustand faengt er nichts ab", kroneFaengtAb(ohneBund, kf) === null);
+
+  /* Der Schnappschuss (pausierte Partie) behaelt die Buende. */
+  const { encodeState, decodeState } = await import("./src/core/index.js");
+  const zurueck = decodeState(encodeState(echt));
+  ok("v1.91.0: eine pausierte Partie behaelt ihre Buende", hatBund(zurueck, "krone", "w") && !hatBund(zurueck, "krone", "b"));
 }
 {
   /* WO SIE NICHT GELTEN: Hotseat, PvP, Fernpartie und Klassik bleiben leer.
@@ -362,7 +395,7 @@ console.log("\n== A9: DER WEG VOM SPIELSTAND IN DEN KERN ==");
   const gs = readFileSync("src/app/ui/screens/GameScreen.jsx", "utf8");
   const stelle = gs.indexOf("const meineBuende = useMemo(");
   ok("A9: der Schirm entscheidet die Buende an EINER Stelle", stelle > 0);
-  const bed = stelle > 0 ? gs.slice(stelle, stelle + 260) : "";
+  const bed = stelle > 0 ? gs.slice(stelle, stelle + 520) : "";
   ok("A9: und sie schliesst PvP, Fernpartie, Hotseat und Klassik aus",
     /!pvp/.test(bed) && /!daily/.test(bed) && /!hotseat/.test(bed) && /!classic/.test(bed));
   ok("A9: der Kampagnen-Aufbau reicht sie durch", /seed, buende: meineBuende/.test(gs));

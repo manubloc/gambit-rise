@@ -10,7 +10,7 @@ import { WHITE, BLACK, createGame, reduce, moveCommand, potionCommand, shiftComm
   /* v1.90.9 (Audit A32): die Fallen. Dieselbe Setzphase, andere Regeln. */
   FALLEN_ARTEN, MAX_FALLEN, fallenFelder, legeFalle, nimmFalle, fallenAnzahl } from "../../../core/index.js";
 import { difficultyById, mapById, MAPS, campaignTag, chapterForRow, CHARACTERS as CHARACTERS_BY_ID, voiceFor, ITEMS, KIND_TO_CHAR, nodeById } from "../../../content/index.js";
-import { buildArmy, buildAiArmyForMap, buildArmyFromFormation, hasForesight, applyResult, summarizeMatch, mapUnlocked, hpUnlocked, winGold, characterLevel, gambitTier, itemRevealed, clearedCount, SP_VAULT_MIN_CLEARED, buendeFuer, finaleGrundreihe } from "../../../meta/index.js";
+import { buildArmy, buildAiArmyForMap, buildArmyFromFormation, hasForesight, applyResult, summarizeMatch, mapUnlocked, hpUnlocked, winGold, characterLevel, gambitTier, itemRevealed, clearedCount, SP_VAULT_MIN_CLEARED, meineBuende as meineBuendeFuer, finaleGrundreihe } from "../../../meta/index.js";
 import { chooseMove } from "../../../ai/index.js";
 import { T } from "../theme.js";
 import { groundArt, livery } from "../livery.js";
@@ -227,8 +227,11 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
          Match-Paket sie mitschickt, kommt es hier dazu.
        - KLASSISCH: nein - es will ausdruecklich nichts als Schach sein. */
   const meineBuende = useMemo(
-    () => (!pvp && !daily && !hotseat && !classic ? buendeFuer(profile) : []),
-    [pvp, daily, hotseat, classic, profile]);   // eslint-disable-line
+    /* v1.91.0: je Seite ({ w, b }) und aus dem HEER, das antritt - ein Bund
+       wirkt, sobald alle seine Figuren in der Aufstellung stehen. Der Spieler
+       ist in allen Arten, in denen Buende gelten, Weiss. */
+    () => ({ w: (!pvp && !daily && !hotseat && !classic ? meineBuendeFuer(profile, playerArmy) : []), b: [] }),
+    [pvp, daily, hotseat, classic, profile, playerArmy]);   // eslint-disable-line
 
   /* ── v1.90.18: EIN GEGNERHEER FUER AUFBAU, NEUSTART UND NACHSPIELEN ────────
      GEMESSEN (Kapitel-V-Finale, Samen 12345, 18 Befehle): das Nachspielen

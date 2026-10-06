@@ -716,6 +716,9 @@ export function applyMove(state, move, opts) {
   const gekroentZu = (move.kind === "P" && b[move.to] && b[move.to].kind !== "P") ? b[move.to].kind : null;
   ns.lastMove = { consumed: (typeof move !== "undefined" && move && move.consumes) || null,
     from: move.from, to: move.to, color: piece.color, kind: move.kind, byHero: !!piece.hero,
+    /* v1.91.0: WER gezogen hat - der Schatten-Bund fragt danach (lm.charId),
+       und bis hierher stand das Feld nie im letzten Zug. */
+    ...(piece.charId ? { charId: piece.charId } : {}),
     capture: captured, bounced, damaged, dmg, lethal,
     targetHpAfter: hp && target ? Math.max(0, target.hp) : null,
     // Bei EN PASSANT ist das Zielfeld leer (target null), geschlagen wird

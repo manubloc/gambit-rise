@@ -633,12 +633,14 @@ console.log("\n== DIE ZEHN BUENDE (v1.9.0) ==");
 
   /* ERST AUF HOECHSTSTUFE. Das ist der Kern des Entwurfs: ein Bund ist der
      Lohn dafuer, seine Figuren ganz ausgebaut zu haben. */
-  ok("ein Bund erwacht erst auf Hoechststufe", bundErwacht("konzil", () => 10, () => 10));
-  ok("und bleibt eine Stufe darunter stumm", !bundErwacht("konzil", () => 9, () => 10));
+  /* v1.91.0 (Besitzer 6.10.2026): ein Bund wirkt AB DER AUFSTELLUNG - die
+     Stufe zaehlt nicht mehr. */
+  ok("ein Bund erwacht, sobald alle seine Figuren aufgestellt sind", bundErwacht("konzil", () => true));
+  ok("und bleibt stumm, wenn keine steht", !bundErwacht("konzil", () => false));
   /* auch wenn NUR EINE Figur fehlt - sonst waere der Dreierbund billiger als
      ein Zweierbund */
   ok("auch wenn nur eine Figur des Bundes fehlt",
-    !bundErwacht("geleit", (id) => (id === "rook" ? 9 : 10), () => 10));
+    !bundErwacht("geleit", (id) => id !== "rook"));
 
   /* Jeder Bund traegt eine Regel in EINEM Satz - der Besitzer hat einen
      ersten Entwurf verworfen, weil er zu verschachtelt war. */

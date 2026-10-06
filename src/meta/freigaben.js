@@ -23,7 +23,8 @@
 // profile.gesehen; erklaertWas() liefert die Freigaben, die aufgegangen sind,
 // aber noch nichts gesagt haben.
 import { CHARACTER_LIST } from "../content/index.js";
-import { gambitWach, hpWach } from "./leveling.js";
+import { gambitWach, hpWach, buendeFuer, heerIds, buildArmyForMap } from "./leveling.js";
+import { mapById } from "../content/maps.js";
 import { CAMPAIGN12 } from "../content/campaign12.gen.js";
 
 /* Die sieben Grundfiguren stehen von Anfang an im Heer - sie "treten" nicht
@@ -149,4 +150,24 @@ export const naechsteErklaerung = (profile) => erklaertWas(profile)[0] || null;
 export function merkeErklaert(profile, id) {
   return { ...profile,
     notices: { ...(profile?.notices || {}), [merkschluessel(id)]: true } };
+}
+
+/* ── v1.91.0: AB WANN BUENDE WIRKEN ──────────────────────────────────────────
+   Ein Bund wirkt, sobald alle seine Figuren in der Aufstellung stehen
+   (Besitzerentscheid 6.10.2026). Die Werksaufstellung enthaelt aber Springer,
+   Laeufer und Turm - das Geleit waere in der allerersten Partie wach, mitten
+   in der Schachschule, mit einem Knopf, den niemand erklaert hat. Darum
+   wirken Buende erst, wenn der Spieler seine Reihe selbst stellen darf
+   (Freigabe "hinterereihe"): von da an ist ein Bund eine ENTSCHEIDUNG. */
+export const buendeOffen = (profile) => darfReiheStellen(profile);
+
+/** Die Buende, die mit DIESEM Heer wirken - leer, solange sie noch zu sind. */
+export function meineBuende(profile, heer) {
+  return buendeOffen(profile) ? buendeFuer(profile, heer) : [];
+}
+
+/** Wer steht in der gespeicherten Aufstellung (Standardbrett)? Fuer die
+ *  Anzeige im Hofstaat: "2 von 3 aufgestellt". */
+export function aufgestellteIds(profile) {
+  try { return heerIds(buildArmyForMap(profile, mapById("classic"), null, "hp")); } catch { return []; }
 }

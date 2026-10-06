@@ -1004,10 +1004,12 @@ const erloschen = (m) => m.includes("#2f2a3d");
   ok("der Paladin sieht seinen Bund: Krone", m.includes("Bund · Krone") && m.includes('data-bundtafel="bund-krone"'));
   ok("mit der Regel des Bundes", m.includes(BUENDE.krone.regelDe));
   ok("und beiden Mitgliedern samt Stufe", m.includes('data-mitglied="paladin"') && m.includes('data-mitglied="king"') && /data-stufe="\d+"/.test(m));
-  ok("und dem Stand: 0 von 2 auf Hoechststufe", m.includes("0 von 2 auf Höchststufe"));
-  const pMax = { ...p0, pieces: { ...p0.pieces, levels: { ...(p0.pieces?.levels || {}), paladin: 10, king: 10 } } };
-  const m2 = html(<BundTafel profile={pMax} charId="paladin" en={false} />);
-  ok("stehen alle auf Zehn, heisst es: erwacht", m2.includes("erwacht"));
+  /* v1.91.0: der Stand zaehlt die AUFGESTELLTEN - der Koenig steht immer, der Paladin noch nicht */
+  ok("und dem Stand: 1 von 2 aufgestellt", m.includes("1 von 2 aufgestellt"));
+  const pAuf = { ...p0, campaign: { ...p0.campaign, league: 2, unlocked: ["paladin"] },
+    loadout: { ...(p0.loadout || {}), formations: { classic: ["rook", "knight", "bishop", "queen", "king", "paladin", "knight", "rook"] } } };
+  const m2 = html(<BundTafel profile={pAuf} charId="paladin" en={false} />);
+  ok("stehen beide in der Aufstellung, heisst es: erwacht", m2.includes(">erwacht<") || /erwacht/.test(m2.split("Bund · Krone")[1].slice(0, 300)));
   const m3 = html(<BundTafel profile={p0} charId="pawn" en={false} status="eigen" />);
   ok("der Bauer hat keinen Bund - das Blatt sagt es und zeigt trotzdem seine Kulisse", m3.includes("Ohne Bund") && m3.includes('data-bundtafel="figur-bauer"'));
   const m4 = html(<BundTafel profile={p0} charId="dragon" en={false} />);

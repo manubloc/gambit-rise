@@ -27,7 +27,12 @@ export function createGame(whiteArmy = defaultArmy(), blackArmy = defaultArmy(),
      aendern sich waehrend einer Partie nicht. Die Frage in jedem Zug neu zu
      beantworten waere Arbeit ohne Ertrag - und sie wuerde den Kern zwingen,
      das Profil zu kennen, das ihn nichts angeht. */
-  if (opts && typeof opts === "object" && Array.isArray(opts.buende)) s.buende = opts.buende.slice();
+  /* v1.91.0: je Seite - { w: [...], b: [...] }. Eine blanke Liste gilt wie
+     bisher fuer beide (alte Aufrufer, Proben). */
+  if (opts && typeof opts === "object" && opts.buende) {
+    if (Array.isArray(opts.buende)) s.buende = opts.buende.slice();
+    else if (typeof opts.buende === "object") s.buende = { w: (opts.buende.w || []).slice(), b: (opts.buende.b || []).slice() };
+  }
   /* Einmal-je-Partie-Buende brauchen ein Gedaechtnis. */
   s.sturmVerbraucht = {};
   s.konzilVerbraucht = {};

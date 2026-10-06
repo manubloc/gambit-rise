@@ -28,6 +28,15 @@ export function encodeState(state) {
        da ist: Partien ohne Sperren behalten exakt ihre alte Schnappschussform. */
     ...(state.sperren && Object.keys(state.sperren).length ? { sperren: state.sperren } : {}),
     ...(state.fallen && Object.keys(state.fallen).length ? { fallen: state.fallen } : {}),
+    /* v1.91.0: auch die BUENDE und ihr Einmal-Gedaechtnis. Eine pausierte
+       Kampagnenpartie setzte ohne Buende fort - der Paladin deckte nicht
+       mehr, und die Amazone haette nach dem Fortsetzen ein zweites Mal
+       zurueckkehren duerfen. Nur mitschreiben, was da ist. */
+    ...(state.buende ? { buende: state.buende } : {}),
+    ...(state.sturmVerbraucht && Object.keys(state.sturmVerbraucht).length ? { sturmVerbraucht: state.sturmVerbraucht } : {}),
+    ...(state.konzilVerbraucht && Object.keys(state.konzilVerbraucht).length ? { konzilVerbraucht: state.konzilVerbraucht } : {}),
+    ...(state.geleitVerbraucht && Object.keys(state.geleitVerbraucht).length ? { geleitVerbraucht: state.geleitVerbraucht } : {}),
+    ...(state.beute ? { beute: state.beute } : {}),
   });
 }
 
@@ -51,5 +60,10 @@ export function decodeState(json) {
     log: o.log || [],
     ...(o.sperren ? { sperren: o.sperren } : {}),
     ...(o.fallen ? { fallen: o.fallen } : {}),
+    ...(o.buende ? { buende: o.buende } : {}),
+    sturmVerbraucht: o.sturmVerbraucht || {},
+    konzilVerbraucht: o.konzilVerbraucht || {},
+    geleitVerbraucht: o.geleitVerbraucht || {},
+    ...(o.beute ? { beute: o.beute } : {}),
   };
 }

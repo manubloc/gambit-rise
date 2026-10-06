@@ -10,10 +10,11 @@
    Gambit und der Drache - die Grundlage und das Monster. Der Drache
    bleibt ausdruecklich allein ("Der Drache muss aber allein bleiben").
 
-   JEDER BUND WIRKT ERST, WENN ALLE SEINE FIGUREN AUF HOECHSTSTUFE STEHEN.
-   Das ist der Kern des Entwurfs: ein Bund ist kein Geschenk fuer die
-   Aufstellung, sondern der Lohn dafuer, zwei oder drei Figuren ganz
-   ausgebaut zu haben - und das kostet Skillpunkte, die woanders fehlen.
+   EIN BUND WIRKT, SOBALD ALLE SEINE FIGUREN IN DER AUFSTELLUNG STEHEN
+   (v1.91.0, Besitzerentscheid 6.10.2026). Bis v1.90.36 brauchte es dafuer
+   die Hoechststufe aller Mitglieder - "dann hat man mehr den Drang, an die
+   Figuren zu kommen", sagt der Besitzer, wenn der Bund schon mit dem Besitz
+   wirkt. Der Preis bleibt: jedes Mitglied kostet einen Platz in der Reihe.
 
    JEDE REGEL IST EIN SATZ. Der Besitzer hat einen ersten Entwurf verworfen,
    weil er zu verschachtelt war: "Es soll immer einfache Dinge sein, die
@@ -174,17 +175,17 @@ for (const b of BUND_LISTE) for (const f of b.figuren) _ZU.set(f, b.id);
 export const bundVon = (charId) => _ZU.get(charId) || null;
 
 /**
- * Ist der Bund erwacht? Nur wenn ALLE seine Figuren auf Hoechststufe stehen.
- * @param stufeVon  (charId) => Stufe
- * @param maxVon    (charId) => Hoechststufe dieser Figur
+ * Ist der Bund erwacht? Seit v1.91.0: sobald ALLE seine Figuren im Heer stehen
+ * (Besitzerentscheid 6.10.2026) - die Stufe spielt keine Rolle mehr.
+ * @param imHeer  (charId) => steht diese Figur in der Aufstellung?
  */
-export function bundErwacht(bundId, stufeVon, maxVon) {
+export function bundErwacht(bundId, imHeer) {
   const b = BUENDE[bundId];
   if (!b) return false;
-  return b.figuren.every((f) => (stufeVon(f) || 0) >= (maxVon(f) || 10));
+  return b.figuren.every((f) => !!imHeer(f));
 }
 
 /** Alle erwachten Buende - fuer die Anzeige und fuer den Kern. */
-export function erwachteBuende(stufeVon, maxVon) {
-  return BUND_LISTE.filter((b) => bundErwacht(b.id, stufeVon, maxVon)).map((b) => b.id);
+export function erwachteBuende(imHeer) {
+  return BUND_LISTE.filter((b) => bundErwacht(b.id, imHeer)).map((b) => b.id);
 }

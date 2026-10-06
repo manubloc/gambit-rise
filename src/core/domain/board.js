@@ -24,6 +24,14 @@ export function makePiece(spec) {
        Groessenstaffel (paintedFitFor) gleichermassen speist. */
     ...(spec.tier ? { tier: spec.tier } : {}),
     ...(spec.big ? { big: true } : {}),   // the 2x2 dragon
+    /* v1.91.0: WER IST DIESE FIGUR? Die Buende (core/rules/buende.js) suchen
+       ihre Mitglieder ueber `charId` - aber weder die Heeres-Specs noch diese
+       Fabrik trugen das Feld. Gemessen am 6.10.2026: von den Figuren eines
+       echten Heeres hatte KEINE eine `charId`; der Paladin stand neben dem
+       Koenig, der Koenig nahm den vollen Treffer. Alle zehn Buende waren im
+       Spiel stumm, und die Proben merkten es nicht, weil sie `charId` von
+       Hand setzten. Art (`kind`) reicht nicht: Bauer und Gambit teilen "P". */
+    ...(spec.charId ? { charId: spec.charId } : {}),
     /* v1.28.0: die Stufen der Zauber (Faehigkeit -> 1..3), aus dem Profil */
     ...(spec.stufen && Object.keys(spec.stufen).length ? { stufen: { ...spec.stufen } } : {}),
     used: {},

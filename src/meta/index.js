@@ -7,7 +7,7 @@ export {
   abilityCost, hpWach, gambitWach, GAMBIT_ERWACHT_AB, gambitStufe, GAMBIT_ERWACHT_AUF_STUFE,
   canUnlockAbility, unlockAbility, respecPiece, RESPEC_GOLD,
   MAX_PIECE_LEVEL, GAMBIT_MAX_LEVEL, maxLevelFor, gambitTier, upgradeCost, canUpgrade, upgradePiece,
-  buendeFuer,   /* v1.90.10 (Audit A9): die EINE Stelle, die aus einem Stand die erwachten Buende macht */
+  buendeFuer, heerIds,   /* v1.90.10 (Audit A9): die EINE Stelle, die aus einem Stand die erwachten Buende macht */
   isUnlocked, unlockedCharacterIds,
   buildArmyFrom, buildArmy, buildAiArmy, buildAiArmyScaled, buildArmyForMap, buildAiArmyForMap, hasForesight,
   formationKey, gespeicherteAufstellung, defaultFormation, formationLegal, formationLegalOn, formationSpec, crownSlots, formationCounts, hoechstzahl, HOECHSTZAHL_JE_FIGUR, buildArmyFromFormation, ownedLeagueBosses, isBossEntry, bossEntryId,
@@ -47,5 +47,6 @@ export { BOSS_MAX_LEVEL, bossLevelOf, bossUpgradeCost, monsterBestechPreis, MONS
 /* v1.0.43: die Freischalt-Ordnung - was wann aufgeht und welcher Satz es
    erklaert. Siehe freigaben.js. */
 export { FREIGABEN, freigegeben, darfHeldSetzen, darfReiheStellen,
-  erklaertWas, naechsteErklaerung, merkeErklaert, merkschluessel, REIHE_FUENF } from "./freigaben.js";
+  erklaertWas, naechsteErklaerung, merkeErklaert, merkschluessel, REIHE_FUENF,
+  buendeOffen, meineBuende, aufgestellteIds } from "./freigaben.js";
 export { DECK_ANZAHL, deckStand, deckName, mitAktivemDeck, mitDeckName, mitAufstellung } from "./decks.js";   /* v1.15.0 */

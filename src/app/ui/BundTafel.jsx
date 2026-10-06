@@ -20,7 +20,7 @@
         Grau ist fremd. */
 import { BUENDE, bundVon, bundErwacht } from "../../content/buende.js";
 import { CHARACTERS, LEAGUE_BOSSES, kapitelVonGrossmeister } from "../../content/index.js";
-import { characterLevel, maxLevelFor } from "../../meta/index.js";
+import { characterLevel, maxLevelFor, aufgestellteIds, buendeOffen, isUnlocked } from "../../meta/index.js";
 import { kulisseFuer, MONSTER_GRUPPE } from "./kulissen.js";
 import { KULISSE_URL } from "./KulissenBilder.jsx";
 import { paintedById } from "./board/paintedArt.js";
@@ -70,18 +70,21 @@ export function BundTafel({ profile, charId = null, bossId = null, status = null
     }
     const b = BUENDE[bundId];
     const stufe = (cid) => characterLevel(profile, cid) || 1;
-    const erwacht = bundErwacht(bundId, stufe, maxLevelFor);
-    const voll = b.figuren.filter((cid) => stufe(cid) >= maxLevelFor(cid)).length;
+    /* v1.91.0: ein Bund wirkt, sobald alle seine Figuren AUFGESTELLT sind */
+    const imHeer = new Set(aufgestellteIds(profile));
+    const erwacht = buendeOffen(profile) && bundErwacht(bundId, (cid) => imHeer.has(cid));
+    const voll = b.figuren.filter((cid) => imHeer.has(cid)).length;
     return <Streifen name={`bund-${bundId}`}>
       <Kopf links={`${en ? "Covenant" : "Bund"} · ${en ? b.nameEn : b.nameDe}`}
-        rechts={erwacht ? (en ? "awakened" : "erwacht") : `${voll} ${en ? "of" : "von"} ${b.figuren.length} ${en ? "at peak" : "auf Höchststufe"}`}
+        rechts={erwacht ? (en ? "awakened" : "erwacht") : `${voll} ${en ? "of" : "von"} ${b.figuren.length} ${en ? "in the lineup" : "aufgestellt"}`}
         farbe={erwacht ? GOLD : VIOLETT} />
       <div className="gg-serif" style={{ marginTop: 4, fontSize: 12, lineHeight: 1.4, color: INK }}>{en ? b.regelEn : b.regelDe}</div>
       <div style={{ display: "flex", gap: 8, marginTop: 8, flexWrap: "wrap" }}>
         {b.figuren.map((cid) => {
-          const ch = CHARACTERS[cid]; const l = stufe(cid); const top = l >= maxLevelFor(cid); const selbst = cid === charId;
+          const ch = CHARACTERS[cid]; const l = stufe(cid); const top = imHeer.has(cid); const selbst = cid === charId;
+          const hab = isUnlocked(ch, profile);
           const img = paintedById(cid);
-          return <div key={cid} data-mitglied={cid} data-stufe={l} style={{ display: "flex", alignItems: "center", gap: 5, padding: "3px 7px 3px 3px", borderRadius: 999,
+          return <div key={cid} data-mitglied={cid} data-stufe={l} data-aufgestellt={top ? "1" : "0"} data-besitz={hab ? "1" : "0"} style={{ opacity: hab ? 1 : 0.55, display: "flex", alignItems: "center", gap: 5, padding: "3px 7px 3px 3px", borderRadius: 999,
             background: "rgba(10,7,19,.7)", border: `1px solid ${top ? GOLD : selbst ? VIOLETT : "rgba(179,157,219,.35)"}66`,
             boxShadow: top ? "0 0 8px rgba(233,207,138,.25)" : "none" }}>
             <span style={{ width: 22, height: 22, borderRadius: "50%", overflow: "hidden", display: "grid", placeItems: "center",

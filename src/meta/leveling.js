@@ -147,9 +147,22 @@ export const maxLevelFor = (charId) => (charId === "gambit" ? GAMBIT_MAX_LEVEL :
    Diese Funktion ist ab jetzt die EINE Stelle, die aus einem Spielstand die
    Liste macht. Sie gehoert hierher und nicht in content/buende.js: dort
    stehen die Buende, hier weiss man, was ein Profil ist. */
-export function buendeFuer(profile) {
+/* ── v1.91.0 (Besitzerentscheid 6.10.2026): EIN BUND WIRKT AB DER AUFSTELLUNG ──
+   "ich finde es evtl doch cool, wenn man den Bund auch ohne die letzte Stufe
+    erreicht ... denn dann hat man mehr den Drang, an die Figuren zu kommen."
+   Bis v1.90.36 erwachte ein Bund erst, wenn ALLE seine Figuren auf
+   Hoechststufe standen - viele Stunden lang sah ihn niemand. Jetzt zaehlt
+   allein, ob alle seine Figuren in dem Heer stehen, das gerade antritt.
+   `heer` ist ein Heer ({ back: [Specs mit charId] }) oder eine Liste von ids. */
+export function heerIds(heer) {
+  if (!heer) return [];
+  if (Array.isArray(heer)) return heer.filter(Boolean).map((e) => (typeof e === "string" ? e : e.charId)).filter(Boolean);
+  return (heer.back || []).filter(Boolean).map((s) => s.charId).filter(Boolean);
+}
+export function buendeFuer(profile, heer) {
   if (!profile) return [];
-  return erwachteBuende((cid) => characterLevel(profile, cid) || 1, maxLevelFor);
+  const ids = new Set(heerIds(heer));
+  return erwachteBuende((cid) => ids.has(cid));
 }
 export const gambitTier = (level) =>
   Math.min(6, Math.max(1, Math.ceil(Math.max(1, level) * 6 / GAMBIT_MAX_LEVEL)));
@@ -297,11 +310,11 @@ export function buildArmyFrom(levelOf, flank = ["knight", "knight"], chosenOf = 
     const char = CHARACTERS[charId];
     const level = Math.max(1, levelOf(charId) || 1);
     const { abilities, shield } = resolveCharacter(char, level, chosenOf ? chosenOf(charId) : null);
-    return { kind: char.kind, level, abilities, shield, ...boostSpec(char, boostOf && boostOf(charId)), ...(char.moveSpec ? { moveSpec: char.moveSpec } : {}), ...(char.big ? { big: true } : {}) };
+    return { kind: char.kind, charId, level, abilities, shield, ...boostSpec(char, boostOf && boostOf(charId)), ...(char.moveSpec ? { moveSpec: char.moveSpec } : {}), ...(char.big ? { big: true } : {}) };
   });
   const pl = Math.max(1, levelOf("pawn") || 1);
   const pr = resolveCharacter(CHARACTERS.pawn, pl, chosenOf ? chosenOf("pawn") : null);
-  return { back, pawn: { kind: KIND.PAWN, level: pl, tier: pawnTier(pl), abilities: pr.abilities, shield: pr.shield, ...boostSpec(CHARACTERS.pawn, boostOf && boostOf("pawn")) } };
+  return { back, pawn: { kind: KIND.PAWN, charId: "pawn", level: pl, tier: pawnTier(pl), abilities: pr.abilities, shield: pr.shield, ...boostSpec(CHARACTERS.pawn, boostOf && boostOf("pawn")) } };
 }
 
 /** League duplication: extra recruit copies harden a piece (+1 HP each, +1 ATK at ★2). */
@@ -508,11 +521,11 @@ export function buildArmyFromFormation(levelOf, formation, chosenOf = null, boos
     const ch = CHARACTERS[id];
     const level = Math.max(1, levelOf(id) || 1);
     const { abilities, shield } = resolveCharacter(ch, level, chosenOf ? chosenOf(id) : null);
-    return { kind: ch.kind, level, abilities, shield, ...boostSpec(ch, boostOf && boostOf(id)), ...(ch.moveSpec ? { moveSpec: ch.moveSpec } : {}), ...(ch.big ? { big: true } : {}), ...(stufenOf ? { stufen: stufenOf(id) } : {}) };
+    return { kind: ch.kind, charId: id, level, abilities, shield, ...boostSpec(ch, boostOf && boostOf(id)), ...(ch.moveSpec ? { moveSpec: ch.moveSpec } : {}), ...(ch.big ? { big: true } : {}), ...(stufenOf ? { stufen: stufenOf(id) } : {}) };
   });
   const pl = Math.max(1, levelOf("pawn") || 1);
   const pr = resolveCharacter(CHARACTERS.pawn, pl, chosenOf ? chosenOf("pawn") : null);
-  return { back, pawn: { kind: KIND.PAWN, level: pl, tier: pawnTier(pl), abilities: pr.abilities, shield: pr.shield, ...boostSpec(CHARACTERS.pawn, boostOf && boostOf("pawn")), ...(stufenOf ? { stufen: stufenOf("pawn") } : {}) } };
+  return { back, pawn: { kind: KIND.PAWN, charId: "pawn", level: pl, tier: pawnTier(pl), abilities: pr.abilities, shield: pr.shield, ...boostSpec(CHARACTERS.pawn, boostOf && boostOf("pawn")), ...(stufenOf ? { stufen: stufenOf("pawn") } : {}) } };
 }
 
 // ── Map-aware formation & army ────────────────────────────────────────────────
@@ -677,7 +690,7 @@ function heroSpec(profile, chess = false) {
 
      Sichtbar bleibt der Bruch trotzdem: gruener Bauer neben goldenem Ritter
      ist deutlicher als jedes Farbfilterchen. */
-  return { kind: ch.kind, level, abilities, shield, tier: gambitTier(level), ...(ch.big ? { big: true } : {}), stufen: stufenVon(profile, "gambit")   /* v1.34.0: auch im Schach - der Gambit ist dort die einzige Figur mit Faehigkeiten, ein
+  return { kind: ch.kind, charId: "gambit", level, abilities, shield, tier: gambitTier(level), ...(ch.big ? { big: true } : {}), stufen: stufenVon(profile, "gambit")   /* v1.34.0: auch im Schach - der Gambit ist dort die einzige Figur mit Faehigkeiten, ein
        aufgestufter Sturmlauf muss auch in Liga 1-4 weiter laufen (vorher bezahlt und ohne Wirkung) */ };
 }
 

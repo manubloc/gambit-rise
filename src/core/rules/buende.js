@@ -29,7 +29,18 @@ function gleicheReihe(a, b, w) {
   return (a % w) === (b % w) || Math.floor(a / w) === Math.floor(b / w);
 }
 
-const hat = (state, bund) => !!(state && state.buende && state.buende.includes(bund));
+/* v1.91.0: BUENDE GELTEN JE SEITE. `state.buende` war eine flache Liste; jede
+   Wirkung suchte dann die Figuren der betroffenen Farbe - ein Gegner, der
+   zufaellig Springer, Laeufer und Turm stellt, haette das Geleit des Spielers
+   mitbekommen. Jetzt: { w: [...], b: [...] }. Eine blanke Liste (alte Proben,
+   alte Schnappschuesse) gilt weiter fuer beide Seiten. */
+export const hat = (state, bund, farbe) => {
+  const b = state && state.buende;
+  if (!b) return false;
+  if (Array.isArray(b)) return b.includes(bund);
+  const l = b[farbe];
+  return !!(l && l.includes(bund));
+};
 
 /** Findet die eigene Figur einer Art; null, wenn sie nicht (mehr) steht. */
 function finde(state, farbe, charId) {
@@ -47,9 +58,9 @@ function finde(state, farbe, charId) {
 
    Gibt das Feld des Paladins zurueck, wenn er einspringt - sonst null. */
 export function kroneFaengtAb(state, zielFeld) {
-  if (!hat(state, "krone")) return null;
   const opfer = state.board[zielFeld];
   if (!opfer || opfer.kind !== KIND.KING) return null;
+  if (!hat(state, "krone", opfer.color)) return null;
   const pf = finde(state, opfer.color, "paladin");
   if (pf == null) return null;
   if (!nebenan(pf, zielFeld, state.w)) return null;
@@ -64,9 +75,9 @@ export function kroneFaengtAb(state, zielFeld) {
    auch in einer Reihe stehen - das kann vertikal wie horizontal sein, je
    nachdem wie die halt stehen." */
 export function schildwachtDeckt(state, feld) {
-  if (!hat(state, "schildwacht")) return false;
   const p = state.board[feld];
   if (!p) return false;
+  if (!hat(state, "schildwacht", p.color)) return false;
   const tf = finde(state, p.color, "engineer");
   const gf = finde(state, p.color, "guardian");
   if (tf == null || gf == null) return false;
@@ -79,8 +90,8 @@ export function schildwachtDeckt(state, feld) {
    "Ein Kapitaen ohne Lotsen laeuft auf Grund. Mit Lotsen kommt er ueberall
    durch." Der Stratege muss dafuer stehen - faellt er, endet die Fahrt. */
 export function gezeitenDurchbruch(state, piece) {
-  if (!hat(state, "gezeiten")) return false;
   if (!piece || piece.charId !== "captain") return false;
+  if (!hat(state, "gezeiten", piece.color)) return false;
   return finde(state, piece.color, "strategist") != null;
 }
 
@@ -92,8 +103,8 @@ export function gezeitenDurchbruch(state, piece) {
 
    `verraten` merkt sich, wann zuletzt eine der beiden gezogen hat. */
 export function schattenVerbirgt(state, piece) {
-  if (!hat(state, "schatten")) return false;
   if (!piece || piece.charId !== "assassin") return false;
+  if (!hat(state, "schatten", piece.color)) return false;
   /* Steht ueberhaupt noch eine der beiden? */
   const hexe = finde(state, piece.color, "sorceress");
   const magier = finde(state, piece.color, "mage");
@@ -109,7 +120,7 @@ export function schattenVerbirgt(state, piece) {
    die angrenzende eigene Figur mit dem GROESSTEN Fehlbetrag; eine
    vollstaendig heile Figur wird nie gewaehlt. */
 export function nachtwacheHeilt(state, farbe) {
-  if (!hat(state, "nachtwache")) return null;
+  if (!hat(state, "nachtwache", farbe)) return null;
   const af = finde(state, farbe, "alchemist");
   if (af == null) return null;
   let bestes = null, fehlt = 0;
@@ -131,8 +142,8 @@ export function nachtwacheHeilt(state, farbe) {
    Rueckruf wirkt EINMAL und macht sie nicht staerker, sondern schwerer
    loszuwerden. */
 export function sturmRuftZurueck(state, piece) {
-  if (!hat(state, "sturm")) return false;
   if (!piece || piece.charId !== "amazon") return false;
+  if (!hat(state, "sturm", piece.color)) return false;
   if (state.sturmVerbraucht && state.sturmVerbraucht[piece.color]) return false;
   if (finde(state, piece.color, "warlock") == null) return false;
   /* v1.11.2: ohne Bauern kein Rueckruf - einer muss ihr Platz machen. */
@@ -158,8 +169,8 @@ export function hinterstenBauern(state, farbe) {
 /* ── BANNKREIS: gegnerische Talente sind gesperrt ─────────────────────────
    Zwei Felder Umkreis um Seherin ODER Inquisitor. */
 export function bannkreisSperrt(state, feld, farbe) {
-  if (!hat(state, "bannkreis")) return false;
   const gegner = farbe === WHITE ? "b" : WHITE;
+  if (!hat(state, "bannkreis", gegner)) return false;
   for (const id of ["seeress", "inquisitor"]) {
     const f = finde(state, gegner, id);
     if (f == null) continue;
@@ -179,9 +190,9 @@ export function bannkreisSperrt(state, feld, farbe) {
    Zoegerns; und wer ihn vergisst, verliert. Der Rat faellt dem Koenig in den
    Arm, wenn es noetig ist - er fragt nicht erst. */
 export function konzilLehntAb(state, zielFeld) {
-  if (!hat(state, "konzil")) return false;
   const opfer = state.board[zielFeld];
   if (!opfer || opfer.kind !== KIND.KING) return false;
+  if (!hat(state, "konzil", opfer.color)) return false;
   if (state.konzilVerbraucht && state.konzilVerbraucht[opfer.color]) return false;
   /* Alle drei muessen stehen - ein Rat aus einem ist keiner. */
   return ["archbishop", "chancellor", "queen"].every((id) => finde(state, opfer.color, id) != null);
@@ -194,7 +205,7 @@ export function konzilLehntAb(state, zielFeld) {
    Liefert die Felder der drei, sofern alle stehen und der Tausch noch offen
    ist - die Anzeige macht daraus die Auswahl. */
 export function geleitTauschbar(state, farbe) {
-  if (!hat(state, "geleit")) return null;
+  if (!hat(state, "geleit", farbe)) return null;
   if (state.geleitVerbraucht && state.geleitVerbraucht[farbe]) return null;
   const felder = ["knight", "bishop", "rook"].map((id) => finde(state, farbe, id));
   if (felder.some((f) => f == null)) return null;
@@ -205,9 +216,9 @@ export function geleitTauschbar(state, farbe) {
    Gibt das Feld der Figur zurueck, die nachziehen darf - und das Zielfeld,
    auf das sie einen Schritt tut. Null, wenn nichts moeglich ist. */
 export function faehrteFolgt(state, gezogen) {
-  if (!hat(state, "faehrte")) return null;
   const p = state.board[gezogen];
   if (!p) return null;
+  if (!hat(state, "faehrte", p.color)) return null;
   const partner = p.charId === "hawk" ? "pathfinder" : p.charId === "pathfinder" ? "hawk" : null;
   if (!partner) return null;
   const pf = finde(state, p.color, partner);

@@ -10,7 +10,7 @@ import { makeT } from "./i18n/strings.js";
 import { SERVER_URL } from "./config.js";
 import { claimableCount, retinueScore, upgradeBoss, listSaves, createSave, loadSave, migrateLegacyInto, gewaehlterStand, standZumOeffnen } from "../meta/index.js";
 import { mitAktivemDeck, mitDeckName, mitAufstellung } from "../meta/index.js";   /* v1.15.0: Decks */
-import { naechsteErklaerung, merkschluessel } from "../meta/index.js";
+import { naechsteErklaerung, merkschluessel, meineBuende, aufgestellteIds } from "../meta/index.js";
 import { setLivery, crestArt, emblemArt, logoMenuArt } from "./ui/livery.js";
 import { SchirmGrenze } from "./ui/SchirmGrenze.jsx";
 import { Soundtrack } from "./ui/Soundtrack.jsx";
@@ -1599,21 +1599,21 @@ function PrivacyNotice({ t, dispatch }) {
 }
 
 // ── ONBOARDING: three one-time lessons that ride the natural progression ──
-/* ── WELCHER BUND IST GERADE ERWACHT? (v1.12.0) ──────────────────────────
-   Ein Bund erwacht, wenn ALLE seine Figuren die Hoechststufe erreicht haben.
-   Das Fenster erscheint genau EINMAL je Bund - gemerkt wird das in
-   profile.notices, wie bei den Lehrstunden auch.
+/* ── WELCHER BUND IST GERADE ERWACHT? (v1.12.0, neu v1.91.0) ─────────────
+   Seit v1.91.0 erwacht ein Bund, sobald ALLE seine Figuren in der
+   Aufstellung stehen (vorher: alle auf Hoechststufe). Das Fenster erscheint
+   genau EINMAL je Bund - gemerkt in profile.notices, wie die Lehrstunden.
 
-   Geprueft wird bei jedem Aufbau der Oberflaeche, nicht beim Aufsteigen
-   selbst: so faellt auch der Fall auf, dass jemand mit einem alten Spielstand
-   kommt, bei dem der Bund laengst erwacht waere. */
+   Geprueft wird bei jedem Aufbau der Oberflaeche: so faellt auch der Fall
+   auf, dass jemand mit einem alten Spielstand kommt, in dessen Aufstellung
+   ein Bund laengst beisammensteht. */
 function offenerBund(profile) {
   if (!profile) return null;
   const n = profile.notices || {};
+  const wach = meineBuende(profile, aufgestellteIds(profile));
   for (const b of BUND_LISTE) {
     if (n[`bund_${b.id}`]) continue;
-    const wach = b.figuren.every((id) => (characterLevel(profile, id) || 0) >= (maxLevelFor(id) || 10));
-    if (wach) return b.id;
+    if (wach.includes(b.id)) return b.id;
   }
   return null;
 }

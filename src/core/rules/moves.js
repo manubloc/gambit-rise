@@ -461,7 +461,12 @@ export function pieceMoves(state, sqIndex) {
         if (!betretbar(D, ni)) { mauerschlag(moves, from, ni, piece, {}); break; }
         const t = board[ni];
         if (!t) { push(moves, from, ni, piece, false, null, {}); continue; }
-        if (t.color !== piece.color) push(moves, from, ni, piece, true, t.kind, {});
+        if (t.color !== piece.color) { push(moves, from, ni, piece, true, t.kind, {}); break; }
+        /* v1.91.0: GEZEITEN gilt auch HIER. Der Kapitaen zieht ueber sein
+           Zugbild, nicht ueber slide() - der Durchbruch stand nur dort und
+           konnte fuer ihn nie wirken (gemessen 6.10.2026). Eigene Figuren
+           umschifft er, wenn der Stratege steht; an Gegnern endet die Fahrt. */
+        if (gezeitenDurchbruch(state, piece)) continue;
         break;
       }
     }
