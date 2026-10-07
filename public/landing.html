@@ -290,6 +290,15 @@
       box-shadow:0 6px 26px rgba(201,164,92,.35), inset 0 1px 0 rgba(255,255,255,.5); }
     .knopf.still { color:var(--ivory); border:1px solid var(--line); background:rgba(16,24,39,.6); }
     .zeile-frei { color:var(--dim); font-size:12.5px; margin-top:14px; }
+    /* v1.93.1: die drei Schritte zum Vorab-Test */
+    .betaschritte { list-style:none; margin:0 auto; padding:0; max-width:920px; display:grid; gap:14px; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); text-align:left; }
+    .betaschritte li { position:relative; padding:20px 18px 18px; border-radius:14px; border:1px solid rgba(201,164,92,.28);
+      background:linear-gradient(170deg,rgba(30,26,44,.75),rgba(12,11,20,.9)); display:flex; flex-direction:column; gap:8px; }
+    .betaschritte .nr { width:30px; height:30px; border-radius:50%; display:grid; place-items:center; font-weight:700; font-size:15px;
+      color:#17110a; background:linear-gradient(165deg,var(--gleam),var(--gold)); }
+    .betaschritte h3 { color:var(--goldhell); font-size:17px; letter-spacing:.02em; margin:2px 0 0; }
+    .betaschritte p { color:var(--dim); font-size:14px; line-height:1.55; margin:0 0 6px; flex:1; }
+    .betaschritte .knopf { align-self:flex-start; }
     section { padding:58px 0; }
     section.abgesetzt { background:linear-gradient(180deg,var(--night),var(--bg) 12%,var(--bg) 88%,var(--night)); }
     h2 { font-size:clamp(22px,3.4vw,30px); color:var(--goldhell); letter-spacing:.03em;
@@ -516,7 +525,39 @@
         alt="Jetzt bei Google Play" width="646" height="250" loading="lazy"
         src="https://play.google.com/intl/en_us/badges/static/images/badges/de_badge_web_generic.png" /></a>
     </div>
-    <div class="zeile-frei sans">Kostenlos · werbefrei · Deutsch &amp; Englisch · bald für Android · <a href="/spielen/" style="color:inherit">Entwicklerzugang</a></div>
+    <div class="zeile-frei sans">Kostenlos · werbefrei · Deutsch &amp; Englisch · bald für Android · <a href="#beta" style="color:inherit">jetzt schon testen</a></div>
+  </div>
+</section>
+
+<!-- v1.93.1 (Besitzer 7.10.: "auf der Landingpage so beschrieben, dass es bald
+     verfuegbar ist beim Play Store, und wer jetzt schon frueh testen will, ist
+     eingeladen, in die Gruppe einzutreten - sehr einfach, alles ueber die
+     Landingpage erklaerbar"). Drei Schritte, jeder ein Link: Gruppe, Test
+     annehmen, installieren. Der geschlossene Test bei Google laesst nur
+     Mitglieder der Gruppe gambit-rise-beta@googlegroups.com zu. -->
+<section class="abgesetzt" id="beta">
+  <div class="hof" style="text-align:center">
+    <div class="stich sans">Vorab dabei</div>
+    <h2>Jetzt schon testen</h2>
+    <p class="h2u sans">Gambit Rise erscheint bald im Google Play Store. Wer nicht warten will,
+      spielt die Android-App schon jetzt als Tester — kostenlos, in drei Schritten.
+      Du brauchst nur ein Android-Handy und ein Google-Konto.</p>
+    <ol class="betaschritte sans">
+      <li><span class="nr">1</span>
+        <h3>Tester-Gruppe beitreten</h3>
+        <p>Öffne die Gruppe und tippe auf „Gruppe beitreten“. Damit weiß Google, dass du testen darfst. Nachrichten bekommst du darüber keine.</p>
+        <a class="knopf gold" href="https://groups.google.com/g/gambit-rise-beta" rel="noopener">Zur Tester-Gruppe</a></li>
+      <li><span class="nr">2</span>
+        <h3>Test annehmen</h3>
+        <p>Öffne danach den Testlink — am besten gleich auf dem Handy, mit demselben Google-Konto — und tippe auf „Tester werden“.</p>
+        <a class="knopf gold" href="https://play.google.com/apps/testing/com.gambitrise.app" rel="noopener">Tester werden</a></li>
+      <li><span class="nr">3</span>
+        <h3>Installieren</h3>
+        <p>Jetzt findest du Gambit Rise im Play Store und installierst es wie jede andere App. Updates kommen von selbst.</p>
+        <a class="knopf gold" href="https://play.google.com/store/apps/details?id=com.gambitrise.app" rel="noopener">Im Play Store öffnen</a></li>
+    </ol>
+    <div class="zeile-frei sans">Klappt Schritt 3 nicht sofort? Nach dem Beitritt braucht Google manchmal ein paar Minuten.
+      Kein Android? <a href="/spielen/" style="color:inherit">Im Browser spielen</a>.</div>
   </div>
 </section>
 
