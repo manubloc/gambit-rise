@@ -42,7 +42,9 @@ ok(`keine verwaisten Bilder in public/landing/ (${da.size} Dateien)`, verwaist.l
 try {
   const aus = execFileSync("python3", ["tools/landing_bilder.py", "galerie-pruefen"], { encoding: "utf8" });
   const n = (aus.match(/mittig/g) || []).length;
-  ok(`Galerie: ${n} Sockel in der Bildmitte`, n >= 12);
+  /* v1.93.2: die Galerie ist fort (Besitzer 7.10.) - die Zusage heisst jetzt:
+     es gibt keine Galeriebilder mehr; kaeme je wieder eines, saesse es mittig. */
+  ok(`Galerie: gestrichen, kein gal-Bild mehr (${n})`, n === 0 && !html.includes("/landing/gal-"));
 } catch (e) {
   ok("Galerie: Sockel in der Bildmitte", false, String(e.stdout || e.message).trim().split("\n").pop()
     + (/No module named|not found|ENOENT/.test(String(e.stderr || e.message)) ? "  (python3 mit Pillow fehlt: python3 -m pip install pillow)" : ""));
@@ -63,10 +65,17 @@ for (const [w, h] of [[360, 780], [390, 844], [430, 932], [600, 900], [700, 1000
   const page = await browser.newPage({ viewport: { width: w, height: h } });
   await page.goto(`http://127.0.0.1:${port}/`, { waitUntil: "load" });
   const m = await page.evaluate(() => {
-    const vorn = [...document.querySelectorAll(".hofreihe:not(.hinten) img")].filter((i) => getComputedStyle(i).display !== "none")
+    const vorn = [...document.querySelectorAll(".hofreihe:not(.hinten):not(.ganzhinten) img")].filter((i) => getComputedStyle(i).display !== "none")
       .map((i) => i.getBoundingClientRect()).filter((r) => r.width > 0);
-    return { n: vorn.length, links: Math.min(...vorn.map((r) => r.left)), rechts: Math.max(...vorn.map((r) => r.right)) };
+    const dritte = [...document.querySelectorAll(".hofreihe.ganzhinten img")].filter((i) => getComputedStyle(i).display !== "none")
+      .map((i) => i.getBoundingClientRect()).filter((r) => r.width > 0);
+    return { n: vorn.length, links: Math.min(...vorn.map((r) => r.left)), rechts: Math.max(...vorn.map((r) => r.right)),
+      n3: dritte.length, l3: Math.min(...dritte.map((r) => r.left)), r3: Math.max(...dritte.map((r) => r.right)) };
   });
+  /* v1.93.2: die dritte Reihe steht frei vor dem Boden - ragte sie ueber den
+     Rand, saehe man halbe Koepfe */
+  ok(`${w}x${h}: die dritte Reihe (${m.n3} Figuren) passt ins Fenster (${Math.round(m.l3)} bis ${Math.round(m.r3)} px)`,
+    m.n3 >= 5 && m.l3 >= -1 && m.r3 <= w + 1);
   ok(`${w}x${h}: die vordere Reihe (${m.n} Figuren) passt ins Fenster (${Math.round(m.links)} bis ${Math.round(m.rechts)} px)`,
     m.n >= 5 && m.links >= -1 && m.rechts <= w + 1);
   await page.close();

@@ -1,5 +1,20 @@
 # Changelog - Gambit Rise
 
+## 1.93.2 - Startseite: mehr Figuren auf dem ersten Schirm, Galerie fort
+
+Besitzer 7.10.: "mehr Figuren in dem Hintergrundbild am Anfang ... die
+Auflistung nur mit den Zugbildern und nicht die Figuren, wo nur Name etc.
+steht - das kann weg."
+
+- Erster Schirm: hinter der Crowd steht eine DRITTE Reihe aus zwoelf Figuren des
+  Umbaus v1.91.0 (Koch, Baeuerin, Schmied, Jaegerin, Samurai, Hofnarr,
+  Zauberin, Ritter, Moench, Fechter, Henker, Heilerin; auf dem Handy fuenf),
+  die zweite Reihe bekommt breit aussen Magier und Spaeher. Der Leitsatz steht
+  dafuer hoeher. Alle Bilder sind Fotos aus dem Spiel (tools/landing-fotos.mjs).
+- Die Galerie (acht Figuren mit Namen, vier Schatten) ist gestrichen samt ihren
+  zwoelf Bildern. "Neue Figuren, neue Zuege" - die Karten mit Zugbild - steht
+  jetzt direkt unter "Ein Schach-Rollenspiel".
+
 ## 1.93.1 - Startseite: "Jetzt schon testen"
 
 Besitzer 7.10.: Freunde sollen ueber die Startseite in den Vorab-Test kommen.

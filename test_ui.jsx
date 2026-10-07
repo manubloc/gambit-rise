@@ -340,8 +340,10 @@ const piece = (x = {}) => ({ id: 1, kind: "Q", color: "w", level: 1, abilities: 
       (mitTalent.match(/rgba\(233,197,63,\.5\)/g) || []).length === 8 && (mitTalent.match(/inset 0 0 0 1px rgba\(255,255,255,\.18\)/g) || []).length === 16);
     ok("v1.90.25: die Karte der Aufstellung reicht dem Zugbild die GELERNTEN Talente", /const gelerntC = \[\.\.\.chosenAbilities\(profile, c\.id\)/.test(hofQ));
     const seite = readFileSync("public/landing.html", "utf8"), zuschnitt = readFileSync("tools/landing_bilder.py", "utf8");
-    ok("v1.90.25: die Startseite zeigt keinen Drachen mehr in der Galerie, dafuer den Spaeher",
-      !seite.includes("gal-dragon") && seite.includes("gal-hawk.webp") && !existsSync("public/landing/gal-dragon.webp") && existsSync("public/landing/gal-hawk.webp"));
+    ok("v1.93.2: die Startseite hat keine Galerie mehr (nur Name unter dem Bild) - die Figuren stellen sich mit Karte und Zugbild vor, und hinter der Crowd steht eine dritte Reihe",
+      !seite.includes("/landing/gal-") && !seite.includes('class="galerie') && !existsSync("public/landing/gal-hawk.webp")
+      && (seite.match(/\/landing\/auf-[a-z0-9]+\.webp/g) || []).length >= 4 && seite.indexOf('id="chronik"') > seite.indexOf('id="riss"') && seite.indexOf('id="chronik"') < seite.indexOf('id="modi"')
+      && (seite.split('class="hofreihe ganzhinten"')[1] || "").split("</div>")[0].split("<img").length - 1 >= 10);
     ok("v1.90.25: die Bretter der Startseite sind Fotos aus dem Spiel - die Montage aus rohen Gemaelden ist gestrichen",
       !/^def gefecht\(/m.test(zuschnitt) && !/^def crowd\(/m.test(zuschnitt) && !/^def zugbilder\(/m.test(zuschnitt) && /^def fotos\(/m.test(zuschnitt)
       && seite.includes("brett-kronland.webp") && existsSync("public/landing/brett-kronland.webp") && existsSync("tools/landing-pruefstand.jsx"));

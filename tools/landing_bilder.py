@@ -45,13 +45,15 @@ PAINTED = WURZEL / "src" / "app" / "ui" / "assets" / "painted"
 # seinem 576er Kasten, darueber das Band. Das Band haengt bis zu 3 px unter den
 # Kasten (gemessen: Paladin 579, Dame 577) - darum 580 statt 576.
 HELDEN = ["pawn", "rook", "bishop", "knight", "queen", "king",
-          "paladin", "guardian", "archbishop", "amazon", "captain", "chancellor"]
+          "paladin", "guardian", "archbishop", "amazon", "captain", "chancellor", "mage", "hawk",
+          "smith", "jester", "huntress", "monk", "samurai", "sorceress", "cavalier", "fencer",
+          "farmwife", "executioner", "cook", "healer"]
 HELDEN_BREITE = {"pawn": 248, "rook": 308, "bishop": 229, "knight": 267, "queen": 245, "king": 271}
 # Galerie: Dateiname der Kachel -> Gemaelde. Der Drache ist seit v1.90.25 fort
 # (Besitzer: "mach den Drachen raus, der ist in der Stelle unangebracht"), an
 # seiner Stelle steht der Spaeher.
-GALERIE = {"captain": "captain", "chancellor": "chancellor", "amazon": "amazon", "hawk": "hawk",
-           "archbishop": "archbishop", "mage": "mage", "paladin": "paladin", "waechter": "boss-b01"}
+GALERIE = {}   # v1.93.2: die Galerie der Startseite ist fort (Besitzer 7.10.: "die Figuren, wo nur
+               # Name etc. steht, das kann weg") - geblieben sind die Karten mit Zugbild.
 KARTEN = ["auf-kapitaen", "auf-kanzler", "auf-amazone", "auf-drache", "auf-springer6"]
 ZUEGE = ["zug-knight_longleap", "zug-knight_outrider", "zug-rook_diag_step", "zug-king_dash"]
 BRETTER = ["gefecht-gemischt", "brett-kronland", "brett-wolkenjoch"]

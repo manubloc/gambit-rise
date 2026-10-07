@@ -43,8 +43,8 @@ gambitrise.com zeigt darauf).
   pruefe-navigation, pruefe-textfluss, test_layout) lesen den Chromium-Pfad aus
   `PW_CHROMIUM`; ohne die Variable gilt der Pfad des Cloud-Containers. Lokal:
   `npx playwright install chromium` und `PW_CHROMIUM=<Pfad zur chrome-Datei>`.
-- `npm test` — volle Batterie. MUSS **31 Suiten / 2946 Prüfungen** melden
-  (Stand v1.93.0; der Runner stoppt nach der ersten roten Suite, also
+- `npm test` — volle Batterie. MUSS **31 Suiten / 2959 Prüfungen** melden
+  (Stand v1.93.2; der Runner stoppt nach der ersten roten Suite, also
   Suitenzahl prüfen, nicht nur Assertions! **Zählweise seit v1.90.18
   (Audit A74): JEDE Suite der Kette meldet eine RESULT-Zeile** — alle Zeilen
   `RESULT…: N passed` summieren; test_balance meldet zwei, darum stehen im
@@ -145,7 +145,7 @@ gambitrise.com zeigt darauf).
   ECHTEN SPIEL** (v1.90.25, ~70 s). Baut `tools/landing-pruefstand.jsx`
   (SockelBand, HofKachel, MoveDiagram, BoardView mit `buildStageMatch`/
   `createGame`, Züge über `legalMovesFrom`/`applyMove`) und fotografiert alle
-  Figuren (erster Schirm `held-*`, Galerie `gal-*`), die fünf Karten (`auf-*`),
+  Figuren (erster Schirm `held-*` — drei Reihen seit v1.93.2; die Galerie `gal-*` ist seit v1.93.2 fort, Besitzer 7.10.), die fünf Karten (`auf-*`),
   die vier Zugbilder (`zug-*`) und die drei Bretter; `tools/landing_bilder.py
   fotos` schneidet zu. Stationen, Heer und Zugfolgen der Bretter stehen in
   `tools/landing-bretter.json` (test_ui spielt sie gegen den Kern). **Warum:**
@@ -628,8 +628,8 @@ Tabellen, Messwerte).
 Hier nur der Überblick:
 
 - **Nach dem Figuren-Umbau offen:** (die Kronenglut für den neuen Osric
-  entfällt — Besitzer 7.10.: „kannst du weglassen“) · die Startseite zeigt noch keine der neuen Figuren
-  (`tools/landing-fotos.mjs`) · der Store-Eintrag nennt noch 27 Helden und 25
+  entfällt — Besitzer 7.10.: „kannst du weglassen“) · die Startseite zeigt die neuen Figuren seit v1.93.2 auf dem
+  ersten Schirm, aber noch auf keiner Karte und keinem Brett · der Store-Eintrag nennt noch 27 Helden und 25
   Bestien · der Gegner bekommt keine Bünde · im Online-Duell gibt es keinen
   Fassungsabgleich (ein alter Client kennt die neuen Arten nicht).
 

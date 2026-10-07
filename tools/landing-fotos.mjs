@@ -65,9 +65,13 @@ async function foto(abfrage, datei, { dpr = 1, durchsichtig = false, breite = 70
 }
 
 /* ── WAS DIE STARTSEITE ZEIGT ───────────────────────────────────────────────
-   Erste Reihe und Hofreihe (held-*), Galerie (gal-*): Gemaelde mit Band. */
+   Erste Reihe und die beiden Reihen dahinter (held-*): Gemaelde mit Band. */
 const FIGUREN = ["pawn", "rook", "bishop", "knight", "queen", "king",
-  "paladin", "guardian", "archbishop", "amazon", "captain", "chancellor", "mage", "hawk", "boss-b01"];
+  "paladin", "guardian", "archbishop", "amazon", "captain", "chancellor", "mage", "hawk",
+  /* v1.93.2 (Besitzer 7.10.: "mehr Figuren in dem Hintergrundbild am Anfang"):
+     die dritte Reihe des ersten Schirms - Figuren aus dem Umbau v1.91.0. Der
+     Waechter (boss-b01) ist mit der Galerie gegangen. */
+  "smith", "jester", "huntress", "monk", "samurai", "sorceress", "cavalier", "fencer", "farmwife", "executioner", "cook", "healer"];
 /* Die Karten "Neue Figuren, neue Zuege" und die Springerkarte: jede zeigt die
    GRUNDGANGART (dritter Eintrag = gelernte Talente, hier leer). Was die
    Faehigkeiten des Springers hinzugeben, zeigen die vier Zugbilder daneben -

@@ -167,7 +167,7 @@
        den hellen Feldern und war kaum zu lesen. */
     .halle::after { content:""; position:absolute; inset:0; pointer-events:none;
       background:radial-gradient(74% 40% at 50% 34%, rgba(5,7,12,.6), rgba(5,7,12,.18) 62%, transparent 82%); }
-    .buehne-inhalt { position:relative; z-index:3; padding-bottom:calc(var(--fh) * .62); }
+    .buehne-inhalt { position:relative; z-index:3; padding-bottom:calc(var(--fh) * .98); }
     /* v1.82.0 (Besitzer: "ich habe das Gefuehl, der Hintergrund scheint jetzt
        noch bei den Figuren durch ... schneid die unteren, das untere Viertel,
        eher Fuenftel, Sechstel noch ab, dass man sie nur bis theoretisch zu
@@ -229,6 +229,12 @@
        0,80 fh ueber die Fensterkante, die hinteren Gesichter beginnen bei
        0,86 fh - kein Gesicht steckt hinter einer Krone. */
     .hofreihe.hinten { bottom:calc(var(--fh) * .30); z-index:1; --ue:.05; }
+    /* v1.93.2: die dritte Reihe. Sie steht noch hoeher und dunkler; die Koepfe
+       schauen ueber die zweite. Der Text darueber bekommt dafuer mehr Abstand
+       (.buehne-inhalt), sonst stuende der Leitsatz in den Gesichtern. */
+    .hofreihe.ganzhinten { bottom:calc(var(--fh) * .62); z-index:0; --ue:.035; }
+    .hofreihe.ganzhinten img { --b:.27; }
+    @media (max-width:560px){ .hofreihe.ganzhinten { bottom:calc(var(--fh) * .70); --ue:.05; } }
     /* v1.89.3 (Besitzer, nur Handy): eine andere Besetzung als auf dem Tablet -
        Laeufer, Springer, Turm je einmal, kein Erzbischof, Kanzler und
        Kapitaen ganz aussen, der Turm hoeher, die Amazone hinter dem Turm.
@@ -371,19 +377,6 @@
       box-shadow:0 12px 34px rgba(0,0,0,.5); max-width:560px; margin:0 auto; }
     .bildrahmen img { width:100%; height:auto; display:block; }
     .unterzeile { text-align:center; margin-top:10px; font-size:14px; color:var(--dim, #b9b2cc); }
-    .galerie { display:grid; gap:14px; grid-template-columns:repeat(2,1fr); }
-    @media (min-width:640px){ .galerie { grid-template-columns:repeat(3,1fr); } }
-    @media (min-width:980px){ .galerie { grid-template-columns:repeat(6,1fr); } }
-    .sockel { border:1px solid var(--line); border-radius:14px; background:
-        radial-gradient(120% 90% at 50% 108%, rgba(201,164,92,.14), transparent 60%), var(--card);
-      padding:16px 8px 10px; text-align:center; }
-    .sockel.riss { border-color:rgba(167,139,250,.45); background:
-        radial-gradient(120% 90% at 50% 108%, rgba(124,58,237,.22), transparent 62%), var(--card); }
-    .sockel img { height:150px; width:auto; margin:0 auto 8px;
-      filter:drop-shadow(0 6px 12px rgba(0,0,0,.7)); }
-    .sockel .n { font-size:12.5px; color:var(--goldhell); letter-spacing:.06em; }
-    .sockel .r { font-size:10.5px; color:var(--dim); letter-spacing:.04em; }
-    .sockel.riss .n { color:#cdbcf7; }
     .chronik { display:grid; gap:18px; grid-template-columns:1fr; }
     @media (min-width:880px){ .chronik { grid-template-columns:repeat(3,1fr); } }
     .blatt { border:1px solid var(--line); border-radius:16px; background:var(--card); padding:16px; }
@@ -476,13 +469,32 @@
        gelten nur unter 560 px: handy-weg blendet aus, handy-da blendet ein,
        handy-o1..o5 ordnet die hintere Reihe neu (Kanzler, Paladin, Waechter,
        Amazone hinter dem Turm, Kapitaen). Ab 561 px steht alles wie bisher. -->
+  <!-- v1.93.2 (Besitzer 7.10.: "mehr Figuren in dem Hintergrundbild am
+       Anfang"): eine DRITTE Reihe hinter der Crowd - zwoelf Figuren aus dem
+       Umbau v1.91.0, noch kleiner und dunkler. Auf dem Handy stehen fuenf. -->
+  <div class="hofreihe ganzhinten" aria-hidden="true">
+    <img class="handy-weg rand" src="/landing/held-cook.webp"        alt="" style="--h:.54;--y:.00" loading="eager" />
+    <img class="handy-weg rand" src="/landing/held-farmwife.webp"    alt="" style="--h:.56;--y:.03" loading="eager" />
+    <img                   src="/landing/held-smith.webp"       alt="" style="--h:.58;--y:.01" loading="eager" />
+    <img class="handy-weg" src="/landing/held-huntress.webp"    alt="" style="--h:.58;--y:.05" loading="eager" />
+    <img                   src="/landing/held-samurai.webp"     alt="" style="--h:.60;--y:.02" loading="eager" />
+    <img                   src="/landing/held-jester.webp"      alt="" style="--h:.58;--y:.06" loading="eager" />
+    <img                   src="/landing/held-sorceress.webp"   alt="" style="--h:.60;--y:.02" loading="eager" />
+    <img class="handy-weg" src="/landing/held-cavalier.webp"    alt="" style="--h:.58;--y:.05" loading="eager" />
+    <img                   src="/landing/held-monk.webp"        alt="" style="--h:.58;--y:.01" loading="eager" />
+    <img class="handy-weg" src="/landing/held-fencer.webp"      alt="" style="--h:.56;--y:.03" loading="eager" />
+    <img class="handy-weg rand" src="/landing/held-executioner.webp" alt="" style="--h:.54;--y:.03" loading="eager" />
+    <img class="handy-weg rand" src="/landing/held-healer.webp"      alt="" style="--h:.52;--y:.00" loading="eager" />
+  </div>
   <div class="hofreihe hinten" aria-hidden="true">
+    <img class="rand" src="/landing/held-mage.webp" alt="" style="--h:.62;--z:1;--b:.36;--y:.05" loading="eager" />
     <img class="rand2 handy-da handy-o1" src="/landing/held-chancellor.webp" alt="" style="--h:.66;--z:1;--b:.40;--y:.03;--hs:.76;--ys:.10;--bs:.50" loading="eager" />
     <img class="handy-o4"                src="/landing/held-amazon.webp"     alt="" style="--h:.70;--z:2;--b:.46;--y:.07;--hs:.74;--ys:.14;--bs:.46" loading="eager" />
     <img class="handy-o2"                src="/landing/held-paladin.webp"    alt="" style="--h:.74;--z:3;--b:.52;--y:0"   loading="eager" />
     <img class="handy-weg"               src="/landing/held-archbishop.webp" alt="" style="--h:.72;--z:3;--b:.52;--y:.05" loading="eager" />
     <img class="handy-o3"                src="/landing/held-guardian.webp"   alt="" style="--h:.70;--z:2;--b:.46;--y:.02" loading="eager" />
     <img class="rand2 handy-da handy-o5" src="/landing/held-captain.webp"    alt="" style="--h:.66;--z:1;--b:.40;--y:.06;--hs:.76;--ys:.10;--bs:.50" loading="eager" />
+    <img class="rand" src="/landing/held-hawk.webp" alt="" style="--h:.62;--z:1;--b:.36;--y:.05" loading="eager" />
   </div>
   <div class="hofreihe" aria-hidden="true">
     <img class="rand"  src="/landing/held-pawn.webp"   alt="" style="--h:.54;--z:1;--b:.38;--y:.11"  loading="eager" />
@@ -564,78 +576,27 @@
 
 
 <section class="abgesetzt" id="riss">
-  <div class="hof zwei">
-    <div style="order:2">
-      <div class="stich sans" style="color:var(--riss)">Das Besondere</div>
-      <h2 style="text-align:left">Ein Schach-Rollenspiel</h2>
-      <p class="fliess">Deine Figuren haben <b>Lebenspunkte, Stufen und echte Fähigkeiten</b>. Geschlagen
-        wird nicht in einem Zug, sondern erkämpft — und aus dem Riss treten Bestien, die eigenen Regeln
-        folgen.</p>
-      <div class="zahlen sans" aria-label="Das Spiel in Zahlen">
-        <div class="leuchtkontur"><b>50+</b><span>Figuren</span></div>
-        <div class="leuchtkontur"><b>32</b><span>Fähigkeiten</span></div>
-        <div class="leuchtkontur"><b>12</b><span>Kapitel</span></div>
-        <div class="leuchtkontur"><b>2</b><span>Spielarten</span></div>
-      </div>
-      <ul class="haken violett sans">
-        <li>Über 90 Figuren — 50 Helden, 42 Bestien und Großmeister, jede mit eigener Kunst, eigenem Zugbild und eigener Fähigkeitenleiter</li>
-        <li>14 Großmeister und 28 Bestien, die du besiegen — und für dein Heer gewinnen — kannst</li>
-        <li>Tränke, Zeitenwender, Mauern und Schlüssel beim Händler</li>
-      </ul>
+  <!-- v1.93.2 (Besitzer 7.10.: "die Auflistung von diesen paar Figuren nur mit
+       den Zugbildern und nicht die Figuren, wo nur Name etc. steht - das kann
+       weg"): die Galerie (acht Figuren mit Namen, vier Schatten) ist fort. Die
+       Figuren stellen sich gleich darunter mit ihren Karten vor. -->
+  <div class="hof" style="max-width:760px">
+    <div class="stich sans" style="color:var(--riss);text-align:center">Das Besondere</div>
+    <h2>Ein Schach-Rollenspiel</h2>
+    <p class="fliess" style="text-align:center">Deine Figuren haben <b>Lebenspunkte, Stufen und echte Fähigkeiten</b>. Geschlagen
+      wird nicht in einem Zug, sondern erkämpft — und aus dem Riss treten Bestien, die eigenen Regeln
+      folgen.</p>
+    <div class="zahlen sans" aria-label="Das Spiel in Zahlen">
+      <div class="leuchtkontur"><b>50+</b><span>Figuren</span></div>
+      <div class="leuchtkontur"><b>32</b><span>Fähigkeiten</span></div>
+      <div class="leuchtkontur"><b>12</b><span>Kapitel</span></div>
+      <div class="leuchtkontur"><b>2</b><span>Spielarten</span></div>
     </div>
-    <!-- v1.85.0 (Besitzer G2: "Galerie oben mit den Figuren, die unten mit
-         Zuegen vorgestellt werden; Gambit und Bauer weg, weniger
-         Standardfiguren"): statt der Aufnahme des Hofstaat-Rasters stehen
-         hier die Figuren selbst - acht in Farbe, vier als Schatten. Kapitaen,
-         Kanzler und Amazone kommen weiter unten mit ihren Zuegen
-         wieder; Gambit, Bauer und die uebrigen Standardfiguren fehlen hier
-         bewusst, sie erzaehlen nichts Neues. -->
-    <div style="order:1">
-      <div class="galerie sans">
-        <div class="sockel"><img src="/landing/gal-captain.webp" alt="Der Kapitän" loading="lazy" /><div class="n">Kapitän</div><div class="r">gerade &amp; schräg</div></div>
-        <div class="sockel"><img src="/landing/gal-chancellor.webp" alt="Der Kanzler" loading="lazy" /><div class="n">Kanzler</div><div class="r">Turm &amp; Springer</div></div>
-        <div class="sockel"><img src="/landing/gal-amazon.webp" alt="Die Amazone" loading="lazy" /><div class="n">Amazone</div><div class="r">Dame &amp; Springer</div></div>
-        <!-- v1.90.25 (Besitzer 3.10.: "mach den Drachen raus, der ist in der
-             Stelle unangebracht, und achte darauf, dass der Sockel dieses
-             schwarze Band hat"): an der vierten Stelle steht der Spaeher. Alle
-             Galeriefiguren tragen jetzt das schwarze Band wie im Spiel - sie
-             kommen aus dem Pruefstand (tools/landing-fotos.mjs), nicht mehr
-             roh aus painted/ mit dem gemalten grauen Teller. -->
-        <div class="sockel"><img src="/landing/gal-hawk.webp" alt="Der Späher" loading="lazy" /><div class="n">Späher</div><div class="r">Sprung &amp; Schritt schräg</div></div>
-        <div class="sockel"><img src="/landing/gal-archbishop.webp" alt="Der Erzbischof" loading="lazy" /><div class="n">Erzbischof</div><div class="r">Läufer &amp; Springer</div></div>
-        <div class="sockel"><img src="/landing/gal-mage.webp" alt="Der Magier" loading="lazy" /><div class="n">Magier</div><div class="r">wirkt Zauber</div></div>
-        <div class="sockel"><img src="/landing/gal-paladin.webp" alt="Der Paladin" loading="lazy" /><div class="n">Paladin</div><div class="r">hält die Reihe</div></div>
-        <!-- v1.90.15 (Audit A76): hier stand das Bild des HELDEN Schildtraeger
-             (gruener Mantel, Wappenschild) unter dem Namen der Bestie. Der
-             Waechter ist die Bestie b01 aus Stein - dieselbe wie im Gefechtsbild
-             weiter unten. Alle Galeriebilder tragen ihren Sockel seit v1.90.15
-             in der Bildmitte (tools/landing_bilder.py galerie). -->
-        <div class="sockel riss"><img src="/landing/gal-waechter.webp" alt="Der Wächter, eine Bestie aus Stein" loading="lazy" /><div class="n">Wächter</div><div class="r">Bestie aus dem Riss</div></div>
-        <div class="sockel"><img src="/landing/gal-schatten-1.webp" alt="" loading="lazy" /><div class="n">???</div><div class="r">noch verborgen</div></div>
-        <div class="sockel"><img src="/landing/gal-schatten-2.webp" alt="" loading="lazy" /><div class="n">???</div><div class="r">noch verborgen</div></div>
-        <div class="sockel"><img src="/landing/gal-schatten-3.webp" alt="" loading="lazy" /><div class="n">???</div><div class="r">noch verborgen</div></div>
-        <div class="sockel"><img src="/landing/gal-schatten-4.webp" alt="" loading="lazy" /><div class="n">???</div><div class="r">noch verborgen</div></div>
-      </div>
-      <p class="unterzeile sans">Was du erspielst, steht in Farbe — der Rest wartet als Schatten.</p></div>
-  </div>
-</section>
-
-<section id="modi">
-  <div class="hof">
-    <div class="stich sans" style="text-align:center">Drei Wege zu spielen</div>
-    <h2>Deine Partie, deine Regeln</h2>
-    <p class="h2u sans">Jeder Modus lässt dir die Wahl: klassisches Schach oder Gefecht mit Lebenspunkten.</p>
-    <div class="modi sans">
-      <div class="modus"><img src="/landing/modus-kampagne.webp" alt="Kampagnenkarte" loading="lazy" />
-        <div class="inner"><h3>Kampagne</h3><p>Zwölf Kapitel, verzweigte Pfade, Meister an jedem Kapitelende —
-          und der Großmeister am Riss. Siege rekrutieren Helden und sogar Bestien.</p></div></div>
-      <div class="modus"><img src="/landing/modus-schnell.webp" alt="Schnelles Spiel" loading="lazy" />
-        <div class="inner"><h3>Schnelles Spiel</h3><p>Sofort aufs Brett: klassisches Schach oder HP-Gefecht,
-          Karte und Stärke frei gewählt. Auch zu zweit an einem Gerät.</p></div></div>
-      <div class="modus"><img src="/landing/modus-online.webp" alt="Online-Duell" loading="lazy" />
-        <div class="inner"><h3>Online-Duell</h3><p>Faire Duelle mit Wertung, Freundescodes und Rangliste —
-          live oder als Fernpartie mit einem Zug pro Tag.</p></div></div>
-    </div>
+    <ul class="haken violett sans">
+      <li>Über 90 Figuren — 50 Helden, 42 Bestien und Großmeister, jede mit eigener Kunst, eigenem Zugbild und eigener Fähigkeitenleiter</li>
+      <li>14 Großmeister und 28 Bestien, die du besiegen — und für dein Heer gewinnen — kannst</li>
+      <li>Tränke, Zeitenwender, Mauern und Schlüssel beim Händler</li>
+    </ul>
   </div>
 </section>
 
@@ -658,6 +619,26 @@
     <p class="unterzeile sans">Die Karten sind echt aus dem Spiel: Stufe, Zugbild und die Fähigkeiten, die eine Figur lernen kann.</p>
   </div>
 </section>
+
+<section id="modi">
+  <div class="hof">
+    <div class="stich sans" style="text-align:center">Drei Wege zu spielen</div>
+    <h2>Deine Partie, deine Regeln</h2>
+    <p class="h2u sans">Jeder Modus lässt dir die Wahl: klassisches Schach oder Gefecht mit Lebenspunkten.</p>
+    <div class="modi sans">
+      <div class="modus"><img src="/landing/modus-kampagne.webp" alt="Kampagnenkarte" loading="lazy" />
+        <div class="inner"><h3>Kampagne</h3><p>Zwölf Kapitel, verzweigte Pfade, Meister an jedem Kapitelende —
+          und der Großmeister am Riss. Siege rekrutieren Helden und sogar Bestien.</p></div></div>
+      <div class="modus"><img src="/landing/modus-schnell.webp" alt="Schnelles Spiel" loading="lazy" />
+        <div class="inner"><h3>Schnelles Spiel</h3><p>Sofort aufs Brett: klassisches Schach oder HP-Gefecht,
+          Karte und Stärke frei gewählt. Auch zu zweit an einem Gerät.</p></div></div>
+      <div class="modus"><img src="/landing/modus-online.webp" alt="Online-Duell" loading="lazy" />
+        <div class="inner"><h3>Online-Duell</h3><p>Faire Duelle mit Wertung, Freundescodes und Rangliste —
+          live oder als Fernpartie mit einem Zug pro Tag.</p></div></div>
+    </div>
+  </div>
+</section>
+
 
 <section class="abgesetzt" id="faehigkeiten">
   <div class="hof zwei">
