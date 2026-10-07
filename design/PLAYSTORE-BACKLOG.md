@@ -263,8 +263,21 @@
      Zwischenspeicher: App-Daten löschen, neu starten.
   2. **Graue Browserleiste oben?** Dann stimmt der Fingerabdruck nicht (S5).
 
-- [ ] **S7 Geschlossener Test.** Dieselbe `.aab` mit „Version hochstufen"
-  hinüberkopieren, Tester per E-Mail-Liste eintragen, Release einführen.
+- [x] **S7 Geschlossener Test — EINGEREICHT 7.10.2026.** Track
+  „Geschlossener Test - Alpha": Tester über die Google-Gruppe
+  **gambit-rise-beta@googlegroups.com** (<https://groups.google.com/g/gambit-rise-beta>,
+  jeder darf beitreten, posten und Mitgliederliste nur für den Inhaber),
+  **alle Länder** (177 + „Rest der Welt"), Release **1 (1.0.0.0)** aus der
+  Bibliothek (dasselbe Bundle wie der interne Test), Versionshinweise de/en.
+  Sechs Änderungen zur Prüfung gesendet („Überprüfungen in der Regel innerhalb
+  von 7 Tagen"). Der Weg für Tester steht auf der Startseite (`#beta`, v1.93.1):
+  Gruppe beitreten → <https://play.google.com/apps/testing/com.gambitrise.app>
+  → Play Store. **Nach der Freigabe prüfen:** öffnet der Testlink, und den Satz
+  „eingereicht, noch nicht freigegeben" von der Startseite nehmen.
+  Was beim Einrichten hakte: das Anlegen der Gruppe verlangt ein Captcha (nur
+  der Besitzer), und bei verdecktem Chrome-Fenster nehmen die Felder der Console
+  getippten Text nicht an — Wert über den nativen Setter + `input`-Ereignis
+  setzen, Enter senden, dann steht die Gruppe als Chip da.
 
 - [ ] **S8 12 Tester, 14 Tage am Stück.** Pflicht für private
   Entwicklerkonten, die nach dem 13.11.2023 angelegt wurden — **gilt für

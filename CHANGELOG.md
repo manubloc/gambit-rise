@@ -1,5 +1,17 @@
 # Changelog - Gambit Rise
 
+## 1.93.1 - Startseite: "Jetzt schon testen"
+
+Besitzer 7.10.: Freunde sollen ueber die Startseite in den Vorab-Test kommen.
+
+- Neuer Abschnitt mit drei Schritten, jeder ein Link: der Google-Gruppe
+  gambit-rise-beta beitreten, den Test annehmen, im Play Store installieren.
+  Der Verweis "Entwicklerzugang" unter dem Abzeichen heisst jetzt "jetzt schon
+  testen" und springt dorthin.
+- Der geschlossene Test (Track "Alpha") ist am 7.10. eingerichtet und bei Google
+  eingereicht: alle Laender, Tester ueber die Gruppe, Release 1 (1.0.0.0). Bis
+  zur Freigabe oeffnen sich Schritt 2 und 3 noch nicht - das steht dabei.
+
 ## 1.93.0 - Die Duell-Halle aufgeraeumt, das kurze Gambit hat eine Uhr, Rechtstexte als Dokument
 
 Besitzer 7.10., mit Foto der Lobby.

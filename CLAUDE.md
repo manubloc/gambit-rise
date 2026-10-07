@@ -11,7 +11,9 @@ Der Passwort-Riegel davor (v1.42.0–v1.87.0, ein `prompt()`) ist seit v1.88.0
 fort — er sperrte den Besitzer auf dem Handy aus (prompt() liefert in
 installierten Seiten stumm null). Die Anmeldung der App ist die Tür.
 Play Store: Paket **com.gambitrise.app**, seit 2.10.2026 im **INTERNEN TEST**
-(Release 1, nur eingetragene Tester; öffentlich ist die App NICHT). Das Bundle
+(Release 1, nur eingetragene Tester; öffentlich ist die App NICHT); der
+**GESCHLOSSENE TEST** ist seit 7.10.2026 bei Google in Prüfung (Tester über die
+Gruppe gambit-rise-beta@googlegroups.com, Weg dorthin: Startseite `#beta`). Das Bundle
 ist mit dem Uploadschlüssel `gg` signiert — Stand, Opt-in-Link und der Weg,
 ein PWABuilder-Paket umzusignieren, stehen in `design/PLAYSTORE-BACKLOG.md`
 (S4, S4b).
@@ -610,7 +612,7 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
   Auswahl-Lichtspektakel.
 - Alles Optionale abschaltbar (Klang, Online).
 
-## Offene Baustellen (Stand v1.93.0, 7.10.2026)
+## Offene Baustellen (Stand v1.93.1, 7.10.2026)
 
 **Einstieg für jede neue Sitzung: `design/CHAT-EINSTIEG-2026-09-27.md`** (zehn
 Minuten, mit dem Startsatz für den Chat), dann **`design/UEBERGABE-2026-09-27.md`** — Stand,
@@ -625,9 +627,8 @@ Tabelle „STAND DER ABARBEITUNG“ oben — erst dort nachsehen),
 Tabellen, Messwerte).
 Hier nur der Überblick:
 
-- **Nach dem Figuren-Umbau offen:** die Kronenglut liegt weiter auf
-  dem alten Osric-Bild (jetzt „Der Steinkönig“, b25), der neue Osric (b36)
-  leuchtet nicht · die Startseite zeigt noch keine der neuen Figuren
+- **Nach dem Figuren-Umbau offen:** (die Kronenglut für den neuen Osric
+  entfällt — Besitzer 7.10.: „kannst du weglassen“) · die Startseite zeigt noch keine der neuen Figuren
   (`tools/landing-fotos.mjs`) · der Store-Eintrag nennt noch 27 Helden und 25
   Bestien · der Gegner bekommt keine Bünde · im Online-Duell gibt es keinen
   Fassungsabgleich (ein alter Client kennt die neuen Arten nicht).
