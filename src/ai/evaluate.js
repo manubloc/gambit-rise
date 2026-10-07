@@ -29,6 +29,12 @@ export function evaluate(state, color) {
        es stehen (Geist gewann 84 % seiner Partien, ohne je zurueckzukehren). */
     if (hp) v *= p.maxHp ? p.hp / (p.geist && p.geistVon ? p.geistVon : p.maxHp) : 1;
     else if (p.kind !== "K") v += p.shield * SHIELD_VALUE;
+    /* v1.94.1: WER GEFESSELT IST, ZAEHLT WENIGER - solange er nicht ziehen
+       darf (Baerenfalle, Jagd, seit v1.94.0 die Fessel). Ohne das war der KI
+       die Fessel nichts wert: sie aendert kein Material, und die Suche fand an
+       ihr keinen Grund. Ein Siebtel weniger ist klein genug, dass sie dafuer
+       keinen Schlag liegen laesst. */
+    if (p.fesselBis != null && p.fesselBis > (state.moveCount || 0)) v *= 0.86;
     const f = fileOf(i, W), r = rankOf(i, W);
     v += 10 - (Math.abs(f - (W - 1) / 2) + Math.abs(r - (H - 1) / 2)); // mild center pull
     score += p.color === color ? v : -v;

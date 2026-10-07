@@ -441,16 +441,21 @@ export const bossUpgradeCost = (level) => 1 + 2 * level;   // 2->3, 3->5, 4->7, 
    Angriff lagen im reifen Heer ueber 60 % und bekommen das Springerprofil -
    Hetzer 7/17 -> 18/6 (wie die Amazone), Sturmklaue 6/18 -> 17/7, Geist
    4/20 -> 16/8 (wie der Springer). Die 24 Punkte bleiben. */
+/* v1.94.1: nach dem Leiter-Umbau lagen sieben Bestien im reifen Heer bei
+   61-63 % (Regel des Besitzers: keine ueber 60). Nachgestellt und einzeln
+   gemessen - Schleicher 8/16 -> 12/12, Geist 16/8 -> 19/5, Richter 16/8 -> 18/6,
+   Steinkoenig 20/4 -> 21/3, Schlinger 20/4 -> 21/3, Harpyie 18/6 -> 19/5,
+   Donnerkraehe 13/11 -> 16/8. Die Messwerte stehen bei STAERKE (besetzung.js). */
 export const BOSS_BUDGET = 24;
 export const ZIEL_PROFIL_BOSS = {
   b14: [21, 3], b20: [20, 4], b06: [20, 4], b01: [19, 5],
-  b03: [17, 7], b17: [17, 7], b25: [20, 4], b12: [16, 8], b24: [16, 8],
+  b03: [17, 7], b17: [17, 7], b25: [21, 3], b12: [18, 6], b24: [16, 8],
   b18: [20, 4], b23: [20, 4], b21: [13, 11], b16: [11, 13], b08: [15, 9],
-  b11: [8, 16], b04: [8, 16], b05: [9, 15], b02: [18, 6], b19: [7, 17], b09: [6, 18], b15: [17, 7], b22: [5, 19], b13: [5, 19], b07: [16, 8],
+  b11: [8, 16], b04: [12, 12], b05: [9, 15], b02: [18, 6], b19: [7, 17], b09: [6, 18], b15: [17, 7], b22: [5, 19], b13: [5, 19], b07: [19, 5],
   /* v1.91.0: die dreizehn neuen Grossmeister und fuenf neuen Bestien */
   b26: [18, 6], b27: [17, 7], b28: [16, 8], b29: [20, 4], b30: [15, 9], b31: [21, 3], b32: [17, 7], b33: [16, 8],
   b34: [21, 3], b35: [18, 6], b36: [19, 5], b37: [17, 7], b38: [21, 3],
-  b39: [20, 4], b40: [20, 4], b41: [18, 6], b42: [20, 4], b43: [13, 11],
+  b39: [21, 3], b40: [20, 4], b41: [19, 5], b42: [20, 4], b43: [16, 8],
 };
 /* ── v1.26.1: DAS MONSTER WAECHST IN SEINE WERTE HINEIN ────────────────────
    Besitzer: "Warum haben die Monster schon von Beginn an so viel Leben? Das

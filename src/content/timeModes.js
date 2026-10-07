@@ -81,3 +81,12 @@ export function clockFor(tc, tcGegner = null) {
   const ich = blitzSekunden(tc), er = tcGegner && tcGegner !== "daily" ? blitzSekunden(tcGegner) : ich;
   return { type: "total", seconds: ich, inc: blitzAufschlag(ich), foeSeconds: er, foeInc: blitzAufschlag(er) };
 }
+
+/* v1.94.1: DIE FASSUNG DER REGELN, die dieses Geraet rechnet. Die Halle laesst
+   Gefechte nur zwischen gleichen Zahlen zu (worker/src/logic.mjs `regelnVon`) -
+   sonst fuehrt ein Geraet, das eine Zugart nicht kennt, sie als gewoehnlichen
+   Zug aus, und die Bretter laufen auseinander. HOCHZAEHLEN, sobald der Kern
+   einen Zug anders ausfuehrt als bisher (neue Zugart, geaenderte Wirkung) -
+   nicht bei Werten, Texten oder Bildern. 1 = bis v1.93.2, 2 = v1.94.0 (die
+   dreizehn Kuenste). test_worker prueft, dass die Halle danach trennt. */
+export const REGELN_FASSUNG = 2;

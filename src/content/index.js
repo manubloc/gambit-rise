@@ -13,4 +13,4 @@ export { ITEMS, ITEM_LIST, hasItem, buyItem, itemPrice } from "./items.js";
 export { PLACE_EN, placeEn } from "./placeNamesEn.js";
 export { VOICES, voiceFor } from "./voices.js";
 
-export { TIME_MODES, timeModeById, timeModeKey, clockFor, BLITZ_ZEITEN, BLITZ_VORGABE, blitzTc, blitzText, blitzSekunden, blitzAufschlag } from "./timeModes.js";
+export { TIME_MODES, timeModeById, timeModeKey, clockFor, BLITZ_ZEITEN, BLITZ_VORGABE, blitzTc, blitzText, blitzSekunden, blitzAufschlag, REGELN_FASSUNG } from "./timeModes.js";

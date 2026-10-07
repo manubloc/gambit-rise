@@ -76,7 +76,11 @@ const FIGUREN = ["pawn", "rook", "bishop", "knight", "queen", "king",
    GRUNDGANGART (dritter Eintrag = gelernte Talente, hier leer). Was die
    Faehigkeiten des Springers hinzugeben, zeigen die vier Zugbilder daneben -
    in denselben Farben, darum bleibt die Karte beim L. */
-const KARTEN = [["captain", "auf-kapitaen", ""], ["chancellor", "auf-kanzler", ""], ["amazon", "auf-amazone", ""],
+/* v1.94.1 (offen seit v1.91.0: "die Startseite zeigt keine der neuen Figuren auf
+   einer Karte"): vier Figuren des Umbaus bekommen ihre Karte - Hofnarr, Schmied,
+   Jaegerin, Samurai. */
+const KARTEN = [["jester", "auf-hofnarr", ""], ["smith", "auf-schmied", ""], ["huntress", "auf-jaegerin", ""], ["samurai", "auf-samurai", ""],
+  ["captain", "auf-kapitaen", ""], ["chancellor", "auf-kanzler", ""], ["amazon", "auf-amazone", ""],
   ["dragon", "auf-drache", ""], ["knight", "auf-springer6", ""]];
 /* Die vier Zugbilder daneben: Art der Figur und die Faehigkeit */
 const ZUGBILDER = [["N", "knight_longleap"], ["N", "knight_outrider"], ["R", "rook_diag_step"], ["K", "king_dash"]];

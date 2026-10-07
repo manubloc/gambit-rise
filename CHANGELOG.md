@@ -1,5 +1,28 @@
 # Changelog - Gambit Rise
 
+## 1.94.1 - Bestien zurueck unter 60 %, Fassungsabgleich im Duell, neue Figuren auf Karten
+
+Offene Punkte nach v1.94.0, abgearbeitet am 7.10.:
+
+- **Sieben Bestien lagen bei 61-63 %** (Regel: keine ueber 60), weil die Figuren
+  hinten HP-Faehigkeiten abgegeben hatten. Nachgestellt in ZIEL_PROFIL_BOSS (ein
+  bis vier Punkte von Angriff zu Leben, die 24 bleiben) und einzeln gemessen:
+  Schleicher 58, Geist 54, Richter 57, Steinkoenig 60, Schlinger 56, Harpyie 51,
+  Donnerkraehe 56. Gemessen dabei: der Angriff hat Kanten - Geist 18/6 -> 61 %,
+  19/5 -> 54, 20/4 -> 47.
+- **Fassungsabgleich im Online-Gefecht** (offen seit v1.91.0). Ursache des
+  Risikos: jedes Geraet rechnet die Zuege selbst nach; kennt eines eine Zugart
+  nicht (Platztausch, Wegstossen, Fessel ...), fuehrt es sie als gewoehnlichen
+  Zug aus, und die Bretter laufen stumm auseinander. Das Geraet nennt jetzt die
+  Fassung seiner Regeln (REGELN_FASSUNG = 2), die Halle paart im Gefecht nur
+  gleiche Fassungen und sagt bei einer Forderung beiden, warum sie nicht
+  beginnt. Klassisches Schach ist ausgenommen.
+- **Startseite:** vier neue Figuren haben ihre Karte (Hofnarr, Schmied, Jaegerin,
+  Samurai); die Karten von Kapitaen und Amazone zeigen die neuen Leitern.
+- Die KI wertet eine gefesselte Figur um ein Siebtel geringer - vorher war ihr
+  die Fessel nichts wert.
+- Werkzeug: uebersicht-fotos --spalten=1 (aus dem Seitenzweig uebernommen).
+
 ## 1.94.0 - Die erste Faehigkeit jeder Figur wirkt im Schach
 
 Besitzer 7.10.: "Die Faehigkeiten, die eine Figur individuell fuer sich hat,

@@ -54,7 +54,8 @@ HELDEN_BREITE = {"pawn": 248, "rook": 308, "bishop": 229, "knight": 267, "queen"
 # seiner Stelle steht der Spaeher.
 GALERIE = {}   # v1.93.2: die Galerie der Startseite ist fort (Besitzer 7.10.: "die Figuren, wo nur
                # Name etc. steht, das kann weg") - geblieben sind die Karten mit Zugbild.
-KARTEN = ["auf-kapitaen", "auf-kanzler", "auf-amazone", "auf-drache", "auf-springer6"]
+KARTEN = ["auf-kapitaen", "auf-kanzler", "auf-amazone", "auf-drache", "auf-springer6",
+          "auf-hofnarr", "auf-schmied", "auf-jaegerin", "auf-samurai"]   # v1.94.1
 ZUEGE = ["zug-knight_longleap", "zug-knight_outrider", "zug-rook_diag_step", "zug-king_dash"]
 BRETTER = ["gefecht-gemischt", "brett-kronland", "brett-wolkenjoch"]
 

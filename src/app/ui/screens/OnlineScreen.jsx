@@ -9,7 +9,7 @@ import { LaurelIc, PigeonIc, CloudIc, BladesIc, DiceIc, TrophyIc } from "../icon
 import { JewelIc } from "../board/PieceGlyph.jsx";
 import { Button, Chip, Panel, Segmented, PanelTitle } from "../primitives.jsx";
 import { retinueScore, mapUnlocked, buildArmy, buildArmyFromFormation, listSaves, fmtPlaytime } from "../../../meta/index.js";
-import { MAPS, mapById, TIME_MODES, timeModeById, clockFor, BLITZ_ZEITEN, BLITZ_VORGABE, blitzTc, blitzText } from "../../../content/index.js";
+import { MAPS, mapById, TIME_MODES, timeModeById, clockFor, BLITZ_ZEITEN, BLITZ_VORGABE, blitzTc, blitzText, REGELN_FASSUNG } from "../../../content/index.js";
 import { SERVER_URL } from "../../config.js";
 import { hasItem } from "../../../content/index.js";
 import { serializeSave, parseSave, getAdminToken } from "../../../meta/index.js";
@@ -259,10 +259,10 @@ export function OnlineScreen({ profile, dispatch, t, net, account, onDaily = nul
   }
   function findRandom() {
     if (searching) { net.send({ t: "dequeue" }); setSearching(false); return; }
-    net.send({ t: "queue", maps: queueMaps(), army: queueArmy(), armies: queueArmies(), mode: duelMode, tc: meinTc });
+    net.send({ t: "queue", maps: queueMaps(), army: queueArmy(), armies: queueArmies(), mode: duelMode, tc: meinTc, regeln: REGELN_FASSUNG });
     setSearching(true);
   }
-  const challengeFriend = (f) => { const maps = queueMaps(); net.send({ t: "challenge", targetId: f.id, maps, army: duelMode === "classic" ? classicSide() : armyFor(maps[0]), armies: armiesFor(maps), mode: duelMode, tc: meinTc }); };
+  const challengeFriend = (f) => { const maps = queueMaps(); net.send({ t: "challenge", targetId: f.id, maps, army: duelMode === "classic" ? classicSide() : armyFor(maps[0]), armies: armiesFor(maps), mode: duelMode, tc: meinTc, regeln: REGELN_FASSUNG }); };
 
   const Line = ({ children }) => <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>{children}</div>;
   const input = { flex: 1, minWidth: 120, background: T.bg2, border: `1px solid ${T.line}`, color: T.text,
@@ -655,7 +655,7 @@ export function OnlineScreen({ profile, dispatch, t, net, account, onDaily = nul
             <div style={{ fontSize: 12.5, color: T.dim, marginBottom: 12 }}>{t("online.score")}: {challenge.from.score}</div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
               <Button variant="primary" onClick={() => {
-                net.send({ t: "challengeRespond", challengeId: challenge.challengeId, accept: true, maps: myMaps, army: challenge.mode === "classic" ? classicSide() : armyFor(myMaps[0]), armies: challenge.mode === "classic" ? { classic: classicSide() } : armiesFor(myMaps), tc: blitzTc(blitzZeit) });
+                net.send({ t: "challengeRespond", challengeId: challenge.challengeId, accept: true, regeln: REGELN_FASSUNG, maps: myMaps, army: challenge.mode === "classic" ? classicSide() : armyFor(myMaps[0]), armies: challenge.mode === "classic" ? { classic: classicSide() } : armiesFor(myMaps), tc: blitzTc(blitzZeit) });
                 setChallenge(null);
               }}>{t("online.accept")}</Button>
               <Button variant="subtle" onClick={() => {

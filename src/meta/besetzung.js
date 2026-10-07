@@ -138,19 +138,23 @@ export function besetzungsPlan(node) {
    Partien; Gladiator und Metzger danach nachgestellt und einzeln gemessen). */
 /* v1.94.0: neu gemessen am 7.10.2026 nach dem Umbau der Leitern (npm run balance,
    73 Eintraege, je 564-576 Partien). Die Figuren liegen bei 35-58 %, der Laeufer
-   bei 61; SIEBEN BESTIEN LIEGEN BEI 61-63 % (Schlinger, Donnerkraehe, Geist,
-   Richter, Harpyie, Steinkoenig, Schleicher) - ueber der 60er-Regel des
-   Besitzers. Ursache: die Figuren haben hinten HP-Faehigkeiten abgegeben, die
-   Bestien sind unveraendert. Das Nachstellen steht offen (CLAUDE.md). */
+   bei 61. Sieben Bestien lagen danach bei 61-63 % - die Figuren hatten hinten
+   HP-Faehigkeiten abgegeben, die Bestien waren unveraendert.
+   v1.94.1: diese sieben sind nachgestellt (ZIEL_PROFIL_BOSS in leveling.js, je
+   ein bis vier Punkte von Angriff zu Leben, die 24 bleiben) und einzeln
+   nachgemessen (`node .balance.mjs ziel ...`): Schleicher 58, Geist 54, Richter
+   57, Steinkoenig 60, Schlinger 56, Harpyie 51, Donnerkraehe 56. GEMESSEN dabei:
+   der Angriff hat Kanten - Geist 18/6 -> 61 %, 19/5 -> 54, 20/4 -> 47; Schlinger
+   21/3 -> 56, 22/2 -> 41. Ein Punkt zu viel kippt eine Bestie um fuenfzehn. */
 export const STAERKE = {
-  "boss:b39": 63,
-  "boss:b43": 63,
-  "boss:b07": 62,
+  "boss:b39": 56,
+  "boss:b43": 56,
+  "boss:b07": 54,
   "bishop": 61,
-  "boss:b04": 61,
-  "boss:b12": 61,
-  "boss:b25": 61,
-  "boss:b41": 61,
+  "boss:b04": 58,
+  "boss:b12": 57,
+  "boss:b25": 60,
+  "boss:b41": 51,
   "boss:b02": 59,
   "boss:b19": 59,
   "boss:b21": 59,

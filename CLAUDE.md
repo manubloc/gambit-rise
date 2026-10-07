@@ -637,7 +637,7 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
   Auswahl-Lichtspektakel.
 - Alles Optionale abschaltbar (Klang, Online).
 
-## Offene Baustellen (Stand v1.94.0, 7.10.2026)
+## Offene Baustellen (Stand v1.94.1, 7.10.2026)
 
 **Einstieg für jede neue Sitzung: `design/CHAT-EINSTIEG-2026-09-27.md`** (zehn
 Minuten, mit dem Startsatz für den Chat), dann **`design/UEBERGABE-2026-09-27.md`** — Stand,
@@ -652,13 +652,15 @@ Tabelle „STAND DER ABARBEITUNG“ oben — erst dort nachsehen),
 Tabellen, Messwerte).
 Hier nur der Überblick:
 
-- **Nach dem Fähigkeiten-Umbau v1.94.0 offen:** sieben Bestien liegen im
-  Balance-Lauf bei 61–63 % (Schlinger, Donnerkrähe, Geist, Richter, Harpyie,
-  Steinkönig, Schleicher) — über der 60er-Regel, weil die Figuren hinten
-  HP-Fähigkeiten abgegeben haben; nachstellen und mit `node .balance.mjs ziel …`
-  messen · Stoß, Tausch und Fessel haben keine eigene Animation · die KI
-  bewertet Fessel, Zaun und Tausch nicht eigens · Abnahme der neuen Künste durch
-  den Besitzer am Handy.
+- **Nach dem Fähigkeiten-Umbau v1.94.0 offen:** Stoß, Tausch und Fessel haben
+  keine eigene Animation · die KI bewertet Zaun und Tausch nicht eigens (die
+  Fessel seit v1.94.1) · Abnahme der neuen Künste durch den Besitzer am Handy.
+  **Erledigt in v1.94.1:** die sieben Bestien über 60 % (Messwerte bei `STAERKE`)
+  und der **Fassungsabgleich im Online-Gefecht**: das Gerät nennt
+  `REGELN_FASSUNG` (content/timeModes.js) bei `queue`, `challenge` und
+  `challengeRespond`, die Halle (`regelnVon` in worker/src/logic.mjs) paart im
+  Gefecht nur gleiche Fassungen; klassisches Schach ist ausgenommen. **Wer im
+  Kern eine Zugart ändert oder neu baut, zählt `REGELN_FASSUNG` hoch.**
 - **Store:** der geschlossene Test steht in der Play Console auf „Aktiv“
   (gemessen 7.10. mittags, keine offenen Änderungen in der Übersicht). Die
   Tester-Gruppe muss „Wer kann die Gruppe sehen: Alle im Web“ tragen, sonst
@@ -666,10 +668,9 @@ Hier nur der Überblick:
   umgestellt, nicht nachgemessen). Store-Eintrag nennt noch 27 Helden / 25
   Bestien — neuer Text braucht die Freigabe des Besitzers.
 - **Nach dem Figuren-Umbau offen:** (die Kronenglut für den neuen Osric
-  entfällt — Besitzer 7.10.: „kannst du weglassen“) · die Startseite zeigt die neuen Figuren seit v1.93.2 auf dem
-  ersten Schirm, aber noch auf keiner Karte und keinem Brett · der Store-Eintrag nennt noch 27 Helden und 25
-  Bestien · der Gegner bekommt keine Bünde · im Online-Duell gibt es keinen
-  Fassungsabgleich (ein alter Client kennt die neuen Arten nicht).
+  entfällt — Besitzer 7.10.: „kannst du weglassen“) · die Startseite zeigt die neuen Figuren auf dem ersten Schirm (v1.93.2) und auf
+  vier Karten (v1.94.1), aber noch auf keinem Brett · der Store-Eintrag nennt noch 27 Helden und 25
+  Bestien · der Gegner bekommt keine Bünde.
 
 - **Monster überarbeiten, vier je Runde** (Besitzer 1.10.): per fal-Edit am
   bestehenden Bild (nur mit Freigabe), dann lokal auf Höhe gerechnet wie

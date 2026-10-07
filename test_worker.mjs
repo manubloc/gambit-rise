@@ -1125,5 +1125,40 @@ const hmac2 = async (key, data) => { const k = await subtle.importKey("raw", key
     !/if \(!admin \|\| (b\.)?token !== admin\)/.test(idx));
 }
 
+// ── v1.94.1: der Fassungsabgleich - Gefechte nur zwischen gleichen Regelfassungen ──
+{
+  const { regelnVon, FASSUNG_FEHLER } = await import("./worker/src/logic.mjs");
+  const { REGELN_FASSUNG } = await import("./src/content/index.js");
+  const hallo = (hall, id, score = 100) => hall.handle(null, { t: "hello", id, secret: "s-" + id, name: "N" + id, score });
+  ok("Fassung: fehlt die Angabe oder ist sie Unsinn, gilt das Geraet als Fassung 1", regelnVon(undefined) === 1 && regelnVon("x") === 1 && regelnVon(-3) === 1 && regelnVon(2) === 2 && regelnVon("3") === 3);
+  ok("Fassung: dieses Geraet rechnet die Regeln der dreizehn Kuenste (>= 2)", REGELN_FASSUNG >= 2);
+  {   // Warteschlange, Gefecht: alt trifft neu NICHT, neu trifft neu
+    const { hall, last } = mkHall();
+    hallo(hall, "alt"); hallo(hall, "neu"); hallo(hall, "neu2");
+    hall.handle("alt", { t: "queue", maps: ["classic"], army: ["p"], mode: "duel" });
+    hall.handle("neu", { t: "queue", maps: ["classic"], army: ["p"], mode: "duel", regeln: REGELN_FASSUNG });
+    ok("Fassung: ein altes und ein neues Geraet werden im Gefecht nicht gepaart", !last("matchStart") && !last("match") && hall.queue.length === 2);
+    hall.handle("neu2", { t: "queue", maps: ["classic"], army: ["p"], mode: "duel", regeln: REGELN_FASSUNG });
+    ok("Fassung: zwei neue Geraete finden sich - das alte wartet weiter", hall.queue.length === 1 && hall.queue[0].id === "alt");
+  }
+  {   // klassisches Schach kennt keine Faehigkeiten - dort trennt nichts
+    const { hall } = mkHall();
+    hallo(hall, "alt"); hallo(hall, "neu");
+    hall.handle("alt", { t: "queue", maps: ["classic"], army: ["p"], mode: "classic" });
+    hall.handle("neu", { t: "queue", maps: ["classic"], army: ["p"], mode: "classic", regeln: REGELN_FASSUNG });
+    ok("Fassung: im klassischen Schach spielen alt und neu weiter zusammen", hall.queue.length === 0);
+  }
+  {   // Forderung unter Freunden: beide erfahren, warum es nicht beginnt
+    const { hall, outbox } = mkHall();
+    hallo(hall, "alt"); hallo(hall, "neu");
+    hall.handle("neu", { t: "challenge", targetId: "alt", maps: ["classic"], army: ["p"], mode: "duel", regeln: REGELN_FASSUNG });
+    const ch = [...outbox].reverse().find((m) => m.t === "challenge" && m._to === "alt");
+    let wurf = null;
+    try { hall.handle("alt", { t: "challengeRespond", challengeId: ch.challengeId, accept: true, maps: ["classic"], army: ["p"] }); } catch (e) { wurf = e.message; }
+    ok("Fassung: eine Forderung zum Gefecht zwischen zwei Fassungen beginnt nicht - beide bekommen den Grund",
+      wurf === FASSUNG_FEHLER && outbox.some((m) => m.t === "error" && m._to === "neu" && m.error === FASSUNG_FEHLER) && Object.keys(hall.matches).length === 0);
+  }
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 if (fail) process.exit(1);

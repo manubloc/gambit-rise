@@ -49,6 +49,18 @@ export function normTc(tc) {
   return "b" + Math.max(30, Math.min(300, m ? Number(m[1]) : 180));
 }
 export const tcKlasse = (tc) => (normTc(tc) === "daily" ? "daily" : "blitz");
+
+/* ── v1.94.1: DER FASSUNGSABGLEICH (offen seit v1.91.0, Audit A9) ─────────────
+   Im Gefecht (mode "duel") rechnet JEDES Geraet die Zuege selbst nach. Kennt
+   eines eine Zugart nicht - seit v1.94.0 etwa Platztausch, Wegstossen, Fessel -,
+   fuehrt es sie als gewoehnlichen Zug aus, und die beiden Bretter laufen
+   auseinander, ohne dass es jemand merkt. Das Geraet nennt darum beim Anstellen
+   und beim Fordern die Fassung seiner REGELN (`regeln`, eine Zahl; fehlt sie,
+   ist es ein Geraet von vor v1.94.1 und gilt als 1). Gefechte gibt es nur
+   zwischen gleichen Fassungen. Klassisches Schach ist ausgenommen - dort gibt
+   es keine Faehigkeiten, also nichts, was auseinanderlaufen koennte. */
+export const regelnVon = (x) => { const n = Number(x); return Number.isInteger(n) && n > 0 && n < 100000 ? n : 1; };
+export const FASSUNG_FEHLER = "Verschiedene Fassungen - bitte beide die App neu laden / different versions - please both reload the app";
 // One day before the deadline the absent player gets a last tap on the
 // shoulder — enough to save a game over a busy weekend.
 const REMIND_MS = 24 * 60 * 60 * 1000;
@@ -336,6 +348,7 @@ export class HallCore {
       if (Math.abs(a.score - b.score) > BAND(waited)) continue;
       if ((a.mode || "duel") !== (b.mode || "duel")) continue; // classic meets classic, duel meets duel
       if (tcKlasse(a.tc) !== tcKlasse(b.tc)) continue;           // v1.92.0: ein Topf fuer das schnelle Spiel, einer fuer die Fernpartie
+      if ((a.mode || "duel") === "duel" && regelnVon(a.regeln) !== regelnVon(b.regeln)) continue;   // v1.94.1: Gefechte nur zwischen gleichen Regelfassungen
       const maps = a.maps.filter((m) => b.maps.includes(m));
       if (!maps.length) continue;
       q.splice(j, 1); q.splice(i, 1); this.queue = q;
@@ -700,7 +713,7 @@ export class HallCore {
       this.pruefePaket({ maps: msg.maps, army: msg.army, armies: msg.armies });   // v1.90.8 (A22)
       this.dropFromQueue(me);
       const q = this.queue;
-      q.push({ id: me, since: this.now(), maps: msg.maps || ["classic"], army: msg.army, armies: msg.armies || null, score: p.score, mode: msg.mode || "duel", tc: msg.tc || "rush" });
+      q.push({ id: me, since: this.now(), maps: msg.maps || ["classic"], army: msg.army, armies: msg.armies || null, score: p.score, mode: msg.mode || "duel", tc: msg.tc || "rush", regeln: regelnVon(msg.regeln) });
       this.queue = q;
       this.tryMatch(); return me;
     }
@@ -753,7 +766,7 @@ export class HallCore {
       const cs = this.challenges;
       // the clock travels WITH the challenge: without it, a friend asking for a
       // correspondence game would silently land in a rush duel
-      cs[challengeId] = { from: me, to: msg.targetId, maps: msg.maps || ["classic"], army: msg.army, armies: msg.armies || null, mode: msg.mode || "duel", tc: msg.tc || "rush" };
+      cs[challengeId] = { from: me, to: msg.targetId, maps: msg.maps || ["classic"], army: msg.army, armies: msg.armies || null, mode: msg.mode || "duel", tc: msg.tc || "rush", regeln: regelnVon(msg.regeln) };
       this.challenges = cs;
       this.send(msg.targetId, { t: "challenge", challengeId, mode: msg.mode || "duel", from: { id: me, name: p.name, score: p.score } });
       this.send(me, { t: "info", info: "challengeSent" });
@@ -765,6 +778,12 @@ export class HallCore {
       delete cs[msg.challengeId]; this.challenges = cs;
       if (!c || c.to !== me) return me;
       if (!msg.accept) { this.send(c.from, { t: "challengeDeclined" }); return me; }
+      /* v1.94.1: ein Gefecht zwischen zwei Regelfassungen kaeme nicht heil ans
+         Ende - beide erfahren, warum es nicht beginnt */
+      if ((c.mode || "duel") === "duel" && regelnVon(c.regeln) !== regelnVon(msg.regeln)) {
+        this.send(c.from, { t: "error", error: FASSUNG_FEHLER });
+        throw new Error(FASSUNG_FEHLER);
+      }
       this.pruefePaket({ maps: msg.maps, army: msg.army, armies: msg.armies });   // v1.90.8 (A22)
       const maps = c.maps.filter((m) => (msg.maps || ["classic"]).includes(m));
       this.startMatch({ id: c.from, army: c.army, armies: c.armies, score: this.player(c.from).score, mode: c.mode, tc: c.tc },

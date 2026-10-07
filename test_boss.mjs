@@ -328,8 +328,12 @@ const ERWACHEN = CAMPAIGN.find((st) => /erwacht|magic wakes/.test(st.storyDe || 
     && BOSSES.find((b) => b.id === "b21").abilities.join() === "schrecken"
     && BOSSES.find((b) => b.id === "b15").abilities.join() === "blenden,wegelagerei");
   const { ZIEL_PROFIL_BOSS, BOSS_BUDGET } = await import("./src/meta/leveling.js");
-  ok("wer springt, schlaegt schwach: Hetzer 18/6, Sturmklaue 17/7, Geist 16/8",
-    ZIEL_PROFIL_BOSS.b02.join() === "18,6" && ZIEL_PROFIL_BOSS.b15.join() === "17,7" && ZIEL_PROFIL_BOSS.b07.join() === "16,8");
+  /* v1.94.1: der Geist steht bei 19/5 (vorher 16/8) - nach dem Leiter-Umbau lag er
+     bei 61 %, gemessen: 18/6 -> 61, 19/5 -> 54, 20/4 -> 47. */
+  ok("wer springt, schlaegt schwach: Hetzer 18/6, Sturmklaue 17/7, Geist 19/5",
+    ZIEL_PROFIL_BOSS.b02.join() === "18,6" && ZIEL_PROFIL_BOSS.b15.join() === "17,7" && ZIEL_PROFIL_BOSS.b07.join() === "19,5");
+  ok("v1.94.1: die sieben nachgestellten Bestien tragen ihr gemessenes Profil",
+    ["b04:12,12", "b07:19,5", "b12:18,6", "b25:21,3", "b39:21,3", "b41:19,5", "b43:16,8"].every((x) => ZIEL_PROFIL_BOSS[x.split(":")[0]].join() === x.split(":")[1]));
   ok("jedes Monster traegt auf Hoechststufe dieselben 24 Punkte",
     BOSSES.every((b) => ZIEL_PROFIL_BOSS[b.id] && ZIEL_PROFIL_BOSS[b.id][0] + ZIEL_PROFIL_BOSS[b.id][1] === BOSS_BUDGET));
   { const { KAPITEL_TROPHAEE } = await import("./src/content/bosses.js");
