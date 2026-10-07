@@ -11,6 +11,11 @@ Besitzer 7.10.: Freunde sollen ueber die Startseite in den Vorab-Test kommen.
 - Der geschlossene Test (Track "Alpha") ist am 7.10. eingerichtet und bei Google
   eingereicht: alle Laender, Tester ueber die Gruppe, Release 1 (1.0.0.0). Bis
   zur Freigabe oeffnen sich Schritt 2 und 3 noch nicht - das steht dabei.
+- Die Hofzoom-Probe wartet auf den Zustand statt auf die Uhr. Ursache der roten
+  Kette vom 7.10.: sie schlief nach jeder Geste 450 ms und mass dann - das
+  Einrasten laeuft aber ueber requestAnimationFrame, und bekam der Browser in
+  der Zeit keine Bilder, stand das Raster noch mitten im Weg (1,05 / 1,1 / 1,4
+  Spalten, je Lauf eine andere Pruefung rot). Am Spiel ist nichts geaendert.
 
 ## 1.93.0 - Die Duell-Halle aufgeraeumt, das kurze Gambit hat eine Uhr, Rechtstexte als Dokument
 

@@ -47,6 +47,12 @@ const kneif = async (d0, d1, schritte = 14, halten = false, jeSchritt = null, cx
     await cdp.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: tp([[cx - d / 2, cy], [cx + d / 2, cy]]) }); await page.waitForTimeout(30); if (jeSchritt) await jeSchritt(i); }
   if (!halten) await los();
 };
+/* v1.93.1: NICHT 450 ms schlafen und dann messen. Das Einrasten laeuft ueber
+   requestAnimationFrame (180 ms) - bekommt der Browser unter Last keine Bilder,
+   steht es nach 450 ms noch mitten im Weg (gemessen 7.10.: 1,05 / 1,1 / 1,4
+   Spalten, je nach Lauf eine andere Pruefung rot, allein wiederholt gruen).
+   Gewartet wird auf den ZUSTAND: eine ganze Spaltenzahl, hoechstens 4 s. */
+const gerastet = () => page.waitForFunction(() => { const h = document.querySelector("[data-hofuebersicht]"); return h && Number.isInteger(+h.dataset.hofspalten); }, null, { timeout: 4000, polling: 50 }).then(() => page.waitForTimeout(80), () => {});
 const mass = () => page.evaluate(() => { const k = document.querySelector("[data-hofkachel]"); const r = k.getBoundingClientRect(); const a = k.querySelector("[data-stufenabzeichen]").getBoundingClientRect(); const n = k.querySelector(".gg-quill").getBoundingClientRect();
   const hof = document.querySelector("[data-hofuebersicht]"); const reihe = [...k.parentElement.children];
   return { sp: +hof.dataset.hofspalten, w: r.width, breite: hof.clientWidth, abz: a.width / r.width, rand: (r.right - a.right) / r.width, name: n.height / r.width,
@@ -60,12 +66,12 @@ ok(`Z1 Abzeichen (${ruhe.abz.toFixed(3)} der Kartenbreite) und sein Randabstand 
 ok(`Z1 die Namenszeile waechst mit der Karte (Verhaeltnis ${ruhe.name.toFixed(3)}, groesste Abweichung ${abw("name").toFixed(4)})`, abw("name") < 0.015);
 const schritte = weg.map((m, i) => m.w - (i ? weg[i - 1].w : ruhe.w));
 ok(`Z2 stufenlos: ${weg.length} Fingerschritte von ${ruhe.w.toFixed(0)} auf ${weg[weg.length - 1].w.toFixed(0)} px, groesster Schritt ${Math.max(...schritte).toFixed(1)} px, keiner rueckwaerts`, Math.min(...schritte) > 0 && Math.max(...schritte) < 12 && weg[weg.length - 1].w > ruhe.w * 1.6);
-await los(); await page.waitForTimeout(450); const nach = await mass(); await foto("3-losgelassen");
+await los(); await gerastet(); const nach = await mass(); await foto("3-losgelassen");
 ok(`Z3 losgelassen: ${nach.sp} Spalten, die Karten fuellen die Breite (${(nach.w * nach.spalten + 7 * nach.w / 96 * (nach.spalten - 1)).toFixed(1)} von ${nach.breite} px)`,
   Number.isInteger(nach.sp) && nach.sp === nach.spalten && Math.abs(nach.w * nach.spalten + 7 * nach.w / 96 * (nach.spalten - 1) - nach.breite) < 1.5);
-await kneif(250, 50, 18); await page.waitForTimeout(450); const klein = await mass(); await foto("4-klein");
+await kneif(250, 50, 18); await gerastet(); const klein = await mass(); await foto("4-klein");
 ok(`ganz heraus: ${klein.sp} Spalten, Verhaeltnisse unveraendert`, klein.sp >= 5 && Number.isInteger(klein.sp) && Math.abs(klein.abz - ruhe.abz) < 0.004);
-await kneif(40, 190, 20); await page.waitForTimeout(450); const eine = await mass(); await foto("5-eine-spalte");
+await kneif(40, 190, 20); await gerastet(); const eine = await mass(); await foto("5-eine-spalte");
 ok(`ganz hinein: eine Spalte (${eine.w.toFixed(0)} px), noch kein Blatt`, eine.sp === 1 && !eine.blatt);
 await kneif(100, 340, 16, true); await page.waitForTimeout(150); await foto("6-blatt-geht-auf"); await los(); await page.waitForTimeout(900);
 const blatt = await mass(); await foto("7-blatt-mit-wink");
