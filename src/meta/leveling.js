@@ -5,7 +5,7 @@ import { erwachteBuende } from "../content/buende.js";   /* v1.90.10 (A9) */
 import { CHARACTERS, CHARACTER_LIST, KIND_TO_CHAR } from "../content/index.js";
 import { difficultyById, mapById, MAPS } from "../content/index.js";
 import { ABILITIES, CAMPAIGN } from "../content/index.js";
-import { maxStufe } from "../content/abilities.js";
+import { maxStufe, wirktImSchach } from "../content/abilities.js";
 
 /* IST DIE ALTE MAGIE ERWACHT? Kapitel I laeuft bis zur Mitte nach reinen
    Schachregeln; Lebenspunkte gibt es erst ab dem Erwachen. Bewusst OHNE
@@ -515,7 +515,10 @@ export function upgradeBoss(profile, bossId) {
 export const pawnTier = (level) =>
   Math.min(3, Math.max(1, Math.ceil(Math.max(1, level) * 3 / MAX_PIECE_LEVEL)));
 
-export function buildArmyFromFormation(levelOf, formation, chosenOf = null, boostOf = null, stufenOf = null) {
+/* v1.94.0: `leiterStufeOf` trennt, WIE STARK eine Figur ist (level: Werte, Rang,
+   Bild) von dem, WAS SIE GELERNT HABEN DARF (die Leiter). Im Schach bleibt die
+   Staerke bei Stufe 1 - gelernt ist trotzdem, was gelernt ist. */
+export function buildArmyFromFormation(levelOf, formation, chosenOf = null, boostOf = null, stufenOf = null, leiterStufeOf = null) {
   // (null slots — the dragon's wing — become empty back-rank squares)
   const back = formation.map((id) => {
     if (id == null) return null;                   // the dragon's wing: an open square
@@ -533,11 +536,11 @@ export function buildArmyFromFormation(levelOf, formation, chosenOf = null, boos
     if (!CHARACTERS[id]) id = "knight";   /* v1.91.0: eine Figur, die es nicht mehr gibt, darf kein Gefecht abstuerzen lassen */
     const ch = CHARACTERS[id];
     const level = Math.max(1, levelOf(id) || 1);
-    const { abilities, shield } = resolveCharacter(ch, level, chosenOf ? chosenOf(id) : null);
+    const { abilities, shield } = resolveCharacter(ch, leiterStufeOf ? Math.max(1, leiterStufeOf(id) || 1) : level, chosenOf ? chosenOf(id) : null);
     return { kind: ch.kind, charId: id, level, abilities, shield, ...boostSpec(ch, boostOf && boostOf(id)), ...(ch.moveSpec ? { moveSpec: ch.moveSpec } : {}), ...(ch.big ? { big: true } : {}), ...(stufenOf ? { stufen: stufenOf(id) } : {}) };
   });
   const pl = Math.max(1, levelOf("pawn") || 1);
-  const pr = resolveCharacter(CHARACTERS.pawn, pl, chosenOf ? chosenOf("pawn") : null);
+  const pr = resolveCharacter(CHARACTERS.pawn, leiterStufeOf ? Math.max(1, leiterStufeOf("pawn") || 1) : pl, chosenOf ? chosenOf("pawn") : null);
   return { back, pawn: { kind: KIND.PAWN, charId: "pawn", level: pl, tier: pawnTier(pl), abilities: pr.abilities, shield: pr.shield, ...boostSpec(CHARACTERS.pawn, boostOf && boostOf("pawn")), ...(stufenOf ? { stufen: stufenOf("pawn") } : {}) } };
 }
 
@@ -743,15 +746,32 @@ export const gespeicherteAufstellung = (forms, mapId) =>
  *  gespeicherten Plaene. standard=true erzwingt genau das. Der Schach-PLAN
  *  aus der Aufstellung gehoert allein den Schach-Stationen der KAMPAGNE,
  *  wo neue Figuren mit neuen Gangarten ausdruecklich erwuenscht sind. */
-export function buildArmyForMap(profile, map, excludeId = null, rules = null, standard = false) {
+export function buildArmyForMap(profile, map, excludeId = null, rules = null, standard = false, schachKunst = false) {
   // Combat strength follows the RULESET, not the board: pure CHESS means
   // level-1 vanilla pieces (authentic), but an HP battle — even on the 8x8
   // classic field — brings your leveled pieces, their abilities and dupes.
   const chess = rules === "chess";
   const levelOf = chess ? () => 1 : (id) => id && id.startsWith("X:") ? bossLevelOf(profile, id.slice(2)) : characterLevel(profile, id);
-  const chosenOf = chess ? null : (id) => chosenAbilities(profile, id);
+  /* ── v1.94.0 (Besitzer 7.10.): IM SCHACH WIRKT, WAS GELERNT IST UND OHNE
+     LEBENSPUNKTE AUSKOMMT ──────────────────────────────────────────────────
+     Bis hierher trug das Spielerheer im Schach `chosenOf = null` bei Stufe 1:
+     jede Figur bekam die Sprossen der Stufe 1 GESCHENKT und sonst nichts -
+     gemessen wirkten in Kapitel I (45 Schach-Stationen, keine HP-Station) nur
+     der Gambit und das Almosen des Bettlers; Zins, Zehnt und Studium (Stufe 2)
+     zahlten dort nie aus, und kein gelerntes Zugtalent zog je mit. Jetzt:
+     die STAERKE bleibt Stufe 1 (Schach ist Schach, Werte gibt es dort nicht),
+     aber die Figur traegt, was der Spieler ihr beigebracht hat - gefiltert auf
+     das, was unter Schachregeln wirkt (`wirktImSchach`), samt Stufe.
+     NUR IN DER KAMPAGNE (`schachKunst`): Klassisch, Online-Schach und die
+     Fernpartie bleiben, wie sie waren - dort ist Schach das Versprechen. */
+  const kunst = chess && schachKunst && !standard;
+  /* Ohne Kunst traegt das Schachheer NICHTS Gelerntes (leere Liste statt null:
+     seit v1.94.0 liegt die erste Sprosse der Sonderfiguren auf Stufe 1, und
+     `null` hiesse "die ganze Leiter bis Stufe 1" - geschenkt). */
+  const chosenOf = chess ? (kunst ? (id) => chosenAbilities(profile, id).filter(wirktImSchach) : () => []) : (id) => chosenAbilities(profile, id);
   const boostOf = chess ? null : (id) => dupeCount(profile, id);
-  const stufenOf = chess ? null : (id) => stufenVon(profile, id);   /* v1.28.0 */
+  const stufenOf = chess && !kunst ? null : (id) => stufenVon(profile, id);   /* v1.28.0 */
+  const leiterStufeOf = kunst ? (id) => (id && id.startsWith("X:") ? bossLevelOf(profile, id.slice(2)) : characterLevel(profile, id)) : null;
   // The FIELD is arrangeable on every board — honour a saved legal formation.
   // A battle may be re-routed to a DIFFERENT board of the same size (early
   // leagues bend everything onto the 8x8 classic field), so if this exact map
@@ -776,7 +796,7 @@ export function buildArmyForMap(profile, map, excludeId = null, rules = null, st
   // copy sits the match out, its slot falls back to the map's default rank.
   if (excludeId) formation = formation.map((cid, i) =>
     cid === excludeId ? (map.defaultFormation[i] !== excludeId ? map.defaultFormation[i] : "knight") : cid);
-  const army = buildArmyFromFormation(levelOf, formation, chosenOf, boostOf, stufenOf);
+  const army = buildArmyFromFormation(levelOf, formation, chosenOf, boostOf, stufenOf, leiterStufeOf);
   /* v0.81: DER HELD TRITT SPAETER AUF. Vor dem Erwachen (drei geschaffte
      Stationen) fuehrt niemand die Armee an - die Bauernreihe ist eine
      Bauernreihe, und das Spiel ist schlicht Schach. Danach haelt der Gambit
@@ -826,7 +846,7 @@ export function buildAiArmyForMap(difficultyId, map, seed = 0) {
 
 /** Player army. Defaults to the 10×10 Arena (used by the campaign); the app
  *  passes the active map for quick play. */
-export const buildArmy = (profile, map = STANDARDKARTE(), excludeId = null, rules = null, standard = false) => buildArmyForMap(profile, map, excludeId, rules, standard);
+export const buildArmy = (profile, map = STANDARDKARTE(), excludeId = null, rules = null, standard = false, schachKunst = false) => buildArmyForMap(profile, map, excludeId, rules, standard, schachKunst);
 
 export const buildAiArmy = (difficultyId) => {
   const d = difficultyById(difficultyId);

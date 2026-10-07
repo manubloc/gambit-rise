@@ -1,5 +1,44 @@
 # Changelog - Gambit Rise
 
+## 1.94.0 - Die erste Faehigkeit jeder Figur wirkt im Schach
+
+Besitzer 7.10.: "Die Faehigkeiten, die eine Figur individuell fuer sich hat,
+sollten immer als erste kommen ... und keine Bezuege auf HP oder Gesundheit
+haben, weil man hat ja noch gar keine HP-Kaempfe." Danach: erste Faehigkeit ab
+Stufe 1 fuer einen Punkt; nur die dritte oder vierte darf reine HP sein; zwei
+Faehigkeiten heisst keine reine HP; alle 19 auf einmal; der Gegner von Anfang an.
+
+GEMESSEN, was dahinter stand: Kapitel I hat 45 Schach-Stationen und keine
+HP-Station. 13 der 19 Figuren aus Kapitel I/II begannen mit einer Faehigkeit,
+die unter Schachregeln verborgen ist. Und die eigentliche Ursache: der
+Heeresbau gab im Schach gar nichts Gelerntes aufs Brett (chosenOf = null bei
+Stufe 1) - auch Zins, Zehnt und Studium zahlten nach einer Schach-Station nie.
+
+- **15 neue Faehigkeiten** ohne Lebenspunkte: Feldarbeit, Platztausch, Deckung,
+  Standhieb, Zaunbau, Lanzengang, Faehrte, Wegstossen, Heimkehr, Pirsch,
+  Uebersprung, Fessel, Lazarett (Zauber) sowie Schlachtbank und Mahlgeld
+  (dauerhaft). Keine zielt im Schach auf den Koenig, keine fasst den grossen
+  Drachen an, kein Bauer landet durch fremde Hand auf der Kroenungsreihe.
+- **41 Leitern neu gesetzt** (alle Sonderfiguren): Sprosse 1 und 2 wirken im
+  Schach, die erste liegt auf Stufe 1. Die sechs Schachfiguren behalten ihre
+  Stufen (bewusst: sonst truege jeder gegnerische Springer der ersten Stationen
+  den Weitsprung). Tabelle: design/FAEHIGKEITEN-SCHACH-2026-10-07.md.
+- **Im Schach der Kampagne traegt das Heer, was gelernt ist und ohne
+  Lebenspunkte auskommt.** Klassisch, Online-Schach und Fernpartie unveraendert.
+- Alte Staende: was von der Leiter fiel oder jetzt eine hoehere Stufe verlangt,
+  wird einmalig verlernt und erstattet (campaign.kunst94).
+- Gegenueber dem ersten Vorschlag geaendert: die fuenf REAKTIONEN (nicht
+  schlagbar, Rueckschlag, Lauer, Asyl, Extrazug) sind als ZUEGE mit derselben
+  Idee gebaut - eine Reaktion haette in die Schachpruefung eingegriffen.
+- Neue Proben: test_zugbilder Abschnitt 7 (jede Kunst am Kern, beide
+  Regelwerke, Leiterregel fuer alle 50), tools/pruefe-kunst.mjs (Karte -> Feld
+  -> Wirkung am echten Spielschirm einer Schach-Station), dazu Wanderung,
+  Schachheer und Mahlgeld in test_saves und test_progression.
+- Balance neu gemessen (73 Eintraege): Figuren 35-58 %, Laeufer 61. OFFEN:
+  sieben Bestien liegen jetzt bei 61-63 % - ueber der 60er-Regel.
+- Startseite: die drei Testschritte oeffnen in einem neuen Tab und fuehren
+  (abgehakt / als naechstes); der Satz "eingereicht" ist fort.
+
 ## 1.93.2 - Startseite: mehr Figuren auf dem ersten Schirm, Galerie fort
 
 Besitzer 7.10.: "mehr Figuren in dem Hintergrundbild am Anfang ... die

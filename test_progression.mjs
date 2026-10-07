@@ -511,6 +511,38 @@ console.log("\n== KAPITEL I SCHACH, DER SCHADEN ERWACHT IN KAPITEL II (Besitzere
       .every((id) => faehigkeitZustand(id, hpWach(nach(2))) === "wirkt"));
 }
 
+/* ── v1.94.0: IM SCHACH DER KAMPAGNE WIRKT, WAS GELERNT IST UND OHNE LEBEN AUSKOMMT ── */
+{
+  const { zubrot: zb } = await import("./src/meta/index.js");
+  const pr = { ...defaultProfile(), sp: 0,
+    campaign: { ...defaultProfile().campaign, unlocked: ["farmwife", "miller", "banker", "smith"] },
+    pieces: { levels: { farmwife: 6, miller: 3, banker: 3, smith: 6, knight: 6 },
+      abilities: { farmwife: ["feldarbeit", "regen"], miller: ["mahlgeld"], banker: ["zins"], smith: ["standhieb", "bulwark"], knight: ["knight_longleap"] },
+      stufen: { miller: { mahlgeld: 2 } } },
+    loadout: { formations: { classic: ["farmwife", "knight", "smith", "queen", "king", "banker", "knight", "miller"] } } };
+  const map = mapById("classic");
+  const von = (heer, id) => heer.back.find((s) => s && s.charId === id);
+  const kunst = buildArmyForMap(pr, map, null, "chess", false, true);
+  ok("Schach-Station: die Baeuerin traegt die Feldarbeit, aber nicht die Regeneration; der Springer seinen Weitsprung",
+    von(kunst, "farmwife").abilities.join() === "feldarbeit" && von(kunst, "smith").abilities.join() === "standhieb" && von(kunst, "knight").abilities.join() === "knight_longleap");
+  ok("Schach-Station: die Staerke bleibt Stufe 1, die Stufe der Faehigkeit reist mit", von(kunst, "farmwife").level === 1 && von(kunst, "miller").stufen.mahlgeld === 2);
+  ok("Schach-Station: nichts Ungelerntes - die Leiter schenkt im Schach keine Sprosse mehr", !von(kunst, "queen").abilities.length && !von(kunst, "banker").abilities.includes("teleport"));
+  const ohne = buildArmyForMap(pr, map, null, "chess", false, false);
+  ok("Fernpartie und Online-Schach bleiben, wie sie waren: niemand traegt etwas Gelerntes", ohne.back.every((s) => !s || !s.abilities.length));
+  ok("Klassisch (Standardheer): die sechs Schachfiguren, ohne alles", buildArmyForMap(pr, map, null, "chess", true, true).back.every((s) => s && !s.abilities.length && !s.moveSpec));
+  const hp = buildArmyForMap(pr, map, null, "hp", false, true);
+  ok("HP-Gefecht unveraendert: alles Gelernte, mit Stufe", von(hp, "farmwife").abilities.join() === "feldarbeit,regen" && von(hp, "farmwife").level === 6);
+  const z = zb({ heer: kunst, buende: [], eigeneZuege: 20, bauernUebrig: 8, result: "win", gold: 40, liga: 1, bauernGeschlagen: 3 });
+  ok("Zins und Mahlgeld zahlen jetzt auch nach einer Schach-Station (Kapitel I hat keine andere): 10 % von 40 und 3 Bauern x 3 Gold",
+    z.zins === 4 && z.mahlgeld === 9 && z.gold === 13);
+  ok("Mahlgeld bleibt nach einer Niederlage, nicht nach dem Aufgeben", zb({ heer: kunst, result: "loss", bauernGeschlagen: 2, liga: 1 }).mahlgeld === 6 && zb({ heer: kunst, result: "loss", resigned: true, bauernGeschlagen: 2, liga: 1 }).gold === 0);
+  /* der Gegner: Stufe 1, ganze Leiter bis Stufe 1 - also die erste Kunst jeder Sonderfigur */
+  const { buildArmyFromFormation: baf } = await import("./src/meta/leveling.js");
+  const feind = baf(() => 1, ["farmwife", "jester", "smith", "queen", "king", "hawk", "cavalier", "monk"]);
+  ok("der Gegner im Schach (Stufe 1) traegt die erste Kunst jeder Sonderfigur - von Anfang an",
+    feind.back.map((s) => s.abilities.join("+")).join() === "feldarbeit,platztausch,standhieb,,,uebersprung,lanzengang,heimkehr", feind.back.map((s) => s.abilities.join("+")).join());
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 /* ── v1.47.0: DIE SCHRANKE - GRATIS BIS KAPITEL III ──────────────────────── */
 {

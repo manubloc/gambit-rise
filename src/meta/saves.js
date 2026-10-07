@@ -106,7 +106,7 @@ export function withProgressPct(profile, pct, league = 1) {
     codex: { ...(base.codex || {}), met: [...met] },
     /* meister20: der Regler baut schon nach den Regeln von v1.90.20 (Drache als
        Meister I) - der einmalige Umzug in profile.js darf hier nichts nachtragen */
-    campaign: { league: lg, cleared, unlocked: [...recruits], dupes: {}, bribedBosses: bribed, meister20: true, figuren91: true },
+    campaign: { league: lg, cleared, unlocked: [...recruits], dupes: {}, bribedBosses: bribed, meister20: true, figuren91: true, kunst94: true },
   };
 }
 

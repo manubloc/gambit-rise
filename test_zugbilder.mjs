@@ -77,7 +77,16 @@ const ohneKern = Object.keys(ABILITY_MOVE).filter((id) => !kernAbfragen.includes
 console.log(`  Kern-Zugfaehigkeiten OHNE Zugbild (bewusst: Blinzeln ist Umkreis, Schuss ist kein Zug): ${ohneBild.join(", ") || "-"}`);
 ok("jedes Zugbild hat einen Kern-Zweig" + (ohneKern.length ? " - OHNE KERN: " + ohneKern.join(", ") : ""), ohneKern.length === 0);
 ok("jede Faehigkeit im Zugbild existiert in abilities.js", Object.keys(ABILITY_MOVE).every((id) => ABILITIES[id]));
-ok("nur Blinzeln und Scharfschuss haben kein Zugbild", ohneBild.length === 2 && ohneBild.includes("teleport") && ohneBild.includes("ranged_shot"));
+/* v1.94.0: die dreizehn Kuenste, die auch im Schach wirken, haben bewusst kein
+   Zugbild - die meisten haengen an der LAGE (ein Nachbar, der Koenig in der
+   Naehe, ein gefallener Bauer) und nicht an einem festen Muster; ihr Satz
+   steht in abilities.js. Abschnitt 7 prueft jede einzeln am Kern. */
+const KUNST = ["pirsch", "uebersprung", "lanzengang", "faehrte", "heimkehr", "platztausch", "deckung", "feldarbeit", "wegstoss", "standhieb", "zaunbau", "lazarett", "fessel"];
+ok("nur Blinzeln, Scharfschuss und die dreizehn Kuenste (v1.94.0) haben kein Zugbild",
+  /* Lanzengang und Faehrte fragt moves.js in EINER Schleife ab (hasAbility(piece, id)) -
+     die Quelltextsuche oben findet sie darum nicht; Abschnitt 7 prueft sie am Kern. */
+  ohneBild.length === 2 + KUNST.length - 2 && ohneBild.includes("teleport") && ohneBild.includes("ranged_shot")
+  && KUNST.filter((k) => k !== "lanzengang" && k !== "faehrte").every((k) => ohneBild.includes(k)));
 
 console.log("\n== 2. ZUGBILD-MUSTER gegen KERN-MUSTER (Figur auf d4, 8x8) ==");
 for (const id of Object.keys(ABILITY_MOVE)) {
@@ -207,6 +216,7 @@ console.log("\n== 5. SONDERFIGUREN MIT moveSpec: kommen ihre Faehigkeiten im Ker
     for (const rg of ch.ladder) {
       const id = rg.ability;
       if (!kernAbfragen.includes(id)) continue;
+      if (KUNST.includes(id)) continue;   /* v1.94.0: lageabhaengig - Abschnitt 7 stellt jeder ihre Lage */
       const fig = mk(ch.kind, "w", [id], { moveSpec: ch.moveSpec, charId: ch.id });
       const b = brett(fig, "leer");
       b[(MR + 2) * W + MF] = mk("N", "b"); b[(MR - 2) * W + MF] = mk("N", "b");
@@ -298,6 +308,123 @@ console.log("\n== 6. WER TRAEGT WAS (characters.js) ==");
      genau darum wurde ein Zusatzfeld genommen und nicht umbenannt. */
   ok("A12: die Talent-Spruenge tragen weiterhin special 'leap' (Halbschaden)",
     talentZuege.filter((m) => m.weitsprung).every((m) => m.special === "leap"));
+}
+
+console.log("\n== 7. DIE KUENSTE, DIE AUCH IM SCHACH WIRKEN (v1.94.0) ==");
+{
+  /* Jede in IHRER Lage, unter Schach- UND HP-Regeln, erst das Angebot
+     (pieceMoves), dann die Wirkung (applyMove). Die Figur ist ein Schmied
+     (Zugbild seitwaerts) - die Kunst darf nicht an der Gangart haengen. */
+  const { applyMove, legalMoves } = await import("./src/core/sim/transitions.js");
+  const { inCheck } = await import("./src/core/rules/attacks.js");
+  const { wirktImSchach } = await import("./src/content/abilities.js");
+  const sq = (f, r) => r * W + f;
+  const lage = (kunst, setz, rules, extra = {}) => {
+    const fig = mk("SM", "w", [kunst], { moveSpec: CHARACTERS.smith.moveSpec, charId: "smith" });
+    const b = Array(W * H).fill(null);
+    b[MITTE] = fig; b[sq(7, 0)] = mk("K", "w"); b[sq(7, 7)] = mk("K", "b");
+    setz(b);
+    return { ...state(b, rules), ...extra };
+  };
+  const zuege = (st, kunst) => pieceMoves(st, MITTE).filter((m) => m.consumes === kunst);
+  for (const rules of ["chess", "hp"]) {
+    const R = rules === "chess" ? "Schach" : "HP";
+    {   // Pirsch: acht Springerfelder; der gegnerische Koenig ist im Schach kein Ziel
+      const st = lage("pirsch", () => {}, rules);
+      ok(`${R}: Pirsch - acht Springerfelder, einmal`, zuege(st, "pirsch").length === 8 && zuege(applyMove(st, zuege(st, "pirsch")[0]), "pirsch").length === 0);
+    }
+    {   // Uebersprung: nur ueber einen Nachbarn, auf das Feld dahinter
+      const st = lage("uebersprung", (b) => { b[sq(MF, MR + 1)] = mk("P", "w"); b[sq(MF + 1, MR + 1)] = mk("P", "b"); b[sq(MF + 2, MR + 2)] = mk("N", "b"); }, rules);
+      const z = zuege(st, "uebersprung");
+      ok(`${R}: Uebersprung - genau ueber die zwei Nachbarn, das besetzte Zielfeld wird geschlagen`,
+        z.length === 2 && z.some((m) => m.to === sq(MF, MR + 2) && !m.capture) && z.some((m) => m.to === sq(MF + 2, MR + 2) && m.capture));
+    }
+    {   // Lanzengang: gerade, Feld 2 und 3, freie Bahn; Faehrte: durch die eigene Figur
+      const setz = (b) => { b[sq(MF, MR + 1)] = mk("P", "w"); b[sq(MF + 3, MR)] = mk("N", "b"); };
+      const zl = zuege(lage("lanzengang", setz, rules), "lanzengang"), zf = zuege(lage("faehrte", setz, rules), "faehrte");
+      ok(`${R}: Lanzengang - nie das erste Feld, nicht durch die eigene Figur, Schlag am Ende`,
+        zl.every((m) => Math.max(Math.abs(m.to % W - MF), Math.abs(((m.to / W) | 0) - MR)) >= 2) && !zl.some((m) => m.to % W === MF && ((m.to / W) | 0) > MR)
+        && zl.some((m) => m.to === sq(MF + 3, MR) && m.capture));
+      ok(`${R}: Faehrte - geht durch die eigene Figur hindurch`, zf.some((m) => m.to === sq(MF, MR + 2)) && zf.some((m) => m.to === sq(MF, MR + 3)) && !zf.some((m) => m.to === sq(MF, MR + 1)));
+    }
+    {   // Heimkehr: freie Felder der eigenen Grundreihe
+      const st = lage("heimkehr", () => {}, rules);
+      ok(`${R}: Heimkehr - die sieben freien Felder der eigenen Grundreihe`, zuege(st, "heimkehr").length === 7 && zuege(st, "heimkehr").every((m) => ((m.to / W) | 0) === 0));
+    }
+    {   // Platztausch und Deckung
+      const st = lage("platztausch", (b) => { b[sq(0, 5)] = mk("R", "w"); b[sq(1, 6)] = mk("P", "w"); }, rules);
+      const z = zuege(st, "platztausch"), n = applyMove(st, z.find((m) => m.to === sq(0, 5)));
+      ok(`${R}: Platztausch - mit jeder eigenen Figur, nie mit dem Koenig; die beiden stehen danach vertauscht`,
+        z.length === 2 && !z.some((m) => m.to === sq(7, 0)) && n.board[sq(0, 5)].kind === "SM" && n.board[MITTE].kind === "R" && n.turn === "b");
+      const sd = lage("deckung", (b) => { b[sq(7, 0)] = null; b[sq(MF + 2, MR - 1)] = mk("K", "w"); }, rules);
+      const zd = zuege(sd, "deckung"), nd = zd.length ? applyMove(sd, zd[0]) : null;
+      ok(`${R}: Deckung - tauscht mit dem eigenen Koenig in zwei Feldern Abstand`, zd.length === 1 && nd.board[MITTE].kind === "K" && nd.board[sq(MF + 2, MR - 1)].kind === "SM");
+      ok(`${R}: Deckung - steht der Koenig drei Felder weit, gibt es sie nicht`, zuege(lage("deckung", (b) => { b[sq(7, 0)] = null; b[sq(MF + 3, MR)] = mk("K", "w"); }, rules), "deckung").length === 0);
+    }
+    {   // Feldarbeit und Wegstossen
+      const st = lage("feldarbeit", (b) => { b[sq(MF + 1, MR)] = mk("P", "w"); b[sq(MF - 1, MR)] = mk("P", "w"); b[sq(MF - 1, MR + 1)] = mk("N", "b"); }, rules);
+      const z = zuege(st, "feldarbeit"), n = applyMove(st, z[0]);
+      ok(`${R}: Feldarbeit - schiebt den freien Bauern ein Feld vor, den blockierten nicht; sie selbst bleibt`,
+        z.length === 1 && z[0].to === sq(MF + 1, MR) && n.board[sq(MF + 1, MR + 1)]?.kind === "P" && !n.board[sq(MF + 1, MR)] && n.board[MITTE].kind === "SM");
+      const sw = lage("wegstoss", (b) => { b[sq(MF + 1, MR)] = mk("N", "b"); b[sq(MF, MR + 1)] = mk("R", "b"); b[sq(MF, MR + 2)] = mk("P", "b"); }, rules);
+      const zw = zuege(sw, "wegstoss"), nw = applyMove(sw, zw[0]);
+      ok(`${R}: Wegstossen - nur, wenn dahinter frei ist; der Gegner steht danach ein Feld weiter`,
+        zw.length === 1 && zw[0].to === sq(MF + 1, MR) && nw.board[sq(MF + 2, MR)]?.kind === "N" && !nw.board[sq(MF + 1, MR)] && nw.captured.w.length === 0);
+    }
+    {   // Standhieb
+      const st = lage("standhieb", (b) => { b[sq(MF + 1, MR + 1)] = mk("N", "b", [], { hp: 2, maxHp: 2 }); b[sq(MF - 1, MR)] = mk("K", "b"); b[sq(7, 7)] = null; }, rules);
+      const z = zuege(st, "standhieb"), n = applyMove(st, z[0]);
+      ok(`${R}: Standhieb - trifft den Nachbarn, nie den Koenig; die Figur bleibt auf ihrem Feld`,
+        z.length === 1 && z[0].to === sq(MF + 1, MR + 1) && !n.board[sq(MF + 1, MR + 1)] && n.board[MITTE].kind === "SM" && n.captured.w.includes("N"));
+    }
+    {   // Zaunbau, Schlachtbank
+      const st = lage("zaunbau", (b) => { b[sq(MF, MR + 1)] = mk("P", "b"); }, rules);
+      const z = zuege(st, "zaunbau"), n = applyMove(st, z[0]);
+      ok(`${R}: Zaunbau - sieben freie Nachbarfelder, danach steht dort eine Sperre`, z.length === 7 && n.sperren && n.sperren[z[0].to] && n.sperren[z[0].to].art === "zaun" && n.sperren[z[0].to].von === "w");
+      const ss = lage("schlachtbank", (b) => { b[sq(MF + 1, MR)] = mk("N", "b", [], { hp: 1, maxHp: 1 }); }, rules);
+      const schlag = pieceMoves(ss, MITTE).find((m) => m.to === sq(MF + 1, MR) && m.capture), ns = applyMove(ss, schlag);
+      ok(`${R}: Schlachtbank - nach dem Schlag steht auf dem verlassenen Feld ein Zaun`, ns.board[sq(MF + 1, MR)]?.kind === "SM" && ns.sperren && ns.sperren[MITTE]?.art === "zaun");
+    }
+    {   // Lazarett
+      const ohne = lage("lazarett", () => {}, rules);
+      const mit = lage("lazarett", () => {}, rules, { captured: { w: [], b: ["N", "P"] } });
+      const z = zuege(mit, "lazarett"), n = z.length ? applyMove(mit, z[0]) : null;
+      ok(`${R}: Lazarett - ohne gefallenen Bauern nichts; mit einem kehrt er auf ein Nachbarfeld zurueck und ist aus der Liste`,
+        zuege(ohne, "lazarett").length === 0 && z.length === 8 && n.board[z[0].to]?.kind === "P" && n.board[z[0].to].color === "w" && n.captured.b.join() === "N");
+    }
+    {   // Fessel
+      const st = lage("fessel", (b) => { b[sq(MF + 2, MR + 2)] = mk("R", "b"); b[sq(MF + 3, MR)] = mk("N", "b"); b[sq(MF + 1, MR)] = mk("K", "b"); b[sq(7, 7)] = null; }, rules);
+      const z = zuege(st, "fessel"), n = applyMove(st, z[0]);
+      ok(`${R}: Fessel - nur im Umkreis von zwei Feldern, nie der Koenig; die Figur zieht einen Zug lang nicht, danach wieder`,
+        z.length === 1 && z[0].to === sq(MF + 2, MR + 2) && pieceMoves(n, sq(MF + 2, MR + 2)).length === 0
+        && pieceMoves({ ...n, moveCount: n.moveCount + 2 }, sq(MF + 2, MR + 2)).length > 0);
+    }
+  }
+  /* Schach: keine Kunst bietet Schach, und kein Zug laesst den eigenen Koenig stehen */
+  {
+    const st = lage("pirsch", (b) => { b[sq(7, 7)] = null; b[sq(MF + 1, MR + 2)] = mk("K", "b"); }, "chess");
+    ok("Schach: die Pirsch zielt nicht auf den Koenig - kein Schachgebot aus einer verdeckten Kunst", !inCheck(st, "b") && !legalMoves(st, "w").some((m) => m.consumes === "pirsch" && m.to === sq(MF + 1, MR + 2)));
+    const sd = lage("deckung", (b) => { b[sq(7, 0)] = null; b[sq(MF + 1, MR)] = mk("K", "w"); b[sq(MF, 7)] = mk("R", "b"); }, "chess");
+    ok("Schach: die Deckung darf den Koenig nicht ins Schach tauschen", !legalMoves(sd, "w").some((m) => m.consumes === "deckung"));
+  }
+  /* Ein fremder Befehl ohne passende Lage aendert nichts (der Kern prueft selbst) */
+  {
+    const st = lage("wegstoss", (b) => { b[sq(MF + 1, MR)] = mk("N", "b"); }, "chess");
+    ok("ein Stoss ohne Kunst, auf den Koenig oder auf ein besetztes Feld aendert nichts",
+      applyMove({ ...st, board: st.board.map((p, i) => i === MITTE ? { ...p, abilities: [] } : p) }, { from: MITTE, to: sq(MF + 1, MR), special: "stoss", consumes: "wegstoss", ziel: sq(MF + 2, MR) }).board[sq(MF + 1, MR)]?.kind === "N"
+      && applyMove(st, { from: MITTE, to: sq(MF + 1, MR), special: "stoss", consumes: "wegstoss", ziel: sq(7, 7) }) === st
+      && applyMove(st, { from: MITTE, to: sq(MF + 1, MR), special: "stoss", consumes: "wegstoss", ziel: sq(5, 5) }) === st);
+  }
+  /* DIE LEITERREGEL DES BESITZERS (7.10.2026), fuer alle fuenfzig */
+  const bruch = [];
+  for (const ch of Object.values(CHARACTERS)) {
+    const l = ch.ladder.filter((e) => e.ability);
+    if (l.slice(0, 2).some((e) => !wirktImSchach(e.ability))) bruch.push(ch.id + ": Sprosse 1/2 braucht Lebenspunkte");
+    if (l.length <= 2 && l.some((e) => !wirktImSchach(e.ability))) bruch.push(ch.id + ": zwei Sprossen, eine reine HP");
+    if (l.some((e, i) => i && e.level <= l[i - 1].level)) bruch.push(ch.id + ": Stufen nicht steigend");
+    if (ch.moveSpec && l.length && l[0].level !== 1) bruch.push(ch.id + ": erste Sprosse nicht auf Stufe 1");
+  }
+  ok("Leiterregel: die ersten zwei Sprossen jeder Figur wirken im Schach, zwei Sprossen heisst keine reine HP, Sonderfiguren beginnen auf Stufe 1" + (bruch.length ? " - " + bruch.join("; ") : ""), bruch.length === 0);
 }
 
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);

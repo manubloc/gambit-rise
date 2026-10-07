@@ -205,7 +205,7 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
   const map = daily ? mapById(daily.map) : pvp ? mapById(pvp.mapId) : campaign ? mapById(match.map) : mapById(classic ? "classic" : mapId);
   const rules = daily ? (daily.rules || "hp") : pvp ? (pvp.rules || "hp") : campaign ? match.rules : classic ? "chess" : mode;
   const depth = campaign ? match.depth : classic ? eloDepth(quick?.elo) : difficultyById(difficulty).depth;
-  const playerArmy = useMemo(() => buildArmy(profile, map, campaign ? match.excludeId : null, rules, classic), [profile, map]); // eslint-disable-line
+  const playerArmy = useMemo(() => buildArmy(profile, map, campaign ? match.excludeId : null, rules, classic, !!campaign), [profile, map]); // eslint-disable-line
   const freshSeed = () => (Date.now() ^ ((Math.random() * 0x7fffffff) | 0)) >>> 0;
 
   // ── pause & resume (v0.19): a campaign match interrupted mid-fight waits in
@@ -679,6 +679,10 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
     else if ((lm.capture || lm.lethal) && lm.hitKind) text = en ? `${wer(lm.hitKind)} falls` : `${wer(lm.hitKind)} gefallen`;
     else if (lm.damaged && lm.hitKind) text = en ? `Hit — ${wer(lm.hitKind)} −${lm.dmg || 1}` : `Treffer — ${wer(lm.hitKind)} −${lm.dmg || 1}`;
     else if (lm.special === "castle") text = en ? "Castled" : "Rochade";
+    /* v1.94.0: die Kuenste ohne Schlag (Platztausch, Wegstossen, Fessel, Zaunbau ...)
+       nennen sich in der Kopfzeile - sonst saehe man beim Gegner nur, dass sich
+       etwas verschoben hat, aber nicht, warum */
+    else if ((lm.steht || lm.special === "tausch") && lm.consumed && ABILITIES[lm.consumed]) text = en ? ABILITIES[lm.consumed].nameEn : ABILITIES[lm.consumed].nameDe;
     else if (lm.promotion) text = en ? "Promoted!" : "Krönung!";
     /* v1.89.0 (Spieltest, gemessen: "Rochade" stand sechs Zuege spaeter noch
        in der Kopfzeile, "Laeufer gefallen" sogar zu Beginn der NEUEN Partie):
@@ -747,7 +751,7 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
       return;
     }
     const ai = campaign ? kampagnenGegner(seed) : classic ? buildArmyFromFormation(() => 1, m.defaultFormation) : buildAiArmyForMap(diff, m, seed);
-    setState(createGame(buildArmy(profile, m, campaign ? match.excludeId : null, rl, classic), ai,
+    setState(createGame(buildArmy(profile, m, campaign ? match.excludeId : null, rl, classic, !!campaign), ai,
       { map: m, rules: rl, seed, buende: meineBuende }));
   }
   function newGame() { reset(difficulty); }
@@ -808,6 +812,7 @@ export function GameScreen({ profile, dispatch, t, match = null, onExit = null, 
       const wach = state.buende && !Array.isArray(state.buende) ? (state.buende[myColor] || []) : (state.buende || []);
       summary.zubrot = zubrot({ heer: playerArmy, buende: wach, eigeneZuege: summary.eigeneZuege,
         bauernUebrig: summary.bauernUebrig, result, resigned: summary.resigned, gold: summary.gold,
+        bauernGeschlagen: ((state.captured && state.captured[myColor]) || []).filter((k) => k === "P").length,   /* v1.94.0: Mahlgeld */
         liga: campaign ? (match.league || profile.campaign?.league || 1) : 1 });
     }
     const { profile: next, gained } = applyResult(profile, summary);
@@ -2154,7 +2159,7 @@ function ResultBanner({ banner, t, onNew, campaign = false, onExit = null, onSet
         {/* v1.91.0: woher das Gold kam - Almosen, Zins, Zehnt, Dorf, Kontor (im
             Betrag oben schon enthalten) und was das Studium an Erfahrung gab */}
         {!banner.hotseat && g.zubrot && (g.zubrot.gold > 0 || g.studiert > 0) && <div data-zubrot style={{ fontSize: 11.5, color: T.dim, margin: "-6px 0 10px", lineHeight: 1.45, ...tritt(2) }}>
-          {[["almosen", en ? "Alms" : "Almosen"], ["zins", en ? "Interest" : "Zins"], ["zehnt", en ? "Tithe" : "Zehnt"], ["dorf", en ? "Village" : "Dorf"], ["kontor", en ? "Counting house" : "Kontor"]]
+          {[["almosen", en ? "Alms" : "Almosen"], ["zins", en ? "Interest" : "Zins"], ["zehnt", en ? "Tithe" : "Zehnt"], ["mahlgeld", en ? "Miller's toll" : "Mahlgeld"], ["dorf", en ? "Village" : "Dorf"], ["kontor", en ? "Counting house" : "Kontor"]]
             .filter(([k]) => g.zubrot[k] > 0).map(([k, name]) => `${name} +${g.zubrot[k]}`)
             .concat(g.studiert > 0 ? [`${en ? "Study" : "Studium"} +${g.studiert} ${en ? "XP" : "Erfahrung"}`] : []).join(" · ")}
         </div>}

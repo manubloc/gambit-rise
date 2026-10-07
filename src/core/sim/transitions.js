@@ -4,7 +4,7 @@ import { pseudoMoves, pieceMoves, talentWirkt, verbuche, zauberRest, stufeVon, k
 import { kroneFaengtAb, schildwachtDeckt, nachtwacheHeilt, faehrteFolgt, konzilLehntAb, sturmRuftZurueck, hinterstenBauern,
   klosterDeckt, jagdFesselt, finsternisBannt } from "../rules/buende.js";
 import { inCheck } from "../rules/attacks.js";
-import { schlageSperre, loeseFalleAus, zerfalleSperren, versperrt } from "../rules/sperren.js";
+import { schlageSperre, loeseFalleAus, zerfalleSperren, versperrt, ZERFALL_TAKT } from "../rules/sperren.js";
 import { familyOf, familyCount, crownWallSoak } from "../rules/families.js";
 
 /* v1.32.0: DER GEIST (Geistwandel) - EINE Stelle fuer seine Zahlen. Kern,
@@ -98,7 +98,10 @@ function altern(ns) {
      GEFESSELT heisst: DIESE Figur setzt einen Zug aus. Der Marker sitzt an
      der Figur (fesselBis), nicht am Feld - sie schleppt die Falle ja mit,
      und moves.js liest ihn beim Zugangebot. */
-  if (ns.rules === "hp" && ns.fallen && ns.lastMove && ns.lastMove.to != null) {
+  /* v1.94.0: `steht` = die Figur hat gewirkt und ihr Feld nicht verlassen
+     (Stoss, Fessel, Zaunbau ...). Auf `to` steht dann eine ANDERE Figur oder
+     nichts - weder schnappt dort eine Falle zu, noch rueckt ein Partner nach. */
+  if (ns.rules === "hp" && ns.fallen && ns.lastMove && ns.lastMove.to != null && !ns.lastMove.steht) {
     const zielF = ns.lastMove.to;
     const f = ns.fallen[zielF];
     const opfer = ns.board[zielF];
@@ -148,7 +151,7 @@ function altern(ns) {
      Feld besetzt oder vom Brett ist. Er kostet keinen eigenen Zug und
      schlaegt nie: ein Nachruecken, das nebenbei eine Figur nimmt, waere ein
      zweiter Zug in einem - und genau das soll ein Bund nicht sein. */
-  if (ns.lastMove && ns.lastMove.to != null) {
+  if (ns.lastMove && ns.lastMove.to != null && !ns.lastMove.steht) {
     const pf = faehrteFolgt(ns, ns.lastMove.to);
     if (pf != null) {
       const W2 = ns.w;
@@ -345,6 +348,85 @@ export function applyMove(state, move, opts) {
   }
 
 
+  /* ── v1.94.0: KUENSTE, DIE WIRKEN, OHNE DASS GESCHLAGEN WIRD ────────────────
+     Platztausch/Deckung (zwei eigene Figuren wechseln die Felder), Feldarbeit
+     (ein eigener Bauer rueckt vor), Wegstossen (ein Gegner weicht ein Feld),
+     Zaunbau, Lazarett (ein geschlagener Bauer kehrt zurueck) und Fessel. Sie
+     gelten unter Schach- wie unter HP-Regeln gleich - keine rechnet mit
+     Lebenspunkten -, darum stehen sie VOR der Weiche. Jede kostet den Zug.
+
+     DER KERN PRUEFT SELBST, ob die Lage stimmt: im Duell kommt der Befehl vom
+     Gegner, und `reduce` prueft Form und Zugrecht, nicht jedes Feld (dieselbe
+     Lehre wie bei der Kroenung, A11). Stimmt sie nicht, aendert sich nichts -
+     der Reducer weist den Zug dann ab. */
+  if (move.special === "tausch" || move.special === "schub" || move.special === "stoss"
+      || move.special === "bau" || move.special === "lazarett" || move.special === "fessel") {
+    const W = ns.w ?? FILES, felder = b.length;
+    const klein = (q) => !!q && q.kind !== "D+" && !q.big;
+    const leer = (i) => Number.isInteger(i) && i >= 0 && i < felder && !b[i]
+      && !(ns.holes && ns.holes.has && ns.holes.has(i)) && !versperrt({ sperren: ns.sperren }, i);
+    const nah = (a, c, weit) => Math.max(Math.abs((a % W) - (c % W)), Math.abs(Math.floor(a / W) - Math.floor(c / W))) <= weit;
+    const traegt = !!move.consumes && (piece.abilities || []).includes(move.consumes) && zauberRest(piece, move.consumes) > 0;
+    let wirkte = false, extra = {};
+    if (!traegt || move.to === move.from) return state;
+    if (move.special === "tausch") {
+      const koenig = !!target && target.kind === KIND.KING;
+      if (target && target !== piece && target.color === piece.color && klein(target) && klein(piece)
+          && move.consumes === (koenig ? "deckung" : "platztausch") && (!koenig || nah(move.from, move.to, 2))
+          && !(target.kind === KIND.PAWN && kroenungsReihe(target, move.from, ns))
+          && !(piece.kind === KIND.PAWN && kroenungsReihe(piece, move.to, ns))) {
+        b[move.to] = piece; b[move.from] = target; piece.hasMoved = true; target.hasMoved = true;
+        extra = { partner: target.kind }; wirkte = true;
+      }
+    } else if (move.special === "schub" || move.special === "stoss") {
+      const eigen = move.special === "schub";
+      if (target && klein(target) && target.kind !== KIND.KING && (target.color === piece.color) === eigen
+          && (!eigen || target.kind === KIND.PAWN) && move.consumes === (eigen ? "feldarbeit" : "wegstoss")
+          && nah(move.from, move.to, 1) && nah(move.to, move.ziel, 1) && leer(move.ziel)
+          && !(target.kind === KIND.PAWN && kroenungsReihe(target, move.ziel, ns))) {
+        b[move.ziel] = target; b[move.to] = null; target.hasMoved = true;
+        extra = { ziel: move.ziel, bewegt: target.kind }; wirkte = true;
+      }
+    } else if (move.special === "bau") {
+      if (move.consumes === "zaunbau" && nah(move.from, move.to, 1) && leer(move.to)) {
+        /* dieselbe Gestalt wie eine gesetzte Sperre (rules/sperren.js): sie
+           zerfaellt nach dem gewohnten Takt und faellt mit einem Schlag */
+        ns.sperren = { ...(ns.sperren || {}), [move.to]: { art: "zaun", hp: 1, von: piece.color, bis: state.moveCount + 1 + ZERFALL_TAKT } };
+        wirkte = true;
+      }
+    } else if (move.special === "lazarett") {
+      const gefallen = ns.captured[other(piece.color)];
+      const wo = gefallen.indexOf(KIND.PAWN);
+      if (move.consumes === "lazarett" && wo >= 0 && nah(move.from, move.to, 1) && leer(move.to)) {
+        gefallen.splice(wo, 1);
+        const pawn = { id: (state.moveCount + 1) * 100000 + move.to, kind: KIND.PAWN, color: piece.color,
+          level: 1, abilities: [], shield: 0, used: {}, hasMoved: true };
+        if (hp) { pawn.maxHp = BASE_HP.P; pawn.hp = pawn.maxHp; pawn.atk = BASE_ATK.P; }
+        b[move.to] = pawn;
+        wirkte = true;
+      }
+    } else if (move.special === "fessel") {
+      if (move.consumes === "fessel" && target && target.color !== piece.color && klein(target) && target.kind !== KIND.KING
+          && nah(move.from, move.to, 2)) {
+        /* derselbe Marker wie die Baerenfalle: der naechste eigene Zug dieser
+           Figur faellt aus (moveCount zaehlt erst am Ende dieses Zuges weiter) */
+        target.fesselBis = (state.moveCount || 0) + 3;
+        wirkte = true;
+      }
+    }
+    if (!wirkte) return state;
+    verbuche(piece, move.consumes);
+    if (ns.shiftArmed === piece.color) { ns.turn = piece.color; ns.shiftArmed = null; }
+    else ns.turn = other(state.turn);
+    ns.lastMove = { consumed: move.consumes, from: move.from, to: move.to, color: piece.color, kind: piece.kind,
+      ...(piece.charId ? { charId: piece.charId } : {}),
+      capture: false, special: move.special, steht: move.special !== "tausch", ...extra };
+    ns.moveCount = state.moveCount + 1;
+    ns.ohneSchaden = (state.ohneSchaden || 0) + 1;
+    if (record) ns.history = [...state.history, state];
+    return altern(ns);
+  }
+
   // ── THE BIG DRAGON moves as a 2x2 block ─────────────────────────────────────
   // dragonStep: one square orthogonally, and he crushes any foe under his
   // leading edge. dragonFly: ONCE per game the block leaps farther. Landing on
@@ -483,7 +565,9 @@ export function applyMove(state, move, opts) {
         ? Math.min(2, stufeVon(target, "bulwark")) : 0) + wall + (warded ? 1 : 0) + wacht;
       // BALANCE: strikes from afar carry less weight — a leap or a ranged
       // shot lands at HALF force (rounded up); melee keeps its full bite.
-      const afar = move.special === "leap" || move.special === "shot" || move.noAdvance;
+      /* v1.94.0: der STANDHIEB trifft den Nachbarn mit voller Kraft - er bleibt
+         stehen, aber er schlaegt nicht aus der Ferne */
+      const afar = move.special === "leap" || move.special === "shot" || (move.noAdvance && move.special !== "hieb");
       const force = afar ? Math.ceil((piece.atk || 1) / 2) : (piece.atk || 1);
       dmg = Math.max(1, force - soak);
       /* ── DER PALADIN SPRINGT EIN (v1.10.1) ──────────────────────────────
@@ -715,6 +799,12 @@ export function applyMove(state, move, opts) {
     if (epOpfer) { ns.captured[piece.color].push(epOpfer.kind); b[move.epCapture] = null; }
   }
   const captured = hp ? lethal : ((!!target && !bounced) || !!epOpfer);
+  /* v1.94.0: SCHLACHTBANK - wo der Metzger zum Schlagen aufbrach, bleibt ein
+     Zaun stehen (eine Sperre wie jede andere: ein Schlag, gewohnter Zerfall).
+     Nur, wenn er sein Feld wirklich verlassen hat. */
+  if (captured && !move.noAdvance && b[move.from] == null && b[move.to] === piece
+      && (piece.abilities || []).includes("schlachtbank") && !(ns.holes && ns.holes.has && ns.holes.has(move.from)))
+    ns.sperren = { ...(ns.sperren || {}), [move.from]: { art: "zaun", hp: 1, von: piece.color, bis: state.moveCount + 1 + ZERFALL_TAKT } };
   // an armed TIME RIFT (magic circle) lets this move keep the turn — once
   if (ns.shiftArmed === piece.color) { ns.turn = piece.color; ns.shiftArmed = null; }
   else ns.turn = other(state.turn);

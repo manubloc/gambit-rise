@@ -305,6 +305,16 @@
     .betaschritte h3 { color:var(--goldhell); font-size:17px; letter-spacing:.02em; margin:2px 0 0; }
     .betaschritte p { color:var(--dim); font-size:14px; line-height:1.55; margin:0 0 6px; flex:1; }
     .betaschritte .knopf { align-self:flex-start; }
+    /* v1.94.0 (Besitzer 7.10.: "macht es nicht Sinn, dass man ... direkt
+       weitergeleitet wird?"): anmelden oder beitreten kann eine fremde Seite
+       fuer niemanden - aber sie kann den Weg fuehren. Jeder Schritt oeffnet in
+       einem neuen Tab; wer zurueckkommt, sieht den Schritt abgehakt und den
+       naechsten hervorgehoben (das Skript am Seitenende, nur dieses Geraet). */
+    .betaschritte li.getan { border-color:rgba(111,224,168,.4); opacity:.72; }
+    .betaschritte li.getan .nr { background:#1c5a3f; color:#d6f7e6; font-size:0; }
+    .betaschritte li.getan .nr::before { content:"✓"; font-size:16px; }
+    .betaschritte li.dran { border-color:var(--goldhell); box-shadow:0 0 0 1px rgba(240,214,138,.45), 0 10px 30px rgba(0,0,0,.35); }
+    .betaschritte li:not(.dran):not(.getan) .knopf { filter:saturate(.55) brightness(.82); }
     section { padding:58px 0; }
     section.abgesetzt { background:linear-gradient(180deg,var(--night),var(--bg) 12%,var(--bg) 88%,var(--night)); }
     h2 { font-size:clamp(22px,3.4vw,30px); color:var(--goldhell); letter-spacing:.03em;
@@ -554,22 +564,22 @@
     <p class="h2u sans">Gambit Rise erscheint bald im Google Play Store. Wer nicht warten will,
       spielt die Android-App schon jetzt als Tester — kostenlos, in drei Schritten.
       Du brauchst nur ein Android-Handy und ein Google-Konto.</p>
-    <ol class="betaschritte sans">
+    <ol class="betaschritte sans" id="betaschritte">
       <li><span class="nr">1</span>
         <h3>Tester-Gruppe beitreten</h3>
         <p>Öffne die Gruppe und tippe auf „Gruppe beitreten“. Damit weiß Google, dass du testen darfst. Nachrichten bekommst du darüber keine.</p>
-        <a class="knopf gold" href="https://groups.google.com/g/gambit-rise-beta" rel="noopener">Zur Tester-Gruppe</a></li>
+        <a class="knopf gold" href="https://groups.google.com/g/gambit-rise-beta" rel="noopener" target="_blank">Zur Tester-Gruppe</a></li>
       <li><span class="nr">2</span>
         <h3>Test annehmen</h3>
         <p>Öffne danach den Testlink — am besten gleich auf dem Handy, mit demselben Google-Konto — und tippe auf „Tester werden“.</p>
-        <a class="knopf gold" href="https://play.google.com/apps/testing/com.gambitrise.app" rel="noopener">Tester werden</a></li>
+        <a class="knopf gold" href="https://play.google.com/apps/testing/com.gambitrise.app" rel="noopener" target="_blank">Tester werden</a></li>
       <li><span class="nr">3</span>
         <h3>Installieren</h3>
         <p>Jetzt findest du Gambit Rise im Play Store und installierst es wie jede andere App. Updates kommen von selbst.</p>
-        <a class="knopf gold" href="https://play.google.com/store/apps/details?id=com.gambitrise.app" rel="noopener">Im Play Store öffnen</a></li>
+        <a class="knopf gold" href="https://play.google.com/store/apps/details?id=com.gambitrise.app" rel="noopener" target="_blank">Im Play Store öffnen</a></li>
     </ol>
-    <div class="zeile-frei sans">Der Test ist bei Google eingereicht (7.10.2026). Bis zur Freigabe kannst du schon der Gruppe beitreten —
-      Schritt 2 und 3 öffnen sich, sobald Google den Test freigibt. Danach braucht Google nach dem Beitritt manchmal ein paar Minuten.
+    <div class="zeile-frei sans">Die Reihenfolge zählt: erst der Gruppe beitreten, dann den Test annehmen — mit demselben Google-Konto wie auf dem Handy.
+      Meldet Schritt 2 „nicht gefunden“, braucht Google nach dem Beitritt noch ein paar Minuten.
       Kein Android? <a href="/spielen/" style="color:inherit">Im Browser spielen</a>.</div>
   </div>
 </section>
@@ -825,6 +835,23 @@
     <a href="/privacy.html">Datenschutzerklärung</a>.</p>
   <div class="zeile"><button id="hinweisOk" type="button">Verstanden</button></div>
 </div>
+<script>
+/* v1.94.0: der Weg durch die drei Testschritte. Gemerkt wird nur auf diesem
+   Geraet (localStorage), und nur, WELCHER Schritt zuletzt geoeffnet wurde. */
+(function () {
+  var liste = document.getElementById("betaschritte"); if (!liste) return;
+  var punkte = liste.querySelectorAll("li"), stand = 0;
+  try { stand = Math.max(0, Math.min(punkte.length, +localStorage.getItem("gg:betaschritt") || 0)); } catch (e) {}
+  function zeige() { for (var i = 0; i < punkte.length; i++) {
+    punkte[i].classList.toggle("getan", i < stand); punkte[i].classList.toggle("dran", i === Math.min(stand, punkte.length - 1) && stand < punkte.length); } }
+  for (var i = 0; i < punkte.length; i++) (function (n) {
+    var a = punkte[n].querySelector("a.knopf"); if (!a) return;
+    a.addEventListener("click", function () { if (n + 1 > stand) { stand = n + 1; try { localStorage.setItem("gg:betaschritt", String(stand)); } catch (e) {} }
+      setTimeout(zeige, 600); });
+  })(i);
+  zeige();
+})();
+</script>
 <script>
   (function(){
     try {

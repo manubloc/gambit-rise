@@ -954,6 +954,27 @@ const ohneSubtle = (() => {
     heer.back[1].kind === "N" && heer.back[3].kind === "Q");
 }
 
+/* ── v1.94.0: DIE NEUEN LEITERN ZIEHEN GELERNTES NACH (kunst94) ───────────────── */
+{
+  const M = await import("./src/meta/index.js");
+  const { faehigkeitenUmbau } = await import("./src/meta/profile.js");
+  const alt = { name: "alt", gold: 0, sp: 1,
+    pieces: { levels: { farmwife: 6, hawk: 3, beggar: 9, knight: 6 },
+      abilities: { farmwife: ["regen", "bulwark"], hawk: ["teleport", "ranged_shot"], beggar: ["regen", "bulwark", "teleport"], knight: ["knight_longleap"], "X:b02": ["gift"] },
+      stufen: { farmwife: { bulwark: 2, regen: 2 }, hawk: { ranged_shot: 3 } } },
+    campaign: { league: 3, cleared: [], unlocked: ["farmwife", "hawk", "beggar"], dupes: {}, meister20: true, figuren91: true } };
+  const neu = faehigkeitenUmbau(alt), ab = neu.pieces.abilities, st = neu.pieces.stufen;
+  ok("kunst94: was nicht mehr auf der Leiter steht, ist verlernt (Bollwerk der Baeuerin, Schuss des Spaehers) - der Rest bleibt",
+    ab.farmwife.join() === "regen" && !("hawk" in ab) && ab.beggar.join() === "regen,bulwark,teleport" && ab.knight.join() === "knight_longleap" && ab["X:b02"].join() === "gift");
+  ok("kunst94: was jetzt eine hoehere Stufe verlangt, als die Figur hat, ebenso (Blinzeln des Spaehers: Stufe 5, er hat 3)", !("hawk" in ab));
+  ok("kunst94: erstattet 2 je Faehigkeit und 3 je weiterer Stufe - Bollwerk II (5) + Blinzeln (2) + Schuss III (8) = 15 Punkte",
+    neu.sp === 1 + 5 + 2 + 8, `sp ${neu.sp}`);
+  ok("kunst94: die Stufen des Verlernten sind fort, die des Behaltenen bleiben", st.farmwife.regen === 2 && !("bulwark" in st.farmwife) && !("hawk" in st));
+  ok("kunst94: einmalig - der zweite Lauf aendert nichts, und ein neuer Stand traegt das Merkzeichen",
+    faehigkeitenUmbau(neu) === neu && neu.campaign.kunst94 === true && defaultProfile().campaign.kunst94 === true);
+  ok("kunst94: laeuft auf dem normalen Ladeweg (migrateProfile)", M.migrateProfile(alt).campaign.kunst94 === true && !("hawk" in M.migrateProfile(alt).pieces.abilities));
+}
+
 console.log(`\nRESULT: ${pass} passed, ${fail} failed`);
 if (fail) process.exit(1);
 

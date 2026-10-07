@@ -89,6 +89,54 @@ export const ABILITIES = {
   studium:              { id: "studium",              icon: "✎", tag: "gold", once: false, live: true, nameDe: "Studium",      nameEn: "Study",         descDe: "Jede Partie bringt mehr Erfahrung — 15 %, auf Stufe II 30 %, auf III 45 %. So kommen Fähigkeitspunkte schneller.", descEn: "Every battle grants more experience — 15 %, 30 % at tier II, 45 % at III. Skill points come sooner." },
   fallenkunde:          { id: "fallenkunde",          icon: "⋈", tag: "control", hpOnly: true, sperre: "verborgen", once: false, live: true, nameDe: "Fallenkunde",  nameEn: "Trapcraft",     descDe: "Vor jedem HP-Gefecht legst du eine Bärenfalle, ohne sie kaufen zu müssen.", descEn: "Before every HP battle you lay one bear trap without having to buy it." },
 
+  /* ── v1.94.0: EIGENE FAEHIGKEITEN, DIE AUCH IM SCHACH WIRKEN (Besitzer 7.10.) ──
+     "Die Faehigkeiten, die eine Figur individuell fuer sich hat, sollten immer
+      als erste kommen ... und keine Bezuege auf HP oder Gesundheit haben, weil
+      man hat ja noch gar keine HP-Kaempfe" - und spaeter: "nur die dritte oder
+      vierte darf eine reine HP-Faehigkeit sein; hat eine Figur nur zwei, dann
+      hat sie keine reine HP-Faehigkeit."
+
+     GEMESSEN am 7.10., warum es dafuer neue braucht: Kapitel I hat 45
+     Schach-Stationen und keine einzige HP-Station, Kapitel II 27 zu 15. Von
+     den 19 Figuren dieser beiden Kapitel begannen 13 mit einer Faehigkeit, die
+     unter Schachregeln verborgen ist; die Baeuerin trug vier, und keine wirkte
+     je im Schach. Im Schach wirkten bis hierher nur die Gangarten der sechs
+     Standardfiguren, das Blinzeln und das Gold.
+
+     Alle hier sind ZUEGE oder Dauerwirkungen ohne Lebenspunkte. Die Zuege sind
+     Zauber (einmal je Partie, wie Blinzeln); keiner zielt im Schach auf den
+     Koenig - ein Schachgebot aus einer verdeckten Kunst waere nicht zu sehen. */
+  feldarbeit:    { id: "feldarbeit",    icon: "⇑", tag: "control", once: true, live: true, nameDe: "Feldarbeit",  nameEn: "Field work",
+    descDe: "Schiebt 1× einen eigenen Bauern neben ihr ein Feld vor — sie selbst bleibt stehen.", descEn: "Once, push one of your pawns beside her one square ahead — she stays put." },
+  platztausch:   { id: "platztausch",   icon: "⇄", tag: "trick", once: true, live: true, nameDe: "Platztausch",  nameEn: "Swap",
+    descDe: "Tauscht 1× den Platz mit einer beliebigen eigenen Figur — nur nicht mit dem König.", descEn: "Once, swap places with any piece of yours — except the king." },
+  standhieb:     { id: "standhieb",     icon: "⚒", tag: "control", once: true, live: true, nameDe: "Standhieb",    nameEn: "Standing blow",
+    descDe: "Schlägt 1× eine Figur direkt neben sich, ohne das Feld zu verlassen. Nie den König.", descEn: "Once, strike a piece right beside you without leaving your square. Never the king." },
+  zaunbau:       { id: "zaunbau",       icon: "▥", tag: "control", once: true, live: true, nameDe: "Zaunbau",      nameEn: "Fence work",
+    descDe: "Stellt 1× einen Zaun auf ein freies Feld neben sich. Er hält einen Schlag auf.", descEn: "Once, raise a fence on a free square beside you. It stops one blow." },
+  deckung:       { id: "deckung",       icon: "⛊", tag: "trick", once: true, live: true, nameDe: "Deckung",      nameEn: "Cover",
+    descDe: "Tauscht 1× den Platz mit dem eigenen König, wenn er höchstens zwei Felder entfernt steht.", descEn: "Once, swap places with your own king if he stands at most two squares away." },
+  lanzengang:    { id: "lanzengang",    icon: "⇶", tag: "move", once: true, live: true, nameDe: "Lanzengang",   nameEn: "Lance run",
+    descDe: "Stürmt 1× zwei oder drei Felder gerade über freie Felder und darf am Ende schlagen.", descEn: "Once, charge two or three squares straight across free squares, and may capture at the end." },
+  wegstoss:      { id: "wegstoss",      icon: "⇥", tag: "control", once: true, live: true, nameDe: "Wegstoßen",    nameEn: "Shove",
+    descDe: "Stößt 1× eine gegnerische Figur neben sich ein Feld weg, wenn dahinter frei ist. Nie den König.", descEn: "Once, shove an enemy piece beside you one square away if the square behind is free. Never the king." },
+  heimkehr:      { id: "heimkehr",      icon: "⌂", tag: "blink", once: true, live: true, nameDe: "Heimkehr",     nameEn: "Return",
+    descDe: "Kehrt 1× auf ein freies Feld der eigenen Grundreihe zurück.", descEn: "Once, return to a free square of your own back rank." },
+  pirsch:        { id: "pirsch",        icon: "♞", tag: "move", once: true, live: true, nameDe: "Pirsch",       nameEn: "Stalk",
+    descDe: "Darf 1× wie ein Springer ziehen.", descEn: "May move like a knight once." },
+  uebersprung:   { id: "uebersprung",   icon: "⤼", tag: "blink", once: true, live: true, nameDe: "Übersprung",   nameEn: "Vault",
+    descDe: "Springt 1× über eine Figur direkt neben sich auf das Feld dahinter.", descEn: "Once, vault over a piece right beside you onto the square behind it." },
+  fessel:        { id: "fessel",        icon: "⛓", tag: "control", once: true, live: true, nameDe: "Fessel",       nameEn: "Snare",
+    descDe: "Fesselt 1× eine gegnerische Figur im Umkreis von zwei Feldern: Sie setzt ihren nächsten Zug aus. Nie den König.", descEn: "Once, snare an enemy piece within two squares: it skips its next move. Never the king." },
+  lazarett:      { id: "lazarett",      icon: "✙", tag: "trick", once: true, live: true, nameDe: "Lazarett",     nameEn: "Field hospital",
+    descDe: "Holt 1× einen geschlagenen eigenen Bauern auf ein freies Feld neben sich zurück.", descEn: "Once, bring back one of your captured pawns onto a free square beside you." },
+  faehrte:       { id: "faehrte",       icon: "⇝", tag: "move", once: true, live: true, nameDe: "Fährte",       nameEn: "Trail",
+    descDe: "Gleitet 1× bis zu drei Felder gerade — auch durch eigene Figuren hindurch.", descEn: "Once, glide up to three squares straight — even through your own pieces." },
+  schlachtbank:  { id: "schlachtbank",  icon: "▚", tag: "control", once: false, live: true, nameDe: "Schlachtbank", nameEn: "Shambles",
+    descDe: "Wo er zum Schlagen aufbricht, bleibt ein Zaun zurück: Das verlassene Feld ist versperrt, bis jemand ihn wegschlägt.", descEn: "Where he sets out to capture, a fence stays behind: the square he left is blocked until someone clears it." },
+  mahlgeld:      { id: "mahlgeld",      icon: "⚙", tag: "gold", once: false, live: true, nameDe: "Mahlgeld",     nameEn: "Miller's toll",
+    descDe: "Jeder geschlagene gegnerische Bauer bringt Gold — 2, auf Stufe II 3, auf III 4; später mehr. Bleibt auch nach einer Niederlage.", descEn: "Every captured enemy pawn pays gold — 2, 3 at tier II, 4 at III; more later on. Stays even after a defeat." },
+
   /* ── v1.25.2: DIE FAEHIGKEITEN DER MONSTER (Besitzerentscheid) ─────────────
      "Die Faehigkeiten, die die Monster haben, sollte grundsaetzlich keine der
       anderen Figuren haben - dass die Monster sich dadurch auszeichnen."
@@ -125,6 +173,9 @@ export const ZAUBER_STUFEN = {
   pawn_sidestep: 3, pawn_forward_capture: 3, pawn_backstep: 3, bishop_ortho_step: 3, king_dash: 3, ranged_shot: 3,
   bishop_hop: 2, rook_breach: 2, queen_knightleap: 2, teleport: 2, blast: 2,
   blenden: 2,   /* v1.31.0: ein Zauber wie die Schockwelle - loest von selbst aus */
+  /* v1.94.0: die leichten Gangarten duerfen auf Stufe II zweimal; was eine
+     fremde Figur bewegt, fesselt oder zurueckholt, bleibt bei einem Einsatz */
+  pirsch: 2, uebersprung: 2, heimkehr: 2, lanzengang: 2, faehrte: 2,
 };
 /* ── v1.30.0: STAERKE-STUFEN. Was von selbst wirkt, waechst in seiner Staerke,
    nicht in der Haeufigkeit. Je Stufe ein kurzer Text - die Leiter zeigt ihn
@@ -164,6 +215,8 @@ export const STAERKE_STUFEN = {
                  en: ["4 extra gold per win", "8 extra gold per win", "12 extra gold per win"] },
   studium:     { de: ["15 % mehr Erfahrung", "30 % mehr Erfahrung", "45 % mehr Erfahrung"],
                  en: ["15 % more experience", "30 % more experience", "45 % more experience"] },
+  mahlgeld:    { de: ["2 Gold je geschlagenem Bauern", "3 Gold je geschlagenem Bauern", "4 Gold je geschlagenem Bauern"],
+                 en: ["2 gold per captured pawn", "3 gold per captured pawn", "4 gold per captured pawn"] },
   /* v1.31.0 */
   gift:        { de: ["1 Leben je Zug, drei Runden", "2 Leben je Zug, drei Runden", "3 Leben je Zug, drei Runden"],
                  en: ["1 life per move, three rounds", "2 life per move, three rounds", "3 life per move, three rounds"] },
@@ -257,6 +310,11 @@ export function talentFarbe(id) {
   _FARBEN.set(id, farbe);
   return farbe;
 }
+
+/** v1.94.0: WIRKT SIE UNTER SCHACHREGELN? Die eine Frage hinter der Leiterregel
+ *  des Besitzers (erste Sprossen schachtauglich) und hinter dem Heeresbau fuer
+ *  Schach-Stationen. Verborgen = braucht Lebenspunkte, Riegel = der Schuss. */
+export const wirktImSchach = (id) => { const a = ABILITIES[id]; return !!a && a.live !== false && !a.sperre && !a.hpOnly; };
 
 export function faehigkeitZustand(id, wach) {
   const a = ABILITIES[id];

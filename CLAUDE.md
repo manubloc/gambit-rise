@@ -274,8 +274,9 @@ starten, sonst reißen Werkzeug-Zeitlimits den Lauf ab.
    `node tools/pruefe-figurenmass.mjs` (0 Befunde),
    `node tools/pruefe-duell.mjs` (RESULT ohne failed),
    `node tools/pruefe-leiste.mjs` (RESULT ohne failed),
-   `node tools/pruefe-brettruhe.mjs` (RESULT ohne failed, ~5 min) und
-   `node tools/pruefe-hofzoom.mjs` (RESULT ohne failed); bei Arbeit an Karte,
+   `node tools/pruefe-brettruhe.mjs` (RESULT ohne failed, ~5 min),
+   `node tools/pruefe-hofzoom.mjs` (RESULT ohne failed) und
+   `node tools/pruefe-kunst.mjs` (RESULT ohne failed, ~15 s); bei Arbeit an Karte,
    Kampagne oder Navigation zusätzlich `node tools/pruefe-navigation.mjs`
 5. REINRAUM: `git clone . /tmp/rr && cp -r node_modules /tmp/rr/` und dort
    Schritte 1–4 wiederholen. **Währenddessen nichts Schweres nebenher laufen
@@ -434,6 +435,30 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
   (pruefe-buttons prüft die Nummernfolge), die Sprungmarke steht als
   `<a class="anker" id="aN">` davor; `#online` zeigt auf Abschnitt 5, `#impressum`
   aufs Impressum. Nicht anwaltlich geprüft — das steht offen beim Besitzer.
+- **Fähigkeiten, die auch im Schach wirken (v1.94.0, Besitzer 7.10.):** die
+  LEITERREGEL — Sprosse 1 und 2 jeder Figur sind schachtauglich
+  (`wirktImSchach`, content/abilities.js), zwei Sprossen heißt keine reine HP,
+  Sonderfiguren lernen die erste Sprosse auf Stufe 1 (die sechs Schachfiguren
+  bleiben bei Stufe 3 — sonst trüge jeder gegnerische Springer der ersten
+  Stationen den Weitsprung). test_zugbilder Abschnitt 7 prüft die Regel für alle
+  fünfzig und jede der dreizehn Künste am Kern. **Im Schach der KAMPAGNE trägt
+  das Heer, was gelernt ist und ohne Lebenspunkte auskommt**
+  (`buildArmyForMap(…, schachKunst)`; Stärke bleibt Stufe 1) — bis v1.93.2 kam im
+  Schach NICHTS Gelerntes aufs Brett, auch Zins/Zehnt/Studium zahlten in Kapitel I
+  nie. Klassisch, Online-Schach und Fernpartie bleiben ohne. Der Gegner baut im
+  Schach auf Stufe 1 mit der Leiter bis Stufe 1, trägt also die erste Kunst
+  jeder Sonderfigur. Die Künste sind ZAUBER mit `consumes` (Karte scharf →
+  ✦-Feld); wer wirkt und stehen bleibt (Stoß, Fessel, Zaunbau, Feldarbeit,
+  Lazarett), hat einen eigenen Zweig VOR der HP-Weiche in applyMove, schreibt
+  das Wirkfeld in `to`, das Ziel einer bewegten Figur in `ziel` und trägt
+  `lastMove.steht`. **Drei Regeln für jede neue Kunst:** kein Ziel König (was
+  schlägt, trägt `weitsprung`), kein großer Drache, kein Bauer durch fremde Hand
+  auf die Krönungsreihe. `node tools/pruefe-kunst.mjs [fotos]` fährt Karte →
+  Feld → Wirkung am echten GameScreen einer Schach-Station (Schritt 4 der
+  Kette). Alte Stände: `faehigkeitenUmbau` (profile.js, `campaign.kunst94`).
+  Entwurf, Tabelle aller Leitern, Abweichungen vom ersten Vorschlag:
+  `design/FAEHIGKEITEN-SCHACH-2026-10-07.md`. Das Brett trägt seit v1.94.0
+  `data-figur="w:farmwife"` an jeder Zelle (für Proben).
 - **Gold neben dem Kampf (`meta/zubrot.js`):** Almosen, Zins, Zehnt, Studium und
   die Bünde Dorf und Kontor ändern am Brett nichts und werden an EINER Stelle
   gerechnet; `applyResult` zahlt aus, das Banner zeigt die Posten. Wer aufgibt,

@@ -23,6 +23,8 @@ export const PASSIVE_TALENTE = new Set([
      Partie aus (meta/rewards.js) bzw. geben in der Setzphase eine Falle
      (GameScreen). Hier stehen sie, weil sie dauerhaft sind. */
   "almosen", "zins", "zehnt", "studium", "fallenkunde",
+  /* v1.94.0: Schlachtbank wirkt bei jedem Schlag, Mahlgeld zahlt nach der Partie */
+  "schlachtbank", "mahlgeld",
 ]);
 
 /* ── TALENTE, DIE OHNE LEBENSPUNKTE KEINEN SINN ERGEBEN (v1.2.0) ───────────
@@ -541,6 +543,133 @@ export function pieceMoves(state, sqIndex) {
         af += df; ar += dr; dist++;
       }
     }
+  }
+
+  /* ── v1.94.0: DIE EIGENEN KUENSTE, DIE AUCH IM SCHACH WIRKEN ───────────────
+     Besitzer 7.10.: die erste Faehigkeit jeder Figur muss ohne Lebenspunkte
+     auskommen (Kapitel I ist reines Schach). Alle dreizehn sind ZAUBER: sie
+     tragen `consumes`, das Brett zeigt ihre Felder erst, wenn die Karte scharf
+     ist, und das EINE Buch je Figur gilt wie fuer Blinzeln.
+
+     DREI REGELN FUER ALLE:
+     1. Keine zielt auf den Koenig. Was schlaegt, traegt `weitsprung` - die
+        Bremse aus pseudoMoves, die im Schach kein Schachgebot aus einem Talent
+        zulaesst; was nur wirkt (Stoss, Fessel, Hieb), laesst den Koenig aus.
+     2. Keine fasst den grossen Drachen an (vier Felder, ein Koerper): er wird
+        weder getauscht noch gestossen noch gefesselt.
+     3. Kein Bauer landet durch fremde Hand auf seiner Kroenungsreihe - sonst
+        stuende dort ein Bauer, der nie gekroent wurde.
+
+     Wer nur WIRKT und stehen bleibt, schreibt das Zielfeld der Wirkung in `to`
+     und, wo eine zweite Figur zieht, deren Ziel in `ziel`. */
+  {
+    const beweglich = (t) => !!t && t.kind !== "D+" && !t.big;
+    const D2 = { w: D.w, h: D.h };
+    const frei = (ff, rr) => onBoard(ff, rr, D) && !board[ix(ff, rr, D)] && betretbar(D, ix(ff, rr, D));
+
+    if (hasAbility(piece, "pirsch"))
+      for (const [df, dr] of KNIGHT_JUMPS) step(moves, from, f + df, r + dr, piece, board, D, { special: "leap", weitsprung: true, consumes: "pirsch" });
+
+    if (hasAbility(piece, "uebersprung"))
+      for (const [df, dr] of KING_STEPS) {
+        const af = f + df, ar = r + dr, lf = f + 2 * df, lr = r + 2 * dr;
+        if (!onBoard(af, ar, D) || !onBoard(lf, lr, D) || !board[ix(af, ar, D)]) continue;
+        const li = ix(lf, lr, D);
+        if (!betretbar(D, li)) { mauerschlag(moves, from, li, piece, { special: "hop", consumes: "uebersprung" }); continue; }
+        const land = board[li];
+        if (!land || land.color !== piece.color)
+          push(moves, from, li, piece, !!land, land ? land.kind : null, { special: "hop", weitsprung: true, consumes: "uebersprung" });
+      }
+
+    /* Lanzengang und Faehrte: beide gerade, hoechstens drei Felder. Der
+       Lanzengang braucht freie Bahn und beginnt erst beim zweiten Feld (das
+       erste waere ein Schritt, kein Sturm); die Faehrte geht durch die eigenen
+       Reihen hindurch. An einem Gegner endet beides mit Schlag, an der Mauer
+       mit dem Schlag gegen sie. */
+    for (const [id, special, durch, ab] of [["lanzengang", "lanze", false, 2], ["faehrte", "pfad", true, 1]]) {
+      if (!hasAbility(piece, id)) continue;
+      for (const [df, dr] of ORTHO)
+        for (let d = 1; d <= 3; d++) {
+          const nf = f + df * d, nr = r + dr * d;
+          if (!onBoard(nf, nr, D)) break;
+          const ni = ix(nf, nr, D);
+          if (!betretbar(D, ni)) { if (d >= ab) mauerschlag(moves, from, ni, piece, { special, consumes: id }); break; }
+          const t = board[ni];
+          if (t && t.color === piece.color) { if (durch) continue; break; }
+          if (d >= ab) push(moves, from, ni, piece, !!t, t ? t.kind : null, { special, weitsprung: true, consumes: id });
+          if (t) break;
+        }
+    }
+
+    if (hasAbility(piece, "heimkehr")) {
+      const heim = D.h - 1 - promoRank(piece.color, D.h);
+      for (let hf = 0; hf < D.w; hf++)
+        if ((hf !== f || heim !== r) && frei(hf, heim))
+          push(moves, from, ix(hf, heim, D), piece, false, null, { special: "blink", consumes: "heimkehr" });
+    }
+
+    /* Platztausch (mit jeder eigenen Figur ausser dem Koenig) und Deckung (mit
+       dem eigenen Koenig, hoechstens zwei Felder entfernt). Ob der Koenig
+       danach im Schach stuende, prueft legalMoves wie bei jedem Zug. */
+    const tauscht = hasAbility(piece, "platztausch"), deckt = hasAbility(piece, "deckung");
+    if ((tauscht || deckt) && piece.kind !== KIND.KING)
+      for (let i = 0; i < board.length; i++) {
+        const t = board[i];
+        if (!t || t === piece || t.color !== piece.color || !beweglich(t)) continue;
+        const koenig = t.kind === KIND.KING;
+        if (koenig) {
+          if (!deckt || Math.max(Math.abs(fileOf(i, D.w) - f), Math.abs(rankOf(i, D.w) - r)) > 2) continue;
+        } else if (!tauscht) continue;
+        if (t.kind === KIND.PAWN && kroenungsReihe(t, from, D2)) continue;
+        if (piece.kind === KIND.PAWN && kroenungsReihe(piece, i, D2)) continue;
+        if (!betretbar(D, i)) continue;
+        push(moves, from, i, piece, false, null, { special: "tausch", consumes: koenig ? "deckung" : "platztausch" });
+      }
+
+    const schiebt = hasAbility(piece, "feldarbeit"), stoesst = hasAbility(piece, "wegstoss"), haut = hasAbility(piece, "standhieb"),
+      baut = hasAbility(piece, "zaunbau");
+    const heilt = hasAbility(piece, "lazarett") && state.captured
+      && (state.captured[piece.color === "w" ? "b" : "w"] || []).includes(KIND.PAWN);
+    if (schiebt || stoesst || haut || baut || heilt)
+      for (const [df, dr] of KING_STEPS) {
+        const af = f + df, ar = r + dr;
+        if (!onBoard(af, ar, D)) continue;
+        const ai = ix(af, ar, D), t = board[ai];
+        if (!t) {
+          if (!betretbar(D, ai)) continue;
+          if (baut) push(moves, from, ai, piece, false, null, { special: "bau", noAdvance: true, consumes: "zaunbau" });
+          if (heilt && ar !== promoRank(piece.color, D.h))
+            push(moves, from, ai, piece, false, null, { special: "lazarett", noAdvance: true, consumes: "lazarett" });
+          continue;
+        }
+        if (t.color === piece.color) {
+          /* Feldarbeit: der eigene Bauer rueckt ein Feld in SEINE Richtung vor */
+          if (schiebt && t.kind === KIND.PAWN && beweglich(t)) {
+            const zr = ar + dirOf(t.color);
+            if (frei(af, zr) && !kroenungsReihe(t, ix(af, zr, D), D2))
+              push(moves, from, ai, piece, false, null, { special: "schub", noAdvance: true, consumes: "feldarbeit", ziel: ix(af, zr, D) });
+          }
+          continue;
+        }
+        if (t.kind === KIND.KING) continue;
+        if (haut) push(moves, from, ai, piece, true, t.kind, { special: "hieb", noAdvance: true, consumes: "standhieb" });
+        if (stoesst && beweglich(t)) {
+          const zf = af + df, zr = ar + dr;
+          if (frei(zf, zr) && !(t.kind === KIND.PAWN && kroenungsReihe(t, ix(zf, zr, D), D2)))
+            push(moves, from, ai, piece, false, null, { special: "stoss", noAdvance: true, consumes: "wegstoss", ziel: ix(zf, zr, D) });
+        }
+      }
+
+    if (hasAbility(piece, "fessel"))
+      for (let dr = -2; dr <= 2; dr++) for (let df = -2; df <= 2; df++) {
+        if (!df && !dr) continue;
+        const tf = f + df, tr = r + dr;
+        if (!onBoard(tf, tr, D)) continue;
+        const t = board[ix(tf, tr, D)];
+        if (!t || t.color === piece.color || t.kind === KIND.KING || !beweglich(t)) continue;
+        if (t.fesselBis != null && t.fesselBis > (state.moveCount || 0)) continue;
+        push(moves, from, ix(tf, tr, D), piece, false, null, { special: "fessel", noAdvance: true, consumes: "fessel" });
+      }
   }
 
   // ── teleport: blink to a nearby empty square ──

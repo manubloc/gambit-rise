@@ -30,6 +30,9 @@ export const ZEHNT_GOLD = [4, 8, 12];
 export const STUDIUM_ANTEIL = [0.15, 0.30, 0.45];
 export const DORF_GOLD_JE_BAUER = 2;
 export const KONTOR_ANTEIL = 0.25;
+/* v1.94.0: MAHLGELD (Mueller) - Gold je geschlagenem gegnerischen Bauern. Wie
+   das Almosen bleibt es bei Niederlage und Remis: es ist am Brett verdient. */
+export const MAHLGELD_JE_BAUER = [2, 3, 4];
 /** Die Kapitelstaffel von Zehnt und Almosen: I-III einfach, IV-VI doppelt, VII-IX dreifach, X-XII vierfach. */
 export const zehntStaffel = (liga) => 1 + Math.floor(((Math.max(1, liga || 1) - 1) % 12) / 3);
 
@@ -46,10 +49,11 @@ const stufeIm = (heer, ab) => {
  * @param {object} a  heer (das gespielte Spielerheer), buende (Liste der eigenen
  *   wachen Buende), eigeneZuege, bauernUebrig, result ("win"|"draw"|"loss"),
  *   resigned, gold (Siegergold der Station, vor jedem Aufschlag), liga
- * @returns {{almosen:number,zins:number,zehnt:number,dorf:number,kontor:number,gold:number,xpAnteil:number}}
+ * (v1.94.0: dazu bauernGeschlagen fuer das Mahlgeld)
+ * @returns {{almosen:number,zins:number,zehnt:number,mahlgeld:number,dorf:number,kontor:number,gold:number,xpAnteil:number}}
  */
 export function zubrot(a = {}) {
-  const leer = { almosen: 0, zins: 0, zehnt: 0, dorf: 0, kontor: 0, gold: 0, xpAnteil: 0 };
+  const leer = { almosen: 0, zins: 0, zehnt: 0, mahlgeld: 0, dorf: 0, kontor: 0, gold: 0, xpAnteil: 0 };
   if (a.resigned) return leer;
   const sieg = a.result === "win";
   const buende = new Set(a.buende || []);
@@ -59,9 +63,11 @@ export function zubrot(a = {}) {
   if (sA) aus.almosen = Math.min(ALMOSEN_DECKEL[sA - 1] * zehntStaffel(a.liga), Math.max(0, a.eigeneZuege || 0));
   if (sZ && basis) aus.zins = Math.round(basis * ZINS_ANTEIL[sZ - 1]);
   if (sT && sieg) aus.zehnt = ZEHNT_GOLD[sT - 1] * zehntStaffel(a.liga);
+  const sM = stufeIm(a.heer, "mahlgeld");
+  if (sM) aus.mahlgeld = MAHLGELD_JE_BAUER[sM - 1] * zehntStaffel(a.liga) * Math.max(0, Math.min(10, a.bauernGeschlagen || 0));
   if (buende.has("dorf")) aus.dorf = DORF_GOLD_JE_BAUER * Math.max(0, a.bauernUebrig || 0);
   if (buende.has("kontor") && basis) aus.kontor = Math.round(basis * KONTOR_ANTEIL);
   if (sS) aus.xpAnteil = STUDIUM_ANTEIL[sS - 1];
-  aus.gold = aus.almosen + aus.zins + aus.zehnt + aus.dorf + aus.kontor;
+  aus.gold = aus.almosen + aus.zins + aus.zehnt + aus.mahlgeld + aus.dorf + aus.kontor;
   return aus;
 }

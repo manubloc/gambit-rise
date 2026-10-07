@@ -112,6 +112,22 @@ const Z = {
   zehnt:               ["krone",   <g key="g"><path d="M7 9h10l1.5 9h-13z" /><path d="M9 9c0-2 1.3-3.5 3-3.5S15 7 15 9" /><path d="M12 12.5v3" /></g>],
   studium:             ["krone",   <g key="g"><path d="M5 7.5c2.6-1 5-1 7 .5 2-1.5 4.4-1.5 7-.5v9.5c-2.6-1-5-1-7 .5-2-1.5-4.4-1.5-7-.5z" /><path d="M12 8v9.5" /></g>],
   fallenkunde:         ["riss",    <g key="g"><path d="M5 15a7 7 0 0 1 14 0" /><path d="M7.5 15l1-2.4 1.2 2.4 1.2-2.4 1.1 2.4 1.1-2.4 1.2 2.4 1.2-2.4 1 2.4" /><path d="M5 15h14" /><circle cx="12" cy="18" r="1" fill="currentColor" stroke="none" /></g>],
+  /* ── v1.94.0: die Kuenste, die auch im Schach wirken ── */
+  feldarbeit:          ["schritt",  <g key="g"><path d="M12 19V6" /><path d="M8 10l4-4 4 4" /><path d="M6 19h12" opacity=".7" /></g>],
+  platztausch:         ["riss",     <g key="g"><path d="M6 9h11" /><path d="M14 6l3 3-3 3" /><path d="M18 15H7" /><path d="M10 12l-3 3 3 3" /></g>],
+  standhieb:           ["schlag",   <g key="g"><path d="M7 7h7v4H7z" /><path d="M11 11l5 8" /><path d="M5 20h8" opacity=".7" /></g>],
+  zaunbau:             ["geschoss", <g key="g"><path d="M7 19V8l1.5-2L10 8v11M14 19V8l1.5-2L17 8v11" /><path d="M5 11h14M5 16h14" /></g>],
+  deckung:             ["krone",    <g key="g"><path d="M12 4.5l6 2v5.5c0 3.2-2.5 5.6-6 7-3.5-1.4-6-3.8-6-7V6.5z" /><path d="M9.2 13l1.4-3.4L12 12l1.4-2.4 1.4 3.4z" /></g>],
+  lanzengang:          ["schlag",   <g key="g"><path d="M4 12h13" /><path d="M14 8l5 4-5 4" /><path d="M4 8v8" opacity=".7" /></g>],
+  wegstoss:            ["schlag",   <g key="g"><circle cx="8" cy="12" r="3" /><path d="M12 12h7" /><path d="M16.5 9l3 3-3 3" /></g>],
+  heimkehr:            ["riss",     <g key="g"><path d="M5 12l7-6 7 6" /><path d="M7.5 11v7h9v-7" /><path d="M12 18v-4" /></g>],
+  pirsch:              ["sprung",   <g key="g"><path d="M7 18V7h6" /><path d="M10.5 4.5L13 7l-2.5 2.5" /><circle cx="7" cy="18" r="1.3" fill="currentColor" stroke="none" /><circle cx="17" cy="7" r="1.3" /></g>],
+  uebersprung:         ["sprung",   <g key="g"><path d="M5 17c1.5-8 12.5-8 14 0" /><path d="M16.5 14.5L19 17l2.4-2.6" /><rect x="10" y="14.5" width="4" height="4" rx="1" /></g>],
+  fessel:              ["riss",     <g key="g"><rect x="4.5" y="9.5" width="7" height="5" rx="2.5" /><rect x="12.5" y="9.5" width="7" height="5" rx="2.5" /><path d="M10 12h4" /></g>],
+  lazarett:            ["leben",    <g key="g"><path d="M12 6v12M6 12h12" /><circle cx="12" cy="12" r="8" opacity=".7" /></g>],
+  faehrte:             ["schritt",  <g key="g"><path d="M4 12h3M9.5 12h3M15 12h3" /><path d="M17 9l3 3-3 3" /><rect x="8.5" y="6" width="3" height="3" rx=".8" opacity=".7" /></g>],
+  schlachtbank:        ["geschoss", <g key="g"><path d="M5 18h14" /><path d="M7 18v-6M12 18v-9M17 18v-6" /><path d="M5 14h14" opacity=".7" /></g>],
+  mahlgeld:            ["krone",    <g key="g"><circle cx="12" cy="12" r="3" /><path d="M12 4v5M12 15v5M4 12h5M15 12h5" /><path d="M6.5 6.5l3 3M14.5 14.5l3 3M17.5 6.5l-3 3M9.5 14.5l-3 3" opacity=".7" /></g>],
 };
 
 /** Das Zeichen einer Fähigkeit - ein abgerundetes Viereck wie die Kachel-Kästen

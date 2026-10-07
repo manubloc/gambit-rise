@@ -71,6 +71,7 @@ jobs:
       - run: node tools/pruefe-leiste.mjs
       - run: node tools/pruefe-brettruhe.mjs
       - run: node tools/pruefe-hofzoom.mjs
+      - run: node tools/pruefe-kunst.mjs
       - uses: actions/upload-artifact@v7
         with:
           name: gambit-rise-singlefile

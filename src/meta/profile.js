@@ -24,7 +24,7 @@ export function defaultProfile() {
     sp: 0,
     claims: {},
     items: { potion: 0 },
-    campaign: { league: 1, cleared: [], unlocked: [], dupes: {}, meister20: true, figuren91: true }, // figuren91: v1.91.0, siehe figurenUmbau; per-league clears; unlocks + duplication stars persist; meister20: v1.90.20, siehe migrate
+    campaign: { league: 1, cleared: [], unlocked: [], dupes: {}, meister20: true, figuren91: true, kunst94: true }, // figuren91: v1.91.0, siehe figurenUmbau; per-league clears; unlocks + duplication stars persist; meister20: v1.90.20, siehe migrate
     online: { id: rid(6), secret: rid(18), privacy: "public", server: "" }, // multiplayer identity
     difficulty: "easy",
     stats: emptyStats(),
@@ -396,7 +396,43 @@ export function migrate(p) {
   };
   /* v1.91.0: NACH meister20 - der Umbau liest leaguesWon und die fertige Liste */
   if (brauchtUmbau) delete fertig.campaign.figuren91;
-  return figurenUmbau(fertig);
+  return faehigkeitenUmbau(figurenUmbau(fertig));
+}
+
+/* ── v1.94.0: DIE LEITERN SIND UMGEBAUT - GELERNTES ZIEHT NACH ───────────────
+   Besitzer 7.10.: die ersten Sprossen jeder Figur muessen im Schach wirken.
+   Dafuer sind 41 Leitern neu gesetzt (content/characters.js): Sprossen fielen
+   weg (z. B. Bollwerk und Lebensraub der Baeuerin), andere liegen jetzt hoeher
+   (Blinzeln des Spaehers: Stufe 5 statt 3). Einmalig (Merkzeichen
+   campaign.kunst94; neue Staende tragen es von Anfang an):
+     - was nicht mehr auf der Leiter steht, wird verlernt und ERSTATTET
+     - was jetzt eine hoehere Stufe der Figur verlangt, als sie hat, ebenso -
+       sonst haette der Spieler bezahlt und die Faehigkeit wirkte nicht
+   Erstattet wird wie in figurenUmbau: 2 Punkte je Faehigkeit, 3 je weiterer
+   Stufe. Das ist bei den alten Sprossen (Stufe 3 bis 9, Preis 2 bis 5) eher
+   knapp als grosszuegig gerechnet; die erste Sprosse kostet dafuer nur noch
+   einen Punkt. Monster ("X:...") sind hier nicht betroffen. */
+export function faehigkeitenUmbau(p) {
+  const camp = (p && p.campaign) || {};
+  if (camp.kunst94 === true) return p;
+  const pieces = { ...(p.pieces || {}) };
+  let sp = 0;
+  if (pieces.abilities) {
+    const ab = { ...pieces.abilities }, st = { ...(pieces.stufen || {}) };
+    for (const [cid, liste] of Object.entries(ab)) {
+      if (cid.startsWith("X:") || !Array.isArray(liste) || !CHARACTERS[cid]) continue;
+      const stufe = (pieces.levels && pieces.levels[cid]) || 1;
+      const leiter = new Map((CHARACTERS[cid].ladder || []).filter((e) => e.ability).map((e) => [e.ability, e.level]));
+      const haelt = (a) => leiter.has(a) && leiter.get(a) <= stufe;
+      const bleibt = liste.filter(haelt);
+      if (bleibt.length === liste.length) continue;
+      for (const a of liste) if (!haelt(a)) sp += 2 + 3 * Math.max(0, ((st[cid] || {})[a] || 1) - 1);
+      if (bleibt.length) ab[cid] = bleibt; else delete ab[cid];
+      if (st[cid]) { const s2 = {}; for (const [a, n] of Object.entries(st[cid])) if (haelt(a)) s2[a] = n; if (Object.keys(s2).length) st[cid] = s2; else delete st[cid]; }
+    }
+    pieces.abilities = ab; if (pieces.stufen) pieces.stufen = st;
+  }
+  return { ...p, sp: (p.sp || 0) + sp, pieces, campaign: { ...camp, kunst94: true } };
 }
 /* v1.90.18 (A40): loadProfile und saveProfile sind fort - keiner hatte noch
    einen Aufrufer (App.jsx importierte loadProfile nur, den Spiegel "profile"

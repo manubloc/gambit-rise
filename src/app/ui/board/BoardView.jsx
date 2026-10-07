@@ -674,7 +674,7 @@ export function BoardView({ lang = "de", state, onMove, interactive, lastMove, m
       const falleRoh = state?.fallen ? state.fallen[i] : null;
       const falleHier = falleRoh && falleSichtbar(falleRoh, pov) ? falleRoh : null;
       cells.push(
-        <div key={i} data-zelle={i} onClick={() => tap(i)} style={{ position: "relative",
+        <div key={i} data-zelle={i} data-figur={state.board[i] && state.board[i].kind !== "D+" ? `${state.board[i].color}:${state.board[i].charId || state.board[i].kind}` : undefined} onClick={() => tap(i)} style={{ position: "relative",
           // the flat colour + a soft diagonal light stand INSTANTLY — no loading
           // state at all; the marble whisper fades in per square once every slab
           // is preloaded, so nothing ever pops
