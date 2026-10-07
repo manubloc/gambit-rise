@@ -1,5 +1,19 @@
 # Changelog - Gambit Rise
 
+## 1.94.2 - Kampfleiste: keine gesperrte Karte mehr, Namen mittig
+
+Besitzer 7.10., mit Handyfoto ("PHASE Lv 3" mit Schloss unter dem Laeufer):
+"wenn Faehigkeiten noch nicht freigeschaltet sind, auch den Button weg ...
+alle Buttons gleich gross, und bei einzeilig mittig vertikal ausrichten."
+
+- Die Karte der naechsten, noch gesperrten Faehigkeit ist fort. Der Satz
+  darunter (wo die Figur etwas lernt) bleibt.
+- Der Name jeder Karte steht in einem Kasten von immer zwei Zeilen Hoehe und
+  sitzt darin mittig; die Fusszeile ("antippen", "dauerhaft") steht damit bei
+  jeder Karte auf derselben Hoehe. Breite und Hoehe waren schon fest.
+- Brettruhe-Probe: acht gleiche Messungen statt vier, bevor die Ruhelage gilt -
+  unter Last hatte sie die Ruhe mitten im Anflug des Bretts gemessen.
+
 ## 1.94.1 - Bestien zurueck unter 60 %, Fassungsabgleich im Duell, neue Figuren auf Karten
 
 Offene Punkte nach v1.94.0, abgearbeitet am 7.10.:

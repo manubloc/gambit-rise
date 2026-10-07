@@ -77,7 +77,11 @@ async function lageFahren(art, bw, bh) {
     if (!da) break; await page.waitForTimeout(350); } };
   await fensterZu();
   let alt = null, still = 0;
-  for (let k = 0; k < 60 && still < 4; k++) { await page.waitForTimeout(150); const m = await mass();
+  /* v1.94.2: ACHT gleiche Messungen (1,2 s) statt vier. Gemessen am 7.10.: unter
+     Last stockte der Anflug des Bretts, vier gleiche Werte kamen MITTEN in der
+     Skalierung zusammen (610 statt 720 px), und jede spaetere Messung galt als
+     "das Brett ist gewachsen" - eine rote Pruefung von 150, allein wiederholt gruen. */
+  for (let k = 0; k < 90 && still < 8; k++) { await page.waitForTimeout(150); const m = await mass();
     still = alt && Math.abs(m.w - alt.w) < 0.05 && Math.abs(m.t - alt.t) < 0.05 && Math.abs(m.l - alt.l) < 0.05 ? still + 1 : 0; alt = m; }
   await fensterZu(); await page.waitForTimeout(300);
   const ruhe = await mass();

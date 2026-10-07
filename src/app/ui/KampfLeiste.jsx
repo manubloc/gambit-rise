@@ -118,6 +118,8 @@ export const nameGroesse = (label) => {
   return Math.max(6.5, Math.min(9, (KACHEL_TEXT - 2) / (Math.max(1, lang) * 0.78)));
 };
 
+/* zwei Zeilen der groessten Namensschrift (9 px x 1,15) */
+const NAME_KASTEN = 21;
 function Karte({ icon, label, unter, dry, gruen, active, lock, onTap, scharf = false, fuss = null }) {
   return (
     /* v1.89.0 (Besitzer: "Talent-Kacheln: Kontur Lila; wenn man eine auswaehlt,
@@ -146,10 +148,17 @@ function Karte({ icon, label, unter, dry, gruen, active, lock, onTap, scharf = f
           nicht ganz auf die Kachel passt" - STOSSSCHLAG stand als STOSSSCHLA
           da): die Kachel ist 78 statt 66 breit (drei passen bei 390 px neben die Figur), und die Schrift richtet sich
           nach dem LAENGSTEN WORT des Namens (ein Wort bricht nicht um). */}
+      {/* v1.94.2 (Besitzer 7.10.: "alle Buttons gleich gross, und wenn eine
+          Faehigkeit zwei Zeilen braucht, dann bei einzeilig mittig vertikal
+          ausrichten"): der Name steht in einem Kasten von IMMER zwei Zeilen
+          Hoehe (NAME_KASTEN) und sitzt darin mittig. Vorher begann ein
+          einzeiliger Name oben, und die Fusszeile ("antippen") stand je nach
+          Namenslaenge auf verschiedener Hoehe. */}
+      <span data-kachel-namenkasten style={{ height: NAME_KASTEN, flex: "0 0 auto", display: "flex", alignItems: "center", justifyContent: "center" }}>
       <span data-kachel-name style={{ fontSize: nameGroesse(label), fontWeight: 800, letterSpacing: ".02em", textTransform: "uppercase",
         color: lock ? T.faint : gruen ? "#9fe0b0" : T.goldBright, lineHeight: 1.15, textAlign: "center",
         maxWidth: KACHEL_TEXT, flex: "0 0 auto", overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
-        {label}</span>
+        {label}</span></span>
       {unter && <span style={{ fontSize: 8.5, fontWeight: 800, color: T.faint }}>{unter}</span>}
       {/* v1.38.0: die Fusszeile der Pillen zog mit um - dauerhaft, antippen,
           eingesetzt. Sie sagt in einem Wort, was die Karte kann. */}
@@ -217,9 +226,11 @@ export function KampfLeiste({ state, inspect, en, myColor = "w", banner = false,
 
   const ch = pc ? Object.values(CHARACTERS).find((c) => c.kind === pc.kind) : null;
   const nm = pc ? (pc.name ? (en ? pc.name.en : pc.name.de) : ch ? (en ? ch.nameEn : ch.nameDe) : pc.kind) : "";
-  // DIE NAECHSTE GESPERRTE: der erste Leiter-Eintrag der Figur, dessen
-  // Faehigkeit sie noch nicht traegt - nur EINER, wie gewuenscht. Der Held
-  // traegt seinen eigenen Baum im Hofstaat und bleibt hier ohne Schloss.
+  /* v1.94.2 (Besitzer 7.10., Handyfoto mit "PHASE Lv 3" unter dem Laeufer:
+     "wenn Faehigkeiten noch nicht freigeschaltet sind, auch den Button weg"):
+     die Karte mit dem Schloss ist fort. Ob die Figur spaeter noch etwas lernt,
+     wird weiter gebraucht - fuer den Satz unter der Reihe ("lernt sie im
+     Hofstaat") statt "Keine Talente". */
   const naechste = (pc && eigen && !pc.hero && ch?.ladder)
     ? ch.ladder
         .filter((e) => e.ability && ABILITIES[e.ability]?.live && !abIds.includes(e.ability)
@@ -341,7 +352,7 @@ export function KampfLeiste({ state, inspect, en, myColor = "w", banner = false,
               WINZIG in der besonderen Schrift oben links, nimmt keinen Platz
               und traegt keine Pille; die Kugeln haengen klein daneben. */}
           {/* v0.71.12: der Kopf-Block oben links ist fort - alles wohnt an der Figur. */}
-          {/* DIE KARTENREIHE: Sonderzuege · Faehigkeiten · die naechste Gesperrte */}
+          {/* DIE KARTENREIHE: Sonderzuege · Faehigkeiten (v1.94.2: keine gesperrte Karte mehr) */}
           <div style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 2, scrollbarWidth: "none" }}>
             {sonder.map((k) => (
               <Karte key={k} icon={SONDER[k].icon} label={en ? SONDER[k].nameEn : SONDER[k].nameDe} gruen
@@ -365,13 +376,6 @@ export function KampfLeiste({ state, inspect, en, myColor = "w", banner = false,
                   setOffen((o) => (o?.id === id && (!schaltbar(id) || scharf === id)) ? null : { art: "ab", id, nebel: !gezeigt });
                 }} />
             ); })}
-            {naechste && (
-              <Karte lock
-                label={en ? ABILITIES[naechste.ability].nameEn : ABILITIES[naechste.ability].nameDe}
-                unter={`Lv ${naechste.level}`}
-                active={offen?.art === "lock" && offen.id === naechste.ability}
-                onTap={() => setOffen((o) => o?.id === naechste.ability ? null : { art: "lock", id: naechste.ability, level: naechste.level })} />
-            )}
             {sonder.length === 0 && abIds.length === 0 && !naechste && (
               <span style={{ fontSize: 11.5, color: T.faint, alignSelf: "center" }}>
                 {en ? "No talents — this piece fights with its movement alone."
