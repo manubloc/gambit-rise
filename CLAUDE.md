@@ -44,7 +44,7 @@ gambitrise.com zeigt darauf).
   `PW_CHROMIUM`; ohne die Variable gilt der Pfad des Cloud-Containers. Lokal:
   `npx playwright install chromium` und `PW_CHROMIUM=<Pfad zur chrome-Datei>`.
 - `npm test` — volle Batterie. MUSS **31 Suiten / 3015 Prüfungen** melden
-  (Stand v1.94.2; der Runner stoppt nach der ersten roten Suite, also
+  (Stand v1.95.0; der Runner stoppt nach der ersten roten Suite, also
   Suitenzahl prüfen, nicht nur Assertions! **Zählweise seit v1.90.18
   (Audit A74): JEDE Suite der Kette meldet eine RESULT-Zeile** — alle Zeilen
   `RESULT…: N passed` summieren; test_balance meldet zwei, darum stehen im
@@ -547,6 +547,22 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
   — sonst steht die Figur wieder auf ihrem gemalten grauen Teller. Bewusst ohne
   Band: Gegnerbildnis über dem Brett (Sockel verdeckt), 22-px-Köpfe der
   Bundtafel, Händler und Schatzkammer (`hatBand`), die Gambit-Marke der Karte.
+- **Bauer und Gambit (v1.95.0): "Junger Knecht", 3 + 6 Stufen** - Quellen in
+  `archiv/bilder/figuren-hq/` (`pawn`, `pawn-t2`, `pawn-t3`, `gambit`, `gambit-t1`
+  bis `gambit-t6`; `painted-gambit` und `painted-gambit-t1` sind dasselbe Bild),
+  die alten in `archiv/ausgemustert/v1.95.0/`. **Gelernt beim Freistellen:**
+  Silber und rote Umhaenge auf MAGENTA reissen Loecher (das Metall spiegelt den
+  Grund) - die Metallstufen entstehen darum auf GRUENEM Grund (Kontext: "replace
+  the magenta background with chroma-key green, nothing else changes", die Figur
+  bleibt dabei erstaunlich stabil) und werden mit `freistellen.py gruen
+  taschen,sockelmitte` geschnitten; Streuinseln (4 px unter dem Sockel) vorher
+  entfernen, sonst stimmen Hoehe und Fussmitte nicht (am Visier-Gambit
+  gemessen); den violetten Stich im Silber danach per Farbton (235-328 Grad)
+  entsaettigen. **Lange Kontext-Ketten werden koernig und rauschen** - jede Stufe
+  moeglichst direkt aus einer SAUBEREN Vorstufe (Gambit 4 bis 6 aus Stufe 2/3),
+  eine Aenderung je Auftrag, bei Metall auf Gruen. Tellerhoehe: der Automat
+  fand bei gambit-t6 10 statt 36 (schmalere Schienbeine) - Handwert in
+  `scripts/messe_tellerkante.py`, Gegenprobe am Breitenverlauf.
 - **Zugbild (MoveDiagram), v1.91.2: KEINE LINIEN, DER ZUG STEHT ALS SATZ
   DANEBEN.** Der Besitzer hat das Springerbild viermal für falsch gehalten —
   zuerst die acht Felder allein (v1.90.25), dann die L-Linien (v1.90.35: je
@@ -637,7 +653,7 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
   Auswahl-Lichtspektakel.
 - Alles Optionale abschaltbar (Klang, Online).
 
-## Offene Baustellen (Stand v1.94.2, 7.10.2026)
+## Offene Baustellen (Stand v1.95.0, 7.10.2026)
 
 **Einstieg für jede neue Sitzung: `design/CHAT-EINSTIEG-2026-09-27.md`** (zehn
 Minuten, mit dem Startsatz für den Chat), dann **`design/UEBERGABE-2026-09-27.md`** — Stand,
@@ -668,8 +684,8 @@ Hier nur der Überblick:
   umgestellt, nicht nachgemessen). Store-Eintrag nennt noch 27 Helden / 25
   Bestien — neuer Text braucht die Freigabe des Besitzers.
 - **Nach dem Figuren-Umbau offen:** (die Kronenglut für den neuen Osric
-  entfällt — Besitzer 7.10.: „kannst du weglassen“) · die Startseite zeigt die neuen Figuren auf dem ersten Schirm (v1.93.2) und auf
-  vier Karten (v1.94.1), aber noch auf keinem Brett · der Store-Eintrag nennt noch 27 Helden und 25
+  entfällt — Besitzer 7.10.: „kannst du weglassen“) · die Startseite zeigt die neuen Figuren auf dem ersten Schirm (v1.93.2), auf
+  vier Karten (v1.94.1) und auf einem Brett (Wolkenjoch, v1.95.0) · der Store-Eintrag nennt noch 27 Helden und 25
   Bestien · der Gegner bekommt keine Bünde.
 
 - **Monster überarbeiten, vier je Runde** (Besitzer 1.10.): per fal-Edit am

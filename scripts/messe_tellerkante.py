@@ -89,9 +89,15 @@ ORDNER = "src/app/ui/assets/painted"
 #             Abgelesen am vergroesserten Bild (Vorderkante der Standflaeche):
 #             Henker y 500, Samurai y 500, Corvan (boss-b27) y 505,
 #             Donnerkraehe (boss-b43) y 502; Boden jeweils 555.
-HANDWERTE = {"boss-b22": 48, "gambit-t2": 45, "boss-b25": 24, "boss-b08": 49, "boss-b18": 44,
+HANDWERTE = {"gambit-t6": 36, "boss-b22": 48, "boss-b25": 24, "boss-b08": 49, "boss-b18": 44,
   "executioner": 55, "samurai": 55, "boss-b27": 50, "boss-b43": 53,
   "boss-b36": 48}   # Osric: der Mantel verdeckt die Standflaeche, der Automat fand 120; Vorderkante y 507   # b18 seit v1.90.32 gestaucht: Wand von y 530 bis 486 auf 252-260 px, bei 482 noch 248, bei 478 nur 233
+#   gambit-t6 (v1.95.0, Vollrüstung mit Visier): der Automat fand 10, weil die
+#             Schienbeine knapp über dem Teller schmaler sind (244 px statt 250).
+#             Am Breitenverlauf abgelesen: die Wand steht von 24 bis 60 px über dem
+#             Boden auf 244-250 px, wie bei den anderen neun Figuren dieses
+#             Sockels (Automat: 36); die Oberfläche beginnt bei 66 px (241 px).
+#             Vorderkante: 555 - 36 = 519 = (529,5 - 36) + ry 25,5 der oberen Ellipse.
 MASSE = json.load(open("src/app/ui/board/sockelband.json"))
 
 def kante(fid, m):

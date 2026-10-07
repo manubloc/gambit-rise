@@ -34,6 +34,16 @@
       "g1f3",
       "d7d6",
       "d2d4"
+    ],
+    "heer": [
+      "samurai",
+      "cavalier",
+      "monk",
+      "queen",
+      "king",
+      "huntress",
+      "knight",
+      "smith"
     ]
   }
 }

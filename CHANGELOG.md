@@ -1,5 +1,38 @@
 # Changelog - Gambit Rise
 
+## 1.95.0 - Bauer und Gambit neu gezeichnet (Junger Knecht, neun Stufen)
+
+Besitzer 7.10. ("den Gambit und die Bauern vielleicht doch noch mal alle neu
+zeichnen ... die Baeuerin ist jetzt so ein bisschen neu"), nach sechs gezeigten
+Fassungen und seiner Freigabe am Abend.
+
+- **Bauer, drei Stufen:** ein junger Knecht als Gegenstueck zur Baeuerin -
+  olivgruener Kittel, braune Kappe, Heugabel mit drei Eisenzinken (Stufe 1);
+  brauner Kapuzenumhang (2); Speer mit Eisenspitze statt Gabel (3).
+- **Gambit, sechs Stufen:** dieselbe Figur in warmem Gold, mit rotem Halstuch
+  und Stern (1); brauner Kapuzenumhang (2); Speer, Lederharnisch mit Goldrand
+  und brauner Umhang (3); Stahlhelm mit rotem Kamm, Schulterplatten, roter
+  Umhang und Metalllanze mit Goldband (4); Ganzkoerperruestung mit offenem
+  Helm (5); Vollruestung mit Goldrand und geschlossenem Visier (6).
+  Umgesetzt sind die Wuensche des Besitzers: Guertel braun statt weiss, die
+  Lanze steht ueberall aufrecht, der Umhang ist ab Stufe 2 da.
+- **Eingebaut wie ueblich gemessen:** Sockelband (`sockelband.json`) und
+  Figurenfarbe nur fuer diese zehn Eintraege; die Tellerhoehe von gambit-t6
+  steht von Hand (36, Handwert in `scripts/messe_tellerkante.py`: der Automat
+  fand 10, weil die Schienbeine knapp ueber dem Teller schmaler sind) - der
+  alte Handwert fuer gambit-t2 galt dem alten Bild und ist gestrichen. Die
+  alten Bilder liegen in `archiv/ausgemustert/v1.95.0/`.
+- **Freistellen:** die Metallstufen 4 bis 6 sind auf GRUENEM Grund
+  entstanden (der Magenta-Grund spiegelte sich im Silber und riss beim
+  Freistellen Loecher in Umhang und Knie); den violetten Stich im Metall hat
+  ein Rechenschritt entfernt, die Figur bleibt sonst, wie das Modell sie malte.
+  Vier-Pixel-Reste unter dem Sockel verzerren sonst Hoehe und Fussmitte.
+- **Startseite:** held-pawn neu, das Brett im Wolkenjoch zeigt Samurai, Reiter,
+  Moench, Jaegerin und Schmied (die neuen Figuren standen bisher auf keinem
+  Brett), die Zahl der Faehigkeiten stimmt (50 statt 32), und ein Satz sagt,
+  dass die ersten Kuenste jeder Leiter schon im Schach der Kampagne wirken.
+- Gemessen: Figurenmass-Probe 94 Figurenarten, 0 ausserhalb des Masses.
+
 ## 1.94.2 - Kampfleiste: keine gesperrte Karte mehr, Namen mittig
 
 Besitzer 7.10., mit Handyfoto ("PHASE Lv 3" mit Schloss unter dem Laeufer):

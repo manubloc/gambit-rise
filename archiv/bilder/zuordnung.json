@@ -6,9 +6,9 @@
   "moeglich": 0.7
  },
  "vonHand": 12,
- "gesamt": 475,
- "sicher": 235,
- "moeglich": 33,
+ "gesamt": 476,
+ "sicher": 253,
+ "moeglich": 16,
  "ohneOriginal": 207,
  "treffer": {
   "bg-hall.carved.webp": {
@@ -780,7 +780,7 @@
    "kante": 1536
   },
   "karten/karte-wildnis.webp": {
-   "original": "figuren-hq/karte-wildnis.png",
+   "original": "kulissen-hq/bund-faehrte.png",
    "wert": 0.999,
    "abstand": 0.0,
    "sicher": true,
@@ -964,7 +964,7 @@
    "kante": 1248
   },
   "kulissen/bund-faehrte.webp": {
-   "original": "figuren-hq/karte-wildnis.png",
+   "original": "kulissen-hq/bund-faehrte.png",
    "wert": 0.999,
    "abstand": 0.0,
    "sicher": true,
@@ -1638,7 +1638,7 @@
   "painted/klein/painted-amazon.webp": {
    "original": "figuren-hq/amazon.png",
    "wert": 0.789,
-   "abstand": 0.309,
+   "abstand": 0.24,
    "sicher": false,
    "mass": [
     1024,
@@ -2211,101 +2211,117 @@
    "hq": true,
    "kante": 576
   },
-  "painted/klein/painted-gambit-t2.webp": {
-   "original": "bauern-stufen/gambit-t2-stab-hq.png",
-   "wert": 0.796,
+  "painted/klein/painted-gambit-t1.webp": {
+   "original": "figuren-hq/gambit-t1.png",
+   "wert": 0.968,
    "abstand": 0.0,
-   "sicher": false,
+   "sicher": true,
    "mass": [
-    1024,
-    1536
+    576,
+    576
    ],
    "massSpiel": [
     192,
     192
    ],
    "hq": true,
-   "kante": 1536
+   "kante": 576
+  },
+  "painted/klein/painted-gambit-t2.webp": {
+   "original": "figuren-hq/gambit-t2.png",
+   "wert": 0.983,
+   "abstand": 0.199,
+   "sicher": true,
+   "mass": [
+    576,
+    576
+   ],
+   "massSpiel": [
+    192,
+    192
+   ],
+   "hq": true,
+   "kante": 576
   },
   "painted/klein/painted-gambit-t3.webp": {
    "original": "figuren-hq/gambit-t3.png",
-   "wert": 0.865,
-   "abstand": 0.0,
-   "sicher": false,
+   "wert": 0.972,
+   "abstand": 0.112,
+   "sicher": true,
    "mass": [
-    1024,
-    1536
+    576,
+    576
    ],
    "massSpiel": [
     192,
     192
    ],
    "hq": true,
-   "kante": 1536
+   "kante": 576
   },
   "painted/klein/painted-gambit-t4.webp": {
    "original": "figuren-hq/gambit-t4.png",
-   "wert": 0.854,
-   "abstand": 0.0,
-   "sicher": false,
+   "wert": 0.958,
+   "abstand": 0.136,
+   "sicher": true,
    "mass": [
-    1024,
-    1536
+    576,
+    576
    ],
    "massSpiel": [
     192,
     192
    ],
    "hq": true,
-   "kante": 1536
+   "kante": 576
   },
   "painted/klein/painted-gambit-t5.webp": {
-   "original": "figuren-hq/gambit-t6.png",
-   "wert": 0.861,
-   "abstand": 0.0,
-   "sicher": false,
+   "original": "figuren-hq/gambit-t5.png",
+   "wert": 0.957,
+   "abstand": 0.176,
+   "sicher": true,
    "mass": [
-    1024,
-    1536
+    576,
+    576
    ],
    "massSpiel": [
     192,
     192
    ],
    "hq": true,
-   "kante": 1536
+   "kante": 576
   },
   "painted/klein/painted-gambit-t6.webp": {
    "original": "figuren-hq/gambit-t6.png",
-   "wert": 0.829,
-   "abstand": 0.0,
-   "sicher": false,
+   "wert": 0.975,
+   "abstand": 0.197,
+   "sicher": true,
    "mass": [
-    1024,
-    1536
+    576,
+    576
    ],
    "massSpiel": [
     192,
     192
    ],
    "hq": true,
-   "kante": 1536
+   "kante": 576
   },
   "painted/klein/painted-gambit.webp": {
    "original": "figuren-hq/gambit-t1.png",
-   "wert": 0.826,
+   "wert": 0.968,
    "abstand": 0.0,
-   "sicher": false,
+   "sicher": true,
    "mass": [
-    1024,
-    1536
+    576,
+    576
    ],
    "massSpiel": [
     192,
     192
    ],
    "hq": true,
-   "kante": 1536
+   "kante": 576
   },
   "painted/klein/painted-gladiator.webp": {
    "original": "figuren-hq/gladiator.png",
@@ -2422,7 +2438,7 @@
   "painted/klein/painted-mage.webp": {
    "original": "figuren-hq/mage.png",
    "wert": 0.7,
-   "abstand": 0.205,
+   "abstand": 0.184,
    "sicher": false,
    "mass": [
     1024,
@@ -2468,52 +2484,52 @@
    "kante": 576
   },
   "painted/klein/painted-pawn-t2.webp": {
-   "original": "bauern-stufen/gruen-st2-stab.png",
-   "wert": 0.85,
-   "abstand": 0.089,
-   "sicher": false,
-   "mass": [
-    1024,
-    1536
-   ],
-   "massSpiel": [
-    192,
-    192
-   ],
-   "hq": true,
-   "kante": 1536
-  },
-  "painted/klein/painted-pawn-t3.webp": {
-   "original": "bauern-stufen/gruen-st3-speer.png",
-   "wert": 0.878,
-   "abstand": 0.156,
-   "sicher": false,
-   "mass": [
-    1024,
-    1536
-   ],
-   "massSpiel": [
-    192,
-    192
-   ],
-   "hq": true,
-   "kante": 1536
-  },
-  "painted/klein/painted-pawn.webp": {
-   "original": "bauern-stufen/gruen-st1-muetze.png",
-   "wert": 0.982,
-   "abstand": 0.277,
+   "original": "figuren-hq/pawn-t2.png",
+   "wert": 0.988,
+   "abstand": 0.147,
    "sicher": true,
    "mass": [
-    1024,
-    1536
+    576,
+    576
    ],
    "massSpiel": [
     192,
     192
    ],
    "hq": true,
-   "kante": 1536
+   "kante": 576
+  },
+  "painted/klein/painted-pawn-t3.webp": {
+   "original": "figuren-hq/pawn-t3.png",
+   "wert": 0.989,
+   "abstand": 0.137,
+   "sicher": true,
+   "mass": [
+    576,
+    576
+   ],
+   "massSpiel": [
+    192,
+    192
+   ],
+   "hq": true,
+   "kante": 576
+  },
+  "painted/klein/painted-pawn.webp": {
+   "original": "figuren-hq/pawn.png",
+   "wert": 0.968,
+   "abstand": 0.013,
+   "sicher": true,
+   "mass": [
+    576,
+    576
+   ],
+   "massSpiel": [
+    192,
+    192
+   ],
+   "hq": true,
+   "kante": 576
   },
   "painted/klein/painted-ranger.webp": {
    "original": "figuren-hq/ranger.png",
@@ -2694,7 +2710,7 @@
   "painted/painted-amazon.webp": {
    "original": "figuren-hq/amazon.png",
    "wert": 0.776,
-   "abstand": 0.296,
+   "abstand": 0.229,
    "sicher": false,
    "mass": [
     1024,
@@ -3269,115 +3285,115 @@
   },
   "painted/painted-gambit-t1.webp": {
    "original": "figuren-hq/gambit-t1.png",
-   "wert": 0.842,
+   "wert": 1.0,
    "abstand": 0.0,
-   "sicher": false,
+   "sicher": true,
    "mass": [
-    1024,
-    1536
+    576,
+    576
    ],
    "massSpiel": [
     576,
     576
    ],
    "hq": true,
-   "kante": 1536
+   "kante": 576
   },
   "painted/painted-gambit-t2.webp": {
-   "original": "bauern-stufen/gambit-t2-stab-hq.png",
-   "wert": 0.813,
-   "abstand": 0.0,
-   "sicher": false,
+   "original": "figuren-hq/gambit-t2.png",
+   "wert": 1.0,
+   "abstand": 0.219,
+   "sicher": true,
    "mass": [
-    1024,
-    1536
+    576,
+    576
    ],
    "massSpiel": [
     576,
     576
    ],
    "hq": true,
-   "kante": 1536
+   "kante": 576
   },
   "painted/painted-gambit-t3.webp": {
    "original": "figuren-hq/gambit-t3.png",
-   "wert": 0.874,
-   "abstand": 0.0,
-   "sicher": false,
+   "wert": 1.0,
+   "abstand": 0.137,
+   "sicher": true,
    "mass": [
-    1024,
-    1536
+    576,
+    576
    ],
    "massSpiel": [
     576,
     576
    ],
    "hq": true,
-   "kante": 1536
+   "kante": 576
   },
   "painted/painted-gambit-t4.webp": {
    "original": "figuren-hq/gambit-t4.png",
-   "wert": 0.867,
-   "abstand": 0.0,
-   "sicher": false,
+   "wert": 1.0,
+   "abstand": 0.137,
+   "sicher": true,
    "mass": [
-    1024,
-    1536
+    576,
+    576
    ],
    "massSpiel": [
     576,
     576
    ],
    "hq": true,
-   "kante": 1536
+   "kante": 576
   },
   "painted/painted-gambit-t5.webp": {
-   "original": "figuren-hq/gambit-t6.png",
-   "wert": 0.853,
-   "abstand": 0.0,
-   "sicher": false,
+   "original": "figuren-hq/gambit-t5.png",
+   "wert": 1.0,
+   "abstand": 0.214,
+   "sicher": true,
    "mass": [
-    1024,
-    1536
+    576,
+    576
    ],
    "massSpiel": [
     576,
     576
    ],
    "hq": true,
-   "kante": 1536
+   "kante": 576
   },
   "painted/painted-gambit-t6.webp": {
    "original": "figuren-hq/gambit-t6.png",
-   "wert": 0.845,
-   "abstand": 0.0,
-   "sicher": false,
+   "wert": 1.0,
+   "abstand": 0.214,
+   "sicher": true,
    "mass": [
-    1024,
-    1536
+    576,
+    576
    ],
    "massSpiel": [
     576,
     576
    ],
    "hq": true,
-   "kante": 1536
+   "kante": 576
   },
   "painted/painted-gambit.webp": {
    "original": "figuren-hq/gambit-t1.png",
-   "wert": 0.842,
+   "wert": 1.0,
    "abstand": 0.0,
-   "sicher": false,
+   "sicher": true,
    "mass": [
-    1024,
-    1536
+    576,
+    576
    ],
    "massSpiel": [
     576,
     576
    ],
    "hq": true,
-   "kante": 1536
+   "kante": 576
   },
   "painted/painted-gladiator.webp": {
    "original": "figuren-hq/gladiator.png",
@@ -3494,7 +3510,7 @@
   "painted/painted-mage.webp": {
    "original": "figuren-hq/mage.png",
    "wert": 0.715,
-   "abstand": 0.219,
+   "abstand": 0.2,
    "sicher": false,
    "mass": [
     1024,
@@ -3540,52 +3556,52 @@
    "kante": 576
   },
   "painted/painted-pawn-t2.webp": {
-   "original": "bauern-stufen/gruen-st2-stab.png",
-   "wert": 0.882,
-   "abstand": 0.105,
-   "sicher": false,
-   "mass": [
-    1024,
-    1536
-   ],
-   "massSpiel": [
-    576,
-    576
-   ],
-   "hq": true,
-   "kante": 1536
-  },
-  "painted/painted-pawn-t3.webp": {
-   "original": "bauern-stufen/gruen-st3-speer.png",
-   "wert": 0.887,
-   "abstand": 0.179,
-   "sicher": false,
-   "mass": [
-    1024,
-    1536
-   ],
-   "massSpiel": [
-    576,
-    576
-   ],
-   "hq": true,
-   "kante": 1536
-  },
-  "painted/painted-pawn.webp": {
-   "original": "bauern-stufen/gruen-st1-muetze.png",
-   "wert": 0.991,
-   "abstand": 0.272,
+   "original": "figuren-hq/pawn-t2.png",
+   "wert": 1.0,
+   "abstand": 0.145,
    "sicher": true,
    "mass": [
-    1024,
-    1536
+    576,
+    576
    ],
    "massSpiel": [
     576,
     576
    ],
    "hq": true,
-   "kante": 1536
+   "kante": 576
+  },
+  "painted/painted-pawn-t3.webp": {
+   "original": "figuren-hq/pawn-t3.png",
+   "wert": 1.0,
+   "abstand": 0.145,
+   "sicher": true,
+   "mass": [
+    576,
+    576
+   ],
+   "massSpiel": [
+    576,
+    576
+   ],
+   "hq": true,
+   "kante": 576
+  },
+  "painted/painted-pawn.webp": {
+   "original": "figuren-hq/pawn.png",
+   "wert": 1.0,
+   "abstand": 0.013,
+   "sicher": true,
+   "mass": [
+    576,
+    576
+   ],
+   "massSpiel": [
+    576,
+    576
+   ],
+   "hq": true,
+   "kante": 576
   },
   "painted/painted-ranger.webp": {
    "original": "figuren-hq/ranger.png",
