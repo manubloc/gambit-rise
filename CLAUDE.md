@@ -43,8 +43,8 @@ gambitrise.com zeigt darauf).
   pruefe-navigation, pruefe-textfluss, test_layout) lesen den Chromium-Pfad aus
   `PW_CHROMIUM`; ohne die Variable gilt der Pfad des Cloud-Containers. Lokal:
   `npx playwright install chromium` und `PW_CHROMIUM=<Pfad zur chrome-Datei>`.
-- `npm test` — volle Batterie. MUSS **31 Suiten / 2959 Prüfungen** melden
-  (Stand v1.93.2; der Runner stoppt nach der ersten roten Suite, also
+- `npm test` — volle Batterie. MUSS **31 Suiten / 3008 Prüfungen** melden
+  (Stand v1.94.0; der Runner stoppt nach der ersten roten Suite, also
   Suitenzahl prüfen, nicht nur Assertions! **Zählweise seit v1.90.18
   (Audit A74): JEDE Suite der Kette meldet eine RESULT-Zeile** — alle Zeilen
   `RESULT…: N passed` summieren; test_balance meldet zwei, darum stehen im
@@ -637,7 +637,7 @@ Quelltext lesen hat wiederholt getäuscht; gemessen wird am lebenden DOM
   Auswahl-Lichtspektakel.
 - Alles Optionale abschaltbar (Klang, Online).
 
-## Offene Baustellen (Stand v1.93.1, 7.10.2026)
+## Offene Baustellen (Stand v1.94.0, 7.10.2026)
 
 **Einstieg für jede neue Sitzung: `design/CHAT-EINSTIEG-2026-09-27.md`** (zehn
 Minuten, mit dem Startsatz für den Chat), dann **`design/UEBERGABE-2026-09-27.md`** — Stand,
@@ -652,6 +652,19 @@ Tabelle „STAND DER ABARBEITUNG“ oben — erst dort nachsehen),
 Tabellen, Messwerte).
 Hier nur der Überblick:
 
+- **Nach dem Fähigkeiten-Umbau v1.94.0 offen:** sieben Bestien liegen im
+  Balance-Lauf bei 61–63 % (Schlinger, Donnerkrähe, Geist, Richter, Harpyie,
+  Steinkönig, Schleicher) — über der 60er-Regel, weil die Figuren hinten
+  HP-Fähigkeiten abgegeben haben; nachstellen und mit `node .balance.mjs ziel …`
+  messen · Stoß, Tausch und Fessel haben keine eigene Animation · die KI
+  bewertet Fessel, Zaun und Tausch nicht eigens · Abnahme der neuen Künste durch
+  den Besitzer am Handy.
+- **Store:** der geschlossene Test steht in der Play Console auf „Aktiv“
+  (gemessen 7.10. mittags, keine offenen Änderungen in der Übersicht). Die
+  Tester-Gruppe muss „Wer kann die Gruppe sehen: Alle im Web“ tragen, sonst
+  sieht ein Fremder „Inhalte nicht verfügbar“ (Besitzer hat es am 7.10.
+  umgestellt, nicht nachgemessen). Store-Eintrag nennt noch 27 Helden / 25
+  Bestien — neuer Text braucht die Freigabe des Besitzers.
 - **Nach dem Figuren-Umbau offen:** (die Kronenglut für den neuen Osric
   entfällt — Besitzer 7.10.: „kannst du weglassen“) · die Startseite zeigt die neuen Figuren seit v1.93.2 auf dem
   ersten Schirm, aber noch auf keiner Karte und keinem Brett · der Store-Eintrag nennt noch 27 Helden und 25
