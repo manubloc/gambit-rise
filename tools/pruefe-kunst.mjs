@@ -61,9 +61,12 @@ const ziele = () => page.evaluate(() => [...document.querySelectorAll("[data-zie
 const sterne = () => page.evaluate(() => [...document.querySelectorAll("[data-zielstern]")].map((e) => [+e.closest("[data-zelle]").getAttribute("data-zelle"), e.getAttribute("data-zielstern")]));
 const karten = () => page.evaluate(() => [...document.querySelectorAll("[data-kampfleiste] button")].map((b) => (b.textContent || "").replace(/\s+/g, " ").trim()));
 const karte = (wort) => page.evaluate((wort) => { const b = [...document.querySelectorAll("[data-kampfleiste] button")].find((x) => (x.textContent || "").toUpperCase().includes(wort.toUpperCase())); if (b) b.click(); return !!b; }, wort);
-const amZug = async () => { for (let k = 0; k < 80; k++) { await page.waitForTimeout(150);
-  /* der Gegner hat geantwortet, sobald eine eigene Figur wieder Ziele zeigt */
-  await tipp(6); const z = await ziele(); await tipp(6); if (z.length) return true; } return false; };
+/* Der Gegner hat geantwortet, sobald IRGENDEINE eigene Figur wieder Ziele zeigt.
+   Nicht eine bestimmte: der Springer auf g1 kann gefesselt, gebunden oder
+   verstellt sein (gemessen 7.10.: ein Lauf unter Last blieb daran haengen). */
+const amZug = async () => { for (let k = 0; k < 120; k++) { await page.waitForTimeout(200);
+  const eigene = await page.evaluate(() => [...document.querySelectorAll('[data-figur^="w:"]')].map((e) => +e.getAttribute("data-zelle")));
+  for (const i of eigene) { await tipp(i); const z = await ziele(); await tipp(i); if (z.length) return true; } } return false; };
 
 console.log(`Station ${await page.evaluate(() => document.documentElement.getAttribute("data-station"))}, Schachregeln`);
 ok("Aufstellung: Baeuerin a1, Hofnarr b1, Schmied c1, Spaeher f1 stehen am Brett",
@@ -106,7 +109,18 @@ ok("K3 der Spaeher steht auf f3", (await figur(21)) === "w:hawk" && (await figur
 /* ── Der Schmied: Standhieb ohne Nachbarn bietet nichts an ── */
 await amZug();
 await tipp(2); await page.waitForTimeout(150); await karte("Standhieb"); await page.waitForTimeout(150);
-ok("Standhieb scharf, kein Gegner daneben: kein Stern - und nichts stuerzt ab", !(await sterne()).some(([, t]) => t === "standhieb"));
+/* Der Gegner zieht nicht in jedem Lauf gleich (gemessen 7.10.: im Klon stand
+   nach drei Zuegen eine Figur neben dem Schmied, die Probe verlangte "kein
+   Stern" und wurde rot). Geprueft wird darum die REGEL: ein Stern nur auf
+   einem Nachbarfeld, auf dem ein Gegner steht, der nicht der Koenig ist. */
+{
+  const st = (await sterne()).filter(([, t]) => t === "standhieb").map(([i]) => i);
+  const wo = await page.evaluate(() => { const z = [...document.querySelectorAll('[data-figur="w:smith"]')][0]; return z ? +z.getAttribute("data-zelle") : -1; });
+  let sauber = wo >= 0;
+  for (const i of st) { const f = await figur(i);
+    if (!(f && f.startsWith("b:") && f !== "b:K" && f !== "b:king" && Math.max(Math.abs(i % 8 - wo % 8), Math.abs(Math.floor(i / 8) - Math.floor(wo / 8))) === 1)) sauber = false; }
+  ok(`Standhieb scharf: Sterne nur auf gegnerischen Nachbarn, nie auf dem Koenig (${st.length} Feld${st.length === 1 ? "" : "er"}) - und nichts stuerzt ab`, sauber, st.join());
+}
 ok("K5 keine Seitenfehler", errs.length === 0, errs.join(" | "));
 
 await browser.close(); srv.close();
